@@ -44,8 +44,8 @@ check_run_biocro_inputs <- function(
         error_message <- append(error_message, "The drivers cannot be empty")
     }
 
-    # The initial_values, parameters, drivers, and ode_solver should all have
-    # names
+    # The components of initial_values, parameters, drivers, and ode_solver
+    # should all have names
     error_message <- append(
         error_message,
         check_element_names(

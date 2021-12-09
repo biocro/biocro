@@ -862,10 +862,10 @@ xyplot(
 @
 
 \noindent (Note that since the data frame returned by
-\texttt{module\_response\_curve} include \emph{all} of the module's outputs, we
-could also use \texttt{rc} to create plots of the response of the stomatal
-conductance to water (\texttt{Gs}) or the intercellular CO$_2$ concentration
-(\texttt{Ci})).
+\texttt{module\_response\_curve} includes \emph{all} of the module's outputs, we
+could also use \texttt{rc} to create plots showing how the stomatal conductance
+for water (\texttt{Gs}) or the intercellular CO$_2$ concentration (\texttt{Ci})
+respond to the incident PPFD.)
 
 From this figure, we can learn a few interesting things about the response of
 the carbon assimilation rate to the amount of incoming light. First, when the
