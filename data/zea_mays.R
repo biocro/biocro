@@ -156,11 +156,16 @@ zea_mays_parameters = with(list(), {
     soil_depth1                 0.0
     soil_depth2                 2.5
     soil_depth3                 10.0
+    wsFun                       2           # not used, but must be defined
     soil_reflectance            0.2
     soil_transmission           0.01
     soil_type_indicator         6
     sowing_time                 0
     specific_heat_of_air        1010
+    hydrDist                    0           # same as in sorghum parameter file
+    rfl                         0.2         # same as in sorghum parameter file
+    rsdf                        0.44        # same as in sorghum parameter file
+    phi1                        0.01
     phi2                        10
     Sp_thermal_time_decay       0
     

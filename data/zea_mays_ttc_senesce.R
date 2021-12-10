@@ -1,26 +1,27 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-zea_mays_steady_state_modules <- list(
+zea_mays_ttc_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",
     "parameter_calculator",
+    solar_coordinates = "solar_position_michalsky",
     "soil_evaporation",
     canopy_photosynthesis = "c4_canopy",
     partitioning_coefficients = "partitioning_coefficient_selector",
     partitioning_growth_calculator = "partitioning_growth_calculator"
 )
 
-zea_mays_derivative_modules <- list(
+zea_mays_ttc_differential_modules <- list(
     senescence = "thermal_time_senescence",
     "partitioning_growth",
     thermal_time = "thermal_time_bilinear",
-    soil_profile = "one_layer_soil_profile"
+    soil_profile = "two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
-zea_mays_integrator <- list(
+zea_mays_ttc_integrator <- list(
     type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,
@@ -29,7 +30,7 @@ zea_mays_integrator <- list(
 )
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-zea_mays_initial_values = with(list(), {
+zea_mays_ttc_initial_values = with(list(), {
     datalines =
     "symbol                  value
     Grain                    0
@@ -43,6 +44,8 @@ zea_mays_initial_values = with(list(), {
     RootLitter               0
     root_senescence_index    0
     soil_water_content       0.32
+    cws1                     0.32          # dimensionless, current water status, soil layer 1
+    cws2                     0.32          # dimensionless, current water status, soil layer 2
     Stem                     0.00001
     StemLitter               0
     stem_senescence_index    0
@@ -55,7 +58,7 @@ zea_mays_initial_values = with(list(), {
 })
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-zea_mays_parameters = with(list(), {
+zea_mays_ttc_parameters = with(list(), {
     datalines =
     "symbol                     value
     absorptivity_par            0.8
@@ -104,7 +107,8 @@ zea_mays_parameters = with(list(), {
     kStem4                      0
     kStem5                      0
     kStem6                      0
-    lat                         40
+    lat                        40
+    longitude                 -88
     LeafN                       2
     LeafN_0                     2
     leafwidth                   0.04      # Bos, et al. 2000. Estimate of avg of 6 inbred North American lines in 4 temp conditions (https://doi.org/10.1016/S1573-5214(00)80013-5)
@@ -128,6 +132,11 @@ zea_mays_parameters = with(list(), {
     nvmaxb1                     0.6938
     par_energy_content          0.235
     par_energy_fraction         0.5
+    wsFun                       2           # not used, but must be defined
+    hydrDist                    0           # same as in sorghum parameter file
+    rfl                         0.2         # same as in sorghum parameter file
+    rsdf                        0.44        # same as in sorghum parameter file
+    phi1                        0.01
     phi2                        10
     Rd                          0.8
     remobilization_fraction     0.6
@@ -139,7 +148,9 @@ zea_mays_parameters = with(list(), {
     seneRoot                    4000
     seneStem                    3500
     soil_clod_size              0.04
-    soil_depth                  1
+    soil_depth1                 0.0         # meters
+    soil_depth2                 2.5         # meters
+    soil_depth3                 10.0        # meters
     soil_reflectance            0.2
     soil_transmission           0.01
     soil_type_indicator         6
@@ -159,7 +170,8 @@ zea_mays_parameters = with(list(), {
     upperT                      37.5
     vmax1                       36    # Yendrek et al. 2017. Fig 5E, Average of Amb 03 Inbred maize 2014 and 2015 (https://doi.org/10.1104/pp.16.01447)
     vmax_n_intercept            0
-    water_stress_approach       1"
+    water_stress_approach       1
+    minimum_gbw                 0.08"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
