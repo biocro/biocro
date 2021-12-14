@@ -8,8 +8,8 @@
 // R does not have the ability to create C++ objects directly, so we must create
 // them via strings passed from R. We'd like to have a table mapping strings of
 // names to something that will produce objects of the correct type. We can use
-// a template class to wrap the module_base class, so that we have access to whatever
-// members we need.
+// a template class to wrap the module_base class, so that we have access to
+// whatever members we need.
 
 // Since the table needs to have elements of all the same type, we need an
 // abstract base class.
@@ -51,5 +51,10 @@ class module_wrapper : public module_wrapper_base
             input_quantities, output_quantities));
     }
 };
+
+// We will often work with a std::vector of pointers to module_wrapper_base
+// objects, so it is useful to define an alias for this. Here, "mwp" stands for
+// "module wrapper pointer".
+using mwp_vector = std::vector<module_wrapper_base*>;
 
 #endif

@@ -93,10 +93,10 @@ string_vector make_vector(SEXP const& r_string_vector)
  *
  *  @return A std::vector of pointers to module_wrapper_base objects
  */
-vector<module_wrapper_base*> mw_vector_from_list(SEXP const& list)
+mwp_vector mw_vector_from_list(SEXP const& list)
 {
     size_t n = Rf_length(list);
-    vector<module_wrapper_base*> v(n);
+    mwp_vector v(n);
     for (size_t i = 0; i < n; ++i) {
         v[i] = static_cast<module_wrapper_base*>(
             R_ExternalPtrAddr(VECTOR_ELT(list, i)));
