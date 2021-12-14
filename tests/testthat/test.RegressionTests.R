@@ -1,5 +1,5 @@
-## This tests that re-running a previously-run simulation yields the same result
-## as before.
+## This tests that each crop model is well defined, and, if necessary, that
+## re-running a previously-run simulation yields the same result as before.
 ##
 ## If any of the crop-specific defaults for the initial values, parameters,
 ## modules or weather data change, or if the behavior of any of these modules

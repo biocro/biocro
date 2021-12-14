@@ -31,6 +31,7 @@ WEATHER <- get_growing_season_climate(weather2005)
 # Make a helping function for specifying crop information
 specify_crop <- function(
     plant_name,
+    should_run,
     initial_values,
     parameters,
     drivers,
@@ -42,6 +43,7 @@ specify_crop <- function(
 {
     list(
         plant_name = plant_name,
+        should_run = should_run,
         initial_values = initial_values,
         parameters = parameters,
         drivers = drivers,
@@ -99,13 +101,13 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("glycine_max",            glycine_max_initial_values,            glycine_max_parameters,            WEATHER,             glycine_max_direct_modules,            glycine_max_differential_modules,            glycine_max_ode_solver,            GLYCINE_MAX_IGNORE),            # INDEX = 1
-    specify_crop("manihot_esculenta",      manihot_esculenta_initial_values,      manihot_esculenta_parameters,      WEATHER,             manihot_esculenta_direct_modules,      manihot_esculenta_differential_modules,      manihot_esculenta_ode_solver,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
-    specify_crop("miscanthus_x_giganteus", miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, WEATHER,             miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
-    specify_crop("sorghum",                sorghum_initial_values,                sorghum_parameters,                WEATHER,             sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver,                SORGHUM_IGNORE),                # INDEX = 4
-    specify_crop("willow",                 willow_initial_values,                 willow_parameters,                 WEATHER,             willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver,                 WILLOW_IGNORE),                 # INDEX = 5
-    specify_crop("zea_mays",               zea_mays_initial_values,               zea_mays_parameters,               WEATHER,             zea_mays_direct_modules,               zea_mays_differential_modules,               zea_mays_ode_solver,               ZEA_MAYS_IGNORE),               # INDEX = 6
-    specify_crop("soybean",                soybean_initial_values,                soybean_parameters,                soybean_weather2002, soybean_direct_modules,                soybean_differential_modules,                soybean_ode_solver,                SOYBEAN_IGNORE)                 # INDEX = 7
+    specify_crop("glycine_max",            TRUE,  glycine_max_initial_values,            glycine_max_parameters,            WEATHER,             glycine_max_direct_modules,            glycine_max_differential_modules,            glycine_max_ode_solver,            GLYCINE_MAX_IGNORE),            # INDEX = 1
+    specify_crop("manihot_esculenta",      FALSE, manihot_esculenta_initial_values,      manihot_esculenta_parameters,      WEATHER,             manihot_esculenta_direct_modules,      manihot_esculenta_differential_modules,      manihot_esculenta_ode_solver,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
+    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, WEATHER,             miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
+    specify_crop("sorghum",                TRUE,  sorghum_initial_values,                sorghum_parameters,                WEATHER,             sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver,                SORGHUM_IGNORE),                # INDEX = 4
+    specify_crop("willow",                 TRUE,  willow_initial_values,                 willow_parameters,                 WEATHER,             willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver,                 WILLOW_IGNORE),                 # INDEX = 5
+    specify_crop("zea_mays",               FALSE, zea_mays_initial_values,               zea_mays_parameters,               WEATHER,             zea_mays_direct_modules,               zea_mays_differential_modules,               zea_mays_ode_solver,               ZEA_MAYS_IGNORE),               # INDEX = 6
+    specify_crop("soybean",                TRUE,  soybean_initial_values,                soybean_parameters,                soybean_weather2002, soybean_direct_modules,                soybean_differential_modules,                soybean_ode_solver,                SOYBEAN_IGNORE)                 # INDEX = 7
 )
 
 # Make a helping function that runs a simulation for one crop
@@ -187,142 +189,143 @@ test_plant_model <- function(test_info) {
         )
     })
 
-    # Describe the current test
-    description_run <- paste(
-        "The",
-        test_info[['plant_name']],
-        "simulation runs without producing any errors"
-    )
-
-    # Run the simulation
-    result <- 0
-    test_that(description_run, {
-        expect_silent(
-            result <<- run_biocro(
-                test_info[['initial_values']],
-                test_info[['parameters']],
-                test_info[['drivers']],
-                test_info[['direct_modules']],
-                test_info[['differential_modules']],
-                test_info[['ode_solver']]
-            )
-        )
-    })
-
-    # Some variables may need to be ignored, possibly because their values
-    # depend on the operating system or other factors that may change between
-    # simulation runs. Remove these from the results. If a variable is flagged
-    # to be ignored but is not in the simulation result, this could indicate
-    # that one of the default modules has been changed, and the list of ignored
-    # variables should probably be revisited, so warn the user.
-    for (variable in test_info[['ignored_variables']]) {
-        if (variable %in% names(result)) {
-            result[[variable]] <- NULL
-        } else {
-            msg <- paste0(
-                "The regression test reports that '",
-                variable,
-                "' is no longer included in the ",
-                test_info[['plant_name']],
-                " simulation result. Did a default module change?"
-            )
-            warning(msg)
-        }
-    }
-
-    # Read the stored result from the data file
-    Gro_result <- read.csv(test_info[['stored_result_file']])
-
-    # Make sure all columns contain numeric data
-    Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
-
-    # Make sure the stored result has the same number of time points
-    index_of_last_row <- length(result[[1]])
-
-    description <- paste(
-        "The",
-        test_info[['plant_name']],
-        "simulation result has the correct number of data points"
-    )
-
-    test_that(description, {
-        expect_equal(index_of_last_row, length(Gro_result[[1]]))
-    })
-
-    # Make sure the results have a sufficient number of time points
-    description <- paste(
-        "The",
-        test_info[['plant_name']],
-        "simulation result has enough data points"
-    )
-
-    test_that(description, {
-        expect_gt(index_of_last_row, 1.0)
-    })
-
-    # Make sure the stored result contains all the non-ignored quantities in the
-    # new result
-    column_names <- names(result)
-
-    stored_column_names <- names(Gro_result)
-
-    for (name in column_names) {
-        description <- paste(
-            "The stored",
+    if (test_info[['should_run']]) {
+        # Describe the current test
+        description_run <- paste(
+            "The",
             test_info[['plant_name']],
-            "simulation result includes the",
-            name,
-            "column"
+            "simulation runs without producing any errors"
+        )
+
+        # Run the simulation
+        result <- 0
+        test_that(description_run, {
+            expect_silent(
+                result <<- run_biocro(
+                    test_info[['initial_values']],
+                    test_info[['parameters']],
+                    test_info[['drivers']],
+                    test_info[['direct_modules']],
+                    test_info[['differential_modules']],
+                    test_info[['ode_solver']]
+                )
+            )
+        })
+
+        # Some variables may need to be ignored, possibly because their values
+        # depend on the operating system or other factors that may change
+        # between simulation runs. Remove these from the results. If a variable
+        # is flagged to be ignored but is not in the simulation result, this
+        # could indicate that one of the default modules has been changed, and
+        # the list of ignored variables should probably be revisited, so warn
+        # the user.
+        for (variable in test_info[['ignored_variables']]) {
+            if (variable %in% names(result)) {
+                result[[variable]] <- NULL
+            } else {
+                msg <- paste0(
+                    "The regression test reports that '",
+                    variable,
+                    "' is no longer included in the ",
+                    test_info[['plant_name']],
+                    " simulation result. Did a default module change?"
+                )
+                warning(msg)
+            }
+        }
+
+        # Read the stored result from the data file
+        Gro_result <- read.csv(test_info[['stored_result_file']])
+
+        # Make sure all columns contain numeric data
+        Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
+
+        # Make sure the stored result has the same number of time points
+        index_of_last_row <- length(result[[1]])
+
+        description <- paste(
+            "The",
+            test_info[['plant_name']],
+            "simulation result has the correct number of data points"
         )
 
         test_that(description, {
-            expect_true(name %in% stored_column_names)
+            expect_equal(index_of_last_row, length(Gro_result[[1]]))
         })
-    }
 
-    # Make a helping function that compares the new result to the old one at a
-    # single index
-    compare_simulation_trial <- function(index) {
-        for (variable in column_names) {
-            description <- paste0(
-                "The ",
+        # Make sure the results have a sufficient number of time points
+        description <- paste(
+            "The",
+            test_info[['plant_name']],
+            "simulation result has enough data points"
+        )
+
+        test_that(description, {
+            expect_gt(index_of_last_row, 1.0)
+        })
+
+        # Make sure the stored result contains all the non-ignored quantities in
+        # the new result
+        column_names <- names(result)
+
+        stored_column_names <- names(Gro_result)
+
+        for (name in column_names) {
+            description <- paste(
+                "The stored",
                 test_info[['plant_name']],
-                " simulation result agrees with the stored result at index ",
-                index,
-                " for the '",
-                variable,
-                "' quantity"
+                "simulation result includes the",
+                name,
+                "column"
             )
 
             test_that(description, {
-                expect_equal(
-                    result[[variable]][index],
-                    Gro_result[[variable]][index],
-                    tolerance=RELATIVE_ERROR_TOLERANCE
-                )
+                expect_true(name %in% stored_column_names)
             })
         }
-    }
 
-    # Run the test for some equally spaced indices including the first and last
-    # points of the simulation. Note that no problems occur if `points_to_test`
-    # includes non-integer elements, since R automatically truncates them to
-    # integer values when they are used as indices to access elements of a
-    # vector.
-    points_to_test = seq(
-        from = 1,
-        to = index_of_last_row,
-        length.out = max(
-            min(
-                index_of_last_row,
-                MAX_SAMPLE_SIZE
-            ),
-            2.0
+        # Make a helping function that compares the new result to the old one at
+        # a single index
+        compare_simulation_trial <- function(index) {
+            for (variable in column_names) {
+                description <- paste0(
+                    "The ", test_info[['plant_name']], " simulation result ",
+                    "agrees with the stored result at index ",
+                    index,
+                    " for the '",
+                    variable,
+                    "' quantity"
+                )
+
+                test_that(description, {
+                    expect_equal(
+                        result[[variable]][index],
+                        Gro_result[[variable]][index],
+                        tolerance=RELATIVE_ERROR_TOLERANCE
+                    )
+                })
+            }
+        }
+
+        # Run the test for some equally spaced indices including the first and
+        # last points of the simulation. Note that no problems occur if
+        # `points_to_test` includes non-integer elements, since R automatically
+        # truncates them to integer values when they are used as indices to
+        # access elements of a vector.
+        points_to_test = seq(
+            from = 1,
+            to = index_of_last_row,
+            length.out = max(
+                min(
+                    index_of_last_row,
+                    MAX_SAMPLE_SIZE
+                ),
+                2.0
+            )
         )
-    )
 
-    for (index in points_to_test) {
-        compare_simulation_trial(index)
+        for (index in points_to_test) {
+            compare_simulation_trial(index)
+        }
     }
-
 }
