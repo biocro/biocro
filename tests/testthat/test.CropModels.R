@@ -7,11 +7,11 @@
 ## updated. Instructions for doing so are included in
 ## `regression_testing_helper_functions.R`.
 
-source('regression_testing_helper_functions.R')
+source('crop_model_testing_helper_functions.R')
 
 context(paste(
-    "Test several biological systems with known results to ensure that the",
-    "output doesn't change."
+    "Test stored crop models to ensure they are well defined, and, if ",
+    "necessary, that the output doesn't change."
 ))
 
 # Run all the tests

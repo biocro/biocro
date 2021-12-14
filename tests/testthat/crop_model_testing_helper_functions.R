@@ -1,4 +1,4 @@
-## This file defines settings and helper functions for running the regression
+## This file defines settings and helper functions for running the crop model
 ## tests.
 ##
 ## If any of the crop-specific defaults for the initial values, parameters,
