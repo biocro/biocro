@@ -2,6 +2,15 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
+% See
+% https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% for why this is needed:
+<<preliminatry-hooks,include=FALSE,error=TRUE>>=
+knitr::knit_hooks$set(document = function(x) {
+    sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)
+})
+@
+
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -19,7 +28,6 @@
 \usepackage{indentfirst}
 \usepackage{graphicx}
 \usepackage{listings}
-\usepackage{xcolor}
 \usepackage{url}
 \usepackage[title]{appendix}
 
