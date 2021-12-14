@@ -86,7 +86,6 @@ zea_mays_parameters = with(list(), {
     leaf_reflectance            0.2
     leaf_transmittance          0.01
     lnfun                       0
-    longitude                   -88
     lowerT                      3
     minimum_gbw                 0.34
     mrc1                        0.02
@@ -142,8 +141,9 @@ zea_mays_parameters = with(list(), {
     rateSeneStem                0.0002
     remobilization_fraction     0.65     # Ciampitti et al. 2013 (https://doi.org/10.2134/agronj2012.0467)
 
-    # solar_zenith_angle module
+    # solar_position_michalsky module
     lat                         35
+    longitude                   -88
 
     # parameter_calculator module
     iSp                         3.5      # Amanullah et al. 2007. World Applied Sciences Journal averages and Massignam et al. 2011 (http://dx.doi.org/10.1071/CP11165)
