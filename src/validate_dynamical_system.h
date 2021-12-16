@@ -1,20 +1,15 @@
 #ifndef VALIDATE_DYNAMICAL_SYSTEM_H
 #define VALIDATE_DYNAMICAL_SYSTEM_H
 
-#include <set>
 #include <string>
 #include <set>
-#include <functional>  // For std::function
-#include <memory>      // For std::unique_ptr and std::shared_ptr
-#include <algorithm>   // For std::find
-#include "state_map.h"
+#include <functional>   // For std::function
+#include "state_map.h"  // For state_map, string_set
+#include "modules.h"    // For module_vector
 #include "module_library/module_wrapper_factory.h"
-#include "modules.h" // For module_vector
 
-using string_set = std::set<std::string>;
-
-const std::string success_mark { "[pass] " };
-const std::string failure_mark { "[fail] " };
+const std::string success_mark{"[pass] "};
+const std::string failure_mark{"[fail] "};
 
 bool validate_dynamical_system_inputs(
     std::string& message,

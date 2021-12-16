@@ -1,9 +1,10 @@
-#include <algorithm>
+#include <algorithm>                            // For std::find
+#include <memory>                               // For std::unique_ptr
+#include "state_map.h"                          // For state_map, string_vector, string_set
+#include "modules.h"                            // For module_vector
+#include "utils/module_dependency_utilities.h"  // for has_cyclic_dependency
 #include "validate_dynamical_system.h"
-#include "state_map.h"
 #include "module_library/module_wrapper_factory.h"
-#include "modules.h"
-#include "utils/module_dependency_utilities.h" // for has_cyclic_dependency
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be
@@ -63,69 +64,59 @@ bool validate_dynamical_system_inputs(
                 std::string("No quantities were defined multiple times in the inputs"),
                 std::string("The following quantities were defined more than once in the inputs:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
     // Criterion 2
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<string_vector>{direct_module_names, differential_module_names}
-            );
+                std::vector<string_vector>{direct_module_names, differential_module_names});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("All module inputs were properly defined"),
                 std::string("The following module inputs were not defined:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
     // Criterion 3
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
             return find_undefined_module_outputs(
                 keys(initial_values),
-                std::vector<string_vector>{differential_module_names}
-            );
+                std::vector<string_vector>{differential_module_names});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("All differential module outputs were included in the initial values"),
                 std::string("The following differential module outputs were not part of the initial values:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
 
     // Criterion 4
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
-            string_vector result {};
+            string_vector result{};
             if (has_cyclic_dependency(direct_module_names)) {
                 // For now, we just want a non-zero vector size.  It
                 // may, however, prove useful to display a set of
                 // modules that comprise a cyclic dependency.
                 result.push_back("");
             }
-            return  result;
+            return result;
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("There are no cyclic dependencies among the direct modules."),
                 std::string("The direct modules have a cyclic dependency."),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
 
     return num_problems == 0;
 }
@@ -158,11 +149,10 @@ std::string analyze_system_inputs(
         process_criterion<string_vector>(
             message,
             [=]() -> string_vector {
-                string_vector result {};
+                string_vector result{};
                 if (!order_ok(direct_module_names)) {
                     return get_evaluation_order(direct_module_names);
-                }
-                else {
+                } else {
                     return {};
                 }
             },
@@ -170,13 +160,11 @@ std::string analyze_system_inputs(
                 return create_message(
                     std::string("The direct modules are in a suitable order for evaluation."),
                     std::string("The direct modules need to be re-ordered before evaluation.\n") +
-                                "(This will be done automatically during dynamical_system construction.)\n" +
-                                "Here is a suitable ordering:",
+                        "(This will be done automatically during dynamical_system construction.)\n" +
+                        "Here is a suitable ordering:",
                     std::string(""),
-                    string_list
-                );
-            }
-        );
+                    string_list);
+            });
     }
 
     // List the quantities used as inputs to the modules
@@ -464,12 +452,11 @@ string_vector find_unused_input_parameters(
 
     // For now, there are a few names we should ignore since they may be
     // required for other reasons even if they are not used as module inputs
-    string_vector ignored_names {
+    string_vector ignored_names{
         "timestep",
         "time",
         "doy",
-        "hour"
-    };
+        "hour"};
 
     for (state_map const& m : state_maps) {
         string_vector parameters = keys(m);

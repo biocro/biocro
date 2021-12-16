@@ -4,7 +4,7 @@
 #include "../modules.h"                              // for direct_module, update
 #include "../validate_dynamical_system.h"            // for find_strictly_required_inputs, all_are_in_list
 #include "../simultaneous_equations.h"               // for get_unknown_quantities
-#include "../state_map.h"                            // for state_map, string_vector
+#include "../state_map.h"                            // for state_map, string_vector, string_set
 #include "../se_solver_helper_functions.h"           // for f_scalar_from_f_vec
 #include "../se_solver_library/se_solver_factory.h"  // for se_solver_factory::create
 #include <map>                                       // for map

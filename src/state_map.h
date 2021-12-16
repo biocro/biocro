@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <set>
 #include <string>
 #include <algorithm>  // for std::sort
 
@@ -10,9 +11,21 @@
  * @brief `string_vector` serves as an alias for a type widely used to
  * hold lists of module names or lists of module parameters.
  *
- * Formally, it is simply a `std::vector` of `std::string`s.
+ * Formally, it is simply a `std::vector` of `std::string`s. It differs from a
+ * `string_set` because its elements are not necessarily sorted and are not
+ * required to be unique.
  */
 using string_vector = std::vector<std::string>;
+
+/**
+ * @brief `string_set` serves as an alias for a type widely used to
+ * hold lists of module names or lists of module parameters.
+ *
+ * Formally, it is simply a `std::set` of `std::string`s. It differs from a
+ * `string_vector` because its elements are automatically sorted and are
+ * guaranteed to be unique.
+ */
+using string_set = std::set<std::string>;
 
 /**
  * @brief A `state_vector_map` represents a chronologically-ordered

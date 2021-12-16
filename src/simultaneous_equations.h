@@ -1,9 +1,9 @@
 #ifndef SIMULTANEOUS_EQUATIONS_H
 #define SIMULTANEOUS_EQUATIONS_H
 
-#include "state_map.h"                  // For state_map, string_vector, etc
-#include "validate_dynamical_system.h"  // For string_set, etc
-#include "modules.h"                    // For module_vector
+#include "state_map.h"  // For state_map, string_vector, string_set
+#include "modules.h"    // For module_vector
+#include "validate_dynamical_system.h"
 
 bool validate_simultaneous_equations_inputs(
     std::string& message,
