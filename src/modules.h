@@ -153,4 +153,13 @@ inline void differential_module::update(double* output_ptr, const double& value)
 
 void run_module_list(std::vector<std::unique_ptr<module_base>> const& modules);
 
+/**
+ * @brief `module_vector` serves as an alias for a type widely used to
+ * hold lists of modules.
+ *
+ * Formally, it is a `std::vector` of `std::unique_ptr`s that point to
+ * `module_base` objects.
+ */
+using module_vector = std::vector<std::unique_ptr<module_base>>;
+
 #endif

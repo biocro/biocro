@@ -5,9 +5,9 @@
 #include <string>
 #include <memory>                       // For shared_ptr
 #include <utility>                      // For pair
-#include "validate_dynamical_system.h"  // For string_set, module_vector, etc
+#include "validate_dynamical_system.h"  // For string_set, etc
 #include "state_map.h"                  // For state_map, state_vector_map, string_vector, etc
-#include "modules.h"
+#include "modules.h"                    // For module_vector
 #include "dynamical_system_helper_functions.h"
 
 using std::pair;

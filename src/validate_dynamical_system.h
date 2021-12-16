@@ -9,10 +9,9 @@
 #include <algorithm>   // For std::find
 #include "state_map.h"
 #include "module_library/module_wrapper_factory.h"
-#include "modules.h"
+#include "modules.h" // For module_vector
 
 using string_set = std::set<std::string>;
-using module_vector = std::vector<std::unique_ptr<module_base>>;
 
 const std::string success_mark { "[pass] " };
 const std::string failure_mark { "[fail] " };
