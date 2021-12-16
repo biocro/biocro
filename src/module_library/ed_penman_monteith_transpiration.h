@@ -25,8 +25,7 @@ class ed_penman_monteith_transpiration : public direct_module
     ed_penman_monteith_transpiration(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_penman_monteith_transpiration"),
+        : direct_module(),
 
           // Get references to input quantities
           long_wave_energy_loss_leaf{get_input(input_quantities, "long_wave_energy_loss_leaf")},

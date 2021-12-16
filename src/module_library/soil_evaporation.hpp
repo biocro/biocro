@@ -11,8 +11,7 @@ class soil_evaporation : public direct_module
     soil_evaporation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("soil_evaporation"),
+        : direct_module(),
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},

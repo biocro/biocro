@@ -8,8 +8,7 @@ class aba_decay : public differential_module
 {
    public:
     aba_decay(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("aba_decay"),
+        : differential_module(),
 
           // Get pointers to input quantities
           soil_aba_concentration_ip(get_ip(input_quantities, "soil_aba_concentration")),

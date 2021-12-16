@@ -95,8 +95,7 @@ class solar_position_michalsky : public direct_module
     solar_position_michalsky(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("solar_position_michalsky"),
+        : direct_module(),
 
           // Get references to input quantities
           lat(get_input(input_quantities, "lat")),

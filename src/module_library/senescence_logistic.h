@@ -23,7 +23,7 @@ class senescence_logistic : public differential_module
     senescence_logistic(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module{"senescence_logistic"},
+        : differential_module(),
 
           // Get references to input quantities
           Leaf{get_input(input_quantities, "Leaf")},

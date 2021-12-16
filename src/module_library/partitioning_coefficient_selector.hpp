@@ -8,8 +8,7 @@ class partitioning_coefficient_selector : public direct_module
 {
    public:
     partitioning_coefficient_selector(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("partitioning_coefficient_selector"),
+        : direct_module(),
 
           // Get pointers to input quantities
           kStem1_ip(get_ip(input_quantities, "kStem1")),

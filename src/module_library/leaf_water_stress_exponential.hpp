@@ -11,8 +11,7 @@ class leaf_water_stress_exponential : public direct_module
     leaf_water_stress_exponential(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("leaf_water_stress_exponential"),
+        : direct_module(),
 
           // Get pointers to input quantities
           soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),

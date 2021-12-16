@@ -54,12 +54,12 @@ string_vector find_static_output_parameters(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors);
+string_vector find_euler_requirements(string_vector module_names);
 
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential);
+string_vector find_mischaracterized_modules(string_vector module_names, bool is_differential);
 
 module_vector get_module_vector(
-    std::vector<string_vector> module_name_vectors,
+    string_vector module_names,
     state_map const& input_quantities,
     state_map* output_quantities);
 

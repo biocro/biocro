@@ -28,8 +28,7 @@ class incident_shortwave_from_ground_par : public direct_module
     incident_shortwave_from_ground_par(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("incident_shortwave_from_ground_par"),
+        : direct_module(),
 
           // Get pointers to input quantities
           solar(get_input(input_quantities, "solar")),

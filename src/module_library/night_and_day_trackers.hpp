@@ -8,8 +8,7 @@ class night_and_day_trackers : public differential_module
 {
    public:
     night_and_day_trackers(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("night_and_day_trackers"),
+        : differential_module(),
 
           // Get pointers to input quantities
           tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),

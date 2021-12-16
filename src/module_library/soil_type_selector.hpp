@@ -9,8 +9,7 @@ class soil_type_selector : public direct_module
 {
    public:
     soil_type_selector(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("soil_type_selector"),
+        : direct_module(),
 
           // Get pointers to input quantities
           soil_type_indicator_ip(get_ip(input_quantities, "soil_type_indicator")),

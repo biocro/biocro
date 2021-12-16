@@ -18,8 +18,7 @@ class buck_swvp : public direct_module
     buck_swvp(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("buck_swvp"),
+        : direct_module(),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

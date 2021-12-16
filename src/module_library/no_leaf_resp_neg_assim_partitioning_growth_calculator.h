@@ -60,7 +60,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     no_leaf_resp_neg_assim_partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module{"no_leaf_resp_neg_assim_partitioning_growth_calculator"},
+        : direct_module(),
 
           // Get references to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},

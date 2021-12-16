@@ -59,8 +59,7 @@ class grimm_soybean_flowering_calculator : public direct_module
     grimm_soybean_flowering_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("grimm_soybean_flowering_calculator"),
+        : direct_module(),
 
           // Get references to input quantities
           sowing_time{get_input(input_quantities, "sowing_time")},

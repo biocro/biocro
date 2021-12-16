@@ -10,8 +10,7 @@ class one_layer_soil_profile : public differential_module
 {
    public:
     one_layer_soil_profile(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("one_layer_soil_profile"),
+        : differential_module(),
 
           // Get pointers to input quantities
           soil_evaporation_rate_ip(get_ip(input_quantities, "soil_evaporation_rate")),

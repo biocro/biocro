@@ -22,8 +22,7 @@ class ed_penman_monteith_leaf_temperature : public direct_module
     ed_penman_monteith_leaf_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_penman_monteith_leaf_temperature"),
+        : direct_module(),
 
           // Get pointers to input quantities
           long_wave_energy_loss_leaf_ip(get_ip(input_quantities, "long_wave_energy_loss_leaf")),

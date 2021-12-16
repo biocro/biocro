@@ -128,8 +128,7 @@ class rue_leaf_photosynthesis : public direct_module
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("rue_leaf_photosynthesis"),
+        : direct_module(),
 
           // Get references to input parameters
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),

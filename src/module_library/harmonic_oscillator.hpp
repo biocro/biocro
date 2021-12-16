@@ -11,8 +11,7 @@ class harmonic_oscillator : public differential_module
     harmonic_oscillator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("harmonic_oscillator"),
+        : differential_module(),
 
           // Get references to input quantities
           mass(get_input(input_quantities, "mass")),
@@ -74,8 +73,7 @@ class harmonic_energy : public direct_module
     harmonic_energy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("harmonic_energy"),
+        : direct_module(),
 
           // Get pointers to input quantities
           mass(get_input(input_quantities, "mass")),

@@ -22,7 +22,6 @@ class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_la
         state_map const& input_quantities,
         state_map* output_quantities)
         : multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>(
-              "ed_ten_layer_c4_canopy",
               ed_ten_layer_c4_canopy::nlayers,
               input_quantities,
               output_quantities)  // Create the base class with the appropriate number of layers

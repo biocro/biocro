@@ -10,8 +10,7 @@ class c3_canopy : public direct_module
     c3_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("c3_canopy"),
+        : direct_module(),
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},

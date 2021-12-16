@@ -8,8 +8,7 @@ class utilization_senescence : public differential_module
 {
    public:
     utilization_senescence(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("utilization_senescence"),
+        : differential_module(),
 
           // Get pointers to input quantities
           remobilization_fraction_ip(get_ip(input_quantities, "remobilization_fraction")),

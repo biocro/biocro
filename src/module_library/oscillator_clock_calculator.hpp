@@ -10,8 +10,7 @@ class oscillator_clock_calculator : public direct_module
 {
    public:
     oscillator_clock_calculator(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("oscillator_clock_calculator"),
+        : direct_module(),
 
           // Get pointers to input quantities
           time_ip(get_ip(input_quantities, "time")),

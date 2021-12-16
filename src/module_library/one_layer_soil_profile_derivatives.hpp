@@ -12,8 +12,7 @@ class one_layer_soil_profile_derivatives : public differential_module
     one_layer_soil_profile_derivatives(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("one_layer_soil_profile_derivatives"),
+        : differential_module(),
 
           // Get references to input quantities
           soil_water_content{get_input(input_quantities, "soil_water_content")},

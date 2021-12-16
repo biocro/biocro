@@ -18,8 +18,7 @@ class utilization_growth : public differential_module
 {
    public:
     utilization_growth(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("utilization_growth"),
+        : differential_module(),
 
           // Get pointers to input quantities
           canopy_assimilation_rate_ip(get_ip(input_quantities, "canopy_assimilation_rate")),

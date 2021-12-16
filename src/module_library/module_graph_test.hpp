@@ -8,8 +8,7 @@ class Module_1 : public direct_module
 {
    public:
     Module_1(state_map const& /*input_quantities*/, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("Module_1"),
+        : direct_module(),
 
           // Get pointers to input quantities
           // None
@@ -64,8 +63,7 @@ class Module_2 : public direct_module
 {
    public:
     Module_2(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("Module_2"),
+        : direct_module(),
 
           // Get pointers to input quantities
           B_ip(get_ip(input_quantities, "B")),
@@ -120,8 +118,7 @@ class Module_3 : public direct_module
 {
    public:
     Module_3(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("Module_3"),
+        : direct_module(),
 
           // Get pointers to input quantities
           A_ip(get_ip(input_quantities, "A")),

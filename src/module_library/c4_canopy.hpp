@@ -12,8 +12,7 @@ class c4_canopy : public direct_module
     c4_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("c4_canopy"),
+        : direct_module(),
 
           // Get pointers to input quantities
           nileafn(get_input(input_quantities, "nileafn")),

@@ -19,8 +19,7 @@ class golden_ratio_hyperbola : public direct_module
     golden_ratio_hyperbola(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("golden_ratio_hyperbola"),
+        : direct_module(),
 
           // Get pointers to input quantities
           x_ip(get_ip(input_quantities, "x")),
@@ -77,8 +76,7 @@ class hyperbola_2d : public direct_module
     hyperbola_2d(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("hyperbola_2d"),
+        : direct_module(),
 
           // Get pointers to input quantities
           x_ip(get_ip(input_quantities, "x")),

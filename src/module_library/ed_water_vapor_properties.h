@@ -18,8 +18,7 @@ class ed_water_vapor_properties : public direct_module
     ed_water_vapor_properties(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_water_vapor_properties"),
+        : direct_module(),
 
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),

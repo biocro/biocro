@@ -8,8 +8,7 @@ class linear_vmax_from_leaf_n : public direct_module
 {
    public:
     linear_vmax_from_leaf_n(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("linear_vmax_from_leaf_n"),
+        : direct_module(),
 
           // Get pointers to input quantities
           LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),

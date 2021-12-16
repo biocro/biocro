@@ -80,8 +80,7 @@ class ed_nikolov_conductance_forced : public direct_module
     ed_nikolov_conductance_forced(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_nikolov_conductance_forced"),
+        : direct_module(),
 
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
@@ -180,8 +179,7 @@ class ed_nikolov_conductance_free : public direct_module
     ed_nikolov_conductance_free(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_nikolov_conductance_free"),
+        : direct_module(),
 
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),

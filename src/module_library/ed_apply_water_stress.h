@@ -16,8 +16,7 @@ class ed_apply_stomatal_water_stress_via_conductance : public direct_module
     ed_apply_stomatal_water_stress_via_conductance(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_apply_stomatal_water_stress_via_conductance"),
+        : direct_module(),
 
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),
@@ -78,8 +77,7 @@ class ed_apply_stomatal_water_stress_via_assimilation : public direct_module
     ed_apply_stomatal_water_stress_via_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_apply_stomatal_water_stress_via_assimilation"),
+        : direct_module(),
 
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),

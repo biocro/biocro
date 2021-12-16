@@ -92,10 +92,8 @@ class thermal_time_senescence : public differential_module
     thermal_time_senescence(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent
-           // class and indicate that this module requires a fixed step size
-           // Euler ODE solver
-          differential_module("thermal_time_senescence", true),
+        :  // Indicate that this module requires a fixed step size Euler ODE solver
+          differential_module(true),
 
           // Get pointers to input quantities
           TTc{get_input(input_quantities, "TTc")},

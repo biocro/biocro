@@ -8,8 +8,7 @@ class light_from_solar : public direct_module
 {
    public:
     light_from_solar(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("light_from_solar"),
+        : direct_module(),
 
           // Get pointers to input quantities
           solar_ip(get_ip(input_quantities, "solar")),

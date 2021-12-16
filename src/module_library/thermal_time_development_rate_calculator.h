@@ -44,7 +44,7 @@ class thermal_time_development_rate_calculator : public direct_module
     thermal_time_development_rate_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module{"thermal_time_development_rate_calculator"},
+        : direct_module(),
 
           // Get pointers to input quantities
           time{get_input(input_quantities, "time")},

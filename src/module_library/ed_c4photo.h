@@ -17,8 +17,7 @@ class ed_c4photo : public direct_module
     ed_c4photo(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_c4photo"),
+        : direct_module(),
 
           // Get pointers to input quantities
           collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),

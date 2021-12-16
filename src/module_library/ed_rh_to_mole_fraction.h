@@ -24,8 +24,7 @@ class ed_rh_to_mole_fraction : public direct_module
     ed_rh_to_mole_fraction(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_rh_to_mole_fraction"),
+        : direct_module(),
 
           // Get pointers to input quantities
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),

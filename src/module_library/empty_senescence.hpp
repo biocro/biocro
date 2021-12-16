@@ -8,8 +8,7 @@ class empty_senescence : public differential_module
 {
    public:
     empty_senescence(state_map const& /*input_quantities*/, state_map* /*output_quantities*/)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("empty_senescence")
+        : differential_module()
     {
     }
     static string_vector get_inputs();

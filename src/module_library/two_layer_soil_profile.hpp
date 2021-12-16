@@ -12,8 +12,7 @@ class two_layer_soil_profile : public differential_module
     two_layer_soil_profile(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("two_layer_soil_profile"),
+        : differential_module(),
 
           // Get references to input quantities
           cws1{get_input(input_quantities, "cws1")},

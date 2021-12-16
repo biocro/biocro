@@ -29,8 +29,7 @@ class ed_collatz_c4_assimilation : public direct_module
     ed_collatz_c4_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_collatz_c4_assimilation"),
+        : direct_module(),
 
           // Get pointers to input quantities
           collatz_q10_ip(get_ip(input_quantities, "collatz_q10")),

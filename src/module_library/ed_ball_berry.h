@@ -52,8 +52,7 @@ class ed_ball_berry : public direct_module
     ed_ball_berry(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_ball_berry"),
+        : direct_module(),
 
           // Get pointers to input quantities
           ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),

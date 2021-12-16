@@ -9,8 +9,7 @@ class ball_berry_module : public direct_module
 {
    public:
     ball_berry_module(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ball_berry_module"),
+        : direct_module(),
 
           // Get pointers to input quantities
           net_assimilation_rate_ip(get_ip(input_quantities, "net_assimilation_rate")),

@@ -38,8 +38,7 @@ class ed_gas_concentrations : public direct_module
     ed_gas_concentrations(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_gas_concentrations"),
+        : direct_module(),
 
           // Get pointers to input quantities
           conductance_boundary_h2o_ip(get_ip(input_quantities, "conductance_boundary_h2o")),

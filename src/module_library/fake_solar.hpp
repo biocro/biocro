@@ -13,7 +13,7 @@ class fake_solar : public direct_module
     fake_solar(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module("fake_solar"),
+        : direct_module(),
 
           // Get pointers to input quantities
           time_ip(get_ip(input_quantities, "time")),

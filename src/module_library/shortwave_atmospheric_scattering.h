@@ -20,8 +20,7 @@ class shortwave_atmospheric_scattering : public direct_module
     shortwave_atmospheric_scattering(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("shortwave_atmospheric_scattering"),
+        : direct_module(),
 
           // Get references to input quantities
           cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),

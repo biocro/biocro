@@ -8,8 +8,7 @@ class bucket_soil_drainage : public differential_module
 {
    public:
     bucket_soil_drainage(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("bucket_soil_drainage"),
+        : differential_module(),
 
           // Get pointers to input quantities
           soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),

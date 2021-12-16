@@ -18,8 +18,7 @@ class utilization_growth_calculator : public direct_module
 {
    public:
     utilization_growth_calculator(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("utilization_growth_calculator"),
+        : direct_module(),
 
           // Get pointers to input quantities
           //dawn_phase_ip(get_ip(input_quantities, "dawn_phase")),

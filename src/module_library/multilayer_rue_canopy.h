@@ -37,7 +37,6 @@ class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
         state_map const& input_quantities,
         state_map* output_quantities)
         : ten_layer_rue_canopy_parent(
-              "ten_layer_rue_canopy",
               ten_layer_rue_canopy::nlayers,
               input_quantities,
               output_quantities)

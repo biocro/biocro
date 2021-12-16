@@ -10,8 +10,7 @@ class magic_clock : public differential_module
 {
    public:
     magic_clock(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("magic_clock"),
+        : differential_module(),
 
           // Get pointers to input quantities
           dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),

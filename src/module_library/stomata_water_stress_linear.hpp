@@ -8,8 +8,7 @@ class stomata_water_stress_linear : public direct_module
 {
    public:
     stomata_water_stress_linear(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("stomata_water_stress_linear"),
+        : direct_module(),
 
           // Get pointers to input quantities
           soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),

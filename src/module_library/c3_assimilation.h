@@ -59,8 +59,7 @@ class c3_assimilation : public direct_module
     c3_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("c3_assimilation"),
+        : direct_module(),
 
           // Get pointers to input quantities
           Qp(get_input(input_quantities, "Qp")),

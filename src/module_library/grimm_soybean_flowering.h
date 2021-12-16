@@ -16,8 +16,7 @@ class grimm_soybean_flowering : public differential_module
     grimm_soybean_flowering(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("grimm_soybean_flowering"),
+        : differential_module(),
 
           // Get references to input quantities
           grimm_rate{get_input(input_quantities, "grimm_rate")},

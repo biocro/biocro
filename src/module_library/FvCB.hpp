@@ -8,8 +8,7 @@ class FvCB : public direct_module
 {
    public:
     FvCB(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("FvCB"),
+        : direct_module(),
 
           // Get pointers to input quantities
           Ci_ip(get_ip(input_quantities, "Ci")),

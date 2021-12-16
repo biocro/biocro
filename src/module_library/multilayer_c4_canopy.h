@@ -38,7 +38,6 @@ class ten_layer_c4_canopy : public ten_layer_c4_canopy_parent
         state_map const& input_quantities,
         state_map* output_quantities)
         : ten_layer_c4_canopy_parent(
-              "ten_layer_c4_canopy",
               ten_layer_c4_canopy::nlayers,
               input_quantities,
               output_quantities)

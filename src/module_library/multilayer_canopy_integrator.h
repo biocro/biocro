@@ -22,12 +22,10 @@ class multilayer_canopy_integrator : public direct_module
 {
    public:
     multilayer_canopy_integrator(
-        std::string const& module_name,
         int const& nlayers,
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module(module_name),
+        : direct_module(),
 
           // Store the number of layers
           nlayers(nlayers),
@@ -218,7 +216,6 @@ class ten_layer_canopy_integrator : public multilayer_canopy_integrator
         state_map const& input_quantities,
         state_map* output_quantities)
         : multilayer_canopy_integrator(
-              "ten_layer_canopy_integrator",
               ten_layer_canopy_integrator::nlayers,
               input_quantities,
               output_quantities)

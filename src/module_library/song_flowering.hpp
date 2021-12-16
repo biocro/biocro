@@ -20,8 +20,7 @@ class song_flowering : public differential_module
 {
    public:
     song_flowering(state_map const& input_quantities, state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("song_flowering"),
+        : differential_module(),
 
           // Get pointers to input quantities
           solar_ip(get_ip(input_quantities, "solar")),

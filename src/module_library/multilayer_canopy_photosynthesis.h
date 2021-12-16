@@ -155,7 +155,6 @@ class multilayer_canopy_photosynthesis : public direct_module
 {
    public:
     multilayer_canopy_photosynthesis(
-        const std::string& module_name,
         const int& nlayers,
         state_map const& input_quantities,
         state_map* output_quantities);
@@ -188,11 +187,10 @@ class multilayer_canopy_photosynthesis : public direct_module
  */
 template <typename canopy_module_type, typename leaf_module_type>
 multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilayer_canopy_photosynthesis(
-    const std::string& module_name,
     const int& nlayers,
     state_map const& input_quantities,
     state_map* output_quantities)
-    : direct_module(module_name),
+    : direct_module(),
       nlayers(nlayers)
 {
     // Define a lambda for making quantity maps from vectors of inputs and outputs
