@@ -18,8 +18,10 @@ class ed_apply_stomatal_water_stress_via_conductance : public direct_module
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           direct_module("ed_apply_stomatal_water_stress_via_conductance"),
+
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),
+
           // Get pointers to output quantities
           conductance_adjustment_factor_WS_op(get_op(output_quantities, "conductance_adjustment_factor_WS")),
           assimilation_adjustment_factor_WS_op(get_op(output_quantities, "assimilation_adjustment_factor_WS"))
@@ -28,13 +30,16 @@ class ed_apply_stomatal_water_stress_via_conductance : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_apply_stomatal_water_stress_via_conductance"; }
 
    private:
     // Pointers to input quantities
     const double* StomataWS_ip;
+
     // Pointers to output quantities
     double* conductance_adjustment_factor_WS_op;
     double* assimilation_adjustment_factor_WS_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -75,8 +80,10 @@ class ed_apply_stomatal_water_stress_via_assimilation : public direct_module
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           direct_module("ed_apply_stomatal_water_stress_via_assimilation"),
+
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),
+
           // Get pointers to output quantities
           conductance_adjustment_factor_WS_op(get_op(output_quantities, "conductance_adjustment_factor_WS")),
           assimilation_adjustment_factor_WS_op(get_op(output_quantities, "assimilation_adjustment_factor_WS"))
@@ -85,13 +92,16 @@ class ed_apply_stomatal_water_stress_via_assimilation : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_apply_stomatal_water_stress_via_assimilation"; }
 
    private:
     // Pointers to input quantities
     const double* StomataWS_ip;
+
     // Pointers to output quantities
     double* conductance_adjustment_factor_WS_op;
     double* assimilation_adjustment_factor_WS_op;
+
     // Main operation
     void do_operation() const override;
 };

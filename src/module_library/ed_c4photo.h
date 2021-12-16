@@ -49,6 +49,7 @@ class ed_c4photo : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_c4photo"; }
 
    private:
     // Pointers to input quantities

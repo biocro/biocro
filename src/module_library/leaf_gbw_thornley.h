@@ -47,6 +47,7 @@ class leaf_gbw_thornley : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "leaf_gbw_thornley"; }
 
    private:
     // References to input quantities

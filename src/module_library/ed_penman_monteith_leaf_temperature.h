@@ -24,6 +24,7 @@ class ed_penman_monteith_leaf_temperature : public direct_module
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           direct_module("ed_penman_monteith_leaf_temperature"),
+
           // Get pointers to input quantities
           long_wave_energy_loss_leaf_ip(get_ip(input_quantities, "long_wave_energy_loss_leaf")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
@@ -35,6 +36,7 @@ class ed_penman_monteith_leaf_temperature : public direct_module
           conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
           temperature_air_ip(get_ip(input_quantities, "temp")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+
           // Get pointers to output quantities
           temperature_leaf_op(get_op(output_quantities, "temperature_leaf"))
 
@@ -42,6 +44,7 @@ class ed_penman_monteith_leaf_temperature : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_penman_monteith_leaf_temperature"; }
 
    private:
     // Pointers to input quantities
@@ -55,8 +58,10 @@ class ed_penman_monteith_leaf_temperature : public direct_module
     const double* conductance_stomatal_h2o_ip;
     const double* temperature_air_ip;
     const double* atmospheric_pressure_ip;
+
     // Pointers to output quantities
     double* temperature_leaf_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -180,6 +185,7 @@ class ed_p_m_temperature_solve : public se_module::base
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return ed_p_m_temperature_solve_stuff::module_name; }
 
    private:
     // References to input quantities

@@ -92,6 +92,7 @@ class thermal_time_linear_extended : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "thermal_time_linear_extended"; }
 
    private:
     // References to input quantities

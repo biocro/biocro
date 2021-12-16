@@ -30,10 +30,12 @@ class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_la
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_ten_layer_c4_canopy"; }
 
    private:
     // Number of layers
     static int const nlayers;
+
     // Main operation
     void do_operation() const;
 };

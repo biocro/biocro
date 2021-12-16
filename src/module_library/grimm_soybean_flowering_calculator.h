@@ -88,6 +88,7 @@ class grimm_soybean_flowering_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "grimm_soybean_flowering_calculator"; }
 
    private:
     // References to input quantities

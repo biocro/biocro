@@ -91,6 +91,7 @@ class ed_leaf_temperature : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_leaf_temperature"; }
 
    private:
     // References to input quantities

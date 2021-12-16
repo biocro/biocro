@@ -73,6 +73,7 @@ class c4_canopy : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "c4_canopy"; }
 
    private:
     // References to input quantities

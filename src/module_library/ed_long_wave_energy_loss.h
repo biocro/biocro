@@ -33,6 +33,7 @@ class ed_long_wave_energy_loss : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_long_wave_energy_loss"; }
 
    private:
     // References to input quantities

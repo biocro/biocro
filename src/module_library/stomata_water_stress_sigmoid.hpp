@@ -10,24 +10,29 @@ class stomata_water_stress_sigmoid : public direct_module {
 		stomata_water_stress_sigmoid(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			direct_module("stomata_water_stress_sigmoid"),
+
 			// Get pointers to input quantities
 			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
 			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
 			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
 			phi1_ip(get_ip(input_quantities, "phi1")),
+
 			// Get pointers to output quantities
 			StomataWS_op(get_op(output_quantities, "StomataWS"))
 		{}
 		static string_vector get_inputs();
 		static string_vector get_outputs();
+    static std::string get_name() { return "stomata_water_stress_sigmoid"; }
 	private:
 		// Pointers to input quantities
 		const double* soil_field_capacity_ip;
 		const double* soil_wilting_point_ip;
 		const double* soil_water_content_ip;
 		const double* phi1_ip;
+
 		// Pointers to output quantities
 		double* StomataWS_op;
+
 		// Main operation
 		void do_operation() const;
 };

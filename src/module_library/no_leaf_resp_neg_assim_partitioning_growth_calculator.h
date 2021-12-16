@@ -83,6 +83,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "no_leaf_resp_neg_assim_partitioning_growth_calculator"; }
 
    private:
     // References to input quantities

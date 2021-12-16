@@ -54,6 +54,7 @@ class ed_ball_berry : public direct_module
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           direct_module("ed_ball_berry"),
+
           // Get pointers to input quantities
           ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),
           ball_berry_intercept_ip(get_ip(input_quantities, "ball_berry_intercept")),
@@ -64,6 +65,7 @@ class ed_ball_berry : public direct_module
           mole_fraction_co2_leaf_surface_ip(get_ip(input_quantities, "mole_fraction_co2_leaf_surface")),
           conductance_adjustment_factor_WS_ip(get_ip(input_quantities, "conductance_adjustment_factor_WS")),
           conductance_stomatal_h2o_min_ip(get_ip(input_quantities, "conductance_stomatal_h2o_min")),
+
           // Get pointers to output quantities
           conductance_stomatal_h2o_op(get_op(output_quantities, "conductance_stomatal_h2o"))
 
@@ -71,6 +73,7 @@ class ed_ball_berry : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_ball_berry"; }
 
    private:
     // Pointers to input quantities
@@ -83,8 +86,10 @@ class ed_ball_berry : public direct_module
     const double* mole_fraction_co2_leaf_surface_ip;
     const double* conductance_adjustment_factor_WS_ip;
     const double* conductance_stomatal_h2o_min_ip;
+
     // Pointers to output quantities
     double* conductance_stomatal_h2o_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -92,15 +97,15 @@ class ed_ball_berry : public direct_module
 string_vector ed_ball_berry::get_inputs()
 {
     return {
-        "ball_berry_slope",                 // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
-        "ball_berry_intercept",             // mol / m^2 / s
-        "assimilation_net",                 // mol / m^2 / s
-        "atmospheric_pressure",             // Pa
-        "temperature_leaf",                 // deg. C
-        "mole_fraction_h2o_leaf_surface",   // dimensionless from Pa / Pa
-        "mole_fraction_co2_leaf_surface",   // dimensionless from mol / mol
-        "conductance_adjustment_factor_WS", // dimensionless
-        "conductance_stomatal_h2o_min"      // mol / m^2 / s
+        "ball_berry_slope",                  // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+        "ball_berry_intercept",              // mol / m^2 / s
+        "assimilation_net",                  // mol / m^2 / s
+        "atmospheric_pressure",              // Pa
+        "temperature_leaf",                  // deg. C
+        "mole_fraction_h2o_leaf_surface",    // dimensionless from Pa / Pa
+        "mole_fraction_co2_leaf_surface",    // dimensionless from mol / mol
+        "conductance_adjustment_factor_WS",  // dimensionless
+        "conductance_stomatal_h2o_min"       // mol / m^2 / s
     };
 }
 
@@ -124,8 +129,8 @@ void ed_ball_berry::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"mole_fraction_co2_leaf_surface cannot be zero",       fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},               // divide by zero
-        {"saturation_vapor_pressure in leaf cannot be zero",    fabs(saturation_vapor_pressure(*temperature_leaf_ip)) < calculation_constants::eps_zero}   // divide by zero
+        {"mole_fraction_co2_leaf_surface cannot be zero", fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},                 // divide by zero
+        {"saturation_vapor_pressure in leaf cannot be zero", fabs(saturation_vapor_pressure(*temperature_leaf_ip)) < calculation_constants::eps_zero}  // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

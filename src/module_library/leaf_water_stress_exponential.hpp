@@ -25,6 +25,7 @@ class leaf_water_stress_exponential : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "leaf_water_stress_exponential"; }
 
    private:
     // Pointers to input quantities

@@ -32,6 +32,7 @@ class total_biomass : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "total_biomass"; }
 
    private:
     // Pointers to input parameters

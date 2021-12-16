@@ -33,6 +33,7 @@ class water_vapor_properties_from_air_temperature : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "water_vapor_properties_from_air_temperature"; }
 
    private:
     // References to input quantities

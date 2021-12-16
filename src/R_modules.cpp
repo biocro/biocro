@@ -31,7 +31,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Get the module's name
-        std::string module_name = "temporarily unavailable";
+        std::string module_name = w->get_name();
 
         // Make maps for the module's inputs and outputs
         state_map module_inputs;

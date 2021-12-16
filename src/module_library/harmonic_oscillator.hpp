@@ -27,6 +27,7 @@ class harmonic_oscillator : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "harmonic_oscillator"; }
 
    private:
     // References to input quantities
@@ -90,6 +91,7 @@ class harmonic_energy : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "harmonic_energy"; }
 
    private:
     // Pointers to input quantities

@@ -84,6 +84,7 @@ class soybean_development_rate_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "soybean_development_rate_calculator"; }
 
    private:
     // References to input quantities

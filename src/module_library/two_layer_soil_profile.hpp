@@ -58,6 +58,7 @@ class two_layer_soil_profile : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "two_layer_soil_profile"; }
 
    private:
     // References to input quantities

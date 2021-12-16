@@ -91,6 +91,7 @@ class c3_assimilation : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "c3_assimilation"; }
 
    private:
     // References to input quantities

@@ -229,6 +229,7 @@ class ten_layer_canopy_integrator : public multilayer_canopy_integrator
     static string_vector get_multiclass_multilayer_outputs();
     static string_vector get_pure_multilayer_outputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ten_layer_canopy_integrator"; }
 
    private:
     // Number of layers

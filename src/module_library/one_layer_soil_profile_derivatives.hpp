@@ -36,6 +36,7 @@ class one_layer_soil_profile_derivatives : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "one_layer_soil_profile_derivatives"; }
 
    private:
     // References to input quantities

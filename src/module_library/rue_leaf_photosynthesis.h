@@ -161,6 +161,7 @@ class rue_leaf_photosynthesis : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "rue_leaf_photosynthesis"; }
 
    private:
     // References to input parameters

@@ -11,383 +11,392 @@
 //  and available online from https://github.com/danielseaton/frameworkmodel
 // Values for parameters were taken from the SBML model available in the supplemental information of the 2012 paper
 
-class pokhilko_circadian_clock : public differential_module {
-	public:
-		pokhilko_circadian_clock(state_map const& input_quantities, state_map* output_quantities) :
-			// Define basic module properties by passing its name to its parent class
-			differential_module("pokhilko_circadian_clock"),
-			// Get pointers to input quantities
-			solar_ip(get_ip(input_quantities, "solar")),
-			LHY_mRNA_ip(get_ip(input_quantities, "LHY_mRNA")),
-			P_ip(get_ip(input_quantities, "P")),
-			GI_ZTL_ip(get_ip(input_quantities, "GI_ZTL")),
-			GI_ELF3_cytoplasm_ip(get_ip(input_quantities, "GI_ELF3_cytoplasm")),
-			LHY_prot_ip(get_ip(input_quantities, "LHY_prot")),
-			TOC1_mRNA_ip(get_ip(input_quantities, "TOC1_mRNA")),
-			PRR9_prot_ip(get_ip(input_quantities, "PRR9_prot")),
-			PRR5_NI_mRNA_ip(get_ip(input_quantities, "PRR5_NI_mRNA")),
-			PRR5_NI_prot_ip(get_ip(input_quantities, "PRR5_NI_prot")),
-			GI_prot_cytoplasm_ip(get_ip(input_quantities, "GI_prot_cytoplasm")),
-			TOC1_prot_ip(get_ip(input_quantities, "TOC1_prot")),
-			ZTL_ip(get_ip(input_quantities, "ZTL")),
-			EC_ip(get_ip(input_quantities, "EC")),
-			GI_mRNA_ip(get_ip(input_quantities, "GI_mRNA")),
-			PRR9_mRNA_ip(get_ip(input_quantities, "PRR9_mRNA")),
-			PRR7_mRNA_ip(get_ip(input_quantities, "PRR7_mRNA")),
-			PRR7_prot_ip(get_ip(input_quantities, "PRR7_prot")),
-			ELF4_mRNA_ip(get_ip(input_quantities, "ELF4_mRNA")),
-			ELF4_prot_ip(get_ip(input_quantities, "ELF4_prot")),
-			LHY_prot_modif_ip(get_ip(input_quantities, "LHY_prot_modif")),
-			HY5_ip(get_ip(input_quantities, "HY5")),
-			HFR1_ip(get_ip(input_quantities, "HFR1")),
-			ELF3_mRNA_ip(get_ip(input_quantities, "ELF3_mRNA")),
-			ELF3_cytoplasm_ip(get_ip(input_quantities, "ELF3_cytoplasm")),
-			ELF3_nuclear_ip(get_ip(input_quantities, "ELF3_nuclear")),
-			COP1_nuclear_night_ip(get_ip(input_quantities, "COP1_nuclear_night")),
-			COP1_nuclear_day_ip(get_ip(input_quantities, "COP1_nuclear_day")),
-			LUX_mRNA_ip(get_ip(input_quantities, "LUX_mRNA")),
-			LUX_prot_ip(get_ip(input_quantities, "LUX_prot")),
-			COP1_cytoplasm_ip(get_ip(input_quantities, "COP1_cytoplasm")),
-			// Get pointers to output quantities
-			LHY_mRNA_op(get_op(output_quantities, "LHY_mRNA")),
-			P_op(get_op(output_quantities, "P")),
-			GI_ZTL_op(get_op(output_quantities, "GI_ZTL")),
-			GI_ELF3_cytoplasm_op(get_op(output_quantities, "GI_ELF3_cytoplasm")),
-			LHY_prot_op(get_op(output_quantities, "LHY_prot")),
-			TOC1_mRNA_op(get_op(output_quantities, "TOC1_mRNA")),
-			PRR9_prot_op(get_op(output_quantities, "PRR9_prot")),
-			PRR5_NI_mRNA_op(get_op(output_quantities, "PRR5_NI_mRNA")),
-			PRR5_NI_prot_op(get_op(output_quantities, "PRR5_NI_prot")),
-			GI_prot_cytoplasm_op(get_op(output_quantities, "GI_prot_cytoplasm")),
-			TOC1_prot_op(get_op(output_quantities, "TOC1_prot")),
-			ZTL_op(get_op(output_quantities, "ZTL")),
-			EC_op(get_op(output_quantities, "EC")),
-			GI_mRNA_op(get_op(output_quantities, "GI_mRNA")),
-			PRR9_mRNA_op(get_op(output_quantities, "PRR9_mRNA")),
-			PRR7_mRNA_op(get_op(output_quantities, "PRR7_mRNA")),
-			PRR7_prot_op(get_op(output_quantities, "PRR7_prot")),
-			ELF4_mRNA_op(get_op(output_quantities, "ELF4_mRNA")),
-			ELF4_prot_op(get_op(output_quantities, "ELF4_prot")),
-			LHY_prot_modif_op(get_op(output_quantities, "LHY_prot_modif")),
-			HY5_op(get_op(output_quantities, "HY5")),
-			HFR1_op(get_op(output_quantities, "HFR1")),
-			ELF3_mRNA_op(get_op(output_quantities, "ELF3_mRNA")),
-			ELF3_cytoplasm_op(get_op(output_quantities, "ELF3_cytoplasm")),
-			ELF3_nuclear_op(get_op(output_quantities, "ELF3_nuclear")),
-			COP1_nuclear_night_op(get_op(output_quantities, "COP1_nuclear_night")),
-			COP1_nuclear_day_op(get_op(output_quantities, "COP1_nuclear_day")),
-			LUX_mRNA_op(get_op(output_quantities, "LUX_mRNA")),
-			LUX_prot_op(get_op(output_quantities, "LUX_prot")),
-			COP1_cytoplasm_op(get_op(output_quantities, "COP1_cytoplasm"))
-		{}
-		static string_vector get_inputs();
-		static string_vector get_outputs();
-	private:
-		// Pointers to input quantities
-		const double* solar_ip;
-		const double* LHY_mRNA_ip;
-		const double* P_ip;
-		const double* GI_ZTL_ip;
-		const double* GI_ELF3_cytoplasm_ip;
-		const double* LHY_prot_ip;
-		const double* TOC1_mRNA_ip;
-		const double* PRR9_prot_ip;
-		const double* PRR5_NI_mRNA_ip;
-		const double* PRR5_NI_prot_ip;
-		const double* GI_prot_cytoplasm_ip;
-		const double* TOC1_prot_ip;
-		const double* ZTL_ip;
-		const double* EC_ip;
-		const double* GI_mRNA_ip;
-		const double* PRR9_mRNA_ip;
-		const double* PRR7_mRNA_ip;
-		const double* PRR7_prot_ip;
-		const double* ELF4_mRNA_ip;
-		const double* ELF4_prot_ip;
-		const double* LHY_prot_modif_ip;
-		const double* HY5_ip;
-		const double* HFR1_ip;
-		const double* ELF3_mRNA_ip;
-		const double* ELF3_cytoplasm_ip;
-		const double* ELF3_nuclear_ip;
-		const double* COP1_nuclear_night_ip;
-		const double* COP1_nuclear_day_ip;
-		const double* LUX_mRNA_ip;
-		const double* LUX_prot_ip;
-		const double* COP1_cytoplasm_ip;
-		// Pointers to output quantities
-		double* LHY_mRNA_op;
-		double* P_op;
-		double* GI_ZTL_op;
-		double* GI_ELF3_cytoplasm_op;
-		double* LHY_prot_op;
-		double* TOC1_mRNA_op;
-		double* PRR9_prot_op;
-		double* PRR5_NI_mRNA_op;
-		double* PRR5_NI_prot_op;
-		double* GI_prot_cytoplasm_op;
-		double* TOC1_prot_op;
-		double* ZTL_op;
-		double* EC_op;
-		double* GI_mRNA_op;
-		double* PRR9_mRNA_op;
-		double* PRR7_mRNA_op;
-		double* PRR7_prot_op;
-		double* ELF4_mRNA_op;
-		double* ELF4_prot_op;
-		double* LHY_prot_modif_op;
-		double* HY5_op;
-		double* HFR1_op;
-		double* ELF3_mRNA_op;
-		double* ELF3_cytoplasm_op;
-		double* ELF3_nuclear_op;
-		double* COP1_nuclear_night_op;
-		double* COP1_nuclear_day_op;
-		double* LUX_mRNA_op;
-		double* LUX_prot_op;
-		double* COP1_cytoplasm_op;
-		// Main operation
-		void do_operation() const;
+class pokhilko_circadian_clock : public differential_module
+{
+   public:
+    pokhilko_circadian_clock(state_map const& input_quantities, state_map* output_quantities)
+        :  // Define basic module properties by passing its name to its parent class
+          differential_module("pokhilko_circadian_clock"),
+
+          // Get pointers to input quantities
+          solar_ip(get_ip(input_quantities, "solar")),
+          LHY_mRNA_ip(get_ip(input_quantities, "LHY_mRNA")),
+          P_ip(get_ip(input_quantities, "P")),
+          GI_ZTL_ip(get_ip(input_quantities, "GI_ZTL")),
+          GI_ELF3_cytoplasm_ip(get_ip(input_quantities, "GI_ELF3_cytoplasm")),
+          LHY_prot_ip(get_ip(input_quantities, "LHY_prot")),
+          TOC1_mRNA_ip(get_ip(input_quantities, "TOC1_mRNA")),
+          PRR9_prot_ip(get_ip(input_quantities, "PRR9_prot")),
+          PRR5_NI_mRNA_ip(get_ip(input_quantities, "PRR5_NI_mRNA")),
+          PRR5_NI_prot_ip(get_ip(input_quantities, "PRR5_NI_prot")),
+          GI_prot_cytoplasm_ip(get_ip(input_quantities, "GI_prot_cytoplasm")),
+          TOC1_prot_ip(get_ip(input_quantities, "TOC1_prot")),
+          ZTL_ip(get_ip(input_quantities, "ZTL")),
+          EC_ip(get_ip(input_quantities, "EC")),
+          GI_mRNA_ip(get_ip(input_quantities, "GI_mRNA")),
+          PRR9_mRNA_ip(get_ip(input_quantities, "PRR9_mRNA")),
+          PRR7_mRNA_ip(get_ip(input_quantities, "PRR7_mRNA")),
+          PRR7_prot_ip(get_ip(input_quantities, "PRR7_prot")),
+          ELF4_mRNA_ip(get_ip(input_quantities, "ELF4_mRNA")),
+          ELF4_prot_ip(get_ip(input_quantities, "ELF4_prot")),
+          LHY_prot_modif_ip(get_ip(input_quantities, "LHY_prot_modif")),
+          HY5_ip(get_ip(input_quantities, "HY5")),
+          HFR1_ip(get_ip(input_quantities, "HFR1")),
+          ELF3_mRNA_ip(get_ip(input_quantities, "ELF3_mRNA")),
+          ELF3_cytoplasm_ip(get_ip(input_quantities, "ELF3_cytoplasm")),
+          ELF3_nuclear_ip(get_ip(input_quantities, "ELF3_nuclear")),
+          COP1_nuclear_night_ip(get_ip(input_quantities, "COP1_nuclear_night")),
+          COP1_nuclear_day_ip(get_ip(input_quantities, "COP1_nuclear_day")),
+          LUX_mRNA_ip(get_ip(input_quantities, "LUX_mRNA")),
+          LUX_prot_ip(get_ip(input_quantities, "LUX_prot")),
+          COP1_cytoplasm_ip(get_ip(input_quantities, "COP1_cytoplasm")),
+
+          // Get pointers to output quantities
+          LHY_mRNA_op(get_op(output_quantities, "LHY_mRNA")),
+          P_op(get_op(output_quantities, "P")),
+          GI_ZTL_op(get_op(output_quantities, "GI_ZTL")),
+          GI_ELF3_cytoplasm_op(get_op(output_quantities, "GI_ELF3_cytoplasm")),
+          LHY_prot_op(get_op(output_quantities, "LHY_prot")),
+          TOC1_mRNA_op(get_op(output_quantities, "TOC1_mRNA")),
+          PRR9_prot_op(get_op(output_quantities, "PRR9_prot")),
+          PRR5_NI_mRNA_op(get_op(output_quantities, "PRR5_NI_mRNA")),
+          PRR5_NI_prot_op(get_op(output_quantities, "PRR5_NI_prot")),
+          GI_prot_cytoplasm_op(get_op(output_quantities, "GI_prot_cytoplasm")),
+          TOC1_prot_op(get_op(output_quantities, "TOC1_prot")),
+          ZTL_op(get_op(output_quantities, "ZTL")),
+          EC_op(get_op(output_quantities, "EC")),
+          GI_mRNA_op(get_op(output_quantities, "GI_mRNA")),
+          PRR9_mRNA_op(get_op(output_quantities, "PRR9_mRNA")),
+          PRR7_mRNA_op(get_op(output_quantities, "PRR7_mRNA")),
+          PRR7_prot_op(get_op(output_quantities, "PRR7_prot")),
+          ELF4_mRNA_op(get_op(output_quantities, "ELF4_mRNA")),
+          ELF4_prot_op(get_op(output_quantities, "ELF4_prot")),
+          LHY_prot_modif_op(get_op(output_quantities, "LHY_prot_modif")),
+          HY5_op(get_op(output_quantities, "HY5")),
+          HFR1_op(get_op(output_quantities, "HFR1")),
+          ELF3_mRNA_op(get_op(output_quantities, "ELF3_mRNA")),
+          ELF3_cytoplasm_op(get_op(output_quantities, "ELF3_cytoplasm")),
+          ELF3_nuclear_op(get_op(output_quantities, "ELF3_nuclear")),
+          COP1_nuclear_night_op(get_op(output_quantities, "COP1_nuclear_night")),
+          COP1_nuclear_day_op(get_op(output_quantities, "COP1_nuclear_day")),
+          LUX_mRNA_op(get_op(output_quantities, "LUX_mRNA")),
+          LUX_prot_op(get_op(output_quantities, "LUX_prot")),
+          COP1_cytoplasm_op(get_op(output_quantities, "COP1_cytoplasm"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+    static std::string get_name() { return "pokhilko_circadian_clock"; }
+
+   private:
+    // Pointers to input quantities
+    const double* solar_ip;
+    const double* LHY_mRNA_ip;
+    const double* P_ip;
+    const double* GI_ZTL_ip;
+    const double* GI_ELF3_cytoplasm_ip;
+    const double* LHY_prot_ip;
+    const double* TOC1_mRNA_ip;
+    const double* PRR9_prot_ip;
+    const double* PRR5_NI_mRNA_ip;
+    const double* PRR5_NI_prot_ip;
+    const double* GI_prot_cytoplasm_ip;
+    const double* TOC1_prot_ip;
+    const double* ZTL_ip;
+    const double* EC_ip;
+    const double* GI_mRNA_ip;
+    const double* PRR9_mRNA_ip;
+    const double* PRR7_mRNA_ip;
+    const double* PRR7_prot_ip;
+    const double* ELF4_mRNA_ip;
+    const double* ELF4_prot_ip;
+    const double* LHY_prot_modif_ip;
+    const double* HY5_ip;
+    const double* HFR1_ip;
+    const double* ELF3_mRNA_ip;
+    const double* ELF3_cytoplasm_ip;
+    const double* ELF3_nuclear_ip;
+    const double* COP1_nuclear_night_ip;
+    const double* COP1_nuclear_day_ip;
+    const double* LUX_mRNA_ip;
+    const double* LUX_prot_ip;
+    const double* COP1_cytoplasm_ip;
+
+    // Pointers to output quantities
+    double* LHY_mRNA_op;
+    double* P_op;
+    double* GI_ZTL_op;
+    double* GI_ELF3_cytoplasm_op;
+    double* LHY_prot_op;
+    double* TOC1_mRNA_op;
+    double* PRR9_prot_op;
+    double* PRR5_NI_mRNA_op;
+    double* PRR5_NI_prot_op;
+    double* GI_prot_cytoplasm_op;
+    double* TOC1_prot_op;
+    double* ZTL_op;
+    double* EC_op;
+    double* GI_mRNA_op;
+    double* PRR9_mRNA_op;
+    double* PRR7_mRNA_op;
+    double* PRR7_prot_op;
+    double* ELF4_mRNA_op;
+    double* ELF4_prot_op;
+    double* LHY_prot_modif_op;
+    double* HY5_op;
+    double* HFR1_op;
+    double* ELF3_mRNA_op;
+    double* ELF3_cytoplasm_op;
+    double* ELF3_nuclear_op;
+    double* COP1_nuclear_night_op;
+    double* COP1_nuclear_day_op;
+    double* LUX_mRNA_op;
+    double* LUX_prot_op;
+    double* COP1_cytoplasm_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector pokhilko_circadian_clock::get_inputs() {
-	return {
-		"solar",
-		"LHY_mRNA",
-		"P",
-		"GI_ZTL",
-		"GI_ELF3_cytoplasm",
-		"LHY_prot",
-		"TOC1_mRNA",
-		"PRR9_prot",
-		"PRR5_NI_mRNA",
-		"PRR5_NI_prot",
-		"GI_prot_cytoplasm",
-		"TOC1_prot",
-		"ZTL",
-		"EC",
-		"GI_mRNA",
-		"PRR9_mRNA",
-		"PRR7_mRNA",
-		"PRR7_prot",
-		"ELF4_mRNA",
-		"ELF4_prot",
-		"LHY_prot_modif",
-		"HY5",
-		"HFR1",
-		"ELF3_mRNA",
-		"ELF3_cytoplasm",
-		"ELF3_nuclear",
-		"COP1_nuclear_night",
-		"COP1_nuclear_day",
-		"LUX_mRNA",
-		"LUX_prot",
-		"COP1_cytoplasm"
-	};
+string_vector pokhilko_circadian_clock::get_inputs()
+{
+    return {
+        "solar",
+        "LHY_mRNA",
+        "P",
+        "GI_ZTL",
+        "GI_ELF3_cytoplasm",
+        "LHY_prot",
+        "TOC1_mRNA",
+        "PRR9_prot",
+        "PRR5_NI_mRNA",
+        "PRR5_NI_prot",
+        "GI_prot_cytoplasm",
+        "TOC1_prot",
+        "ZTL",
+        "EC",
+        "GI_mRNA",
+        "PRR9_mRNA",
+        "PRR7_mRNA",
+        "PRR7_prot",
+        "ELF4_mRNA",
+        "ELF4_prot",
+        "LHY_prot_modif",
+        "HY5",
+        "HFR1",
+        "ELF3_mRNA",
+        "ELF3_cytoplasm",
+        "ELF3_nuclear",
+        "COP1_nuclear_night",
+        "COP1_nuclear_day",
+        "LUX_mRNA",
+        "LUX_prot",
+        "COP1_cytoplasm"};
 }
 
-string_vector pokhilko_circadian_clock::get_outputs() {
-	return {
-		"LHY_mRNA",
-		"P",
-		"GI_ZTL",
-		"GI_ELF3_cytoplasm",
-		"LHY_prot",
-		"TOC1_mRNA",
-		"PRR9_prot",
-		"PRR5_NI_mRNA",
-		"PRR5_NI_prot",
-		"GI_prot_cytoplasm",
-		"TOC1_prot",
-		"ZTL",
-		"EC",
-		"GI_mRNA",
-		"PRR9_mRNA",
-		"PRR7_mRNA",
-		"PRR7_prot",
-		"ELF4_mRNA",
-		"ELF4_prot",
-		"LHY_prot_modif",
-		"HY5",
-		"HFR1",
-		"ELF3_mRNA",
-		"ELF3_cytoplasm",
-		"ELF3_nuclear",
-		"COP1_nuclear_night",
-		"COP1_nuclear_day",
-		"LUX_mRNA",
-		"LUX_prot",
-		"COP1_cytoplasm"
-	};
+string_vector pokhilko_circadian_clock::get_outputs()
+{
+    return {
+        "LHY_mRNA",
+        "P",
+        "GI_ZTL",
+        "GI_ELF3_cytoplasm",
+        "LHY_prot",
+        "TOC1_mRNA",
+        "PRR9_prot",
+        "PRR5_NI_mRNA",
+        "PRR5_NI_prot",
+        "GI_prot_cytoplasm",
+        "TOC1_prot",
+        "ZTL",
+        "EC",
+        "GI_mRNA",
+        "PRR9_mRNA",
+        "PRR7_mRNA",
+        "PRR7_prot",
+        "ELF4_mRNA",
+        "ELF4_prot",
+        "LHY_prot_modif",
+        "HY5",
+        "HFR1",
+        "ELF3_mRNA",
+        "ELF3_cytoplasm",
+        "ELF3_nuclear",
+        "COP1_nuclear_night",
+        "COP1_nuclear_day",
+        "LUX_mRNA",
+        "LUX_prot",
+        "COP1_cytoplasm"};
 }
 
-void pokhilko_circadian_clock::do_operation() const {
-	//////////////////////////////////////////
-	// Collect inputs and make calculations //
-	//////////////////////////////////////////
+void pokhilko_circadian_clock::do_operation() const
+{
+    //////////////////////////////////////////
+    // Collect inputs and make calculations //
+    //////////////////////////////////////////
 
-	// Unpack the solar radiantion
-	double solar = *solar_ip;
+    // Unpack the solar radiantion
+    double solar = *solar_ip;
 
-	// Unpack the circadian clock components
-	double LHY_mRNA = *LHY_mRNA_ip;
-	double P = *P_ip;
-	double GI_ZTL = *GI_ZTL_ip;
-	double GI_ELF3_cytoplasm = *GI_ELF3_cytoplasm_ip;
-	double LHY_prot = *LHY_prot_ip;
-	double TOC1_mRNA = *TOC1_mRNA_ip;
-	double PRR9_prot = *PRR9_prot_ip;
-	double PRR5_NI_mRNA = *PRR5_NI_mRNA_ip;
-	double PRR5_NI_prot = *PRR5_NI_prot_ip;
-	double GI_prot_cytoplasm = *GI_prot_cytoplasm_ip;
-	double TOC1_prot = *TOC1_prot_ip;
-	double ZTL = *ZTL_ip;
-	double EC = *EC_ip;
-	double GI_mRNA = *GI_mRNA_ip;
-	double PRR9_mRNA = *PRR9_mRNA_ip;
-	double PRR7_mRNA = *PRR7_mRNA_ip;
-	double PRR7_prot = *PRR7_prot_ip;
-	double ELF4_mRNA = *ELF4_mRNA_ip;
-	double ELF4_prot = *ELF4_prot_ip;
-	double LHY_prot_modif = *LHY_prot_modif_ip;
-	double HY5 = *HY5_ip;
-	double HFR1 = *HFR1_ip;
-	double ELF3_mRNA = *ELF3_mRNA_ip;
-	double ELF3_cytoplasm = *ELF3_cytoplasm_ip;
-	double ELF3_nuclear = *ELF3_nuclear_ip;
-	double COP1_nuclear_night = *COP1_nuclear_night_ip;
-	double COP1_nuclear_day = *COP1_nuclear_day_ip;
-	double LUX_mRNA = *LUX_mRNA_ip;
-	double LUX_prot = *LUX_prot_ip;
-	double COP1_cytoplasm = *COP1_cytoplasm_ip;
+    // Unpack the circadian clock components
+    double LHY_mRNA = *LHY_mRNA_ip;
+    double P = *P_ip;
+    double GI_ZTL = *GI_ZTL_ip;
+    double GI_ELF3_cytoplasm = *GI_ELF3_cytoplasm_ip;
+    double LHY_prot = *LHY_prot_ip;
+    double TOC1_mRNA = *TOC1_mRNA_ip;
+    double PRR9_prot = *PRR9_prot_ip;
+    double PRR5_NI_mRNA = *PRR5_NI_mRNA_ip;
+    double PRR5_NI_prot = *PRR5_NI_prot_ip;
+    double GI_prot_cytoplasm = *GI_prot_cytoplasm_ip;
+    double TOC1_prot = *TOC1_prot_ip;
+    double ZTL = *ZTL_ip;
+    double EC = *EC_ip;
+    double GI_mRNA = *GI_mRNA_ip;
+    double PRR9_mRNA = *PRR9_mRNA_ip;
+    double PRR7_mRNA = *PRR7_mRNA_ip;
+    double PRR7_prot = *PRR7_prot_ip;
+    double ELF4_mRNA = *ELF4_mRNA_ip;
+    double ELF4_prot = *ELF4_prot_ip;
+    double LHY_prot_modif = *LHY_prot_modif_ip;
+    double HY5 = *HY5_ip;
+    double HFR1 = *HFR1_ip;
+    double ELF3_mRNA = *ELF3_mRNA_ip;
+    double ELF3_cytoplasm = *ELF3_cytoplasm_ip;
+    double ELF3_nuclear = *ELF3_nuclear_ip;
+    double COP1_nuclear_night = *COP1_nuclear_night_ip;
+    double COP1_nuclear_day = *COP1_nuclear_day_ip;
+    double LUX_mRNA = *LUX_mRNA_ip;
+    double LUX_prot = *LUX_prot_ip;
+    double COP1_cytoplasm = *COP1_cytoplasm_ip;
 
-	// Define the circadian clock parameters
-	double n1 = 2.6;
-	double n2 = 0.64;
-	double n3 = 0.29;
-	double n4 = 0.07;
-	double n5 = 0.23;
-	double n6 = 20;
-	double n7 = 0.2;
-	double n8 = 0.5;
-	double n9 = 0.2;
-	double n10 = 0.4;
-	double n11 = 0.6;
-	double n12 = 12.5;
-	double n13 = 1.3;
-	double n14 = 0.1;
-	double g1 = 0.1;
-	double g2 = 0.01;
-	double g3 = 0.6;
-	double g4 = 0.01;
-	double g5 = 0.15;
-	double g6 = 0.3;
-	double g7 = 0.6;
-	double g8 = 0.01;
-	double g9 = 0.3;
-	double g10 = 0.5;
-	double g11 = 0.7;
-	double g12 = 0.2;
-	double g13 = 1;
-	double g14 = 0.004;
-	double g15 = 0.4;
-	double g16 = 0.3;
-	double m1 = 0.54;
-	double m2 = 0.24;
-	double m3 = 0.2;
-	double m4 = 0.2;
-	double m5 = 0.3;
-	double m6 = 0.3;
-	double m7 = 0.7;
-	double m8 = 0.4;
-	double m9 = 1.1;
-	double m10 = 1;
-	double m11 = 1;
-	double m12 = 1;
-	double m13 = 0.32;
-	double m14 = 0.4;
-	double m15 = 0.7;
-	double m16 = 0.5;
-	double m17 = 0.5;
-	double m18 = 3.4;
-	double m19 = 0.2;
-	double m20 = 0.6;
-	double m21 = 0.08;
-	double m22 = 0.1;
-	double m23 = 1.8;
-	double m24 = 0.1;
-	double m25 = 1.8;
-	double m26 = 0.5;
-	double m27 = 0.1;
-	double m28 = 20;
-	double m29 = 5;
-	double m30 = 3;
-	double m31 = 0.3;
-	double m32 = 0.2;
-	double m33 = 13;
-	double m34 = 0.6;
-	double m35 = 0.3;
-	double m36 = 0.1;
-	double m37 = 0.8;
-	double m38 = 0.5;
-	double m39 = 0.3;
-	int a = 2;
-	int b = 2;
-	int c = 2;
-	int d = 2;
-	int e = 2;
-	int f = 2;
-	double p1 = 0.13;
-	double p2 = 0.27;
-	double p3 = 0.1;
-	double p4 = 0.56;
-	double p5 = 4;
-	double p6 = 0.6;
-	double p7 = 0.3;
-	double p8 = 0.6;
-	double p9 = 0.8;
-	double p10 = 0.54;
-	double p11 = 0.51;
-	double p12 = 3.4;
-	double p13 = 0.1;
-	double p14 = 0.14;
-	double p15 = 3;
-	double p16 = 0.62;
-	double p17 = 4.8;
-	double p18 = 4;
-	double p19 = 1;
-	double p20 = 0.1;
-	double p21 = 1;
-	double p22 = 0.5;
-	double p23 = 0.37;
-	double p24 = 10;
-	double p25 = 8;
-	double p26 = 0.3;
-	double p27 = 0.8;
-	double p28 = 2;
-	double p29 = 0.1;
-	double p30 = 0.9;
-	double p31 = 0.1;
-	double q1 = 1.2;
-	double q2 = 1.56;
-	double q3 = 2.8;
+    // Define the circadian clock parameters
+    double n1 = 2.6;
+    double n2 = 0.64;
+    double n3 = 0.29;
+    double n4 = 0.07;
+    double n5 = 0.23;
+    double n6 = 20;
+    double n7 = 0.2;
+    double n8 = 0.5;
+    double n9 = 0.2;
+    double n10 = 0.4;
+    double n11 = 0.6;
+    double n12 = 12.5;
+    double n13 = 1.3;
+    double n14 = 0.1;
+    double g1 = 0.1;
+    double g2 = 0.01;
+    double g3 = 0.6;
+    double g4 = 0.01;
+    double g5 = 0.15;
+    double g6 = 0.3;
+    double g7 = 0.6;
+    double g8 = 0.01;
+    double g9 = 0.3;
+    double g10 = 0.5;
+    double g11 = 0.7;
+    double g12 = 0.2;
+    double g13 = 1;
+    double g14 = 0.004;
+    double g15 = 0.4;
+    double g16 = 0.3;
+    double m1 = 0.54;
+    double m2 = 0.24;
+    double m3 = 0.2;
+    double m4 = 0.2;
+    double m5 = 0.3;
+    double m6 = 0.3;
+    double m7 = 0.7;
+    double m8 = 0.4;
+    double m9 = 1.1;
+    double m10 = 1;
+    double m11 = 1;
+    double m12 = 1;
+    double m13 = 0.32;
+    double m14 = 0.4;
+    double m15 = 0.7;
+    double m16 = 0.5;
+    double m17 = 0.5;
+    double m18 = 3.4;
+    double m19 = 0.2;
+    double m20 = 0.6;
+    double m21 = 0.08;
+    double m22 = 0.1;
+    double m23 = 1.8;
+    double m24 = 0.1;
+    double m25 = 1.8;
+    double m26 = 0.5;
+    double m27 = 0.1;
+    double m28 = 20;
+    double m29 = 5;
+    double m30 = 3;
+    double m31 = 0.3;
+    double m32 = 0.2;
+    double m33 = 13;
+    double m34 = 0.6;
+    double m35 = 0.3;
+    double m36 = 0.1;
+    double m37 = 0.8;
+    double m38 = 0.5;
+    double m39 = 0.3;
+    int a = 2;
+    int b = 2;
+    int c = 2;
+    int d = 2;
+    int e = 2;
+    int f = 2;
+    double p1 = 0.13;
+    double p2 = 0.27;
+    double p3 = 0.1;
+    double p4 = 0.56;
+    double p5 = 4;
+    double p6 = 0.6;
+    double p7 = 0.3;
+    double p8 = 0.6;
+    double p9 = 0.8;
+    double p10 = 0.54;
+    double p11 = 0.51;
+    double p12 = 3.4;
+    double p13 = 0.1;
+    double p14 = 0.14;
+    double p15 = 3;
+    double p16 = 0.62;
+    double p17 = 4.8;
+    double p18 = 4;
+    double p19 = 1;
+    double p20 = 0.1;
+    double p21 = 1;
+    double p22 = 0.5;
+    double p23 = 0.37;
+    double p24 = 10;
+    double p25 = 8;
+    double p26 = 0.3;
+    double p27 = 0.8;
+    double p28 = 2;
+    double p29 = 0.1;
+    double p30 = 0.9;
+    double p31 = 0.1;
+    double q1 = 1.2;
+    double q2 = 1.56;
+    double q3 = 2.8;
 
-	// Check whether the plant is illuminated
-	// Rather than basing L(t) on specified values for dusk and dawn
-	//  as in the original Pokhilko model, we use a logistic function
-	//  based on solar radiation to determine when light is present.
-	// This function is 0 for no sunlight and saturates to 1 when
-	//  solar reaches ~150, which is well below the max on a typical day
-	double L = 1.0 / (1.0 + exp(-0.058*(solar - 100.0)));
+    // Check whether the plant is illuminated
+    // Rather than basing L(t) on specified values for dusk and dawn
+    //  as in the original Pokhilko model, we use a logistic function
+    //  based on solar radiation to determine when light is present.
+    // This function is 0 for no sunlight and saturates to 1 when
+    //  solar reaches ~150, which is well below the max on a typical day
+    double L = 1.0 / (1.0 + exp(-0.058 * (solar - 100.0)));
 
-	// Calculate some parameters defined in the Pokhilko model
+    // Calculate some parameters defined in the Pokhilko model
     double Gn = p28 * GI_prot_cytoplasm / (p29 + m19 + p17 * ELF3_nuclear);
     double EGn = (p18 * GI_ELF3_cytoplasm + p17 * ELF3_nuclear * Gn) / (m9 * COP1_nuclear_night + m10 * COP1_nuclear_day + p31);
     double e34 = p25 * ELF4_prot * ELF3_nuclear / (p26 * LUX_prot + p21 + m36 * COP1_nuclear_night + m37 * COP1_nuclear_day);
 
-	//////////////////////////////////////
-	// Update the output quantity list //
-	//////////////////////////////////////
+    //////////////////////////////////////
+    // Update the output quantity list //
+    //////////////////////////////////////
 
     update(LHY_mRNA_op, 1.0 * (q1 * L * P + n1 * pow(g1, a) / (pow(g1, a) + pow(PRR9_prot + PRR7_prot + PRR5_NI_prot + TOC1_prot, a))) - LHY_mRNA * (m1 * L + m2 * (1.0 - L)));
     update(P_op, p7 * (1.0 - L) * (1.0 - P) - m11 * P * L);

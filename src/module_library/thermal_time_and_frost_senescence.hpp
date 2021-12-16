@@ -141,6 +141,7 @@ class thermal_time_and_frost_senescence : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "thermal_time_and_frost_senescence"; }
 
    private:
     // Vectors for storing information about growth history

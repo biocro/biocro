@@ -84,6 +84,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "no_leaf_resp_partitioning_growth_calculator"; }
 
    private:
     // Pointers to input quantities

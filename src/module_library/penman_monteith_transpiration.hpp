@@ -28,6 +28,7 @@ class penman_monteith_transpiration : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "penman_monteith_transpiration"; }
 
    private:
     // References to input quantities

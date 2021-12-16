@@ -292,6 +292,7 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
     static string_vector define_multiclass_multilayer_outputs();
     static string_vector define_pure_multilayer_outputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_ten_layer_canopy_properties"; }
 
    private:
     // Number of layers

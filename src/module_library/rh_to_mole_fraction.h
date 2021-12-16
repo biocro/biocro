@@ -56,6 +56,7 @@ class rh_to_mole_fraction : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "rh_to_mole_fraction"; }
 
    private:
     // References to input quantities

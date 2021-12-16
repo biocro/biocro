@@ -70,6 +70,7 @@ class development_index : public differential_module
 
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "development_index"; }
 
    private:
     // References to input quantities

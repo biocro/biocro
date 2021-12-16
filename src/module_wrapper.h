@@ -1,6 +1,7 @@
 #ifndef MODULE_WRAPPER_H
 #define MODULE_WRAPPER_H
 
+#include <string>       // for std::string
 #include <memory>       // for unique_ptr
 #include "state_map.h"  // for state_map and string_vector
 #include "modules.h"
@@ -18,6 +19,7 @@ class module_wrapper_base
    public:
     virtual string_vector get_inputs() = 0;
     virtual string_vector get_outputs() = 0;
+    virtual std::string get_name() = 0;
 
     virtual std::unique_ptr<module_base> createModule(
         state_map const& input_quantities, state_map* output_quantities) = 0;
@@ -42,6 +44,11 @@ class module_wrapper : public module_wrapper_base
     string_vector get_outputs()
     {
         return T::get_outputs();
+    }
+
+    std::string get_name()
+    {
+        return T::get_name();
     }
 
     std::unique_ptr<module_base> createModule(
