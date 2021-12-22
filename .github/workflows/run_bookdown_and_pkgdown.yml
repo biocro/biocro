@@ -48,11 +48,12 @@ jobs:
       run: |
         install.packages('tinytex')
         tinytex::install_tinytex()
-        # Install a few LaTeX packages needed by the vignette not included
-        # in tinytex:
-        tinytex::tlmgr_install(c('siunitx', 'babel-english',
-                                 'footnotebackref', 'listings', 'appendix',
-                                 'pgf', 'colortbl'))
+
+        # (tinytex::pdflatex, which is called by the
+        # pdf_vignette_index.Rmd vignette, will automatically install
+        # any additional needed LaTeX packages needed by the Rnw
+        # vignettes.)
+
       shell: Rscript {0}
 
     - name: 7. Run pkgdown

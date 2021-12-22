@@ -355,9 +355,12 @@ jobs:
       - name: Install extra LaTeX packages
         if: needs.get_configuration.outputs.need-tinytex == 'true' 
         run: |
-          # Install a few LaTeX packages needed by the vignette not included
-          # in tinytex:
-          tlmgr install siunitx babel-english footnotebackref listings appendix pgf
+
+          # Do a trial build of pdf_vignette_index.Rmd, which itself
+          # builds the Rnw vignettes, installing any needed LaTeX
+          # packages:
+
+          xfun::in_dir('vignettes', tools::buildVignette('pdf_vignette_index.Rmd'))
 
       - name: Check package
         env:
