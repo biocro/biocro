@@ -359,6 +359,7 @@ jobs:
           # builds the Rnw vignettes, installing any needed LaTeX
           # packages:
 
+          install.packages('rmarkdown')
           xfun::in_dir('vignettes', tools::buildVignette('pdf_vignette_index.Rmd'))
         shell: Rscript {0}
 
