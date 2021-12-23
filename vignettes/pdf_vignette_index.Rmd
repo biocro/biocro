@@ -34,11 +34,11 @@ compile_rnw_file <- function(rnw_filename) {
         # If TinyTeX is installed, tinytex::pdflatex will install
         # needed LaTeX packages automatically.
 
-        tinytex::pdflatex(tex_filename)
+        try(tinytex::pdflatex(tex_filename))
 
     } else {
 
-        tools::texi2pdf(tex_filename)
+        try(tools::texi2pdf(tex_filename))
 
     }
 }
