@@ -4,6 +4,7 @@
 #include <Rinternals.h>
 #include <vector>
 #include <string>
+#include "module_wrapper.h" // for module_wrapper_base, mwp_vector
 #include "state_map.h"  // for state_map, string_vector
 
 state_map map_from_list(SEXP const& list);
@@ -11,6 +12,8 @@ state_map map_from_list(SEXP const& list);
 state_vector_map map_vector_from_list(SEXP const& list);
 
 string_vector make_vector(SEXP const& r_string_vector);
+
+mwp_vector mw_vector_from_list(SEXP const& list);
 
 SEXP list_from_map(state_map const& m);
 

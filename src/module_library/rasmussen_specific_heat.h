@@ -43,8 +43,7 @@ class rasmussen_specific_heat : public direct_module
     rasmussen_specific_heat(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("rasmussen_specific_heat"),
+        : direct_module(),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},
@@ -56,6 +55,7 @@ class rasmussen_specific_heat : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "rasmussen_specific_heat"; }
 
    private:
     // References to input quantities

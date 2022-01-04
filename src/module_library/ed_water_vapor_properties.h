@@ -18,13 +18,14 @@ class ed_water_vapor_properties : public direct_module
     ed_water_vapor_properties(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_water_vapor_properties"),
+        : direct_module(),
+
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
           mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+
           // Get pointers to output quantities
           latent_heat_vaporization_of_water_op(get_op(output_quantities, "latent_heat_vaporization_of_water")),
           slope_water_vapor_op(get_op(output_quantities, "slope_water_vapor")),
@@ -36,6 +37,7 @@ class ed_water_vapor_properties : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_water_vapor_properties"; }
 
    private:
     // Pointers to input quantities
@@ -43,6 +45,7 @@ class ed_water_vapor_properties : public direct_module
     const double* atmospheric_pressure_ip;
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* specific_heat_of_air_ip;
+
     // Pointers to output quantities
     double* latent_heat_vaporization_of_water_op;
     double* slope_water_vapor_op;
@@ -50,6 +53,7 @@ class ed_water_vapor_properties : public direct_module
     double* water_vapor_pressure_op;
     double* vapor_density_deficit_op;
     double* psychrometric_parameter_op;
+
     // Main operation
     void do_operation() const;
 };

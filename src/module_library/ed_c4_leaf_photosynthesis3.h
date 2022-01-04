@@ -102,6 +102,7 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return ed_c4_leaf_photosynthesis3_stuff::module_name; }
 
    private:
     // References to input quantities

@@ -63,7 +63,7 @@ class partitioning_growth : public differential_module
     partitioning_growth(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module{"partitioning_growth"},
+        : differential_module(),
 
           // Get references to input quantities
           retrans{get_input(input_quantities, "retrans")},
@@ -93,6 +93,7 @@ class partitioning_growth : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "partitioning_growth"; }
 
    private:
     // References to input quantities

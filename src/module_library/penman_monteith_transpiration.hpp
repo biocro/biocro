@@ -10,8 +10,7 @@ class penman_monteith_transpiration : public direct_module
     penman_monteith_transpiration(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("penman_monteith_transpiration"),
+        : direct_module(),
 
           // Get references to input quantities
           slope_water_vapor{get_input(input_quantities, "slope_water_vapor")},
@@ -28,6 +27,7 @@ class penman_monteith_transpiration : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "penman_monteith_transpiration"; }
 
    private:
     // References to input quantities

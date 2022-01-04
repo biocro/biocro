@@ -13,23 +13,28 @@ class fake_solar : public direct_module
     fake_solar(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module("fake_solar"),
+        : direct_module(),
+
           // Get pointers to input quantities
           time_ip(get_ip(input_quantities, "time")),
           target_time_ip(get_ip(input_quantities, "target_time")),
+
           // Get pointers to output quantities
           solar_op(get_op(output_quantities, "solar"))
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "fake_solar"; }
 
    private:
     // Pointers to input quantities
     const double* time_ip;
     const double* target_time_ip;
+
     // Pointers to output quantities
     double* solar_op;
+
     // Main operation
     void do_operation() const;
 };
@@ -38,15 +43,13 @@ string_vector fake_solar::get_inputs()
 {
     return {
         "time",
-        "target_time"
-    };
+        "target_time"};
 }
 
 string_vector fake_solar::get_outputs()
 {
     return {
-        "solar"
-    };
+        "solar"};
 }
 
 void fake_solar::do_operation() const

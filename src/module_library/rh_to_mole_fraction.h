@@ -42,8 +42,7 @@ class rh_to_mole_fraction : public direct_module
     rh_to_mole_fraction(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("rh_to_mole_fraction"),
+        : direct_module(),
 
           // Get references to input quantities
           rh{get_input(input_quantities, "rh")},
@@ -56,6 +55,7 @@ class rh_to_mole_fraction : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "rh_to_mole_fraction"; }
 
    private:
     // References to input quantities

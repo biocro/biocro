@@ -80,20 +80,22 @@ class ed_nikolov_conductance_forced : public direct_module
     ed_nikolov_conductance_forced(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_nikolov_conductance_forced"),
+        : direct_module(),
+
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
           windspeed_ip(get_ip(input_quantities, "windspeed")),
           leafwidth_ip(get_ip(input_quantities, "leafwidth")),
           nikolov_cf_ip(get_ip(input_quantities, "nikolov_cf")),
+
           // Get pointers to output quantities
           conductance_boundary_h2o_forced_op(get_op(output_quantities, "conductance_boundary_h2o_forced"))
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_nikolov_conductance_forced"; }
 
    private:
     // Pointers to input quantities
@@ -102,8 +104,10 @@ class ed_nikolov_conductance_forced : public direct_module
     const double* windspeed_ip;
     const double* leafwidth_ip;
     const double* nikolov_cf_ip;
+
     // Pointers to output quantities
     double* conductance_boundary_h2o_forced_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -175,8 +179,8 @@ class ed_nikolov_conductance_free : public direct_module
     ed_nikolov_conductance_free(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_nikolov_conductance_free"),
+        : direct_module(),
+
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
@@ -186,6 +190,7 @@ class ed_nikolov_conductance_free : public direct_module
           conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
           conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
           nikolov_ce_ip(get_ip(input_quantities, "nikolov_ce")),
+
           // Get pointers to output quantities
           conductance_boundary_h2o_free_op(get_op(output_quantities, "conductance_boundary_h2o_free")),
           nikolov_virtual_temperature_difference_op(get_op(output_quantities, "nikolov_virtual_temperature_difference"))
@@ -193,6 +198,7 @@ class ed_nikolov_conductance_free : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_nikolov_conductance_free"; }
 
    private:
     // Pointers to input quantities
@@ -204,9 +210,11 @@ class ed_nikolov_conductance_free : public direct_module
     const double* conductance_boundary_h2o_free_ip;
     const double* conductance_stomatal_h2o_ip;
     const double* nikolov_ce_ip;
+
     // Pointers to output quantities
     double* conductance_boundary_h2o_free_op;
     double* nikolov_virtual_temperature_difference_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -343,6 +351,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return ed_nikolov_conductance_free_solve_stuff::module_name; }
 
    private:
     // Main operation

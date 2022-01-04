@@ -55,8 +55,7 @@ class soybean_development_rate_calculator : public direct_module
     soybean_development_rate_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        // Define basic module properties by passing its name to its parent class
-        : direct_module{"soybean_development_rate_calculator"},
+        : direct_module(),
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
@@ -84,6 +83,7 @@ class soybean_development_rate_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "soybean_development_rate_calculator"; }
 
    private:
     // References to input quantities
@@ -154,65 +154,64 @@ void soybean_development_rate_calculator::do_operation() const
     } else if (DVI < -1) {
         // error, DVI out of bounds, this should never occur unless initial DVI
         // state is less than -1.
-        soybean_development_rate = 0; // day^-1
+        soybean_development_rate = 0;  // day^-1
 
     } else if (DVI < 0) {
         // 1. Sowing to emergence
 
-        double temp_diff = temp - Tbase_emr; // degrees C
-        soybean_development_rate = std::max(0.0, temp_diff / TTemr_threshold); // day^-1
+        double temp_diff = temp - Tbase_emr;                                    // degrees C
+        soybean_development_rate = std::max(0.0, temp_diff / TTemr_threshold);  // day^-1
 
     } else if (DVI < 0.333) {
         // 2a. Emergence - V0 (cotyledon stage); r = Rmax * f(T)
 
-        soybean_development_rate = Rmax_emrV0 * tempFunc(temp, Tmin_emrV0,
-                                   Topt_emrV0, Tmax_emrV0) / 3.0; // day^-1
+        soybean_development_rate = Rmax_emrV0 * tempFunc(temp, Tmin_emrV0, Topt_emrV0, Tmax_emrV0) / 3.0;  // day^-1
     } else if (DVI < 0.667) {
         // 2b. V0 (cotyledon) - R0 (end of floral induction); r = Rmax * f(P)
 
-        const double Rmax_V0R0 = 0.0294 + 0.1561 / maturity_group; // day^-1;
-                                // Setiyono et al., 2007, Fig. 12a
+        const double Rmax_V0R0 = 0.0294 + 0.1561 / maturity_group;  // day^-1;
+                                                                    // Setiyono et al., 2007, Fig. 12a
 
         const double Popt_V0R0 = 12.759 - 0.388 * maturity_group -
-            0.058 * pow(maturity_group,2); // hours; Setiyono et al., 2007, Fig 4
+                                 0.058 * pow(maturity_group, 2);  // hours; Setiyono et al., 2007, Fig 4
         const double Pcrit_V0R0 = 27.275 - 0.493 * maturity_group -
-            0.066 * pow(maturity_group,2); // hours; Setiyono et al., 2007, Fig 4
+                                  0.066 * pow(maturity_group, 2);  // hours; Setiyono et al., 2007, Fig 4
 
-        double day_length_civil = 1.072 * day_length; // hours;
+        double day_length_civil = 1.072 * day_length;  // hours;
             // Converts day length calculated based on solar elevation = -0.83 degrees
             // to civil day length (based on solar elevation angle = -6 degrees)
 
         soybean_development_rate = Rmax_V0R0 *
-            photoFunc(day_length_civil, Popt_V0R0, Pcrit_V0R0) / 3.0; // day^-1
+                                   photoFunc(day_length_civil, Popt_V0R0, Pcrit_V0R0) / 3.0;  // day^-1
 
     } else if (DVI < 1) {
         // 2c. R0 (end of floral induction) - R1 (flowering); r = Rmax * f(T)
 
         const double Rmax_R0R1 = (0.2551 + 0.0965 * maturity_group) /
-            (1 + 2.1107 * maturity_group); // day^-1; Setiyono et al., 2007, Fig 11a
+                                 (1 + 2.1107 * maturity_group);  // day^-1; Setiyono et al., 2007, Fig 11a
 
         soybean_development_rate = Rmax_R0R1 *
-            tempFunc(temp, Tmin_R0R1, Topt_R0R1, Tmax_R0R1) / 3.0; // day^-1
+                                   tempFunc(temp, Tmin_R0R1, Topt_R0R1, Tmax_R0R1) / 3.0;  // day^-1
 
     } else {
         // 3. Reproductive stages, R1 (flowering) - R7 (maturity);
         // r = Rmax * f(T) * f(P)
 
         const double Rmax_R1R7 = (0.0563 + 0.0228 * maturity_group) /
-            (1 + 1.9683 * maturity_group); // day^-1; Setiyono et al., 2007, Fig 11d
+                                 (1 + 1.9683 * maturity_group);  // day^-1; Setiyono et al., 2007, Fig 11d
 
-        const double Popt_R1R7 = 10.6595 + 2.9706 / maturity_group; // hrs;
+        const double Popt_R1R7 = 10.6595 + 2.9706 / maturity_group;  // hrs;
             // Setiyono et al., 2007, Fig 12c
 
-        const double Pcrit_R1R7 = 16.1257 + 4.3143 / maturity_group; // hrs;
+        const double Pcrit_R1R7 = 16.1257 + 4.3143 / maturity_group;  // hrs;
             // Setiyono et al., 2007, Fig 12c
 
         soybean_development_rate = Rmax_R1R7 *
-            tempFunc(temp, Tmin_R1R7, Topt_R1R7, Tmax_R1R7) *
-            photoFunc(day_length, Popt_R1R7, Pcrit_R1R7); // day^-1
+                                   tempFunc(temp, Tmin_R1R7, Topt_R1R7, Tmax_R1R7) *
+                                   photoFunc(day_length, Popt_R1R7, Pcrit_R1R7);  // day^-1
     }
 
-    double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
+    double development_rate_per_hour = soybean_development_rate / 24.0;  // hr^-1
 
     // Update the output quantity list
     update(development_rate_per_hour_op, development_rate_per_hour);
@@ -223,10 +222,10 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax)
     double fT;  // dimensionless
 
     if (T > Tmin && T < Tmax) {
-        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin)); // dimensionless
+        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin));              // dimensionless
         double fT_num_pt1 = 2.0 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha);  // dimensionless
-        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha); // dimensionless
-        double fT_denom = pow(Topt - Tmin, 2.0 * alpha); // dimensionless
+        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha);                            // dimensionless
+        double fT_denom = pow(Topt - Tmin, 2.0 * alpha);                           // dimensionless
 
         fT = (fT_num_pt1 - fT_num_pt2) / fT_denom;  // dimensionless
     } else {
@@ -242,10 +241,9 @@ double photoFunc(double P, double Popt, double Pcrit)
     double fP;       // dimensionless
 
     if (P <= Popt) {
-        fP = 1.0; // dimensionless
+        fP = 1.0;  // dimensionless
 
     } else if (P < Pcrit) {
-
         double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m);  // dimensionless
         double fP_pt1 = 1.0 + (P - Popt) / m;                     // dimensionless
         double fP_pt2 = (Pcrit - P) / (Pcrit - Popt);             // dimensionless

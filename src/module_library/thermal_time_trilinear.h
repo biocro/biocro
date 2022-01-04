@@ -87,8 +87,7 @@ class thermal_time_trilinear : public differential_module
     thermal_time_trilinear(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("thermal_time_trilinear"),
+        : differential_module(),
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
@@ -105,6 +104,7 @@ class thermal_time_trilinear : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "thermal_time_trilinear"; }
 
    private:
     // References to input quantities

@@ -55,12 +55,12 @@ dynamical_system::dynamical_system(
     // rather than actual quantity values, but direct modules should
     // directly modify the main output map.
     direct_modules = get_module_vector(
-        vector<string_vector>{direct_module_names},
+        direct_module_names,
         all_quantities,
         &all_quantities);
 
     differential_modules = get_module_vector(
-        vector<string_vector>{differential_module_names},
+        differential_module_names,
         all_quantities,
         &differential_quantity_derivatives);
 

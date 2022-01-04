@@ -30,11 +30,9 @@ class module_base
 {
    public:
     module_base(
-        std::string const& module_name,
         bool const& differential,
         bool const& requires_euler)
-        : module_name{module_name},
-          differential{differential},
+        : differential{differential},
           requires_euler{requires_euler}
     {
     }
@@ -42,7 +40,6 @@ class module_base
     virtual ~module_base() = 0;
 
     // Functions for returning module information
-    std::string get_name() const { return module_name; }
     bool is_differential() const { return differential; }
     bool requires_euler_ode_solver() const { return requires_euler; }
 
@@ -78,9 +75,8 @@ inline module_base::~module_base() {}
 class direct_module : public module_base
 {
    public:
-    direct_module(
-        const std::string& module_name, bool requires_euler = false)
-        : module_base{module_name, 0, requires_euler}
+    direct_module(bool requires_euler = false)
+        : module_base{false, requires_euler}
     {
     }
 
@@ -120,8 +116,8 @@ inline void direct_module::update(double* output_ptr, const double& value) const
 class differential_module : public module_base
 {
    public:
-    differential_module(const std::string& module_name, bool requires_euler = false)
-        : module_base{module_name, 1, requires_euler}
+    differential_module(bool requires_euler = false)
+        : module_base{true, requires_euler}
     {
     }
 
@@ -151,6 +147,15 @@ inline void differential_module::update(double* output_ptr, const double& value)
     *output_ptr += value;
 }
 
-void run_module_list(std::vector<std::unique_ptr<module_base>> const& modules);
+/**
+ * @brief `module_vector` serves as an alias for a type widely used to
+ * hold lists of modules.
+ *
+ * Formally, it is a `std::vector` of `std::unique_ptr`s that point to
+ * `module_base` objects.
+ */
+using module_vector = std::vector<std::unique_ptr<module_base>>;
+
+void run_module_list(module_vector const& modules);
 
 #endif

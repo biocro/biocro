@@ -16,8 +16,7 @@ class total_biomass : public direct_module
     total_biomass(
         const state_map& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("total_biomass"),
+        : direct_module(),
 
           // Get pointers to input parameters
           Leaf{get_input(input_quantities, "Leaf")},
@@ -32,6 +31,7 @@ class total_biomass : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "total_biomass"; }
 
    private:
     // Pointers to input parameters

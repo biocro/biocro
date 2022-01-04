@@ -18,8 +18,7 @@ class ed_long_wave_energy_loss : public direct_module
     ed_long_wave_energy_loss(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_long_wave_energy_loss"),
+        : direct_module(),
 
           // Get references to input quantities
           temperature_leaf{get_input(input_quantities, "temperature_leaf")},
@@ -33,6 +32,7 @@ class ed_long_wave_energy_loss : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_long_wave_energy_loss"; }
 
    private:
     // References to input quantities

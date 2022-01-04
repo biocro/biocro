@@ -32,8 +32,7 @@ class leaf_gbw_nikolov : public direct_module
     leaf_gbw_nikolov(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("leaf_gbw_nikolov"),
+        : direct_module(),
 
           // Get references to input quantities
           windspeed{get_input(input_quantities, "windspeed")},
@@ -50,6 +49,7 @@ class leaf_gbw_nikolov : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "leaf_gbw_nikolov"; }
 
    private:
     // References to input quantities

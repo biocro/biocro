@@ -16,8 +16,7 @@ class c4_leaf_photosynthesis : public direct_module
     c4_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("c4_leaf_photosynthesis"),
+        : direct_module(),
 
           // Get references to input quantities
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),
@@ -60,6 +59,7 @@ class c4_leaf_photosynthesis : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "c4_leaf_photosynthesis"; }
 
    private:
     // References to input quantities

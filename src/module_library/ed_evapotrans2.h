@@ -18,8 +18,8 @@ class ed_evapotrans2 : public direct_module
     ed_evapotrans2(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_evapotrans2"),
+        : direct_module(),
+
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           rh_ip(get_ip(input_quantities, "rh")),
@@ -29,6 +29,7 @@ class ed_evapotrans2 : public direct_module
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
           minimum_gbw_ip(get_ip(input_quantities, "minimum_gbw")),
+
           // Get pointers to output quantities
           evapotranspiration_penman_monteith_op(get_op(output_quantities, "evapotranspiration_penman_monteith")),
           evapotranspiration_penman_op(get_op(output_quantities, "evapotranspiration_penman")),
@@ -40,6 +41,7 @@ class ed_evapotrans2 : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_evapotrans2"; }
 
    private:
     // Pointers to input quantities
@@ -51,12 +53,14 @@ class ed_evapotrans2 : public direct_module
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
     const double* minimum_gbw_ip;
+
     // Pointers to output quantities
     double* evapotranspiration_penman_monteith_op;
     double* evapotranspiration_penman_op;
     double* evapotranspiration_priestly_op;
     double* temperature_leaf_op;
     double* gbw_op;
+
     // Main operation
     void do_operation() const override;
 };
