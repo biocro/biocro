@@ -341,12 +341,11 @@ jobs:
         ##   tinytex::install_tinytex()
         ##   # Install a few LaTeX packages needed by the vignette not included
         ##   # in tinytex:
-        ##   tinytex::tlmgr_install(c('siunitx', 'babel-english'))
+        ##   tinytex::tlmgr_install(c('siunitx', 'babel-english', [... other packages ...]))
         ## shell: Rscript {0}
         #
         # Using the setup-tinytex action followed by a separate step
-        # using tlmgr on the command line to install the extra
-        # packages seems to work:
+        # for installing the extra packages seems to work:
 
       - name: Install TinyTex
         if: needs.get_configuration.outputs.need-tinytex == 'true'
@@ -355,9 +354,14 @@ jobs:
       - name: Install extra LaTeX packages
         if: needs.get_configuration.outputs.need-tinytex == 'true' 
         run: |
-          # Install a few LaTeX packages needed by the vignette not included
-          # in tinytex:
-          tlmgr install siunitx babel-english footnotebackref listings appendix pgf
+
+          # Do a trial build of pdf_vignette_index.Rmd, which itself
+          # builds the Rnw vignettes, installing any needed LaTeX
+          # packages:
+
+          install.packages('rmarkdown')
+          xfun::in_dir('vignettes', tools::buildVignette('pdf_vignette_index.Rmd'))
+        shell: Rscript {0}
 
       - name: Check package
         env:
