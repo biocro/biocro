@@ -14,7 +14,7 @@ Imports:
     stats
 Suggests:
     testthat,
-    knitr,
+    knitr
 VignetteBuilder: knitr
 SystemRequirements: C++11
 License: FreeBSD + file LICENSE

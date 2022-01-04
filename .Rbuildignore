@@ -9,7 +9,9 @@
 
 ^vignettes/.*\.aux$
 ^vignettes/.*\.out$
-^vignettes/.*\.pdf$
+# Only exclude PDFs in the vignettes directory itself, not those in
+# subdirectories:
+^vignettes/[^/]*\.pdf$
 ^vignettes/.*\.tex$
 ^vignettes/.*\.toc$
 ^vignettes/figure$
