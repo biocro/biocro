@@ -1,3 +1,0 @@
-minimum_gbw,windspeed,specific_heat_of_air,rh,temp,solar_energy_absorbed_leaf,leafwidth,conductance_stomatal_h2o,gbw,evapotranspiration_priestly,evapotranspiration_penman_monteith,temperature_leaf,evapotranspiration_penman,description
-input,input,input,input,input,input,input,input,output,output,output,output,output,NA
-1,1,1,1,1,1,1,1,1,0,0,1.08888773152129,0,automatically-generated test case

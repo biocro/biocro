@@ -3,7 +3,6 @@
 
 #include <memory>  // for std::shared_ptr
 #include "dynamical_system.h"
-#include "simultaneous_equations.h"
 #include "constants.h"
 
 /**
@@ -23,30 +22,6 @@ template <typename vector_type, typename time_type>
 void evaluate_equations(std::shared_ptr<dynamical_system> const& sys, vector_type const& x, time_type t, vector_type& y)
 {
     sys->calculate_derivative(x, y, t);
-}
-
-/**
- * @brief Define `evaluation` behavior for a set of equations defined by a simultaneous_equations object.
- *
- * @param[in] sys a shared pointer to a simultaneous_equations object
- *
- * @param[in] x a vector to be passed to the simultaneous_equations as an input. Since we are evaluating
- *              simultaneous equations, x contains values of the unknown variables.
- *
- * @param[in] t an unused parameter included here to produce the same function signature as when evaluating
- *              a dynamical_system.
- *
- * @param[out] y the vector output. Since we are evaluating simultaneous equations, y contains the change
- *               in the value of each unknown variable produced by running the modules.
- */
-template <typename in_vector_type, typename time_type, typename out_vector_type>
-void evaluate_equations(
-    std::unique_ptr<simultaneous_equations> const& se,
-    in_vector_type const& x,
-    time_type /*t*/,
-    out_vector_type& y)
-{
-    se->operator()(x, y);
 }
 
 /**
