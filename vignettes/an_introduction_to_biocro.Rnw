@@ -156,8 +156,16 @@
 % Set things up for R evaluation:
 <<preliminaries,echo=FALSE,error=TRUE>>=
 knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
-                                  # in results; this is the default
+                                  # in results; this is the default;
+                                  # we override this below when
+                                  # loading needed packages
+@
+
+% error=FALSE: If we can't load the needed libraries, we want to stop
+% compilation immediately.
+<<loading_libraries,echo=FALSE,error=FALSE>>=
 library(BioCro, quietly=TRUE)
+library(lattice, quietly=TRUE)
 @
 
 
@@ -620,9 +628,6 @@ development of a crop as follows:
 
 % Run the code to validate it, but don't show the figure.
 <<Gro_example, fig.show='hide'>>=
-library(BioCro)
-library(lattice)  # This is a package that creates figures.
-
 result = run_biocro(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather2005),
              sorghum_direct_modules, sorghum_differential_modules,
