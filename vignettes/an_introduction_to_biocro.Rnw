@@ -147,7 +147,7 @@
 
 
 \title{An Introduction to BioCro for Those Who Want to Add Models}
-\author{Justin McGrath}
+\author{BioCro Development Team}
 
 \begin{document}
 
@@ -632,7 +632,8 @@ result = run_biocro(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather2005),
              sorghum_direct_modules, sorghum_differential_modules,
              sorghum_ode_solver)
-xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
+xyplot(Stem + Leaf + Root ~ TTc, data=result)  # `xyplot` requires the lattice package.
+                                               # The output is not shown here.
 @
 
 \section{Modifying the BioCro code}
