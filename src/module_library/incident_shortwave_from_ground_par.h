@@ -28,14 +28,15 @@ class incident_shortwave_from_ground_par : public direct_module
     incident_shortwave_from_ground_par(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("incident_shortwave_from_ground_par"),
+        : direct_module(),
+
           // Get pointers to input quantities
           solar(get_input(input_quantities, "solar")),
           irradiance_direct_fraction(get_input(input_quantities, "irradiance_direct_fraction")),
           irradiance_diffuse_fraction(get_input(input_quantities, "irradiance_diffuse_fraction")),
           par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
           par_energy_content(get_input(input_quantities, "par_energy_content")),
+
           // Get pointers to output quantities
           par_incident_direct_op(get_op(output_quantities, "par_incident_direct")),
           par_incident_diffuse_op(get_op(output_quantities, "par_incident_diffuse")),
@@ -45,6 +46,7 @@ class incident_shortwave_from_ground_par : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "incident_shortwave_from_ground_par"; }
 
    private:
     // References to input quantities
@@ -53,11 +55,13 @@ class incident_shortwave_from_ground_par : public direct_module
     double const& irradiance_diffuse_fraction;
     double const& par_energy_fraction;
     double const& par_energy_content;
+
     // Pointers to output quantities
     double* par_incident_direct_op;
     double* par_incident_diffuse_op;
     double* nir_incident_direct_op;
     double* nir_incident_diffuse_op;
+
     // Main operation
     void do_operation() const;
 };
@@ -65,11 +69,11 @@ class incident_shortwave_from_ground_par : public direct_module
 string_vector incident_shortwave_from_ground_par::get_inputs()
 {
     return {
-        "solar",                            // micromol / (m^2 beam) / s [area perpendicular to beam]
-        "irradiance_direct_fraction",       // dimensionless
-        "irradiance_diffuse_fraction",      // dimensionless
-        "par_energy_fraction",              // dimensionless
-        "par_energy_content"                // J / micromol
+        "solar",                        // micromol / (m^2 beam) / s [area perpendicular to beam]
+        "irradiance_direct_fraction",   // dimensionless
+        "irradiance_diffuse_fraction",  // dimensionless
+        "par_energy_fraction",          // dimensionless
+        "par_energy_content"            // J / micromol
     };
 }
 

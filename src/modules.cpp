@@ -5,9 +5,9 @@
  *
  *  @param [in] modules A vector of unique pointers to module objects
  */
-void run_module_list(std::vector<std::unique_ptr<module_base>> const& modules)
+void run_module_list(module_vector const& modules)
 {
-    for (std::unique_ptr<module_base> const& m : modules) {
+    for (auto const& m : modules) {
         m->run();
     }
 }

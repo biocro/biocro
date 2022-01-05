@@ -60,8 +60,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     no_leaf_resp_partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("no_leaf_resp_partitioning_growth_calculator"),
+        : direct_module(),
 
           // Get pointers to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},
@@ -84,6 +83,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "no_leaf_resp_partitioning_growth_calculator"; }
 
    private:
     // Pointers to input quantities

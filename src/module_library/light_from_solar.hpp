@@ -4,46 +4,56 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class light_from_solar : public direct_module {
-    public:
-        light_from_solar(state_map const& input_quantities, state_map* output_quantities) :
-            // Define basic module properties by passing its name to its parent class
-            direct_module("light_from_solar"),
-            // Get pointers to input quantities
-            solar_ip(get_ip(input_quantities, "solar")),
-            light_threshold_ip(get_ip(input_quantities, "light_threshold")),
-            light_exp_at_zero_ip(get_ip(input_quantities, "light_exp_at_zero")),
-            // Get pointers to output quantities
-            light_op(get_op(output_quantities, "light"))
-        {}
-        static string_vector get_inputs();
-        static string_vector get_outputs();
-    private:
-        // Pointers to input quantities
-        const double* solar_ip;
-        const double* light_threshold_ip;
-        const double* light_exp_at_zero_ip;
-        // Pointers to output quantities
-        double* light_op;
-        // Main operation
-        void do_operation() const;
+class light_from_solar : public direct_module
+{
+   public:
+    light_from_solar(state_map const& input_quantities, state_map* output_quantities)
+        : direct_module(),
+
+          // Get pointers to input quantities
+          solar_ip(get_ip(input_quantities, "solar")),
+          light_threshold_ip(get_ip(input_quantities, "light_threshold")),
+          light_exp_at_zero_ip(get_ip(input_quantities, "light_exp_at_zero")),
+
+          // Get pointers to output quantities
+          light_op(get_op(output_quantities, "light"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+    static std::string get_name() { return "light_from_solar"; }
+
+   private:
+    // Pointers to input quantities
+    const double* solar_ip;
+    const double* light_threshold_ip;
+    const double* light_exp_at_zero_ip;
+
+    // Pointers to output quantities
+    double* light_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector light_from_solar::get_inputs() {
+string_vector light_from_solar::get_inputs()
+{
     return {
-        "solar",
-        "light_threshold",
-        "light_exp_at_zero"
+        "solar",             //
+        "light_threshold",   //
+        "light_exp_at_zero"  //
     };
 }
 
-string_vector light_from_solar::get_outputs() {
+string_vector light_from_solar::get_outputs()
+{
     return {
-        "light"
+        "light"  //
     };
 }
 
-void light_from_solar::do_operation() const {
+void light_from_solar::do_operation() const
+{
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////

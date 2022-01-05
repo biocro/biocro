@@ -5,7 +5,8 @@
 #include <set>
 #include <unordered_map>
 #include <string>
-#include <memory>  // For unique_ptr
+#include <memory>     // For unique_ptr
+#include "modules.h"  // For module_vector
 #include "validate_dynamical_system.h"
 #include "constants.h"
 

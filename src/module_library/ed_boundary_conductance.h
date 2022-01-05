@@ -26,25 +26,28 @@ class ed_boundary_conductance_quadrature : public direct_module
     ed_boundary_conductance_quadrature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_boundary_conductance_quadrature"),
+        : direct_module(),
+
           // Get pointers to input quantities
           conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
           conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
+
           // Get pointers to output quantities
           conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
-
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_boundary_conductance_quadrature"; }
 
    private:
     // Pointers to input quantities
     const double* conductance_boundary_h2o_forced_ip;
     const double* conductance_boundary_h2o_free_ip;
+
     // Pointers to output quantities
     double* conductance_boundary_h2o_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -88,11 +91,12 @@ class ed_boundary_conductance_max : public direct_module
     ed_boundary_conductance_max(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_boundary_conductance_max"),
+        : direct_module(),
+
           // Get pointers to input quantities
           conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
           conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
+
           // Get pointers to output quantities
           conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
 
@@ -100,13 +104,16 @@ class ed_boundary_conductance_max : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_boundary_conductance_max"; }
 
    private:
     // Pointers to input quantities
     const double* conductance_boundary_h2o_forced_ip;
     const double* conductance_boundary_h2o_free_ip;
+
     // Pointers to output quantities
     double* conductance_boundary_h2o_op;
+
     // Main operation
     void do_operation() const override;
 };

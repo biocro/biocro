@@ -6,36 +6,62 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-```{r, echo = FALSE}
-rpath <- paste(.libPaths(), collapse = ':') # make a path that includes where pkgdown installed BioCro
+```{r, include = FALSE}
 
-system2('R', args = c('CMD', 'Sweave', '--pdf', 'a_practical_guide_to_biocro.Rnw'),
-             env = c(paste0('R_LIBS=', rpath)) # pass the expanded R
-                                               # path (which includes
-                                               # the location of the
-                                               # just-build BioCro
-                                               # package) in the
-                                               # environment
-       )
 
-system2('R', args = c('CMD', 'Sweave', '--pdf', 'quantitative_model_comparison.Rnw'),
-             env = c(paste0('R_LIBS=', rpath))
-       )
+## Make a path that includes where pkgdown installed BioCro:
 
-system2('R', args = c('CMD', 'Sweave', '--pdf', 'an_introduction_to_biocro.Rnw'),
-             env = c(paste0('R_LIBS=', rpath))
-       )
+rpath <- paste(.libPaths(), collapse = ':')
 
-system('R CMD Sweave --pdf biocro-manual-knitr.Rnw') # this vignette doesn't need BioCro
+
+
+## Nonce function for processing all the Rnw files:
+
+compile_rnw_file <- function(rnw_filename) {
+    system2('R', args = c('CMD', 'Sweave', rnw_filename),
+                 env = c(paste0('R_LIBS=', rpath)) # pass the expanded R
+                                                   # path (which includes
+                                                   # the location of the
+                                                   # just-built BioCro
+                                                   # package) in the
+                                                   # environment
+    )
+
+    tex_filename <- paste0(tools::file_path_sans_ext(rnw_filename), '.tex')
+
+    if (requireNamespace('tinytex', quietly = TRUE)) {
+
+        # If TinyTeX is installed, tinytex::pdflatex will install
+        # needed LaTeX packages automatically.
+
+        try(tinytex::pdflatex(tex_filename))
+
+    } else {
+
+        try(tools::texi2pdf(tex_filename))
+
+    }
+}
+
+
+compile_rnw_file('a_practical_guide_to_biocro.Rnw')
+compile_rnw_file('quantitative_model_comparison.Rnw')
+compile_rnw_file('an_introduction_to_biocro.Rnw')
+compile_rnw_file('biocro-manual-knitr.Rnw') # (This vignette doesn't need BioCro.)
 ```
 
 <!--
+
 <iframe src="a_practical_guide_to_biocro.pdf"/>
 <iframe src="quantitative_model_comparison.pdf"/>
 <iframe src="a_practical_guide_to_biocro.R"/>
 <iframe src="quantitative_model_comparison.R"/>
 <iframe src="an_introduction_to_biocro.pdf"/>
 <iframe src="biocro-manual-knitr.pdf"/>
+
+(These lines fool pkgdown into copying the PDF and R files to the docs
+directory so that the links below work.)
+
 -->
 
 ## [_A Practical Guide to BioCro_](a_practical_guide_to_biocro.pdf)

@@ -91,10 +91,8 @@ class thermal_time_and_frost_senescence : public differential_module
     thermal_time_and_frost_senescence(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent
-           // class and indicate that this module requires a fixed step size
-           // Euler ODE solver
-          differential_module("thermal_time_and_frost_senescence", true),
+        :  // Iindicate that this module requires a fixed step size Euler ODE solver
+          differential_module(true),
 
           // Get pointers to input quantities
           TTc{get_input(input_quantities, "TTc")},
@@ -141,6 +139,7 @@ class thermal_time_and_frost_senescence : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "thermal_time_and_frost_senescence"; }
 
    private:
     // Vectors for storing information about growth history

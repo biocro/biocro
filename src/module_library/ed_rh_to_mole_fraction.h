@@ -24,27 +24,30 @@ class ed_rh_to_mole_fraction : public direct_module
     ed_rh_to_mole_fraction(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_rh_to_mole_fraction"),
+        : direct_module(),
+
           // Get pointers to input quantities
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
           temperature_air_ip(get_ip(input_quantities, "temp")),
           relative_humidity_atmosphere_ip(get_ip(input_quantities, "rh")),
+
           // Get pointers to output quantities
           mole_fraction_h2o_atmosphere_op(get_op(output_quantities, "mole_fraction_h2o_atmosphere"))
-
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_rh_to_mole_fraction"; }
 
    private:
     // Pointers to input quantities
     const double* atmospheric_pressure_ip;
     const double* temperature_air_ip;
     const double* relative_humidity_atmosphere_ip;
+
     // Pointers to output quantities
     double* mole_fraction_h2o_atmosphere_op;
+
     // Main operation
     void do_operation() const override;
 };

@@ -4,52 +4,62 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class night_and_day_trackers : public differential_module {
-    public:
-        night_and_day_trackers(state_map const& input_quantities, state_map* output_quantities) :
-            // Define basic module properties by passing its name to its parent class
-            differential_module("night_and_day_trackers"),
-            // Get pointers to input quantities
-            tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),
-            light_ip(get_ip(input_quantities, "light")),
-            night_tracker_ip(get_ip(input_quantities, "night_tracker")),
-            day_tracker_ip(get_ip(input_quantities, "day_tracker")),
-            // Get pointers to output quantities
-            night_tracker_op(get_op(output_quantities, "night_tracker")),
-            day_tracker_op(get_op(output_quantities, "day_tracker"))
-        {}
-        static string_vector get_inputs();
-        static string_vector get_outputs();
-    private:
-        // Pointers to input quantities
-        const double* tracker_rate_ip;
-        const double* light_ip;
-        const double* night_tracker_ip;
-        const double* day_tracker_ip;
-        // Pointers to output quantities
-        double* night_tracker_op;
-        double* day_tracker_op;
-        // Main operation
-        void do_operation() const;
+class night_and_day_trackers : public differential_module
+{
+   public:
+    night_and_day_trackers(state_map const& input_quantities, state_map* output_quantities)
+        : differential_module(),
+
+          // Get pointers to input quantities
+          tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),
+          light_ip(get_ip(input_quantities, "light")),
+          night_tracker_ip(get_ip(input_quantities, "night_tracker")),
+          day_tracker_ip(get_ip(input_quantities, "day_tracker")),
+
+          // Get pointers to output quantities
+          night_tracker_op(get_op(output_quantities, "night_tracker")),
+          day_tracker_op(get_op(output_quantities, "day_tracker"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+    static std::string get_name() { return "night_and_day_trackers"; }
+
+   private:
+    // Pointers to input quantities
+    const double* tracker_rate_ip;
+    const double* light_ip;
+    const double* night_tracker_ip;
+    const double* day_tracker_ip;
+
+    // Pointers to output quantities
+    double* night_tracker_op;
+    double* day_tracker_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector night_and_day_trackers::get_inputs() {
+string_vector night_and_day_trackers::get_inputs()
+{
     return {
-        "tracker_rate",
-        "light",
-        "night_tracker",
-        "day_tracker"
+        "tracker_rate",   //
+        "light",          //
+        "night_tracker",  //
+        "day_tracker"     //
     };
 }
 
-string_vector night_and_day_trackers::get_outputs() {
+string_vector night_and_day_trackers::get_outputs()
+{
     return {
-        "night_tracker",
-        "day_tracker"
+        "night_tracker",  //
+        "day_tracker"     //
     };
 }
 
-void night_and_day_trackers::do_operation() const {
+void night_and_day_trackers::do_operation() const
+{
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////

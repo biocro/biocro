@@ -37,7 +37,6 @@ class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
         state_map const& input_quantities,
         state_map* output_quantities)
         : ten_layer_rue_canopy_parent(
-              "ten_layer_rue_canopy",
               ten_layer_rue_canopy::nlayers,
               input_quantities,
               output_quantities)
@@ -45,6 +44,7 @@ class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ten_layer_rue_canopy"; }
 
    private:
     // Number of layers

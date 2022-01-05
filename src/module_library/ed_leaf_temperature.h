@@ -68,8 +68,7 @@ class ed_leaf_temperature : public direct_module
     ed_leaf_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_leaf_temperature"),
+        : direct_module(),
 
           // Get references to input quantities
           long_wave_energy_loss_leaf{get_input(input_quantities, "long_wave_energy_loss_leaf")},
@@ -91,6 +90,7 @@ class ed_leaf_temperature : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_leaf_temperature"; }
 
    private:
     // References to input quantities

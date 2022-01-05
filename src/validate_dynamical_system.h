@@ -1,21 +1,15 @@
 #ifndef VALIDATE_DYNAMICAL_SYSTEM_H
 #define VALIDATE_DYNAMICAL_SYSTEM_H
 
-#include <set>
 #include <string>
 #include <set>
-#include <functional>  // For std::function
-#include <memory>      // For std::unique_ptr and std::shared_ptr
-#include <algorithm>   // For std::find
-#include "state_map.h"
+#include <functional>   // For std::function
+#include "state_map.h"  // For state_map, string_set
+#include "modules.h"    // For module_vector
 #include "module_library/module_wrapper_factory.h"
-#include "modules.h"
 
-using string_set = std::set<std::string>;
-using module_vector = std::vector<std::unique_ptr<module_base>>;
-
-const std::string success_mark { "[pass] " };
-const std::string failure_mark { "[fail] " };
+const std::string success_mark{"[pass] "};
+const std::string failure_mark{"[fail] "};
 
 bool validate_dynamical_system_inputs(
     std::string& message,
@@ -60,12 +54,12 @@ string_vector find_static_output_parameters(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors);
+string_vector find_euler_requirements(string_vector module_names);
 
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential);
+string_vector find_mischaracterized_modules(string_vector module_names, bool is_differential);
 
 module_vector get_module_vector(
-    std::vector<string_vector> module_name_vectors,
+    string_vector module_names,
     state_map const& input_quantities,
     state_map* output_quantities);
 

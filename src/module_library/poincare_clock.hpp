@@ -6,58 +6,66 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class poincare_clock : public differential_module {
-    public:
-        poincare_clock(state_map const& input_quantities, state_map* output_quantities) :
-            // Define basic module properties by passing its name to its parent class
-            differential_module("poincare_clock"),
-            // Get pointers to input quantities
-            dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),
-            dusk_kick_ip(get_ip(input_quantities, "dusk_kick")),
-            dawn_b_ip(get_ip(input_quantities, "dawn_b")),
-            dawn_a_ip(get_ip(input_quantities, "dawn_a")),
-            dusk_b_ip(get_ip(input_quantities, "dusk_b")),
-            dusk_a_ip(get_ip(input_quantities, "dusk_a")),
-            ref_b_ip(get_ip(input_quantities, "ref_b")),
-            ref_a_ip(get_ip(input_quantities, "ref_a")),
-            clock_gamma_ip(get_ip(input_quantities, "clock_gamma")),
-            clock_r0_ip(get_ip(input_quantities, "clock_r0")),
-            clock_period_ip(get_ip(input_quantities, "clock_period")),
-            // Get pointers to output quantities
-            dawn_b_op(get_op(output_quantities, "dawn_b")),
-            dawn_a_op(get_op(output_quantities, "dawn_a")),
-            dusk_b_op(get_op(output_quantities, "dusk_b")),
-            dusk_a_op(get_op(output_quantities, "dusk_a")),
-            ref_b_op(get_op(output_quantities, "ref_b")),
-            ref_a_op(get_op(output_quantities, "ref_a"))
-        {}
-        static string_vector get_inputs();
-        static string_vector get_outputs();
-    private:
-        // Pointers to input quantities
-        const double* dawn_kick_ip;
-        const double* dusk_kick_ip;
-        const double* dawn_b_ip;
-        const double* dawn_a_ip;
-        const double* dusk_b_ip;
-        const double* dusk_a_ip;
-        const double* ref_b_ip;
-        const double* ref_a_ip;
-        const double* clock_gamma_ip;
-        const double* clock_r0_ip;
-        const double* clock_period_ip;
-        // Pointers to output quantities
-        double* dawn_b_op;
-        double* dawn_a_op;
-        double* dusk_b_op;
-        double* dusk_a_op;
-        double* ref_b_op;
-        double* ref_a_op;
-        // Main operation
-        void do_operation() const;
+class poincare_clock : public differential_module
+{
+   public:
+    poincare_clock(state_map const& input_quantities, state_map* output_quantities)
+        : differential_module(),
+
+          // Get pointers to input quantities
+          dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),
+          dusk_kick_ip(get_ip(input_quantities, "dusk_kick")),
+          dawn_b_ip(get_ip(input_quantities, "dawn_b")),
+          dawn_a_ip(get_ip(input_quantities, "dawn_a")),
+          dusk_b_ip(get_ip(input_quantities, "dusk_b")),
+          dusk_a_ip(get_ip(input_quantities, "dusk_a")),
+          ref_b_ip(get_ip(input_quantities, "ref_b")),
+          ref_a_ip(get_ip(input_quantities, "ref_a")),
+          clock_gamma_ip(get_ip(input_quantities, "clock_gamma")),
+          clock_r0_ip(get_ip(input_quantities, "clock_r0")),
+          clock_period_ip(get_ip(input_quantities, "clock_period")),
+
+          // Get pointers to output quantities
+          dawn_b_op(get_op(output_quantities, "dawn_b")),
+          dawn_a_op(get_op(output_quantities, "dawn_a")),
+          dusk_b_op(get_op(output_quantities, "dusk_b")),
+          dusk_a_op(get_op(output_quantities, "dusk_a")),
+          ref_b_op(get_op(output_quantities, "ref_b")),
+          ref_a_op(get_op(output_quantities, "ref_a"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+    static std::string get_name() { return "poincare_clock"; }
+
+   private:
+    // Pointers to input quantities
+    const double* dawn_kick_ip;
+    const double* dusk_kick_ip;
+    const double* dawn_b_ip;
+    const double* dawn_a_ip;
+    const double* dusk_b_ip;
+    const double* dusk_a_ip;
+    const double* ref_b_ip;
+    const double* ref_a_ip;
+    const double* clock_gamma_ip;
+    const double* clock_r0_ip;
+    const double* clock_period_ip;
+
+    // Pointers to output quantities
+    double* dawn_b_op;
+    double* dawn_a_op;
+    double* dusk_b_op;
+    double* dusk_a_op;
+    double* ref_b_op;
+    double* ref_a_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector poincare_clock::get_inputs() {
+string_vector poincare_clock::get_inputs()
+{
     return {
         "dawn_kick",
         "dusk_kick",
@@ -69,22 +77,22 @@ string_vector poincare_clock::get_inputs() {
         "ref_a",
         "clock_gamma",
         "clock_r0",
-        "clock_period"
-    };
+        "clock_period"};
 }
 
-string_vector poincare_clock::get_outputs() {
+string_vector poincare_clock::get_outputs()
+{
     return {
         "dawn_b",
         "dawn_a",
         "dusk_b",
         "dusk_a",
         "ref_b",
-        "ref_a"
-    };
+        "ref_a"};
 }
 
-void poincare_clock::do_operation() const {
+void poincare_clock::do_operation() const
+{
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////
@@ -108,15 +116,15 @@ void poincare_clock::do_operation() const {
     double ref_a = *ref_a_ip;
 
     // Define the constants for the tracking oscillators
-    const double natural_period = *clock_period_ip;           // Natural period in hours
-    const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
+    const double natural_period = *clock_period_ip;         // Natural period in hours
+    const double natural_freq = 2.0 * pi / natural_period;  // Corresponding angular frequency in radians per hour
     const double gamma = *clock_gamma_ip;
     const double r_0 = *clock_r0_ip;
 
     // Calculate the friction terms for the tracking oscillators
     const double dawn_friction = gamma * (r_0 - sqrt(dawn_a * dawn_a + dawn_b * dawn_b));
     const double dusk_friction = gamma * (r_0 - sqrt(dusk_a * dusk_a + dusk_b * dusk_b));
-    const double  ref_friction = gamma * (r_0 - sqrt( ref_a *  ref_a +  ref_b *  ref_b));
+    const double ref_friction = gamma * (r_0 - sqrt(ref_a * ref_a + ref_b * ref_b));
 
     //////////////////////////////////////
     // Update the output quantity list //

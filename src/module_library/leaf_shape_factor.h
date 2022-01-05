@@ -37,8 +37,7 @@ class leaf_shape_factor : public direct_module
     leaf_shape_factor(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("leaf_shape_factor"),
+        : direct_module(),
 
           // Get references to input quantities
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
@@ -50,6 +49,7 @@ class leaf_shape_factor : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "leaf_shape_factor"; }
 
    private:
     // References to input quantities

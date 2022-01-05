@@ -9,31 +9,37 @@
 /**
  * @class golden_ratio_hyperbola
  *
- * @brief Represents a simple hyperbola defined by f(x) = 1 + 1 / x. Intended to be used as a simple test case
- * for simultaneous eqation solvers. The solution to f(x) = x is x = (1 + sqrt(5))/2, the "golden ratio."
+ * @brief Represents a simple hyperbola defined by f(x) = 1 + 1 / x. Intended to
+ * be used as a simple test case for simultaneous eqation solvers. The solution
+ * to f(x) = x is x = (1 + sqrt(5))/2, the "golden ratio."
  */
 class golden_ratio_hyperbola : public direct_module
 {
    public:
     golden_ratio_hyperbola(
         state_map const& input_quantities,
-        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
-                                                                      direct_module("golden_ratio_hyperbola"),
-                                                                      // Get pointers to input quantities
-                                                                      x_ip(get_ip(input_quantities, "x")),
-                                                                      // Get pointers to output quantities
-                                                                      x_op(get_op(output_quantities, "x"))
+        state_map* output_quantities)
+        : direct_module(),
+
+          // Get pointers to input quantities
+          x_ip(get_ip(input_quantities, "x")),
+
+          // Get pointers to output quantities
+          x_op(get_op(output_quantities, "x"))
 
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "golden_ratio_hyperbola"; }
 
    private:
     // Pointers to input quantities
     const double* x_ip;
+
     // Pointers to output quantities
     double* x_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -69,27 +75,32 @@ class hyperbola_2d : public direct_module
    public:
     hyperbola_2d(
         state_map const& input_quantities,
-        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
-                                                                      direct_module("hyperbola_2d"),
-                                                                      // Get pointers to input quantities
-                                                                      x_ip(get_ip(input_quantities, "x")),
-                                                                      y_ip(get_ip(input_quantities, "y")),
-                                                                      // Get pointers to output quantities
-                                                                      x_op(get_op(output_quantities, "x")),
-                                                                      y_op(get_op(output_quantities, "y"))
+        state_map* output_quantities)
+        : direct_module(),
+
+          // Get pointers to input quantities
+          x_ip(get_ip(input_quantities, "x")),
+          y_ip(get_ip(input_quantities, "y")),
+
+          // Get pointers to output quantities
+          x_op(get_op(output_quantities, "x")),
+          y_op(get_op(output_quantities, "y"))
 
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "hyperbola_2d"; }
 
    private:
     // Pointers to input quantities
     const double* x_ip;
     const double* y_ip;
+
     // Pointers to output quantities
     double* x_op;
     double* y_op;
+
     // Main operation
     void do_operation() const override;
 };

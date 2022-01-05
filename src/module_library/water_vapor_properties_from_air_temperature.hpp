@@ -14,8 +14,7 @@ class water_vapor_properties_from_air_temperature : public direct_module
     water_vapor_properties_from_air_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("water_vapor_properties_from_air_temperature"),
+        : direct_module(),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},
@@ -33,6 +32,7 @@ class water_vapor_properties_from_air_temperature : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "water_vapor_properties_from_air_temperature"; }
 
    private:
     // References to input quantities

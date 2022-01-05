@@ -20,13 +20,14 @@ class shortwave_atmospheric_scattering : public direct_module
     shortwave_atmospheric_scattering(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("shortwave_atmospheric_scattering"),
+        : direct_module(),
+
           // Get references to input quantities
           cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
           atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
           atmospheric_transmittance(get_input(input_quantities, "atmospheric_transmittance")),
           atmospheric_scattering(get_input(input_quantities, "atmospheric_scattering")),
+
           // Get pointers to output quantities
           irradiance_direct_transmittance_op(get_op(output_quantities, "irradiance_direct_transmittance")),
           irradiance_diffuse_transmittance_op(get_op(output_quantities, "irradiance_diffuse_transmittance")),
@@ -36,6 +37,7 @@ class shortwave_atmospheric_scattering : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "shortwave_atmospheric_scattering"; }
 
    private:
     // References to input quantities
@@ -43,11 +45,13 @@ class shortwave_atmospheric_scattering : public direct_module
     double const& atmospheric_pressure;
     double const& atmospheric_transmittance;
     double const& atmospheric_scattering;
+
     // Pointers to output quantities
     double* irradiance_direct_transmittance_op;
     double* irradiance_diffuse_transmittance_op;
     double* irradiance_direct_fraction_op;
     double* irradiance_diffuse_fraction_op;
+
     // Main operation
     void do_operation() const;
 };

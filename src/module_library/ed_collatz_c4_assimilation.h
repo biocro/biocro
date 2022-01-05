@@ -10,7 +10,7 @@ const bool collatz_print = false;  // for debugging
 
 
 /**
- * @class ed_collatz_assimilation
+ * @class ed_collatz_c4_assimilation
  *
  * @brief Uses the equations from Collatz et. al (1992) to calculate the CO2 assimilation rate.
  * Currently only intended for use by Ed.
@@ -29,8 +29,8 @@ class ed_collatz_c4_assimilation : public direct_module
     ed_collatz_c4_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_collatz_c4_assimilation"),
+        : direct_module(),
+
           // Get pointers to input quantities
           collatz_q10_ip(get_ip(input_quantities, "collatz_q10")),
           temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
@@ -45,6 +45,7 @@ class ed_collatz_c4_assimilation : public direct_module
           collatz_theta_ip(get_ip(input_quantities, "collatz_theta")),
           collatz_beta_ip(get_ip(input_quantities, "collatz_beta")),
           assimilation_adjustment_factor_WS_ip(get_ip(input_quantities, "assimilation_adjustment_factor_WS")),
+
           // Get pointers to output quantities
           collatz_KT_op(get_op(output_quantities, "collatz_KT")),
           collatz_RT_op(get_op(output_quantities, "collatz_RT")),
@@ -60,6 +61,7 @@ class ed_collatz_c4_assimilation : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_collatz_c4_assimilation"; }
 
    private:
     // Pointers to input quantities
@@ -76,6 +78,7 @@ class ed_collatz_c4_assimilation : public direct_module
     const double* collatz_theta_ip;
     const double* collatz_beta_ip;
     const double* assimilation_adjustment_factor_WS_ip;
+
     // Pointers to output quantities
     double* collatz_KT_op;
     double* collatz_RT_op;
@@ -86,6 +89,7 @@ class ed_collatz_c4_assimilation : public direct_module
     double* assimilation_gross_op;
     double* respiration_op;
     double* assimilation_net_op;
+
     // Main operation
     void do_operation() const override;
 };

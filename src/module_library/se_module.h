@@ -4,7 +4,7 @@
 #include "../modules.h"                              // for direct_module, update
 #include "../validate_dynamical_system.h"            // for find_strictly_required_inputs, all_are_in_list
 #include "../simultaneous_equations.h"               // for get_unknown_quantities
-#include "../state_map.h"                            // for state_map, string_vector
+#include "../state_map.h"                            // for state_map, string_vector, string_set
 #include "../se_solver_helper_functions.h"           // for f_scalar_from_f_vec
 #include "../se_solver_library/se_solver_factory.h"  // for se_solver_factory::create
 #include <map>                                       // for map
@@ -153,7 +153,8 @@ class base : public direct_module
          bool return_default_on_failure,
          state_map const& input_quantities,
          state_map* output_quantities)
-        : direct_module(module_name),
+        : direct_module(),
+          module_name(module_name),
           se(make_se(sub_module_names)),
           solver(se_solver_factory::create(solver_name, max_iterations)),
           lower_bounds(lower_bounds),
@@ -174,6 +175,7 @@ class base : public direct_module
     virtual ~base() = 0;
 
    private:
+    std::string const module_name;
     // Stuff for solving the simultaneous equations
     std::unique_ptr<simultaneous_equations> se;
     std::unique_ptr<se_solver> solver;
@@ -239,7 +241,7 @@ void base::do_operation() const
         if (se_module_print) {
             Rprintf("The solver was unable to find a solution.\n");
         }
-        throw std::runtime_error(std::string("Thrown by ") + get_name() + std::string(": the solver was unable to find a solution."));
+        throw std::runtime_error(std::string("Thrown by ") + module_name + std::string(": the solver was unable to find a solution."));
     } else if (!success) {
         if (se_module_print) {
             Rprintf("The solver was unable to find a solution. Returning the default guess.\n");

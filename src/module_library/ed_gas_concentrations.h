@@ -38,8 +38,8 @@ class ed_gas_concentrations : public direct_module
     ed_gas_concentrations(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("ed_gas_concentrations"),
+        : direct_module(),
+
           // Get pointers to input quantities
           conductance_boundary_h2o_ip(get_ip(input_quantities, "conductance_boundary_h2o")),
           conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
@@ -50,6 +50,7 @@ class ed_gas_concentrations : public direct_module
           mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
           temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+
           // Get pointers to output quantities
           conductance_boundary_co2_op(get_op(output_quantities, "conductance_boundary_co2")),
           conductance_stomatal_co2_op(get_op(output_quantities, "conductance_stomatal_co2")),
@@ -62,6 +63,7 @@ class ed_gas_concentrations : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_gas_concentrations"; }
 
    private:
     // Pointers to input quantities
@@ -74,6 +76,7 @@ class ed_gas_concentrations : public direct_module
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* temperature_leaf_ip;
     const double* atmospheric_pressure_ip;
+
     // Pointers to output quantities
     double* conductance_boundary_co2_op;
     double* conductance_stomatal_co2_op;
@@ -81,6 +84,7 @@ class ed_gas_concentrations : public direct_module
     double* mole_fraction_co2_intercellular_op;
     double* mole_fraction_h2o_leaf_surface_op;
     double* mole_fraction_h2o_intercellular_op;
+
     // Main operation
     void do_operation() const override;
 };

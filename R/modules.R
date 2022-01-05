@@ -32,7 +32,7 @@ module_info <- function(module_name, verbose = TRUE)
     verbose <- lapply(verbose, as.logical)
 
     # Get the info list
-    result <- .Call(R_module_info, module_name, verbose)
+    result <- .Call(R_module_info, module_wrapper_pointer(module_name), verbose)
 
     return(invisible(result))
 }
@@ -92,7 +92,7 @@ evaluate_module <- function(module_name, input_quantities)
     # C++ requires that all the variables have type `double`
     input_quantities <- lapply(input_quantities, as.numeric)
 
-    result <- .Call(R_evaluate_module, module_name, input_quantities)
+    result <- .Call(R_evaluate_module, module_wrapper_pointer(module_name), input_quantities)
     result <- result[order(names(result))]
     return(result)
 }

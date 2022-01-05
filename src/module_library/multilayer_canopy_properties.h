@@ -54,12 +54,10 @@ class multilayer_canopy_properties : public direct_module
 {
    public:
     multilayer_canopy_properties(
-        std::string const& module_name,
         int const& nlayers,
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module(module_name),
+        : direct_module(),
 
           // Store the number of layers
           nlayers(nlayers),
@@ -165,7 +163,6 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
         state_map const& input_quantities,
         state_map* output_quantities)
         : multilayer_canopy_properties(
-              "ten_layer_canopy_properties",
               ten_layer_canopy_properties::nlayers,
               input_quantities,
               output_quantities)
@@ -176,6 +173,7 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
     static string_vector define_multiclass_multilayer_outputs();
     static string_vector define_pure_multilayer_outputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ten_layer_canopy_properties"; }
 
    private:
     // Number of layers

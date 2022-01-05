@@ -30,12 +30,10 @@ class ed_multilayer_canopy_properties : public direct_module
 {
    public:
     ed_multilayer_canopy_properties(
-        std::string const& module_name,
         int const& nlayers,
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module(module_name),
+        : direct_module(),
 
           // Store the number of layers
           nlayers(nlayers),
@@ -127,22 +125,22 @@ class ed_multilayer_canopy_properties : public direct_module
 string_vector ed_multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
-        "par_energy_fraction",  // dimensionless
-        "par_energy_content",               // J / micromol
-        "par_incident_direct",              // J / (m^2 beam) / s [area perpendicular to beam]
-        "par_incident_diffuse",             // J / m^2 / s        [through any plane]
-        "absorptivity_par",                 // dimensionless
-        "lai",                              // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
-        "cosine_zenith_angle",              // dimensionless
-        "kd",                               // (m^2 ground) / (m^2 leaf)
-        "chil",                             // dimensionless from m^2 / m^2
-        "heightf",                          // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
-        "rh",                               // dimensionless from Pa / Pa
-        "windspeed",                        // m / s
-        "LeafN",                            // mmol / m^2 (?)
-        "kpLN",                             // dimensionless
-        "leaf_transmittance",               // dimensionless
-        "leaf_reflectance"                  // dimensionless
+        "par_energy_fraction",   // dimensionless
+        "par_energy_content",    // J / micromol
+        "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
+        "par_incident_diffuse",  // J / m^2 / s        [through any plane]
+        "absorptivity_par",      // dimensionless
+        "lai",                   // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
+        "cosine_zenith_angle",   // dimensionless
+        "kd",                    // (m^2 ground) / (m^2 leaf)
+        "chil",                  // dimensionless from m^2 / m^2
+        "heightf",               // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
+        "rh",                    // dimensionless from Pa / Pa
+        "windspeed",             // m / s
+        "LeafN",                 // mmol / m^2 (?)
+        "kpLN",                  // dimensionless
+        "leaf_transmittance",    // dimensionless
+        "leaf_reflectance"       // dimensionless
     };
 }
 
@@ -281,10 +279,10 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
     ed_ten_layer_canopy_properties(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : ed_multilayer_canopy_properties("ed_ten_layer_canopy_properties",
-                                          ed_ten_layer_canopy_properties::nlayers,
-                                          input_quantities,
-                                          output_quantities)  // Create the base class with the appropriate number of layers
+        : ed_multilayer_canopy_properties(
+              ed_ten_layer_canopy_properties::nlayers,
+              input_quantities,
+              output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
     static string_vector get_inputs();
@@ -292,6 +290,7 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
     static string_vector define_multiclass_multilayer_outputs();
     static string_vector define_pure_multilayer_outputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "ed_ten_layer_canopy_properties"; }
 
    private:
     // Number of layers

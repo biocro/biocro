@@ -1,9 +1,10 @@
-#include <algorithm>
+#include <algorithm>                            // For std::find
+#include <memory>                               // For std::unique_ptr
+#include "state_map.h"                          // For state_map, string_vector, string_set
+#include "modules.h"                            // For module_vector
+#include "utils/module_dependency_utilities.h"  // for has_cyclic_dependency
 #include "validate_dynamical_system.h"
-#include "state_map.h"
 #include "module_library/module_wrapper_factory.h"
-#include "modules.h"
-#include "utils/module_dependency_utilities.h" // for has_cyclic_dependency
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be
@@ -63,69 +64,59 @@ bool validate_dynamical_system_inputs(
                 std::string("No quantities were defined multiple times in the inputs"),
                 std::string("The following quantities were defined more than once in the inputs:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
     // Criterion 2
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<string_vector>{direct_module_names, differential_module_names}
-            );
+                std::vector<string_vector>{direct_module_names, differential_module_names});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("All module inputs were properly defined"),
                 std::string("The following module inputs were not defined:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
     // Criterion 3
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
             return find_undefined_module_outputs(
                 keys(initial_values),
-                std::vector<string_vector>{differential_module_names}
-            );
+                std::vector<string_vector>{differential_module_names});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("All differential module outputs were included in the initial values"),
                 std::string("The following differential module outputs were not part of the initial values:"),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
 
     // Criterion 4
     num_problems += process_criterion<string_vector>(
         message,
         [=]() -> string_vector {
-            string_vector result {};
+            string_vector result{};
             if (has_cyclic_dependency(direct_module_names)) {
                 // For now, we just want a non-zero vector size.  It
                 // may, however, prove useful to display a set of
                 // modules that comprise a cyclic dependency.
                 result.push_back("");
             }
-            return  result;
+            return result;
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
                 std::string("There are no cyclic dependencies among the direct modules."),
                 std::string("The direct modules have a cyclic dependency."),
                 std::string(""),
-                string_list
-            );
-        }
-    );
+                string_list);
+        });
 
     return num_problems == 0;
 }
@@ -158,11 +149,10 @@ std::string analyze_system_inputs(
         process_criterion<string_vector>(
             message,
             [=]() -> string_vector {
-                string_vector result {};
+                string_vector result{};
                 if (!order_ok(direct_module_names)) {
                     return get_evaluation_order(direct_module_names);
-                }
-                else {
+                } else {
                     return {};
                 }
             },
@@ -170,13 +160,11 @@ std::string analyze_system_inputs(
                 return create_message(
                     std::string("The direct modules are in a suitable order for evaluation."),
                     std::string("The direct modules need to be re-ordered before evaluation.\n") +
-                                "(This will be done automatically during dynamical_system construction.)\n" +
-                                "Here is a suitable ordering:",
+                        "(This will be done automatically during dynamical_system construction.)\n" +
+                        "Here is a suitable ordering:",
                     std::string(""),
-                    string_list
-                );
-            }
-        );
+                    string_list);
+            });
     }
 
     // List the quantities used as inputs to the modules
@@ -236,17 +224,26 @@ std::string analyze_system_inputs(
     // List any modules that require a fixed step size Euler ode_solver
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_euler_requirements(std::vector<string_vector>{direct_module_names, differential_module_names}); },
+        [=]() -> string_vector { return find_euler_requirements(direct_module_names); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("No modules require a fixed step size Euler ode_solver"),
-                                                           std::string("The following modules require a fixed step size Euler ode_solver:"),
+                                                           std::string("No direct modules require a fixed step size Euler ode_solver"),
+                                                           std::string("The following direct modules require a fixed step size Euler ode_solver:"),
+                                                           std::string(""),
+                                                           string_list); });
+
+    process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector { return find_euler_requirements(differential_module_names); },
+        [](string_vector string_list) -> std::string { return create_message(
+                                                           std::string("No differential modules require a fixed step size Euler ode_solver"),
+                                                           std::string("The following differential modules require a fixed step size Euler ode_solver:"),
                                                            std::string(""),
                                                            string_list); });
 
     // List any mischaracterized direct modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{direct_module_names}, false); },
+        [=]() -> string_vector { return find_mischaracterized_modules(direct_module_names, false); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the direct module list are direct modules"),
                                                            std::string("The following modules were in the list of direct modules but are actually differential modules:"),
@@ -256,7 +253,7 @@ std::string analyze_system_inputs(
     // List any mischaracterized differential modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{differential_module_names}, true); },
+        [=]() -> string_vector { return find_mischaracterized_modules(differential_module_names, true); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the differential module list are differential modules"),
                                                            std::string("The following modules were in the list of differential modules but are actually direct modules:"),
@@ -464,12 +461,11 @@ string_vector find_unused_input_parameters(
 
     // For now, there are a few names we should ignore since they may be
     // required for other reasons even if they are not used as module inputs
-    string_vector ignored_names {
+    string_vector ignored_names{
         "timestep",
         "time",
         "doy",
-        "hour"
-    };
+        "hour"};
 
     for (state_map const& m : state_maps) {
         string_vector parameters = keys(m);
@@ -512,11 +508,14 @@ string_vector find_static_output_parameters(
 /**
  * @brief Returns modules that require a fixed step size Euler ode_solver
  */
-string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors)
+string_vector find_euler_requirements(string_vector module_names)
 {
     // Get all the module inputs and outputs
-    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
-    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+    string_set all_module_inputs =
+        find_unique_module_inputs(std::vector<string_vector>{module_names});
+
+    string_set all_module_outputs =
+        find_unique_module_outputs(std::vector<string_vector>{module_names});
 
     // Make an appropriate state_map that contains them all
     state_map quantities;
@@ -528,10 +527,10 @@ string_vector find_euler_requirements(std::vector<string_vector> module_name_vec
 
     // Instantiate each module and check its characterization
     string_vector euler_requiring_modules;
-    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
-    for (std::unique_ptr<module_base>& m : modules) {
-        if (m->requires_euler_ode_solver()) {
-            euler_requiring_modules.push_back(m->get_name());
+    module_vector modules = get_module_vector(module_names, quantities, &quantities);
+    for (size_t i = 0; i < modules.size(); ++i) {
+        if (modules[i]->requires_euler_ode_solver()) {
+            euler_requiring_modules.push_back(module_names[i]);
         }
     }
 
@@ -542,11 +541,14 @@ string_vector find_euler_requirements(std::vector<string_vector> module_name_vec
  * @brief Returns mischaracterized modules, i.e., direct modules
  * in the differential module list or vice-versa
  */
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential)
+string_vector find_mischaracterized_modules(string_vector module_names, bool is_differential)
 {
     // Get all the module inputs and outputs
-    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
-    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+    string_set all_module_inputs =
+        find_unique_module_inputs(std::vector<string_vector>{module_names});
+
+    string_set all_module_outputs =
+        find_unique_module_outputs(std::vector<string_vector>{module_names});
 
     // Make an appropriate state_map that contains them all
     state_map quantities;
@@ -558,10 +560,10 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector mischaracterized_modules;
-    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
-    for (std::unique_ptr<module_base>& m : modules) {
-        if (m->is_differential() != is_differential) {
-            mischaracterized_modules.push_back(m->get_name());
+    module_vector modules = get_module_vector(module_names, quantities, &quantities);
+    for (size_t i = 0; i < modules.size(); ++i) {
+        if (modules[i]->is_differential() != is_differential) {
+            mischaracterized_modules.push_back(module_names[i]);
         }
     }
 
@@ -572,16 +574,14 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
  * @brief Returns a vector of unique_ptrs to module objects
  */
 module_vector get_module_vector(
-    std::vector<string_vector> module_name_vectors,
+    string_vector module_names,
     state_map const& input_quantities,
     state_map* output_quantities)
 {
     module_vector modules;
-    for (string_vector const& module_names : module_name_vectors) {
-        for (std::string name : module_names) {
-            auto w = module_wrapper_factory::create(name);
-            modules.push_back(w->createModule(input_quantities, output_quantities));
-        }
+    for (std::string name : module_names) {
+        auto w = module_wrapper_factory::create(name);
+        modules.push_back(w->createModule(input_quantities, output_quantities));
     }
 
     return modules;
