@@ -38,6 +38,7 @@ class example_model_mass_gain : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
+    static std::string get_name() { return "example_model_mass_gain"; }
 
    private:
     // References to input quantities
