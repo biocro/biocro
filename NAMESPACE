@@ -13,8 +13,6 @@ useDynLib(BioCro,
           R_get_all_ode_solvers,
           R_get_all_se_solvers)
 
-import(stats, lattice)
-
 export(run_biocro)
 
 export(partial_run_biocro)

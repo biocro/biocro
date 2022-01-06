@@ -219,5 +219,5 @@ quantity_list_from_names <- function(quantity_names)
 
     send_error_messages(error_messages)
 
-    setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
+    stats::setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
 }
