@@ -1,5 +1,5 @@
 Package: BioCro
-Version: 1.00
+Version: 2.00
 Title: BioCro Crop and Agroecosystem Simulator
 Description: Simulate C4 crops and coppice trees.
 Author: Fernando Miguez <femiguez@iastate.edu>,
@@ -10,11 +10,11 @@ Maintainer: Deepak Jaiswal <djaiswal@illinois.edu>,
     David LeBauer <dlebauer@illinois.edu>,
     Fernando Miguez <femiguez@iastate.edu>
 Imports:
-    lattice,
     stats
 Suggests:
     testthat,
-    knitr
+    knitr,
+    lattice
 VignetteBuilder: knitr
 SystemRequirements: C++11
 License: FreeBSD + file LICENSE
