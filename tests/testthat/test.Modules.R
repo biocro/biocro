@@ -11,7 +11,9 @@ run_test <- function(module_name) {
         'ed_c4_leaf_photosynthesis4',
         'ed_nikolov_conductance_free_solve',
         'ed_p_m_temperature_solve',
-        'ed_ten_layer_c4_canopy'
+        'ed_ten_layer_c4_canopy',
+        'example_model_mass_gain',
+        'example_model_partitioning'
     )
 
     if (module_name %in% modules_to_skip) {
