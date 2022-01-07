@@ -954,7 +954,7 @@ the code, we can find the units for \texttt{Leaf} specified in a comment
 (Listing \ref{lst:units}).
 
 \lstinputlisting[
-  caption=Section of code from \texttt{src\/module\_library\/total\_biomass.h}.,
+  caption=Section of code from \texttt{src/module\_library/total\_biomass.h}.,
   label={lst:units},
   basicstyle=\ttfamily,
   commentstyle=\color{teal},
