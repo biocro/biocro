@@ -22,10 +22,6 @@
 #include "thermal_time_bilinear.h"
 #include "thermal_time_trilinear.h"
 #include "thermal_time_beta.h"
-#include "utilization_growth.hpp"
-#include "utilization_growth_calculator.hpp"
-#include "utilization_senescence.hpp"
-#include "utilization_senescence_calculator.hpp"
 #include "leaf_water_stress_exponential.hpp"
 #include "biomass_leaf_n_limitation.hpp"
 #include "pokhilko_circadian_clock.hpp"
@@ -132,10 +128,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"thermal_time_bilinear",                                 &create_wrapper<thermal_time_bilinear>},
      {"thermal_time_trilinear",                                &create_wrapper<thermal_time_trilinear>},
      {"thermal_time_beta",                                     &create_wrapper<thermal_time_beta>},
-     {"utilization_growth",                                    &create_wrapper<utilization_growth>},
-     {"utilization_growth_calculator",                         &create_wrapper<utilization_growth_calculator>},
-     {"utilization_senescence",                                &create_wrapper<utilization_senescence>},
-     {"utilization_senescence_calculator",                     &create_wrapper<utilization_senescence_calculator>},
      {"leaf_water_stress_exponential",                         &create_wrapper<leaf_water_stress_exponential>},
      {"biomass_leaf_n_limitation",                             &create_wrapper<biomass_leaf_n_limitation>},
      {"pokhilko_circadian_clock",                              &create_wrapper<pokhilko_circadian_clock>},
