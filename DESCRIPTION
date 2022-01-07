@@ -5,19 +5,17 @@ Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
     modern techniques for numerical integration and data visualization.
 Authors@R: c(
-    person("Lochocki", "Edward B.", email = "eloch@illinois.edu", role =
-           c('cre', 'aut')),
-    person("Rohde", "Scott", email = "srohde@illinois.edu", role = c('cre',
-           'aut')),
     person("McGrath", "Justin M.", email = "jmcgrath@illinois.edu", role =
            c('cre', 'aut')),
+    person("Lochocki", "Edward B.", role = 'aut'),
+    person("Rohde", "Scott", role = 'aut'),
     person("Jaiswal", "Deepak", role = 'aut'),
     person("Matthews", "Megan L.", role = 'aut'),
     person("Miguez", "Fernando E.", role = 'aut'),
     person("Long", "Stephen P.", role = 'aut'),
     person("Wang", "Dan", role = 'ctb'),
     person("LeBauer", "David", role = 'ctb')
-)
+    )
 Imports:
     stats
 Suggests:
