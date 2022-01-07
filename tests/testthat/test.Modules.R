@@ -5,7 +5,8 @@ source("module_testing_helper_functions.R") # for cases_from_csv and test_module
 # Define a helping function that tests a module unless it should be skipped
 run_test <- function(module_name) {
     modules_to_skip <- c(
-        # no modules need to be skipped right now
+        'example_model_mass_gain',
+        'example_model_partitioning'
     )
 
     if (module_name %in% modules_to_skip) {
