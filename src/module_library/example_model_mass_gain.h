@@ -5,15 +5,36 @@
 #include "../state_map.h"
 
 /**
- * @class example_model_mass_gain
+ *  @class example_model_mass_gain
  *
- * @brief An example for the BioCro II manuscript
+ *  @brief An example for the BioCro II manuscript
  *
- * ### Model overview
+ *  ### Model overview
  *
- * Model mass gain as a linear function of other quantities.
+ *  Here we model mass gain as a linear function of other quantities. This model
+ *  is not meant to be biologically realistic.
  *
- * It is not meant to be biologically realistic.
+ *  In this model, the carbon assimilation rate per unit leaf area (`A_leaf`) is
+ *  assumed to be directly proportional to the incident photosynthetically
+ *  active photon flux density (`Q`):
+ *
+ *  > `A_leaf = alpha * Q` (1)
+ *
+ *  where the proportionality constant `alpha` is the radiation use efficiency.
+ *
+ *  The total canopy assimilation rate can then be determined by the product of
+ *  `A_leaf` and the total leaf area. In turn, leaf area can be calculated from
+ *  the total leaf mass (`m_leaf`) and the specific leaf area (`SLA`), which
+ *  expresses the ratio of leaf area to mass.
+ *
+ *  Finally, the carbon assimilation rate can be converted to a rate of mass
+ *  increase by assuming a particular value for `C_conv`, the conversion ratio
+ *  of carbon to mass for the plant.
+ *
+ *  Combining these considerations, we can relate the rate of mass gain to the
+ *  leaf-level assimilation rate as follows:
+ *
+ *  > `mass_gain = A_leaf * m_leaf * SLA * C_conv` (2)
  *
  */
 class example_model_mass_gain : public direct_module
@@ -22,8 +43,7 @@ class example_model_mass_gain : public direct_module
     example_model_mass_gain(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          direct_module("example_model_mass_grain"),
+        : direct_module(),
 
           // Get pointers to input quantities
           Q(get_input(input_quantities, "Q")),
@@ -58,11 +78,11 @@ class example_model_mass_gain : public direct_module
 string_vector example_model_mass_gain::get_inputs()
 {
     return {
-        "Q",            // mol / m^2 / s
-        "alpha_rue",    // mol / mol
-        "SLA",          // m^2 / kg
-        "C_conv",       // kg / mol
-        "Leaf"          // kg
+        "Q",          // mol / m^2 / s
+        "alpha_rue",  // mol / mol
+        "SLA",        // m^2 / kg
+        "C_conv",     // kg / mol
+        "Leaf"        // kg
     };
 }
 
