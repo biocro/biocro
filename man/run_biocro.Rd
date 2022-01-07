@@ -100,14 +100,14 @@ run_biocro(
 }
 
 \examples{
-# Example: running a sorghum simulation using weather data from 2005
+# Example: running a miscanthus simulation using weather data from 2005
 result <- run_biocro(
-    sorghum_initial_values,
-    sorghum_parameters,
+    miscanthus_x_giganteus_initial_values,
+    miscanthus_x_giganteus_parameters,
     get_growing_season_climate(weather2005),
-    sorghum_direct_modules,
-    sorghum_differential_modules,
-    sorghum_ode_solver,
+    miscanthus_x_giganteus_direct_modules,
+    miscanthus_x_giganteus_differential_modules,
+    miscanthus_x_giganteus_ode_solver,
     TRUE
 )
 
