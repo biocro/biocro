@@ -22,7 +22,7 @@ name_parameters = function(
 parameter_lists = list(
     willow     = name_parameters(willow_initial_values,                 willow_parameters,                 get_growing_season_climate(weather2005), willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver),
     miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, get_growing_season_climate(weather2005), miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver),
-    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                get_growing_season_climate(weather2005), sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver)
+    soybean    = name_parameters(soybean_initial_values,                soybean_parameters,                soybean_weather2002,                     soybean_direct_modules,                soybean_differential_modules,                soybean_ode_solver)
 )
 
 test_that("Willow simulation produces reasonable results", {

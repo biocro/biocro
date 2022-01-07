@@ -12,11 +12,11 @@ The `run_biocro()` function accepts initial values, parameters, climate variable
 library(BioCro)
 library(lattice)
 
-result = run_biocro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather2005), sorghum_direct_modules, sorghum_differential_modules, sorghum_ode_solver)
+result = run_biocro(soybean_initial_values, soybean_parameters, soybean_weather2002, soybean_direct_modules, soybean_differential_modules, soybean_ode_solver)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 
-There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), sorghum (_Sorghum bicolor_) and willow (_Saliceae salix_).
+There are parameters and modules for soybean (_Glycine max_), miscanthus (_Miscanthus_ x _giganteus_), and willow (_Saliceae salix_).
 
 
 ### Installation

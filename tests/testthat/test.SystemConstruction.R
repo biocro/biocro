@@ -23,12 +23,12 @@ test_that("drivers must not be empty", {
 test_that("certain run_biocro inputs must have the correct type", {
     expect_error(
         run_biocro(
-            unlist(sorghum_initial_values),
-            unlist(sorghum_parameters),
+            unlist(miscanthus_x_giganteus_initial_values),
+            unlist(miscanthus_x_giganteus_parameters),
             unlist(get_growing_season_climate(weather2005)),
-            sorghum_direct_modules,
-            sorghum_differential_modules,
-            unlist(sorghum_ode_solver['type'])
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
+            unlist(miscanthus_x_giganteus_ode_solver['type'])
         ),
         regexp = paste0(
             "`initial_values` must be a list.\n",
@@ -42,12 +42,12 @@ test_that("certain run_biocro inputs must have the correct type", {
 test_that("certain run_biocro inputs must not have empty elements", {
     expect_error(
         run_biocro(
-            within(sorghum_initial_values, {bad_initial_value = numeric(0)}),
-            within(sorghum_parameters, {bad_parameter = numeric(0)}),
+            within(miscanthus_x_giganteus_initial_values, {bad_initial_value = numeric(0)}),
+            within(miscanthus_x_giganteus_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather2005),
-            within(sorghum_direct_modules, {bad_direct_module = character(0)}),
-            within(sorghum_differential_modules, {bad_differential_module = character(0)}),
-            within(sorghum_ode_solver, {bad_ode_solver_setting = numeric(0)})
+            within(miscanthus_x_giganteus_direct_modules, {bad_direct_module = character(0)}),
+            within(miscanthus_x_giganteus_differential_modules, {bad_differential_module = character(0)}),
+            within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
@@ -62,12 +62,12 @@ test_that("certain run_biocro inputs must not have empty elements", {
 test_that("certain run_biocro inputs must not have elements with length > 1", {
     expect_error(
         run_biocro(
-            within(sorghum_initial_values, {bad_initial_value = c(1,2)}),
-            within(sorghum_parameters, {bad_parameter = c(1,2)}),
+            within(miscanthus_x_giganteus_initial_values, {bad_initial_value = c(1,2)}),
+            within(miscanthus_x_giganteus_parameters, {bad_parameter = c(1,2)}),
             get_growing_season_climate(weather2005),
-            sorghum_direct_modules,
-            sorghum_differential_modules,
-            within(sorghum_ode_solver, {bad_ode_solver_setting = c(1,2)})
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
+            within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
@@ -80,12 +80,12 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
 test_that("certain run_biocro inputs must be strings", {
     expect_error(
         run_biocro(
-            sorghum_initial_values,
-            sorghum_parameters,
+            miscanthus_x_giganteus_initial_values,
+            miscanthus_x_giganteus_parameters,
             get_growing_season_climate(weather2005),
-            append(sorghum_direct_modules, 1.23),
-            append(sorghum_differential_modules, 4.56),
-            within(sorghum_ode_solver, {type = 7.89})
+            append(miscanthus_x_giganteus_direct_modules, 1.23),
+            append(miscanthus_x_giganteus_differential_modules, 4.56),
+            within(miscanthus_x_giganteus_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
             "The following `direct_module_names` members are not strings, but all members must be strings: 1.23.\n",
@@ -98,12 +98,12 @@ test_that("certain run_biocro inputs must be strings", {
 test_that("certain run_biocro inputs must be numeric", {
     expect_error(
         run_biocro(
-            within(sorghum_initial_values, {bad_initial_value = "terrible"}),
-            within(sorghum_parameters, {bad_parameter = "awful"}),
+            within(miscanthus_x_giganteus_initial_values, {bad_initial_value = "terrible"}),
+            within(miscanthus_x_giganteus_parameters, {bad_parameter = "awful"}),
             within(get_growing_season_climate(weather2005), {bad_driver = "offensive"}),
-            sorghum_direct_modules,
-            sorghum_differential_modules,
-            within(sorghum_ode_solver, {bad_ode_solver_setting = "heinous"})
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
+            within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = "heinous"})
         ),
         regexp = paste0(
             "The following `initial_values` members are not numeric or NA, but all members must be numeric or NA: bad_initial_value.\n",
