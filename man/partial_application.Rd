@@ -83,12 +83,12 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 #  - seneRoot: 2200 degrees C * day
 #  - seneRhizome: 2300 degrees C * day
 senescence_simulation <- partial_run_biocro(
-    sorghum_initial_values,
-    sorghum_parameters,
+    miscanthus_x_giganteus_initial_values,
+    miscanthus_x_giganteus_parameters,
     get_growing_season_climate(weather2005),
-    sorghum_direct_modules,
-    sorghum_differential_modules,
-    sorghum_ode_solver,
+    miscanthus_x_giganteus_direct_modules,
+    miscanthus_x_giganteus_differential_modules,
+    miscanthus_x_giganteus_ode_solver,
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
 senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
