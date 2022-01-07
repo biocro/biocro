@@ -5,15 +5,27 @@
 #include "../state_map.h"
 
 /**
- * @class example_model
+ *  @class example_model_partitioning
  *
- * @brief An example for the BioCro II manuscript
+ *  @brief An example for the BioCro II manuscript
  *
- * ### Model overview
+ *  ### Model overview
  *
- * Model partitioning of mass between tissues.
+ *  Here we model the partitioning of mass between tissues. This model is not
+ *  meant to be biologically realistic.
  *
- * It is not meant to be bioloigcally realistic.
+ *  In this model, it is assumed that the plant's mass gain is distributed
+ *  between its leaf and root according to fractions `f_leaf` and `f_root`. In
+ *  other words:
+ *
+ *  > `dm_leaf / dt = mass_gain * f_leaf` (1)
+ *
+ *  > `dm_root / dt = mass_gain * f_root` (2)
+ *
+ *  where 'mass_gain` is the plant's total rate of mass increase, `dm_leaf / dt`
+ *  is the time derivative of the leaf mass `m_leaf` and `dm_root / dt` is
+ *  defined analagously. Note: typically, the sum of `f_leaf` and `f_root`
+ *  should be 1.
  *
  */
 class example_model_partitioning : public differential_module
@@ -22,8 +34,7 @@ class example_model_partitioning : public differential_module
     example_model_partitioning(
         state_map const& input_quantities,
         state_map* output_quantities)
-        :  // Define basic module properties by passing its name to its parent class
-          differential_module("example_model_partitioning"),
+        : differential_module(),
 
           // Get pointers to input quantities
           mass_gain(get_input(input_quantities, "mass_gain")),
@@ -57,8 +68,8 @@ string_vector example_model_partitioning::get_inputs()
 {
     return {
         "mass_gain",  // kg / s
-        "f_leaf",        // dimensionless from kg / kg
-        "f_root"         // dimensionless from kg / kg
+        "f_leaf",     // dimensionless from kg / kg
+        "f_root"      // dimensionless from kg / kg
     };
 }
 
