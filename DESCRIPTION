@@ -23,7 +23,7 @@ Suggests:
     knitr,
     lattice
 VignetteBuilder: knitr
-SystemRequirements: C++11
+SystemRequirements: C++11, GNU make
 License: FreeBSD + file LICENSE
 LazyData: true
 ByteCompile: TRUE
