@@ -1,14 +1,21 @@
 Package: BioCro
 Version: 2.00
-Title: BioCro Crop and Agroecosystem Simulator
-Description: Simulate C4 crops and coppice trees.
-Author: Fernando Miguez <femiguez@iastate.edu>,
-    Deepak Jaiswal <djaiswal@illinois.edu>,
-    Dan Wang <dwng@illinois.edu>,
-    David LeBauer <dlebauer@illinois.edu>
-Maintainer: Deepak Jaiswal <djaiswal@illinois.edu>,
-    David LeBauer <dlebauer@illinois.edu>,
-    Fernando Miguez <femiguez@iastate.edu>
+Title: A Software Package for Modular Crop Growth Simulations
+Description: A cross-platform representation of models as sets of equations
+    that facilitates modularity in model building and allows users to harness
+    modern techniques for numerical integration and data visualization.
+Authors@R: c(
+    person("McGrath", "Justin M.", email = "jmcgrath@illinois.edu", role =
+           c('cre', 'aut')),
+    person("Lochocki", "Edward B.", role = 'aut'),
+    person("Rohde", "Scott", role = 'aut'),
+    person("Jaiswal", "Deepak", role = 'aut'),
+    person("Matthews", "Megan L.", role = 'aut'),
+    person("Miguez", "Fernando E.", role = 'aut'),
+    person("Long", "Stephen P.", role = 'aut'),
+    person("Wang", "Dan", role = 'ctb'),
+    person("LeBauer", "David", role = 'ctb')
+    )
 Imports:
     stats
 Suggests:
@@ -16,8 +23,8 @@ Suggests:
     knitr,
     lattice
 VignetteBuilder: knitr
-SystemRequirements: C++11
+SystemRequirements: C++11, GNU make
 License: FreeBSD + file LICENSE
 LazyData: true
 ByteCompile: TRUE
-Packaged: 2013-03-29 07:12:38 UTC; djaiswal
+URL: https://github.com/ebimodeling/biocro
