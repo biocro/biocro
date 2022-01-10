@@ -59,6 +59,7 @@ derivs <- soybean_system(0, unlist(soybean_initial_values), NULL)
 
 # Example 2: a simple oscillator with only one module (requires deSolve)
 
+\dontrun{
 if (require(deSolve)) {
 
   times = seq(0, 5, length=100)
@@ -87,11 +88,12 @@ if (require(deSolve)) {
     data=result
   )
 }
+}
 
 # Example 3: solving 500 hours of a soybean simulation. This requires the
 # deSolve package and will run very slow compared to a regular call to
 # `run_biocro`.
-\donttest{
+\dontrun{
 if (require(deSolve)) {
   soybean_system <- system_derivatives(
     soybean_parameters,
