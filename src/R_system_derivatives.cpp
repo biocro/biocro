@@ -29,11 +29,11 @@ extern "C" {
  *  @param [in] drivers An R data frame representing the time series of the
  *              drivers
  *
- *  @param [in] direct_module_names An R string vector of the names of the
- *              direct modules
+ *  @param [in] direct_mwp_vec An R vector of pointers to module wrapper objects
+ *              representing the direct modules
  *
- *  @param [in] differential_module_names An R string vector of the names of the
- *              differential modules
+ *  @param [in] differential_module_names An R vector of pointers to module
+ *              wrapper objects representing the differential modules
  *
  *  @return An R list of named elements representing the derivatives of the
  *          differential quantities
@@ -43,8 +43,8 @@ SEXP R_system_derivatives(
     SEXP time,
     SEXP parameters,
     SEXP drivers,
-    SEXP direct_module_names,
-    SEXP differential_module_names)
+    SEXP direct_mwp_vec,
+    SEXP differential_mwp_vec)
 {
     try {
         // Convert the inputs into the proper format
@@ -56,14 +56,13 @@ SEXP R_system_derivatives(
             return R_NilValue;
         }
 
-        string_vector direct_names = make_vector(direct_module_names);
-        string_vector differential_names =
-            make_vector(differential_module_names);
+        mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
+        mwp_vector differential_mwps = mw_vector_from_list(differential_mwp_vec);
 
         double t = REAL(time)[0];
 
         // Create a dynamical system
-        dynamical_system sys(iv, p, d, direct_names, differential_names);
+        dynamical_system sys(iv, p, d, direct_mwps, differential_mwps);
 
         // Ask the system object for a vector of the current values of the
         // differential quantities. The system hasn't been modified since its

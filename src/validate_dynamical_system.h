@@ -3,10 +3,11 @@
 
 #include <string>
 #include <set>
-#include <functional>   // For std::function
-#include "state_map.h"  // For state_map, string_set
-#include "modules.h"    // For module_vector
-#include "module_library/module_wrapper_factory.h"
+#include <functional>        // For std::function
+#include <algorithm>         // For std::find
+#include "module_wrapper.h"  // For mwp_vector
+#include "state_map.h"       // For state_map, string_vector, string_set
+#include "modules.h"         // For module_vector
 
 const std::string success_mark{"[pass] "};
 const std::string failure_mark{"[fail] "};
@@ -16,52 +17,54 @@ bool validate_dynamical_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector direct_module_names,
-    string_vector differential_module_names);
+    mwp_vector const& direct_mwps,
+    mwp_vector const& differential_mwps);
 
 std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector direct_module_names,
-    string_vector differential_module_names);
+    mwp_vector const& direct_mwps,
+    mwp_vector const& differential_mwps);
 
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors);
+    mwp_vector mwps);
 
 string_vector find_duplicate_quantity_definitions(string_vector quantity_names);
 
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
-    std::vector<string_vector> module_name_vectors);
+    std::vector<mwp_vector> mwp_vectors);
 
 string_vector find_undefined_module_outputs(
     string_vector quantity_names,
-    std::vector<string_vector> module_name_vectors);
+    std::vector<mwp_vector> mwp_vectors);
 
-string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors);
+string_set find_unique_module_inputs(std::vector<mwp_vector> mwp_vectors);
 
-string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors);
+string_set find_unique_module_outputs(mwp_vector mwps);
 
-string_set find_strictly_required_inputs(std::vector<string_vector> module_name_vectors);
+string_set find_strictly_required_inputs(mwp_vector mwps);
 
 string_vector find_unused_input_parameters(
     std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors);
+    std::vector<mwp_vector> mwp_vectors);
 
 string_vector find_static_output_parameters(
-    std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors);
+    state_map quantities,
+    mwp_vector mwps);
 
-string_vector find_euler_requirements(string_vector module_names);
+string_vector find_euler_requirements(mwp_vector mwps);
 
-string_vector find_mischaracterized_modules(string_vector module_names, bool is_differential);
+string_vector find_mischaracterized_modules(mwp_vector mwps, bool is_differential);
 
 module_vector get_module_vector(
-    string_vector module_names,
+    mwp_vector mwps,
     state_map const& input_quantities,
     state_map* output_quantities);
+
+string_vector get_module_names(mwp_vector mwps);
 
 std::string add_indented_line(std::string message, std::string text_to_add, int num_spaces);
 
@@ -226,33 +229,30 @@ void insert_key_names(string_vector& name_vector, const map_type map)
 }
 
 /**
- * @brief Assembles the names of all quantities defined by a group of
- * state_maps and module outputs, including any duplicates.
+ * @brief Assembles the names of all quantities defined by a group of state_maps
+ * and module outputs, including any duplicates.
  *
  * @param[in] state_maps A collection of sets of named quantities presented as a
- *                       vector of map_with_string_keys objects.  Generally, this
- *                       will either be empty or will consist of the initial values
- *                       of the system, the set of parameters, and the
- *                       initial values of the drivers.
- * @param[in] module_name_vectors A collection of sets of module names presented
- *                                as a vector of vectors.  Usually, this
- *                                collection will either be empty or will
- *                                contain only a single item---a set of
- *                                direct module names or a set of
- *                                differential module names.
+ *            vector of map_with_string_keys objects.  Generally, this will
+ *            either be empty or will consist of the initial values, parameters,
+ *            and drivers that will be used to define a `dynamical_system`.
+ *
+ * @param[in] mwps A vector of pointers to `module_wrapper` objects. Usually
+ *            this will either be empty or contain a set of direct or
+ *            differential modules.
+ *
  * @return A vector consisting of the names of all quantities defined in either
  *         of the function arguments.  **If a quantity is defined more than
  *         once, it will appear in the output vector more than once.** A
  *         quantity is considered to be "defined" by the state_maps argument
  *         value if it is a key in one of the given maps.  It is considered
- *         "defined" by the module_name_vectors argument value if it is a name
- *         of an output variable of some module named in any set in the
- *         collection.
+ *         "defined" by the mwps argument value if it is a name of an output
+ *         quantity of one of the modules.
  */
 template <typename map_with_string_keys>
 string_vector get_defined_quantity_names(
     std::vector<map_with_string_keys> state_maps,
-    std::vector<string_vector> module_name_vectors)
+    mwp_vector const& mwps)
 {
     std::vector<std::string> defined_quantity_names;
 
@@ -262,12 +262,12 @@ string_vector get_defined_quantity_names(
     }
 
     // Get quantity names from the modules
-    for (string_vector const& names : module_name_vectors) {
-        for (std::string const& module_name : names) {
-            auto w = module_wrapper_factory::create(module_name);
-            string_vector output_names = w->get_outputs();
-            defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
-        }
+    for (auto const& x : mwps) {
+        string_vector output_names = x->get_outputs();
+        defined_quantity_names.insert(
+            defined_quantity_names.begin(),
+            output_names.begin(),
+            output_names.end());
     }
 
     return defined_quantity_names;

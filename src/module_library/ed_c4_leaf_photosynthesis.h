@@ -9,6 +9,19 @@
 #include "ed_nikolov_conductance.h"         // for nikolov namespace
 #include "AuxBioCro.h"                      // for TempToLHV and other similar functions
 #include "../se_solver_helper_functions.h"  // for generate_guess_list
+
+#include "ed_rh_to_mole_fraction.h"
+#include "ed_nikolov_conductance.h"
+#include "ed_boundary_conductance.h"
+#include "ed_gas_concentrations.h"
+#include "ed_apply_water_stress.h"
+#include "ed_ball_berry.h"
+#include "ed_collatz_c4_assimilation.h"
+#include "ed_long_wave_energy_loss.h"
+#include "ed_water_vapor_properties.h"
+#include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_penman_monteith_transpiration.h"
+
 #include <Rinternals.h>                     // for debugging
 const bool eclp_print = false;              // for debugging
 
@@ -16,19 +29,34 @@ namespace ed_c4_leaf_photosynthesis_stuff
 {
 std::string const module_name = "ed_c4_leaf_photosynthesis";
 
-string_vector const sub_module_names = {
-    "ed_rh_to_mole_fraction",                          // Convert relative humidity to H2O mole fraction
-    "ed_nikolov_conductance_forced",                   // Calculate `forced` boundary layer conductance
-    "ed_nikolov_conductance_free",                     // Calculate `free` boundary layer conductance
-    "ed_boundary_conductance_max",                     // Determine overall boundary layer conductance from `forced` and `free` values
-    "ed_gas_concentrations",                           // Calculate CO2 and H20 mole fractions at various locations
-    "ed_apply_stomatal_water_stress_via_conductance",  // Determine how to account for water stress
-    "ed_ball_berry",                                   // Calculate stomatal conductance
-    "ed_collatz_c4_assimilation",                      // Calculate net assimilation
-    "ed_long_wave_energy_loss",                        // Calculate long-wave energy loss from a leaf to its environment
-    "ed_water_vapor_properties",                       // Calculate properties of water vapor from the air temperature and H20 mole fraction
-    "ed_penman_monteith_leaf_temperature",             // Calculate leaf temperature
-    "ed_penman_monteith_transpiration"                 // Calculate evapotranspiration
+// Create module wrapper objects for the sub-modules
+module_wrapper<ed_rh_to_mole_fraction> mole_fraction;
+module_wrapper<ed_nikolov_conductance_forced> forced_conductance;
+module_wrapper<ed_nikolov_conductance_free> free_conductance;
+module_wrapper<ed_boundary_conductance_max> boundary_conductance;
+module_wrapper<ed_gas_concentrations> gas_concentrations;
+module_wrapper<ed_apply_stomatal_water_stress_via_conductance> water_stress;
+module_wrapper<ed_ball_berry> stomatal_conductance;
+module_wrapper<ed_collatz_c4_assimilation> assimilation;
+module_wrapper<ed_long_wave_energy_loss> longwave;
+module_wrapper<ed_water_vapor_properties> water_properties;
+module_wrapper<ed_penman_monteith_leaf_temperature> leaf_temperature;
+module_wrapper<ed_penman_monteith_transpiration> transpiration;
+
+// Create pointers to the wrappers
+mwp_vector const sub_mwps{
+    &mole_fraction,
+    &forced_conductance,
+    &free_conductance,
+    &boundary_conductance,
+    &gas_concentrations,
+    &water_stress,
+    &stomatal_conductance,
+    &assimilation,
+    &longwave,
+    &water_properties,
+    &leaf_temperature,
+    &transpiration
 };
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
@@ -93,7 +121,7 @@ class ed_c4_leaf_photosynthesis : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis_stuff::module_name,
-                          ed_c4_leaf_photosynthesis_stuff::sub_module_names,
+                          ed_c4_leaf_photosynthesis_stuff::sub_mwps,
                           ed_c4_leaf_photosynthesis_stuff::solver_type,
                           ed_c4_leaf_photosynthesis_stuff::max_iterations,
                           ed_c4_leaf_photosynthesis_stuff::lower_bounds,
@@ -153,12 +181,12 @@ class ed_c4_leaf_photosynthesis : public se_module::base
 
 string_vector ed_c4_leaf_photosynthesis::get_inputs()
 {
-    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
+    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis_stuff::sub_mwps);
 }
 
 string_vector ed_c4_leaf_photosynthesis::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis_stuff::sub_mwps);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
