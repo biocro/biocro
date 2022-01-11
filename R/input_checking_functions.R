@@ -57,7 +57,7 @@ check_vector <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        if (!is.vector(arg) || 'list' %in% class(arg)) {
+        if (length(arg) > 0 && (!is.vector(arg) || 'list' %in% class(arg))) {
             error_message <- append(
                 error_message,
                 sprintf('`%s` must be a vector.\n', names(args_to_check)[i])

@@ -6,6 +6,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
+#include "ed_nikolov_conductance.h"
+#include "ed_boundary_conductance.h"
+#include "ed_long_wave_energy_loss.h"
+#include "ed_water_vapor_properties.h"
+
 /**
  * @class ed_penman_monteith_leaf_temperature
  *
@@ -126,13 +131,22 @@ namespace ed_p_m_temperature_solve_stuff
 {
 std::string const module_name = "ed_p_m_temperature_solve";
 
-string_vector const sub_module_names{
-    "ed_nikolov_conductance_forced",       // Calculate `forced` boundary layer conductance from windspeed
-    "ed_nikolov_conductance_free_solve",   // Iteratively solve for `free` boundary layer conductance
-    "ed_boundary_conductance_max",         // Calculate overall boundary layer conductance
-    "ed_long_wave_energy_loss",            // Calculate energy loss from leaf to air due to temperature difference
-    "ed_water_vapor_properties",           // Get water vapor properties
-    "ed_penman_monteith_leaf_temperature"  // Determine leaf temperature from boundary layer conductance
+// Create module wrapper objects for the sub-modules
+module_wrapper<ed_nikolov_conductance_forced> forced_conductance;
+module_wrapper<ed_nikolov_conductance_free_solve> free_conductance;
+module_wrapper<ed_boundary_conductance_max> boundary_conductance;
+module_wrapper<ed_long_wave_energy_loss> longwave;
+module_wrapper<ed_water_vapor_properties> water_properties;
+module_wrapper<ed_penman_monteith_leaf_temperature> leaf_temperature;
+
+// Create pointers to the wrappers
+mwp_vector const sub_mwps{
+    &forced_conductance,
+    &free_conductance,
+    &boundary_conductance,
+    &longwave,
+    &water_properties,
+    &leaf_temperature
 };
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
@@ -166,7 +180,7 @@ class ed_p_m_temperature_solve : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_p_m_temperature_solve_stuff::module_name,
-                          ed_p_m_temperature_solve_stuff::sub_module_names,
+                          ed_p_m_temperature_solve_stuff::sub_mwps,
                           ed_p_m_temperature_solve_stuff::solver_type,
                           ed_p_m_temperature_solve_stuff::max_iterations,
                           ed_p_m_temperature_solve_stuff::lower_bounds,
@@ -196,14 +210,14 @@ class ed_p_m_temperature_solve : public se_module::base
 
 string_vector ed_p_m_temperature_solve::get_inputs()
 {
-    string_vector inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    string_vector inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_mwps);
     inputs.push_back("temp");  // degrees C
     return inputs;
 }
 
 string_vector ed_p_m_temperature_solve::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_mwps);
     outputs.push_back(se_module::get_ncalls_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_p_m_temperature_solve_stuff::module_name));

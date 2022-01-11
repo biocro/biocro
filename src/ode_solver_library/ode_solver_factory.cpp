@@ -9,17 +9,17 @@
  * @brief A function that returns a unique_ptr to a ode_solver object.
  */
 template <class ode_solver_type>
-std::unique_ptr<ode_solver> create_ode_solver(
+ode_solver* create_ode_solver(
     double step_size,
     double rel_error_tolerance,
     double abs_error_tolerance,
     int max_steps)
 {
-    return std::unique_ptr<ode_solver>(new ode_solver_type(
+    return new ode_solver_type(
         step_size,
         rel_error_tolerance,
         abs_error_tolerance,
-        max_steps));
+        max_steps);
 }
 
 ode_solver_factory::ode_solver_creator_map ode_solver_factory::ode_solver_creators =
@@ -32,7 +32,7 @@ ode_solver_factory::ode_solver_creator_map ode_solver_factory::ode_solver_creato
         {"boost_rkck54",     create_ode_solver<boost_rkck54_ode_solver<preferred_state_type>>},
 };
 
-std::unique_ptr<ode_solver> ode_solver_factory::create(
+ode_solver* ode_solver_factory::create(
     std::string const& ode_solver_name,
     double step_size,
     double rel_error_tolerance,

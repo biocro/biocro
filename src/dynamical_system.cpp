@@ -6,13 +6,13 @@ dynamical_system::dynamical_system(
     state_map const& init_values,
     state_map const& params,
     state_vector_map const& drivers,
-    string_vector const& dir_module_names,
-    string_vector const& differential_module_names)
+    mwp_vector const& dir_mwps,
+    mwp_vector const& differential_mwps)
     : initial_values{init_values},
       parameters{params},
       drivers{drivers},
-      direct_module_names{},  // put modules in suitable order before filling
-      differential_module_names{differential_module_names}
+      direct_mwps{},  // put modules in suitable order before filling
+      differential_mwps{differential_mwps}
 {
     startup_message = string("");
 
@@ -22,8 +22,8 @@ dynamical_system::dynamical_system(
         init_values,
         params,
         drivers,
-        dir_module_names,
-        differential_module_names);
+        dir_mwps,
+        differential_mwps);
 
     if (!valid) {
         throw std::logic_error(
@@ -33,7 +33,7 @@ dynamical_system::dynamical_system(
     }
 
     try {
-        direct_module_names = get_evaluation_order(dir_module_names);
+        direct_mwps = get_evaluation_order(dir_mwps);
     } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> const& e) {
         throw std::logic_error(
             string("Cyclic dependencies should be caught in the validation ") +
@@ -43,7 +43,7 @@ dynamical_system::dynamical_system(
     // Make the central list of quantities
     all_quantities = define_quantity_map(
         vector<state_map>{init_values, params, at(drivers, 0)},
-        vector<string_vector>{direct_module_names});
+        direct_mwps);
 
     // Make a map to store the output of differential modules (i.e., derivatives
     // of the differential quantities), which should correspond to the
@@ -55,12 +55,12 @@ dynamical_system::dynamical_system(
     // rather than actual quantity values, but direct modules should
     // directly modify the main output map.
     direct_modules = get_module_vector(
-        direct_module_names,
+        direct_mwps,
         all_quantities,
         &all_quantities);
 
     differential_modules = get_module_vector(
-        differential_module_names,
+        differential_mwps,
         all_quantities,
         &differential_quantity_derivatives);
 
@@ -72,7 +72,7 @@ dynamical_system::dynamical_system(
     // - the drivers
     string_vector direct_quantity_names =
         string_set_to_string_vector(
-            find_unique_module_outputs({direct_module_names}));
+            find_unique_module_outputs(direct_mwps));
 
     string_vector differential_quantity_names = keys(init_values);
     string_vector driver_quantity_names = keys(drivers);
@@ -171,5 +171,5 @@ string_vector dynamical_system::get_output_quantity_names() const
 {
     return get_defined_quantity_names(
         vector<state_map>{initial_values, at(drivers, 0)},
-        vector<string_vector>{direct_module_names});
+        direct_mwps);
 }

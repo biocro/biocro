@@ -6,6 +6,15 @@
 #include "se_module.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"   // for saturation_water_vapor_pressure
+
+#include "ed_rh_to_mole_fraction.h"
+#include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_gas_concentrations.h"
+#include "ed_apply_water_stress.h"
+#include "ed_ball_berry.h"
+#include "ed_collatz_c4_assimilation.h"
+#include "ed_penman_monteith_transpiration.h"
+
 #include <Rinternals.h>  // temporary for debugging
 bool const eclp3_print = false;
 
@@ -13,14 +22,24 @@ namespace ed_c4_leaf_photosynthesis3_stuff
 {
 std::string const module_name = "ed_c4_leaf_photosynthesis3";
 
-string_vector const sub_module_names = {
-    "ed_rh_to_mole_fraction",                          // Convert relative humidity to H2O mole fraction
-    "ed_p_m_temperature_solve",                        // Iteratively solve for leaf temperature and boundary layer conductance
-    "ed_gas_concentrations",                           // Calculate CO2 and H20 mole fractions at various locations
-    "ed_apply_stomatal_water_stress_via_conductance",  // Determine how to account for water stress
-    "ed_ball_berry",                                   // Calculate stomatal conductance
-    "ed_collatz_c4_assimilation",                      // Calculate net assimilation
-    "ed_penman_monteith_transpiration"                 // Calculate evapotranspiration
+// Create module wrapper objects for the sub-modules
+module_wrapper<ed_rh_to_mole_fraction> mole_fraction;
+module_wrapper<ed_p_m_temperature_solve> leaf_temperature;
+module_wrapper<ed_gas_concentrations> gas_concentrations;
+module_wrapper<ed_apply_stomatal_water_stress_via_conductance> water_stress;
+module_wrapper<ed_ball_berry> stomatal_conductance;
+module_wrapper<ed_collatz_c4_assimilation> assimilation;
+module_wrapper<ed_penman_monteith_transpiration> transpiration;
+
+// Create pointers to the wrappers
+mwp_vector const sub_mwps{
+    &mole_fraction,
+    &leaf_temperature,
+    &gas_concentrations,
+    &water_stress,
+    &stomatal_conductance,
+    &assimilation,
+    &transpiration
 };
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
@@ -72,7 +91,7 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis3_stuff::module_name,
-                          ed_c4_leaf_photosynthesis3_stuff::sub_module_names,
+                          ed_c4_leaf_photosynthesis3_stuff::sub_mwps,
                           ed_c4_leaf_photosynthesis3_stuff::solver_type,
                           ed_c4_leaf_photosynthesis3_stuff::max_iterations,
                           ed_c4_leaf_photosynthesis3_stuff::lower_bounds,
@@ -126,12 +145,12 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
 
 string_vector ed_c4_leaf_photosynthesis3::get_inputs()
 {
-    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
+    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis3_stuff::sub_mwps);
 }
 
 string_vector ed_c4_leaf_photosynthesis3::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_mwps);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));

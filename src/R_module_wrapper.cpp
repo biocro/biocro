@@ -1,6 +1,5 @@
 #include <string>
 #include <Rinternals.h>          // for Rprintf
-#include <memory>                // for std::unique_ptr
 #include "state_map.h"           // for string_vector
 #include "R_helper_functions.h"  // for make_vector
 #include "module_library/module_wrapper_factory.h"
@@ -46,10 +45,7 @@ extern "C" {
  *
  *  After its creation, the R external pointer takes ownership of the
  *  module_wrapper_base object (in the sense that it will ensure that the
- *  module_wrapper_base object is deleted when the pointer is destroyed), so it
- *  is critical for the std::unique_ptr to relinquish control via
- *  `std::unique_ptr::release()` rather than `std::unique_ptr::get()`. Memory
- *  access problems will occur otherwise, causing R to suddenly crash.
+ *  module_wrapper_base object is deleted when the pointer is destroyed).
  *
  *  The output from this function can be converted into a std::vector of
  *  module_wrapper_base pointers for use in C/C++ code using the
@@ -68,11 +64,10 @@ SEXP R_module_wrapper_pointer(SEXP module_names)
         SEXP mw_ptr_vec = PROTECT(Rf_allocVector(VECSXP, n));
 
         for (size_t i = 0; i < n; ++i) {
-            std::unique_ptr<module_wrapper_base> w =
-                module_wrapper_factory::create(names[i]);
+            module_wrapper_base* w = module_wrapper_factory::create(names[i]);
 
             SEXP mw_ptr =
-                PROTECT(R_MakeExternalPtr(w.release(), R_NilValue, R_NilValue));
+                PROTECT(R_MakeExternalPtr(w, R_NilValue, R_NilValue));
 
             R_RegisterCFinalizerEx(
                 mw_ptr,

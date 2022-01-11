@@ -112,15 +112,15 @@
 #include "example_model_partitioning.h"
 
 /**
- * @brief A function that returns a unique_ptr to a module_wrapper_base object.
+ * @brief A function that returns a pointer to a module_wrapper_base object.
  */
 template <typename T>
-std::unique_ptr<module_wrapper_base> create_wrapper()
+module_wrapper_base* create_wrapper()
 {
-    return std::unique_ptr<module_wrapper_base>(new module_wrapper<T>);
+    return new module_wrapper<T>;
 }
 
-std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string const& module_name)
+module_wrapper_base* module_wrapper_factory::create(std::string const& module_name)
 {
     try {
         return module_wrapper_factory::module_wrapper_creators.at(module_name)();

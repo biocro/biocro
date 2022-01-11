@@ -298,7 +298,11 @@ namespace ed_nikolov_conductance_free_solve_stuff
 {
 std::string const module_name = "ed_nikolov_conductance_free_solve";
 
-string_vector const sub_module_names{"ed_nikolov_conductance_free"};
+// Create module wrapper objects for the sub-modules
+module_wrapper<ed_nikolov_conductance_free> conductance;
+
+// Create pointers to the wrappers
+mwp_vector const sub_mwps = {&conductance};
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
 
@@ -336,7 +340,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
-                          ed_nikolov_conductance_free_solve_stuff::sub_module_names,
+                          ed_nikolov_conductance_free_solve_stuff::sub_mwps,
                           ed_nikolov_conductance_free_solve_stuff::solver_type,
                           ed_nikolov_conductance_free_solve_stuff::max_iterations,
                           ed_nikolov_conductance_free_solve_stuff::lower_bounds,
@@ -361,12 +365,12 @@ class ed_nikolov_conductance_free_solve : public se_module::base
 
 string_vector ed_nikolov_conductance_free_solve::get_inputs()
 {
-    return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_mwps);
 }
 
 string_vector ed_nikolov_conductance_free_solve::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_mwps);
     outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));

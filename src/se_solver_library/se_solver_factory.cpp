@@ -6,12 +6,12 @@
 #include "newton_raphson_backtrack_boost.h"
 
 /**
- * @brief A function that returns a unique_ptr to an se_solver object.
+ * @brief A function that returns a pointer to an se_solver object.
  */
 template <class solver_type>
-std::unique_ptr<se_solver> create_se_solver(int max_it)
+se_solver* create_se_solver(int max_it)
 {
-    return std::unique_ptr<se_solver>(new solver_type(max_it));
+    return new solver_type(max_it);
 }
 
 se_solver_factory::se_solver_creator_map se_solver_factory::se_solver_creators =
@@ -21,7 +21,7 @@ se_solver_factory::se_solver_creator_map se_solver_factory::se_solver_creators =
     { "newton_raphson_backtrack_boost",     create_se_solver<newton_raphson_backtrack_boost> }
 };
 
-std::unique_ptr<se_solver> se_solver_factory::create(
+se_solver* se_solver_factory::create(
     std::string const& se_solver_name,
     int max_it)
 {

@@ -9,9 +9,9 @@ bool validate_simultaneous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
-    string_vector const& direct_module_names);
+    mwp_vector const& direct_mwps);
 
-std::string analyze_simultaneous_equations_inputs(string_vector const& direct_module_names);
+std::string analyze_simultaneous_equations_inputs(mwp_vector const& direct_mwps);
 
 /**
  * @class simultaneous_equations
@@ -24,7 +24,7 @@ class simultaneous_equations
     simultaneous_equations(
         state_map const& known_quantities,
         string_vector const& unknown_quantities,
-        string_vector const& direct_module_names);
+        mwp_vector const& direct_mwps);
 
     // For using as part of a module
     void update_known_quantities(std::vector<const double*> const& ptrs_to_values);
@@ -146,6 +146,6 @@ void simultaneous_equations::run_modules(vector_type const& unknown_quantity_vec
     }
 }
 
-string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector);
+string_vector get_unknown_quantities(mwp_vector mwps);
 
 #endif

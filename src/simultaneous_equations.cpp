@@ -16,7 +16,7 @@ const bool se_update_print = false;  // for debugging
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in `known_quantities` or if it is an output variable of one of the direct
-  * modules listed in `direct_module_names`.
+  * modules listed in `direct_mwps`.
   *
   * We consider a quantity to be strictly required as a module input if (i) a module
   * requires it as an input and (ii) it has not been produced as the output of a previous
@@ -38,13 +38,13 @@ bool validate_simultaneous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
-    string_vector const& direct_module_names)
+    mwp_vector const& direct_mwps)
 {
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
         std::vector<state_map>{known_quantities},
-        std::vector<string_vector>{direct_module_names});
+        direct_mwps);
 
     // Criterion 1
     num_problems += process_criterion<string_vector>(
@@ -64,7 +64,7 @@ bool validate_simultaneous_equations_inputs(
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<string_vector>{direct_module_names});
+                std::vector<mwp_vector>{direct_mwps});
         },
         [](string_vector string_list) -> std::string {
             return create_message(
@@ -74,7 +74,7 @@ bool validate_simultaneous_equations_inputs(
                 string_list);
         });
 
-    string_vector unknown_quantities_from_modules = get_unknown_quantities(std::vector<string_vector>{direct_module_names});
+    string_vector unknown_quantities_from_modules = get_unknown_quantities(direct_mwps);
 
     // Criterion 3
     num_problems += process_criterion<string_vector>(
@@ -112,14 +112,14 @@ bool validate_simultaneous_equations_inputs(
  * 2. A list of all quantities produced by the modules as outputs
  * 3. A list of all unknown quantities specified by the modules
  */
-std::string analyze_simultaneous_equations_inputs(string_vector const& direct_module_names)
+std::string analyze_simultaneous_equations_inputs(mwp_vector const& direct_mwps)
 {
     std::string message;
 
     // List the required inputs
     process_criterion<string_set>(
         message,
-        [=]() -> string_set { return find_strictly_required_inputs(std::vector<string_vector>{direct_module_names}); },
+        [=]() -> string_set { return find_strictly_required_inputs(direct_mwps); },
         [](string_set string_list) -> std::string { return create_message(
                                                         std::string("No quantities were required by the set of modules"),
                                                         std::string("The following quantities were required by the set of modules:"),
@@ -129,7 +129,7 @@ std::string analyze_simultaneous_equations_inputs(string_vector const& direct_mo
     // List the outputs
     process_criterion<string_set>(
         message,
-        [=]() -> string_set { return find_unique_module_outputs(std::vector<string_vector>{direct_module_names}); },
+        [=]() -> string_set { return find_unique_module_outputs(direct_mwps); },
         [](string_set string_list) -> std::string { return create_message(
                                                         std::string("No quantities were produced by any of the modules"),
                                                         std::string("The following quantities were each produced by at least one module:"),
@@ -139,7 +139,7 @@ std::string analyze_simultaneous_equations_inputs(string_vector const& direct_mo
     // List the unknown quantities
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return get_unknown_quantities(std::vector<string_vector>{direct_module_names}); },
+        [=]() -> string_vector { return get_unknown_quantities(direct_mwps); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("The modules did not specify any unknown quantities"),
                                                            std::string("The modules specified the following unknown quantities:"),
@@ -152,12 +152,12 @@ std::string analyze_simultaneous_equations_inputs(string_vector const& direct_mo
 simultaneous_equations::simultaneous_equations(
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
-    string_vector const& direct_module_names)
+    mwp_vector const& direct_mwps)
 {
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid set of simultaneous equations
-    bool valid = validate_simultaneous_equations_inputs(startup_message, known_quantities, unknown_quantities, direct_module_names);
+    bool valid = validate_simultaneous_equations_inputs(startup_message, known_quantities, unknown_quantities, direct_mwps);
     if (!valid) {
         throw std::logic_error("Thrown by simultaneous_equations::simultaneous_equations: the supplied inputs cannot form a valid set of simultaneous equations.\n\n" + startup_message);
     }
@@ -165,16 +165,16 @@ simultaneous_equations::simultaneous_equations(
     // Make the central list of quantities and the module output map
     quantities = define_quantity_map(
         std::vector<state_map>{known_quantities},
-        std::vector<string_vector>{direct_module_names});
+        direct_mwps);
     module_output_map = quantities;
 
     // Instantiate the modules
-    direct_modules = get_module_vector(direct_module_names, quantities, &module_output_map);
+    direct_modules = get_module_vector(direct_mwps, quantities, &module_output_map);
 
     // Make sorted lists of subsets of quantity names
     // Note that the output of string_set_to_string_vector is automatically
     //  sorted, because a string_set is always sorted by definition.
-    string_vector direct_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{direct_module_names}));
+    string_vector direct_output_names = string_set_to_string_vector(find_unique_module_outputs(direct_mwps));
     string_vector known_quantity_names = keys(known_quantities);
     std::sort(known_quantity_names.begin(), known_quantity_names.end());
 
@@ -233,11 +233,11 @@ void simultaneous_equations::update_known_quantities(std::vector<const double*> 
  *
  * @return A sorted list of quantity names
  */
-string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)
+string_vector get_unknown_quantities(mwp_vector mwps)
 {
-    string_set required_inputs = find_strictly_required_inputs(module_name_vector);
+    string_set required_inputs = find_strictly_required_inputs(mwps);
 
-    string_set module_outputs = find_unique_module_outputs(module_name_vector);
+    string_set module_outputs = find_unique_module_outputs(mwps);
 
     string_set unknown_quantities;
     for (std::string const& input : required_inputs) {

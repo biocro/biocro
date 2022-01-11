@@ -3,13 +3,13 @@
 
 #include <boost/graph/topological_sort.hpp> // for not_a_dag
 
-#include "../validate_dynamical_system.h" // for string_vector
+#include "../module_wrapper.h"  // For mwp_vector
 
 // Throws not_a_dag:
-string_vector get_evaluation_order(string_vector module_names);
+mwp_vector get_evaluation_order(mwp_vector mwps);
 
-bool has_cyclic_dependency(string_vector module_names);
+bool has_cyclic_dependency(mwp_vector mwps);
 
-bool order_ok(string_vector module_names);
+bool order_ok(mwp_vector mwps);
 
 #endif
