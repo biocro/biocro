@@ -1,17 +1,16 @@
 #ifndef ODE_SOLVER_FACTORY_H
 #define ODE_SOLVER_FACTORY_H
 
-#include <memory>
 #include <string>
 #include <vector>
 #include <map>
 #include "../ode_solver.h"
-#include "../state_map.h" // for string_vector
+#include "../state_map.h"  // for string_vector
 
 class ode_solver_factory
 {
    public:
-    static std::unique_ptr<ode_solver> create(
+    static ode_solver* create(
         std::string const& ode_solver_name,
         double step_size,
         double rel_error_tolerance,
@@ -22,9 +21,9 @@ class ode_solver_factory
 
    private:
     // Define a ode_solver_creator to be a pointer to a function that
-    // has no arguments and returns a std::unique_ptr<ode_solver>
+    // has no arguments and returns a pointer to an ode_solver
     using ode_solver_creator =
-        std::unique_ptr<ode_solver> (*)(double, double, double, int);
+        ode_solver* (*)(double, double, double, int);
 
     // A map of strings to ode_solver_creators
     using ode_solver_creator_map =

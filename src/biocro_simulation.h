@@ -1,12 +1,12 @@
 #ifndef BIOCRO_SIMULATION_H
 #define BIOCRO_SIMULATION_H
 
-#include <vector>
-#include "state_map.h"
+#include <memory>            // for unique_ptr, shared_ptr
+#include "state_map.h"       // for state_map, state_vector_map
+#include "module_wrapper.h"  // for mwp_vector
 #include "dynamical_system.h"
 #include "ode_solver.h"
 #include "ode_solver_library/ode_solver_factory.h"
-#include "module_wrapper.h"  // for mwp_vector
 
 // Class that represents a BioCro simulation
 class biocro_simulation
@@ -14,9 +14,9 @@ class biocro_simulation
    public:
     biocro_simulation(
         // parameters passed to dynamical_system constructor
-        std::unordered_map<std::string, double> const& initial_values,
-        std::unordered_map<std::string, double> const& parameters,
-        std::unordered_map<std::string, std::vector<double>> const& drivers,
+        state_map const& initial_values,
+        state_map const& parameters,
+        state_vector_map const& drivers,
         mwp_vector const& direct_mwps,
         mwp_vector const& differential_mwps,
         // parameters passed to ode_solver_factory::create
@@ -33,12 +33,17 @@ class biocro_simulation
                                  differential_mwps));
 
         // Create the ode_solver that will be used to solve the system
-        system_solver = ode_solver_factory::create(
-            ode_solver_name, output_step_size, adaptive_rel_error_tol,
-            adaptive_abs_error_tol, adaptive_max_steps);
+        system_solver =
+            std::unique_ptr<ode_solver>(
+                ode_solver_factory::create(
+                    ode_solver_name,
+                    output_step_size,
+                    adaptive_rel_error_tol,
+                    adaptive_abs_error_tol,
+                    adaptive_max_steps));
     }
 
-    std::unordered_map<std::string, std::vector<double>> run_simulation()
+    state_vector_map run_simulation()
     {
         return system_solver->integrate(sys);
     }

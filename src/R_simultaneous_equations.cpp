@@ -65,7 +65,7 @@ SEXP R_solve_simultaneous_equations(
                                                                               uq_names,
                                                                               direct_mwps));
 
-        auto solver = se_solver_factory::create(solver_type_string, max_iterations);
+        std::unique_ptr<se_solver> solver(se_solver_factory::create(solver_type_string, max_iterations));
 
         bool success = solver->solve(se, uq_values,
                                      lb_vector, ub_vector,
