@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_MODEL_MASS_GAIN_H
 #define EXAMPLE_MODEL_MASS_GAIN_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

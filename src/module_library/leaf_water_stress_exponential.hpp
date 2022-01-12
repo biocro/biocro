@@ -1,7 +1,7 @@
 #ifndef LEAF_WATER_STRESS_EXPONENTIAL_H
 #define LEAF_WATER_STRESS_EXPONENTIAL_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // For calculation_constants::eps_zero
 

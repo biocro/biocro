@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include "../constants.h"
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class poincare_clock : public differential_module

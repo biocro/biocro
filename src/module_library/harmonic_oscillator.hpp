@@ -2,7 +2,7 @@
 #define OSCILLATOR_H
 
 #include <cmath>  // for pow
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class harmonic_oscillator : public differential_module

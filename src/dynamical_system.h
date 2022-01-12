@@ -6,8 +6,8 @@
 #include <memory>            // For std::shared_ptr
 #include <utility>           // For std::pair
 #include "state_map.h"       // For state_map, state_vector_map, string_vector
-#include "module_wrapper.h"  // For mwp_vector
-#include "modules.h"         // For module_vector
+#include "module_creator.h"  // For mc_vector
+#include "module.h"         // For module_vector
 #include "validate_dynamical_system.h"
 #include "dynamical_system_helper_functions.h"
 
@@ -144,8 +144,8 @@ class dynamical_system
         state_map const& init_values,
         state_map const& params,
         state_vector_map const& drivers,
-        mwp_vector const& dir_mwps,
-        mwp_vector const& differential_mwps);
+        mc_vector const& dir_mcs,
+        mc_vector const& differential_mcs);
 
     // For integrating via an ode_solver
     size_t get_ntimes() const
@@ -195,8 +195,8 @@ class dynamical_system
     const state_map initial_values;
     const state_map parameters;
     const state_vector_map drivers;
-    mwp_vector direct_mwps;  // These may be re-ordered in the constructor.
-    const mwp_vector differential_mwps;
+    mc_vector direct_mcs;  // These may be re-ordered in the constructor.
+    const mc_vector differential_mcs;
 
     // Quantity maps defined during construction
     state_map all_quantities;

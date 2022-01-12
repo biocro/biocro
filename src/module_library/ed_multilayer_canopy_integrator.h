@@ -1,7 +1,7 @@
 #ifndef ED_MULTILAYER_CANOPY_INTEGRATOR_H
 #define ED_MULTILAYER_CANOPY_INTEGRATOR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 

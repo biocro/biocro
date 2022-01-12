@@ -1,4 +1,4 @@
-module_wrapper_pointer <- function(module_names)
+module_creators <- function(module_names)
 {
     # Check that the following type conditions are met:
     # - `module_names` should be a string vector
@@ -11,5 +11,5 @@ module_wrapper_pointer <- function(module_names)
 
     send_error_messages(error_messages)
 
-    return(.Call(R_module_wrapper_pointer, module_names))
+    return(.Call(R_module_creators, module_names))
 }

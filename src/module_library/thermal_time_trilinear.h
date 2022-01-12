@@ -1,7 +1,7 @@
 #ifndef THERMAL_TIME_TRILINEAR_H
 #define THERMAL_TIME_TRILINEAR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

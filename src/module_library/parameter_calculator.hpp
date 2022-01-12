@@ -1,7 +1,7 @@
 #ifndef PARAMETER_CALCULATOR_H
 #define PARAMETER_CALCULATOR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class parameter_calculator : public direct_module

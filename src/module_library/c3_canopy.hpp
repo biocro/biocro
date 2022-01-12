@@ -1,7 +1,7 @@
 #ifndef C3_CANOPY_H
 #define C3_CANOPY_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class c3_canopy : public direct_module

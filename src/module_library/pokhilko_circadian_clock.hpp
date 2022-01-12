@@ -1,7 +1,7 @@
 #ifndef POKHILKO_CIRCADIAN_CLOCK_H
 #define POKHILKO_CIRCADIAN_CLOCK_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 // This module is based on the circadian clock gene network described in

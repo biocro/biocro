@@ -1,7 +1,7 @@
 #ifndef ED_GAS_CONCENTRATIONS_H
 #define ED_GAS_CONCENTRATIONS_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include <cmath>           // for fabs
 #include "../constants.h"  // for eps_zero

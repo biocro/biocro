@@ -85,20 +85,20 @@ string_vector make_vector(SEXP const& r_string_vector)
 }
 
 /**
- *  @brief Creates a std::vector of pointers to module_wrapper_base objects from
+ *  @brief Creates a std::vector of pointers to module_creator objects from
  *  an R vector of R external pointer objects
  *
  *  @param [in] list An R vector of R external pointer objects, typically
- *              created by a call to `R_module_wrapper_pointer()`
+ *              created by a call to `R_module_creators()`
  *
- *  @return A std::vector of pointers to module_wrapper_base objects
+ *  @return A std::vector of pointers to module_creator objects
  */
-mwp_vector mw_vector_from_list(SEXP const& list)
+mc_vector mc_vector_from_list(SEXP const& list)
 {
     size_t n = Rf_length(list);
-    mwp_vector v(n);
+    mc_vector v(n);
     for (size_t i = 0; i < n; ++i) {
-        v[i] = static_cast<module_wrapper_base*>(
+        v[i] = static_cast<module_creator*>(
             R_ExternalPtrAddr(VECTOR_ELT(list, i)));
     }
     return v;

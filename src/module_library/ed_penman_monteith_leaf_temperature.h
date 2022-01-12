@@ -3,7 +3,7 @@
 
 #include <cmath>           // For pow
 #include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 #include "ed_nikolov_conductance.h"
@@ -132,15 +132,15 @@ namespace ed_p_m_temperature_solve_stuff
 std::string const module_name = "ed_p_m_temperature_solve";
 
 // Create module wrapper objects for the sub-modules
-module_wrapper<ed_nikolov_conductance_forced> forced_conductance;
-module_wrapper<ed_nikolov_conductance_free_solve> free_conductance;
-module_wrapper<ed_boundary_conductance_max> boundary_conductance;
-module_wrapper<ed_long_wave_energy_loss> longwave;
-module_wrapper<ed_water_vapor_properties> water_properties;
-module_wrapper<ed_penman_monteith_leaf_temperature> leaf_temperature;
+module_creator_impl<ed_nikolov_conductance_forced> forced_conductance;
+module_creator_impl<ed_nikolov_conductance_free_solve> free_conductance;
+module_creator_impl<ed_boundary_conductance_max> boundary_conductance;
+module_creator_impl<ed_long_wave_energy_loss> longwave;
+module_creator_impl<ed_water_vapor_properties> water_properties;
+module_creator_impl<ed_penman_monteith_leaf_temperature> leaf_temperature;
 
 // Create pointers to the wrappers
-mwp_vector const sub_mwps{
+mc_vector const sub_mcs{
     &forced_conductance,
     &free_conductance,
     &boundary_conductance,
@@ -180,7 +180,7 @@ class ed_p_m_temperature_solve : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_p_m_temperature_solve_stuff::module_name,
-                          ed_p_m_temperature_solve_stuff::sub_mwps,
+                          ed_p_m_temperature_solve_stuff::sub_mcs,
                           ed_p_m_temperature_solve_stuff::solver_type,
                           ed_p_m_temperature_solve_stuff::max_iterations,
                           ed_p_m_temperature_solve_stuff::lower_bounds,
@@ -210,14 +210,14 @@ class ed_p_m_temperature_solve : public se_module::base
 
 string_vector ed_p_m_temperature_solve::get_inputs()
 {
-    string_vector inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_mwps);
+    string_vector inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_mcs);
     inputs.push_back("temp");  // degrees C
     return inputs;
 }
 
 string_vector ed_p_m_temperature_solve::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_mwps);
+    string_vector outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_mcs);
     outputs.push_back(se_module::get_ncalls_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_p_m_temperature_solve_stuff::module_name));

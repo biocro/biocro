@@ -3,13 +3,13 @@
 
 #include <boost/graph/topological_sort.hpp> // for not_a_dag
 
-#include "../module_wrapper.h"  // For mwp_vector
+#include "../module_creator.h"  // For mc_vector
 
 // Throws not_a_dag:
-mwp_vector get_evaluation_order(mwp_vector mwps);
+mc_vector get_evaluation_order(mc_vector mcs);
 
-bool has_cyclic_dependency(mwp_vector mwps);
+bool has_cyclic_dependency(mc_vector mcs);
 
-bool order_ok(mwp_vector mwps);
+bool order_ok(mc_vector mcs);
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef ED_EVAPOTRANS2_H
 #define ED_EVAPOTRANS2_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "c4photo.h"
 #include "BioCro.h"  // for absorbed_shortwave_from_incident_ppfd

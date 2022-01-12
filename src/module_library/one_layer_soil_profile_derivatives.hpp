@@ -1,7 +1,7 @@
 #ifndef ONE_LAYER_SOIL_PROFILE_DERIVATIVES_H
 #define ONE_LAYER_SOIL_PROFILE_DERIVATIVES_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // for molar_mass_of_water
 #include <cmath>           // for log

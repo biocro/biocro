@@ -31,7 +31,7 @@ solve_simultaneous_equations <- function(
         upper_bounds,
         abs_error_tols,
         rel_error_tols,
-        module_wrapper_pointer(direct_module_names),
+        module_creators(direct_module_names),
         solver_type,
         max_it,
         silent)
@@ -48,7 +48,7 @@ validate_simultaneous_equations <- function(direct_module_names, known_quantitie
     silent <- lapply(silent, as.logical)
 
     # Run the C++ code
-    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, module_wrapper_pointer(direct_module_names), silent)
+    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, module_creators(direct_module_names), silent)
     return(result)
 }
 
@@ -59,6 +59,6 @@ test_simultaneous_equations <- function(direct_module_names, known_quantities, u
     unknown_quantities <- lapply(unknown_quantities, as.numeric)
 
     # Run the C++ code
-    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, module_wrapper_pointer(direct_module_names))
+    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, module_creators(direct_module_names))
     return(result)
 }

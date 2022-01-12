@@ -1,7 +1,7 @@
 #ifndef RASMUSSEN_SPECIFIC_HEAT_H
 #define RASMUSSEN_SPECIFIC_HEAT_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

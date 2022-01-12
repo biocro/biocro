@@ -1,7 +1,7 @@
 #ifndef ED_STOMATA_WATER_STRESS_LINEAR_H
 #define ED_STOMATA_WATER_STRESS_LINEAR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

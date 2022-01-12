@@ -1,7 +1,7 @@
 #ifndef THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
 #define THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

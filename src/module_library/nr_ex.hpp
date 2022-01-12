@@ -1,7 +1,7 @@
 #ifndef NR_EX_H
 #define NR_EX_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 // This module is an example in Chapter 16 of Numerical Recipes in C

@@ -3,7 +3,7 @@
 
 #include <cmath>                     // for floor, fmod
 #include "../degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

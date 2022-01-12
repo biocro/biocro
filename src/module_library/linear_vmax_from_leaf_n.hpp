@@ -1,7 +1,7 @@
 #ifndef LINEAR_VMAX_FROM_LEAF_N_H
 #define LINEAR_VMAX_FROM_LEAF_N_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class linear_vmax_from_leaf_n : public direct_module

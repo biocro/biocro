@@ -1,7 +1,7 @@
 #ifndef TOTAL_BIOMASS_H
 #define TOTAL_BIOMASS_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

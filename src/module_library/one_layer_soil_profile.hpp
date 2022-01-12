@@ -1,7 +1,7 @@
 #ifndef ONE_LAYER_SOIL_PROFILE_H
 #define ONE_LAYER_SOIL_PROFILE_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"  // For ws_str
 #include "BioCro.h"     // For watstr

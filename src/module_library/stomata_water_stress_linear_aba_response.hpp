@@ -1,7 +1,7 @@
 #ifndef STOMATA_WATER_STRESS_LINEAR_AND_ABA_RESPONSE_H
 #define STOMATA_WATER_STRESS_LINEAR_AND_ABA_RESPONSE_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include <cmath>  // for exp
 

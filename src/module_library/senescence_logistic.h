@@ -1,7 +1,7 @@
 #ifndef SENESCENCE_LOGISTIC_H
 #define SENESCENCE_LOGISTIC_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

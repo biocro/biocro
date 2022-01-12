@@ -3,7 +3,7 @@ useDynLib(BioCro,
           R_system_derivatives,
           R_module_info,
           R_evaluate_module,
-          R_module_wrapper_pointer,
+          R_module_creators,
           R_validate_dynamical_system_inputs,
           R_validate_simultaneous_equations,
           R_solve_simultaneous_equations,
@@ -29,7 +29,7 @@ export(module_response_curve)
 
 export(quantity_list_from_names)
 
-export(module_wrapper_pointer)
+export(module_creators)
 
 export(validate_dynamical_system_inputs)
 

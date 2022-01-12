@@ -860,10 +860,10 @@ The steps are as follows.
   \end{example}
 
 \item Add \emph{include} directives to include the module base class
-  declarations from \code{modules.h} and the type aliases from
+  declarations from \code{module.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
-    #include "../modules.h"
+    #include "../module.h"
     #include "../state_map.h"
   \end{example}
 
@@ -1071,7 +1071,7 @@ A listing of the completed module code is shown in appendix \ref{sza
 
 Once the new module has been written, it must be integrated into the
 rest of the BioCro code.  This involves modifying the file
-\code{module_library/module_wrapper_factory.cpp} and requires two
+\code{module_library/module_library.cpp} and requires two
 steps:
 
 \begin{enumerate}
@@ -1082,7 +1082,7 @@ steps:
   \end{example}
 
 \item Add an entry to
-  \code{module_wrapper_factory::module_wrapper_creators}.  This
+  \code{module_library::module_wrapper_creators}.  This
   will be a bracketed pair of the form
   \begin{C++listing}[4]
     {|\stringplaceholder{module name}|, &create_wrapper<|\placeholder{module name}|>}
@@ -1135,10 +1135,10 @@ direct module, but with some significant differences.
   \end{example}
 
 \item Add include directives to include the module base class
-  declarations from \code{modules.h} and the type aliases from
+  declarations from \code{module.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
-    #include "../modules.h"
+    #include "../module.h"
     #include "../state_map.h"
   \end{example}
 
@@ -1283,7 +1283,7 @@ A listing of the completed module code is shown in appendix \ref{hdd
 The steps for integrating the module into the rest of the BioCro code
 are exactly the same as for direct modules, again only requiring
 a few modifications to
-\code{module_library/module_wrapper_factory.cpp}:
+\code{module_library/module_library.cpp}:
 
 \begin{enumerate}
 
@@ -1293,7 +1293,7 @@ a few modifications to
   \end{example}
 
 \item Add an entry to
-  \code{module_wrapper_factory::module_wrapper_creators}.  This
+  \code{module_library::module_wrapper_creators}.  This
   will be a bracketed pair of the form
   \begin{C++listing}[4]
     {|\stringplaceholder{module name}|, &create_wrapper<|\placeholder{module name}|>}

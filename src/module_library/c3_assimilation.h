@@ -1,7 +1,7 @@
 #ifndef C3_ASSIMILATION_H
 #define C3_ASSIMILATION_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "c3photo.hpp"
 

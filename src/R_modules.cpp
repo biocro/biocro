@@ -3,8 +3,8 @@
 #include <string>
 #include "R_helper_functions.h"
 #include "state_map.h"
-#include "module_wrapper.h"
-#include "modules.h"
+#include "module_creator.h"
+#include "module.h"
 
 extern "C" {
 
@@ -12,8 +12,8 @@ extern "C" {
  *  @brief Determines vital information about a single module
  *
  *  @param [in] mw_ptr_vec A single-element vector containing one R external
- *              pointer pointing to a module_wrapper_base object, typically
- *              produced by the `R_module_wrapper_pointer()` function. If the
+ *              pointer pointing to a module_creator object, typically
+ *              produced by the `R_module_creators()` function. If the
  *              vector has more than one element, only the first will be used.
  *
  *  @param [in] verbose When verbose is TRUE, print information to the R console
@@ -24,8 +24,8 @@ extern "C" {
 SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 {
     try {
-        // Get the module_wrapper_base pointer
-        module_wrapper_base* w = mw_vector_from_list(mw_ptr_vec)[0];
+        // Get the module_creator pointer
+        module_creator* w = mc_vector_from_list(mw_ptr_vec)[0];
 
         // Convert verbose to a boolean
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
@@ -56,7 +56,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         bool requires_euler_ode_solver = false;
         std::string creation_error_message = "none";
         try {
-            std::unique_ptr<module_base> module_ptr = w->createModule(
+            std::unique_ptr<module> module_ptr = w->create_module(
                 module_inputs,
                 &module_outputs);
 
@@ -142,8 +142,8 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
  *         supplied values of its input quantities
  *
  *  @param [in] mw_ptr_vec A single-element vector containing one R external
- *              pointer pointing to a module_wrapper_base object, typically
- *              produced by the `R_module_wrapper_pointer()` function. If the
+ *              pointer pointing to a module_creator object, typically
+ *              produced by the `R_module_creators()` function. If the
  *              vector has more than one element, only the first will be used.
  *
  *  @param [in] input_quantities A list of named numeric elements where the name
@@ -157,8 +157,8 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
 {
     try {
-        // Get the module_wrapper_base pointer
-        module_wrapper_base* w = mw_vector_from_list(mw_ptr_vec)[0];
+        // Get the module_creator pointer
+        module_creator* w = mc_vector_from_list(mw_ptr_vec)[0];
 
         // input_quantities should be a state map
         // use it to initialize the quantity list
@@ -174,8 +174,8 @@ SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
             module_output_map[param] = 0.0;
         }
 
-        std::unique_ptr<module_base> module_ptr =
-            w->createModule(quantities, &module_output_map);
+        std::unique_ptr<module> module_ptr =
+            w->create_module(quantities, &module_output_map);
 
         module_ptr->run();
 

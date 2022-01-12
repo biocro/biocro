@@ -1,7 +1,7 @@
 #ifndef SONG_FLOWERING_H
 #define SONG_FLOWERING_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 // This module is based on the photoperiodic flowering model described in

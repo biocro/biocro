@@ -2,7 +2,7 @@
 #define ED_BOUNDARY_CONDUCTANCE_H
 
 #include <algorithm>  // for std::max
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

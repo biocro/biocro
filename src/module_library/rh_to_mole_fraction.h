@@ -4,7 +4,7 @@
 #include <cmath>           // for fabs
 #include "AuxBioCro.h"     // for saturation_vapor_pressure
 #include "../constants.h"  // for calculation_constants::eps_zero
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

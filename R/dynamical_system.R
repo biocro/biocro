@@ -41,8 +41,8 @@ validate_dynamical_system_inputs <- function(
         initial_values,
         parameters,
         drivers,
-        module_wrapper_pointer(direct_module_names),
-        module_wrapper_pointer(differential_module_names),
+        module_creators(direct_module_names),
+        module_creators(differential_module_names),
         verbose
     )
 

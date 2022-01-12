@@ -1,7 +1,7 @@
 #ifndef LEAF_GBW_THORNLEY_H
 #define LEAF_GBW_THORNLEY_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_thornley
 

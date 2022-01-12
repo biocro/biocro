@@ -3,7 +3,7 @@
 
 #include <cmath>           // for fabs
 #include "../constants.h"  // for eps_zero, molar_mass_of_water
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

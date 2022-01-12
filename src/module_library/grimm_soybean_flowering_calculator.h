@@ -1,7 +1,7 @@
 #ifndef GRIMM_SOYBEAN_FLOWERING_CALCULATOR_H
 #define GRIMM_SOYBEAN_FLOWERING_CALCULATOR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

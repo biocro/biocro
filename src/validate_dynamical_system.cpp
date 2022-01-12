@@ -1,7 +1,7 @@
 #include <algorithm>                            // For std::find
 #include <memory>                               // For std::unique_ptr
 #include "state_map.h"                          // For state_map, string_vector, string_set
-#include "modules.h"                            // For module_vector
+#include "module.h"                            // For module_vector
 #include "utils/module_dependency_utilities.h"  // for has_cyclic_dependency
 #include "validate_dynamical_system.h"
 
@@ -45,14 +45,14 @@ bool validate_dynamical_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    mwp_vector const& direct_mwps,
-    mwp_vector const& differential_mwps)
+    mc_vector const& direct_mcs,
+    mc_vector const& differential_mcs)
 {
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
         std::vector<state_map>{initial_values, params, at(drivers, 0)},
-        direct_mwps);
+        direct_mcs);
 
     // Criterion 1
     num_problems += process_criterion<string_vector>(
@@ -72,7 +72,7 @@ bool validate_dynamical_system_inputs(
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<mwp_vector>{direct_mwps, differential_mwps});
+                std::vector<mc_vector>{direct_mcs, differential_mcs});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
@@ -88,7 +88,7 @@ bool validate_dynamical_system_inputs(
         [=]() -> string_vector {
             return find_undefined_module_outputs(
                 keys(initial_values),
-                std::vector<mwp_vector>{differential_mwps});
+                std::vector<mc_vector>{differential_mcs});
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
@@ -103,7 +103,7 @@ bool validate_dynamical_system_inputs(
         message,
         [=]() -> string_vector {
             string_vector result{};
-            if (has_cyclic_dependency(direct_mwps)) {
+            if (has_cyclic_dependency(direct_mcs)) {
                 // For now, we just want a non-zero vector size.  It
                 // may, however, prove useful to display a set of
                 // modules that comprise a cyclic dependency.
@@ -137,21 +137,21 @@ std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    mwp_vector const& direct_mwps,
-    mwp_vector const& differential_mwps)
+    mc_vector const& direct_mcs,
+    mc_vector const& differential_mcs)
 {
     std::string message;
 
-    string_set all_module_inputs = find_unique_module_inputs(std::vector<mwp_vector>{direct_mwps, differential_mwps});
+    string_set all_module_inputs = find_unique_module_inputs(std::vector<mc_vector>{direct_mcs, differential_mcs});
 
     // List a suitable ordering for evaluation of the direct
     // modules if the given order isn't suitable.
-    if (!has_cyclic_dependency(direct_mwps)) {
+    if (!has_cyclic_dependency(direct_mcs)) {
         process_criterion<string_vector>(
             message,
             [=]() -> string_vector {
-                if (!order_ok(direct_mwps)) {
-                    return get_module_names(get_evaluation_order(direct_mwps));
+                if (!order_ok(direct_mcs)) {
+                    return get_module_names(get_evaluation_order(direct_mcs));
                 } else {
                     return {};
                 }
@@ -180,7 +180,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<mwp_vector>{direct_mwps, differential_mwps}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<mc_vector>{direct_mcs, differential_mcs}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each parameter was used as an input to one or more modules"),
                                                            std::string("The following parameters were not used as inputs to any module:"),
@@ -190,7 +190,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the drivers
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<mwp_vector>{direct_mwps, differential_mwps}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<mc_vector>{direct_mcs, differential_mcs}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each driver was used as an input to one or more modules"),
                                                            std::string("The following drivers were not used as inputs to any module:"),
@@ -200,7 +200,7 @@ std::string analyze_system_inputs(
     // List any quantities in the initial values that lack derivatives
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_static_output_parameters(initial_values, differential_mwps); },
+        [=]() -> string_vector { return find_static_output_parameters(initial_values, differential_mcs); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All quantities in the initial values have associated derivatives"),
                                                            std::string("The following quantities in the initial values lack associated derivatives:"),
@@ -209,7 +209,7 @@ std::string analyze_system_inputs(
 
     string_vector differential_module_outputs = get_defined_quantity_names(
         std::vector<state_map>{},
-        differential_mwps);
+        differential_mcs);
 
     // List any quantities whose derivative is determined by more than one module
     process_criterion<string_vector>(
@@ -224,7 +224,7 @@ std::string analyze_system_inputs(
     // List any modules that require a fixed step size Euler ode_solver
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_euler_requirements(direct_mwps); },
+        [=]() -> string_vector { return find_euler_requirements(direct_mcs); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("No direct modules require a fixed step size Euler ode_solver"),
                                                            std::string("The following direct modules require a fixed step size Euler ode_solver:"),
@@ -233,7 +233,7 @@ std::string analyze_system_inputs(
 
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_euler_requirements(differential_mwps); },
+        [=]() -> string_vector { return find_euler_requirements(differential_mcs); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("No differential modules require a fixed step size Euler ode_solver"),
                                                            std::string("The following differential modules require a fixed step size Euler ode_solver:"),
@@ -243,7 +243,7 @@ std::string analyze_system_inputs(
     // List any mischaracterized direct modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(direct_mwps, false); },
+        [=]() -> string_vector { return find_mischaracterized_modules(direct_mcs, false); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the direct module list are direct modules"),
                                                            std::string("The following modules were in the list of direct modules but are actually differential modules:"),
@@ -253,7 +253,7 @@ std::string analyze_system_inputs(
     // List any mischaracterized differential modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(differential_mwps, true); },
+        [=]() -> string_vector { return find_mischaracterized_modules(differential_mcs, true); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the differential module list are differential modules"),
                                                            std::string("The following modules were in the list of differential modules but are actually direct modules:"),
@@ -269,7 +269,7 @@ std::string analyze_system_inputs(
  * The resulting state_map will essentially be the union of all the
  * maps in parameter `state_maps` and an additional map formed by
  * taking as keys all of the output variables from the modules in
- * mwps and setting the corresponding values to zero.
+ * mcs and setting the corresponding values to zero.
  *
  * The set of keys in the maps in `state_maps` should not overlap with
  * one another and should be distinct from the module output variable
@@ -278,17 +278,17 @@ std::string analyze_system_inputs(
  * @param state_maps A list (presented as a `std::vector`) of
  *                   state_maps.
  *
- * @param mwps A list of modules (presented as a `std::vector` of pointers
- *                             to `module_wrapper_base` objects).
+ * @param mcs A list of modules (presented as a `std::vector` of pointers
+ *                             to `module_creator` objects).
  *
  * @returns a `state_map` which is the union of all maps in
  *          `state_maps` together with a map whose keys are all the output
- *          parameters of modules in `mwps` and whose
+ *          parameters of modules in `mcs` and whose
  *          values are all zero.
  */
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
-    mwp_vector mwps)
+    mc_vector mcs)
 {
     state_map quantities;
 
@@ -298,7 +298,7 @@ state_map define_quantity_map(
     }
 
     // Get additional quantities from the modules
-    for (auto const& w : mwps) {
+    for (auto const& w : mcs) {
         string_vector module_outputs = w->get_outputs();
         for (auto const& o : module_outputs) {
             quantities[o] = 0;
@@ -343,12 +343,12 @@ string_vector find_duplicate_quantity_definitions(string_vector quantity_names)
  */
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
-    std::vector<mwp_vector> mwp_vectors)
+    std::vector<mc_vector> mc_vectors)
 {
     string_vector undefined_module_inputs;
 
-    for (mwp_vector const& mwpv : mwp_vectors) {
-        for (auto const& w : mwpv) {
+    for (mc_vector const& mcv : mc_vectors) {
+        for (auto const& w : mcv) {
             string_vector input_names = w->get_inputs();
             std::string module_name = w->get_name();
             for (std::string input : input_names) {
@@ -371,12 +371,12 @@ string_vector find_undefined_module_inputs(
  */
 string_vector find_undefined_module_outputs(
     string_vector quantity_names,
-    std::vector<mwp_vector> mwp_vectors)
+    std::vector<mc_vector> mc_vectors)
 {
     string_vector undefined_module_outputs;
 
-    for (mwp_vector const& mwpv : mwp_vectors) {
-        for (auto const& w : mwpv) {
+    for (mc_vector const& mcv : mc_vectors) {
+        for (auto const& w : mcv) {
             string_vector output_names = w->get_outputs();
             std::string module_name = w->get_name();
             for (std::string output : output_names) {
@@ -395,12 +395,12 @@ string_vector find_undefined_module_outputs(
 /**
  * @brief Returns a set containing all unique inputs to the modules
  */
-string_set find_unique_module_inputs(std::vector<mwp_vector> mwp_vectors)
+string_set find_unique_module_inputs(std::vector<mc_vector> mc_vectors)
 {
     string_set module_inputs;
 
-    for (mwp_vector const& mwps : mwp_vectors) {
-        for (auto const& w : mwps) {
+    for (mc_vector const& mcs : mc_vectors) {
+        for (auto const& w : mcs) {
             string_vector input_names = w->get_inputs();
             module_inputs.insert(input_names.begin(), input_names.end());
         }
@@ -413,11 +413,11 @@ string_set find_unique_module_inputs(std::vector<mwp_vector> mwp_vectors)
  * @brief Returns a set containing all unique outputs produced by the
  * modules
  */
-string_set find_unique_module_outputs(mwp_vector mwps)
+string_set find_unique_module_outputs(mc_vector mcs)
 {
     string_set module_outputs;
 
-    for (auto const& w : mwps) {
+    for (auto const& w : mcs) {
         string_vector output_names = w->get_outputs();
         module_outputs.insert(output_names.begin(), output_names.end());
     }
@@ -429,12 +429,12 @@ string_set find_unique_module_outputs(mwp_vector mwps)
  * @brief Returns a vector containing all inputs to the set of modules that are not outputs
  * produced by previous modules. Note that the order of modules is important here.
  */
-string_set find_strictly_required_inputs(mwp_vector mwps)
+string_set find_strictly_required_inputs(mc_vector mcs)
 {
     string_vector required_module_inputs;
     string_set outputs_from_previous_modules;
 
-    for (auto const& w : mwps) {
+    for (auto const& w : mcs) {
         for (std::string const& input_name : w->get_inputs()) {
             insert_quantity_if_undefined(input_name, outputs_from_previous_modules, required_module_inputs);
         }
@@ -451,11 +451,11 @@ string_set find_strictly_required_inputs(mwp_vector mwps)
  */
 string_vector find_unused_input_parameters(
     std::vector<state_map> state_maps,
-    std::vector<mwp_vector> mwp_vectors)
+    std::vector<mc_vector> mc_vectors)
 {
     string_vector unused_params;
 
-    string_set all_module_inputs = find_unique_module_inputs(mwp_vectors);
+    string_set all_module_inputs = find_unique_module_inputs(mc_vectors);
 
     // For now, there are a few names we should ignore since they may be
     // required for other reasons even if they are not used as module inputs
@@ -485,11 +485,11 @@ string_vector find_unused_input_parameters(
  */
 string_vector find_static_output_parameters(
     state_map quantities,
-    mwp_vector mwps)
+    mc_vector mcs)
 {
     string_vector unused_params;
 
-    string_set all_module_outputs = find_unique_module_outputs(mwps);
+    string_set all_module_outputs = find_unique_module_outputs(mcs);
 
     string_vector quantity_names = keys(quantities);
     for (std::string const& name : quantity_names) {
@@ -504,14 +504,14 @@ string_vector find_static_output_parameters(
 /**
  * @brief Returns modules that require a fixed step size Euler ode_solver
  */
-string_vector find_euler_requirements(mwp_vector mwps)
+string_vector find_euler_requirements(mc_vector mcs)
 {
     // Get all the module inputs and outputs
     string_set all_module_inputs =
-        find_unique_module_inputs(std::vector<mwp_vector>{mwps});
+        find_unique_module_inputs(std::vector<mc_vector>{mcs});
 
     string_set all_module_outputs =
-        find_unique_module_outputs(mwps);
+        find_unique_module_outputs(mcs);
 
     // Make an appropriate state_map that contains them all
     state_map quantities;
@@ -523,10 +523,10 @@ string_vector find_euler_requirements(mwp_vector mwps)
 
     // Instantiate each module and check its characterization
     string_vector euler_requiring_modules;
-    module_vector modules = get_module_vector(mwps, quantities, &quantities);
+    module_vector modules = get_module_vector(mcs, quantities, &quantities);
     for (size_t i = 0; i < modules.size(); ++i) {
         if (modules[i]->requires_euler_ode_solver()) {
-            euler_requiring_modules.push_back(mwps[i]->get_name());
+            euler_requiring_modules.push_back(mcs[i]->get_name());
         }
     }
 
@@ -537,14 +537,14 @@ string_vector find_euler_requirements(mwp_vector mwps)
  * @brief Returns mischaracterized modules, i.e., direct modules
  * in the differential module list or vice-versa
  */
-string_vector find_mischaracterized_modules(mwp_vector mwps, bool is_differential)
+string_vector find_mischaracterized_modules(mc_vector mcs, bool is_differential)
 {
     // Get all the module inputs and outputs
     string_set all_module_inputs =
-        find_unique_module_inputs(std::vector<mwp_vector>{mwps});
+        find_unique_module_inputs(std::vector<mc_vector>{mcs});
 
     string_set all_module_outputs =
-        find_unique_module_outputs(mwps);
+        find_unique_module_outputs(mcs);
 
     // Make an appropriate state_map that contains them all
     state_map quantities;
@@ -556,10 +556,10 @@ string_vector find_mischaracterized_modules(mwp_vector mwps, bool is_differentia
 
     // Instantiate each module and check its characterization
     string_vector mischaracterized_modules;
-    module_vector modules = get_module_vector(mwps, quantities, &quantities);
+    module_vector modules = get_module_vector(mcs, quantities, &quantities);
     for (size_t i = 0; i < modules.size(); ++i) {
         if (modules[i]->is_differential() != is_differential) {
-            mischaracterized_modules.push_back(mwps[i]->get_name());
+            mischaracterized_modules.push_back(mcs[i]->get_name());
         }
     }
 
@@ -570,13 +570,13 @@ string_vector find_mischaracterized_modules(mwp_vector mwps, bool is_differentia
  * @brief Returns a vector of unique_ptrs to module objects
  */
 module_vector get_module_vector(
-    mwp_vector mwps,
+    mc_vector mcs,
     state_map const& input_quantities,
     state_map* output_quantities)
 {
     module_vector modules;
-    for (auto const& w : mwps) {
-        modules.push_back(w->createModule(input_quantities, output_quantities));
+    for (auto const& w : mcs) {
+        modules.push_back(w->create_module(input_quantities, output_quantities));
     }
     return modules;
 }
@@ -585,10 +585,10 @@ module_vector get_module_vector(
  *  @brief Generates a vector of module names from a vector of module wrapper
  *  pointers
  */
-string_vector get_module_names(mwp_vector mwps)
+string_vector get_module_names(mc_vector mcs)
 {
     string_vector module_names;
-    for (auto const& w : mwps) {
+    for (auto const& w : mcs) {
         module_names.push_back(w->get_name());
     }
     return module_names;

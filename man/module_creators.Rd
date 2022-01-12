@@ -1,12 +1,12 @@
-\name{module_wrapper_pointer}
+\name{module_creators}
 
-\alias{module_wrapper_pointer}
+\alias{module_creators}
 
 \title{Create instances of modules}
 
 \description{Creates pointers to module wrapper objects}
 
-\usage{module_wrapper_pointer(module_names)}
+\usage{module_creators(module_names)}
 
 \arguments{
   \item{module_names}{A vector of module names}
@@ -19,7 +19,7 @@
   can be used to obtain information about a module's inputs, outputs, and other
   properties, and can also be used to create a module instance. The \code{See
   Also} section contains a list of functions that directly rely on
-  \code{module_wrapper_pointer}.
+  \code{module_creators}.
 
   The R documentation for \code{externalptr} objects is sparse, but some
   information can be found
@@ -28,7 +28,7 @@
 
 \value{
   A vector of R \code{externalptr} objects that each point to a
-  \code{module_wrapper_base} C++ object
+  \code{module_creator} C++ object
 }
 
 \seealso{
@@ -41,7 +41,7 @@
 \examples{
 # Example: creating a vector of pointers to several module wrappers representing
 # three options for thermal time calculations
-module_pointers <- module_wrapper_pointer(c(
+module_pointers <- module_creators(c(
   'thermal_time_linear',
   'thermal_time_bilinear',
   'thermal_time_trilinear'

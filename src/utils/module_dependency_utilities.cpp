@@ -32,7 +32,7 @@ using Graph = boost::adjacency_list<
     boost::setS,      // the EdgeList type: don't allow multiedges
     boost::listS,     // the VertexList type; could use vecS instead
     boost::directedS, // cheaper than bidirectionalS, which provides features we don't need
-    boost::property<boost::vertex_name_t, module_wrapper_base*,
+    boost::property<boost::vertex_name_t, module_creator*,
                     boost::property<boost::vertex_index_t, std::size_t>>
     >;
 
@@ -76,7 +76,7 @@ using vertex_iterator = boost::graph_traits<Graph>::vertex_iterator;
 
 // Functions
 //
-// Only `mwp_vector get_evaluation_order(mwp_vector)` is
+// Only `mc_vector get_evaluation_order(mc_vector)` is
 // declared in the header file.  The rest of the functions are
 // auxiliary functions that it uses either directly or indirectly and
 // that are not used outside of this file.
@@ -85,12 +85,12 @@ using vertex_iterator = boost::graph_traits<Graph>::vertex_iterator;
  *  @brief Returns a list (presented as a sorted vector of strings) of
  *  all inputs for the module.
  *
- *  @param[in] w A pointer to a `module_wrapper_base` object.
+ *  @param[in] w A pointer to a `module_creator` object.
  *
  *  @returns A list (presented as a sorted vector of strings) of all inputs for
  *           the module.
  */
-string_vector get_module_inputs(module_wrapper_base* w) {
+string_vector get_module_inputs(module_creator* w) {
     string_vector inputs { w->get_inputs() };
     sort(inputs.begin(), inputs.end());
     return inputs;
@@ -100,12 +100,12 @@ string_vector get_module_inputs(module_wrapper_base* w) {
  *  @brief Returns a list (presented as a sorted vector of strings) of
  *  all outputs for the module.
  *
- *  @param[in] w A pointer to a `module_wrapper_base` object.
+ *  @param[in] w A pointer to a `module_creator` object.
  *
  *  @returns A list (presented as a sorted vector of strings) of all
  *           outputs for the module.
  */
-string_vector get_module_outputs(module_wrapper_base* w) {
+string_vector get_module_outputs(module_creator* w) {
     string_vector outputs { w->get_outputs() };
     sort(outputs.begin(), outputs.end());
     return outputs;
@@ -119,14 +119,14 @@ string_vector get_module_outputs(module_wrapper_base* w) {
  *  m1 depends on m2 if and only if some input of m1 corresponds to
  *  some output of m2.
  *
- *  @param[in] m1 A pointer to a `module_wrapper_base` object.
- *  @param[in] m2 A pointer to a `module_wrapper_base` object.
+ *  @param[in] m1 A pointer to a `module_creator` object.
+ *  @param[in] m2 A pointer to a `module_creator` object.
  *
  *  @returns true if the module named by m1 depends upon the module
  *           named by m2, false otherwise.
  *
  */
-bool depends_on(module_wrapper_base* m1, module_wrapper_base* m2) {
+bool depends_on(module_creator* m1, module_creator* m2) {
     string_vector m1_inputs = get_module_inputs(m1);
     string_vector m2_outputs = get_module_outputs(m2);
 
@@ -144,20 +144,20 @@ bool depends_on(module_wrapper_base* m1, module_wrapper_base* m2) {
 
 /**
  *  @brief Creates and returns a graph that models the dependency
- *  structure of the modules listed in mwps.
+ *  structure of the modules listed in mcs.
  *
  *  There is a directed edge from the vertex for module A to the
  *  vertex for module B if A is depended upon by B, that is, if B
  *  depends on A.
  *
- *  @param mwps A list (presented as a vector of pointers to
- *                     `module_wrapper_base` objects) of modules.
+ *  @param mcs A list (presented as a vector of pointers to
+ *                     `module_creator` objects) of modules.
  *
  *  @returns A Graph object modeling the dependency structure of the modules.
  */
-Graph get_dependency_graph(mwp_vector mwps) {
+Graph get_dependency_graph(mc_vector mcs) {
 
-    int N = mwps.size();
+    int N = mcs.size();
 
     Graph g(N);
 
@@ -170,7 +170,7 @@ Graph get_dependency_graph(mwp_vector mwps) {
     vertex_iterator vi_end;
     string_vector::size_type i = 0;
     for (tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i) {
-        name_map[*vi] = mwps[i];
+        name_map[*vi] = mcs[i];
 
         // If the adjacency_list VertexList parameter is vecS, then
         // index_map will be read-only; but it will be set properly so
@@ -239,7 +239,7 @@ bool has_cycle(Graph g) {
  *  wrapper pointers), determine if the list can be put in a suitable
  *  order for evaluating the modules.
  *
- *  @param mwps A list (presented as a vector of module wrapper pointers) of
+ *  @param mcs A list (presented as a vector of module wrapper pointers) of
  *                      modules.
  *
  *  @returns `true` if there is a cyclic dependency among the given
@@ -247,14 +247,14 @@ bool has_cycle(Graph g) {
  *           otherwise.
  *
  */
-bool has_cyclic_dependency(mwp_vector mwps) {
-    Graph g = get_dependency_graph(mwps);
+bool has_cyclic_dependency(mc_vector mcs) {
+    Graph g = get_dependency_graph(mcs);
     return has_cycle(g);
 }
 
 /**
  *  @brief Determines whether the modules in
- *  `mwps` need to be reordered before evaluation.
+ *  `mcs` need to be reordered before evaluation.
  *
  *  @param module_names A list (presented as a vector of strings) of
  *                      names of direct modules.
@@ -263,10 +263,10 @@ bool has_cyclic_dependency(mwp_vector mwps) {
  *           is a suitable evaluation order, `false` otherwise.
  *
  */
-bool order_ok(mwp_vector mwps) {
-    for (mwp_vector::size_type i = 0; i < mwps.size(); ++i) {
-        for (mwp_vector::size_type j = i; j < mwps.size(); ++j) {
-            if (depends_on(mwps[i], mwps[j])) {
+bool order_ok(mc_vector mcs) {
+    for (mc_vector::size_type i = 0; i < mcs.size(); ++i) {
+        for (mc_vector::size_type j = i; j < mcs.size(); ++j) {
+            if (depends_on(mcs[i], mcs[j])) {
                 return false;
             }
         }
@@ -310,37 +310,37 @@ vertex_list get_topological_ordering(const Graph& g) {
 
 /**
  *  @brief Given a list of modules (presented as a vector of pointers to
- *  `module_wrapper_base` objects), return the same list in a suitable order for
+ *  `module_creator` objects), return the same list in a suitable order for
  *  evaluating the modules.
  *
  *  If no such ordering exists (due to a cyclic dependency), the
  *  function throws an exception of type
  *  boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>.
  *
- *  @param mwps A list (presented as a vector of module wrapper pointers) of
+ *  @param mcs A list (presented as a vector of module wrapper pointers) of
  *                      modules.
  *
- *  @return The same list given in `mwps`, but ordered so that
+ *  @return The same list given in `mcs`, but ordered so that
  *          each module in the list depends only on modules occuring
  *          earlier in the list.
  *
- *  @note Even if the input list `mwps` is already in a
+ *  @note Even if the input list `mcs` is already in a
  *        suitable evaluation order, the output list may nevertheless
  *        give the modules in a different order.
  *
  *  @throws boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>
  *              Thrown if there is no suitable evaluation order due to
  *              a cyclic dependency in the set of modules specified by
- *              `mwps`.
+ *              `mcs`.
  */
-mwp_vector get_evaluation_order(mwp_vector mwps) {
-    Graph g = get_dependency_graph(mwps);
+mc_vector get_evaluation_order(mc_vector mcs) {
+    Graph g = get_dependency_graph(mcs);
 
     vertex_list evaluation_order = get_topological_ordering(g);
 
     module_name_map_t name_map = get(vertex_name, g);
 
-    mwp_vector ordered_module_list;
+    mc_vector ordered_module_list;
 
     for (vertex_list::iterator i = evaluation_order.begin();
          i != evaluation_order.end();

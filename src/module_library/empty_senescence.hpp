@@ -2,7 +2,7 @@
 #define EMPTY_SENESCENCE_H
 
 #include "../state_map.h"
-#include "../modules.h"
+#include "../module.h"
 
 class empty_senescence : public differential_module
 {

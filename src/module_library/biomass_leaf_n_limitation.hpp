@@ -1,7 +1,7 @@
 #ifndef BIOMASS_LEAF_N_LIMITATION_H
 #define BIOMASS_LEAF_N_LIMITATION_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // For calculation_constants::eps_zero
 
