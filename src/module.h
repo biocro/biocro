@@ -10,6 +10,17 @@
  *
  *  @brief Represents one or more equations
  *
+ *  This class defines the operational interface to all module classes.
+ *
+ *  The central feature of a module is its `run()` method, which should retrieve
+ *  values of its input quantities, perform calculations, and update the values
+ *  of its outputs. These operations are achieved in the `do_operation()` method
+ *  of a concrete derived class using pointers; upon construction, a module
+ *  should store references (or pointers) to its input quantities and pointers
+ *  to its output quantities. Input and output quantities alike are stored as
+ *  elements of `state_map` objects which are passed by reference to module
+ *  constructors.
+ *
  *  A module can be one of the following subtypes:
  *
  *  - `direct_module`: directly calculates the instantaneous value(s) of one or
@@ -18,13 +29,14 @@
  *  - `differential_module`: a module that calculates the instantaneous rate(s)
  *    of change for one or more quantities
  *
- *  A module must also indicate whether or not it requires an Euler ODE solver.
- *  Most modules do not. However, a few "legacy" modules require information
- *  from previous times and will only work properly with a fixed step size
- *  Euler ODE solver.
+ *  A module must also indicate whether or not it requires an Euler
+ *  `ode_solver`. Most modules do not. However, a few "legacy" modules require
+ *  information from previous times and will only work properly with a fixed
+ *  step size Euler ODE solver.
  *
- *  This class has a pure virtual destructor to designate it as being
- *  intentionally abstract.
+ *  Typically, concrete classes derived from this one are not instantiated
+ *  directly; instead, module objects are created by `module_creator` objects
+ *  retrieved from the `module_library`.
  */
 class module
 {

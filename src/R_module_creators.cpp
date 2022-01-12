@@ -1,12 +1,12 @@
 #include <string>
-#include <Rinternals.h>          // for Rprintf
+#include <Rinternals.h>          // for Rf_error
 #include "state_map.h"           // for string_vector
 #include "R_helper_functions.h"  // for make_vector
 #include "module_library/module_library.h"
 #include "module_creator.h"
 
 /**
- *  @brief Deletes a module_creator object that is pointed to by an "R
+ *  @brief Deletes a `module_creator` object that is pointed to by an "R
  *  external pointer" object.
  *
  *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details.
@@ -26,7 +26,8 @@ extern "C" {
 
 /**
  *  @brief Creates a vector of "R external pointer" objects that each point to a
- *  module_creator object.
+ *  `module_creator` object; this function provides a route for creating C++
+ *  objects from R strings
  *
  *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details
  *  about R external pointers.
@@ -44,15 +45,14 @@ extern "C" {
  *  that the pointer will be cleared when its R session closes.
  *
  *  After its creation, the R external pointer takes ownership of the
- *  module_creator object (in the sense that it will ensure that the
- *  module_creator object is deleted when the pointer is destroyed).
+ *  module_creator object, so there is no need to use smart pointers here.
  *
  *  The output from this function can be converted into a std::vector of
- *  module_creator pointers for use in C/C++ code using the
- *  `mc_vector_from_list()` function.
+ *  `module_creator pointers` (in other words, an `mc_vector`) for use in C/C++
+ *  code using the `mc_vector_from_list()` function.
  *
  *  @param [in] module_names The names of the modules for which
- *              module_creator objects should be created
+ *              `module_creator` objects should be created
  *
  *  @return A vector of "R external pointer" objects
  */

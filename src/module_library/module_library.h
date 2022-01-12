@@ -6,6 +6,20 @@
 #include <unordered_map>
 #include "../module_creator.h"
 
+/**
+ *  @class module_library
+ *
+ *  @brief A factory class that creates `module_creator` objects; more
+ *  colloquially, we say that a `module` or `module_creator` is "retrieved" from
+ *  the module library
+ *
+ *  The module_library provides the main route for module creation by linking
+ *  module names (strings) to `module_creator` objects via its `retrieve()`
+ *  function. Once a `module_creator` representing a particular `module` class
+ *  has been retrieved from the library, it can be used to identify the module's
+ *  input and output quantities, and eventually to instantiate the module class,
+ *  making it available for calculations.
+ */
 class module_library
 {
    public:

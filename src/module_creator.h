@@ -6,14 +6,34 @@
 #include "state_map.h"  // for state_map and string_vector
 #include "module.h"
 
-// R does not have the ability to create C++ objects directly, so we must create
-// them via strings passed from R. We'd like to have a table mapping strings of
-// names to something that will produce objects of the correct type. We can use
-// a template class to wrap the module class, so that we have access to
-// whatever members we need.
-
-// Since the table needs to have elements of all the same type, we need an
-// abstract base class.
+/**
+ *  @class module_creator
+ *
+ *  @brief Facilitates module creation
+ *
+ *  This class addresses a difficulty associated with the creation of concrete
+ *  `module` objects. The constructor of a concrete `module` class must store
+ *  pointers to elements of `state_map` objects that correspond to its input and
+ *  output quantities. Thus, in order to ensure that the `state_map` objects
+ *  include the elements required by the module, the module's input and output
+ *  quantities must be known before it is created. Naively, we would want the
+ *  `module` class to have static virtual methods for reporting inputs and
+ *  outputs prior to instantiation. However, C++ does not allow static virtual
+ *  methods.
+ *
+ *  Instead, we use the `module_creator` class to provide similar functionality
+ *  to hypothetical static virtual methods. This class provides essential
+ *  information about a module that is required before creating it (its inputs,
+ *  outputs, and name), as well as a method for creating it. Its key features
+ *  are that (1) the module class's inputs and outputs can be accessed before
+ *  creating an instance of it and (2) it defines a common signature for a
+ *  concrete `module` class constuctor.
+ *
+ *  This class is pure abstract, defining a common type that can be created
+ *  using a factory class (the `module_library`). Its implementation for a
+ *  particular concrete module is achieved using the derived template class
+ *  `module_creator_impl`.
+ */
 class module_creator
 {
    public:
@@ -31,7 +51,18 @@ class module_creator
 // pure virtual.
 inline module_creator::~module_creator() {}
 
-// Define a template class that wraps the behavior of Modules.
+/**
+ *  @class module_creator_impl
+ *
+ *  @brief A template class that provides a common interface to the constructor
+ *  and essential static methods of a concrete `module` class
+ *
+ *  Here, the typename `T` should be the type of a concrete `module` class; in
+ *  other words, `T` should be a class derived from `module`. The
+ *  `module_creator_impl` class enforces the requirement that each concrete
+ *  `module` should have static methods `get_inputs()`, `get_outputs()`, and
+ *  `get_name()` that return strings or vectors of strings.
+ */
 template <typename T>
 class module_creator_impl : public module_creator
 {
@@ -59,8 +90,12 @@ class module_creator_impl : public module_creator
     }
 };
 
-// We will often work with a std::vector of pointers to module_creator (mc)
-// objects, so it is useful to define an alias for this.
+/**
+ * @brief `mc_vector` serves as an alias for a type widely used to
+ * hold lists of module_creators.
+ *
+ * Formally, it is a `std::vector` of pointers to `module_creator` objects.
+ */
 using mc_vector = std::vector<module_creator*>;
 
 #endif
