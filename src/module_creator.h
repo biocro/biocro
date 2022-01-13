@@ -91,6 +91,15 @@ class module_creator_impl : public module_creator
 };
 
 /**
+ * @brief A function that returns a pointer to a module_creator object.
+ */
+template <typename T>
+module_creator* create_mc()
+{
+    return new module_creator_impl<T>;
+}
+
+/**
  * @brief `mc_vector` serves as an alias for a type widely used to
  * hold lists of module_creators.
  *

@@ -2,7 +2,7 @@
 #include <Rinternals.h>          // for Rf_error
 #include "state_map.h"           // for string_vector
 #include "R_helper_functions.h"  // for make_vector
-#include "module_library/module_library.h"
+#include "module_library/standard_module_library.h"
 #include "module_creator.h"
 
 /**
@@ -64,7 +64,8 @@ SEXP R_module_creators(SEXP module_names)
         SEXP mw_ptr_vec = PROTECT(Rf_allocVector(VECSXP, n));
 
         for (size_t i = 0; i < n; ++i) {
-            module_creator* w = module_library::retrieve(names[i]);
+            module_creator* w =
+                module_library<standard_module_library>::retrieve(names[i]);
 
             SEXP mw_ptr =
                 PROTECT(R_MakeExternalPtr(w, R_NilValue, R_NilValue));
