@@ -1,7 +1,7 @@
 #ifndef PARTITIONING_GROWTH_H
 #define PARTITIONING_GROWTH_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

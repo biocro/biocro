@@ -1,7 +1,7 @@
 #ifndef PENMAN_MONTEITH_TRANSPIRATION_H
 #define PENMAN_MONTEITH_TRANSPIRATION_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class penman_monteith_transpiration : public direct_module

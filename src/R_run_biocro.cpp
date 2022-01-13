@@ -2,7 +2,7 @@
 #include <string>
 #include <exception>         // for std::exception
 #include "state_map.h"       // for state_map, state_vector_map, string_vector
-#include "module_wrapper.h"  // for mwp_vector
+#include "module_creator.h"  // for mc_vector
 #include "biocro_simulation.h"
 #include "R_helper_functions.h"
 
@@ -14,8 +14,8 @@ SEXP R_run_biocro(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
-    SEXP direct_mwp_vec,
-    SEXP differential_mwp_vec,
+    SEXP direct_mc_vec,
+    SEXP differential_mc_vec,
     SEXP solver_type,
     SEXP solver_output_step_size,
     SEXP solver_adaptive_rel_error_tol,
@@ -32,8 +32,8 @@ SEXP R_run_biocro(
             return R_NilValue;
         }
 
-        mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
-        mwp_vector differential_mwps = mw_vector_from_list(differential_mwp_vec);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
+        mc_vector differential_mcs = mc_vector_from_list(differential_mc_vec);
 
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
         string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
@@ -42,7 +42,7 @@ SEXP R_run_biocro(
         double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
         int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        biocro_simulation gro(iv, p, d, direct_mwps, differential_mwps,
+        biocro_simulation gro(iv, p, d, direct_mcs, differential_mcs,
                               solver_type_string, output_step_size,
                               adaptive_rel_error_tol, adaptive_abs_error_tol,
                               adaptive_max_steps);

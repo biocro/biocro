@@ -1,7 +1,7 @@
 #ifndef ED_CANAC_LEAF_H
 #define ED_CANAC_LEAF_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "c4photo.h"
 

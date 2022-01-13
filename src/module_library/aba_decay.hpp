@@ -1,7 +1,7 @@
 #ifndef ABA_DECAY_H
 #define ABA_DECAY_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class aba_decay : public differential_module

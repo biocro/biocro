@@ -42,8 +42,8 @@ system_derivatives <- function(
             t,
             parameters,
             drivers,
-            module_wrapper_pointer(direct_module_names),
-            module_wrapper_pointer(differential_module_names)
+            module_creators(direct_module_names),
+            module_creators(differential_module_names)
         )
 
         # LSODES requires the output from this function to be a list whose first

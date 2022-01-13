@@ -23,16 +23,16 @@ namespace ed_c4_leaf_photosynthesis3_stuff
 std::string const module_name = "ed_c4_leaf_photosynthesis3";
 
 // Create module wrapper objects for the sub-modules
-module_wrapper<ed_rh_to_mole_fraction> mole_fraction;
-module_wrapper<ed_p_m_temperature_solve> leaf_temperature;
-module_wrapper<ed_gas_concentrations> gas_concentrations;
-module_wrapper<ed_apply_stomatal_water_stress_via_conductance> water_stress;
-module_wrapper<ed_ball_berry> stomatal_conductance;
-module_wrapper<ed_collatz_c4_assimilation> assimilation;
-module_wrapper<ed_penman_monteith_transpiration> transpiration;
+module_creator_impl<ed_rh_to_mole_fraction> mole_fraction;
+module_creator_impl<ed_p_m_temperature_solve> leaf_temperature;
+module_creator_impl<ed_gas_concentrations> gas_concentrations;
+module_creator_impl<ed_apply_stomatal_water_stress_via_conductance> water_stress;
+module_creator_impl<ed_ball_berry> stomatal_conductance;
+module_creator_impl<ed_collatz_c4_assimilation> assimilation;
+module_creator_impl<ed_penman_monteith_transpiration> transpiration;
 
 // Create pointers to the wrappers
-mwp_vector const sub_mwps{
+mc_vector const sub_mcs{
     &mole_fraction,
     &leaf_temperature,
     &gas_concentrations,
@@ -91,7 +91,7 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
         state_map const& input_quantities,
         state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis3_stuff::module_name,
-                          ed_c4_leaf_photosynthesis3_stuff::sub_mwps,
+                          ed_c4_leaf_photosynthesis3_stuff::sub_mcs,
                           ed_c4_leaf_photosynthesis3_stuff::solver_type,
                           ed_c4_leaf_photosynthesis3_stuff::max_iterations,
                           ed_c4_leaf_photosynthesis3_stuff::lower_bounds,
@@ -145,12 +145,12 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
 
 string_vector ed_c4_leaf_photosynthesis3::get_inputs()
 {
-    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis3_stuff::sub_mwps);
+    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis3_stuff::sub_mcs);
 }
 
 string_vector ed_c4_leaf_photosynthesis3::get_outputs()
 {
-    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_mwps);
+    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_mcs);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));

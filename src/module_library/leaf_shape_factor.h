@@ -2,7 +2,7 @@
 #define LEAF_SHAPE_FACTOR_H
 
 #include <limits>
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

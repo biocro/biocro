@@ -3,8 +3,8 @@
 
 #include <map>                                       // for map
 #include <memory>                                    // for unique_ptr
-#include "../modules.h"                              // for direct_module, update
-#include "../module_wrapper.h"                       // for module_wrapper_base, mwp_vector
+#include "../module.h"                              // for direct_module, update
+#include "../module_creator.h"                       // for module_creator, mc_vector
 #include "../validate_dynamical_system.h"            // for find_strictly_required_inputs, all_are_in_list
 #include "../simultaneous_equations.h"               // for get_unknown_quantities
 #include "../state_map.h"                            // for state_map, string_vector, string_set
@@ -45,11 +45,11 @@ std::string get_success_output_name(std::string const& module_name)
 /**
  * @brief Returns a sorted list of inputs required by the modules, excluding any unknown quantities
  */
-string_vector get_se_inputs(mwp_vector mwps)
+string_vector get_se_inputs(mc_vector mcs)
 {
-    string_set all_inputs = find_strictly_required_inputs(mwps);
+    string_set all_inputs = find_strictly_required_inputs(mcs);
 
-    string_vector unknown_quantities = get_unknown_quantities(mwps);
+    string_vector unknown_quantities = get_unknown_quantities(mcs);
 
     string_vector result = string_vector_difference(
         string_set_to_string_vector(all_inputs),
@@ -63,19 +63,19 @@ string_vector get_se_inputs(mwp_vector mwps)
 /**
  * @brief Returns a sorted list of outputs produced by the modules
  */
-string_vector get_se_outputs(mwp_vector mwps)
+string_vector get_se_outputs(mc_vector mcs)
 {
-    return string_set_to_string_vector(find_unique_module_outputs(mwps));
+    return string_set_to_string_vector(find_unique_module_outputs(mcs));
 }
 
 /**
  * @brief Make a simultaneous_equations object from the modules
  */
-std::unique_ptr<simultaneous_equations> make_se(mwp_vector mwps)
+std::unique_ptr<simultaneous_equations> make_se(mc_vector mcs)
 {
-    string_vector unknown_quantities = get_unknown_quantities(mwps);  // returns a sorted vector
+    string_vector unknown_quantities = get_unknown_quantities(mcs);  // returns a sorted vector
 
-    string_vector known_inputs = get_se_inputs(mwps);
+    string_vector known_inputs = get_se_inputs(mcs);
 
     state_map known_quantities;
     for (std::string const& kq : known_inputs) {
@@ -84,7 +84,7 @@ std::unique_ptr<simultaneous_equations> make_se(mwp_vector mwps)
 
     return std::unique_ptr<simultaneous_equations>(new simultaneous_equations(known_quantities,
                                                                               unknown_quantities,
-                                                                              mwps));
+                                                                              mcs));
 }
 
 /**
@@ -135,7 +135,7 @@ std::vector<std::vector<double>> reorder_initial_guesses(
  * @class base
  *
  * @brief A general module that solves a set of simultaneous equations.
- * Note that this module cannot be created by the module_wrapper_factory
+ * Note that this module cannot be created by the module_library
  * since its constructor has a different signature than a typical module.
  * Instead, it must have concrete derived classes. This class has been
  * made abstract to indicate this.
@@ -144,7 +144,7 @@ class base : public direct_module
 {
    public:
     base(std::string module_name,
-         mwp_vector sub_mwps,
+         mc_vector sub_mcs,
          std::string solver_name,
          int max_iterations,
          std::vector<double> lower_bounds,
@@ -157,7 +157,7 @@ class base : public direct_module
          state_map* output_quantities)
         : direct_module(),
           module_name(module_name),
-          se(make_se(sub_mwps)),
+          se(make_se(sub_mcs)),
           solver(se_solver_factory::create(solver_name, max_iterations)),
           lower_bounds(lower_bounds),
           upper_bounds(upper_bounds),
@@ -165,8 +165,8 @@ class base : public direct_module
           relative_error_tolerances(relative_error_tolerances),
           should_reorder_guesses(should_reorder_guesses),
           return_default_on_failure(return_default_on_failure),
-          input_ptrs(get_ip(input_quantities, get_se_inputs(sub_mwps))),
-          output_ptrs(get_op(output_quantities, get_se_outputs(sub_mwps))),
+          input_ptrs(get_ip(input_quantities, get_se_inputs(sub_mcs))),
+          output_ptrs(get_op(output_quantities, get_se_outputs(sub_mcs))),
           ncalls_op(get_op(output_quantities, get_ncalls_output_name(module_name))),
           nsteps_op(get_op(output_quantities, get_nsteps_output_name(module_name))),
           success_op(get_op(output_quantities, get_success_output_name(module_name)))

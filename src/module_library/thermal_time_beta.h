@@ -2,7 +2,7 @@
 #define THERMAL_TIME_BETA_H
 
 #include <cmath>  // for pow
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

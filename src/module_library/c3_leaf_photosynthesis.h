@@ -2,7 +2,7 @@
 #define C3_LEAF_PHOTOSYNTHESIS_H
 
 #include "../state_map.h"
-#include "../modules.h"
+#include "../module.h"
 
 /**
  * @class c3_leaf_photosynthesis

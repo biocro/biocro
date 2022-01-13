@@ -1,7 +1,7 @@
 #ifndef SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 #define SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../constants.h"
 #include "../state_map.h"
 

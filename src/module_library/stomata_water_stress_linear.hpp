@@ -1,7 +1,7 @@
 #ifndef STOMATA_WATER_STRESS_LINEAR_H
 #define STOMATA_WATER_STRESS_LINEAR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class stomata_water_stress_linear : public direct_module

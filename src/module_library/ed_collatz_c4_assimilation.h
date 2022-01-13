@@ -3,7 +3,7 @@
 
 #include <cmath>  // For pow, exp
 #include "../constants.h"  // for eps_zero
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include <Rinternals.h>          // for debugging
 const bool collatz_print = false;  // for debugging

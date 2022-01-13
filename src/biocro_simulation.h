@@ -3,7 +3,7 @@
 
 #include <memory>            // for unique_ptr, shared_ptr
 #include "state_map.h"       // for state_map, state_vector_map
-#include "module_wrapper.h"  // for mwp_vector
+#include "module_creator.h"  // for mc_vector
 #include "dynamical_system.h"
 #include "ode_solver.h"
 #include "ode_solver_library/ode_solver_factory.h"
@@ -17,8 +17,8 @@ class biocro_simulation
         state_map const& initial_values,
         state_map const& parameters,
         state_vector_map const& drivers,
-        mwp_vector const& direct_mwps,
-        mwp_vector const& differential_mwps,
+        mc_vector const& direct_mcs,
+        mc_vector const& differential_mcs,
         // parameters passed to ode_solver_factory::create
         std::string ode_solver_name,
         double output_step_size,
@@ -29,8 +29,8 @@ class biocro_simulation
         // Create the system
         sys = std::shared_ptr<dynamical_system>(
             new dynamical_system(initial_values, parameters,
-                                 drivers, direct_mwps,
-                                 differential_mwps));
+                                 drivers, direct_mcs,
+                                 differential_mcs));
 
         // Create the ode_solver that will be used to solve the system
         system_solver =

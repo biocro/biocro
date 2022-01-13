@@ -1,7 +1,7 @@
 #ifndef ED_BALL_BERRY_H
 #define ED_BALL_BERRY_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include <cmath>           // for fabs
 #include <algorithm>       // for std::max

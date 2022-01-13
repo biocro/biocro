@@ -1,7 +1,7 @@
 #ifndef RUE_LEAF_PHOTOSYNTHESIS_H
 #define RUE_LEAF_PHOTOSYNTHESIS_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

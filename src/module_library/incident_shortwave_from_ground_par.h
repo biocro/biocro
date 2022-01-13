@@ -1,7 +1,7 @@
 #ifndef INCIDENT_SHORTWAVE_FROM_GROUND_PAR_H
 #define INCIDENT_SHORTWAVE_FROM_GROUND_PAR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"
 

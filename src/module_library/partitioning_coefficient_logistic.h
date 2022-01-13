@@ -1,7 +1,7 @@
 #ifndef PARTITIONING_COEFFICIENT_LOGISTIC_H
 #define PARTITIONING_COEFFICIENT_LOGISTIC_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include <cmath>  // for exp
 

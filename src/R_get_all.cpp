@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include "R_helper_functions.h"
-#include "module_library/module_wrapper_factory.h"
+#include "module_library/module_library.h"
 #include "ode_solver_library/ode_solver_factory.h"
 #include "se_solver_library/se_solver_factory.h"
 
@@ -11,7 +11,7 @@ extern "C" {
 SEXP R_get_all_modules()
 {
     try {
-        std::vector<std::string> result = module_wrapper_factory::get_modules();
+        std::vector<std::string> result = module_library::get_all_modules();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
@@ -23,7 +23,7 @@ SEXP R_get_all_modules()
 SEXP R_get_all_quantities()
 {
     try {
-        std::unordered_map<std::string, std::vector<std::string>> all_quantities = module_wrapper_factory::get_all_quantities();
+        std::unordered_map<std::string, std::vector<std::string>> all_quantities = module_library::get_all_quantities();
         return list_from_map(all_quantities);
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_get_all_param: ") + e.what()).c_str());

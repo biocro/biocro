@@ -1,7 +1,7 @@
 #ifndef HEATING_DEGREE_DAYS_H
 #define HEATING_DEGREE_DAYS_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class heating_degree_days : public differential_module {

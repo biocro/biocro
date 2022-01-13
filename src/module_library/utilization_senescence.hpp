@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_SENESCENCE_H
 #define UTILIZATION_SENESCENCE_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class utilization_senescence : public differential_module

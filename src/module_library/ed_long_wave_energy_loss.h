@@ -2,7 +2,7 @@
 #define ED_LONG_WAVE_ENERGY_LOSS_H
 
 #include <cmath>  // For pow
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"
 

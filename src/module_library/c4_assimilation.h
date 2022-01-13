@@ -1,7 +1,7 @@
 #ifndef C4_ASSIMILATION_H
 #define C4_ASSIMILATION_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "c4photo.h"
 

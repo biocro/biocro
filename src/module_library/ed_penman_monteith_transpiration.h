@@ -2,7 +2,7 @@
 #define ED_PENMAN_MONTEITH_TRANSPIRATION_H
 
 #include <cmath>  // For pow
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // for ideal_gas_constant, celsius_to_kelvin,
                            // molar_mass_of_water

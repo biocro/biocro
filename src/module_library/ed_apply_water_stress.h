@@ -1,7 +1,7 @@
 #ifndef ED_APPLY_WATER_STRESS_H
 #define ED_APPLY_WATER_STRESS_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

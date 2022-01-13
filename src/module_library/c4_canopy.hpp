@@ -1,7 +1,7 @@
 #ifndef C4_CANOPY_H
 #define C4_CANOPY_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"  // For nitroParms and Can_Str
 #include "BioCro.h"     // For CanAC

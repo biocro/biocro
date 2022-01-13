@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include "../constants.h"
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 class magic_clock : public differential_module

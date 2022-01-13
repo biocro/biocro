@@ -1,7 +1,7 @@
 #ifndef FAKE_SOLAR_H
 #define FAKE_SOLAR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /** @brief

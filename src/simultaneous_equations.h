@@ -2,16 +2,16 @@
 #define SIMULTANEOUS_EQUATIONS_H
 
 #include "state_map.h"  // For state_map, string_vector, string_set
-#include "modules.h"    // For module_vector
+#include "module.h"    // For module_vector
 #include "validate_dynamical_system.h"
 
 bool validate_simultaneous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
-    mwp_vector const& direct_mwps);
+    mc_vector const& direct_mcs);
 
-std::string analyze_simultaneous_equations_inputs(mwp_vector const& direct_mwps);
+std::string analyze_simultaneous_equations_inputs(mc_vector const& direct_mcs);
 
 /**
  * @class simultaneous_equations
@@ -24,7 +24,7 @@ class simultaneous_equations
     simultaneous_equations(
         state_map const& known_quantities,
         string_vector const& unknown_quantities,
-        mwp_vector const& direct_mwps);
+        mc_vector const& direct_mcs);
 
     // For using as part of a module
     void update_known_quantities(std::vector<const double*> const& ptrs_to_values);
@@ -138,7 +138,7 @@ void simultaneous_equations::run_modules(vector_type const& unknown_quantity_vec
     module_output_map = quantities;
 
     // Run each module and store its output in the main quantity map
-    for (std::unique_ptr<module_base> const& m : direct_modules) {
+    for (std::unique_ptr<module> const& m : direct_modules) {
         m->run();
         for (auto const& x : direct_ptr_pairs) {
             *x.first = *x.second;
@@ -146,6 +146,6 @@ void simultaneous_equations::run_modules(vector_type const& unknown_quantity_vec
     }
 }
 
-string_vector get_unknown_quantities(mwp_vector mwps);
+string_vector get_unknown_quantities(mc_vector mcs);
 
 #endif

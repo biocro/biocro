@@ -18,7 +18,7 @@ SEXP R_solve_simultaneous_equations(
     SEXP upper_bounds,
     SEXP abs_error_tols,
     SEXP rel_error_tols,
-    SEXP direct_mwp_vec,
+    SEXP direct_mc_vec,
     SEXP solver_type,
     SEXP max_it,
     SEXP silent)
@@ -31,7 +31,7 @@ SEXP R_solve_simultaneous_equations(
         const state_map ub = map_from_list(upper_bounds);
         const state_map abs_t = map_from_list(abs_error_tols);
         const state_map rel_t = map_from_list(rel_error_tols);
-        const mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
+        const mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
         const std::string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
         const int max_iterations = REAL(max_it)[0];
         const bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
@@ -63,7 +63,7 @@ SEXP R_solve_simultaneous_equations(
         // Solve
         std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
                                                                               uq_names,
-                                                                              direct_mwps));
+                                                                              direct_mcs));
 
         std::unique_ptr<se_solver> solver(se_solver_factory::create(solver_type_string, max_iterations));
 
@@ -109,18 +109,18 @@ SEXP R_solve_simultaneous_equations(
 SEXP R_validate_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP direct_mwp_vec,
+    SEXP direct_mc_vec,
     SEXP silent)
 {
     try {
         // Convert format
         state_map kq = map_from_list(known_quantities);
         std::vector<std::string> uq = make_vector(unknown_quantities);
-        mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
         bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
         std::string msg;
-        bool valid = validate_simultaneous_equations_inputs(msg, kq, uq, direct_mwps);
+        bool valid = validate_simultaneous_equations_inputs(msg, kq, uq, direct_mcs);
 
         if (!be_quiet) {
             Rprintf("\nChecking the validity of the simultaneous_equations inputs:\n");
@@ -135,7 +135,7 @@ SEXP R_validate_simultaneous_equations(
 
             Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
 
-            msg = analyze_simultaneous_equations_inputs(direct_mwps);
+            msg = analyze_simultaneous_equations_inputs(direct_mcs);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability
@@ -154,13 +154,13 @@ SEXP R_validate_simultaneous_equations(
 SEXP R_test_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP direct_mwp_vec)
+    SEXP direct_mc_vec)
 {
     try {
         // Convert format
         state_map kq = map_from_list(known_quantities);
         state_map uq = map_from_list(unknown_quantities);
-        mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
 
         // Split uq into two vectors
         std::vector<std::string> uq_names = keys(uq);
@@ -169,7 +169,7 @@ SEXP R_test_simultaneous_equations(
             uq_values[i] = uq[uq_names[i]];
         }
 
-        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, direct_mwps));
+        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, direct_mcs));
 
         // Calculate a difference vector
         std::vector<double> output_vector(uq.size());

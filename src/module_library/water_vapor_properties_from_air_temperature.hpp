@@ -1,7 +1,7 @@
 #ifndef WATER_VAPOR_PROPERTIES_FROM_AIR_TEMPERATURE_H
 #define WATER_VAPOR_PROPERTIES_FROM_AIR_TEMPERATURE_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
                            // celsius_to_kelvin

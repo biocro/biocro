@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_GROWTH_CALCULATOR_H
 #define UTILIZATION_GROWTH_CALCULATOR_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

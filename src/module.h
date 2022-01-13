@@ -1,14 +1,25 @@
-#ifndef MODULES_H
-#define MODULES_H
+#ifndef MODULE_H
+#define MODULE_H
 
 #include <vector>
 #include <memory>                     // For std::unique_ptr
 #include "module_helper_functions.h"  // Essential for all modules
 
 /**
- *  @class module_base
+ *  @class module
  *
  *  @brief Represents one or more equations
+ *
+ *  This class defines the operational interface to all module classes.
+ *
+ *  The central feature of a module is its `run()` method, which should retrieve
+ *  values of its input quantities, perform calculations, and update the values
+ *  of its outputs. These operations are achieved in the `do_operation()` method
+ *  of a concrete derived class using pointers; upon construction, a module
+ *  should store references (or pointers) to its input quantities and pointers
+ *  to its output quantities. Input and output quantities alike are stored as
+ *  elements of `state_map` objects which are passed by reference to module
+ *  constructors.
  *
  *  A module can be one of the following subtypes:
  *
@@ -18,18 +29,19 @@
  *  - `differential_module`: a module that calculates the instantaneous rate(s)
  *    of change for one or more quantities
  *
- *  A module must also indicate whether or not it requires an Euler ODE solver.
- *  Most modules do not. However, a few "legacy" modules require information
- *  from previous times and will only work properly with a fixed step size
- *  Euler ODE solver.
+ *  A module must also indicate whether or not it requires an Euler
+ *  `ode_solver`. Most modules do not. However, a few "legacy" modules require
+ *  information from previous times and will only work properly with a fixed
+ *  step size Euler ODE solver.
  *
- *  This class has a pure virtual destructor to designate it as being
- *  intentionally abstract.
+ *  Typically, concrete classes derived from this one are not instantiated
+ *  directly; instead, module objects are created by `module_creator` objects
+ *  retrieved from the `module_library`.
  */
-class module_base
+class module
 {
    public:
-    module_base(
+    module(
         bool const& differential,
         bool const& requires_euler)
         : differential{differential},
@@ -37,7 +49,7 @@ class module_base
     {
     }
 
-    virtual ~module_base() = 0;
+    virtual ~module() = 0;
 
     // Functions for returning module information
     bool is_differential() const { return differential; }
@@ -62,7 +74,7 @@ class module_base
  *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
-inline module_base::~module_base() {}
+inline module::~module() {}
 
 /**
  *  @class direct_module
@@ -72,11 +84,11 @@ inline module_base::~module_base() {}
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class direct_module : public module_base
+class direct_module : public module
 {
    public:
     direct_module(bool requires_euler = false)
-        : module_base{false, requires_euler}
+        : module{false, requires_euler}
     {
     }
 
@@ -113,11 +125,11 @@ inline void direct_module::update(double* output_ptr, const double& value) const
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class differential_module : public module_base
+class differential_module : public module
 {
    public:
     differential_module(bool requires_euler = false)
-        : module_base{true, requires_euler}
+        : module{true, requires_euler}
     {
     }
 
@@ -152,9 +164,9 @@ inline void differential_module::update(double* output_ptr, const double& value)
  * hold lists of modules.
  *
  * Formally, it is a `std::vector` of `std::unique_ptr`s that point to
- * `module_base` objects.
+ * `module` objects.
  */
-using module_vector = std::vector<std::unique_ptr<module_base>>;
+using module_vector = std::vector<std::unique_ptr<module>>;
 
 void run_module_list(module_vector const& modules);
 

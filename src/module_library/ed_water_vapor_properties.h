@@ -1,7 +1,7 @@
 #ifndef ED_WATER_VAPOR_PROPERTIES_H
 #define ED_WATER_VAPOR_PROPERTIES_H
 
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"     // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
 #include "../constants.h"  // for ideal gas constant and celsius_to_kelvin

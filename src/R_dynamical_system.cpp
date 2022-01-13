@@ -5,7 +5,7 @@
 #include "state_map.h"
 #include "validate_dynamical_system.h"
 #include "dynamical_system.h"
-#include "module_wrapper.h"  // for mwp_vector
+#include "module_creator.h"  // for mc_vector
 
 extern "C" {
 
@@ -13,8 +13,8 @@ SEXP R_validate_dynamical_system_inputs(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
-    SEXP direct_mwp_vec,
-    SEXP differential_mwp_vec,
+    SEXP direct_mc_vec,
+    SEXP differential_mc_vec,
     SEXP verbose)
 {
     try {
@@ -22,13 +22,13 @@ SEXP R_validate_dynamical_system_inputs(
         state_map s = map_from_list(initial_values);
         state_map ip = map_from_list(parameters);
         state_vector_map vp = map_vector_from_list(drivers);
-        mwp_vector direct_mwps = mw_vector_from_list(direct_mwp_vec);
-        mwp_vector differential_mwps = mw_vector_from_list(differential_mwp_vec);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
+        mc_vector differential_mcs = mc_vector_from_list(differential_mc_vec);
         bool be_loud = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Check the validity
         std::string msg;
-        bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_mwps, differential_mwps);
+        bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_mcs, differential_mcs);
 
         // Print feedback and additional information if required
         if (be_loud) {
@@ -44,7 +44,7 @@ SEXP R_validate_dynamical_system_inputs(
 
             Rprintf("\nPrinting additional information about the system inputs:\n");
 
-            msg = analyze_system_inputs(s, ip, vp, direct_mwps, differential_mwps);
+            msg = analyze_system_inputs(s, ip, vp, direct_mcs, differential_mcs);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability

@@ -1,4 +1,4 @@
-#include "modules.h"
+#include "module.h"
 
 /**
  *  @brief Runs each module in the input list
