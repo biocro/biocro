@@ -1,8 +1,8 @@
 #ifndef ED_ABC_BLC_H
 #define ED_ABC_BLC_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
 
 /**

@@ -1,8 +1,8 @@
 #ifndef ED_MULTILAYER_CANOPY_PROPERTIES_H
 #define ED_MULTILAYER_CANOPY_PROPERTIES_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class ed_multilayer_canopy_properties

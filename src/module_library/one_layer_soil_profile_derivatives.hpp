@@ -1,9 +1,9 @@
 #ifndef ONE_LAYER_SOIL_PROFILE_DERIVATIVES_H
 #define ONE_LAYER_SOIL_PROFILE_DERIVATIVES_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // for molar_mass_of_water
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"  // for molar_mass_of_water
 #include <cmath>           // for log
 
 class one_layer_soil_profile_derivatives : public differential_module

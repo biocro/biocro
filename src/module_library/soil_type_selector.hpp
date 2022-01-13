@@ -1,8 +1,8 @@
 #ifndef SOIL_TYPE_SELECTOR_H
 #define SOIL_TYPE_SELECTOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // For soilText_str and get_soil_properties
 
 class soil_type_selector : public direct_module

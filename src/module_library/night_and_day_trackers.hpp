@@ -1,8 +1,8 @@
 #ifndef NIGHT_AND_DAY_TRACKERS_H
 #define NIGHT_AND_DAY_TRACKERS_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class night_and_day_trackers : public differential_module
 {

@@ -1,8 +1,8 @@
 #ifndef PRIESTLEY_TRANSPIRATION_H
 #define PRIESTLEY_TRANSPIRATION_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class priestley_transpiration : public direct_module
 {

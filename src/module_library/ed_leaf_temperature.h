@@ -2,9 +2,9 @@
 #define ED_LEAF_TEMPERATURE_H
 
 #include <cmath>           // for fabs
-#include "../constants.h"  // for eps_zero, molar_mass_of_water
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"  // for eps_zero, molar_mass_of_water
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class ed_leaf_temperature

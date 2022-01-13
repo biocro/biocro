@@ -1,8 +1,8 @@
 #ifndef C3_LEAF_PHOTOSYNTHESIS_H
 #define C3_LEAF_PHOTOSYNTHESIS_H
 
-#include "../state_map.h"
-#include "../module.h"
+#include "../framework/state_map.h"
+#include "../framework/module.h"
 
 /**
  * @class c3_leaf_photosynthesis

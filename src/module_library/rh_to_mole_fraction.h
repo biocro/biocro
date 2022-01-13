@@ -3,9 +3,9 @@
 
 #include <cmath>           // for fabs
 #include "AuxBioCro.h"     // for saturation_vapor_pressure
-#include "../constants.h"  // for calculation_constants::eps_zero
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"  // for calculation_constants::eps_zero
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class rh_to_mole_fraction

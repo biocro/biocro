@@ -1,8 +1,8 @@
 #ifndef FVCB_H
 #define FVCB_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class FvCB : public direct_module
 {

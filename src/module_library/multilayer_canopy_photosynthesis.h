@@ -2,8 +2,8 @@
 #define MULTILAYER_CANOPY_PHOTOSYNTHESIS_H
 
 #include <algorithm>  // for std::find
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 namespace MLCP  // helping functions for the MultiLayer Canopy Photosynthesis module
 {

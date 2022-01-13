@@ -1,8 +1,8 @@
 #ifndef FAKE_SOLAR_H
 #define FAKE_SOLAR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /** @brief
  *  Class created by EBL for testing and experimentation ... not meant for real simulations!

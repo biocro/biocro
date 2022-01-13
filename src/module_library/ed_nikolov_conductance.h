@@ -2,9 +2,9 @@
 #define ED_NIKOLOV_CONDUCTANCE_H
 
 #include <cmath>           // for fabs and sqrt
-#include "../constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "se_module.h"
 #include "AuxBioCro.h"
 

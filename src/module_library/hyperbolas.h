@@ -2,9 +2,9 @@
 #define HYPERBOLAS_H
 
 #include <cmath>  // For pow
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"
 
 /**
  * @class golden_ratio_hyperbola

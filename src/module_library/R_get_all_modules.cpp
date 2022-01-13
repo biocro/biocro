@@ -1,8 +1,8 @@
 #include <string>
 #include <exception>                // for std::exception
 #include <Rinternals.h>             // for Rf_error
-#include "../state_map.h"           // for string_vector
-#include "../R_helper_functions.h"  // for r_string_vector_from_vector
+#include "../framework/state_map.h"           // for string_vector
+#include "../framework/R_helper_functions.h"  // for r_string_vector_from_vector
 #include "standard_module_library.h"
 
 using std::string;

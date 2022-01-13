@@ -1,9 +1,9 @@
 #ifndef SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 #define SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 
-#include "../module.h"
-#include "../constants.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/constants.h"
+#include "../framework/state_map.h"
 
 /**
  * @class shortwave_atmospheric_scattering

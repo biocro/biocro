@@ -1,10 +1,10 @@
 #ifndef ED_RH_TO_MOLE_FRACTION_H
 #define ED_RH_TO_MOLE_FRACTION_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>           // for fabs
-#include "../constants.h"  // for eps_zero
+#include "../framework/constants.h"  // for eps_zero
 #include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**

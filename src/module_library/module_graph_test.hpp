@@ -1,8 +1,8 @@
 #ifndef MODULE_GRAPH_TEST_H
 #define MODULE_GRAPH_TEST_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class Module_1 : public direct_module
 {

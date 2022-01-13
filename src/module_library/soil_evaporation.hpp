@@ -1,8 +1,8 @@
 #ifndef SOIL_EVAPORATION_H
 #define SOIL_EVAPORATION_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "BioCro.h"  // For SoilEvapo
 
 class soil_evaporation : public direct_module

@@ -1,8 +1,8 @@
 #ifndef GRIMM_SOYBEAN_FLOWERING_H
 #define GRIMM_SOYBEAN_FLOWERING_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * \brief Model for soybean development and flowering based on Grimm et al.

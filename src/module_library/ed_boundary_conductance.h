@@ -2,8 +2,8 @@
 #define ED_BOUNDARY_CONDUCTANCE_H
 
 #include <algorithm>  // for std::max
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class ed_boundary_conductance_quadrature

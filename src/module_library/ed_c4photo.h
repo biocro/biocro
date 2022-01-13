@@ -1,8 +1,8 @@
 #ifndef ED_C4PHOTO_H
 #define ED_C4PHOTO_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "c4photo.h"
 
 /**

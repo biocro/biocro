@@ -1,8 +1,8 @@
 #ifndef BUCK_SWVP_H
 #define BUCK_SWVP_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for saturation_vapor_pressure
 
 /**

@@ -1,8 +1,8 @@
 #ifndef RUE_LEAF_PHOTOSYNTHESIS_H
 #define RUE_LEAF_PHOTOSYNTHESIS_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  *  @class rue_leaf_photosynthesis

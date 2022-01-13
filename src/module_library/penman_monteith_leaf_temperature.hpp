@@ -1,8 +1,8 @@
 #ifndef PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 #define PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class penman_monteith_leaf_temperature : public direct_module
 {

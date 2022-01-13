@@ -2,7 +2,7 @@
 #define AUXBIOCRO_H
 
 #include <map>
-#include "../constants.h" // for ideal_gas_constant
+#include "../framework/constants.h" // for ideal_gas_constant
 
 /*
  *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010

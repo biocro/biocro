@@ -1,8 +1,8 @@
 #ifndef DEVELOPMENT_INDEX_H
 #define DEVELOPMENT_INDEX_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class development_index

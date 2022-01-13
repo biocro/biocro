@@ -1,8 +1,8 @@
 #ifndef STOMATA_WATER_STRESS_EXPONENTIAL_H
 #define STOMATA_WATER_STRESS_EXPONENTIAL_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>  // for exp
 
 class stomata_water_stress_exponential : public direct_module

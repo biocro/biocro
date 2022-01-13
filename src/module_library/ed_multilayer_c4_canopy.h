@@ -1,7 +1,7 @@
 #ifndef ED_MULTILAYER_C4_CANOPY_H
 #define ED_MULTILAYER_C4_CANOPY_H
 
-#include "../state_map.h"
+#include "../framework/state_map.h"
 #include "multilayer_canopy_photosynthesis.h"
 #include "ed_multilayer_canopy_properties.h"
 #include "ed_c4_leaf_photosynthesis4.h"

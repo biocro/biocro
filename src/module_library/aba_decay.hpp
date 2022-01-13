@@ -1,8 +1,8 @@
 #ifndef ABA_DECAY_H
 #define ABA_DECAY_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class aba_decay : public differential_module
 {

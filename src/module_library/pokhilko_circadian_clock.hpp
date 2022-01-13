@@ -1,8 +1,8 @@
 #ifndef POKHILKO_CIRCADIAN_CLOCK_H
 #define POKHILKO_CIRCADIAN_CLOCK_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 // This module is based on the circadian clock gene network described in
 //  Pokhilko, A. et al. The clock gene circuit in Arabidopsis includes a repressilator with additional feedback loops. Molecular Systems Biology 8, 574 (2012).

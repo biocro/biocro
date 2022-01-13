@@ -7,7 +7,7 @@
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "biocro_units.h"
-#include "../constants.h"  // for ideal_gas_constant, celsius_to_kelvin
+#include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
 using namespace biocro_units;
 

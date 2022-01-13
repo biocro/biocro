@@ -1,8 +1,8 @@
 #ifndef PARTITIONING_COEFFICIENT_LOGISTIC_H
 #define PARTITIONING_COEFFICIENT_LOGISTIC_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>  // for exp
 
 double kcoeff(double alpha, double beta, double DVI, double denom);

@@ -1,11 +1,11 @@
 #ifndef MULTILAYER_C4_CANOPY_H
 #define MULTILAYER_C4_CANOPY_H
 
-#include "../state_map.h"
+#include "../framework/state_map.h"
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "c4_leaf_photosynthesis.h"
-#include "../state_map.h"
+#include "../framework/state_map.h"
 
 using ten_layer_c4_canopy_parent =
     multilayer_canopy_photosynthesis<

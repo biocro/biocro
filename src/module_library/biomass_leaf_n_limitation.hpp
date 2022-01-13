@@ -1,9 +1,9 @@
 #ifndef BIOMASS_LEAF_N_LIMITATION_H
 #define BIOMASS_LEAF_N_LIMITATION_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // For calculation_constants::eps_zero
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"  // For calculation_constants::eps_zero
 
 class biomass_leaf_n_limitation : public direct_module
 {

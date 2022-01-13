@@ -1,8 +1,8 @@
 #include <string>
 #include <Rinternals.h>             // for Rf_error
-#include "../state_map.h"           // for string_vector
-#include "../R_helper_functions.h"  // for make_vector, finalize_module_creator
-#include "../module_creator.h"
+#include "../framework/state_map.h"           // for string_vector
+#include "../framework/R_helper_functions.h"  // for make_vector, finalize_module_creator
+#include "../framework/module_creator.h"
 #include "standard_module_library.h"
 
 extern "C" {

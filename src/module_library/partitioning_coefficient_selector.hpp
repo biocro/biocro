@@ -1,8 +1,8 @@
 #ifndef PARTITIONING_COEFFICIENT_SELECTOR_H
 #define PARTITIONING_COEFFICIENT_SELECTOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class partitioning_coefficient_selector : public direct_module
 {

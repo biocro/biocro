@@ -4,7 +4,7 @@
 #include <cmath>      // for pow, abs
 #include <algorithm>  // for std::max
 #include "se_module.h"
-#include "../state_map.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"   // for saturation_water_vapor_pressure
 
 #include "ed_rh_to_mole_fraction.h"

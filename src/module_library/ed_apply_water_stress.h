@@ -1,8 +1,8 @@
 #ifndef ED_APPLY_WATER_STRESS_H
 #define ED_APPLY_WATER_STRESS_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class ed_apply_stomatal_water_stress_via_conductance

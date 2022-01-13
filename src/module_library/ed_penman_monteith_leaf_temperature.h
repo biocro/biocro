@@ -2,9 +2,9 @@
 #define ED_PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 
 #include <cmath>           // For pow
-#include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 #include "ed_nikolov_conductance.h"
 #include "ed_boundary_conductance.h"

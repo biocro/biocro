@@ -2,8 +2,8 @@
 #include <unordered_map>
 #include <exception>                // for std::exception
 #include <Rinternals.h>             // for Rf_error
-#include "../state_map.h"           // for string_vector
-#include "../R_helper_functions.h"  // for list_from_map
+#include "../framework/state_map.h"           // for string_vector
+#include "../framework/R_helper_functions.h"  // for list_from_map
 #include "standard_module_library.h"
 
 using std::string;

@@ -1,8 +1,8 @@
 #ifndef UTILIZATION_SENESCENCE_CALCULATOR_H
 #define UTILIZATION_SENESCENCE_CALCULATOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 class utilization_senescence_calculator : public direct_module
 {

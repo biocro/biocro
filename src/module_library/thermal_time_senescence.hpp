@@ -1,8 +1,8 @@
 #ifndef THERMAL_TIME_SENESCENCE_H
 #define THERMAL_TIME_SENESCENCE_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  *  @class thermal_time_senescence

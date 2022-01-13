@@ -1,5 +1,5 @@
 #include "standard_module_library.h"
-#include "../module_creator.h"  // for create_mc
+#include "../framework/module_creator.h"  // for create_mc
 
 // Include all the header files that define the modules.
 #include "harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy

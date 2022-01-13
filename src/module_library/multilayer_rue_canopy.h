@@ -1,7 +1,7 @@
 #ifndef MULTILAYER_RUE_CANOPY_H
 #define MULTILAYER_RUE_CANOPY_H
 
-#include "../state_map.h"
+#include "../framework/state_map.h"
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "rue_leaf_photosynthesis.h"

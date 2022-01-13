@@ -1,9 +1,9 @@
 #ifndef MULTILAYER_CANOPY_PROPERTIES_H
 #define MULTILAYER_CANOPY_PROPERTIES_H
 
-#include "../state_map.h"
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class multilayer_canopy_properties

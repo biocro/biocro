@@ -1,8 +1,8 @@
 #ifndef EMPTY_SENESCENCE_H
 #define EMPTY_SENESCENCE_H
 
-#include "../state_map.h"
-#include "../module.h"
+#include "../framework/state_map.h"
+#include "../framework/module.h"
 
 class empty_senescence : public differential_module
 {

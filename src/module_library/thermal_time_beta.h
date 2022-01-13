@@ -2,8 +2,8 @@
 #define THERMAL_TIME_BETA_H
 
 #include <cmath>  // for pow
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  * @class thermal_time_beta

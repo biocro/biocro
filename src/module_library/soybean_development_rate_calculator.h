@@ -1,8 +1,8 @@
 #ifndef SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_H
 #define SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>      // for log, pow
 #include <algorithm>  // for max
 
