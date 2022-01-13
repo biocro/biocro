@@ -39,4 +39,6 @@ void output_map(state_map const& m);
 
 void output_list(SEXP const& list);
 
+void finalize_module_creator(SEXP mw_ptr);
+
 #endif

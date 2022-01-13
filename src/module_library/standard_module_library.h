@@ -1,7 +1,7 @@
 #ifndef STANDARD_MODULE_LIBRARY_H
 #define STANDARD_MODULE_LIBRARY_H
 
-#include "module_library.h"  // for creator_map
+#include "../module_library.h"  // for creator_map
 
 class standard_module_library
 {

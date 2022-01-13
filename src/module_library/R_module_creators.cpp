@@ -1,26 +1,9 @@
 #include <string>
-#include <Rinternals.h>          // for Rf_error
-#include "state_map.h"           // for string_vector
-#include "R_helper_functions.h"  // for make_vector
-#include "module_library/standard_module_library.h"
-#include "module_creator.h"
-
-/**
- *  @brief Deletes a `module_creator` object that is pointed to by an "R
- *  external pointer" object.
- *
- *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details.
- *
- *  @param [in] m_ptr an "R external pointer" object that points to a
- *              module_creator object
- */
-void finalize_module_creator(SEXP mw_ptr)
-{
-    module_creator* w =
-        static_cast<module_creator*>(R_ExternalPtrAddr(mw_ptr));
-
-    delete w;
-}
+#include <Rinternals.h>             // for Rf_error
+#include "../state_map.h"           // for string_vector
+#include "../R_helper_functions.h"  // for make_vector, finalize_module_creator
+#include "../module_creator.h"
+#include "standard_module_library.h"
 
 extern "C" {
 

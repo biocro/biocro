@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include "../module_creator.h"
+#include "module_creator.h"
 
 using creator_fcn = module_creator* (*)();
 using creator_map = std::map<std::string, creator_fcn>;

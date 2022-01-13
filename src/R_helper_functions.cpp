@@ -297,3 +297,20 @@ void output_list(SEXP const& list)
         REAL(VECTOR_ELT(list, n - 1))[0]);
     UNPROTECT(1);
 }
+
+/**
+ *  @brief Deletes a `module_creator` object that is pointed to by an "R
+ *  external pointer" object.
+ *
+ *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details.
+ *
+ *  @param [in] m_ptr an "R external pointer" object that points to a
+ *              module_creator object
+ */
+void finalize_module_creator(SEXP mw_ptr)
+{
+    module_creator* w =
+        static_cast<module_creator*>(R_ExternalPtrAddr(mw_ptr));
+
+    delete w;
+}
