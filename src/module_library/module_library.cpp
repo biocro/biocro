@@ -37,7 +37,6 @@
 #include "no_leaf_resp_partitioning_growth_calculator.hpp"
 #include "thermal_time_senescence.hpp"
 #include "thermal_time_and_frost_senescence.hpp"
-#include "empty_senescence.hpp"
 #include "aba_decay.hpp"
 #include "ball_berry_module.hpp"
 #include "water_vapor_properties_from_air_temperature.hpp"
@@ -171,7 +170,6 @@ module_library::creator_map module_library::library_entries =
      {"no_leaf_resp_partitioning_growth_calculator",           &create_mc<no_leaf_resp_partitioning_growth_calculator>},
      {"thermal_time_senescence",                               &create_mc<thermal_time_senescence>},
      {"thermal_time_and_frost_senescence",                     &create_mc<thermal_time_and_frost_senescence>},
-     {"empty_senescence",                                      &create_mc<empty_senescence>},
      {"aba_decay",                                             &create_mc<aba_decay>},
      {"ball_berry_module",                                     &create_mc<ball_berry_module>},
      {"water_vapor_properties_from_air_temperature",           &create_mc<water_vapor_properties_from_air_temperature>},

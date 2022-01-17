@@ -146,9 +146,7 @@ cases_from_csv <- function(module_name, directory)
     # Get the quantity values
     test_data <- file_contents[3:length(file_contents[,1]),]
 
-    # If there is no test data, return an empty list. This may happen if a
-    # module has no inputs or outputs, as is the case with the
-    # `empty_senescence` modules
+    # If there is no test data, return an empty list
     if (is.null(nrow(test_data))) {
         return(list())
     }
