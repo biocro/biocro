@@ -52,3 +52,15 @@ export(get_all_se_solvers)
 export(SoilType, showSoilType)
 
 export(get_growing_season_climate)
+
+export(test_module)
+
+export(case)
+
+export(cases_from_csv)
+
+export(initialize_csv)
+
+export(add_csv_row)
+
+export(update_csv_cases)
