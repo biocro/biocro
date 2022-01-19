@@ -1,5 +1,6 @@
 \name{modules}
 
+\alias{modules}
 \alias{module_info}
 \alias{evaluate_module}
 \alias{module_response_curve}

@@ -1,5 +1,6 @@
 \name{module_testing}
 
+\alias{module_testing}
 \alias{test_module}
 \alias{case}
 \alias{cases_from_csv}

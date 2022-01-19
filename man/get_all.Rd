@@ -1,5 +1,6 @@
 \name{get_all}
 
+\alias{get_all}
 \alias{get_all_modules}
 \alias{get_all_quantities}
 \alias{get_all_ode_solvers}
