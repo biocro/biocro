@@ -38,11 +38,11 @@ case <- function(inputs, expected_outputs, description) {
 #
 # - module_name: the name of a module
 #
-# - case_list: a list of cases for that module, as described in the
-#   documentation for the `test_module` function
-#
 # - directory: the directory to store the test case file, e.g.
 #   file.path('tests', 'testthat')
+#
+# - case_list: a list of cases for that module, as described in the
+#   documentation for the `test_module` function
 #
 # Outputs: none
 #
@@ -51,7 +51,7 @@ case <- function(inputs, expected_outputs, description) {
 # `module_name.csv`. This csv file can be read by the `cases_from_csv` function.
 # BioCro users typically do not need to access this function directly.
 #
-csv_from_cases <- function(module_name, case_list, directory)
+csv_from_cases <- function(module_name, directory, case_list)
 {
     # Generate the filename
     filename <- file.path(directory, paste0(module_name, ".csv"))
@@ -220,13 +220,13 @@ initialize_csv <- function(
     )
 
     # Write the case to a new .csv file
-    csv_from_cases(module_name, case_list, directory)
+    csv_from_cases(module_name, directory, case_list)
 }
 
 add_csv_row <- function(module_name, directory, inputs, description)
 {
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_name)
+    case_list <- cases_from_csv(module_name, directory)
 
     # Run the module using the inputs
     outputs <- evaluate_module(module_name, inputs)
@@ -250,7 +250,7 @@ add_csv_row <- function(module_name, directory, inputs, description)
 update_csv_cases <- function(module_name, directory)
 {
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_name)
+    case_list <- cases_from_csv(module_name, directory)
 
     # Define a helping function that updates a test case by running the module
     # using the inputs and storing the result as the expected outputs
