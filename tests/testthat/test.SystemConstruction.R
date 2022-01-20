@@ -20,14 +20,14 @@ test_that("drivers must not be empty", {
     )
 })
 
-test_that("certain run_biocro inputs must have the correct type", {
+test_that("certain run_biocro inputs must be lists or data frames", {
     expect_error(
         run_biocro(
             unlist(miscanthus_x_giganteus_initial_values),
             unlist(miscanthus_x_giganteus_parameters),
             unlist(get_growing_season_climate(weather2005)),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            module_creators(miscanthus_x_giganteus_direct_modules),
+            module_creators(miscanthus_x_giganteus_differential_modules),
             unlist(miscanthus_x_giganteus_ode_solver['type'])
         ),
         regexp = paste0(
@@ -45,15 +45,13 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = numeric(0)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather2005),
-            within(miscanthus_x_giganteus_direct_modules, {bad_direct_module = character(0)}),
-            within(miscanthus_x_giganteus_differential_modules, {bad_differential_module = character(0)}),
+            module_creators(miscanthus_x_giganteus_direct_modules),
+            module_creators(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
             "  The following `parameters` members have lengths other than 1, but all members must have a length of exactly 1: bad_parameter.\n",
-            "  The following `direct_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_direct_module.\n",
-            "  The following `differential_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_differential_module.\n",
             "  The following `ode_solver` members have lengths other than 1, but all members must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
@@ -65,8 +63,8 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = c(1,2)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = c(1,2)}),
             get_growing_season_climate(weather2005),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            module_creators(miscanthus_x_giganteus_direct_modules),
+            module_creators(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
@@ -83,14 +81,12 @@ test_that("certain run_biocro inputs must be strings", {
             miscanthus_x_giganteus_initial_values,
             miscanthus_x_giganteus_parameters,
             get_growing_season_climate(weather2005),
-            append(miscanthus_x_giganteus_direct_modules, 1.23),
-            append(miscanthus_x_giganteus_differential_modules, 4.56),
+            module_creators(miscanthus_x_giganteus_direct_modules),
+            module_creators(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
-            "The following `direct_module_names` members are not strings, but all members must be strings: 1.23.\n",
-            "  The following `differential_module_names` members are not strings, but all members must be strings: 4.56.\n",
-            "  The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
+            "The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
         )
     )
 })
@@ -114,28 +110,28 @@ test_that("certain run_biocro inputs must be numeric", {
     )
 })
 
+test_that("certain run_biocro inputs must be externalptrs", {
+    expect_error(
+        run_biocro(
+            miscanthus_x_giganteus_initial_values,
+            miscanthus_x_giganteus_parameters,
+            get_growing_season_climate(weather2005),
+            "direct_module",
+            "differential_module",
+            miscanthus_x_giganteus_ode_solver
+        ),
+        regexp = paste0(
+            "The following `direct_modules` members are not externalptrs, but all members must be externalptrs: direct_module.\n",
+            "  The following `differential_modules` members are not externalptrs, but all members must be externalptrs: differential_module.\n"
+        )
+    )
+})
+
 test_that("All modules must exist", {
-    # Set up some bad inputs
-
-    initial_values <- list(
-        unused_initial_value = 0
-    )
-
-    parameters <- list(
-        unused_parameter = 0
-    )
-
-    drivers <- data.frame(
-        unused_varying_parameter=rep(0, MAX_INDEX)
-    )
-
-    direct_module_names <- c("module_that_does_not_exist")
-
-    differential_module_names <- c()
+    # TO-DO: move this test to a new "module_creators" testing file
 
     # This should throw an error
-
-    expect_error(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_error(module_creators("module_that_does_not_exist"))
 
 })
 
@@ -159,13 +155,13 @@ test_that("Duplicated quantities produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_modules <- module_creators("harmonic_energy")
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_modules <- module_creators("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 
 })
 
@@ -188,13 +184,13 @@ test_that("Missing inputs produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_modules <- module_creators("harmonic_energy")
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_modules <- module_creators("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 
 })
 
@@ -217,13 +213,13 @@ test_that("Differential modules only supply derivatives for quantities in the in
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_modules <- module_creators("harmonic_energy")
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_modules <- module_creators("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 
 })
 
@@ -242,18 +238,18 @@ test_that("Direct modules are not required to be supplied in the correct order",
         unused_varying_parameter=rep(0, MAX_INDEX)
     )
 
-    direct_module_names <- c("Module_1", "Module_2")
+    direct_modules <- module_creators(c("Module_1", "Module_2"))
 
-    differential_module_names <- c()
+    differential_modules <- c()
 
     # This should be valid
 
-    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 
     # If we change the module order, it should still be valid
 
-    direct_module_names <- c("Module_2", "Module_1")
+    direct_modules <- module_creators(c("Module_2", "Module_1"))
 
-    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 
 })

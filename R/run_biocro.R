@@ -13,8 +13,8 @@ check_run_biocro_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
+    direct_modules = list(),
+    differential_modules = list(),
     ode_solver = default_ode_solver,
     verbose = FALSE
 )
@@ -58,16 +58,16 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # The elements of initial_values, parameters, direct_module_names,
-    # differential_module_names, and ode_solver should all have length 1
+    # The elements of initial_values, parameters, direct_modules,
+    # differential_modules, and ode_solver should all have length 1
     error_message <- append(
         error_message,
         check_element_length(
             list(
                 initial_values=initial_values,
                 parameters=parameters,
-                direct_module_names=direct_module_names,
-                differential_module_names=differential_module_names,
+                direct_modules=direct_modules,
+                differential_modules=differential_modules,
                 ode_solver=ode_solver
             )
         )
@@ -87,17 +87,22 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # The direct_module_names, differential_module_names, and the ode_solver's
-    # `type` element should all be vectors or lists of strings
+    # The direct_modules and differential_modules should be vectors or lists of
+    # externalptrs
     error_message <- append(
         error_message,
-        check_strings(
+        check_pointers(
             list(
-                direct_module_names=direct_module_names,
-                differential_module_names=differential_module_names,
-                ode_solver_type=ode_solver['type']
+                direct_modules=direct_modules,
+                differential_modules=differential_modules
             )
         )
+    )
+
+    # The ode_solver's `type` element should be a string
+    error_message <- append(
+        error_message,
+        check_strings(list(ode_solver_type=ode_solver['type']))
     )
 
     # Verbose should be a boolean with one element
@@ -120,8 +125,8 @@ run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
+    direct_modules = list(),
+    differential_modules = list(),
     ode_solver = default_ode_solver,
     verbose = FALSE
 )
@@ -131,8 +136,8 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        direct_module_names,
-        differential_module_names,
+        direct_modules,
+        differential_modules,
         ode_solver,
         verbose
     )
@@ -142,9 +147,9 @@ run_biocro <- function(
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
-    # Make sure the module names are vectors of strings
-    direct_module_names <- unlist(direct_module_names)
-    differential_module_names <- unlist(differential_module_names)
+    # Make sure the module names are vectors
+    direct_modules <- unlist(direct_modules)
+    differential_modules <- unlist(differential_modules)
 
     # Collect the ode_solver info
     ode_solver_type <- ode_solver$type
@@ -171,8 +176,8 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        module_creators(direct_module_names),
-        module_creators(differential_module_names),
+        direct_modules,
+        differential_modules,
         ode_solver_type,
         ode_solver_output_step_size,
         ode_solver_adaptive_rel_error_tol,
@@ -196,8 +201,8 @@ partial_run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
+    direct_modules = list(),
+    differential_modules = list(),
     ode_solver = default_ode_solver,
     arg_names,
     verbose = FALSE
@@ -208,8 +213,8 @@ partial_run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        direct_module_names,
-        differential_module_names,
+        direct_modules,
+        differential_modules,
         ode_solver
     )
 
@@ -217,8 +222,8 @@ partial_run_biocro <- function(
         initial_values=initial_values,
         parameters=parameters,
         drivers=drivers,
-        direct_module_names=direct_module_names,
-        differential_module_names=differential_module_names,
+        direct_modules=direct_modules,
+        differential_modules=differential_modules,
         ode_solver=ode_solver,
         verbose=verbose
     )

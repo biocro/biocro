@@ -1,5 +1,5 @@
 solve_simultaneous_equations <- function(
-    direct_module_names,
+    direct_modules,
     known_quantities,
     unknown_quantities,
     lower_bounds,
@@ -31,7 +31,7 @@ solve_simultaneous_equations <- function(
         upper_bounds,
         abs_error_tols,
         rel_error_tols,
-        module_creators(direct_module_names),
+        direct_modules,
         solver_type,
         max_it,
         silent)
@@ -39,7 +39,7 @@ solve_simultaneous_equations <- function(
 }
 
 
-validate_simultaneous_equations <- function(direct_module_names, known_quantities, unknown_quantities, silent = FALSE)
+validate_simultaneous_equations <- function(direct_modules, known_quantities, unknown_quantities, silent = FALSE)
 {
     # C++ requires that all the variables have type `double`
     known_quantities <- lapply(known_quantities, as.numeric)
@@ -48,17 +48,17 @@ validate_simultaneous_equations <- function(direct_module_names, known_quantitie
     silent <- lapply(silent, as.logical)
 
     # Run the C++ code
-    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, module_creators(direct_module_names), silent)
+    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, direct_modules, silent)
     return(result)
 }
 
-test_simultaneous_equations <- function(direct_module_names, known_quantities, unknown_quantities)
+test_simultaneous_equations <- function(direct_modules, known_quantities, unknown_quantities)
 {
     # C++ requires that all the variables have type `double`
     known_quantities <- lapply(known_quantities, as.numeric)
     unknown_quantities <- lapply(unknown_quantities, as.numeric)
 
     # Run the C++ code
-    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, module_creators(direct_module_names))
+    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, direct_modules)
     return(result)
 }

@@ -27,8 +27,8 @@ final_position <- function(ode_solver)
             doy=rep(0, MAX_INDEX),
             hour=seq(from=0, by=1, length=MAX_INDEX)
         ),
-        direct_module_names = c(),
-        differential_module_names = c("harmonic_oscillator"),
+        direct_modules = c(),
+        differential_modules = module_creators("harmonic_oscillator"),
         ode_solver = ode_solver,
         verbose = DEBUG_PRINT_EXTRA
     )

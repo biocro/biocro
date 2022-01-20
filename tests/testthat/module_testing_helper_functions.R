@@ -58,7 +58,7 @@
 #
 # Inputs:
 #
-# - module_name: a string specifying the name of the module to be tested
+# - module: a string specifying the name of the module to be tested
 #
 # - case_list: a list where each element is a test case, which is itself a list
 #   with three named elements:
@@ -78,7 +78,7 @@
 #
 #
 test_module <- function(
-    module_name,
+    module,
     case_list
 )
 {
@@ -86,14 +86,14 @@ test_module <- function(
     test_one_case <- function(one_case) {
         # Write descriptions for the two types of tests
         error_test_description <- paste0(
-            module_name,
+            module_info(module, verbose=FALSE)[['module_name']],
             " case '",
             one_case[['description']],
             "' produces no errors"
         )
 
         case_test_description <- paste0(
-            module_name,
+            module_info(module, verbose=FALSE)[['module_name']],
             " case '",
             one_case[['description']],
             "' produces the expected output"
@@ -107,7 +107,7 @@ test_module <- function(
         error_msg <- ""
         actual_outputs <- tryCatch(
             {
-                evaluate_module(module_name, one_case[['inputs']])
+                evaluate_module(module, one_case[['inputs']])
             },
             error=function(cond)
             {
@@ -179,7 +179,7 @@ case <- function(module_inputs, expected_module_outputs, case_description) {
 #
 # Inputs:
 #
-# - module_name: the name of a module
+# - module: the name of a module
 #
 # - case_list: a list of cases for that module, as described in the
 #   documentation for the `test_module` function
@@ -188,19 +188,19 @@ case <- function(module_inputs, expected_module_outputs, case_description) {
 #
 # This function will store the cases in a properly formatted csv file in the
 # `tests/testthat/module_tests` directory whose name is determined from the
-# `module_name` input as `module_name.csv`. This csv file can be read by the
+# `module` input as `module_name.csv`. This csv file can be read by the
 # `cases_from_csv` function. This function is intended to be called from the
 # `tests/testhat` directory.
 #
-csv_from_cases <- function(module_name, case_list)
+csv_from_cases <- function(module, case_list)
 {
-    # Generate the filename
-    filename <- paste0("module_tests/", module_name, ".csv")
-
     # Get info about the module
-    info <- module_info(module_name, FALSE)
+    info <- module_info(module, FALSE)
     inputs <- info[['inputs']]
     outputs <- info[['outputs']]
+
+    # Generate the filename
+    filename <- paste0("module_tests/", info[['module_name']], ".csv")
 
     # Make a data frame describing the module's inputs, outputs, and all test
     # cases
@@ -270,12 +270,12 @@ csv_from_cases <- function(module_name, case_list)
 #
 # Inputs:
 #
-# - module_name: the name of a module
+# - module: the name of a module
 #
 # Output: a list of test cases created by the `case` function above that is
 # suitable for passing to the `test_module` function
 #
-# There must be a corresponding file called `module_name.csv` in the
+# There must be a corresponding file called `module.csv` in the
 # `module_tests` directory. The first row of this file should be the quantity
 # names, the second row should be the quantity types (`input` or `output`), and
 # the remaining rows should each specify input quantity values along with the
@@ -284,10 +284,10 @@ csv_from_cases <- function(module_name, case_list)
 #
 # This function is intended to be called from the `tests/testhat` directory.
 #
-cases_from_csv <- function(module_name)
+cases_from_csv <- function(module)
 {
     # Generate the filename
-    filename <- paste0("module_tests/", module_name, ".csv")
+    filename <- paste0("module_tests/", module_info(module, verbose=FALSE)[['module_name']], ".csv")
 
     # Read the data, making sure to never use factors
     file_contents <- read.csv(
@@ -357,7 +357,7 @@ cases_from_csv <- function(module_name)
 #
 # Inputs:
 #
-# - module_name: the name of a module
+# - module: the name of a module
 #
 # - nonstandard_inputs: an optional list of input quantities to be passed to the
 #   module in order to define the test case
@@ -386,13 +386,13 @@ cases_from_csv <- function(module_name)
 # This function is intended to be called from the `tests/testhat` directory.
 #
 initialize_csv <- function(
-    module_name,
+    module,
     nonstandard_inputs = list(),
     nonstandard_case_description = ""
 )
 {
     # Get info about the module
-    info <- module_info(module_name, FALSE)
+    info <- module_info(module, FALSE)
 
     # Decide what to use as the input quantities
     inputs <- quantity_list_from_names(info[['inputs']])
@@ -401,7 +401,7 @@ initialize_csv <- function(
     }
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_name, inputs)
+    outputs <- evaluate_module(module, inputs)
 
     # Decide what to use for the description
     description <- "automatically-generated test case"
@@ -415,7 +415,7 @@ initialize_csv <- function(
     )
 
     # Write the case to a new .csv file
-    csv_from_cases(module_name, case_list)
+    csv_from_cases(module, case_list)
 }
 
 # add_csv_row: A function to help define test cases for module testing by adding
@@ -424,7 +424,7 @@ initialize_csv <- function(
 #
 # Inputs:
 #
-# - module_name: the name of a module
+# - module: the name of a module
 #
 # - inputs: a list of input quantities to pass to the module
 #
@@ -441,13 +441,13 @@ initialize_csv <- function(
 #
 # This function is intended to be called from the `tests/testhat` directory.
 #
-add_csv_row <- function(module_name, inputs, case_description)
+add_csv_row <- function(module, inputs, case_description)
 {
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_name)
+    case_list <- cases_from_csv(module)
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_name, inputs)
+    outputs <- evaluate_module(module, inputs)
 
     # Add a new case to the list
     case_list <- append(
@@ -462,7 +462,7 @@ add_csv_row <- function(module_name, inputs, case_description)
     )
 
     # Save the full list to the file
-    csv_from_cases(module_name, case_list)
+    csv_from_cases(module, case_list)
 }
 
 # update_csv_cases: A function to help define cases for module testing by
@@ -471,7 +471,7 @@ add_csv_row <- function(module_name, inputs, case_description)
 #
 # Inputs:
 #
-# - module_name: the name of a module
+# - module: the name of a module
 #
 # Outputs: none
 #
@@ -510,16 +510,16 @@ add_csv_row <- function(module_name, inputs, case_description)
 #
 # This is now a fully-functional test case file for the module.
 #
-update_csv_cases <- function(module_name)
+update_csv_cases <- function(module)
 {
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_name)
+    case_list <- cases_from_csv(module)
 
     # Define a helping function that updates a test case by running the module
     # using the inputs and storing the result as the expected outputs
     update_case <- function(one_case) {
         one_case[['expected_outputs']] <-
-            evaluate_module(module_name, one_case[['inputs']])
+            evaluate_module(module, one_case[['inputs']])
         return(one_case)
     }
 
@@ -527,6 +527,6 @@ update_csv_cases <- function(module_name)
     updated_case_list <- lapply(case_list, update_case)
 
     # Save the new list to the file
-    csv_from_cases(module_name, updated_case_list)
+    csv_from_cases(module, updated_case_list)
 
 }

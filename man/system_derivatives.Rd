@@ -51,8 +51,8 @@ system_derivatives(
 soybean_system <- system_derivatives(
   soybean_parameters,
   soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules
+  module_creators(soybean_direct_modules),
+  module_creators(soybean_differential_modules)
 )
 
 derivs <- soybean_system(0, unlist(soybean_initial_values), NULL)
@@ -71,8 +71,8 @@ if (require(deSolve)) {
       spring_constant = 1
     ),
     data.frame(time=times),
-    character(),
-    'harmonic_oscillator'
+    c(),
+    module_creators('harmonic_oscillator')
   )
 
   result <- as.data.frame(lsodes(
@@ -98,8 +98,8 @@ if (require(deSolve)) {
   soybean_system <- system_derivatives(
     soybean_parameters,
     soybean_weather2002,
-    soybean_direct_modules,
-    soybean_differential_modules
+    module_creators(soybean_direct_modules),
+    module_creators(soybean_differential_modules)
   )
 
   times = seq(from=0, to=500, by=1)

@@ -1,15 +1,23 @@
 module_creators <- function(module_names)
 {
     # Check that the following type conditions are met:
-    # - `module_names` should be a string vector
-    error_messages <- check_vector(list(module_names = module_names))
+    # - `module_names` should be a vector or list of strings with elements of
+    #    length 1
+    error_messages <- check_strings(list(module_names = module_names))
 
     error_messages <- append(
         error_messages,
-        check_strings(list(module_names = module_names))
+        check_element_length(list(module_names = module_names))
     )
 
     send_error_messages(error_messages)
 
-    return(.Call(R_module_creators, module_names))
+    # Make sure the module names are a vector
+    module_names <- unlist(module_names)
+
+    # Get the module creators, retaining any element names
+    return(setNames(
+        .Call(R_module_creators, module_names),
+        names(module_names)
+    ))
 }

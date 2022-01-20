@@ -1,8 +1,8 @@
 system_derivatives <- function(
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list()
+    direct_modules = list(),
+    differential_modules = list()
 )
 {
     # The inputs to this function have the same requirements as the `run_biocro`
@@ -11,8 +11,8 @@ system_derivatives <- function(
         list(),
         parameters,
         drivers,
-        direct_module_names,
-        differential_module_names
+        direct_modules,
+        differential_modules
     )
 
     send_error_messages(error_messages)
@@ -21,8 +21,8 @@ system_derivatives <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Make sure the module names are vectors of strings
-    direct_module_names <- unlist(direct_module_names)
-    differential_module_names <- unlist(differential_module_names)
+    direct_modules <- unlist(direct_modules)
+    differential_modules <- unlist(differential_modules)
 
     # C++ requires that all the variables have type `double`
     parameters <- lapply(parameters, as.numeric)
@@ -42,8 +42,8 @@ system_derivatives <- function(
             t,
             parameters,
             drivers,
-            module_creators(direct_module_names),
-            module_creators(differential_module_names)
+            direct_modules,
+            differential_modules
         )
 
         # LSODES requires the output from this function to be a list whose first

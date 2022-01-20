@@ -86,8 +86,8 @@ senescence_simulation <- partial_run_biocro(
     miscanthus_x_giganteus_initial_values,
     miscanthus_x_giganteus_parameters,
     get_growing_season_climate(weather2005),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
+    module_creators(miscanthus_x_giganteus_direct_modules),
+    module_creators(miscanthus_x_giganteus_differential_modules),
     miscanthus_x_giganteus_ode_solver,
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
@@ -101,8 +101,8 @@ temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
   soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules,
+  module_creators(soybean_direct_modules),
+  module_creators(soybean_differential_modules),
   soybean_ode_solver,
   c("Catm", "temp")
 )
@@ -111,7 +111,7 @@ hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather20
 
 # Example 3: varying the temperature input to the 'thermal_time_linear' module
 thermal_time_rate <- partial_evaluate_module(
-  'thermal_time_linear',
+  module_creators('thermal_time_linear'),
   within(miscanthus_x_giganteus_parameters, {time = 1}),
   c("temp")
 )

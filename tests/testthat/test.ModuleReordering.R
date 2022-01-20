@@ -16,8 +16,8 @@ NUMBER_OF_PERMUTATIONS <- 4
 baseline_result  <- run_biocro(miscanthus_x_giganteus_initial_values,
                                miscanthus_x_giganteus_parameters,
                                get_growing_season_climate(weather2005),
-                               miscanthus_x_giganteus_direct_modules,
-                               miscanthus_x_giganteus_differential_modules)
+                               module_creators(miscanthus_x_giganteus_direct_modules),
+                               module_creators(miscanthus_x_giganteus_differential_modules))
 
 
 ## Variables to define the scope of the survey:
@@ -48,8 +48,8 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
     result <- run_biocro(miscanthus_x_giganteus_initial_values,
                          miscanthus_x_giganteus_parameters,
                          get_growing_season_climate(weather2005),
-                         permuted_direct_module_list,
-                         miscanthus_x_giganteus_differential_modules)
+                         module_creators(permuted_direct_module_list),
+                         module_creators(miscanthus_x_giganteus_differential_modules))
 
     # Randomly choose a number of indices and compare result against
     # baseline at each index:
