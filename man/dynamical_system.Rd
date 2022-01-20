@@ -48,8 +48,8 @@ validate_dynamical_system_inputs(
   within(soybean_initial_values, rm(Leaf)),         # remove the initial `Leaf` value
   within(soybean_parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
   soybean_weather2002,
-  module_creators(soybean_direct_modules),
-  module_creators(soybean_differential_modules)
+  std_lib(soybean_direct_modules),
+  std_lib(soybean_differential_modules)
 )
 
 # Example 2: a valid set of input arguments
@@ -57,7 +57,7 @@ validate_dynamical_system_inputs(
   soybean_initial_values,
   soybean_parameters,
   soybean_weather2002,
-  module_creators(soybean_direct_modules),
-  module_creators(soybean_differential_modules)
+  std_lib(soybean_direct_modules),
+  std_lib(soybean_differential_modules)
 )
 }

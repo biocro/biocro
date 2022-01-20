@@ -127,13 +127,13 @@
 \examples{
 # Example 1: printing information about the 'c3_assimilation' module to the R
 # console
-module_info(module_creators('c3_assimilation'))
+module_info(std_lib('c3_assimilation'))
 
 # Example 2: getting the inputs to the 'thermal_time_linear' module, generating
 # a default input list, and using it to run the module
-info <- module_info(module_creators('thermal_time_linear'), verbose = FALSE)
+info <- module_info(std_lib('thermal_time_linear'), verbose = FALSE)
 inputs <- quantity_list_from_names(info$inputs) # All inputs will be set to 1
-outputs <- evaluate_module(module_creators('thermal_time_linear'), inputs)
+outputs <- evaluate_module(std_lib('thermal_time_linear'), inputs)
 
 # Example 3: calculating the temperature response of light saturated net
 # assimilation at several values of relative humidity in the absence of water
@@ -142,7 +142,7 @@ outputs <- evaluate_module(module_creators('thermal_time_linear'), inputs)
 # the `expand.grid` function to form a data frame of all possible combinations
 # of their values.
 rc <- module_response_curve(
-  module_creators('c3_assimilation'),
+  std_lib('c3_assimilation'),
   within(soybean_parameters, {Qp = 2000; StomataWS = 1}),
   expand.grid(
     Tleaf = seq(from = 0, to = 40, length.out = 201),

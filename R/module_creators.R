@@ -1,4 +1,4 @@
-module_creators <- function(module_names)
+std_lib <- function(module_names)
 {
     # Check that the following type conditions are met:
     # - `module_names` should be a vector or list of strings with elements of

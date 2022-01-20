@@ -1,12 +1,12 @@
-\name{module_creators}
+\name{std_lib}
 
-\alias{module_creators}
+\alias{std_lib}
 
 \title{Create instances of modules}
 
 \description{Creates pointers to module wrapper objects}
 
-\usage{module_creators(module_names)}
+\usage{std_lib(module_names)}
 
 \arguments{
   \item{module_names}{A vector of module names}
@@ -19,7 +19,7 @@
   can be used to obtain information about a module's inputs, outputs, and other
   properties, and can also be used to create a module instance. The \code{See
   Also} section contains a list of functions that directly rely on
-  \code{module_creators}.
+  \code{std_lib}.
 
   The R documentation for \code{externalptr} objects is sparse, but some
   information can be found
@@ -41,7 +41,7 @@
 \examples{
 # Example: creating a vector of pointers to several module wrappers representing
 # three options for thermal time calculations
-module_pointers <- module_creators(c(
+module_pointers <- std_lib(c(
   'thermal_time_linear',
   'thermal_time_bilinear',
   'thermal_time_trilinear'

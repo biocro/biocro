@@ -17,7 +17,7 @@ run_test <- function(module_name) {
     if (module_name %in% modules_to_skip) {
         print(paste('Test of', module_name, 'needs fixing.'))
     } else {
-        module <- module_creators(module_name)
+        module <- std_lib(module_name)
         test_module(module, cases_from_csv(module))
     }
 }
@@ -31,7 +31,7 @@ lapply(
 # Make sure the `evaluate_module` function is properly reporting missing inputs
 test_that("all module inputs must be defined when calling `evaluate_module`", {
     expect_error(
-        evaluate_module(module_creators('thermal_time_linear'), list()),
+        evaluate_module(std_lib('thermal_time_linear'), list()),
         regexp = paste0(
              "The `thermal_time_linear` module requires `sowing_time` as an input quantity\n",
              "  The `thermal_time_linear` module requires `tbase` as an input quantity\n",
