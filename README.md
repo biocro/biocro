@@ -12,7 +12,7 @@ The `run_biocro()` function accepts initial values, parameters, climate variable
 library(BioCro)
 library(lattice)
 
-result = run_biocro(soybean_initial_values, soybean_parameters, soybean_weather2002, module_creators(soybean_direct_modules), module_creators(soybean_differential_modules), soybean_ode_solver)
+result = run_biocro(soybean_initial_values, soybean_parameters, soybean_weather2002, soybean_direct_modules, soybean_differential_modules, soybean_ode_solver)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 

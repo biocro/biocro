@@ -334,7 +334,7 @@ contents of these lists can be printed to the R console using the \texttt{str}
 command, which nicely shows the \emph{str}ucture of the object being printed:
 
 <<viewing_soybean_modules>>=
-str(soybean_differential_modules)
+str(soybean_differential_module_names)
 @
 
 To learn about specific modules, see Section \ref{sec:module_info}.
@@ -602,7 +602,7 @@ soybean_result = run_biocro(
   soybean_initial_values,
   soybean_parameters,
   soybean_weather2002,
-  append(soybean_direct_modules, 'nonexistent_module_name'), # add a nonexistent module
+  append(soybean_direct_modules, std_lib('nonexistent_module_name')), # add a nonexistent module
   soybean_differential_modules,
   soybean_ode_solver
 )
@@ -785,7 +785,7 @@ inputs and outputs, which can be done using the \texttt{module\_info} function,
 as discussed in Section \ref{sec:module_info}:
 
 <<c3_module_info>>=
-module_info('c3_assimilation')
+module_info(std_lib('c3_assimilation'))
 @
 
 Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
@@ -803,7 +803,7 @@ passing the \texttt{soybean\_parameters} list as an input to the
 that we need to define.
 
 <<c3_assimilation_v1>>=
-outputs <- evaluate_module('c3_assimilation', soybean_parameters)
+outputs <- evaluate_module(std_lib('c3_assimilation'), soybean_parameters)
 @
 
 Here, as expected, an error occurs because several input quantities are not
@@ -811,7 +811,7 @@ defined. We can choose values for these and add them to the parameter list:
 
 <<c3_assimilation_v2>>=
 outputs <- evaluate_module(
-  'c3_assimilation',
+  std_lib('c3_assimilation'),
   within(soybean_parameters, {
     rh = 0.7      # dimensionless
     Qp = 1800     # micromol / m^2 / s
@@ -846,7 +846,7 @@ curve data frame:
 
 <<c3_light_response_curve>>=
 rc <- module_response_curve(
-  'c3_assimilation',
+  std_lib('c3_assimilation'),
   within(soybean_parameters, {
     rh = 0.7
     Tleaf = 27
@@ -972,7 +972,7 @@ terminal, see Section \ref{sec:response}; here we demonstrate how to silently
 store the module info in a list:
 
 <<total_biomass_info>>=
-info <- module_info('total_biomass', verbose = FALSE)
+info <- module_info(std_lib('total_biomass'), verbose = FALSE)
 str(info)
 @
 

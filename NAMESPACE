@@ -52,3 +52,7 @@ export(get_all_se_solvers)
 export(SoilType, showSoilType)
 
 export(get_growing_season_climate)
+
+exportPattern(".+_direct_modules$")
+
+exportPattern(".+_differential_modules$")

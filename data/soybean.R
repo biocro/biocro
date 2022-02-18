@@ -1,7 +1,7 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-soybean_direct_modules <- list(
+# CROP_direct_module_names[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+soybean_direct_module_names <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "parameter_calculator",
@@ -18,7 +18,7 @@ soybean_direct_modules <- list(
     "senescence_coefficient_logistic"
 )
 
-soybean_differential_modules <- list(
+soybean_differential_module_names <- list(
     senescence = "senescence_logistic",
     "partitioning_growth",
     soil_profile = "two_layer_soil_profile",
@@ -218,12 +218,12 @@ soybean_parameters = with(list(), {
 
 # Also include separate initial values, parameters, and modules for the soybean
 # circadian clock. (We can use the same ODE solver as the main soybean model.)
-soybean_clock_direct_modules <- c(
+soybean_clock_direct_module_names <- c(
     "light_from_solar",
     "oscillator_clock_calculator"
 )
 
-soybean_clock_differential_modules <- c(
+soybean_clock_differential_module_names <- c(
     "night_and_day_trackers",
     "poincare_clock"
 )

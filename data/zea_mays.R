@@ -1,7 +1,7 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-zea_mays_direct_modules <- list(
+# CROP_direct_module_names[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+zea_mays_direct_module_names <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",
@@ -15,7 +15,7 @@ zea_mays_direct_modules <- list(
     "senescence_coefficient_logistic"
 )
 
-zea_mays_differential_modules <- list(
+zea_mays_differential_module_names <- list(
     senescence = "senescence_logistic",
     "partitioning_growth",
     "development_index",
