@@ -2,25 +2,25 @@
 # on-the-fly to a different value, e.g.,
 # CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
 zea_mays_direct_modules <- list(
-    "soil_type_selector",
-    stomata_water_stress = "stomata_water_stress_linear",
-    "leaf_water_stress_exponential",
-    "parameter_calculator",
-    "thermal_time_development_rate_calculator",
-    "soil_evaporation",
-    solar_coordinates = "solar_position_michalsky",
-    canopy_photosynthesis = "c4_canopy",
-    partitioning_coefficients = "partitioning_coefficient_logistic",
-    partitioning_growth_calculator = "partitioning_growth_calculator",
-    "senescence_coefficient_logistic"
+    "std_lib:soil_type_selector",
+    stomata_water_stress = "std_lib:stomata_water_stress_linear",
+    "std_lib:leaf_water_stress_exponential",
+    "std_lib:parameter_calculator",
+    "std_lib:thermal_time_development_rate_calculator",
+    "std_lib:soil_evaporation",
+    solar_coordinates = "std_lib:solar_position_michalsky",
+    canopy_photosynthesis = "std_lib:c4_canopy",
+    partitioning_coefficients = "std_lib:partitioning_coefficient_logistic",
+    partitioning_growth_calculator = "std_lib:partitioning_growth_calculator",
+    "std_lib:senescence_coefficient_logistic"
 )
 
 zea_mays_differential_modules <- list(
-    senescence = "senescence_logistic",
-    "partitioning_growth",
-    "development_index",
-    thermal_time = "thermal_time_bilinear",
-    soil_profile = "two_layer_soil_profile"
+    senescence = "std_lib:senescence_logistic",
+    "std_lib:partitioning_growth",
+    "std_lib:development_index",
+    thermal_time = "std_lib:thermal_time_bilinear",
+    soil_profile = "std_lib:two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test

@@ -1,13 +1,74 @@
-module_info <- function(module, verbose = TRUE)
-{
-    # Check that the following type conditions are met:
-    # - `module` should be a pointer vector or list of length 1
-    # - `verbose` should be a boolean vector of length 1
-    error_messages <- check_vector(list(verbose = verbose))
+# A helping function for "checking out" a module from a module library. Here,
+# `module_specification` should be a string formatted like
+# "module_library_name:module_name". Example: "std_lib:c3_canopy".
+check_out_module <- function(module_specification) {
+    error_messages <-
+        check_vector(list(module_specification = module_specification))
 
     error_messages <- append(
         error_messages,
-        check_pointers(list(module = module))
+        check_length(list(module_specification = module_specification))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_element_length(list(module_specification = module_specification))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module_specification = module_specification))
+    )
+
+    send_error_messages(error_messages)
+
+    # Try to extract the module library name and the module name from the
+    # specification string
+    parsed_string <- strsplit(module_specification, ':', fixed = TRUE)[[1]]
+
+    if (length(parsed_string) != 2) {
+        stop(paste0(
+            "The module specification string `",
+            module_specification,
+            "` is not formatted as `module_library_name:module_name`"
+        ))
+    }
+
+    # We may need to add a suffix here at some point if the library name from
+    # the module specification string is taken to specify a package rather than
+    # a function.
+    library_function_name <- parsed_string[1]
+
+    # Try to find the module library function
+    library_func <- tryCatch(
+        {
+            get(library_function_name)
+        },
+        error = function(cond) {
+            stop(paste0(
+                "The `",
+                library_function_name,
+                "` function could not be found"
+            ))
+        }
+    )
+
+    return(library_func(parsed_string[2])[[1]])
+}
+
+module_info <- function(module, verbose = TRUE)
+{
+    # Check that the following type conditions are met:
+    # - `module` should be a string vector of length 1
+    # - `verbose` should be a boolean vector of length 1
+    error_messages <- check_vector(list(
+        verbose = verbose,
+        module = module
+    ))
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module = module))
     )
 
     error_messages <- append(
@@ -25,11 +86,14 @@ module_info <- function(module, verbose = TRUE)
 
     send_error_messages(error_messages)
 
+    # Check out the module
+    module_creator <- lapply(module, check_out_module)
+
     # Make sure verbose is a logical variable
     verbose <- lapply(verbose, as.logical)
 
     # Get the info list
-    result <- .Call(R_module_info, module, verbose)
+    result <- .Call(R_module_info, module_creator, verbose)
 
     return(invisible(result))
 }
@@ -87,10 +151,13 @@ evaluate_module <- function(module, input_quantities)
 
     send_error_messages(error_messages)
 
+    # Check out the module
+    module_creator <- lapply(module, check_out_module)
+
     # C++ requires that all the variables have type `double`
     input_quantities <- lapply(input_quantities, as.numeric)
 
-    result <- .Call(R_evaluate_module, module, input_quantities)
+    result <- .Call(R_evaluate_module, module_creator, input_quantities)
     result <- result[order(names(result))]
     return(result)
 }
@@ -202,7 +269,7 @@ module_response_curve <- function(
     # Combine the data frames into one data frame, add the module name as the
     # first column, and return it
     info <- module_info(module, verbose = FALSE)
-    cbind(info[['module_name']], do.call(rbind, df_list))
+    cbind(module_name = info[['module_name']], do.call(rbind, df_list))
 }
 
 quantity_list_from_names <- function(quantity_names)

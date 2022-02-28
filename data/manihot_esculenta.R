@@ -2,22 +2,22 @@
 # on-the-fly to a different value, e.g.,
 # CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
 manihot_esculenta_direct_modules <- list(
-    "soil_type_selector",
-    stomata_water_stress = "stomata_water_stress_linear",
-    "leaf_water_stress_exponential",
-    "parameter_calculator",
-    "soil_evaporation",
-    solar_coordinates = "solar_position_michalsky",
-    canopy_photosynthesis = "c3_canopy",
-    "utilization_growth_calculator",
-    "utilization_senescence_calculator"
+    "std_lib:soil_type_selector",
+    stomata_water_stress = "std_lib:stomata_water_stress_linear",
+    "std_lib:leaf_water_stress_exponential",
+    "std_lib:parameter_calculator",
+    "std_lib:soil_evaporation",
+    solar_coordinates = "std_lib:solar_position_michalsky",
+    canopy_photosynthesis = "std_lib:c3_canopy",
+    "std_lib:utilization_growth_calculator",
+    "std_lib:utilization_senescence_calculator"
 )
 
 manihot_esculenta_differential_modules <- list(
-    "utilization_senescence",
-    "utilization_growth",
-    thermal_time = "thermal_time_linear",
-    soil_profile = "two_layer_soil_profile"
+    "std_lib:utilization_senescence",
+    "std_lib:utilization_growth",
+    thermal_time = "std_lib:thermal_time_linear",
+    soil_profile = "std_lib:two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test

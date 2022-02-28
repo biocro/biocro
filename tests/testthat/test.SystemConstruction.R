@@ -26,8 +26,8 @@ test_that("certain run_biocro inputs must be lists or data frames", {
             unlist(miscanthus_x_giganteus_initial_values),
             unlist(miscanthus_x_giganteus_parameters),
             unlist(get_growing_season_climate(weather2005)),
-            std_lib(miscanthus_x_giganteus_direct_modules),
-            std_lib(miscanthus_x_giganteus_differential_modules),
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
             unlist(miscanthus_x_giganteus_ode_solver['type'])
         ),
         regexp = paste0(
@@ -45,8 +45,8 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = numeric(0)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather2005),
-            std_lib(miscanthus_x_giganteus_direct_modules),
-            std_lib(miscanthus_x_giganteus_differential_modules),
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
@@ -63,8 +63,8 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = c(1,2)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = c(1,2)}),
             get_growing_season_climate(weather2005),
-            std_lib(miscanthus_x_giganteus_direct_modules),
-            std_lib(miscanthus_x_giganteus_differential_modules),
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
@@ -81,12 +81,14 @@ test_that("certain run_biocro inputs must be strings", {
             miscanthus_x_giganteus_initial_values,
             miscanthus_x_giganteus_parameters,
             get_growing_season_climate(weather2005),
-            std_lib(miscanthus_x_giganteus_direct_modules),
-            std_lib(miscanthus_x_giganteus_differential_modules),
+            append(miscanthus_x_giganteus_direct_modules, 1.23),
+            append(miscanthus_x_giganteus_differential_modules, 4.56),
             within(miscanthus_x_giganteus_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
-            "The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
+            "The following `direct_modules` members are not strings, but all members must be strings: 1.23.\n",
+            "  The following `differential_modules` members are not strings, but all members must be strings: 4.56.\n",
+            "  The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
         )
     )
 })
@@ -110,28 +112,11 @@ test_that("certain run_biocro inputs must be numeric", {
     )
 })
 
-test_that("certain run_biocro inputs must be externalptrs", {
-    expect_error(
-        run_biocro(
-            miscanthus_x_giganteus_initial_values,
-            miscanthus_x_giganteus_parameters,
-            get_growing_season_climate(weather2005),
-            "direct_module",
-            "differential_module",
-            miscanthus_x_giganteus_ode_solver
-        ),
-        regexp = paste0(
-            "The following `direct_modules` members are not externalptrs, but all members must be externalptrs: direct_module.\n",
-            "  The following `differential_modules` members are not externalptrs, but all members must be externalptrs: differential_module.\n"
-        )
-    )
-})
-
 test_that("All modules must exist", {
     # TO-DO: move this test to a new "std_lib" testing file
 
     # This should throw an error
-    expect_error(std_lib("module_that_does_not_exist"))
+    expect_error(BioCro:::check_out_module("std_lib:module_that_does_not_exist"))
 
 })
 
@@ -155,9 +140,9 @@ test_that("Duplicated quantities produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- std_lib("harmonic_energy")
+    direct_modules <- "std_lib:harmonic_energy"
 
-    differential_modules <- std_lib("harmonic_oscillator")
+    differential_modules <- "std_lib:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -184,9 +169,9 @@ test_that("Missing inputs produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- std_lib("harmonic_energy")
+    direct_modules <- "std_lib:harmonic_energy"
 
-    differential_modules <- std_lib("harmonic_oscillator")
+    differential_modules <- "std_lib:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -213,9 +198,9 @@ test_that("Differential modules only supply derivatives for quantities in the in
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- std_lib("harmonic_energy")
+    direct_modules <- "std_lib:harmonic_energy"
 
-    differential_modules <- std_lib("harmonic_oscillator")
+    differential_modules <- "std_lib:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -238,7 +223,7 @@ test_that("Direct modules are not required to be supplied in the correct order",
         unused_varying_parameter=rep(0, MAX_INDEX)
     )
 
-    direct_modules <- std_lib(c("Module_1", "Module_2"))
+    direct_modules <- c("std_lib:Module_1", "std_lib:Module_2")
 
     differential_modules <- c()
 
@@ -248,7 +233,7 @@ test_that("Direct modules are not required to be supplied in the correct order",
 
     # If we change the module order, it should still be valid
 
-    direct_modules <- std_lib(c("Module_2", "Module_1"))
+    direct_modules <- c("std_lib:Module_2", "std_lib:Module_1")
 
     expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 

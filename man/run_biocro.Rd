@@ -105,8 +105,8 @@ result <- run_biocro(
     miscanthus_x_giganteus_initial_values,
     miscanthus_x_giganteus_parameters,
     get_growing_season_climate(weather2005),
-    std_lib(miscanthus_x_giganteus_direct_modules),
-    std_lib(miscanthus_x_giganteus_differential_modules),
+    miscanthus_x_giganteus_direct_modules,
+    miscanthus_x_giganteus_differential_modules,
     miscanthus_x_giganteus_ode_solver,
     TRUE
 )

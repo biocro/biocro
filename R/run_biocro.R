@@ -88,21 +88,16 @@ check_run_biocro_inputs <- function(
     )
 
     # The direct_modules and differential_modules should be vectors or lists of
-    # externalptrs
+    # strings. The ode_solver's `type` element should also be a string.
     error_message <- append(
         error_message,
-        check_pointers(
+        check_strings(
             list(
                 direct_modules=direct_modules,
-                differential_modules=differential_modules
+                differential_modules=differential_modules,
+                ode_solver_type=ode_solver['type']
             )
         )
-    )
-
-    # The ode_solver's `type` element should be a string
-    error_message <- append(
-        error_message,
-        check_strings(list(ode_solver_type=ode_solver['type']))
     )
 
     # Verbose should be a boolean with one element
@@ -147,9 +142,9 @@ run_biocro <- function(
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
-    # Make sure the module names are vectors
-    direct_modules <- unlist(direct_modules)
-    differential_modules <- unlist(differential_modules)
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(direct_modules, check_out_module)
+    differential_module_creators <- sapply(differential_modules, check_out_module)
 
     # Collect the ode_solver info
     ode_solver_type <- ode_solver$type
@@ -176,8 +171,8 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        direct_modules,
-        differential_modules,
+        direct_module_creators,
+        differential_module_creators,
         ode_solver_type,
         ode_solver_output_step_size,
         ode_solver_adaptive_rel_error_tol,

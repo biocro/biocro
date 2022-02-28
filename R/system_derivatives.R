@@ -20,9 +20,9 @@ system_derivatives <- function(
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
-    # Make sure the module names are vectors of strings
-    direct_modules <- unlist(direct_modules)
-    differential_modules <- unlist(differential_modules)
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(direct_modules, check_out_module)
+    differential_module_creators <- sapply(differential_modules, check_out_module)
 
     # C++ requires that all the variables have type `double`
     parameters <- lapply(parameters, as.numeric)
@@ -42,8 +42,8 @@ system_derivatives <- function(
             t,
             parameters,
             drivers,
-            direct_modules,
-            differential_modules
+            direct_module_creators,
+            differential_module_creators
         )
 
         # LSODES requires the output from this function to be a list whose first
