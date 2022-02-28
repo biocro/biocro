@@ -86,8 +86,8 @@ senescence_simulation <- partial_run_biocro(
     miscanthus_x_giganteus_initial_values,
     miscanthus_x_giganteus_parameters,
     get_growing_season_climate(weather2005),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
+    std_lib(miscanthus_x_giganteus_direct_modules),
+    std_lib(miscanthus_x_giganteus_differential_modules),
     miscanthus_x_giganteus_ode_solver,
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
@@ -101,8 +101,8 @@ temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
   soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules,
+  std_lib(soybean_direct_modules),
+  std_lib(soybean_differential_modules),
   soybean_ode_solver,
   c("Catm", "temp")
 )

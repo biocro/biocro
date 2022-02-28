@@ -278,7 +278,7 @@ fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
     soybean_parameters,
     weather[['2002']],
-    append(soybean_direct_modules, std_lib('total_biomass')),
+    append(soybean_direct_modules, 'total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -312,8 +312,7 @@ rue_2002 <- partial_run_biocro(
     within(soybean_parameters, {alpha_rue = NA}),
     weather[['2002']],
     append(within(soybean_direct_modules,
-        {canopy_photosynthesis = std_lib('ten_layer_rue_canopy')[[1]]}),
-        std_lib('total_biomass')),
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver,
     'alpha_rue'  # here we specify the names of any quantities whose values
@@ -428,8 +427,7 @@ optimal_rue_result_2002 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     weather[['2002']],
     append(within(soybean_direct_modules,
-        {canopy_photosynthesis = std_lib('ten_layer_rue_canopy')[[1]]}),
-        std_lib('total_biomass')),
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -637,26 +635,24 @@ and the \texttt{c3\_leaf\_photosynthesis} module defines $f(x)$.
 assim_sensitivity <- function(
     varname,
     base_module_inputs,
-    relative_perturbation = 1e-6
+    relative_perturbation_size = 1e-6
 )
 {
-    photo_module <- std_lib('c3_leaf_photosynthesis')
-
     var_center <- base_module_inputs[[varname]]
     gross_assim_center <-
-        evaluate_module(photo_module, base_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', base_module_inputs)[['GrossAssim']]
 
     neg_module_inputs <- base_module_inputs
-    neg_var <- base_module_inputs[[varname]] * (1 - relative_perturbation)
+    neg_var <- base_module_inputs[[varname]] * (1 - relative_perturbation_size)
     neg_module_inputs[[varname]] <- neg_var
     gross_assim_neg <-
-        evaluate_module(photo_module, neg_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', neg_module_inputs)[['GrossAssim']]
 
     pos_module_inputs <- base_module_inputs
-    pos_var <- base_module_inputs[[varname]] * (1 + relative_perturbation)
+    pos_var <- base_module_inputs[[varname]] * (1 + relative_perturbation_size)
     pos_module_inputs[[varname]] <- pos_var
     gross_assim_pos <-
-        evaluate_module(photo_module, pos_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', pos_module_inputs)[['GrossAssim']]
 
     dadx = (gross_assim_pos - gross_assim_neg) / (pos_var - neg_var)
     return(dadx / (gross_assim_center / var_center))
@@ -747,14 +743,14 @@ biomass_driver_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_perturbation = 1e-5
+    relative_perturbation_size = 1e-5
 )
 {
     steady_state_modules <- append(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        std_lib('total_biomass')
+        'total_biomass'
     )
 
     c_to_k <- 273.15
@@ -771,7 +767,7 @@ biomass_driver_sensitivity <- function(
     )
 
     neg_drivers <- default_drivers
-    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_perturbation)
+    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_perturbation_size)
     neg_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -782,7 +778,7 @@ biomass_driver_sensitivity <- function(
     )
 
     pos_drivers <- default_drivers
-    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_perturbation)
+    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_perturbation_size)
     pos_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -817,13 +813,13 @@ paper).
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
     'temp',
     soybean_parameters,
-    std_lib('ten_layer_c3_canopy')[[1]]
+    'ten_layer_c3_canopy'
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
     'temp',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    std_lib('ten_layer_rue_canopy')[[1]]
+    'ten_layer_rue_canopy'
 )
 @
 
@@ -875,14 +871,14 @@ biomass_parameter_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_perturbation = 1e-6
+    relative_perturbation_size = 1e-6
 )
 {
     steady_state_modules <- append(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        std_lib('total_biomass')
+        'total_biomass'
     )
 
     default_result <- run_biocro(
@@ -895,7 +891,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     neg_parameters <- parameters
-    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_perturbation)
+    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_perturbation_size)
     neg_result <- run_biocro(
         soybean_initial_values,
         neg_parameters,
@@ -906,7 +902,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     pos_parameters <- parameters
-    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_perturbation)
+    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_perturbation_size)
     pos_result <- run_biocro(
         soybean_initial_values,
         pos_parameters,
@@ -941,13 +937,13 @@ paper).
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
     'Catm',
     soybean_parameters,
-    std_lib('ten_layer_c3_canopy')[[1]]
+    'ten_layer_c3_canopy'
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
     'Catm',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    std_lib('ten_layer_rue_canopy')[[1]]
+    'ten_layer_rue_canopy'
 )
 @
 
@@ -1014,7 +1010,7 @@ rue_result_2006 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
     weather[['2006']],
     within(soybean_direct_modules,
-        {canopy_photosynthesis = std_lib('ten_layer_rue_canopy')[[1]]}),
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -1088,8 +1084,7 @@ for (i in seq_along(years)) {
             {alpha_rue = best_alpha_rue; Catm = catm[[years[i]]]}),
         weather[[years[i]]],
         append(within(soybean_direct_modules,
-            {canopy_photosynthesis = std_lib('ten_layer_rue_canopy')[[1]]}),
-            std_lib('total_biomass')),
+            {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )
@@ -1101,7 +1096,7 @@ for (i in seq_along(years)) {
         soybean_initial_values,
         within(soybean_parameters, {Catm = catm[[years[i]]]}),
         weather[[years[i]]],
-        append(soybean_direct_modules, std_lib('total_biomass')),
+        append(soybean_direct_modules, 'total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )

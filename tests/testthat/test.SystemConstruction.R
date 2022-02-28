@@ -26,8 +26,8 @@ test_that("certain run_biocro inputs must be lists or data frames", {
             unlist(miscanthus_x_giganteus_initial_values),
             unlist(miscanthus_x_giganteus_parameters),
             unlist(get_growing_season_climate(weather2005)),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            std_lib(miscanthus_x_giganteus_direct_modules),
+            std_lib(miscanthus_x_giganteus_differential_modules),
             unlist(miscanthus_x_giganteus_ode_solver['type'])
         ),
         regexp = paste0(
@@ -45,8 +45,8 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = numeric(0)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather2005),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            std_lib(miscanthus_x_giganteus_direct_modules),
+            std_lib(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
@@ -63,8 +63,8 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = c(1,2)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = c(1,2)}),
             get_growing_season_climate(weather2005),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            std_lib(miscanthus_x_giganteus_direct_modules),
+            std_lib(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
@@ -81,8 +81,8 @@ test_that("certain run_biocro inputs must be strings", {
             miscanthus_x_giganteus_initial_values,
             miscanthus_x_giganteus_parameters,
             get_growing_season_climate(weather2005),
-            miscanthus_x_giganteus_direct_modules,
-            miscanthus_x_giganteus_differential_modules,
+            std_lib(miscanthus_x_giganteus_direct_modules),
+            std_lib(miscanthus_x_giganteus_differential_modules),
             within(miscanthus_x_giganteus_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
