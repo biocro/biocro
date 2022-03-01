@@ -122,6 +122,7 @@
   \itemize{
     \item \code{\link{get_all_modules}}
     \item \code{\link{partial_evaluate_module}}
+    \item \code{\link{module_testing}}
   }
 }
 
