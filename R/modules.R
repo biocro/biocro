@@ -40,15 +40,13 @@ check_out_module <- function(module_specification) {
     # Try to find the module library function
     library_func <- tryCatch(
         {
-            do.call(`:::`, list(library_name, 'module_creators'))
+            function_from_package(library_name, 'module_creators')
         },
         error = function(cond) {
             stop(paste0(
                 "Encountered an issue with module specification `",
                 module_specification,
-                "`: A `module_creators` function could not be found in the `",
-                library_name,
-                "` package: ",
+                "`: ",
                 cond
             ))
         }

@@ -39,6 +39,10 @@ export(test_simultaneous_equations)
 
 export(add_time_to_weather_data)
 
+export(get_all_modules)
+
+export(get_all_quantities)
+
 export(get_all_ode_solvers)
 
 export(get_all_se_solvers)

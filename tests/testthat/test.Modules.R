@@ -24,7 +24,7 @@ run_test <- function(module_name) {
 
 # Check test cases for all modules
 lapply(
-    BioCro:::get_all_modules(),
+    get_all_modules('BioCro'),
     run_test
 )
 
