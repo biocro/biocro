@@ -8,6 +8,10 @@
 \title{Run BioCro module test cases}
 
 \description{
+  Modules can be verified (a.k.a. tested) using test cases: data sets with known
+  outputs for a given input. The functions here provide ways to create test cases
+  and test modules.
+
   \code{test_module} runs one test case for a module, throwing an error if its
   output does not match the expected value.
 
