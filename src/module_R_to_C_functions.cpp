@@ -1,16 +1,16 @@
 #include <string>
 #include <unordered_map>
-#include <Rinternals.h>              // for Rf_error
-#include <exception>                 // for std::exception
-#include "../framework/state_map.h"  // for string_vector
-#include "../framework/R_helper_functions.h"
-#include "../framework/module_creator.h"
-#include "module_library.h"
+#include <Rinternals.h>           // for Rf_error
+#include <exception>              // for std::exception
+#include "framework/state_map.h"  // for string_vector
+#include "framework/R_helper_functions.h"
+#include "framework/module_creator.h"
+#include "module_library/module_library.h"
 
 // When creating a new module library R package, it will be necessary to modify
 // the library type name in this file to match the class defined in
-// `module_library.h`. See that file for more details. None of the other code in
-// this file should require any modifications.
+// `module_library/module_library.h`. See that file for more details. None of
+// the other code in this file should require any modifications.
 
 using std::string;
 using library_type = biocro_module_library;
