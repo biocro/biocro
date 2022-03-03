@@ -1,6 +1,6 @@
 # A helping function for "checking out" a module from a module library. Here,
 # `module_specification` should be a string formatted like
-# "module_library_name:module_name". Example: "std_lib:c3_canopy".
+# "module_library_name:module_name". Example: "BioCro:c3_canopy".
 check_out_module <- function(module_specification) {
     error_messages <-
         check_vector(list(module_specification = module_specification))
@@ -34,26 +34,27 @@ check_out_module <- function(module_specification) {
         ))
     }
 
-    # We may need to add a suffix here at some point if the library name from
-    # the module specification string is taken to specify a package rather than
-    # a function.
-    library_function_name <- parsed_string[1]
+    library_name <- parsed_string[1]
+    module_name <- parsed_string[2]
 
     # Try to find the module library function
     library_func <- tryCatch(
         {
-            get(library_function_name)
+            do.call(`:::`, list(library_name, 'module_creators'))
         },
         error = function(cond) {
             stop(paste0(
-                "The `",
-                library_function_name,
-                "` function could not be found"
+                "Encountered an issue with module specification `",
+                module_specification,
+                "`: A `module_creators` function could not be found in the `",
+                library_name,
+                "` package: ",
+                cond
             ))
         }
     )
 
-    return(library_func(parsed_string[2])[[1]])
+    return(library_func(module_name)[[1]])
 }
 
 module_info <- function(module, verbose = TRUE)

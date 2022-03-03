@@ -111,7 +111,7 @@ hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather20
 
 # Example 3: varying the temperature input to the 'thermal_time_linear' module
 thermal_time_rate <- partial_evaluate_module(
-  'std_lib:thermal_time_linear',
+  'BioCro:thermal_time_linear',
   within(miscanthus_x_giganteus_parameters, {time = 1}),
   c("temp")
 )

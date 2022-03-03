@@ -4,7 +4,7 @@ context("Test to make sure the simultaneous equation solvers function as expecte
 run_trial_se <- function(initial_value, lower_bounds, upper_bounds, abs_error_tols, rel_error_tols, solver_type, trial_description) {
 
 	# Set up inputs
-	direct_modules <- std_lib("golden_ratio_hyperbola")
+	direct_modules <- BioCro:::module_creators("golden_ratio_hyperbola")
 	known_quantities <- list()
 	unknown_quantities <- list(x = initial_value)
 
