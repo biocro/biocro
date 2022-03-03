@@ -72,7 +72,7 @@ if (require(deSolve)) {
     ),
     data.frame(time=times),
     c(),
-    'std_lib:harmonic_oscillator'
+    'BioCro:harmonic_oscillator'
   )
 
   result <- as.data.frame(lsodes(

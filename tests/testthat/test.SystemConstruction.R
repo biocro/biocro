@@ -113,10 +113,10 @@ test_that("certain run_biocro inputs must be numeric", {
 })
 
 test_that("All modules must exist", {
-    # TO-DO: move this test to a new "std_lib" testing file
+    # TO-DO: move this test to a module-library-specific testing file
 
     # This should throw an error
-    expect_error(BioCro:::check_out_module("std_lib:module_that_does_not_exist"))
+    expect_error(BioCro:::check_out_module("BioCro:module_that_does_not_exist"))
 
 })
 
@@ -140,9 +140,9 @@ test_that("Duplicated quantities produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- "std_lib:harmonic_energy"
+    direct_modules <- "BioCro:harmonic_energy"
 
-    differential_modules <- "std_lib:harmonic_oscillator"
+    differential_modules <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -169,9 +169,9 @@ test_that("Missing inputs produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- "std_lib:harmonic_energy"
+    direct_modules <- "BioCro:harmonic_energy"
 
-    differential_modules <- "std_lib:harmonic_oscillator"
+    differential_modules <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -198,9 +198,9 @@ test_that("Differential modules only supply derivatives for quantities in the in
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_modules <- "std_lib:harmonic_energy"
+    direct_modules <- "BioCro:harmonic_energy"
 
-    differential_modules <- "std_lib:harmonic_oscillator"
+    differential_modules <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -223,7 +223,7 @@ test_that("Direct modules are not required to be supplied in the correct order",
         unused_varying_parameter=rep(0, MAX_INDEX)
     )
 
-    direct_modules <- c("std_lib:Module_1", "std_lib:Module_2")
+    direct_modules <- c("BioCro:Module_1", "BioCro:Module_2")
 
     differential_modules <- c()
 
@@ -233,7 +233,7 @@ test_that("Direct modules are not required to be supplied in the correct order",
 
     # If we change the module order, it should still be valid
 
-    direct_modules <- c("std_lib:Module_2", "std_lib:Module_1")
+    direct_modules <- c("BioCro:Module_2", "BioCro:Module_1")
 
     expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_modules, differential_modules, verbose=VERBOSE))
 

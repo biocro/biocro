@@ -1,12 +1,12 @@
-\name{std_lib}
+\name{module_creators}
 
-\alias{std_lib}
+\alias{module_creators}
 
 \title{Create instances of modules}
 
 \description{Creates pointers to module wrapper objects}
 
-\usage{std_lib(module_names)}
+\usage{module_creators(module_names)}
 
 \arguments{
   \item{module_names}{A vector of module names}
@@ -19,11 +19,16 @@
   can be used to obtain information about a module's inputs, outputs, and other
   properties, and can also be used to create a module instance. The \code{See
   Also} section contains a list of functions that directly rely on
-  \code{std_lib}.
+  \code{module_creators}.
 
   The R documentation for \code{externalptr} objects is sparse, but some
   information can be found
   \href{https://stat.ethz.ch/R-manual/R-devel/library/methods/html/BasicClasses.html}{here}.
+
+  This function should not be used directly, and each module library package
+  must have its own version. For these reasons, this function is not exported to
+  the package namespace and can only be accessed using the package name via the
+  \code{\link{:::}} operator.
 }
 
 \value{
@@ -33,6 +38,7 @@
 
 \seealso{
   \itemize{
+    \item \code{\link{run_biocro}}
     \item \code{\link{module_info}}
     \item \code{\link{evaluate_module}}
   }
@@ -41,7 +47,7 @@
 \examples{
 # Example: creating a vector of pointers to several module wrappers representing
 # three options for thermal time calculations
-module_pointers <- std_lib(c(
+module_pointers <- BioCro:::module_creators(c(
   'thermal_time_linear',
   'thermal_time_bilinear',
   'thermal_time_trilinear'

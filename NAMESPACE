@@ -29,8 +29,6 @@ export(module_response_curve)
 
 export(quantity_list_from_names)
 
-export(std_lib)
-
 export(validate_dynamical_system_inputs)
 
 export(validate_simultaneous_equations)

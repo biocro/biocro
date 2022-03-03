@@ -2,28 +2,28 @@
 # on-the-fly to a different value, e.g.,
 # CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
 soybean_direct_modules <- list(
-    "std_lib:soil_type_selector",
-    stomata_water_stress = "std_lib:stomata_water_stress_linear",
-    "std_lib:parameter_calculator",
-    "std_lib:soybean_development_rate_calculator",
-    partitioning_coefficients = "std_lib:partitioning_coefficient_logistic",
-    "std_lib:soil_evaporation",
-    solar_coordinates = "std_lib:solar_position_michalsky",
-    "std_lib:shortwave_atmospheric_scattering",
-    "std_lib:incident_shortwave_from_ground_par",
-    "std_lib:ten_layer_canopy_properties",
-    canopy_photosynthesis = "std_lib:ten_layer_c3_canopy",
-    "std_lib:ten_layer_canopy_integrator",
-    partitioning_growth_calculator = "std_lib:no_leaf_resp_neg_assim_partitioning_growth_calculator",
-    "std_lib:senescence_coefficient_logistic"
+    "BioCro:soil_type_selector",
+    stomata_water_stress = "BioCro:stomata_water_stress_linear",
+    "BioCro:parameter_calculator",
+    "BioCro:soybean_development_rate_calculator",
+    partitioning_coefficients = "BioCro:partitioning_coefficient_logistic",
+    "BioCro:soil_evaporation",
+    solar_coordinates = "BioCro:solar_position_michalsky",
+    "BioCro:shortwave_atmospheric_scattering",
+    "BioCro:incident_shortwave_from_ground_par",
+    "BioCro:ten_layer_canopy_properties",
+    canopy_photosynthesis = "BioCro:ten_layer_c3_canopy",
+    "BioCro:ten_layer_canopy_integrator",
+    partitioning_growth_calculator = "BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator",
+    "BioCro:senescence_coefficient_logistic"
 )
 
 soybean_differential_modules <- list(
-    senescence = "std_lib:senescence_logistic",
-    "std_lib:partitioning_growth",
-    soil_profile = "std_lib:two_layer_soil_profile",
-    "std_lib:development_index",
-    thermal_time = "std_lib:thermal_time_linear"
+    senescence = "BioCro:senescence_logistic",
+    "BioCro:partitioning_growth",
+    soil_profile = "BioCro:two_layer_soil_profile",
+    "BioCro:development_index",
+    thermal_time = "BioCro:thermal_time_linear"
 )
 
 soybean_ode_solver <- list(
@@ -219,13 +219,13 @@ soybean_parameters = with(list(), {
 # Also include separate initial values, parameters, and modules for the soybean
 # circadian clock. (We can use the same ODE solver as the main soybean model.)
 soybean_clock_direct_modules <- c(
-    "std_lib:light_from_solar",
-    "std_lib:oscillator_clock_calculator"
+    "BioCro:light_from_solar",
+    "BioCro:oscillator_clock_calculator"
 )
 
 soybean_clock_differential_modules <- c(
-    "std_lib:night_and_day_trackers",
-    "std_lib:poincare_clock"
+    "BioCro:night_and_day_trackers",
+    "BioCro:poincare_clock"
 )
 
 soybean_clock_parameters <- list(
