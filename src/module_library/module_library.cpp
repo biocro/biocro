@@ -1,6 +1,12 @@
 #include "module_library.h"
 #include "../framework/module_creator.h"  // for create_mc
 
+// When creating a new module library R package, it will be necessary to modify
+// the library class name in this file to match the class defined in
+// `module_library.h`. See that file for more details. It will also be necessary
+// to change the included module header files, as well as the entries in the
+// `creator_map` table below.
+
 // Include all the header files that define the modules.
 #include "harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
 #include "nr_ex.hpp"

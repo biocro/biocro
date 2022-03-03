@@ -1,9 +1,19 @@
 #include <string>
-#include <Rinternals.h>                       // for Rf_error
-#include "../framework/state_map.h"           // for string_vector
-#include "../framework/R_helper_functions.h"  // for make_vector, finalize_module_creator
+#include <unordered_map>
+#include <Rinternals.h>              // for Rf_error
+#include <exception>                 // for std::exception
+#include "../framework/state_map.h"  // for string_vector
+#include "../framework/R_helper_functions.h"
 #include "../framework/module_creator.h"
 #include "module_library.h"
+
+// When creating a new module library R package, it will be necessary to modify
+// the library type name in this file to match the class defined in
+// `module_library.h`. See that file for more details. None of the other code in
+// this file should require any modifications.
+
+using std::string;
+using library_type = biocro_module_library;
 
 extern "C" {
 
@@ -48,7 +58,7 @@ SEXP R_module_creators(SEXP module_names)
 
         for (size_t i = 0; i < n; ++i) {
             module_creator* w =
-                module_factory<biocro_module_library>::retrieve(names[i]);
+                module_factory<library_type>::retrieve(names[i]);
 
             SEXP mw_ptr =
                 PROTECT(R_MakeExternalPtr(w, R_NilValue, R_NilValue));
@@ -69,6 +79,40 @@ SEXP R_module_creators(SEXP module_names)
         Rf_error((std::string("Caught exception in R_module_creators: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_module_creators.");
+    }
+}
+
+/**
+ *  @brief A wrapper for `module_factory::get_all_modules()` that
+ *  returns the output as an R vector of R strings.
+ */
+SEXP R_get_all_modules()
+{
+    try {
+        string_vector result =
+            module_factory<library_type>::get_all_modules();
+        return r_string_vector_from_vector(result);
+    } catch (std::exception const& e) {
+        Rf_error((string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_get_all_modules.");
+    }
+}
+
+/**
+ *  @brief A wrapper for `module_factory::get_all_quantities()` that
+ *  returns the output as an R list of named R strings.
+ */
+SEXP R_get_all_quantities()
+{
+    try {
+        std::unordered_map<string, string_vector> all_quantities =
+            module_factory<library_type>::get_all_quantities();
+        return list_from_map(all_quantities);
+    } catch (std::exception const& e) {
+        Rf_error((string("Caught exception in R_get_all_quantities: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_get_all_quantities.");
     }
 }
 }
