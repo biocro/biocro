@@ -36,7 +36,7 @@
  *
  *  Typically, concrete classes derived from this one are not instantiated
  *  directly; instead, module objects are created by `module_creator` objects
- *  retrieved from the `module_library`.
+ *  retrieved from the `module_factory`.
  */
 class module
 {

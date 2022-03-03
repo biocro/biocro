@@ -147,7 +147,7 @@ string_vector get_other_leaf_inputs()
  * `sunlit_`), and a suffix that indicates the layer number (e.g. `_layer_0`).
  *
  * Note that this module has a non-standard constructor, so it cannot be created
- * using the module_library. Rather, it is expected that directly-usable
+ * using the module_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
 template <typename canopy_module_type, typename leaf_module_type>

@@ -1,9 +1,9 @@
 #include <string>
-#include <Rinternals.h>             // for Rf_error
+#include <Rinternals.h>                       // for Rf_error
 #include "../framework/state_map.h"           // for string_vector
 #include "../framework/R_helper_functions.h"  // for make_vector, finalize_module_creator
 #include "../framework/module_creator.h"
-#include "standard_module_library.h"
+#include "module_library.h"
 
 extern "C" {
 
@@ -48,7 +48,7 @@ SEXP R_module_creators(SEXP module_names)
 
         for (size_t i = 0; i < n; ++i) {
             module_creator* w =
-                module_library<standard_module_library>::retrieve(names[i]);
+                module_factory<biocro_module_library>::retrieve(names[i]);
 
             SEXP mw_ptr =
                 PROTECT(R_MakeExternalPtr(w, R_NilValue, R_NilValue));

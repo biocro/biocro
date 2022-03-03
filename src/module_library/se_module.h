@@ -135,7 +135,7 @@ std::vector<std::vector<double>> reorder_initial_guesses(
  * @class base
  *
  * @brief A general module that solves a set of simultaneous equations.
- * Note that this module cannot be created by the module_library
+ * Note that this module cannot be created by the module_factory
  * since its constructor has a different signature than a typical module.
  * Instead, it must have concrete derived classes. This class has been
  * made abstract to indicate this.

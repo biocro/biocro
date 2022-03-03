@@ -12,7 +12,7 @@
  * leaf classes (sunlit & shaded). Leaf class is added to output
  * parameters as a prefix, while layer number is added as a suffix.
  * Note that this module has a non-standard constructor, so it cannot
- * be created using the module_library.
+ * be created using the module_factory.
  *
  * For compatibility with the multilayer canopy photosynthesis module,
  * the outputs of this module must be split into the following categories:

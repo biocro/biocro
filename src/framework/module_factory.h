@@ -1,5 +1,5 @@
-#ifndef MODULE_LIBRARY_H
-#define MODULE_LIBRARY_H
+#ifndef MODULE_FACTORY_H
+#define MODULE_FACTORY_H
 
 #include <algorithm>  // for std::transform
 #include <cctype>     // for std::tolower
@@ -12,13 +12,14 @@ using creator_fcn = module_creator* (*)();
 using creator_map = std::map<std::string, creator_fcn>;
 
 /**
- *  @class module_library
+ *  @class module_factory
  *
- *  @brief A factory class that creates `module_creator` objects; more
- *  colloquially, we say that a `module` or `module_creator` is "retrieved" from
- *  the module library
+ *  @brief A factory class that creates `module_creator` objects, where the list
+ *  of available `module_creator` objects is provided by another class `T`; more
+ *  colloquially, we say that the module factory allows us to retrieve a module
+ *  from the module library.
  *
- *  The module_library provides the main route for module creation by linking
+ *  The module_factory provides the main route for module creation by linking
  *  module names (strings) to `module_creator` objects via its `retrieve()`
  *  function. Once a `module_creator` representing a particular `module` class
  *  has been retrieved from the library, it can be used to identify the module's
@@ -26,7 +27,7 @@ using creator_map = std::map<std::string, creator_fcn>;
  *  making it available for calculations.
  */
 template <typename T>
-class module_library
+class module_factory
 {
    public:
     static module_creator* retrieve(std::string const& module_name);
@@ -35,7 +36,7 @@ class module_library
 };
 
 template <typename T>
-module_creator* module_library<T>::retrieve(std::string const& module_name)
+module_creator* module_factory<T>::retrieve(std::string const& module_name)
 {
     try {
         return T::library_entries.at(module_name)();
@@ -50,7 +51,7 @@ module_creator* module_library<T>::retrieve(std::string const& module_name)
 }
 
 template <typename T>
-string_vector module_library<T>::get_all_modules()
+string_vector module_factory<T>::get_all_modules()
 {
     string_vector module_name_vector;
     for (auto const& x : T::library_entries) {
@@ -76,7 +77,7 @@ string_vector module_library<T>::get_all_modules()
 }
 
 template <typename T>
-std::unordered_map<std::string, string_vector> module_library<T>::get_all_quantities()
+std::unordered_map<std::string, string_vector> module_factory<T>::get_all_quantities()
 {
     // Make the output map
     std::unordered_map<std::string, string_vector> quantity_map = {
@@ -92,8 +93,8 @@ std::unordered_map<std::string, string_vector> module_library<T>::get_all_quanti
     };
 
     // Fill the output map with all the quantities
-    for (std::string const& module_name : module_library::get_all_modules()) {
-        auto w = module_library::retrieve(module_name);
+    for (std::string const& module_name : module_factory::get_all_modules()) {
+        auto w = module_factory::retrieve(module_name);
 
         // Add the module's inputs to the parameter map
         for (std::string const& input_name : w->get_inputs()) {

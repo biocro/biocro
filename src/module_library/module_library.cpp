@@ -1,4 +1,4 @@
-#include "standard_module_library.h"
+#include "module_library.h"
 #include "../framework/module_creator.h"  // for create_mc
 
 // Include all the header files that define the modules.
@@ -110,7 +110,7 @@
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
 
-creator_map standard_module_library::library_entries =
+creator_map biocro_module_library::library_entries =
 {
      {"harmonic_oscillator",                                   &create_mc<harmonic_oscillator>},
      {"harmonic_energy",                                       &create_mc<harmonic_energy>},

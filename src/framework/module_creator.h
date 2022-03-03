@@ -30,7 +30,7 @@
  *  concrete `module` class constuctor.
  *
  *  This class is pure abstract, defining a common type that can be created
- *  using a factory class (the `module_library`). Its implementation for a
+ *  using a factory class (the `module_factory`). Its implementation for a
  *  particular concrete module is achieved using the derived template class
  *  `module_creator_impl`.
  */
