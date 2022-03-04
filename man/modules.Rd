@@ -9,8 +9,9 @@
 \title{BioCro module functions}
 
 \description{
-  Modules are named sets of equations. The functions here provides ways
-  to list information and evaluate modules given inputs.
+  Modules are named sets of equations. The functions here provide ways to access
+  information about modules and to calculate their output values from sets of
+  input values.
 
   \code{module_info} returns essential information about a BioCro module.
 
@@ -104,7 +105,7 @@
 
   \item{quantity_list_from_names}{
     A list of named numeric elements, where the names are set by
-    \code{quantity_names} and each value is initialized to 1.
+    \code{quantity_names} and each value is set to 1.
   }
 
   \item{evaluate_module}{

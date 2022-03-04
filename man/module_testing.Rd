@@ -29,9 +29,9 @@
 
   For simple on-the-fly testing, it is possible to define a test case using the
   \code{\link{case}} function. However, a more robust method is available to
-  facilitate regression testing, where module test cases are stored in suitably-
-  formatted \code{csv} files, allowing multiple test cases to be defined for
-  each module and easily checked afterwards.
+  facilitate regression testing, where module test cases are stored in
+  suitably-formatted \code{csv} files, allowing multiple test cases to be
+  defined for each module and easily checked afterwards.
 
   In this system, test cases for a module with name \code{module_name} must be
   stored in \code{module_name.csv}. The first row of a test case file must be
