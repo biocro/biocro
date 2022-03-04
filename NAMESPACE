@@ -1,52 +1,36 @@
-useDynLib(BioCro,
-          R_run_biocro,
-          R_system_derivatives,
-          R_module_info,
-          R_evaluate_module,
-          R_module_creators,
-          R_validate_dynamical_system_inputs,
-          R_validate_simultaneous_equations,
-          R_solve_simultaneous_equations,
-          R_test_simultaneous_equations,
-          R_get_all_modules,
-          R_get_all_quantities,
-          R_get_all_ode_solvers,
-          R_get_all_se_solvers)
-
-export(run_biocro)
-
-export(partial_run_biocro)
-
-export(system_derivatives)
-
-export(module_info)
-
-export(evaluate_module)
-
-export(partial_evaluate_module)
-
-export(module_response_curve)
-
-export(quantity_list_from_names)
-
-export(validate_dynamical_system_inputs)
-
-export(validate_simultaneous_equations)
-
-export(solve_simultaneous_equations)
-
-export(test_simultaneous_equations)
+useDynLib(
+    BioCro,
+    R_evaluate_module,
+    R_get_all_modules,
+    R_get_all_ode_solvers,
+    R_get_all_quantities,
+    R_get_all_se_solvers,
+    R_module_creators,
+    R_module_info,
+    R_run_biocro,
+    R_solve_simultaneous_equations,
+    R_system_derivatives,
+    R_test_simultaneous_equations,
+    R_validate_dynamical_system_inputs,
+    R_validate_simultaneous_equations
+)
 
 export(add_time_to_weather_data)
-
+export(evaluate_module)
 export(get_all_modules)
-
-export(get_all_quantities)
-
 export(get_all_ode_solvers)
-
+export(get_all_quantities)
 export(get_all_se_solvers)
-
-export(SoilType, showSoilType)
-
 export(get_growing_season_climate)
+export(module_info)
+export(module_response_curve)
+export(partial_evaluate_module)
+export(partial_run_biocro)
+export(quantity_list_from_names)
+export(run_biocro)
+export(SoilType, showSoilType)
+export(solve_simultaneous_equations)
+export(system_derivatives)
+export(test_simultaneous_equations)
+export(validate_dynamical_system_inputs)
+export(validate_simultaneous_equations)
