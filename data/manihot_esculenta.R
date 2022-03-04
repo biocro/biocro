@@ -1,23 +1,30 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-manihot_esculenta_direct_modules <- list(
-    "BioCro:soil_type_selector",
-    stomata_water_stress = "BioCro:stomata_water_stress_linear",
-    "BioCro:leaf_water_stress_exponential",
-    "BioCro:parameter_calculator",
-    "BioCro:soil_evaporation",
-    solar_coordinates = "BioCro:solar_position_michalsky",
-    canopy_photosynthesis = "BioCro:c3_canopy",
-    "BioCro:utilization_growth_calculator",
-    "BioCro:utilization_senescence_calculator"
+# manihot_esculenta_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
+
+manihot_esculenta_direct_modules <- BioCro:::module_paste(
+    "BioCro",
+    list(
+        "soil_type_selector",
+        stomata_water_stress = "stomata_water_stress_linear",
+        "leaf_water_stress_exponential",
+        "parameter_calculator",
+        "soil_evaporation",
+        solar_coordinates = "solar_position_michalsky",
+        canopy_photosynthesis = "c3_canopy",
+        "utilization_growth_calculator",
+        "utilization_senescence_calculator"
+    )
 )
 
-manihot_esculenta_differential_modules <- list(
-    "BioCro:utilization_senescence",
-    "BioCro:utilization_growth",
-    thermal_time = "BioCro:thermal_time_linear",
-    soil_profile = "BioCro:two_layer_soil_profile"
+manihot_esculenta_differential_modules <- BioCro:::module_paste(
+    "BioCro",
+    list(
+        "utilization_senescence",
+        "utilization_growth",
+        thermal_time = "thermal_time_linear",
+        soil_profile = "two_layer_soil_profile"
+    )
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test

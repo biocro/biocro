@@ -1,26 +1,33 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-zea_mays_direct_modules <- list(
-    "BioCro:soil_type_selector",
-    stomata_water_stress = "BioCro:stomata_water_stress_linear",
-    "BioCro:leaf_water_stress_exponential",
-    "BioCro:parameter_calculator",
-    "BioCro:thermal_time_development_rate_calculator",
-    "BioCro:soil_evaporation",
-    solar_coordinates = "BioCro:solar_position_michalsky",
-    canopy_photosynthesis = "BioCro:c4_canopy",
-    partitioning_coefficients = "BioCro:partitioning_coefficient_logistic",
-    partitioning_growth_calculator = "BioCro:partitioning_growth_calculator",
-    "BioCro:senescence_coefficient_logistic"
+# zea_mays_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
+
+zea_mays_direct_modules <- BioCro:::module_paste(
+    "BioCro",
+    list(
+        "soil_type_selector",
+        stomata_water_stress = "stomata_water_stress_linear",
+        "leaf_water_stress_exponential",
+        "parameter_calculator",
+        "thermal_time_development_rate_calculator",
+        "soil_evaporation",
+        solar_coordinates = "solar_position_michalsky",
+        canopy_photosynthesis = "c4_canopy",
+        partitioning_coefficients = "partitioning_coefficient_logistic",
+        partitioning_growth_calculator = "partitioning_growth_calculator",
+        "senescence_coefficient_logistic"
+    )
 )
 
-zea_mays_differential_modules <- list(
-    senescence = "BioCro:senescence_logistic",
-    "BioCro:partitioning_growth",
-    "BioCro:development_index",
-    thermal_time = "BioCro:thermal_time_bilinear",
-    soil_profile = "BioCro:two_layer_soil_profile"
+zea_mays_differential_modules <- BioCro:::module_paste(
+    "BioCro",
+    list(
+        senescence = "senescence_logistic",
+        "partitioning_growth",
+        "development_index",
+        thermal_time = "thermal_time_bilinear",
+        soil_profile = "two_layer_soil_profile"
+    )
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
