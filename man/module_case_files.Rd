@@ -9,6 +9,9 @@
 \title{Define and modify BioCro module test case files}
 
 \description{
+  Test cases for testing modules can be stored in files. The functions
+  here provide ways to create and update those files.
+
   \code{initialize_csv} helps define test cases for module testing by
   initializing the \code{csv} file for one module based on either a set of
   default input values or user-supplied ones.
