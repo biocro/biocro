@@ -2,12 +2,12 @@
 #include <vector>
 #include <string>
 #include <boost/numeric/ublas/matrix.hpp>
-#include "R_helper_functions.h"
-#include "state_map.h"
-#include "simultaneous_equations.h"
-#include "numerical_jacobian.h"
-#include "se_solver.h"
-#include "se_solver_library/se_solver_factory.h"
+#include "framework/R_helper_functions.h"
+#include "framework/state_map.h"
+#include "framework/simultaneous_equations.h"
+#include "framework/numerical_jacobian.h"
+#include "framework/se_solver.h"
+#include "framework/se_solver_library/se_solver_factory.h"
 
 extern "C" {
 

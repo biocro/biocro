@@ -1,11 +1,12 @@
-#include <Rinternals.h>  // for Rprintf
-#include <vector>
 #include <string>
-#include "R_helper_functions.h"
-#include "state_map.h"
-#include "validate_dynamical_system.h"
-#include "dynamical_system.h"
-#include "module_creator.h"  // for mc_vector
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rprintf, Rf_error
+#include "framework/R_helper_functions.h"  // for r_logical_from_boolean, map_from_list, map_vector_from_list, mc_vector_from_list
+#include "framework/state_map.h"           // for state_map, state_vector_map
+#include "framework/module_creator.h"      // for mc_vector
+#include "framework/validate_dynamical_system.h"
+
+using std::string;
 
 extern "C" {
 
@@ -27,7 +28,7 @@ SEXP R_validate_dynamical_system_inputs(
         bool be_loud = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Check the validity
-        std::string msg;
+        string msg;
         bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_mcs, differential_mcs);
 
         // Print feedback and additional information if required
@@ -54,7 +55,7 @@ SEXP R_validate_dynamical_system_inputs(
         return r_logical_from_boolean(valid);
 
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
+        Rf_error((string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_validate_dynamical_system_inputs.");
     }

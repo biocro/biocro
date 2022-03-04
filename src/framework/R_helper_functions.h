@@ -2,10 +2,9 @@
 #define R_HELPER_FUNCTIONS_H
 
 #include <Rinternals.h>
-#include <vector>
 #include <string>
-#include "module_creator.h" // for module_creator, mc_vector
-#include "state_map.h"  // for state_map, string_vector
+#include "module_creator.h"  // for module_creator, mc_vector
+#include "state_map.h"       // for state_map, string_vector
 
 state_map map_from_list(SEXP const& list);
 

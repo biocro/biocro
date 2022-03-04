@@ -1,9 +1,9 @@
 #include <string>
-#include <exception>             // for std::exception
-#include <Rinternals.h>          // for Rf_error
-#include "state_map.h"           // for string_vector
-#include "R_helper_functions.h"  // for r_string_vector_from_vector
-#include "ode_solver_library/ode_solver_factory.h"
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error
+#include "framework/R_helper_functions.h"  // for r_string_vector_from_vector
+#include "framework/state_map.h"           // for string_vector
+#include "framework/ode_solver_library/ode_solver_factory.h"
 
 using std::string;
 

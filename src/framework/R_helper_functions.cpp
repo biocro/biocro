@@ -1,4 +1,5 @@
 #include <Rinternals.h>
+#include <vector>
 #include "R_helper_functions.h"
 
 using std::string;
