@@ -1,3 +1,3 @@
-conductance_stomatal_h2o,atmospheric_pressure,conductance_boundary_h2o,solar_energy_absorbed_leaf,long_wave_energy_loss_leaf,temp,slope_water_vapor,psychrometric_parameter,latent_heat_vaporization_of_water,vapor_density_deficit,temperature_leaf,description
-input,input,input,input,input,input,input,input,input,input,output,NA
-1,1,1,1,1,1,1,1,1,1,0.666666666666667,automatically-generated test case
+atmospheric_pressure,conductance_boundary_h2o,conductance_stomatal_h2o,latent_heat_vaporization_of_water,long_wave_energy_loss_leaf,psychrometric_parameter,slope_water_vapor,solar_energy_absorbed_leaf,temp,vapor_density_deficit,temperature_leaf,"description"
+input,input,input,input,input,input,input,input,input,input,output,"NA"
+1,1,1,1,1,1,1,1,1,1,0.666666666666667,"automatically-generated test case"

@@ -1,6 +1,6 @@
-time,sowing_time,tbase,temp,TTc,description
-input,input,input,input,output,NA
-101,100,20,10,0,temp below tbase
-101,100,20,20,0,temp equal to tbase
-101,100,20,44,1,temp above tbase
-99,100,20,44,0,before sowing
+sowing_time,tbase,temp,time,TTc,"description"
+input,input,input,input,output,"NA"
+100,20,10,101,0,"temp below tbase"
+100,20,20,101,0,"temp equal to tbase"
+100,20,44,101,1,"temp above tbase"
+100,20,44,99,0,"before sowing"

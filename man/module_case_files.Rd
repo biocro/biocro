@@ -54,9 +54,7 @@
 
   \item{description}{
     A string describing the test case, e.g. \code{"temp above tbase"}. The
-    description should be succinct and not contain any newline characters. If
-    the description contains a comma, it must be wrapped in quotes. This is not
-    advised.
+    description should be succinct and not contain any newline characters.
   }
 
   \item{nonstandard_inputs}{
@@ -78,7 +76,7 @@
   \code{\link{module_testing}}.
 
   The \code{initialize_csv} function will evaluate the module for a set of input
-  quantities and store the results as a test case \code{csv} file Typically,
+  quantities and store the results as a test case \code{csv} file. Typically,
   both of its optional arguments can be omitted. However, some modules produce
   errors when all inputs are set to 1.0. In this case, it would be necessary to
   supply nonstandard inputs and (possibly) an alternate case description.

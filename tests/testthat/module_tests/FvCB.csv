@@ -1,3 +1,3 @@
-leaf_stomatal_conductance,atmospheric_pressure,Rd,maximum_tpu_rate,electrons_per_carboxylation,Ca,J,Ci,Vcmax,Gstar,Kc,O2,electrons_per_oxygenation,Ko,Ci,carboxylation_rate,net_assimilation_rate,description
-input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,NA
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,2.6,0,-1,automatically-generated test case
+Ca,Ci,Gstar,J,Kc,Ko,O2,Rd,Vcmax,atmospheric_pressure,electrons_per_carboxylation,electrons_per_oxygenation,leaf_stomatal_conductance,maximum_tpu_rate,Ci,carboxylation_rate,net_assimilation_rate,"description"
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,"NA"
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,2.6,0,-1,"automatically-generated test case"

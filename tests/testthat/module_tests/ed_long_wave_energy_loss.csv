@@ -1,3 +1,3 @@
-emissivity_leaf,temperature_leaf,temp,long_wave_energy_loss_leaf,description
-input,input,input,output,NA
-1,1,1,0,automatically-generated test case
+emissivity_leaf,temp,temperature_leaf,long_wave_energy_loss_leaf,"description"
+input,input,input,output,"NA"
+1,1,1,0,"automatically-generated test case"

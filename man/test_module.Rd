@@ -48,8 +48,7 @@
 
       \item \code{description}: A string describing the test case, e.g.
             \code{"temp below tbase"}. The description should be succinct and
-            not contain any newline characters. If the description contains a
-            comma, it must be wrapped in quotes. This is not advised.
+            not contain any newline characters.
     }
   }
 

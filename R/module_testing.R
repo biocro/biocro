@@ -115,12 +115,10 @@ csv_from_cases <- function(module_name, directory, case_list)
         csv_case,
         filename,
         sep = ",",
-        dec = ".",
-        eol = "\n",
-        quote = FALSE,
         row.names = FALSE,
         col.names = FALSE,
-        append = FALSE
+        quote = description_index,
+        qmethod = "double"
     )
 }
 
