@@ -44,7 +44,7 @@
 
   \item{directory}{
     The directory where module test case files are stored, e.g.
-    \code{file.path('module_tests')}.
+    \code{file.path('tests', 'testthat', 'module_tests')}.
   }
 
   \item{inputs}{
