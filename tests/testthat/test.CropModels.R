@@ -10,7 +10,7 @@
 source('crop_model_testing_helper_functions.R')
 
 context(paste(
-    "Test stored crop models to ensure they are well defined, and, if ",
+    "Test stored crop models to ensure they are well defined, and, if",
     "necessary, that the output doesn't change."
 ))
 
