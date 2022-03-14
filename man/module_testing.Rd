@@ -7,7 +7,7 @@
 \description{
   BioCro provides several functions for defining, modifying, and running module
   test cases. These functions together allow module developers to easily create
-  regression tests that ensure the modules remain functional.
+  regression tests that ensure the modules continue to function correctly.
 }
 
 \details{

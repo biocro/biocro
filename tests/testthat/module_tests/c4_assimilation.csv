@@ -1,3 +1,3 @@
-Catm,Gs_min,Qp,Rd,StomataWS,Tleaf,alpha,atmospheric_pressure,bb0,bb1,beta,kparm,lowerT,rh,theta,upperT,vmax,water_stress_approach,Assim,Ci,GrossAssim,Gs,"description"
-input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,"NA"
+Catm,Gs_min,Qp,Rd,StomataWS,Tleaf,alpha,atmospheric_pressure,bb0,bb1,beta,kparm,lowerT,rh,theta,upperT,vmax,water_stress_approach,Assim,Ci,GrossAssim,Gs,NA
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,"description"
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.14209842811035,1.22735748497656,0.04736614270345,1000,"automatically-generated test case"

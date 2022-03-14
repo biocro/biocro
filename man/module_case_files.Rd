@@ -29,7 +29,8 @@
     module_name,
     directory,
     nonstandard_inputs = list(),
-    nonstandard_description = ""
+    description = "automatically-generated test case",
+    overwrite = FALSE
   )
 
   add_csv_row(module_name, directory, inputs, description)
@@ -58,15 +59,12 @@
   }
 
   \item{nonstandard_inputs}{
-    An optional list of input quantities; see the \code{inputs} entry above. If
-    nonstandard inputs are not specified, all inputs will be set to 1.0 by
-    default.
+    An optional list of input quantities whose values will override the default
+    value of 1.0; see the \code{inputs} entry above.
   }
 
-  \item{nonstandard_description}{
-    An optional string describing the case; see the \code{description} entry
-    above. If a nonstandard case description is not specified, the description
-    will be set to \code{"automatically-generated test case"} by default.
+  \item{overwrite}{
+    A logical value indicating whether an existing file should be overwritten.
   }
 }
 
@@ -79,19 +77,38 @@
   quantities and store the results as a test case \code{csv} file. Typically,
   both of its optional arguments can be omitted. However, some modules produce
   errors when all inputs are set to 1.0. In this case, it would be necessary to
-  supply nonstandard inputs and (possibly) an alternate case description.
+  supply some nonstandard inputs and (possibly) an alternate case description.
 
   The \code{add_csv_row} function will evaluate the module for a set of input
   quantities, define a test case from the resulting outputs and the description,
-  and add it to the module's corresponding \code{csv} file.
+  and add it to the module's corresponding \code{csv} file. If no \code{csv}
+  file exists, one will be initialized before adding the new case.
 
   The \code{update_csv_cases} function will evaluate the module for all input
   values specified in its \code{csv} case file and update the stored values of
-  the corresponding outputs. Note that it can be used to batch-initialize test
-  cases. To do this, manually create a test case \code{csv} file with the proper
-  name that only includes columns for the inputs and the description; now,
-  calling \code{update_csv_cases} will automatically fill in the outputs for
-  each case.
+  the corresponding outputs. Any output columns not present in the file will be
+  added automatically and filled in with the correct values. Although the output
+  columns are optional, the description column must exist in the \code{csv}
+  file.
+
+  If a module test fails and \code{update_csv_cases} is used to update the test,
+  care should be taken to ensure that the new outputs are sensible. This
+  function should not be used to blindly ensure that tests pass, since a test
+  failure may indicate a real problem with a module.
+
+  Note that \code{update_csv_cases} can be used to batch-initialize test cases.
+  To do this, manually create a test case \code{csv} file with the proper name
+  that only includes columns for the inputs and the description; now, calling
+  \code{update_csv_cases} will automatically fill in the outputs for each case.
+  With this method, care must be taken when manually specifying the values of
+  the description column; the descriptions must be double quoted, and if they
+  contain internal double quotes, those quotes must be doubled. Generally it is
+  safest to simply avoid double quotes in the descriptions. (See \code{qmethod}
+  in the help file for \code{\link{write.csv}} for more details about quoting.)
+}
+
+\value{
+  A message indicating whether a file was created, overwritten, or not written.
 }
 
 \seealso{
@@ -110,7 +127,12 @@
 # actually modify the file unless it is manually edited beforehand to change an
 # input or output value.
 \dontrun{
-initialize_csv('thermal_time_linear', '.')
+initialize_csv(
+  'thermal_time_linear',
+  '.',
+  nonstandard_inputs = list(temp = -1),
+  overwrite = TRUE
+)
 
 add_csv_row(
   'thermal_time_linear',
