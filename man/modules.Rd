@@ -1,5 +1,6 @@
 \name{modules}
 
+\alias{modules}
 \alias{module_info}
 \alias{evaluate_module}
 \alias{module_response_curve}
@@ -8,13 +9,17 @@
 \title{BioCro module functions}
 
 \description{
-  \code{module_info} returns essential information about a BioCro module.
+  Modules are named sets of equations. The functions here provide ways to access
+  information about modules and to calculate their output values from sets of
+  input values.
 
-  \code{evaluate_module} runs a BioCro module using a list of input quantity
-  values.
+  \code{module_info} returns essential information about a BioCro module.
 
   \code{quantity_list_from_names} initializes a list of named numeric elements
   from a set of names.
+
+  \code{evaluate_module} runs a BioCro module using a list of input quantity
+  values.
 
   \code{module_response_curve} runs a BioCro module repeatedly with different
   input quantity values to produce a response curve.
@@ -23,9 +28,9 @@
 \usage{
   module_info(module_name, verbose = TRUE)
 
-  evaluate_module(module_name, input_quantities)
-
   quantity_list_from_names(quantity_names)
+
+  evaluate_module(module_name, input_quantities)
 
   module_response_curve(module_name, fixed_quantities, varying_quantities)
 }
@@ -98,15 +103,15 @@
     }
   }
 
+  \item{quantity_list_from_names}{
+    A list of named numeric elements, where the names are set by
+    \code{quantity_names} and each value is set to 1.
+  }
+
   \item{evaluate_module}{
     A list of named numeric elements representing the values of the module's
     outputs as calculated from the \code{input_quantities} according to the
     module's equations.
-  }
-
-  \item{quantity_list_from_names}{
-    A list of named numeric elements, where the names are set by
-    \code{quantity_names} and each value is initialized to 1.
   }
 
   \item{module_response_curve}{
@@ -121,6 +126,7 @@
   \itemize{
     \item \code{\link{get_all_modules}}
     \item \code{\link{partial_evaluate_module}}
+    \item \code{\link{module_testing}}
   }
 }
 

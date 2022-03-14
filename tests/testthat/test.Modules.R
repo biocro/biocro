@@ -1,7 +1,5 @@
 context("Run test cases for all modules")
 
-source("module_testing_helper_functions.R") # for cases_from_csv and test_module
-
 # Define a helping function that tests a module unless it should be skipped
 run_test <- function(module_name) {
     modules_to_skip <- c(
@@ -17,7 +15,13 @@ run_test <- function(module_name) {
     if (module_name %in% modules_to_skip) {
         print(paste('Test of', module_name, 'needs fixing.'))
     } else {
-        test_module(module_name, cases_from_csv(module_name))
+        cases <- cases_from_csv(module_name, file.path('module_tests'))
+        test_that(
+            paste0("The '", module_name, "' module is functioning"), {
+                lapply(cases, function(x) {
+                    expect_error(test_module(module_name, x), regexp = NA)
+                })
+        })
     }
 }
 
