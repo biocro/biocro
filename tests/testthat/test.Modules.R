@@ -1,7 +1,7 @@
 context("Run test cases for all modules")
 
 # Test all the modules in the library, with a few exceptions
-modules_to_skip <- c(
+modules_to_skip <- module_paste('BioCro', c(
     'ed_c4_leaf_photosynthesis',
     'ed_c4_leaf_photosynthesis2',
     'ed_c4_leaf_photosynthesis3',
@@ -9,7 +9,7 @@ modules_to_skip <- c(
     'ed_nikolov_conductance_free_solve',
     'ed_p_m_temperature_solve',
     'ed_ten_layer_c4_canopy'
-)
+))
 
 test_that("All modules are functioning correctly", {
     expect_error(

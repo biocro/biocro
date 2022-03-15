@@ -34,7 +34,7 @@ get_all_modules <- function(package_name) {
         }
     )
 
-    library_func()
+    module_paste(package_name, library_func())
 }
 
 get_all_quantities <- function(package_name) {
@@ -73,7 +73,12 @@ get_all_quantities <- function(package_name) {
         }
     )
 
-    library_func()
+    all_quantities <- library_func()
+
+    all_quantities[['module_name']] <-
+        module_paste(package_name, all_quantities[['module_name']])
+
+    all_quantities
 }
 
 get_all_ode_solvers <- function()

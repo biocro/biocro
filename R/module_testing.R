@@ -344,9 +344,6 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
     # Remove any modules that should be skipped
     module_names <- module_names[!module_names %in% modules_to_skip]
 
-    # Form the full module specifications
-    module_names <- module_paste(library_name, module_names)
-
     # Run all the module tests
     test_result <- lapply(module_names, function(module) {
         # Try to load the test cases for this module
