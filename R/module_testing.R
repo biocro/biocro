@@ -1,8 +1,28 @@
 test_module <- function(module_name, case_to_test)
 {
-    # Get the expected and actual outputs
+    # Get the expected outputs
     expected_outputs <- case_to_test[['expected_outputs']]
-    actual_outputs <- evaluate_module(module_name, case_to_test[['inputs']])
+
+    # Try to get the actual outputs
+    msg <- character()
+    actual_outputs <- tryCatch(
+        evaluate_module(module_name, case_to_test[['inputs']]),
+        condition = function(cond) {
+            msg <<- paste0(
+                "Module `",
+                module_name,
+                "` test case `",
+                case_to_test[['description']],
+                "`: could not calculate outputs: ",
+                cond
+            )
+        }
+    )
+
+    # If an error was thrown, return a message about it
+    if (length(msg) > 0) {
+        return(gsub("\n", "", msg, fixed = TRUE))
+    }
 
     # Make sure the outputs are ordered the same way (otherwise `all.equal` may
     # indicate a difference when there isn't one)
@@ -11,15 +31,18 @@ test_module <- function(module_name, case_to_test)
 
     # Check to see if the expected and actual outputs match
     if (!isTRUE(all.equal(expected_outputs, actual_outputs))) {
-        msg <- paste0(
-            "The module did not produce expected output values for test case '",
-            case_to_test[['description']],
-            "'"
+        return(
+            paste0(
+                "Module `",
+                module_name,
+                "` test case `",
+                case_to_test[['description']],
+                "`: calculated outputs do not match expected outputs"
+            )
         )
-        stop(msg)
+    } else {
+        return(character())
     }
-
-    return(invisible(NULL))
 }
 
 case <- function(inputs, expected_outputs, description) {
@@ -302,4 +325,54 @@ update_csv_cases <- function(module_name, directory)
         "Updating csv file with new output values:",
         csv_from_cases(module_name, directory, updated_case_list, TRUE)
     )
+}
+
+test_module_library <- function(library_name, directory, modules_to_skip = c()) {
+    # Get the names of all the modules in the library
+    module_names <- get_all_modules(library_name)
+
+    # Remove any modules that should be skipped
+    module_names <- module_names[!module_names %in% modules_to_skip]
+
+    # Run all the module tests
+    test_result <- lapply(module_names, function(module) {
+        # Try to load the test cases for this module
+        msg <- character()
+        cases <- tryCatch(
+            cases_from_csv(module, directory),
+            condition = function(cond) {
+                msg <<- paste0(
+                    "Module `",
+                    module_paste(library_name, module),
+                    "`: could not load test cases: ",
+                    cond
+                )
+            }
+        )
+
+        # If an error was thrown, return a message about it
+        if (length(msg) > 0) {
+            return(gsub("\n", "", msg, fixed = TRUE))
+        }
+
+        # Run each test case
+        lapply(cases, function(case) {
+            test_module(module_paste(library_name, module), case)
+        })
+    })
+
+    # Thow an error if any problems occurred
+    test_result <- unlist(test_result)
+
+    if (length(test_result) > 0) {
+        test_result <- append(
+            paste0(
+                "Problems occurred while testing modules: from the `",
+                library_name,
+                "` library:"
+            ),
+            test_result
+        )
+        stop(paste(test_result, collapse = '\n  '))
+    }
 }
