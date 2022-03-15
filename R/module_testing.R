@@ -346,21 +346,33 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
 
     # Run all the module tests
     test_result <- lapply(module_names, function(module) {
+        # Make sure the module can be instantiated
+        info <- module_info(module, verbose = FALSE)
+        msg <- if (info[['creation_error_message']] != "none") {
+            paste0(
+                "Module `",
+                module,
+                "`: could not be instantiated: ",
+                info[['creation_error_message']]
+            )
+        } else {
+            character()
+        }
+
         # Try to load the test cases for this module
-        msg <- character()
         cases <- tryCatch(
             cases_from_csv(module, directory),
             condition = function(cond) {
-                msg <<- paste0(
+                msg <<- append(msg, paste0(
                     "Module `",
                     module,
                     "`: could not load test cases: ",
                     cond
-                )
+                ))
             }
         )
 
-        # If an error was thrown, return a message about it
+        # If any problems occurred, return a message about them
         if (length(msg) > 0) {
             return(gsub("\n", "", msg, fixed = TRUE))
         }
