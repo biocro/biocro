@@ -13,7 +13,11 @@ modules_to_skip <- c(
 
 test_that("All modules are functioning correctly", {
     expect_error(
-        test_module_library('BioCro', 'module_tests', modules_to_skip),
+        test_module_library(
+            'BioCro',
+            file.path('..', 'module_test_cases'),
+            modules_to_skip
+        ),
         regexp = NA
     )
 })

@@ -53,6 +53,16 @@ case <- function(inputs, expected_outputs, description) {
     )
 }
 
+# A function for generating a test case file name from a full module
+# specification of the form `library_name:module_name`. This is only intended to
+# be used internally by `csv_from_cases` and `cases_from_csv`.
+module_case_file_name <- function(module_name, directory) {
+    file.path(
+        directory,
+        paste0(gsub(":", "_", module_name, fixed = TRUE), ".csv")
+    )
+}
+
 # csv_from_cases: A function to store test cases for module testing by writing a
 # list of test cases to a csv file, whose name will be determined from the
 # module's name.
@@ -78,7 +88,7 @@ case <- function(inputs, expected_outputs, description) {
 csv_from_cases <- function(module_name, directory, case_list, overwrite)
 {
     # Generate the filename
-    filename <- file.path(directory, paste0(module_name, ".csv"))
+    filename <- module_case_file_name(module_name, directory)
 
     # Check to see if the file exists already
     file_exists <- file.exists(filename)
@@ -163,7 +173,7 @@ csv_from_cases <- function(module_name, directory, case_list, overwrite)
 cases_from_csv <- function(module_name, directory)
 {
     # Generate the filename
-    filename <- file.path(directory, paste0(module_name, ".csv"))
+    filename <- module_case_file_name(module_name, directory)
 
     # Make sure the file exists
     if (!file.exists(filename)) {
@@ -334,6 +344,9 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
     # Remove any modules that should be skipped
     module_names <- module_names[!module_names %in% modules_to_skip]
 
+    # Form the full module specifications
+    module_names <- module_paste(library_name, module_names)
+
     # Run all the module tests
     test_result <- lapply(module_names, function(module) {
         # Try to load the test cases for this module
@@ -343,7 +356,7 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
             condition = function(cond) {
                 msg <<- paste0(
                     "Module `",
-                    module_paste(library_name, module),
+                    module,
                     "`: could not load test cases: ",
                     cond
                 )
@@ -357,7 +370,7 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
 
         # Run each test case
         lapply(cases, function(case) {
-            test_module(module_paste(library_name, module), case)
+            test_module(module, case)
         })
     })
 
@@ -367,7 +380,7 @@ test_module_library <- function(library_name, directory, modules_to_skip = c()) 
     if (length(test_result) > 0) {
         test_result <- append(
             paste0(
-                "Problems occurred while testing modules: from the `",
+                "Problems occurred while testing modules from the `",
                 library_name,
                 "` library:"
             ),
