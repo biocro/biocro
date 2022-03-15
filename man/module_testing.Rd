@@ -24,7 +24,7 @@
   outputs, and a short description of the case. To run the test, the inputs are
   passed to the module, and then the calculated outputs are compared to the
   expected ones. If the outputs match, the test is passed; otherwise, an error
-  message occurs. This operation is handled by the \code{\link{test_case}}
+  message occurs. This operation is handled by the \code{\link{test_module}}
   function.
 
   For simple on-the-fly testing, it is possible to define a test case using the
