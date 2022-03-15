@@ -14,19 +14,43 @@ validate_dynamical_system_inputs(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
+    direct_module_specifications = list(),
+    differential_module_specifications = list(),
     verbose = TRUE
 )
 }
 
 \arguments{
-  \code{validate_dynamical_system_inputs} accepts the same input arguments as
-  \code{\link{run_biocro}} with the exceptions of \code{ode_solver} (which is
-  not required to check the validity of a dynamical system).
+  \item{initial_values}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{parameters}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{drivers}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{direct_module_specifications}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{differential_module_specifications}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{verbose}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
 }
 
 \details{
+  \code{validate_dynamical_system_inputs} accepts the same input arguments as
+  \code{\link{run_biocro}} with the exception of \code{ode_solver} (which is
+  not required to check the validity of a dynamical system).
+
   \code{validate_system_inputs} checks a set of parameters, drivers, modules,
   and initial values to see if they can properly define a dynamical system and
   can therefore be used as inputs to \code{\link{run_biocro}}. Although the
@@ -37,7 +61,7 @@ validate_dynamical_system_inputs(
 }
 
 \value{
-  A boolean indicating whether or not the inputs are valid
+  A boolean indicating whether or not the inputs are valid.
 }
 
 \seealso{\code{\link{run_biocro}}}

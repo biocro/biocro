@@ -1,20 +1,20 @@
-get_all_modules <- function(package_name) {
+get_all_modules <- function(library_name) {
     error_messages <-
-        check_vector(list(package_name = package_name))
+        check_vector(list(library_name = library_name))
 
     error_messages <- append(
         error_messages,
-        check_length(list(package_name = package_name))
+        check_length(list(library_name = library_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_element_length(list(package_name = package_name))
+        check_element_length(list(library_name = library_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_strings(list(package_name = package_name))
+        check_strings(list(library_name = library_name))
     )
 
     send_error_messages(error_messages)
@@ -22,38 +22,38 @@ get_all_modules <- function(package_name) {
     # Try to find the internal get_all_modules function
     library_func <- tryCatch(
         {
-            function_from_package(package_name, 'get_all_modules_internal')
+            function_from_package(library_name, 'get_all_modules_internal')
         },
         error = function(cond) {
             stop(paste0(
                 "Encountered an issue with module library `",
-                package_name,
+                library_name,
                 "`: ",
                 cond
             ))
         }
     )
 
-    module_paste(package_name, library_func())
+    module_paste(library_name, library_func())
 }
 
-get_all_quantities <- function(package_name) {
+get_all_quantities <- function(library_name) {
     error_messages <-
-        check_vector(list(package_name = package_name))
+        check_vector(list(library_name = library_name))
 
     error_messages <- append(
         error_messages,
-        check_length(list(package_name = package_name))
+        check_length(list(library_name = library_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_element_length(list(package_name = package_name))
+        check_element_length(list(library_name = library_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_strings(list(package_name = package_name))
+        check_strings(list(library_name = library_name))
     )
 
     send_error_messages(error_messages)
@@ -61,12 +61,12 @@ get_all_quantities <- function(package_name) {
     # Try to find the internal get_all_quantities function
     library_func <- tryCatch(
         {
-            function_from_package(package_name, 'get_all_quantities_internal')
+            function_from_package(library_name, 'get_all_quantities_internal')
         },
         error = function(cond) {
             stop(paste0(
                 "Encountered an issue with module library `",
-                package_name,
+                library_name,
                 "`: ",
                 cond
             ))
@@ -75,8 +75,12 @@ get_all_quantities <- function(package_name) {
 
     all_quantities <- library_func()
 
-    all_quantities[['module_name']] <-
-        module_paste(package_name, all_quantities[['module_name']])
+    # The C++ code returns module names, but here we want the full module
+    # specifications
+    all_quantities[['module_specification']] <-
+        module_paste(library_name, all_quantities[['module_name']])
+
+    all_quantities[['module_name']] <- NULL
 
     all_quantities
 }

@@ -1,32 +1,36 @@
 \name{get_all}
 
 \alias{get_all}
+
 \alias{get_all_modules}
 \alias{get_all_quantities}
 \alias{get_all_ode_solvers}
 
-\title{Getting lists of modules, quantities, and solvers}
+\title{Get lists of modules, quantities, and solvers}
 
 \description{
-  \code{get_all_modules} returns the names of all modules available in a BioCro
-  module library package.
+  \code{get_all_modules} returns the full specifications (of the form
+  \code{library_name:module_name}) for all modules available in a BioCro module
+  library package.
 
   \code{get_all_quantities} returns information about all quantities used as
   inputs or outputs by modules available in a BioCro module library package.
 
   \code{get_all_ode_solvers} returns the names of all ordinary differential
-  equation (ODE) solvers available in BioCro.
+  equation (ODE) solvers available in the BioCro framework.
 }
 
 \usage{
-  get_all_modules(package_name)
+  get_all_modules(library_name)
 
-  get_all_quantities(package_name)
+  get_all_quantities(library_name)
 
   get_all_ode_solvers()
 }
 
-\arguments{None}
+\arguments{
+  \item{library_name}{The name of a BioCro module library}
+}
 
 \details{
   These "get_all" functions return the modules, quantities, and ODE solvers
@@ -43,14 +47,22 @@
 }
 
 \value{
-  \item{get_all_modules}{A character vector of module names}
+  \item{get_all_modules}{A character vector of module specifications}
 
   \item{get_all_quantities}{A data frame with three columns:
     \code{quantity_type} (input or output), \code{quantity_name}, and
-    \code{module_name}. A quantity will appear multiple times if it is used as
-    both an input and an output, or if it is used by multiple modules.}
+    \code{module_specification}. A quantity will appear multiple times if it is
+    used as both an input and an output, or if it is used by multiple modules.}
 
   \item{get_all_ode_solvers}{A character vector of ODE solver names}
+}
+
+\seealso{
+  \itemize{
+    \item \code{\link{modules}}
+    \item \code{\link{module_paste}}
+    \item \code{\link{run_biocro}}
+  }
 }
 
 \examples{

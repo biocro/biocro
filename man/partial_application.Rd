@@ -13,26 +13,57 @@ partial_run_biocro(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
-    ode_solver = default_ode_solver,
+    direct_module_specifications = list(),
+    differential_module_specifications = list(),
+    ode_solver = BioCro:::default_ode_solver,
     arg_names,
     verbose = FALSE
 )
 
-partial_evaluate_module(module_name, input_quantities, arg_names)
+partial_evaluate_module(module_specification, input_quantities, arg_names)
 }
 
 \arguments{
-  \code{partial_run_biocro} accepts the same input arguments as
-  \code{\link{run_biocro}} with the addition of \code{arg_names}, which should
-  be a vector of strings representing a subset of the named elements included in
-  the \code{initial_values}, \code{parameters}, and \code{drivers}.
+  \item{arg_names}{
+    A vector of strings specifying input quantities whose values should not be
+    fixed when using partial application.
+  }
 
-  \code{partial_evaluate_module} accepts the same input arguments as
-  \code{\link{evaluate_module}} with the addition of \code{arg_names}, which
-  should be a vector of strings representing a subset of the named elements
-  included in the \code{input_quantities}.
+  \item{initial_values}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{parameters}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{drivers}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{direct_module_specifications}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{differential_module_specifications}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{ode_solver}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{verbose}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{module_specification}{
+    Identical to the corresponding argument from \code{\link{evaluate_module}}.
+  }
+
+  \item{input_quantities}{
+    Identical to the corresponding argument from \code{\link{evaluate_module}}.
+  }
 }
 
 \details{
@@ -41,6 +72,17 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
   context of BioCro, partial application can often be useful while varying some
   parameters, initial values, or drivers while performing optimization or
   sensitivity analysis.
+
+  Both \code{partial_run_biocro} and \code{partial_evaluate_module} accept the
+  same arguments as their "regular" counterparts (\code{\link{run_biocro}} and
+  \code{\link{evaluate_module}}) with the addition of \code{arg_names}, which
+  specifies the input quantities that should not be fixed.
+
+  For \code{partial_run_biocro}, each element of \code{arg_names} must be the
+  name of a quantity that is one of the \code{initial_values},
+  \code{parameters}, or \code{drivers}. For \code{partial_evaluate_module}, each
+  element of \code{arg_names} must be the name of one of the module's input
+  quantities.
 }
 
 \value{

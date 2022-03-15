@@ -9,9 +9,9 @@
 \title{BioCro module functions}
 
 \description{
-  Modules are named sets of equations. The functions here provide ways to access
-  information about modules and to calculate their output values from sets of
-  input values.
+  BioCro modules are named sets of equations, and each module is available from
+  a BioCro module library. The functions here provide ways to access information
+  about modules and to calculate their output values from sets of input values.
 
   \code{module_info} returns essential information about a BioCro module.
 
@@ -26,43 +26,45 @@
 }
 
 \usage{
-  module_info(module_name, verbose = TRUE)
+  module_info(module_specification, verbose = TRUE)
 
   quantity_list_from_names(quantity_names)
 
-  evaluate_module(module_name, input_quantities)
+  evaluate_module(module_specification, input_quantities)
 
-  module_response_curve(module_name, fixed_quantities, varying_quantities)
+  module_response_curve(module_specification, fixed_quantities, varying_quantities)
 }
 
 \arguments{
-  \item{module_name}{
-    A string representing the name of one BioCro module
-    % TO DO: update this once passing multiple modules is implemented
+  \item{module_specification}{
+    A string specifying one BioCro module, formatted like
+    \code{library_name:module_name}, where \code{library_name} is the name of
+    a library that contains a module with name \code{module_name}; module
+    specifications can be formed manually or with \code{\link{module_paste}}.
   }
 
   \item{verbose}{
-    A boolean indicating whether or not to print information to the R console
+    A boolean indicating whether or not to print information to the R console.
   }
 
   \item{input_quantities}{
     A list of named numeric elements representing the input quantities required
-    by the module; any extraneous quantities will be ignored by the module
+    by the module; any extraneous quantities will be ignored by the module.
   }
 
   \item{quantity_names}{
-    A vector of strings
+    A vector of strings.
   }
 
   \item{fixed_quantities}{
     A list of named numeric elements representing input quantities required
     by the module whose values should be considered to be constant; any
-    extraneous quantities will be ignored by the module
+    extraneous quantities will be ignored by the module.
   }
 
   \item{varying_quantities}{
     A data frame where each column represents an input quantity required by the
-    module whose value varies across the response curve
+    module whose value varies across the response curve.
   }
 }
 
@@ -78,12 +80,12 @@
   use, the values of any fixed input quantities (\code{input_quantities}), and
   a sequence of values for other quantities that vary across the response curve
   (\code{varying_quantities}). The returned data frame includes all the
-  information that would be required to reproduce the curve: the module name,
-  all inputs (including ones with constant values), and the outputs. Note: if
-  one quantity \code{q} is both an input and output of the module, its input
-  value will be stored in the \code{q} column of the returned data frame and its
-  output value will be stored in the \code{q.1} column; this renaming is
-  performed automatically by the \code{\link{make.unique}} function.
+  information that would be required to reproduce the curve: the module
+  specification, all inputs (including ones with constant values), and the
+  outputs. Note: if one quantity \code{q} is both an input and output of the
+  module, its input value will be stored in the \code{q} column of the returned
+  data frame and its output value will be stored in the \code{q.1} column; this
+  renaming is performed automatically by the \code{\link{make.unique}} function.
 }
 
 \value{
@@ -115,9 +117,9 @@
   }
 
   \item{module_response_curve}{
-    A data frame where the first column is the name of the module that produced
-    the response curve and the remaining columns are the module's input and
-    output quantities. Each row corresponds to a row in the
+    A data frame where the first column is the full specification for the module
+    that produced the response curve and the remaining columns are the module's
+    input and output quantities. Each row corresponds to a row in the
     \code{varying_quantities}.
   }
 }
@@ -125,28 +127,30 @@
 \seealso{
   \itemize{
     \item \code{\link{get_all_modules}}
-    \item \code{\link{partial_evaluate_module}}
+    \item \code{\link{module_paste}}
     \item \code{\link{module_testing}}
+    \item \code{\link{partial_evaluate_module}}
   }
 }
 
 \examples{
-# Example 1: printing information about the 'c3_assimilation' module to the R
-# console
+# Example 1: printing information about the 'BioCro' module library's
+# 'c3_assimilation' module to the R console
 module_info('BioCro:c3_assimilation')
 
-# Example 2: getting the inputs to the 'thermal_time_linear' module, generating
-# a default input list, and using it to run the module
+# Example 2: getting the inputs to the 'BioCro' module library's
+# 'thermal_time_linear' module, generating a default input list, and using it to
+# run the module
 info <- module_info('BioCro:thermal_time_linear', verbose = FALSE)
 inputs <- quantity_list_from_names(info$inputs) # All inputs will be set to 1
 outputs <- evaluate_module('BioCro:thermal_time_linear', inputs)
 
 # Example 3: calculating the temperature response of light saturated net
 # assimilation at several values of relative humidity in the absence of water
-# stress using the 'c3_assimilation' module and soybean parameters. Here, the
-# leaf temperature and humidity values are independent of each other, so we use
-# the `expand.grid` function to form a data frame of all possible combinations
-# of their values.
+# stress using the 'BioCro' module library's 'c3_assimilation' module and
+# the default soybean parameters. Here, the leaf temperature and humidity values
+# are independent of each other, so we use the `expand.grid` function to form a
+# data frame of all possible combinations of their values.
 rc <- module_response_curve(
   'BioCro:c3_assimilation',
   within(soybean_parameters, {Qp = 2000; StomataWS = 1}),
@@ -159,7 +163,7 @@ caption <- paste(
   "Response curves calculated with several RH\nvalues and Q =",
   unique(rc$Qp),
   "micromol / m^2 / s\nusing the",
-  unique(rc$module_name),
+  unique(rc$module_specification),
   "module"
 )
 lattice::xyplot(

@@ -2,8 +2,8 @@ validate_dynamical_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_modules = list(),
-    differential_modules = list(),
+    direct_module_specifications = list(),
+    differential_module_specifications = list(),
     verbose = TRUE
 )
 {
@@ -13,8 +13,8 @@ validate_dynamical_system_inputs <- function(
         initial_values,
         parameters,
         drivers,
-        direct_modules,
-        differential_modules,
+        direct_module_specifications,
+        differential_module_specifications,
         verbose = verbose
     )
 
@@ -24,8 +24,15 @@ validate_dynamical_system_inputs <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Make module creators from the specified names and libraries
-    direct_module_creators <- sapply(direct_modules, check_out_module)
-    differential_module_creators <- sapply(differential_modules, check_out_module)
+    direct_module_creators <- sapply(
+        direct_module_specifications,
+        check_out_module
+    )
+
+    differential_module_creators <- sapply(
+        differential_module_specifications,
+        check_out_module
+    )
 
     # C++ requires that all the variables have type `double`
     initial_values <- lapply(initial_values, as.numeric)

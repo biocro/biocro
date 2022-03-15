@@ -1,8 +1,8 @@
 system_derivatives <- function(
     parameters = list(),
     drivers,
-    direct_modules = list(),
-    differential_modules = list()
+    direct_module_specifications = list(),
+    differential_module_specifications = list()
 )
 {
     # The inputs to this function have the same requirements as the `run_biocro`
@@ -11,8 +11,8 @@ system_derivatives <- function(
         list(),
         parameters,
         drivers,
-        direct_modules,
-        differential_modules
+        direct_module_specifications,
+        differential_module_specifications
     )
 
     send_error_messages(error_messages)
@@ -21,8 +21,15 @@ system_derivatives <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Make module creators from the specified names and libraries
-    direct_module_creators <- sapply(direct_modules, check_out_module)
-    differential_module_creators <- sapply(differential_modules, check_out_module)
+    direct_module_creators <- sapply(
+        direct_module_specifications,
+        check_out_module
+    )
+
+    differential_module_creators <- sapply(
+        differential_module_specifications,
+        check_out_module
+    )
 
     # C++ requires that all the variables have type `double`
     parameters <- lapply(parameters, as.numeric)

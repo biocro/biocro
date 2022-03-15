@@ -11,8 +11,8 @@ run_biocro(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
+    direct_module_specifications = list(),
+    differential_module_specifications = list(),
     ode_solver = BioCro:::default_ode_solver,
     verbose = FALSE
 )
@@ -37,16 +37,16 @@ run_biocro(
     either (1) 'time' (in units of days) or (2) 'doy' and 'hour'.
   }
 
-  \item{direct_module_names}{
-    A character vector or list specifying the names of direct modules to use in
-    the system; a list of available modules can be obtained via the
-    \code{\link{get_all_modules}} function
+  \item{direct_module_specifications}{
+    A character vector or list of the full specifications for the direct modules
+    to use in the system; lists of available modules can be obtained via the
+    \code{\link{get_all_modules}} function.
   }
 
-  \item{differential_module_names}{
-    A character vector or list specifying the names of differential modules to
-    use in the system; a list of available modules can be obtained via the
-    \code{\link{get_all_modules}} function
+  \item{differential_module_specifications}{
+    A character vector or list of the full specifications for the differential
+    modules to use in the system; lists of available modules can be obtained via
+    the \code{\link{get_all_modules}} function.
   }
 
   \item{ode_solver}{
