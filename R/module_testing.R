@@ -153,7 +153,7 @@ csv_from_cases <- function(module_name, directory, case_list, overwrite)
     }
 
     # Write the case to a new .csv file
-    write.table(
+    utils::write.table(
         csv_case,
         filename,
         sep = ",",
@@ -181,7 +181,7 @@ cases_from_csv <- function(module_name, directory)
     }
 
     # Read the data, making sure to never use factors
-    file_contents <- read.csv(
+    file_contents <- utils::read.csv(
         filename,
         header = FALSE,
         stringsAsFactors = FALSE

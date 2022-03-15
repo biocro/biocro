@@ -16,7 +16,7 @@ module_creators <- function(module_names)
     module_names <- unlist(module_names)
 
     # Get the module creators, retaining any element names
-    return(setNames(
+    return(stats::setNames(
         .Call(R_module_creators, module_names),
         names(module_names)
     ))

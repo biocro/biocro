@@ -5,8 +5,8 @@
 \title{Prepend library name to module names}
 
 \description{
-  Prepends a library name to a set of module names to create a suitably-
-  formatted set of module specifications that can be passed to
+  Prepends a library name to a set of module names to create a
+  suitably- formatted set of module specifications that can be passed to
   \code{\link{run_biocro}} or other BioCro functions.
 }
 

@@ -59,8 +59,9 @@
 
   Examples of module test case files can be found in the
   \code{tests/testthat/module_tests} directory, while code that uses the
-  \code{\link{testthat}} package to automatically run all the defined test cases
-  for each module can be found in the \code{tests/testthat/test.Modules.R} file.
+  \code{\link[testthat]{testthat}} package to automatically run all the defined
+  test cases for each module can be found in the
+  \code{tests/testthat/test.Modules.R} file.
 }
 
 \seealso{

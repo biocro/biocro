@@ -25,8 +25,10 @@ module_paste <- function(lib_name, module_names) {
 
     send_error_messages(error_messages)
 
-    full_module_names <-
-        setNames(paste0(lib_name, ':', module_names), names(module_names))
+    full_module_names <- stats::setNames(
+        paste0(lib_name, ':', module_names),
+        names(module_names)
+    )
 
     if (is.list(module_names)) {
         return(as.list(full_module_names))
