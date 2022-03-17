@@ -234,16 +234,16 @@ must be provided as parameters (Section \ref{sec:choose_param}) or drivers
 
 Since direct modules calculate instantaneous values of quantities, at most one
 direct module can have a particular quantity as an output. For example, multiple
-direct modules available in the library can calculate the canopy assimilation
-rate, but only one such module can be used in a given simulation. Before
-running a simulation, BioCro checks for any overlap between the outputs of the
-direct modules (Section \ref{sec:validate}). On the other hand, since
-differential modules calculate terms of a derivative, multiple differential
-modules can have a particular quantity as an output; in this case, the module
-outputs will be added together to determine the overall derivative. For example,
-one differential module may calculate a positive rate of leaf carbon gain due to
-assimilation while another calculates a negative rate of leaf carbon loss due to
-senescence; both may be used in a given simulation.
+direct modules are able to calculate the canopy assimilation rate, but only one
+such module can be used in a given simulation. Before running a simulation,
+BioCro checks for any overlap between the outputs of the direct modules (Section
+\ref{sec:validate}). On the other hand, since differential modules calculate
+terms of a derivative, multiple differential modules can have a particular
+quantity as an output; in this case, the module outputs will be added together
+to determine the overall derivative. For example, one differential module may
+calculate a positive rate of leaf carbon gain due to assimilation while another
+calculates a negative rate of leaf carbon loss due to senescence; both may be
+used in a given simulation.
 
 Within the context of a simulation, the inputs and outputs of all modules are
 part of the state \statevector. In this situation, we can say that the
@@ -274,27 +274,34 @@ module, and one module may define terms of multiple \differentialmemberfunction.
 
 \subsubsection*{R implemetation}
 
-Modules are identified by their names, and a collection of modules can be
-specified in R using the \texttt{c} command, which creates an R vector from its
-input arguments. For example, if we wish to use modules called
-\texttt{Module\_1} and \texttt{Module\_2},  we could write the following:
+BioCro modules are organized into groups called \emph{module libraries} (Section
+\ref{sec:module_libraries}); each module and library has a name, allowing
+individual modules to be specified by specially-formatted strings of the type
+\newline \texttt{library\_name:module\_name}, where the library name
+(\texttt{library\_name}) and module name (\texttt{module\_name}) are separated
+by a colon (\texttt{:}). Collections of modules (which may come from multiple
+libraries) can be specified in R using the \texttt{c} command, which creates an
+R vector from its input arguments. For example, if we wish to use a module
+called \texttt{Module\_1} from a library called \texttt{libA} and a module
+called \texttt{Module\_2} from a library called \texttt{libB}, we could write
+the following:
 
 <<example_module_vector>>=
-direct_modules <- c(
-    'Module_1',
-    'Module_2'
+module_specifications <- c(
+    'libA:Module_1',
+    'libB:Module_2'
 )
 @
 
 Elements of a vector can be accessed using an integer index; for example, we
-can retrieve or modify the first element of \texttt{direct\_modules} as in the
-following example, where we replace and \texttt{Module\_1} with
-\texttt{Module\_3}:
+can retrieve or modify the first element of \texttt{module\_specifications} as
+in the following example, where we replace \texttt{Module\_1} with
+\texttt{Module\_3} from the same library:
 
 <<example_vector_access>>=
-print(direct_modules[1])
-direct_modules[1] <- 'Module_3'
-print(direct_modules)
+print(module_specifications[1])
+module_specifications[1] <- 'libA:Module_3'
+print(module_specifications)
 @
 
 Sometimes it may be convenient to specify a module's role within the collection.
@@ -302,17 +309,22 @@ In this case, it is helpful to provide names for one or more of the modules in a
 collection. Here we demonstrate how to accomplish this with an R \emph{list}:
 
 <<example_module_list>>=
-differential_modules <- list(
-   'partitioning_growth',
-   thermal_time_module = 'thermal_time_linear'
+differential_module_specifications <- list(
+   'BioCro:partitioning_growth',
+   thermal_time_module = 'BioCro:thermal_time_linear'
 )
 @
 
-Now, if we want to use a different equation for calculating thermal time, we can
-easily switch it via a command like:
+Here, \texttt{thermal\_time\_module} is the name of an element of the list
+\texttt{differential\_module\_specifications}; it is \emph{not} the name or
+specification of a module. Its purpose is to allow us to access that list
+element by a meaningful identifier (\texttt{thermal\_time\_module}) rather than
+its numbered position within the list. Now, if we want to use a different
+equation for calculating thermal time, we can easily switch it via a command
+like:
 
 <<example_module_swap>>=
-differential_modules$thermal_time_module <- 'thermal_time_trilinear'
+differential_module_specifications$thermal_time_module <- 'BioCro:thermal_time_trilinear'
 @
 
 Swapping one module for an alternate version can be very powerful when
@@ -321,6 +333,20 @@ accomplishing this ``plug-and-play modularity'' with ease is one of BioCro's
 most important abilities. For an example of how the performance of two modules
 can be compared in the context of a soybean simulation, see the
 \emph{Quantitative Comparison Between Two Photosynthesis Models} vignette.
+
+It may be tedious to repeatedly specify the same library name multiple times in
+a set of module specifications. Doing so can be avoided by using the
+\texttt{module\_paste} function, which automatically prepends a library name to
+a vector or list of module names, forming a set of full module specifications.
+For example, we can create the same list of differential module specifications
+using \texttt{module\_paste} as follows:
+
+<<example_module_paste>>=
+differential_module_specifications <- module_paste('BioCro', list(
+  'partitioning_growth',
+  thermal_time_module = 'thermal_time_linear'
+))
+@
 
 \subsubsection*{Pre-set options available in the BioCro package}
 
@@ -775,10 +801,10 @@ range---a plot typically called a \emph{response curve}. As an example, here we
 will calculate the response of the soybean net CO$_2$ assimilation rate ($A_n$)
 to the incident photosynthetically active photon flux density (PPFD; $Q$)
 according to the Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis,
-which is available in BioCro as the \texttt{c3\_assimilation} module. (This
-module also uses the Ball-Berry model for stomatal conductance, iteratively
-solving for consistent solutions to the photosynthesis and conductance
-equations.)
+which is available in the standard BioCro module library as the
+\texttt{c3\_assimilation} module. (This module also uses the Ball-Berry model
+for stomatal conductance, iteratively solving for consistent solutions to the
+photosynthesis and conductance equations.)
 
 The first step towards calculating a response curve is to check the module's
 inputs and outputs, which can be done using the \texttt{module\_info} function,
@@ -795,10 +821,10 @@ of several other input quantities are specified in \texttt{soybean\_parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
 To run the module, we will need the \texttt{evaluate\_module function}, which
-requires a module name and a named list of input quantities. It attempts to run
-the module, returning its outputs as a named list. If any of the module's inputs
-are not provided, a helpful error message will be returned. So we can try
-passing the \texttt{soybean\_parameters} list as an input to the
+requires a module specification and a named list of input quantities. It
+attempts to run the module, returning its outputs as a named list. If any of the
+module's inputs are not provided, a helpful error message will be returned. So
+we can try passing the \texttt{soybean\_parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
@@ -833,9 +859,9 @@ accomplish this goal would be to repeatedly call \texttt{evaluate\_module}
 within a \texttt{for} loop or using a function like \texttt{sapply}. However,
 since calculating a response curve is a common operation, the BioCro package
 includes a convenience function for doing so: \texttt{module\_response\_curve}.
-This function requires a module name, a list of fixed input quantities, and a
-data frame specifying the values of any input quantities that should vary. It
-returns a data frame with each of the module's inputs and outputs as columns,
+This function requires a module specification, a list of fixed input quantities,
+and a data frame specifying the values of any input quantities that should vary.
+It returns a data frame with each of the module's inputs and outputs as columns,
 where each row represents a different set of inputs. This is a convenient format
 for plotting or saving the results, as discussed in Section
 \ref{sec:view_simulation}.
@@ -858,7 +884,7 @@ rc <- module_response_curve(
 caption <- paste0(
   'Soybean response curve calculated with\nTleaf = ', unique(rc$Tleaf),
   ' degrees C and RH = ', unique(rc$rh), '\nusing the `',
-  unique(rc$module_name), '` module'
+  unique(rc$module_specification), '` module'
 )
 
 xyplot(
@@ -906,6 +932,21 @@ quantity can be calculated. See the \emph{Quantitative Comparison Between Two
 Photosynthesis Models} vignette for a more detailed analysis including some of
 these ideas.
 
+\section{Module libraries \label{sec:module_libraries}}
+
+Currently, there is only one module library available, and it comes packaged as
+part of the BioCro R package. This ``standard library'' is named
+\texttt{BioCro}, so all module specifications currently take the form
+\texttt{BioCro:module\_name}. Later, the BioCro R package will only contain
+functions related to the core framework (such as \texttt{run\_biocro}), and each
+module library (including the standard library) will exist as a separate R
+package, where the name of the module library is set to be the name of its R
+package. Module libraries will allow researchers to develop their own modules
+privately and facilitate the creation of modules that can be used for other
+purposes besides crop growth simulations. Stay tuned for new developments!
+
+% TO-DO: update this discussion once the module library packages are in place
+
 \section{Getting basic information about quantities and modules \label{sec:basic_info}}
 
 \subsection{Quantities \label{sec:quantity_info}}
@@ -929,23 +970,26 @@ units for \texttt{Leaf}, we need to first locate a module which uses
 \texttt{Leaf} as an input or an output and then view its source code.
 
 To do this, we begin by using the \texttt{get\_all\_quantities} function, which
-is part of the BioCro library. This function returns a data frame with three
-columns: \texttt{quantity\_name}, \texttt{quantity\_type}, and
-\texttt{module\_name}. Each row in this data frame represents an input or output
-of a BioCro module.
+is part of the BioCro framework. This function requires the name of a module
+library as its input argument, and it returns a data frame with three columns:
+\texttt{quantity\_name}, \texttt{quantity\_type}, and
+\texttt{module\_specification}. Each row in this data frame represents an input
+or output of one of the modules from the specified module library.
 
 Once we get information about all the BioCro quantities, we can take a subset
 of them: we just want the rows where the quantity name is \texttt{Leaf}. This
-will give us some possible modules to choose from.
+will give us some possible modules to choose from. In this example, we use the
+\texttt{cat} command with \texttt{sep = '\textbackslash n'} to ensure that each
+vector element is printed on its own line:
 
 <<leaf_information>>=
-all_quantities <- get_all_quantities()
+all_quantities <- get_all_quantities('BioCro')
 leaf_quantity_subset <- all_quantities[all_quantities$quantity_name == 'Leaf', ]
-leaf_modules <- unique(leaf_quantity_subset$module_name)
-print(leaf_modules)
+leaf_modules <- unique(leaf_quantity_subset$module_specification)
+cat(leaf_modules, sep = '\n')
 @
 
-Now we can see there are 11 modules that have \texttt{Leaf} as an input or
+Now we can see there are several modules that have \texttt{Leaf} as an input or
 output. Let's choose one of them: the \texttt{total\_biomass} module. We can
 find its source code in \texttt{src/module\_library/total\_biomass.h}. (See
 Section \ref{sec:source_code} for more information about how to access the
@@ -983,12 +1027,14 @@ specified size. An error will occur if \texttt{run\_biocro} is called with a
 non-Euler ODE solver when one or more of its modules requires an Euler ODE
 solver.
 
-A list of all available modules can be obtained with the
-\texttt{get\_all\_modules} function, and  detailed information about an
-individual module can be obtained by viewing its source code or the associated
-Doxygen documentation; see Section \ref{sec:source_code}.
+A list of all modules available within a particular module library can be
+obtained with the \texttt{get\_all\_modules} function, and detailed information
+about an individual module can be obtained by viewing its source code or the
+associated Doxygen documentation; see Section \ref{sec:source_code}.
 
 \subsection{Accessing the source code \label{sec:source_code}}
+
+% TO-DO: update this discussion once the module library packages are in place
 
 There are several options for viewing BioCro's source code:
 
