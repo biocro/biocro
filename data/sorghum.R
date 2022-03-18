@@ -2,29 +2,23 @@
 # on-the-fly to a different value, e.g.,
 # sorghum_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
 
-sorghum_direct_modules <- BioCro:::module_paste(
-    "BioCro",
-    list(
-        "soil_type_selector",
-        stomata_water_stress = "stomata_water_stress_linear",
-        "leaf_water_stress_exponential",
-        "parameter_calculator",
-        "soil_evaporation",
-        solar_coordinates = "solar_position_michalsky",
-        canopy_photosynthesis = "c4_canopy",
-        partitioning_coefficients = "partitioning_coefficient_selector",
-        partitioning_growth_calculator = "partitioning_growth_calculator"
-    )
+sorghum_direct_modules <- list(
+    "BioCro:soil_type_selector",
+    stomata_water_stress = "BioCro:stomata_water_stress_linear",
+    "BioCro:leaf_water_stress_exponential",
+    "BioCro:parameter_calculator",
+    "BioCro:soil_evaporation",
+    solar_coordinates = "BioCro:solar_position_michalsky",
+    canopy_photosynthesis = "BioCro:c4_canopy",
+    partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
+    partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
 )
 
-sorghum_differential_modules <- BioCro:::module_paste(
-    "BioCro",
-    list(
-        senescence = "thermal_time_senescence",
-        "partitioning_growth",
-        thermal_time = "thermal_time_linear",
-        soil_profile = "two_layer_soil_profile"
-    )
+sorghum_differential_modules <- list(
+    senescence = "BioCro:thermal_time_senescence",
+    "BioCro:partitioning_growth",
+    thermal_time = "BioCro:thermal_time_linear",
+    soil_profile = "BioCro:two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
