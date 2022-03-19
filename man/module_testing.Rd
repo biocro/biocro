@@ -41,11 +41,11 @@
   where the colon in the module specification has been replaced by an
   underscore; for example, the module specification \code{BioCro:total_biomass}
   would be associated with \code{BioCro_total_biomass.csv}. The first row of a
-  test case file must be the quantity names, the second row must be the quantity
-  types (\code{input} or \code{output}), and the remaining rows must each
+  test case file must be the quantity types (\code{input} or \code{output}), the
+  second row must be the quantity names, and the remaining rows must each
   specify input quantity values along with the expected output values they
   should produce. There must also be a \code{description} column (with
-  \code{description} in the second row) containing short descriptions of the
+  \code{description} in the first row) containing short descriptions of the
   test cases. These formatting requirements will automatically be satisfied for
   any test case file produced by \code{\link{initialize_csv}} or modified by
   \code{\link{add_csv_row}} or \code{\link{update_csv_cases}}. Such files can be

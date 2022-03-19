@@ -66,6 +66,33 @@ module_case_file_path <- function(module_specification, directory) {
     )
 }
 
+# A helping function for creating a data frame of columns of one type, as
+# extracted from a case list.
+#
+# Inputs:
+#
+# - case_list: a list of cases for a module, as described in the documentation
+#   for the `test_module` function
+#
+# - col_type: the type of column to extract; either `inputs`,
+#   `expected_outputs`, or `description`
+#
+# - col_names: the names of columns to extract; this would be a vector of
+#   quantity names if the type is `inputs` or `expected_outputs`; the
+#  `description` column does not have additional identifiers, so col_names
+#   should be set to 1 (to take the first column) when the column type is
+#   `description`
+#
+# Outputs: a data frame of values extracted from the case list
+#
+df_from_case_list <- function(case_list, col_type, col_names) {
+    do.call(cbind, lapply(col_names, function(name) {
+        sapply(case_list, function(case) {
+            case[[col_type]][[name]]
+        })
+    }))
+}
+
 # csv_from_cases: A function to store test cases for module testing by writing a
 # list of test cases to a csv file, whose name will be determined from the
 # module's name using `module_case_file_path`.
@@ -93,91 +120,47 @@ module_case_file_path <- function(module_specification, directory) {
 csv_from_cases <- function(
     module_specification,
     directory,
-    case_list,
-    overwrite
+    case_list
 )
 {
-    # Generate the filename
     filename <- module_case_file_path(module_specification, directory)
 
-    # Check to see if the file exists already
-    file_exists <- file.exists(filename)
-
-    # If we aren't supposed to overwrite files, check to see if the file exists
-    # already
-    if (!overwrite && file_exists) {
-        return("Module test case file already exists; it was not overwritten")
-    }
-
-    # Get info about the module
     info <- module_info(module_specification, FALSE)
-    inputs <- info[['inputs']]
-    outputs <- info[['outputs']]
 
-    # Make a data frame describing the module's inputs, outputs, and all test
-    # cases
-    n_inputs <- length(inputs)
-    n_outputs <- length(outputs)
-    n_cases <- length(case_list)
-    csv_case <- data.frame(
-        matrix(
-            nrow=(2 + n_cases),
-            ncol=(n_inputs + n_outputs + 1)
-        )
+    # Extract the inputs, expected outputs, and descriptions from the case list
+    case_value_df <- cbind(
+        df_from_case_list(case_list, 'inputs', info[['inputs']]),
+        df_from_case_list(case_list, 'expected_outputs', info[['outputs']]),
+        df_from_case_list(case_list, 'description', 1)
     )
 
-    for (i in seq_along(inputs)) {
-        input_name <- inputs[i]
+    # Make a data frame with the correct column headers
+    header_df <- data.frame(
+        matrix(nrow = 2, ncol = ncol(case_value_df)),
+        stringsAsFactors = FALSE
+    )
 
-        csv_case[1,i] <- input_name
-        csv_case[2,i] <- "input"
+    header_df[1,] <- c(
+        rep.int('input', length(info[['inputs']])),
+        rep.int('output', length(info[['outputs']])),
+        'description'
+    )
 
-        for (j in seq_len(n_cases)) {
-            case <- case_list[[j]]
-            case_inputs <- case[['inputs']]
-            csv_case[(2+j),i] <- case_inputs[[input_name]]
-        }
-    }
+    header_df[2,] <- c(info[['inputs']], info[['outputs']], NA)
 
-    for (i in seq_along(outputs)) {
-        output_name <- outputs[i]
-        k <- i + n_inputs
+    # Make sure the data frames have the same column names, or rbind will fail
+    colnames(case_value_df) <- colnames(header_df)
 
-        csv_case[1,k] <- output_name
-        csv_case[2,k] <- "output"
-
-        for (j in seq_len(n_cases)) {
-            case <- case_list[[j]]
-            case_outputs <- case[['expected_outputs']]
-            csv_case[(2+j),k] <- case_outputs[[output_name]]
-        }
-    }
-
-    description_index <- n_inputs + n_outputs + 1
-    csv_case[2,description_index] <- "description"
-
-    for (j in seq_len(n_cases)) {
-        case <- case_list[[j]]
-        description <- case[['description']]
-        csv_case[(2+j),description_index] <- trimws(description)
-    }
-
-    # Write the case to a new .csv file
+    # Add the headers to the case value data frame and write the case to a file
     utils::write.table(
-        csv_case,
+        rbind(header_df, case_value_df),
         filename,
         sep = ",",
         row.names = FALSE,
         col.names = FALSE,
-        quote = description_index,
+        quote = ncol(case_value_df), # only quote the last column ('description')
         qmethod = "double"
     )
-
-    if (file_exists) {
-        return("Existing module test case file was overwritten")
-    } else {
-        return("New module test case file was created")
-    }
 }
 
 cases_from_csv <- function(module_specification, directory)
@@ -198,11 +181,11 @@ cases_from_csv <- function(module_specification, directory)
     )
 
     # Get the column names and types, making sure to trim any whitespace
-    column_names <- file_contents[1,]
-    column_names <- trimws(column_names)
-
-    column_types <- file_contents[2,]
+    column_types <- file_contents[1,]
     column_types <- trimws(column_types)
+
+    column_names <- file_contents[2,]
+    column_names <- trimws(column_names)
 
     # Get the quantity values
     test_data <- file_contents[-(1:2),]
@@ -264,6 +247,14 @@ initialize_csv <- function(
     overwrite = FALSE
 )
 {
+    # Generate the filename
+    filename <- module_case_file_path(module_specification, directory)
+
+    # Check to see if we should overwrite an existing file
+    if (!overwrite && file.exists(filename)) {
+        return(paste0("Did not initialize case file because `", filename, "` already exists"))
+    }
+
     # Get info about the module
     info <- module_info(module_specification, FALSE)
 
@@ -271,32 +262,29 @@ initialize_csv <- function(
     inputs <- quantity_list_from_names(info[['inputs']])
 
     # Modify any inputs that should take nonstandard values
-    for (i in seq_along(nonstandard_inputs)) {
-        ns_input_name <- names(nonstandard_inputs)[i]
-        if (ns_input_name %in% names(inputs)) {
-            inputs[[ns_input_name]] <- nonstandard_inputs[[i]]
-        }
-    }
+    inputs[names(nonstandard_inputs)] <- nonstandard_inputs
 
     # Run the module using the inputs
     outputs <- evaluate_module(module_specification, inputs)
 
     # Make a case list with one element
-    case_list <- list(
-        case(inputs, outputs, description)
-    )
+    case_list <- list(case(inputs, outputs, description))
 
-    # Write the case to a new .csv file
-    csv_from_cases(module_specification, directory, case_list, overwrite)
+    # Write the case to a new .csv file and send a message to the user
+    csv_from_cases(module_specification, directory, case_list)
+    paste0("Case file `", filename, "` was initialized; any pre-existing file was overwritten")
 }
 
 add_csv_row <- function(module_specification, directory, inputs, description)
 {
-    # Initialize the csv file if it doesn't already exist
-    msg <- paste(
-        "Initializing csv file if required:",
-        initialize_csv(module_specification, directory, overwrite = FALSE)
-    )
+    # Generate the filename
+    filename <- module_case_file_path(module_specification, directory)
+
+    # If the file doesn't exist, initialize it with the specified inputs and
+    # description, and then exit
+    if (!file.exists(filename)) {
+        return(initialize_csv(module_specification, directory, inputs, description))
+    }
 
     # Get any test cases already defined in the module's csv file
     case_list <- cases_from_csv(module_specification, directory)
@@ -307,23 +295,12 @@ add_csv_row <- function(module_specification, directory, inputs, description)
     # Add a new case to the list
     case_list <- append(
         case_list,
-        list(
-            case(
-                inputs,
-                outputs,
-                description
-            )
-        )
+        list(case(inputs, outputs, description))
     )
 
-    # Save the full list to the file
-    append(
-        msg,
-        paste(
-            "Updating csv file with new case:",
-            csv_from_cases(module_specification, directory, case_list, TRUE)
-        )
-    )
+    # Save the full list to the file and send a message to the user
+    csv_from_cases(module_specification, directory, case_list)
+    paste0("Added new case to file `", filename, "`")
 }
 
 update_csv_cases <- function(module_specification, directory)
@@ -342,11 +319,9 @@ update_csv_cases <- function(module_specification, directory)
     # Update all the test cases
     updated_case_list <- lapply(case_list, update_case)
 
-    # Save the new list to the file
-    paste(
-        "Updating csv file with new output values:",
-        csv_from_cases(module_specification, directory, updated_case_list, TRUE)
-    )
+    # Save the new list to the file and send a message to the user
+    csv_from_cases(module_specification, directory, updated_case_list)
+    paste0("Updated case file `", module_case_file_path(module_specification, directory), "`")
 }
 
 test_module_library <- function(

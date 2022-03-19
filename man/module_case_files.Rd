@@ -85,7 +85,7 @@
   The \code{add_csv_row} function will evaluate the module for a set of input
   quantities, define a test case from the resulting outputs and the description,
   and add it to the module's corresponding \code{csv} file. If no \code{csv}
-  file exists, one will be initialized before adding the new case.
+  file exists, one will be initialized with the new case.
 
   The \code{update_csv_cases} function will evaluate the module for all input
   values specified in its \code{csv} case file and update the stored values of
