@@ -115,7 +115,7 @@
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
 
-creator_map biocro_module_library::library_entries =
+creator_map module_library::library_entries =
 {
      {"harmonic_oscillator",                                   &create_mc<harmonic_oscillator>},
      {"harmonic_energy",                                       &create_mc<harmonic_energy>},

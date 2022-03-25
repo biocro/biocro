@@ -14,7 +14,7 @@
 // the other code in this file should require any modifications.
 
 using std::string;
-using library_type = biocro_module_library;
+using library = module_library;
 
 extern "C" {
 
@@ -59,7 +59,7 @@ SEXP R_module_creators(SEXP module_names)
 
         for (size_t i = 0; i < n; ++i) {
             module_creator* w =
-                module_factory<library_type>::retrieve(names[i]);
+                module_factory<library>::retrieve(names[i]);
 
             SEXP mw_ptr =
                 PROTECT(R_MakeExternalPtr(w, R_NilValue, R_NilValue));
@@ -91,7 +91,7 @@ SEXP R_get_all_modules()
 {
     try {
         string_vector result =
-            module_factory<library_type>::get_all_modules();
+            module_factory<library>::get_all_modules();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
         Rf_error((string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
@@ -108,7 +108,7 @@ SEXP R_get_all_quantities()
 {
     try {
         std::unordered_map<string, string_vector> all_quantities =
-            module_factory<library_type>::get_all_quantities();
+            module_factory<library>::get_all_quantities();
         return list_from_map(all_quantities);
     } catch (std::exception const& e) {
         Rf_error((string("Caught exception in R_get_all_quantities: ") + e.what()).c_str());
