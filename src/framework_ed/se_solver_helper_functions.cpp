@@ -1,8 +1,8 @@
 #include "se_solver_helper_functions.h"
-#include "constants.h"  // for eps_zero
-#include <random>       // for random number generation
-#include <limits>       // for std::numeric_limits<double>::max()
-#include <cmath>        // for std::nextafter
+#include "../framework/constants.h"  // for eps_zero
+#include <random>                    // for random number generation
+#include <limits>                    // for std::numeric_limits<double>::max()
+#include <cmath>                     // for std::nextafter
 
 // Helping functions for adjust_bad_guess_random
 namespace se_solver_rand

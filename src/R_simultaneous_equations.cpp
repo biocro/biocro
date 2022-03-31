@@ -4,10 +4,10 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include "framework/R_helper_functions.h"
 #include "framework/state_map.h"
-#include "framework/simultaneous_equations.h"
 #include "framework/numerical_jacobian.h"
-#include "framework/se_solver.h"
-#include "framework/se_solver_library/se_solver_factory.h"
+#include "framework_ed/simultaneous_equations.h"
+#include "framework_ed/se_solver.h"
+#include "framework_ed/se_solver_library/se_solver_factory.h"
 
 extern "C" {
 

@@ -2,11 +2,11 @@
 #define SE_SOLVER_HELPER_FUNCTIONS_H
 
 #include <vector>
-#include <cmath>                 // for fabs
-#include <numeric>               // for inner_product
-#include "constants.h"           // for calculation_constants::eps_zero
-#include <Rinternals.h>          // for debugging
-const bool seshf_print = false;  // for debugging
+#include <cmath>                     // for fabs
+#include <numeric>                   // for inner_product
+#include "../framework/constants.h"  // for calculation_constants::eps_zero
+#include <Rinternals.h>              // for debugging
+const bool seshf_print = false;      // for debugging
 
 // Helping functions for adjust_bad_guess_random and generate_guess_list
 namespace se_solver_rand

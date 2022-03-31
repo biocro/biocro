@@ -7,7 +7,7 @@
 #include <utility>           // For std::pair
 #include "state_map.h"       // For state_map, state_vector_map, string_vector
 #include "module_creator.h"  // For mc_vector
-#include "module.h"         // For module_vector
+#include "module.h"          // For module_vector
 #include "validate_dynamical_system.h"
 #include "dynamical_system_helper_functions.h"
 
@@ -432,6 +432,33 @@ state_vector_map get_results_from_system(
     }
 
     return results;
+}
+
+/**
+ * @brief Define `evaluation` behavior for a set of equations defined by a
+ * `dynamical_system` object. This is required to use `calculate_jacobian()`
+ * with a `simultaneous_equations` object.
+ *
+ * @param[in] sys a shared pointer to a dynamical_system object.
+ *
+ * @param[in] x a vector to be passed to the dynamical_system as an input. Since
+ *            we are evaluating a dynamical_system, x contains values of the
+ *            dynamical_system's differential quantities.
+ *
+ * @param[in] t a time to be passed to the dynamical_system as an input.
+ *
+ * @param[out] y the vector output. Since we are evaluating a dynamical_system
+ *             object, y contains the time derivative of each differential
+ *             quantity.
+ */
+template <typename vector_type, typename time_type>
+void evaluate_equations(
+    std::shared_ptr<dynamical_system> const& sys,
+    vector_type const& x,
+    time_type t,
+    vector_type& y)
+{
+    sys->calculate_derivative(x, y, t);
 }
 
 #endif
