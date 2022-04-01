@@ -251,10 +251,7 @@ partial_run_biocro <- function(
     # We can't use just %in% because that doesn't preserve the order.
     # However, match() only returns the first match, which doesn't work for things like drivers.
     # So use %in% for each arg_name so you can get all elements in the correct order.
-    controls = df[0, ]
-    for (i in seq_along(arg_names)) {
-        controls = rbind(controls, df[df$arg_name %in% arg_names[i], ])
-    }
+    controls <- do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
 
     missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
