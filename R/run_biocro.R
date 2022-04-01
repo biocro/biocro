@@ -248,7 +248,7 @@ partial_run_biocro <- function(
 
     # Find the locations of the parameters specified in arg_names and check for
     # errors
-    controls = df[df$arg_name %in% arg_names, ]
+    controls = df[match(arg_names, df$arg_name), ]
     missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
         error_messages <- append(
