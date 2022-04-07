@@ -2,7 +2,9 @@
 #include "c4photo.h"  // for c4photoC
 #include "BioCro.h"   // for EvapoTrans2
 
-string_vector standardBML::c4_leaf_photosynthesis::get_inputs()
+using standardBML::c4_leaf_photosynthesis;
+
+string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
         "incident_ppfd",               // micromol / (m^2 leaf) / s
@@ -33,7 +35,7 @@ string_vector standardBML::c4_leaf_photosynthesis::get_inputs()
     };
 }
 
-string_vector standardBML::c4_leaf_photosynthesis::get_outputs()
+string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromole / m^2 /s
@@ -48,7 +50,7 @@ string_vector standardBML::c4_leaf_photosynthesis::get_outputs()
     };
 }
 
-void standardBML::c4_leaf_photosynthesis::do_operation() const
+void c4_leaf_photosynthesis::do_operation() const
 {
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance =

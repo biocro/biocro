@@ -1,6 +1,8 @@
 #include "penman_monteith_leaf_temperature.hpp"
 
-string_vector standardBML::penman_monteith_leaf_temperature::get_inputs()
+using standardBML::penman_monteith_leaf_temperature;
+
+string_vector penman_monteith_leaf_temperature::get_inputs()
 {
     return {
         "slope_water_vapor",                  // kg / m^3 / K
@@ -14,14 +16,14 @@ string_vector standardBML::penman_monteith_leaf_temperature::get_inputs()
     };
 }
 
-string_vector standardBML::penman_monteith_leaf_temperature::get_outputs()
+string_vector penman_monteith_leaf_temperature::get_outputs()
 {
     return {
         "leaf_temperature"  // degrees C
     };
 }
 
-void standardBML::penman_monteith_leaf_temperature::do_operation() const
+void penman_monteith_leaf_temperature::do_operation() const
 {
     // From Thornley and Johnson 1990. pg 418. equation 14.11e
 

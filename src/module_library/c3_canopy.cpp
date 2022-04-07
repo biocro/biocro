@@ -3,7 +3,9 @@
 #include "BioCro.h"     // For c3CanAC
 #include <cmath>        // For floor
 
-string_vector standardBML::c3_canopy::get_inputs()
+using standardBML::c3_canopy;
+
+string_vector c3_canopy::get_inputs()
 {
     return {
         "lai",
@@ -48,7 +50,7 @@ string_vector standardBML::c3_canopy::get_inputs()
     };
 }
 
-string_vector standardBML::c3_canopy::get_outputs()
+string_vector c3_canopy::get_outputs()
 {
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr
@@ -57,7 +59,7 @@ string_vector standardBML::c3_canopy::get_outputs()
     };
 }
 
-void standardBML::c3_canopy::do_operation() const
+void c3_canopy::do_operation() const
 {
     // c3CanAC is located in c3CanAc.cpp
     struct Can_Str can_result = c3CanAC(
