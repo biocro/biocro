@@ -1,10 +1,7 @@
 #ifndef BIOCRO_MODULE_LIBRARY_H
 #define BIOCRO_MODULE_LIBRARY_H
 
-#include "../framework/module_creator.h"  // for module_creator
-
-using creator_fcn = module_creator* (*)();
-using creator_map = std::map<std::string, creator_fcn>;
+#include "../framework/module_creator.h"  // for module_creator and creator_map
 
 
 // When creating a new module library R package, it will be necessary to modify

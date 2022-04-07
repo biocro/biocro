@@ -100,11 +100,23 @@ module_creator* create_mc()
 }
 
 /**
- * @brief `mc_vector` serves as an alias for a type widely used to
- * hold lists of module_creators.
+ * @brief `mc_vector` serves as an alias for a type widely used to hold lists of
+ * module_creators.
  *
  * Formally, it is a `std::vector` of pointers to `module_creator` objects.
  */
 using mc_vector = std::vector<module_creator*>;
+
+/**
+ *  @brief `creator_fcn` serves as an alias for a type widely used to define a
+ *  function pointer that returns a pointer to a module_creator object.
+ */
+using creator_fcn = module_creator* (*)();
+
+/**
+ *  @brief `creator_map` serves as an alias for a type widely used to define a
+ *  map of creator_fcn function pointers.
+ */
+using creator_map = std::map<std::string, creator_fcn>;
 
 #endif
