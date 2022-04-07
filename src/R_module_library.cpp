@@ -9,12 +9,12 @@
 #include "module_library/module_library.h"
 
 // When creating a new module library R package, it will be necessary to modify
-// the library type name in this file to match the class defined in
+// the namespace in this file to match the one defined in
 // `module_library/module_library.h`. See that file for more details. None of
 // the other code in this file should require any modifications.
 
 using std::string;
-using library = module_library;
+using library = standardBML::module_library;
 
 extern "C" {
 
