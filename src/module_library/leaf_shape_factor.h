@@ -5,6 +5,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class leaf_shape_factor
  *
@@ -31,8 +33,6 @@
  * becomes infinite and so does the leaf shape factor k. This is the expected
  * behavior and isn't an actual error.
  */
-namespace standardBML
-{
 class leaf_shape_factor : public direct_module
 {
    public:

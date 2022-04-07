@@ -8,6 +8,8 @@
 #include "../framework/constants.h"  // for eps_zero
 #include "AuxBioCro.h"               // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class ed_ball_berry
  *
@@ -46,8 +48,6 @@
  * when conductance_adjustment_factor is zero, conductance is the minimum value. When it is one,
  * conductance is the maximum (Ball-Berry) value.
  */
-namespace standardBML
-{
 class ed_ball_berry : public direct_module
 {
    public:

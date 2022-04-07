@@ -11,6 +11,8 @@
 #include "ed_long_wave_energy_loss.h"
 #include "ed_water_vapor_properties.h"
 
+namespace standardBML
+{
 /**
  * @class ed_penman_monteith_leaf_temperature
  *
@@ -21,8 +23,6 @@
  * of mol / m^2 / s) to energy conductances (with units of m / s). In short, we replace all conductances g in the
  * Thornley formula with g * volume_per_mol_of_an_ideal_gas.
  */
-namespace standardBML
-{
 class ed_penman_monteith_leaf_temperature : public direct_module
 {
    public:

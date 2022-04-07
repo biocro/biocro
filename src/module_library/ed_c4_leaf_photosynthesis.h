@@ -105,6 +105,8 @@ std::vector<double> const relative_error_tolerances = {
 };
 }  // namespace ed_c4_leaf_photosynthesis_stuff
 
+namespace standardBML
+{
 /**
  * @class ed_c4_leaf_photosynthesis
  *
@@ -113,8 +115,6 @@ std::vector<double> const relative_error_tolerances = {
  * Also returns other quantities derived from these. Represents photosynthesis at
  * the leaf level for a c4 plant.
  */
-namespace standardBML
-{
 class ed_c4_leaf_photosynthesis : public se_module::base
 {
    public:

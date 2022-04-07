@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_bilinear
  *
@@ -75,8 +77,6 @@
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
-namespace standardBML
-{
 class thermal_time_bilinear : public differential_module
 {
    public:

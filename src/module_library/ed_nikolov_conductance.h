@@ -17,6 +17,8 @@ constexpr double Tvdiff_factor = 0.378;
 
 }  // namespace nikolov
 
+namespace standardBML
+{
 /**
  * @class ed_nikolov_conductance_forced
  *
@@ -74,8 +76,6 @@ constexpr double Tvdiff_factor = 0.378;
  * convert between molecular_conductance and energy_conductance using volume_per_mol
  * determined at air temperature.
  */
-namespace standardBML
-{
 class ed_nikolov_conductance_forced : public direct_module
 {
    public:

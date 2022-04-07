@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class senescence_logistic
  *
@@ -17,8 +19,6 @@
  * partitioning growth parameters.
  *
  */
-namespace standardBML
-{
 class senescence_logistic : public differential_module
 {
    public:

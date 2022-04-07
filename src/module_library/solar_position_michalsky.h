@@ -6,6 +6,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class solar_position_michalsky
  *
@@ -89,8 +91,6 @@
  *  | cosine of the zenith angle   | `cos_zen`        | ``'cosine_zenith_angle'`` |
  *
  */
-namespace standardBML
-{
 class solar_position_michalsky : public direct_module
 {
    public:

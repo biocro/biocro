@@ -6,14 +6,14 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class ed_long_wave_energy_loss
  *
  * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
  * from the leaf to the air. Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_long_wave_energy_loss : public direct_module
 {
    public:

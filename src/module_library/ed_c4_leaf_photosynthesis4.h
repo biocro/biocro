@@ -93,6 +93,8 @@ std::vector<double> const relative_error_tolerances = {
 };
 }  // namespace ed_c4_leaf_photosynthesis4_stuff
 
+namespace standardBML
+{
 /**
  * @class ed_c4_leaf_photosynthesis4
  *
@@ -100,8 +102,6 @@ std::vector<double> const relative_error_tolerances = {
  * conductance_stomatal_h2o, and temperature_leaf. Also returns other quantities
  * derived from these. Represents photosynthesis at the leaf level for a c4 plant.
  */
-namespace standardBML
-{
 class ed_c4_leaf_photosynthesis4 : public se_module::base
 {
    public:

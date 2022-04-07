@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_multilayer_canopy_properties
  *
@@ -26,8 +28,6 @@
  * will be used by the multilayer canopy photosynthesis module to pass them
  * to a leaf photosynthesis module.
  */
-namespace standardBML
-{
 class ed_multilayer_canopy_properties : public direct_module
 {
    public:

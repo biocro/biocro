@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_development_rate_calculator
  *
@@ -38,8 +40,6 @@
  *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-namespace standardBML
-{
 class thermal_time_development_rate_calculator : public direct_module
 {
    public:

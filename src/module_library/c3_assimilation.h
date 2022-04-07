@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "c3photo.hpp"
 
+namespace standardBML
+{
 /**
  * @class c3_assimilation
  *
@@ -53,8 +55,6 @@
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  */
-namespace standardBML
-{
 class c3_assimilation : public direct_module
 {
    public:

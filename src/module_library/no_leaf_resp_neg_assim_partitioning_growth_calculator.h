@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "BioCro.h"  // for resp
 
+namespace standardBML
+{
 /**
  *  @class no_leaf_resp_neg_assim_partitioning_growth_calculator
  *
@@ -54,8 +56,6 @@
  *  - `Rhizome`: The rhizome growth rate is modified by respiration.
  *  - `Grain`: The grain growth rate is *not* modified by respiration.
  */
-namespace standardBML
-{
 class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_module
 {
    public:

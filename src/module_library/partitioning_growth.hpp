@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class partitioning_growth
  *
@@ -57,8 +59,6 @@
  *  [Penning de Vries, F. W. T. & Laar, H. H. van. "Simulation of plant growth
  *  and crop production" (Pudoc, 1982)](http://edepot.wur.nl/167315)
  */
-namespace standardBML
-{
 class partitioning_growth : public differential_module
 {
    public:

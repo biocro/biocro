@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class example_model_mass_gain
  *
@@ -37,8 +39,6 @@
  *  > `mass_gain = A_leaf * m_leaf * SLA * C_conv` (2)
  *
  */
-namespace standardBML
-{
 class example_model_mass_gain : public direct_module
 {
    public:

@@ -4,8 +4,12 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
- * \brief Model for soybean development and flowering based on Grimm et al.
+ * @class grimm_soybean_flowering_calculator
+ *
+ * @brief Model for soybean development and flowering based on Grimm et al.
  * (1993)
  *
  * This module is intended to be used to model soybean development and flowering
@@ -53,8 +57,6 @@
  *   assimilation of leaf canopies. Netherlands Journal of Agricultural Science
  *   26, 373–382 (1978)
  */
-namespace standardBML
-{
 class grimm_soybean_flowering_calculator : public direct_module
 {
    public:

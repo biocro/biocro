@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class thermal_time_and_frost_senescence
  *
@@ -85,8 +87,6 @@
  *    future climate scenarios" [Plant, Cell & Environment 38, 1850–1865 (2015)]
  *    (https://doi.org/10.1111/pce.12556)
  */
-namespace standardBML
-{
 class thermal_time_and_frost_senescence : public differential_module
 {
    public:

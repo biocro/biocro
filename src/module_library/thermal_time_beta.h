@@ -5,6 +5,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_beta
  *
@@ -101,8 +103,6 @@
  * - ``'talpha'`` for the shape factor `alpha`
  * - ``'tbeta'`` for the shape factor `beta`
  */
-namespace standardBML
-{
 class thermal_time_beta : public differential_module
 {
    public:

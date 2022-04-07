@@ -4,14 +4,14 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class total_biomass
  *
  *  @brief Calculates the total biomass by adding together the masses of the
  *  `Leaf`, `Stem`, `Root`, `Rhizome`, and `Grain` tissues.
  */
-namespace standardBML
-{
 class total_biomass : public direct_module
 {
    public:

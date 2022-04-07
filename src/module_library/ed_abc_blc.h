@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
 
+namespace standardBML
+{
 /**
  * @class ed_abc_blc
  *
@@ -12,8 +14,6 @@
  * `leaf_boundary_layer_conductance_nikolov()` (BLC) function in `AuxBioCro`
  * (ABC). Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_abc_blc : public direct_module
 {
    public:

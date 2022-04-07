@@ -4,11 +4,14 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-/** @brief
- *  Class created by EBL for testing and experimentation ... not meant for real simulations!
- */
 namespace standardBML
 {
+/**
+ *  @class fake_solar
+ *
+ *  @brief Class created by EBL for testing and experimentation ... not meant
+ *  for real simulations!
+ */
 class fake_solar : public direct_module
 {
    public:

@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class development_index
  *
@@ -50,9 +52,6 @@
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  *
  */
-
-namespace standardBML
-{
 class development_index : public differential_module
 {
    public:

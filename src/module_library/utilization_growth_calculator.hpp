@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class utilization_growth_calculator
  *
@@ -14,8 +16,6 @@
  *  It is intended to be run along with the utilization_growth module. See
  *  utilization_growth.hpp for more information.
  */
-namespace standardBML
-{
 class utilization_growth_calculator : public direct_module
 {
    public:

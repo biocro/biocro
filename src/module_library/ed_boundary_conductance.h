@@ -5,6 +5,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_boundary_conductance_quadrature
  *
@@ -20,8 +22,6 @@
  * overall conductance determined this way will be approximately equal to the
  * larger conductance as in Nikolov.
  */
-namespace standardBML
-{
 class ed_boundary_conductance_quadrature : public direct_module
 {
    public:

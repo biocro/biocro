@@ -6,6 +6,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_integrator
  *
@@ -18,8 +20,6 @@
  * documentation for the `multilayer_canopy_properties` and
  * `multilayer_canopy_photosynthesis` modules.
  */
-namespace standardBML
-{
 class multilayer_canopy_integrator : public direct_module
 {
    public:

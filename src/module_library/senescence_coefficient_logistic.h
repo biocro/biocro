@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include <cmath>  // for exp
 
+namespace standardBML
+{
 /**
  * @class senescence_coefficient_logistic
  *
@@ -44,8 +46,6 @@
  * model of soybean growth"
  *
  */
-namespace standardBML
-{
 double ksene(double rate, double alpha, double beta, double DVI);
 
 class senescence_coefficient_logistic : public direct_module

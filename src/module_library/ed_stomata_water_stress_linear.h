@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_stomata_water_stress_linear
  *
@@ -15,8 +17,6 @@
  * point and the field capacity, the stress factor is
  * determined by a straight line.
  */
-namespace standardBML
-{
 class ed_stomata_water_stress_linear : public direct_module
 {
    public:

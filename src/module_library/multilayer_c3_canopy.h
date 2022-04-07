@@ -7,6 +7,13 @@
 #include "c3_leaf_photosynthesis.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
+using ten_layer_c3_canopy_parent =
+    multilayer_canopy_photosynthesis<
+        ten_layer_canopy_properties,
+        c3_leaf_photosynthesis>;
+
 /**
  * @class ten_layer_c3_canopy
  *
@@ -26,13 +33,6 @@
  * Instances of this class can be created using the module factory, unlike the
  * parent class `multilayer_canopy_photosynthesis`.
  */
-namespace standardBML
-{
-using ten_layer_c3_canopy_parent =
-    multilayer_canopy_photosynthesis<
-        ten_layer_canopy_properties,
-        c3_leaf_photosynthesis>;
-
 class ten_layer_c3_canopy : public ten_layer_c3_canopy_parent
 {
    public:

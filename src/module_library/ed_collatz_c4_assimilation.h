@@ -8,6 +8,8 @@
 #include <Rinternals.h>            // for debugging
 const bool collatz_print = false;  // for debugging
 
+namespace standardBML
+{
 /**
  * @class ed_collatz_c4_assimilation
  *
@@ -22,8 +24,6 @@ const bool collatz_print = false;  // for debugging
  * Finally, an overall gross assimilation rate is calculated based on these three limits, and net assimilation
  * is found by subtracting leaf respiration.
  */
-namespace standardBML
-{
 class ed_collatz_c4_assimilation : public direct_module
 {
    public:

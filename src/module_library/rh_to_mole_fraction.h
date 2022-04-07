@@ -7,6 +7,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class rh_to_mole_fraction
  *
@@ -36,8 +38,6 @@
  *   vapor pressure in the local atmosphere `SWVP`
  *
  */
-namespace standardBML
-{
 class rh_to_mole_fraction : public direct_module
 {
    public:

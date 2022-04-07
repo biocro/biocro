@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class rue_leaf_photosynthesis
  *
@@ -122,8 +124,6 @@
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
  */
-namespace standardBML
-{
 class rue_leaf_photosynthesis : public direct_module
 {
    public:

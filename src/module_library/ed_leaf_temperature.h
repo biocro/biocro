@@ -6,6 +6,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_leaf_temperature
  *
@@ -62,8 +64,6 @@
  * that a self-consistent value for the leaf temperature will be found using an
  * se_solver.
  */
-namespace standardBML
-{
 class ed_leaf_temperature : public direct_module
 {
    public:

@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class thermal_time_senescence
  *
@@ -86,8 +88,6 @@
  *    alternative to crude oil use. [Nature Climate Change 7, 788–792 (2017)]
  *    (https://doi.org/10.1038/nclimate3410)
  */
-namespace standardBML
-{
 class thermal_time_senescence : public differential_module
 {
    public:

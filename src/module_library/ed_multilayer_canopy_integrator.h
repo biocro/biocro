@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
+namespace standardBML
+{
 /**
  * @class ed_multilayer_canopy_integrator
  *
@@ -13,8 +15,6 @@
  * shaded). Leaf class is added to output parameters as a prefix, while layer
  * number is added as a suffix.
  */
-namespace standardBML
-{
 class ed_multilayer_canopy_integrator : public direct_module
 {
    public:

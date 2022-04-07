@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class incident_shortwave_from_ground_par
  *
@@ -22,8 +24,6 @@
  * The `par_energy_fraction` quantity should represent the fraction of solar energy
  * that lies in the PAR band. This value is often near 0.5.
  */
-namespace standardBML
-{
 class incident_shortwave_from_ground_par : public direct_module
 {
    public:

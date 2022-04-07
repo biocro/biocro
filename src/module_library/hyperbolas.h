@@ -6,6 +6,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class golden_ratio_hyperbola
  *
@@ -13,8 +15,6 @@
  * be used as a simple test case for simultaneous eqation solvers. The solution
  * to f(x) = x is x = (1 + sqrt(5))/2, the "golden ratio."
  */
-namespace standardBML
-{
 class golden_ratio_hyperbola : public direct_module
 {
    public:

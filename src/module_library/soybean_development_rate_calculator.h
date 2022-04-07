@@ -6,6 +6,8 @@
 #include <cmath>      // for log, pow
 #include <algorithm>  // for max
 
+namespace standardBML
+{
 /**
  * @class soybean_development_rate_calculator
  *
@@ -46,8 +48,6 @@
  *  UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-namespace standardBML
-{
 double photoFunc(double P, double Popt, double Pcrit);
 double tempFunc(double T, double Tmin, double Topt, double Tmax);
 

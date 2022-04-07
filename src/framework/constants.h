@@ -24,8 +24,8 @@ constexpr double eps_zero = 1e-13;
 }  // namespace calculation_constants
 
 /**
- *  @brief
- *  These conversion constants are collected here for convenience and clarity
+ *  @brief These conversion constants are collected here for convenience and
+ *  clarity
  */
 namespace conversion_constants
 {
@@ -34,8 +34,7 @@ constexpr double joules_per_calorie = 4.184;  // J / cal
 }  // namespace conversion_constants
 
 /**
- * @brief
- * Various physical constants are collected here.
+ * @brief Various physical constants are collected here.
  *
  * These physical constants may be subdivided according to how
  * "constant" they are:

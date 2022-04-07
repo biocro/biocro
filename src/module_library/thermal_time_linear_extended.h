@@ -4,7 +4,9 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-/**
+namespace standardBML
+{
+    /**
  * @class thermal_time_linear_extended
  *
  * @brief Calculates the rate of thermal time accumulation using an extended linear
@@ -70,8 +72,6 @@
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
-namespace standardBML
-{
 class thermal_time_linear_extended : public differential_module
 {
    public:

@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "BioCro.h"  // for resp
 
+namespace standardBML
+{
 /**
  *  @class partitioning_growth_calculator
  *
@@ -60,8 +62,6 @@
  *  Sunflower at Various Leaf Water Potentials" Plant Physiology 46, 233–235 (1970)]
  *  (https://doi.org/10.1104/pp.46.2.233).
  */
-namespace standardBML
-{
 class partitioning_growth_calculator : public direct_module
 {
    public:

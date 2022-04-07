@@ -6,14 +6,14 @@
 #include "AuxBioCro.h"               // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
 #include "../framework/constants.h"  // for ideal gas constant and celsius_to_kelvin
 
+namespace standardBML
+{
 /**
  * @class ed_water_vapor_properties
  *
  * @brief Determines water vapor properties from the air temperature
  * and atmospheric H2O mole fraction. Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_water_vapor_properties : public direct_module
 {
    public:

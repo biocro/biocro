@@ -4,14 +4,16 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-/**
- * \brief Model for soybean development and flowering based on Grimm et al.
- * (1993).
- *
- * See `grimm_soybean_flowering_calculator` for details.
- */
 namespace standardBML
 {
+/**
+ *  @class grimm_soybean_flowering
+ *
+ *  @brief Model for soybean development and flowering based on Grimm et al.
+ *  (1993).
+ *
+ *  See `grimm_soybean_flowering_calculator` for details.
+ */
 class grimm_soybean_flowering : public differential_module
 {
    public:

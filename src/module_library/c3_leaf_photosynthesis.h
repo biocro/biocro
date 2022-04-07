@@ -4,14 +4,14 @@
 #include "../framework/state_map.h"
 #include "../framework/module.h"
 
+namespace standardBML
+{
 /**
  * @class c3_leaf_photosynthesis
  *
  * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis
  * parameters for C3 plants
  */
-namespace standardBML
-{
 class c3_leaf_photosynthesis : public direct_module
 {
    public:

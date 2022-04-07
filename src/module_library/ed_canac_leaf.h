@@ -5,13 +5,13 @@
 #include "../framework/state_map.h"
 #include "c4photo.h"
 
+namespace standardBML
+{
 /**
  * @class ed_canac_leaf
  *
  * @brief Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_canac_leaf : public direct_module
 {
    public:

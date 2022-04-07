@@ -6,6 +6,8 @@
 #include "ed_multilayer_canopy_properties.h"
 #include "ed_c4_leaf_photosynthesis4.h"
 
+namespace standardBML
+{
 /**
  * @class ed_ten_layer_c4_canopy
  *
@@ -15,8 +17,6 @@
  *  - The number of layers is set to 10
  * Instances of this class can be created using the module factory.
  */
-namespace standardBML
-{
 class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>
 {
    public:

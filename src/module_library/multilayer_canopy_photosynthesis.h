@@ -94,6 +94,8 @@ string_vector get_other_leaf_inputs()
 }
 }  // namespace MLCP
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_photosynthesis
  *
@@ -150,8 +152,6 @@ string_vector get_other_leaf_inputs()
  * using the module_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
-namespace standardBML
-{
 template <typename canopy_module_type, typename leaf_module_type>
 class multilayer_canopy_photosynthesis : public direct_module
 {

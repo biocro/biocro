@@ -6,14 +6,14 @@
 #include "c4photo.h"
 #include "BioCro.h"  // for absorbed_shortwave_from_incident_ppfd
 
+namespace standardBML
+{
 /**
  * @class ed_evapotrans2
  *
  * @brief Just a module wrapper for the EvapoTrans2 function.
  * Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_evapotrans2 : public direct_module
 {
    public:

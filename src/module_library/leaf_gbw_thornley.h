@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_thornley
 
+namespace standardBML
+{
 /**
  * @class leaf_gbw_thornley
  *
@@ -26,8 +28,6 @@
  * - ``'windspeed'`` for the wind speed
  * - ``'gbw'`` for the boundary layer conductance to water
  */
-namespace standardBML
-{
 class leaf_gbw_thornley : public direct_module
 {
    public:

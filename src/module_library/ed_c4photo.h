@@ -5,14 +5,14 @@
 #include "../framework/state_map.h"
 #include "c4photo.h"
 
+namespace standardBML
+{
 /**
  * @class ed_c4photo
  *
  * @brief Just a module wrapper for the `c4photo()` function.
  * Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_c4photo : public direct_module
 {
    public:

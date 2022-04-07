@@ -4,14 +4,14 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_apply_stomatal_water_stress_via_conductance
  *
  * @brief Sets the water stress adjustment factors to apply the stomatal water
  * stress only to the stomatal conductance. Currently only intended for use by Ed.
  */
-namespace standardBML
-{
 class ed_apply_stomatal_water_stress_via_conductance : public direct_module
 {
    public:

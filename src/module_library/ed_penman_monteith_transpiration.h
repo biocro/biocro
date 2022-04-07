@@ -7,6 +7,8 @@
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin,
                                      // molar_mass_of_water
 
+namespace standardBML
+{
 /**
  * @class ed_penman_monteith_transpiration
  *
@@ -19,8 +21,6 @@
  * conductances (with units of m / s). In short, we replace all conductances g
  * in the Thornley formula with g * volume_per_mol_of_an_ideal_gas.
  */
-namespace standardBML
-{
 class ed_penman_monteith_transpiration : public direct_module
 {
    public:

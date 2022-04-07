@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class example_model_partitioning
  *
@@ -28,8 +30,6 @@
  *  should be 1.
  *
  */
-namespace standardBML
-{
 class example_model_partitioning : public differential_module
 {
    public:

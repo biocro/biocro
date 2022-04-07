@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class buck_swvp
  *
@@ -12,8 +14,6 @@
  * using the `saturation_vapor_pressure()` function, which implements the Arden
  * Buck equation.
  */
-namespace standardBML
-{
 class buck_swvp : public direct_module
 {
    public:
