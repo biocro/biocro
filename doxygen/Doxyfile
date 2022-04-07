@@ -28,7 +28,8 @@ HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 #---------------------------------------------------------------------------
 INPUT                  = ../src \
                          ../src/framework \
-                         ../src/framework/se_solver_library \
+                         ../src/framework_ed \
+                         ../src/framework_ed/se_solver_library \
                          ../src/framework/ode_solver_library \
                          ../src/framework/utils \
                          ../src/module_library \
