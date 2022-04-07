@@ -86,11 +86,14 @@ module_case_file_path <- function(module_specification, directory) {
 # Outputs: a data frame of values extracted from the case list
 #
 df_from_case_list <- function(case_list, col_type, col_names) {
-    do.call(cbind, lapply(col_names, function(name) {
-        sapply(case_list, function(case) {
-            case[[col_type]][[name]]
-        })
-    }))
+    as.data.frame(
+        do.call(cbind, lapply(col_names, function(name) {
+            sapply(case_list, function(case) {
+                case[[col_type]][[name]]
+            })
+        })),
+        row.names = NULL
+    )
 }
 
 # csv_from_cases: A function to store test cases for module testing by writing a

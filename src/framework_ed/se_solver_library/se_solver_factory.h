@@ -3,8 +3,8 @@
 
 #include <string>
 #include <map>
+#include "../../framework/state_map.h"  // for string_vector
 #include "../se_solver.h"
-#include "../state_map.h"  // for string_vector
 
 class se_solver_factory
 {

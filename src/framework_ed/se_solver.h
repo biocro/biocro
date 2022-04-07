@@ -7,7 +7,7 @@
 #include <string>
 #include "se_solver_helper_functions.h"
 #include "simultaneous_equations.h"
-#include "state_map.h"
+#include "../framework/state_map.h"
 
 /**
  * @class se_observer_null

@@ -1,14 +1,14 @@
 #ifndef ED_C4_LEAF_PHOTOSYNTHESIS4_H
 #define ED_C4_LEAF_PHOTOSYNTHESIS4_H
 
-#include "se_module.h"
+#include "../framework_ed/se_module.h"
 #include "../framework/state_map.h"
-#include <cmath>                                      // for fabs and sqrt
-#include <algorithm>                                  // for std::min and std::max
-#include "../framework/constants.h"                   // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
-#include "ed_nikolov_conductance.h"                   // for nikolov namespace
-#include "AuxBioCro.h"                                // for TempToLHV and other similar functions
-#include "../framework/se_solver_helper_functions.h"  // for generate_guess_list
+#include <cmath>                                         // for fabs and sqrt
+#include <algorithm>                                     // for std::min and std::max
+#include "../framework/constants.h"                      // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "ed_nikolov_conductance.h"                      // for nikolov namespace
+#include "AuxBioCro.h"                                   // for TempToLHV and other similar functions
+#include "../framework_ed/se_solver_helper_functions.h"  // for generate_guess_list
 
 #include "ed_rh_to_mole_fraction.h"
 #include "ed_nikolov_conductance.h"

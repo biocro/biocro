@@ -3,7 +3,7 @@
 
 #include <cmath>      // for pow, abs
 #include <algorithm>  // for std::max
-#include "se_module.h"
+#include "../framework_ed/se_module.h"
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for saturation_water_vapor_pressure
 

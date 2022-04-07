@@ -1,53 +1,8 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
-#include <memory>  // for std::shared_ptr
-#include "dynamical_system.h"
-#include "simultaneous_equations.h"
-#include "constants.h"
-
-/**
- * @brief Define `evaluation` behavior for a set of equations defined by a dynamical_system object.
- *
- * @param[in] sys a shared pointer to a dynamical_system object.
- *
- * @param[in] x a vector to be passed to the dynamical_system as an input. Since we are evaluating
- *              a dynamical_system, x contains values of the dynamical_system's differential quantities.
- *
- * @param[in] t a time to be passed to the dynamical_system as an input.
- *
- * @param[out] y the vector output. Since we are evaluating a dynamical_system object, y contains
- *               the time derivative of each differential quantity.
- */
-template <typename vector_type, typename time_type>
-void evaluate_equations(std::shared_ptr<dynamical_system> const& sys, vector_type const& x, time_type t, vector_type& y)
-{
-    sys->calculate_derivative(x, y, t);
-}
-
-/**
- * @brief Define `evaluation` behavior for a set of equations defined by a simultaneous_equations object.
- *
- * @param[in] sys a shared pointer to a simultaneous_equations object
- *
- * @param[in] x a vector to be passed to the simultaneous_equations as an input. Since we are evaluating
- *              simultaneous equations, x contains values of the unknown variables.
- *
- * @param[in] t an unused parameter included here to produce the same function signature as when evaluating
- *              a dynamical_system.
- *
- * @param[out] y the vector output. Since we are evaluating simultaneous equations, y contains the change
- *               in the value of each unknown variable produced by running the modules.
- */
-template <typename in_vector_type, typename time_type, typename out_vector_type>
-void evaluate_equations(
-    std::unique_ptr<simultaneous_equations> const& se,
-    in_vector_type const& x,
-    time_type /*t*/,
-    out_vector_type& y)
-{
-    se->operator()(x, y);
-}
+#include <memory>       // for std::shared_ptr
+#include "constants.h"  // for calculation_constants::eps_deriv
 
 /**
  * @brief Numerically compute the Jacobian matrix of a vector valued function.

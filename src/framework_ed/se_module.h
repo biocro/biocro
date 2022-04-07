@@ -3,13 +3,13 @@
 
 #include <map>                                       // for map
 #include <memory>                                    // for unique_ptr
-#include "../framework/module.h"                              // for direct_module, update
-#include "../framework/module_creator.h"                       // for module_creator, mc_vector
-#include "../framework/validate_dynamical_system.h"            // for find_strictly_required_inputs, all_are_in_list
-#include "../framework/simultaneous_equations.h"               // for get_unknown_quantities
-#include "../framework/state_map.h"                            // for state_map, string_vector, string_set
-#include "../framework/se_solver_helper_functions.h"           // for f_scalar_from_f_vec
-#include "../framework/se_solver_library/se_solver_factory.h"  // for se_solver_factory::create
+#include "../framework/module.h"                     // for direct_module, update
+#include "../framework/module_creator.h"             // for module_creator, mc_vector
+#include "../framework/validate_dynamical_system.h"  // for find_strictly_required_inputs, all_are_in_list
+#include "../framework/state_map.h"                  // for state_map, string_vector, string_set
+#include "simultaneous_equations.h"                  // for get_unknown_quantities
+#include "se_solver_helper_functions.h"              // for f_scalar_from_f_vec
+#include "se_solver_library/se_solver_factory.h"     // for se_solver_factory::create
 #include <Rinternals.h>                              // for debugging
 const bool se_module_print = false;                  // for debugging
 

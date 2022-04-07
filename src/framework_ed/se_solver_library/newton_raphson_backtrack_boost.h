@@ -3,8 +3,8 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include "../../framework/numerical_jacobian.h"
 #include "../se_solver.h"
-#include "../numerical_jacobian.h"
 #include "../se_solver_helper_functions.h"  // for f_scalar_from_F_vec
 #include "newton_raphson_boost.h"           // for get_newton_raphson_step_boost
 #include <cmath>                            // for sqrt
@@ -207,10 +207,10 @@ bool newton_raphson_line_search_boost(
     message += std::string(buff);
 
     // Initialize local variables for the loop
-    double lambda = 1.0;         // always try the full step first
-    double f_scalar_new = 0.0;   // will be recalculated at each step
-    double lambda_2 = 0.0;       // will be initialized at the end of the first loop, but not required during the first iteration
-    double f_scalar_2 = 0.0;     // will be initialized at the end of the first loop, but not required during the first iteration
+    double lambda = 1.0;        // always try the full step first
+    double f_scalar_new = 0.0;  // will be recalculated at each step
+    double lambda_2 = 0.0;      // will be initialized at the end of the first loop, but not required during the first iteration
+    double f_scalar_2 = 0.0;    // will be initialized at the end of the first loop, but not required during the first iteration
     bool found_acceptable_step = false;
     bool found_possible_local_min = false;
 
@@ -339,7 +339,7 @@ bool newton_raphson_line_search_boost(
 
 /**
  * @class newton_raphson_backtrack_boost
- * 
+ *
  * @brief This class implements the backtracking Newton-Raphson method for
  * solving simultaneous equations, as described in section 9.7 of Numerical
  * Recipes in C. Matrix operations are accomplished using the boost ublas

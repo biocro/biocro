@@ -7,9 +7,9 @@
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include "../../framework/numerical_jacobian.h"
 #include "../se_solver.h"
 #include "../se_solver_helper_functions.h"
-#include "../numerical_jacobian.h"
 #include <algorithm>  // for std::transform
 
 /**
@@ -36,7 +36,7 @@ boost::numeric::ublas::vector<double> get_newton_raphson_step_boost(
 
 /**
  * @class newton_raphson_boost
- * 
+ *
  * @brief This class implements the Newton-Raphson method for solving simultaneous equations.
  * Matrix operations are accomplished using the boost ublas library.
  */
