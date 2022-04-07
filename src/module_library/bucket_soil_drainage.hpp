@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class bucket_soil_drainage : public differential_module
 {
    public:
@@ -110,4 +112,5 @@ void bucket_soil_drainage::do_operation() const
     update(soil_water_content_op, (precipitation_rate - transpiration_rate - evaporation_rate - runoff - drainage) / soil_depth * 3600);  // m^3 / m^3 / hr;
 }
 
+}  // namespace standardBML
 #endif

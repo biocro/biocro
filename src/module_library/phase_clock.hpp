@@ -6,6 +6,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class phase_clock : public differential_module
 {
    public:
@@ -112,4 +114,5 @@ void phase_clock::do_operation() const
     update(phi_op, natural_freq * (1 + R * light));
 }
 
+}  // namespace standardBML
 #endif

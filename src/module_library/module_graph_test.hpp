@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class Module_1 : public direct_module
 {
    public:
@@ -168,4 +170,5 @@ void Module_3::do_operation() const
     update(E_op, 0.0);
 }
 
+}  // namespace standardBML
 #endif

@@ -65,6 +65,8 @@
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
+namespace standardBML
+{
 class thermal_time_linear : public differential_module
 {
    public:
@@ -132,4 +134,5 @@ void thermal_time_linear::do_operation() const
     update(TTc_op, rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

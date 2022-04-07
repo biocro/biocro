@@ -3,11 +3,11 @@
 
 #include "se_module.h"
 #include "../framework/state_map.h"
-#include <cmath>                            // for fabs and sqrt
-#include <algorithm>                        // for std::min and std::max
+#include <cmath>                                      // for fabs and sqrt
+#include <algorithm>                                  // for std::min and std::max
 #include "../framework/constants.h"                   // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
-#include "ed_nikolov_conductance.h"         // for nikolov namespace
-#include "AuxBioCro.h"                      // for TempToLHV and other similar functions
+#include "ed_nikolov_conductance.h"                   // for nikolov namespace
+#include "AuxBioCro.h"                                // for TempToLHV and other similar functions
 #include "../framework/se_solver_helper_functions.h"  // for generate_guess_list
 
 #include "ed_rh_to_mole_fraction.h"
@@ -21,25 +21,25 @@
 #include "ed_water_vapor_properties.h"
 #include "ed_leaf_temperature.h"
 
-#include <Rinternals.h>                     // for debugging
-const bool eclp4_print = false;             // for debugging
+#include <Rinternals.h>          // for debugging
+const bool eclp4_print = false;  // for debugging
 
 namespace ed_c4_leaf_photosynthesis4_stuff
 {
 std::string const module_name = "ed_c4_leaf_photosynthesis4";
 
 // Create module wrapper objects for the sub-modules
-module_creator_impl<ed_rh_to_mole_fraction> mole_fraction;
-module_creator_impl<ed_nikolov_conductance_forced> forced_conductance;
-module_creator_impl<ed_nikolov_conductance_free_solve> free_conductance;
-module_creator_impl<ed_boundary_conductance_max> boundary_conductance;
-module_creator_impl<ed_gas_concentrations> gas_concentrations;
-module_creator_impl<ed_apply_stomatal_water_stress_via_conductance> water_stress;
-module_creator_impl<ed_ball_berry> stomatal_conductance;
-module_creator_impl<ed_collatz_c4_assimilation> assimilation;
-module_creator_impl<ed_long_wave_energy_loss> longwave;
-module_creator_impl<ed_water_vapor_properties> water_properties;
-module_creator_impl<ed_leaf_temperature> leaf_temperature;
+module_creator_impl<standardBML::ed_rh_to_mole_fraction> mole_fraction;
+module_creator_impl<standardBML::ed_nikolov_conductance_forced> forced_conductance;
+module_creator_impl<standardBML::ed_nikolov_conductance_free_solve> free_conductance;
+module_creator_impl<standardBML::ed_boundary_conductance_max> boundary_conductance;
+module_creator_impl<standardBML::ed_gas_concentrations> gas_concentrations;
+module_creator_impl<standardBML::ed_apply_stomatal_water_stress_via_conductance> water_stress;
+module_creator_impl<standardBML::ed_ball_berry> stomatal_conductance;
+module_creator_impl<standardBML::ed_collatz_c4_assimilation> assimilation;
+module_creator_impl<standardBML::ed_long_wave_energy_loss> longwave;
+module_creator_impl<standardBML::ed_water_vapor_properties> water_properties;
+module_creator_impl<standardBML::ed_leaf_temperature> leaf_temperature;
 
 // Create pointers to the wrappers
 mc_vector const sub_mcs{
@@ -53,8 +53,7 @@ mc_vector const sub_mcs{
     &assimilation,
     &longwave,
     &water_properties,
-    &leaf_temperature
-};
+    &leaf_temperature};
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
 
@@ -101,6 +100,8 @@ std::vector<double> const relative_error_tolerances = {
  * conductance_stomatal_h2o, and temperature_leaf. Also returns other quantities
  * derived from these. Represents photosynthesis at the leaf level for a c4 plant.
  */
+namespace standardBML
+{
 class ed_c4_leaf_photosynthesis4 : public se_module::base
 {
    public:
@@ -314,4 +315,5 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis4::get_initial_guesses
     return input_guesses;
 }
 
+}  // namespace standardBML
 #endif

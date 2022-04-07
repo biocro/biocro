@@ -3,9 +3,9 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <cmath>           // for fabs
+#include <cmath>                     // for fabs
 #include "../framework/constants.h"  // for eps_zero
-#include "AuxBioCro.h"     // for saturation_vapor_pressure
+#include "AuxBioCro.h"               // for saturation_vapor_pressure
 
 /**
  * @class ed_gas_concentrations
@@ -32,6 +32,8 @@
  * is the H2O mole fraction, 'g' is water vapor conductance, and the subscripts 's', 'i',
  * and 'a' refer to surface, intercellular, and atmospheric concentrations, respectively.
  */
+namespace standardBML
+{
 class ed_gas_concentrations : public direct_module
 {
    public:
@@ -157,4 +159,5 @@ void ed_gas_concentrations::do_operation() const
     update(mole_fraction_h2o_intercellular_op, mole_fraction_h2o_intercellular);
 }
 
+}  // namespace standardBML
 #endif

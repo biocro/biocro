@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class stomata_water_stress_linear : public direct_module
 {
    public:
@@ -64,4 +66,5 @@ void stomata_water_stress_linear::do_operation() const
     update(StomataWS_op, std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0));
 }
 
+}  // namespace standardBML
 #endif

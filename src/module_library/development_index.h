@@ -51,6 +51,8 @@
  *
  */
 
+namespace standardBML
+{
 class development_index : public differential_module
 {
    public:
@@ -103,4 +105,5 @@ void development_index::do_operation() const
     update(DVI_op, development_rate_per_hour);  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

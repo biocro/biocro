@@ -50,6 +50,8 @@
  * using the module_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
+namespace standardBML
+{
 class multilayer_canopy_properties : public direct_module
 {
    public:
@@ -183,4 +185,5 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

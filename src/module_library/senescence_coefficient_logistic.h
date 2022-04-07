@@ -3,9 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <cmath> // for exp
-
-double ksene(double rate, double alpha, double beta, double DVI);
+#include <cmath>  // for exp
 
 /**
  * @class senescence_coefficient_logistic
@@ -46,6 +44,10 @@ double ksene(double rate, double alpha, double beta, double DVI);
  * model of soybean growth"
  *
  */
+namespace standardBML
+{
+double ksene(double rate, double alpha, double beta, double DVI);
+
 class senescence_coefficient_logistic : public direct_module
 {
    public:
@@ -155,4 +157,5 @@ double ksene(double rate, double alpha, double beta, double DVI)
     return kSene;  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

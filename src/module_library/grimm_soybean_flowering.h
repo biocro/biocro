@@ -10,6 +10,8 @@
  *
  * See `grimm_soybean_flowering_calculator` for details.
  */
+namespace standardBML
+{
 class grimm_soybean_flowering : public differential_module
 {
    public:
@@ -60,4 +62,5 @@ void grimm_soybean_flowering::do_operation() const
     update(grimm_physiological_age_op, grimm_rate);
 }
 
+}  // namespace standardBML
 #endif

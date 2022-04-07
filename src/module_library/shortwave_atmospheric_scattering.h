@@ -14,6 +14,8 @@
  * solar constant) or as a fraction (which would be appropriate for calculating the intensity of
  * direct and diffuse light given an experimental measurement of light intensity at the surface).
  */
+namespace standardBML
+{
 class shortwave_atmospheric_scattering : public direct_module
 {
    public:
@@ -107,4 +109,5 @@ void shortwave_atmospheric_scattering::do_operation() const
     update(irradiance_diffuse_fraction_op, irradiance_diffuse_fraction);
 }
 
+}  // namespace standardBML
 #endif

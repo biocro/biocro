@@ -14,6 +14,8 @@
  *  It is intended to be run along with the utilization_growth_calculator
  *  module. See utilization_growth_calculator.hpp for more information.
  */
+namespace standardBML
+{
 class utilization_growth : public differential_module
 {
    public:
@@ -161,4 +163,5 @@ void utilization_growth::do_operation() const
     update(substrate_pool_rhizome_op, d_substrate_rhizome);
 }
 
+}  // namespace standardBML
 #endif

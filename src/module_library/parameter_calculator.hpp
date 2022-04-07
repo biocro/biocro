@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class parameter_calculator : public direct_module
 {
    public:
@@ -92,4 +94,5 @@ void parameter_calculator::do_operation() const
     update(alpha_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*alphab1_ip) + (*alpha1_ip));
 }
 
+}  // namespace standardBML
 #endif

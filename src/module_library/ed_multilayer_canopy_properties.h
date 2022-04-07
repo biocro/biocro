@@ -26,6 +26,8 @@
  * will be used by the multilayer canopy photosynthesis module to pass them
  * to a leaf photosynthesis module.
  */
+namespace standardBML
+{
 class ed_multilayer_canopy_properties : public direct_module
 {
    public:
@@ -333,4 +335,5 @@ void ed_ten_layer_canopy_properties::do_operation() const
     ed_multilayer_canopy_properties::run();
 }
 
+}  // namespace standardBML
 #endif

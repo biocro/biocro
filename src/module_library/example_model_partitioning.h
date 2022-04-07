@@ -28,6 +28,8 @@
  *  should be 1.
  *
  */
+namespace standardBML
+{
 class example_model_partitioning : public differential_module
 {
    public:
@@ -90,4 +92,5 @@ void example_model_partitioning::do_operation() const
     update(Root_op, dRoot);
 }
 
+}  // namespace standardBML
 #endif

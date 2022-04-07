@@ -10,6 +10,8 @@
  *  @brief Calculates the total biomass by adding together the masses of the
  *  `Leaf`, `Stem`, `Root`, `Rhizome`, and `Grain` tissues.
  */
+namespace standardBML
+{
 class total_biomass : public direct_module
 {
    public:
@@ -71,4 +73,5 @@ void total_biomass::do_operation() const
     update(total_biomass_op, Leaf + Stem + Root + Rhizome + Grain);
 }
 
+}  // namespace standardBML
 #endif

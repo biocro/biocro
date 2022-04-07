@@ -12,6 +12,8 @@
  * using the `saturation_vapor_pressure()` function, which implements the Arden
  * Buck equation.
  */
+namespace standardBML
+{
 class buck_swvp : public direct_module
 {
    public:
@@ -63,4 +65,5 @@ void buck_swvp::do_operation() const
            saturation_vapor_pressure(temp));  // Pa
 }
 
+}  // namespace standardBML
 #endif

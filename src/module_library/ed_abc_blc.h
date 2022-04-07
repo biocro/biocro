@@ -12,6 +12,8 @@
  * `leaf_boundary_layer_conductance_nikolov()` (BLC) function in `AuxBioCro`
  * (ABC). Currently only intended for use by Ed.
  */
+namespace standardBML
+{
 class ed_abc_blc : public direct_module
 {
    public:
@@ -99,4 +101,5 @@ void ed_abc_blc::do_operation() const
     update(conductance_boundary_h2o_op, blc_mol);
 }
 
+}  // namespace standardBML
 #endif

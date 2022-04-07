@@ -53,6 +53,8 @@
  *   assimilation of leaf canopies. Netherlands Journal of Agricultural Science
  *   26, 373–382 (1978)
  */
+namespace standardBML
+{
 class grimm_soybean_flowering_calculator : public direct_module
 {
    public:
@@ -229,4 +231,5 @@ void grimm_soybean_flowering_calculator::do_operation() const
     update(grimm_flowering_op, is_flowering);
 }
 
+}  // namespace standardBML
 #endif

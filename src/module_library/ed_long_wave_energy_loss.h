@@ -12,6 +12,8 @@
  * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
  * from the leaf to the air. Currently only intended for use by Ed.
  */
+namespace standardBML
+{
 class ed_long_wave_energy_loss : public direct_module
 {
    public:
@@ -81,4 +83,5 @@ void ed_long_wave_energy_loss::do_operation() const
     update(long_wave_energy_loss_leaf_op, net_energy_loss_leaf);
 }
 
+}  // namespace standardBML
 #endif

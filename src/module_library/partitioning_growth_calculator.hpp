@@ -60,6 +60,8 @@
  *  Sunflower at Various Leaf Water Potentials" Plant Physiology 46, 233–235 (1970)]
  *  (https://doi.org/10.1104/pp.46.2.233).
  */
+namespace standardBML
+{
 class partitioning_growth_calculator : public direct_module
 {
    public:
@@ -198,4 +200,5 @@ void partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
+}  // namespace standardBML
 #endif

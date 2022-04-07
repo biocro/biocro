@@ -7,11 +7,6 @@
 #include "c4_leaf_photosynthesis.h"
 #include "../framework/state_map.h"
 
-using ten_layer_c4_canopy_parent =
-    multilayer_canopy_photosynthesis<
-        ten_layer_canopy_properties,
-        c4_leaf_photosynthesis>;
-
 /**
  * @class ten_layer_c4_canopy
  *
@@ -31,6 +26,13 @@ using ten_layer_c4_canopy_parent =
  * Instances of this class can be created using the module factory, unlike the
  * parent class `multilayer_canopy_photosynthesis`.
  */
+namespace standardBML
+{
+using ten_layer_c4_canopy_parent =
+    multilayer_canopy_photosynthesis<
+        ten_layer_canopy_properties,
+        c4_leaf_photosynthesis>;
+
 class ten_layer_c4_canopy : public ten_layer_c4_canopy_parent
 {
    public:
@@ -55,4 +57,5 @@ class ten_layer_c4_canopy : public ten_layer_c4_canopy_parent
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

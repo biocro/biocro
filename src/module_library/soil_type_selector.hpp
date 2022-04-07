@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // For soilText_str and get_soil_properties
 
+namespace standardBML
+{
 class soil_type_selector : public direct_module
 {
    public:
@@ -90,4 +92,5 @@ void soil_type_selector::do_operation() const
     update(soil_bulk_density_op, soil_properties.bulk_density);
 }
 
+}  // namespace standardBML
 #endif

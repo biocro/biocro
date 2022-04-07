@@ -12,6 +12,8 @@
  * @brief Just a module wrapper for the EvapoTrans2 function.
  * Currently only intended for use by Ed.
  */
+namespace standardBML
+{
 class ed_evapotrans2 : public direct_module
 {
    public:
@@ -125,4 +127,5 @@ void ed_evapotrans2::do_operation() const
     update(gbw_op, et_results.boundary_layer_conductance);                    // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

@@ -37,6 +37,8 @@
  *  > `mass_gain = A_leaf * m_leaf * SLA * C_conv` (2)
  *
  */
+namespace standardBML
+{
 class example_model_mass_gain : public direct_module
 {
    public:
@@ -101,4 +103,5 @@ void example_model_mass_gain::do_operation() const
     update(mass_gain_op, mass_gain);
 }
 
+}  // namespace standardBML
 #endif

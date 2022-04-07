@@ -1,7 +1,7 @@
 #ifndef ED_LEAF_TEMPERATURE_H
 #define ED_LEAF_TEMPERATURE_H
 
-#include <cmath>           // for fabs
+#include <cmath>                     // for fabs
 #include "../framework/constants.h"  // for eps_zero, molar_mass_of_water
 #include "../framework/module.h"
 #include "../framework/state_map.h"
@@ -62,6 +62,8 @@
  * that a self-consistent value for the leaf temperature will be found using an
  * se_solver.
  */
+namespace standardBML
+{
 class ed_leaf_temperature : public direct_module
 {
    public:
@@ -176,4 +178,5 @@ void ed_leaf_temperature::do_operation() const
     update(sensible_heat_loss_op, sensible_heat_loss);
 }
 
+}  // namespace standardBML
 #endif

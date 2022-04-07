@@ -20,6 +20,8 @@
  * overall conductance determined this way will be approximately equal to the
  * larger conductance as in Nikolov.
  */
+namespace standardBML
+{
 class ed_boundary_conductance_quadrature : public direct_module
 {
    public:
@@ -142,4 +144,5 @@ void ed_boundary_conductance_max::do_operation() const
     update(conductance_boundary_h2o_op, overall_conductance);
 }
 
+}  // namespace standardBML
 #endif

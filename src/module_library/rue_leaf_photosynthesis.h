@@ -122,6 +122,8 @@
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
  */
+namespace standardBML
+{
 class rue_leaf_photosynthesis : public direct_module
 {
    public:
@@ -194,4 +196,5 @@ class rue_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

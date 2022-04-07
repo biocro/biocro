@@ -1,7 +1,7 @@
 #ifndef SOLAR_POSITION_MICHALSKY_H
 #define SOLAR_POSITION_MICHALSKY_H
 
-#include <cmath>                     // for floor, fmod
+#include <cmath>                               // for floor, fmod
 #include "../framework/degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
 #include "../framework/module.h"
 #include "../framework/state_map.h"
@@ -89,6 +89,8 @@
  *  | cosine of the zenith angle   | `cos_zen`        | ``'cosine_zenith_angle'`` |
  *
  */
+namespace standardBML
+{
 class solar_position_michalsky : public direct_module
 {
    public:
@@ -256,4 +258,5 @@ void solar_position_michalsky::do_operation() const
     update(solar_azimuth_angle_op, az);
 }
 
+}  // namespace standardBML
 #endif

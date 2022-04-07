@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class partitioning_coefficient_selector : public direct_module
 {
    public:
@@ -191,4 +193,5 @@ void partitioning_coefficient_selector::do_operation() const
     update(kGrain_op, kGrain);
 }
 
+}  // namespace standardBML
 #endif

@@ -31,6 +31,8 @@
  * becomes infinite and so does the leaf shape factor k. This is the expected
  * behavior and isn't an actual error.
  */
+namespace standardBML
+{
 class leaf_shape_factor : public direct_module
 {
    public:
@@ -96,4 +98,5 @@ void leaf_shape_factor::do_operation() const
     update(leaf_shape_factor_op, LSF);
 }
 
+}  // namespace standardBML
 #endif

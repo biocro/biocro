@@ -10,6 +10,8 @@
  *
  * @brief Currently only intended for use by Ed.
  */
+namespace standardBML
+{
 class ed_canac_leaf : public direct_module
 {
    public:
@@ -122,8 +124,8 @@ string_vector ed_canac_leaf::get_inputs()
         "windspeed",                          // m / s
         "leafwidth",                          // m
         "specific_heat_of_air",               // J / kg / K
-        "solar_energy_absorbed_leaf",          // J / m^2 / s
-        "minimum_gbw" // mol / m^2 / s
+        "solar_energy_absorbed_leaf",         // J / m^2 / s
+        "minimum_gbw"                         // mol / m^2 / s
     };
 }
 
@@ -168,7 +170,7 @@ void ed_canac_leaf::do_operation() const
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
     const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
-    const double minimum_gbw = *minimum_gbw_ip; // mol / m^2 / s
+    const double minimum_gbw = *minimum_gbw_ip;                                     // mol / m^2 / s
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output =
@@ -207,4 +209,5 @@ void ed_canac_leaf::do_operation() const
     update(conductance_boundary_h2o_op, evapotrans_output.boundary_layer_conductance);  // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

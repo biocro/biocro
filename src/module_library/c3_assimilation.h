@@ -53,6 +53,8 @@
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  */
+namespace standardBML
+{
 class c3_assimilation : public direct_module
 {
    public:
@@ -186,4 +188,5 @@ void c3_assimilation::do_operation() const
     update(GrossAssim_op, c3_results.GrossAssim);
 }
 
+}  // namespace standardBML
 #endif

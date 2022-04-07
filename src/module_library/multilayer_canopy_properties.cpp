@@ -5,7 +5,7 @@
 /**
  * @brief Define all inputs required by the module
  */
-string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
+string_vector standardBML::multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
         "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
@@ -31,7 +31,7 @@ string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 /**
  * @brief Define the different leaf classes included by the module
  */
-string_vector multilayer_canopy_properties::define_leaf_classes()
+string_vector standardBML::multilayer_canopy_properties::define_leaf_classes()
 {
     return {
         "sunlit",  // these leaves receive diffuse, scattered, and direct solar radiation
@@ -43,7 +43,7 @@ string_vector multilayer_canopy_properties::define_leaf_classes()
  * @brief Define all outputs that have different values for each leaf class and
  * layer
  */
-string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector standardBML::multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
         "incident_ppfd",       // micromol / (m^2 leaf) / s
@@ -56,7 +56,7 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
  * @brief Define all outputs that have different values for each layer, not
  * including outputs that also depend on leaf class
  */
-string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
+string_vector standardBML::multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
         "incident_ppfd_scattered",     // micromol / (m^2 leaf) / s
@@ -74,7 +74,7 @@ string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
  * number suffixes. Here we should make use of the `define_XXX` functions to
  * reduce code duplication.
  */
-string_vector multilayer_canopy_properties::get_outputs(int nlayers)
+string_vector standardBML::multilayer_canopy_properties::get_outputs(int nlayers)
 {
     // Add leaf_class prefixes to the multiclass_multilayer outputs
     string_vector multilayer_outputs = generate_multiclass_quantity_names(
@@ -91,7 +91,7 @@ string_vector multilayer_canopy_properties::get_outputs(int nlayers)
     return generate_multilayer_quantity_names(nlayers, multilayer_outputs);
 }
 
-void multilayer_canopy_properties::run() const
+void standardBML::multilayer_canopy_properties::run() const
 {
     // Calculate values of incident photosynthetically active photon flux
     // density (PPFD) and absorbed shortwave energy throughout the canopy. Note
@@ -155,36 +155,36 @@ void multilayer_canopy_properties::run() const
 // TEN LAYER CANOPY PROPERTIES MODULE //
 ////////////////////////////////////////
 
-int const ten_layer_canopy_properties::nlayers = 10;
+int const standardBML::ten_layer_canopy_properties::nlayers = 10;
 
-string_vector ten_layer_canopy_properties::get_inputs()
+string_vector standardBML::ten_layer_canopy_properties::get_inputs()
 {
     return multilayer_canopy_properties::get_inputs(ten_layer_canopy_properties::nlayers);
 }
 
-string_vector ten_layer_canopy_properties::define_leaf_classes()
+string_vector standardBML::ten_layer_canopy_properties::define_leaf_classes()
 {
     return multilayer_canopy_properties::define_leaf_classes();
 }
 
-string_vector ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector standardBML::ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_multiclass_multilayer_outputs();
 }
 
-string_vector ten_layer_canopy_properties::define_pure_multilayer_outputs()
+string_vector standardBML::ten_layer_canopy_properties::define_pure_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_pure_multilayer_outputs();
 }
 
-string_vector ten_layer_canopy_properties::get_outputs()
+string_vector standardBML::ten_layer_canopy_properties::get_outputs()
 {
     return multilayer_canopy_properties::get_outputs(ten_layer_canopy_properties::nlayers);
 }
 
-void ten_layer_canopy_properties::do_operation() const
+void standardBML::ten_layer_canopy_properties::do_operation() const
 {
     multilayer_canopy_properties::run();
 }

@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "ball_berry.hpp"
 
+namespace standardBML
+{
 class ball_berry_module : public direct_module
 {
    public:
@@ -74,4 +76,5 @@ void ball_berry_module::do_operation() const
     update(leaf_stomatal_conductance_op, stomatal_conductance);
 }
 
+}  // namespace standardBML
 #endif

@@ -5,6 +5,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class harmonic_oscillator : public differential_module
 {
    public:
@@ -136,4 +138,5 @@ void harmonic_energy::do_operation() const
     update(total_energy_op, kinetic_energy + spring_energy);
 }
 
+}  // namespace standardBML
 #endif

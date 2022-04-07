@@ -1,7 +1,7 @@
 #ifndef ED_PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 #define ED_PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 
-#include <cmath>           // For pow
+#include <cmath>                     // For pow
 #include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "../framework/module.h"
 #include "../framework/state_map.h"
@@ -21,6 +21,8 @@
  * of mol / m^2 / s) to energy conductances (with units of m / s). In short, we replace all conductances g in the
  * Thornley formula with g * volume_per_mol_of_an_ideal_gas.
  */
+namespace standardBML
+{
 class ed_penman_monteith_leaf_temperature : public direct_module
 {
    public:
@@ -132,12 +134,12 @@ namespace ed_p_m_temperature_solve_stuff
 std::string const module_name = "ed_p_m_temperature_solve";
 
 // Create module wrapper objects for the sub-modules
-module_creator_impl<ed_nikolov_conductance_forced> forced_conductance;
-module_creator_impl<ed_nikolov_conductance_free_solve> free_conductance;
-module_creator_impl<ed_boundary_conductance_max> boundary_conductance;
-module_creator_impl<ed_long_wave_energy_loss> longwave;
-module_creator_impl<ed_water_vapor_properties> water_properties;
-module_creator_impl<ed_penman_monteith_leaf_temperature> leaf_temperature;
+module_creator_impl<standardBML::ed_nikolov_conductance_forced> forced_conductance;
+module_creator_impl<standardBML::ed_nikolov_conductance_free_solve> free_conductance;
+module_creator_impl<standardBML::ed_boundary_conductance_max> boundary_conductance;
+module_creator_impl<standardBML::ed_long_wave_energy_loss> longwave;
+module_creator_impl<standardBML::ed_water_vapor_properties> water_properties;
+module_creator_impl<standardBML::ed_penman_monteith_leaf_temperature> leaf_temperature;
 
 // Create pointers to the wrappers
 mc_vector const sub_mcs{
@@ -146,8 +148,7 @@ mc_vector const sub_mcs{
     &boundary_conductance,
     &longwave,
     &water_properties,
-    &leaf_temperature
-};
+    &leaf_temperature};
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
 
@@ -236,4 +237,5 @@ std::vector<std::vector<double>> ed_p_m_temperature_solve::get_initial_guesses()
         {temperature_air + temperature_offset}};
 }
 
+}  // namespace standardBML
 #endif

@@ -10,6 +10,8 @@
  * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis
  * parameters for C3 plants
  */
+namespace standardBML
+{
 class c3_leaf_photosynthesis : public direct_module
 {
    public:
@@ -102,4 +104,5 @@ class c3_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

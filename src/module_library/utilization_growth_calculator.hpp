@@ -14,6 +14,8 @@
  *  It is intended to be run along with the utilization_growth module. See
  *  utilization_growth.hpp for more information.
  */
+namespace standardBML
+{
 class utilization_growth_calculator : public direct_module
 {
    public:
@@ -312,4 +314,5 @@ void utilization_growth_calculator::do_operation() const
     update(kGrain_scale_op, kGrain_scale);
 }
 
+}  // namespace standardBML
 #endif

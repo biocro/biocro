@@ -13,6 +13,8 @@
  * shaded). Leaf class is added to output parameters as a prefix, while layer
  * number is added as a suffix.
  */
+namespace standardBML
+{
 class ed_multilayer_canopy_integrator : public direct_module
 {
    public:
@@ -249,4 +251,5 @@ void ed_ten_layer_canopy_integrator::do_operation() const
     ed_multilayer_canopy_integrator::run();
 }
 
+}  // namespace standardBML
 #endif

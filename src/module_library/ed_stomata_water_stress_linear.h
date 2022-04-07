@@ -15,6 +15,8 @@
  * point and the field capacity, the stress factor is
  * determined by a straight line.
  */
+namespace standardBML
+{
 class ed_stomata_water_stress_linear : public direct_module
 {
    public:
@@ -91,4 +93,5 @@ void ed_stomata_water_stress_linear::do_operation() const
     update(StomataWS_op, StomataWS);
 }
 
+}  // namespace standardBML
 #endif

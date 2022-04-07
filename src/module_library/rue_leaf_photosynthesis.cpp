@@ -65,7 +65,7 @@ struct rue_str rue_photo(
     return result;
 }
 
-string_vector rue_leaf_photosynthesis::get_inputs()
+string_vector standardBML::rue_leaf_photosynthesis::get_inputs()
 {
     return {
         "incident_ppfd",               // micromol / (m^2 leaf) / s
@@ -85,7 +85,7 @@ string_vector rue_leaf_photosynthesis::get_inputs()
     };
 }
 
-string_vector rue_leaf_photosynthesis::get_outputs()
+string_vector standardBML::rue_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromole / m^2 /s
@@ -100,7 +100,7 @@ string_vector rue_leaf_photosynthesis::get_outputs()
     };
 }
 
-void rue_leaf_photosynthesis::do_operation() const
+void standardBML::rue_leaf_photosynthesis::do_operation() const
 {
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature

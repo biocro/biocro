@@ -15,6 +15,8 @@
  *  - The number of layers is set to 10
  * Instances of this class can be created using the module factory.
  */
+namespace standardBML
+{
 class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>
 {
    public:
@@ -59,4 +61,5 @@ void ed_ten_layer_c4_canopy::do_operation() const
     multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>::run();
 }
 
+}  // namespace standardBML
 #endif

@@ -46,7 +46,7 @@ double rasmussen_specific_heat_of_air(
            b_2 * pow(mole_fraction_h2o, 2);  // J / kg / K
 }
 
-string_vector rasmussen_specific_heat::get_inputs()
+string_vector standardBML::rasmussen_specific_heat::get_inputs()
 {
     return {
         "temp",                         // degrees C
@@ -54,14 +54,14 @@ string_vector rasmussen_specific_heat::get_inputs()
     };
 }
 
-string_vector rasmussen_specific_heat::get_outputs()
+string_vector standardBML::rasmussen_specific_heat::get_outputs()
 {
     return {
         "specific_heat_of_air"  // J / kg / K
     };
 }
 
-void rasmussen_specific_heat::do_operation() const
+void standardBML::rasmussen_specific_heat::do_operation() const
 {
     // Convert temperature to Kelvin. (Note: this step will be unnecessary once
     // inputs have been standardized to coherent SI units and air temperature is

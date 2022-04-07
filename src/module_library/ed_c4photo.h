@@ -11,6 +11,8 @@
  * @brief Just a module wrapper for the `c4photo()` function.
  * Currently only intended for use by Ed.
  */
+namespace standardBML
+{
 class ed_c4photo : public direct_module
 {
    public:
@@ -163,4 +165,5 @@ void ed_c4photo::do_operation() const
     update(assimilation_net_op, c4_results.Assim * 1e-6);              // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

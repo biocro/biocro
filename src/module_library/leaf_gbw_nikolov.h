@@ -26,6 +26,8 @@
  * - ``'windspeed'`` for the wind speed
  * - ``'gbw'`` for the boundary layer conductance to water
  */
+namespace standardBML
+{
 class leaf_gbw_nikolov : public direct_module
 {
    public:
@@ -116,4 +118,5 @@ void leaf_gbw_nikolov::do_operation() const
     update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

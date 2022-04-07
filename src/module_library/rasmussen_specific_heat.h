@@ -37,6 +37,8 @@ double rasmussen_specific_heat_of_air(
  * @brief Determines the specific heat capacity of atmospheric air at constant
  * pressure using the `rasmussen_specific_heat_of_air()` function.
  */
+namespace standardBML
+{
 class rasmussen_specific_heat : public direct_module
 {
    public:
@@ -69,4 +71,5 @@ class rasmussen_specific_heat : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

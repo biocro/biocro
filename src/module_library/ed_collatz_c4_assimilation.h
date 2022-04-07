@@ -1,13 +1,12 @@
 #ifndef ED_COLLATZ_C4_ASSIMILATION_H
 #define ED_COLLATZ_C4_ASSIMILATION_H
 
-#include <cmath>  // For pow, exp
+#include <cmath>                     // For pow, exp
 #include "../framework/constants.h"  // for eps_zero
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <Rinternals.h>          // for debugging
+#include <Rinternals.h>            // for debugging
 const bool collatz_print = false;  // for debugging
-
 
 /**
  * @class ed_collatz_c4_assimilation
@@ -23,6 +22,8 @@ const bool collatz_print = false;  // for debugging
  * Finally, an overall gross assimilation rate is calculated based on these three limits, and net assimilation
  * is found by subtracting leaf respiration.
  */
+namespace standardBML
+{
 class ed_collatz_c4_assimilation : public direct_module
 {
    public:
@@ -247,4 +248,5 @@ void ed_collatz_c4_assimilation::do_operation() const
     update(assimilation_net_op, adjusted_assimilation_net);
 }
 
+}  // namespace standardBML
 #endif

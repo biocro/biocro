@@ -22,6 +22,8 @@
  * The `par_energy_fraction` quantity should represent the fraction of solar energy
  * that lies in the PAR band. This value is often near 0.5.
  */
+namespace standardBML
+{
 class incident_shortwave_from_ground_par : public direct_module
 {
    public:
@@ -113,4 +115,5 @@ void incident_shortwave_from_ground_par::do_operation() const
     update(nir_incident_diffuse_op, nir_incident_diffuse);
 }
 
+}  // namespace standardBML
 #endif

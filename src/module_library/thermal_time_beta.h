@@ -101,6 +101,8 @@
  * - ``'talpha'`` for the shape factor `alpha`
  * - ``'tbeta'`` for the shape factor `beta`
  */
+namespace standardBML
+{
 class thermal_time_beta : public differential_module
 {
    public:
@@ -178,4 +180,5 @@ void thermal_time_beta::do_operation() const
     update(TTc_op, rate);
 }
 
+}  // namespace standardBML
 #endif

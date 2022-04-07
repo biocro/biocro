@@ -5,7 +5,7 @@
 #include <algorithm>  // for std::max
 #include "se_module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"   // for saturation_water_vapor_pressure
+#include "AuxBioCro.h"  // for saturation_water_vapor_pressure
 
 #include "ed_rh_to_mole_fraction.h"
 #include "ed_penman_monteith_leaf_temperature.h"
@@ -23,13 +23,13 @@ namespace ed_c4_leaf_photosynthesis3_stuff
 std::string const module_name = "ed_c4_leaf_photosynthesis3";
 
 // Create module wrapper objects for the sub-modules
-module_creator_impl<ed_rh_to_mole_fraction> mole_fraction;
-module_creator_impl<ed_p_m_temperature_solve> leaf_temperature;
-module_creator_impl<ed_gas_concentrations> gas_concentrations;
-module_creator_impl<ed_apply_stomatal_water_stress_via_conductance> water_stress;
-module_creator_impl<ed_ball_berry> stomatal_conductance;
-module_creator_impl<ed_collatz_c4_assimilation> assimilation;
-module_creator_impl<ed_penman_monteith_transpiration> transpiration;
+module_creator_impl<standardBML::ed_rh_to_mole_fraction> mole_fraction;
+module_creator_impl<standardBML::ed_p_m_temperature_solve> leaf_temperature;
+module_creator_impl<standardBML::ed_gas_concentrations> gas_concentrations;
+module_creator_impl<standardBML::ed_apply_stomatal_water_stress_via_conductance> water_stress;
+module_creator_impl<standardBML::ed_ball_berry> stomatal_conductance;
+module_creator_impl<standardBML::ed_collatz_c4_assimilation> assimilation;
+module_creator_impl<standardBML::ed_penman_monteith_transpiration> transpiration;
 
 // Create pointers to the wrappers
 mc_vector const sub_mcs{
@@ -39,8 +39,7 @@ mc_vector const sub_mcs{
     &water_stress,
     &stomatal_conductance,
     &assimilation,
-    &transpiration
-};
+    &transpiration};
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
 
@@ -84,6 +83,8 @@ std::vector<double> const relative_error_tolerances = {
  * `conductance_boundary_h2o_free`. Also returns other quantities derived from these.
  * Represents photosynthesis at the leaf level for a c4 plant.
  */
+namespace standardBML
+{
 class ed_c4_leaf_photosynthesis3 : public se_module::base
 {
    public:
@@ -246,4 +247,5 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis3::get_initial_guesses
     return input_guesses;
 }
 
+}  // namespace standardBML
 #endif

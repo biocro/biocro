@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class priestley_transpiration : public direct_module
 {
    public:
@@ -68,4 +70,5 @@ void priestley_transpiration::do_operation() const
     update(transpiration_rate_op, evapotranspiration);  // kg / m^2 / s. Leaf area basis.
 }
 
+}  // namespace standardBML
 #endif

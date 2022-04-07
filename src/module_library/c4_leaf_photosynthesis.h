@@ -10,6 +10,8 @@
  * @brief Uses the method from `CanAC()` to calculate leaf photosynthesis
  * parameters for C4 plants
  */
+namespace standardBML
+{
 class c4_leaf_photosynthesis : public direct_module
 {
    public:
@@ -104,4 +106,5 @@ class c4_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

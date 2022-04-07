@@ -54,6 +54,8 @@
  *  - `Rhizome`: The rhizome growth rate is modified by respiration.
  *  - `Grain`: The grain growth rate is *not* modified by respiration.
  */
+namespace standardBML
+{
 class no_leaf_resp_partitioning_growth_calculator : public direct_module
 {
    public:
@@ -201,4 +203,5 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
+}  // namespace standardBML
 #endif

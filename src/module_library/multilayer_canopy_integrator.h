@@ -18,6 +18,8 @@
  * documentation for the `multilayer_canopy_properties` and
  * `multilayer_canopy_photosynthesis` modules.
  */
+namespace standardBML
+{
 class multilayer_canopy_integrator : public direct_module
 {
    public:
@@ -255,4 +257,5 @@ void ten_layer_canopy_integrator::do_operation() const
     multilayer_canopy_integrator::run();
 }
 
+}  // namespace standardBML
 #endif
