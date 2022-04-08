@@ -255,7 +255,11 @@ partial_run_biocro <- function(
 
     # Find the locations of the parameters specified in arg_names and check for
     # errors
-    controls = df[df$arg_name %in% arg_names, ]
+    # We can't use just %in% because that doesn't preserve the order.
+    # However, match() only returns the first match, which doesn't work for things like drivers.
+    # So use %in% for each arg_name so you can get all elements in the correct order.
+    controls <- do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
+
     missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
         error_messages <- append(
