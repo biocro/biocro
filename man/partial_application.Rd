@@ -73,7 +73,9 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
   arguments to a function, producing a new function with fewer inputs. In the
   context of BioCro, partial application can often be useful while varying some
   parameters, initial values, or drivers while performing optimization or
-  sensitivity analysis.
+  sensitivity analysis. Optimizers (such as \code{\link[stats]{optim}})
+  typically require a function with a single input argument, so the partial
+  application tools provided here help to create such functions.
 
   Both \code{partial_run_biocro} and \code{partial_evaluate_module} accept the
   same arguments as their "regular" counterparts (\code{\link{run_biocro}} and
@@ -90,24 +92,28 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 \value{
   \item{partial_run_biocro}{
     A function that calls \code{\link{run_biocro}} with all of the inputs
-    (except those specified in \code{arg_names}) set as their default values.
-    The only input argument of the new function is a numerical vector specifying
-    the values of the quantities in \code{arg_names}. In this vector, the values
-    must be supplied in the same order as in \code{arg_names}, and arguments
-    corresponding to drivers must be vectors having the same length as the other
-    drivers.
+    (except those specified in \code{arg_names}) set to the values specified by
+    the original call to \code{partial_run_biocro}. The new function has one
+    input (\code{x}), which can be a vector or list specifying the values of the
+    quantities in \code{arg_names}. If \code{x} has names, they must be
+    identical to the elements of \code{arg_names} but can be in any order.
+    Elements of \code{x} corresponding to drivers must be vectors having the
+    same length as the other drivers. The return value of the new function is a
+    data frame as would be produced by \code{\link{run_biocro}}.
   }
 
   \item{partial_evaluate_module}{
     A function that calls \code{\link{evaluate_module}} with the input
-    quantities (except those specified in \code{arg_names}) set as their default
-    values. The only input argument of the new function is a numerical vector
-    specifying the values of the quantities in \code{arg_names}. In this vector,
-    the values must be supplied in the same order as in \code{arg_names}. The
-    return value of the new function is a list with two elements (\code{inputs}
-    and \code{outputs}), each of which is a list of named numeric elements
-    representing the module's input and output values. (Note that this differs
-    from the output of \code{evaluate_module}, which only returns the outputs.)
+    quantities (except those specified in \code{arg_names}) set to the values
+    specified by the original call to \code{partial_evaluate_module}. The new
+    function has one input (\code{x}), which can be a vector or list specifying
+    the values of the quantities in \code{arg_names}. If \code{x} has names,
+    they must be identical to the elements of \code{arg_names} but can be in any
+    order. The return value of the new function is a list with two elements
+    (\code{inputs} and \code{outputs}), each of which is a list of named numeric
+    elements representing the module's input and output values. (Note that this
+    differs from the output of \code{evaluate_module}, which only returns the
+    outputs.)
   }
 }
 
@@ -137,10 +143,10 @@ senescence_simulation <- partial_run_biocro(
 )
 senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
-# Example 2: a crude method for simulating the effects of climate change; here we
-# increase the atmospheric CO2 concentration to 500 ppm and the temperature by
-# 2 degrees C relative to 2002 temperatures. The two commands below are
-# equivalent, so `hot_result_1` is identical to `hot_result_2`.
+# Example 2: a crude method for simulating the effects of climate change; here
+# we increase the atmospheric CO2 concentration to 500 ppm and the temperature
+# by 2 degrees C relative to 2002 temperatures. The commands below that call
+# `temperature_simulation` all produce the same result.
 temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
@@ -152,12 +158,19 @@ temperature_simulation <- partial_run_biocro(
 )
 hot_result_1 <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
 hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather2002$temp + 2.0))
+hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.0, Catm = 500))
 
-# Example 3: varying the temperature input to the 'thermal_time_linear' module
+# Example 3: varying the base and air temperature inputs to the
+# 'thermal_time_linear' module from the 'BioCro' module library. The commands
+# below that call `thermal_time_rate` all produce the same result.
 thermal_time_rate <- partial_evaluate_module(
   'BioCro:thermal_time_linear',
   within(miscanthus_x_giganteus_parameters, {time = 1}),
-  c("temp")
+  c("temp", "tbase")
 )
-rate_25 <- thermal_time_rate(25)
+rate_result_1 <- thermal_time_rate(c(25, 10))
+rate_result_2 <- thermal_time_rate(c(temp = 25, tbase = 10))
+rate_result_3 <- thermal_time_rate(c(tbase = 10, temp = 25))
+rate_result_4 <- thermal_time_rate(list(temp = 25, tbase = 10))
+rate_result_5 <- thermal_time_rate(list(tbase = 10, temp = 25))
 }

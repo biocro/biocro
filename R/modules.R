@@ -222,14 +222,29 @@ partial_evaluate_module <- function(
     # quantities specified in `arg_names`, returning the inputs and outputs as
     # named elements of a list
     function(x) {
+        if (!is.null(names(x))) {
+            if (length(names(x)) != length(arg_names)) {
+                stop("The `x` argument has names, but a different number of names than `arg_names`")
+            }
+
+            if (!all(names(x) %in% arg_names)) {
+                stop("The names of the `x` argument do not match those specified by `arg_names`")
+            }
+            x <- x[arg_names]
+        }
+
         x = unlist(x)
+
         if (length(x) != length(arg_names)) {
             stop("The `x` argument does not have the correct number of elements")
         }
+
         temp_input_quantities = input_quantities
+
         for (i in seq_along(x)) {
             temp_input_quantities[[arg_names[i]]] <- x[i]
         }
+
         output_quantities <-
             evaluate_module(module_name, temp_input_quantities)
 

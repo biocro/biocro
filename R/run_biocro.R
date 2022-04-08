@@ -272,15 +272,30 @@ partial_run_biocro <- function(
     # parameters specified in arg_names
     function(x)
     {
+        if (!is.null(names(x))) {
+            if (length(names(x)) != length(arg_names)) {
+                stop("The `x` argument has names, but a different number of names than `arg_names`")
+            }
+
+            if (!all(names(x) %in% arg_names)) {
+                stop("The names of the `x` argument do not match those specified by `arg_names`")
+            }
+            x <- x[arg_names]
+        }
+
         x = unlist(x)
+
         if (length(x) != nrow(controls)) {
             stop("The `x` argument does not have the correct number of elements")
         }
+
         temp_arg_list = arg_list
+
         for (i in seq_along(x)) {
             c_row = controls[i, ]
             temp_arg_list[[c_row$control]][[c_row$arg_name]][c_row$index] = x[i]
         }
+
         do.call(run_biocro, temp_arg_list)
     }
 }

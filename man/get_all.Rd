@@ -67,13 +67,12 @@
 }
 
 \examples{
-# Example 1: Getting a list of all distinct quantities defined by modules in the
-# `BioCro` module library. Doing this can be useful when writing a new module
-# that is intended to work along with pre-existing modules.
+# Example 1: Getting a sorted list of distinct quantities defined by modules in
+# the `BioCro` module library. Doing this can be useful when writing a new
+# module that is intended to work along with pre-existing modules.
 all_quantities <- get_all_quantities('BioCro')
 all_quantity_names <- all_quantities$quantity_name
-all_distinct_quantities <- unique(all_quantity_names)
-all_distinct_quantities <- sort(all_distinct_quantities)
+distinct_quantities <- sort(unique(all_quantity_names))
 
 # Example 2: Getting a list of all modules in the `BioCro` module library that
 # have "ci" as an input or output, using `tolower()` to account for any possible
