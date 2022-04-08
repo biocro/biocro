@@ -13,8 +13,8 @@
 system_derivatives(
   parameters = list(),
   drivers,
-  direct_module_specifications = list(),
-  differential_module_specifications = list()
+  direct_module_names = list(),
+  differential_module_names = list()
 )
 }
 
@@ -27,11 +27,11 @@ system_derivatives(
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{direct_module_specifications}{
+  \item{direct_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{differential_module_specifications}{
+  \item{differential_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 }
@@ -48,8 +48,8 @@ system_derivatives(
   (\code{t}, \code{differential_quantities}, and \code{parms}) that returns
   derivatives for each of the differential quantities in the dynamical system
   determined by the original inputs (\code{parameters}, \code{drivers},
-  \code{direct_module_specifications}, and
-  \code{differential_module_specifications}).
+  \code{direct_module_names}, and
+  \code{differential_module_names}).
 
   This function signature and the requirements for its inputs are set by the
   \code{LSODES} function from the \code{deSolve} package. The \code{t} input

@@ -36,21 +36,21 @@
   in a single directory, all the test cases can be checked with one call to
   \code{\link{test_module_library}}.
 
-  In this system, test cases for a module with specification
-  \code{module_specification} must be stored in \code{module_specification.csv},
-  where the colon in the module specification has been replaced by an
-  underscore; for example, the module specification \code{BioCro:total_biomass}
-  would be associated with \code{BioCro_total_biomass.csv}. The first row of a
-  test case file must be the quantity types (\code{input} or \code{output}), the
-  second row must be the quantity names, and the remaining rows must each
-  specify input quantity values along with the expected output values they
-  should produce. There must also be a \code{description} column (with
-  \code{description} in the first row) containing short descriptions of the
-  test cases. These formatting requirements will automatically be satisfied for
-  any test case file produced by \code{\link{initialize_csv}} or modified by
-  \code{\link{add_csv_row}} or \code{\link{update_csv_cases}}. Such files can be
-  read from R using \code{\link{cases_from_csv}}, and the resulting case objects
-  can be passed to \code{\link{test_module}}.
+  In this system, test cases for a module with fully-qualified name
+  \code{module_name} must be stored in \code{module_name.csv},
+  where the colon in the module name has been replaced by an underscore; for
+  example, the module named \code{BioCro:total_biomass} would be associated with
+  \code{BioCro_total_biomass.csv}. The first row of a test case file must be the
+  quantity types (\code{input} or \code{output}), the second row must be the
+  quantity names, and the remaining rows must each specify input quantity values
+  along with the expected output values they should produce. There must also be
+  a \code{description} column (with \code{description} in the first row)
+  containing short descriptions of the test cases. These formatting requirements
+  will automatically be satisfied for any test case file produced by
+  \code{\link{initialize_csv}} or modified by \code{\link{add_csv_row}} or
+  \code{\link{update_csv_cases}}. Such files can be read from R using
+  \code{\link{cases_from_csv}}, and the resulting case objects can be passed to
+  \code{\link{test_module}}.
 
   Although it is possible, directly editing the case files is not recommended
   since \code{\link{initialize_csv}}, \code{\link{add_csv_row}}, and

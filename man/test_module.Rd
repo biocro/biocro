@@ -24,19 +24,20 @@
 }
 
 \usage{
-  test_module(module_specification, case_to_test)
+  test_module(module_name, case_to_test)
 
   case(inputs, expected_outputs, description)
 
-  cases_from_csv(module_specification, directory)
+  cases_from_csv(module_name, directory)
 }
 
 \arguments{
-  \item{module_specification}{
-    A string specifying one BioCro module, formatted like
-    \code{library_name:module_name}, where \code{library_name} is the name of
-    a library that contains a module with name \code{module_name}; module
-    specifications can be formed manually or with \code{\link{module_paste}}.
+  \item{module_name}{
+    A string expressing the fully-qualified name of one BioCro module, formatted
+    like \code{library_name:module_name}, where \code{library_name} is the name
+    of a library that contains a module with name \code{module_name};
+    fully-qualified module names can be formed manually or with
+    \code{\link{module_paste}}.
   }
 
   \item{case_to_test}{
@@ -137,9 +138,9 @@ test_module(
 # Note: here we use the `initialize_csv` function first to ensure that there is
 # a properly defined test file in the current directory.
 \dontrun{
-module_specification <- 'BioCro:thermal_time_linear'
-initialize_csv(module_specification, '.')
-cases <- cases_from_csv(module_specification, '.')
-test_module(module_specification, cases[[1]])
+module_name <- 'BioCro:thermal_time_linear'
+initialize_csv(module_name, '.')
+cases <- cases_from_csv(module_name, '.')
+test_module(module_name, cases[[1]])
 }
 }

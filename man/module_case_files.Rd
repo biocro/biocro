@@ -26,24 +26,25 @@
 
 \usage{
   initialize_csv(
-    module_specification,
+    module_name,
     directory,
     nonstandard_inputs = list(),
     description = "automatically-generated test case",
     overwrite = FALSE
   )
 
-  add_csv_row(module_specification, directory, inputs, description)
+  add_csv_row(module_name, directory, inputs, description)
 
-  update_csv_cases(module_specification, directory)
+  update_csv_cases(module_name, directory)
 }
 
 \arguments{
-  \item{module_specification}{
-    A string specifying one BioCro module, formatted like
-    \code{library_name:module_name}, where \code{library_name} is the name of
-    a library that contains a module with name \code{module_name}; module
-    specifications can be formed manually or with \code{\link{module_paste}}.
+  \item{module_name}{
+    A string expressing the fully-qualified name of one BioCro module, formatted
+    like \code{library_name:module_name}, where \code{library_name} is the name
+    of a library that contains a module with name \code{module_name};
+    fully-qualified module names can be formed manually or with
+    \code{\link{module_paste}}.
   }
 
   \item{directory}{

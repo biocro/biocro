@@ -75,12 +75,10 @@ get_all_quantities <- function(library_name) {
 
     all_quantities <- library_func()
 
-    # The C++ code returns module names, but here we want the full module
-    # specifications
-    all_quantities[['module_specification']] <-
+    # The C++ code returns bare module names, but here we want the
+    # fully-qualified module names
+    all_quantities[['module_name']] <-
         module_paste(library_name, all_quantities[['module_name']])
-
-    all_quantities[['module_name']] <- NULL
 
     all_quantities
 }

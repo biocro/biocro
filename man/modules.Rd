@@ -10,8 +10,11 @@
 
 \description{
   BioCro modules are named sets of equations, and each module is available from
-  a BioCro module library. The functions here provide ways to access information
-  about modules and to calculate their output values from sets of input values.
+  a BioCro module library. Each module is identified by a
+  \href{https://en.wikipedia.org/wiki/Fully_qualified_name}{fully-qualified name}
+  that includes both the module and library names. The functions here provide
+  ways to access information about modules and to calculate their output values
+  from sets of input values.
 
   \code{module_info} returns essential information about a BioCro module.
 
@@ -26,21 +29,22 @@
 }
 
 \usage{
-  module_info(module_specification, verbose = TRUE)
+  module_info(module_name, verbose = TRUE)
 
   quantity_list_from_names(quantity_names)
 
-  evaluate_module(module_specification, input_quantities)
+  evaluate_module(module_name, input_quantities)
 
-  module_response_curve(module_specification, fixed_quantities, varying_quantities)
+  module_response_curve(module_name, fixed_quantities, varying_quantities)
 }
 
 \arguments{
-  \item{module_specification}{
-    A string specifying one BioCro module, formatted like
-    \code{library_name:module_name}, where \code{library_name} is the name of
-    a library that contains a module with name \code{module_name}; module
-    specifications can be formed manually or with \code{\link{module_paste}}.
+  \item{module_name}{
+    A string expressing the fully-qualified name of one BioCro module, formatted
+    like \code{library_name:module_name}, where \code{library_name} is the name
+    of a library that contains a module with name \code{module_name};
+    fully-qualified module names can be formed manually or with
+    \code{\link{module_paste}}.
   }
 
   \item{verbose}{
@@ -80,8 +84,8 @@
   use, the values of any fixed input quantities (\code{input_quantities}), and
   a sequence of values for other quantities that vary across the response curve
   (\code{varying_quantities}). The returned data frame includes all the
-  information that would be required to reproduce the curve: the module
-  specification, all inputs (including ones with constant values), and the
+  information that would be required to reproduce the curve: the full-qualified
+  module name, all inputs (including ones with constant values), and the
   outputs. Note: if one quantity \code{q} is both an input and output of the
   module, its input value will be stored in the \code{q} column of the returned
   data frame and its output value will be stored in the \code{q.1} column; this
@@ -93,7 +97,7 @@
     An \code{\link{invisible}} list of several named elements containing
     essential information about the module:
     \itemize{
-      \item \code{module_name}: The module's name
+      \item \code{module_name}: The module's (not-fully-qualified) name
       \item \code{inputs}: A character vector of the module's inputs
       \item \code{outputs}: A character vector of the module's outputs
       \item \code{type}: The module's type represented as a string (either
@@ -117,9 +121,9 @@
   }
 
   \item{module_response_curve}{
-    A data frame where the first column is the full specification for the module
-    that produced the response curve and the remaining columns are the module's
-    input and output quantities. Each row corresponds to a row in the
+    A data frame where the first column is the fully-qualified name of the
+    module that produced the response curve and the remaining columns are the
+    module's input and output quantities. Each row corresponds to a row in the
     \code{varying_quantities}.
   }
 }
@@ -163,7 +167,7 @@ caption <- paste(
   "Response curves calculated with several RH\nvalues and Q =",
   unique(rc$Qp),
   "micromol / m^2 / s\nusing the",
-  unique(rc$module_specification),
+  unique(rc$module_name),
   "module"
 )
 lattice::xyplot(

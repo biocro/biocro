@@ -6,7 +6,7 @@
 
 \description{
   Prepends a library name to a set of module names to create a
-  suitably-formatted set of module specifications that can be passed to
+  suitably-formatted set of fully-qualified module names that can be passed to
   \code{\link{run_biocro}} or other BioCro functions.
 }
 
@@ -31,7 +31,7 @@
 }
 
 \value{
-  A vector or list of full module specification strings formatted like
+  A vector or list of fullly-qualified module name strings formatted like
   \code{lib_name:module_name}.
 }
 

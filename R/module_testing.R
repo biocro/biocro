@@ -1,4 +1,4 @@
-test_module <- function(module_specification, case_to_test)
+test_module <- function(module_name, case_to_test)
 {
     # Get the expected outputs
     expected_outputs <- case_to_test[['expected_outputs']]
@@ -6,11 +6,11 @@ test_module <- function(module_specification, case_to_test)
     # Try to get the actual outputs
     msg <- character()
     actual_outputs <- tryCatch(
-        evaluate_module(module_specification, case_to_test[['inputs']]),
+        evaluate_module(module_name, case_to_test[['inputs']]),
         condition = function(cond) {
             msg <<- paste0(
                 "Module `",
-                module_specification,
+                module_name,
                 "` test case `",
                 case_to_test[['description']],
                 "`: could not calculate outputs: ",
@@ -34,7 +34,7 @@ test_module <- function(module_specification, case_to_test)
         return(
             paste0(
                 "Module `",
-                module_specification,
+                module_name,
                 "` test case `",
                 case_to_test[['description']],
                 "`: calculated outputs do not match expected outputs"
@@ -53,16 +53,16 @@ case <- function(inputs, expected_outputs, description) {
     )
 }
 
-# A function for generating a test case file path from a full module
-# specification of the form `library_name:module_name`. To form the file name,
-# any colons in the module specification are replaced by underscores and `.csv`
-# is appended to the end. The full path is formed by including the directory.
-# This is only intended to be used internally by `csv_from_cases` and
+# A function for generating a test case file path from a fully-qualified module
+# name of the form `library_name:module_name`. To form the file name, any colons
+# in the fully-qualified module name are replaced by underscores and `.csv` is
+# appended to the end. The full path is formed by including the directory. This
+# is only intended to be used internally by `csv_from_cases` and
 # `cases_from_csv`.
-module_case_file_path <- function(module_specification, directory) {
+module_case_file_path <- function(module_name, directory) {
     file.path(
         directory,
-        paste0(gsub(":", "_", module_specification, fixed = TRUE), ".csv")
+        paste0(gsub(":", "_", module_name, fixed = TRUE), ".csv")
     )
 }
 
@@ -102,7 +102,7 @@ df_from_case_list <- function(case_list, col_type, col_names) {
 #
 # Inputs:
 #
-# - module_specification: a string specifying one BioCro module, formatted like
+# - module_name: a string specifying one BioCro module, formatted like
 #   `library_name:module_name`, where `library_name` is the name of a library
 #   that contains a module with name `module_name`.
 #
@@ -116,19 +116,19 @@ df_from_case_list <- function(case_list, col_type, col_names) {
 #
 # This function will store the cases in a properly formatted csv file in the
 # specified directory; the name of the file will be determined from the
-# `module_specification` input as `library_name_module_name.csv`. This csv file
+# `module_name` input as `library_name_module_name.csv`. This csv file
 # can be read by the `cases_from_csv` function. BioCro users typically do not
 # need to access this function directly.
 #
 csv_from_cases <- function(
-    module_specification,
+    module_name,
     directory,
     case_list
 )
 {
-    filename <- module_case_file_path(module_specification, directory)
+    filename <- module_case_file_path(module_name, directory)
 
-    info <- module_info(module_specification, FALSE)
+    info <- module_info(module_name, FALSE)
 
     # Extract the inputs, expected outputs, and descriptions from the case list
     case_value_df <- cbind(
@@ -166,10 +166,10 @@ csv_from_cases <- function(
     )
 }
 
-cases_from_csv <- function(module_specification, directory)
+cases_from_csv <- function(module_name, directory)
 {
     # Generate the filename
-    filename <- module_case_file_path(module_specification, directory)
+    filename <- module_case_file_path(module_name, directory)
 
     # Make sure the file exists
     if (!file.exists(filename)) {
@@ -243,7 +243,7 @@ cases_from_csv <- function(module_specification, directory)
 }
 
 initialize_csv <- function(
-    module_specification,
+    module_name,
     directory,
     nonstandard_inputs = list(),
     description = "automatically-generated test case",
@@ -251,7 +251,7 @@ initialize_csv <- function(
 )
 {
     # Generate the filename
-    filename <- module_case_file_path(module_specification, directory)
+    filename <- module_case_file_path(module_name, directory)
 
     # Check to see if we should overwrite an existing file
     if (!overwrite && file.exists(filename)) {
@@ -259,7 +259,7 @@ initialize_csv <- function(
     }
 
     # Get info about the module
-    info <- module_info(module_specification, FALSE)
+    info <- module_info(module_name, FALSE)
 
     # Get the default input quantities
     inputs <- quantity_list_from_names(info[['inputs']])
@@ -268,32 +268,32 @@ initialize_csv <- function(
     inputs[names(nonstandard_inputs)] <- nonstandard_inputs
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_specification, inputs)
+    outputs <- evaluate_module(module_name, inputs)
 
     # Make a case list with one element
     case_list <- list(case(inputs, outputs, description))
 
     # Write the case to a new .csv file and send a message to the user
-    csv_from_cases(module_specification, directory, case_list)
+    csv_from_cases(module_name, directory, case_list)
     paste0("Case file `", filename, "` was initialized; any pre-existing file was overwritten")
 }
 
-add_csv_row <- function(module_specification, directory, inputs, description)
+add_csv_row <- function(module_name, directory, inputs, description)
 {
     # Generate the filename
-    filename <- module_case_file_path(module_specification, directory)
+    filename <- module_case_file_path(module_name, directory)
 
     # If the file doesn't exist, initialize it with the specified inputs and
     # description, and then exit
     if (!file.exists(filename)) {
-        return(initialize_csv(module_specification, directory, inputs, description))
+        return(initialize_csv(module_name, directory, inputs, description))
     }
 
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_specification, directory)
+    case_list <- cases_from_csv(module_name, directory)
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_specification, inputs)
+    outputs <- evaluate_module(module_name, inputs)
 
     # Add a new case to the list
     case_list <- append(
@@ -302,20 +302,20 @@ add_csv_row <- function(module_specification, directory, inputs, description)
     )
 
     # Save the full list to the file and send a message to the user
-    csv_from_cases(module_specification, directory, case_list)
+    csv_from_cases(module_name, directory, case_list)
     paste0("Added new case to file `", filename, "`")
 }
 
-update_csv_cases <- function(module_specification, directory)
+update_csv_cases <- function(module_name, directory)
 {
     # Get any test cases already defined in the module's csv file
-    case_list <- cases_from_csv(module_specification, directory)
+    case_list <- cases_from_csv(module_name, directory)
 
     # Define a helping function that updates a test case by running the module
     # using the inputs and storing the result as the expected outputs
     update_case <- function(one_case) {
         one_case[['expected_outputs']] <-
-            evaluate_module(module_specification, one_case[['inputs']])
+            evaluate_module(module_name, one_case[['inputs']])
         return(one_case)
     }
 
@@ -323,8 +323,8 @@ update_csv_cases <- function(module_specification, directory)
     updated_case_list <- lapply(case_list, update_case)
 
     # Save the new list to the file and send a message to the user
-    csv_from_cases(module_specification, directory, updated_case_list)
-    paste0("Updated case file `", module_case_file_path(module_specification, directory), "`")
+    csv_from_cases(module_name, directory, updated_case_list)
+    paste0("Updated case file `", module_case_file_path(module_name, directory), "`")
 }
 
 test_module_library <- function(

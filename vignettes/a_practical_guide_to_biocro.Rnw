@@ -276,32 +276,33 @@ module, and one module may define terms of multiple \differentialmemberfunction.
 
 BioCro modules are organized into groups called \emph{module libraries} (Section
 \ref{sec:module_libraries}); each module and library has a name, allowing
-individual modules to be specified by specially-formatted strings of the type
+individual modules to be identified by specially-formatted strings of the type
 \newline \texttt{library\_name:module\_name}, where the library name
 (\texttt{library\_name}) and module name (\texttt{module\_name}) are separated
-by a colon (\texttt{:}). Collections of modules (which may come from multiple
-libraries) can be specified in R using the \texttt{c} command, which creates an
-R vector from its input arguments. For example, if we wish to use a module
-called \texttt{Module\_1} from a library called \texttt{libA} and a module
-called \texttt{Module\_2} from a library called \texttt{libB}, we could write
-the following:
+by a colon (\texttt{:}); we refer to these strings as \emph{full-qualified
+module names}. Collections of modules (which may come from multiple libraries)
+can be specified in R using the \texttt{c} command, which creates an R vector
+from its input arguments. For example, if we wish to use a module called
+\texttt{Module\_1} from a library called \texttt{libA} and a module called
+\texttt{Module\_2} from a library called \texttt{libB}, we could write the
+following:
 
 <<example_module_vector>>=
-module_specifications <- c(
+modules <- c(
     'libA:Module_1',
     'libB:Module_2'
 )
 @
 
 Elements of a vector can be accessed using an integer index; for example, we
-can retrieve or modify the first element of \texttt{module\_specifications} as
-in the following example, where we replace \texttt{Module\_1} with
-\texttt{Module\_3} from the same library:
+can retrieve or modify the first element of \texttt{modules} as in the following
+example, where we replace \texttt{Module\_1} with \texttt{Module\_3} from the
+same library:
 
 <<example_vector_access>>=
-print(module_specifications[1])
-module_specifications[1] <- 'libA:Module_3'
-print(module_specifications)
+print(modules[1])
+modules[1] <- 'libA:Module_3'
+print(modules)
 @
 
 Sometimes it may be convenient to specify a module's role within the collection.
@@ -309,22 +310,21 @@ In this case, it is helpful to provide names for one or more of the modules in a
 collection. Here we demonstrate how to accomplish this with an R \emph{list}:
 
 <<example_module_list>>=
-differential_module_specifications <- list(
+differential_modules <- list(
    'BioCro:partitioning_growth',
    thermal_time_module = 'BioCro:thermal_time_linear'
 )
 @
 
 Here, \texttt{thermal\_time\_module} is the name of an element of the list
-\texttt{differential\_module\_specifications}; it is \emph{not} the name or
-specification of a module. Its purpose is to allow us to access that list
-element by a meaningful identifier (\texttt{thermal\_time\_module}) rather than
-its numbered position within the list. Now, if we want to use a different
-equation for calculating thermal time, we can easily switch it via a command
-like:
+\texttt{differential\_modules}; it is \emph{not} the name of a module. Its
+purpose is to allow us to access that list element by a meaningful identifier
+(\texttt{thermal\_time\_module}) rather than its numbered position within the
+list. Now, if we want to use a different equation for calculating thermal time,
+we can easily switch it via a command like:
 
 <<example_module_swap>>=
-differential_module_specifications$thermal_time_module <- 'BioCro:thermal_time_trilinear'
+differential_modules$thermal_time_module <- 'BioCro:thermal_time_trilinear'
 @
 
 Swapping one module for an alternate version can be very powerful when
@@ -335,14 +335,14 @@ can be compared in the context of a soybean simulation, see the
 \emph{Quantitative Comparison Between Two Photosynthesis Models} vignette.
 
 It may be tedious to repeatedly specify the same library name multiple times in
-a set of module specifications. Doing so can be avoided by using the
+a set of fully-qualified module names. Doing so can be avoided by using the
 \texttt{module\_paste} function, which automatically prepends a library name to
-a vector or list of module names, forming a set of full module specifications.
-For example, we can create the same list of differential module specifications
-using \texttt{module\_paste} as follows:
+a vector or list of module names, forming a set of fully-qualified module names.
+For example, we can create the same list of differential module names using
+\texttt{module\_paste} as follows:
 
 <<example_module_paste>>=
-differential_module_specifications <- module_paste('BioCro', list(
+differential_modules <- module_paste('BioCro', list(
   'partitioning_growth',
   thermal_time_module = 'thermal_time_linear'
 ))
@@ -821,7 +821,7 @@ of several other input quantities are specified in \texttt{soybean\_parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
 To run the module, we will need the \texttt{evaluate\_module function}, which
-requires a module specification and a named list of input quantities. It
+requires a fully-qualified module name and a named list of input quantities. It
 attempts to run the module, returning its outputs as a named list. If any of the
 module's inputs are not provided, a helpful error message will be returned. So
 we can try passing the \texttt{soybean\_parameters} list as an input to the
@@ -859,11 +859,11 @@ accomplish this goal would be to repeatedly call \texttt{evaluate\_module}
 within a \texttt{for} loop or using a function like \texttt{sapply}. However,
 since calculating a response curve is a common operation, the BioCro package
 includes a convenience function for doing so: \texttt{module\_response\_curve}.
-This function requires a module specification, a list of fixed input quantities,
-and a data frame specifying the values of any input quantities that should vary.
-It returns a data frame with each of the module's inputs and outputs as columns,
-where each row represents a different set of inputs. This is a convenient format
-for plotting or saving the results, as discussed in Section
+This function requires a fully-qualified module name, a list of fixed input
+quantities, and a data frame specifying the values of any input quantities that
+should vary. It returns a data frame with each of the module's inputs and
+outputs as columns, where each row represents a different set of inputs. This is
+a convenient format for plotting or saving the results, as discussed in Section
 \ref{sec:view_simulation}.
 
 For this example, a response curve can be calculated and viewed as follows,
@@ -884,7 +884,7 @@ rc <- module_response_curve(
 caption <- paste0(
   'Soybean response curve calculated with\nTleaf = ', unique(rc$Tleaf),
   ' degrees C and RH = ', unique(rc$rh), '\nusing the `',
-  unique(rc$module_specification), '` module'
+  unique(rc$module_name), '` module'
 )
 
 xyplot(
@@ -936,7 +936,7 @@ these ideas.
 
 Currently, there is only one module library available, and it comes packaged as
 part of the BioCro R package. This ``standard library'' is named
-\texttt{BioCro}, so all module specifications currently take the form
+\texttt{BioCro}, so all fully-qualified module names currently take the form
 \texttt{BioCro:module\_name}. Later, the BioCro R package will only contain
 functions related to the core framework (such as \texttt{run\_biocro}), and each
 module library (including the standard library) will exist as a separate R
@@ -973,8 +973,8 @@ To do this, we begin by using the \texttt{get\_all\_quantities} function, which
 is part of the BioCro framework. This function requires the name of a module
 library as its input argument, and it returns a data frame with three columns:
 \texttt{quantity\_name}, \texttt{quantity\_type}, and
-\texttt{module\_specification}. Each row in this data frame represents an input
-or output of one of the modules from the specified module library.
+\texttt{module\name}. Each row in this data frame represents an input or output
+of one of the modules from the specified module library.
 
 Once we get information about all the BioCro quantities, we can take a subset
 of them: we just want the rows where the quantity name is \texttt{Leaf}. This
@@ -985,7 +985,7 @@ vector element is printed on its own line:
 <<leaf_information>>=
 all_quantities <- get_all_quantities('BioCro')
 leaf_quantity_subset <- all_quantities[all_quantities$quantity_name == 'Leaf', ]
-leaf_modules <- unique(leaf_quantity_subset$module_specification)
+leaf_modules <- unique(leaf_quantity_subset$module_name)
 cat(leaf_modules, sep = '\n')
 @
 

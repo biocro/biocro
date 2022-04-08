@@ -13,8 +13,8 @@ check_run_biocro_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     ode_solver = default_ode_solver,
     verbose = FALSE
 )
@@ -58,17 +58,16 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # The elements of initial_values, parameters, direct_module_specifications,
-    # differential_module_specifications, and ode_solver should each have a
-    # length of 1
+    # The elements of initial_values, parameters, direct_module_names,
+    # differential_module_names, and ode_solver should each have a length of 1
     error_message <- append(
         error_message,
         check_element_length(
             list(
                 initial_values=initial_values,
                 parameters=parameters,
-                direct_module_specifications=direct_module_specifications,
-                differential_module_specifications=differential_module_specifications,
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names,
                 ode_solver=ode_solver
             )
         )
@@ -88,15 +87,14 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # The direct_module_specifications and differential_module_specifications
-    # should be vectors or lists of strings. The ode_solver's `type` element
-    # should also be a string.
+    # The direct_module_names and differential_module_names should be vectors or
+    # lists of strings. The ode_solver's `type` element should also be a string.
     error_message <- append(
         error_message,
         check_strings(
             list(
-                direct_module_specifications=direct_module_specifications,
-                differential_module_specifications=differential_module_specifications,
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names,
                 ode_solver_type=ode_solver['type']
             )
         )
@@ -122,8 +120,8 @@ run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     ode_solver = BioCro:::default_ode_solver,
     verbose = FALSE
 )
@@ -133,8 +131,8 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         ode_solver,
         verbose
     )
@@ -146,12 +144,12 @@ run_biocro <- function(
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
-        direct_module_specifications,
+        direct_module_names,
         check_out_module
     )
 
     differential_module_creators <- sapply(
-        differential_module_specifications,
+        differential_module_names,
         check_out_module
     )
 
@@ -205,8 +203,8 @@ partial_run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     ode_solver = BioCro:::default_ode_solver,
     arg_names,
     verbose = FALSE
@@ -217,26 +215,26 @@ partial_run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         ode_solver
     )
 
     arg_list = list(
-        initial_values=initial_values,
-        parameters=parameters,
-        drivers=drivers,
-        direct_module_specifications=direct_module_specifications,
-        differential_module_specifications=differential_module_specifications,
-        ode_solver=ode_solver,
-        verbose=verbose
+        initial_values = initial_values,
+        parameters = parameters,
+        drivers = drivers,
+        direct_module_names = direct_module_names,
+        differential_module_names = differential_module_names,
+        ode_solver = ode_solver,
+        verbose = verbose
     )
 
     df = data.frame(
-        control=character(),
-        arg_name=character(),
-        index=numeric(),
-        stringsAsFactors=FALSE
+        control = character(),
+        arg_name = character(),
+        index = numeric(),
+        stringsAsFactors = FALSE
     )
 
     for (i in seq_len(3)) {

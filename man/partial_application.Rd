@@ -13,14 +13,14 @@ partial_run_biocro(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     ode_solver = BioCro:::default_ode_solver,
     arg_names,
     verbose = FALSE
 )
 
-partial_evaluate_module(module_specification, input_quantities, arg_names)
+partial_evaluate_module(module_name, input_quantities, arg_names)
 }
 
 \arguments{
@@ -41,11 +41,11 @@ partial_evaluate_module(module_specification, input_quantities, arg_names)
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{direct_module_specifications}{
+  \item{direct_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{differential_module_specifications}{
+  \item{differential_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
@@ -57,7 +57,7 @@ partial_evaluate_module(module_specification, input_quantities, arg_names)
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{module_specification}{
+  \item{module_name}{
     Identical to the corresponding argument from \code{\link{evaluate_module}}.
   }
 

@@ -2,8 +2,8 @@ validate_dynamical_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     verbose = TRUE
 )
 {
@@ -13,8 +13,8 @@ validate_dynamical_system_inputs <- function(
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose = verbose
     )
 
@@ -25,12 +25,12 @@ validate_dynamical_system_inputs <- function(
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
-        direct_module_specifications,
+        direct_module_names,
         check_out_module
     )
 
     differential_module_creators <- sapply(
-        differential_module_specifications,
+        differential_module_names,
         check_out_module
     )
 

@@ -14,8 +14,8 @@ validate_dynamical_system_inputs(
     initial_values = list(),
     parameters = list(),
     drivers,
-    direct_module_specifications = list(),
-    differential_module_specifications = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     verbose = TRUE
 )
 }
@@ -33,11 +33,11 @@ validate_dynamical_system_inputs(
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{direct_module_specifications}{
+  \item{direct_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 
-  \item{differential_module_specifications}{
+  \item{differential_module_names}{
     Identical to the corresponding argument from \code{\link{run_biocro}}.
   }
 

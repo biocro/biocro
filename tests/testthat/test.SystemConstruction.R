@@ -86,8 +86,8 @@ test_that("certain run_biocro inputs must be strings", {
             within(miscanthus_x_giganteus_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
-            "The following `direct_module_specifications` members are not strings, but all members must be strings: 1.23.\n",
-            "  The following `differential_module_specifications` members are not strings, but all members must be strings: 4.56.\n",
+            "The following `direct_module_names` members are not strings, but all members must be strings: 1.23.\n",
+            "  The following `differential_module_names` members are not strings, but all members must be strings: 4.56.\n",
             "  The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
         )
     )
@@ -140,9 +140,9 @@ test_that("Duplicated quantities produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_specifications <- "BioCro:harmonic_energy"
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_specifications <- "BioCro:harmonic_oscillator"
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -150,8 +150,8 @@ test_that("Duplicated quantities produce an error during validation", {
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose=VERBOSE
     ))
 
@@ -176,9 +176,9 @@ test_that("Missing inputs produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_specifications <- "BioCro:harmonic_energy"
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_specifications <- "BioCro:harmonic_oscillator"
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -186,8 +186,8 @@ test_that("Missing inputs produce an error during validation", {
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose=VERBOSE
     ))
 
@@ -212,9 +212,9 @@ test_that("Differential modules only supply derivatives for quantities in the in
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_specifications <- "BioCro:harmonic_energy"
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_specifications <- "BioCro:harmonic_oscillator"
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
@@ -222,8 +222,8 @@ test_that("Differential modules only supply derivatives for quantities in the in
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose=VERBOSE
     ))
 
@@ -244,9 +244,9 @@ test_that("Direct modules are not required to be supplied in the correct order",
         unused_varying_parameter=rep(0, MAX_INDEX)
     )
 
-    direct_module_specifications <- c("BioCro:Module_1", "BioCro:Module_2")
+    direct_module_names <- c("BioCro:Module_1", "BioCro:Module_2")
 
-    differential_module_specifications <- c()
+    differential_module_names <- c()
 
     # This should be valid
 
@@ -254,21 +254,21 @@ test_that("Direct modules are not required to be supplied in the correct order",
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose=VERBOSE
     ))
 
     # If we change the module order, it should still be valid
 
-    direct_module_specifications <- c("BioCro:Module_2", "BioCro:Module_1")
+    direct_module_names <- c("BioCro:Module_2", "BioCro:Module_1")
 
     expect_true(validate_dynamical_system_inputs(
         initial_values,
         parameters,
         drivers,
-        direct_module_specifications,
-        differential_module_specifications,
+        direct_module_names,
+        differential_module_names,
         verbose=VERBOSE
     ))
 

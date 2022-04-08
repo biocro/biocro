@@ -51,8 +51,8 @@
 
   \item{get_all_quantities}{A data frame with three columns:
     \code{quantity_type} (input or output), \code{quantity_name}, and
-    \code{module_specification}. A quantity will appear multiple times if it is
-    used as both an input and an output, or if it is used by multiple modules.}
+    \code{module_name}. A quantity will appear multiple times if it is use as
+    both an input and an output, or if it is used by multiple modules.}
 
   \item{get_all_ode_solvers}{A character vector of ODE solver names}
 }

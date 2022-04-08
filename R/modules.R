@@ -1,41 +1,41 @@
 # A helping function for "checking out" a module from a module library. Here,
-# `module_specification` should be a string formatted like
+# `module_name` should be a fully-qualified module name string formatted like
 # "module_library_name:module_name". Example: "BioCro:c3_canopy".
-check_out_module <- function(module_specification) {
+check_out_module <- function(module_name) {
     error_messages <-
-        check_vector(list(module_specification = module_specification))
+        check_vector(list(module_name = module_name))
 
     error_messages <- append(
         error_messages,
-        check_length(list(module_specification = module_specification))
+        check_length(list(module_name = module_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_element_length(list(module_specification = module_specification))
+        check_element_length(list(module_name = module_name))
     )
 
     error_messages <- append(
         error_messages,
-        check_strings(list(module_specification = module_specification))
+        check_strings(list(module_name = module_name))
     )
 
     send_error_messages(error_messages)
 
     # Try to extract the module library name and the module name from the
-    # specification string
-    parsed_string <- strsplit(module_specification, ':', fixed = TRUE)[[1]]
+    # fully-qualified module name string
+    parsed_string <- strsplit(module_name, ':', fixed = TRUE)[[1]]
 
     if (length(parsed_string) != 2) {
         stop(paste0(
-            "The module specification string `",
-            module_specification,
+            "The module name string `",
+            module_name,
             "` is not formatted as `module_library_name:module_name`"
         ))
     }
 
     library_name <- parsed_string[1]
-    module_name <- parsed_string[2]
+    base_module_name <- parsed_string[2]
 
     # Try to find the module library function
     library_func <- tryCatch(
@@ -44,31 +44,31 @@ check_out_module <- function(module_specification) {
         },
         error = function(cond) {
             stop(paste0(
-                "Encountered an issue with module specification `",
-                module_specification,
+                "Encountered an issue with module `",
+                module_name,
                 "`: ",
                 cond
             ))
         }
     )
 
-    return(library_func(module_name)[[1]])
+    return(library_func(base_module_name)[[1]])
 }
 
-# TO-DO: should the reported module name be a full module specification instead?
-module_info <- function(module_specification, verbose = TRUE)
+# TO-DO: should the reported module name be a fully-qualified module name instead?
+module_info <- function(module_name, verbose = TRUE)
 {
     # Check that the following type conditions are met:
-    # - `module_specification` should be a string vector of length 1
+    # - `module_name` should be a string vector of length 1
     # - `verbose` should be a boolean vector of length 1
     error_messages <- check_vector(list(
         verbose = verbose,
-        module_specification = module_specification
+        module_name = module_name
     ))
 
     error_messages <- append(
         error_messages,
-        check_strings(list(module_specification = module_specification))
+        check_strings(list(module_name = module_name))
     )
 
     error_messages <- append(
@@ -79,7 +79,7 @@ module_info <- function(module_specification, verbose = TRUE)
     error_messages <- append(
         error_messages,
         check_length(list(
-            module_specification = module_specification,
+            module_name = module_name,
             verbose = verbose
         ))
     )
@@ -87,7 +87,7 @@ module_info <- function(module_specification, verbose = TRUE)
     send_error_messages(error_messages)
 
     # Check out the module
-    module_creator <- lapply(module_specification, check_out_module)
+    module_creator <- lapply(module_name, check_out_module)
 
     # Make sure verbose is a logical variable
     verbose <- lapply(verbose, as.logical)
@@ -99,14 +99,14 @@ module_info <- function(module_specification, verbose = TRUE)
 }
 
 check_module_input_quantities <- function(
-    module_specification,
+    module_name,
     input_quantities
 )
 {
     # Check that the following type conditions are met:
     # - `input_quantities` should be a list of named numeric elements, each of
     #    which has length 1
-    # Type checks for `module_specification` will be made by the `module_info`
+    # Type checks for `module_name` will be made by the `module_info`
     # function
     error_messages <- check_list(list(input_quantities = input_quantities))
 
@@ -126,7 +126,7 @@ check_module_input_quantities <- function(
     )
 
     # Check for any missing module input quantities
-    info <- module_info(module_specification, verbose = FALSE)
+    info <- module_info(module_name, verbose = FALSE)
     missing_input_quantities <- setdiff(
         info[['inputs']],
         names(input_quantities)
@@ -136,7 +136,7 @@ check_module_input_quantities <- function(
         error_messages <- append(
             error_messages,
             paste0(
-                "The `", module_specification, "` module requires `",
+                "The `", module_name, "` module requires `",
                 missing_input_quantities, "` as an input quantity\n"
             )
         )
@@ -145,19 +145,19 @@ check_module_input_quantities <- function(
     return(error_messages)
 }
 
-evaluate_module <- function(module_specification, input_quantities)
+evaluate_module <- function(module_name, input_quantities)
 {
-    # Type checks for `module_specification` and `input_quantities` will be
+    # Type checks for `module_name` and `input_quantities` will be
     # performed by the `check_module_input_quantities` function
 
     # Check to make sure the required input quantities were supplied
     error_messages <-
-        check_module_input_quantities(module_specification, input_quantities)
+        check_module_input_quantities(module_name, input_quantities)
 
     send_error_messages(error_messages)
 
     # Check out the module
-    module_creator <- lapply(module_specification, check_out_module)
+    module_creator <- lapply(module_name, check_out_module)
 
     # C++ requires that all the variables have type `double`
     input_quantities <- lapply(input_quantities, as.numeric)
@@ -168,14 +168,14 @@ evaluate_module <- function(module_specification, input_quantities)
 }
 
 partial_evaluate_module <- function(
-    module_specification,
+    module_name,
     input_quantities,
     arg_names
 )
 {
     # Check that the following type conditions are met:
     # - `arg_names` should be a character vector
-    # Type checks for `module_specification` and `input_quantities` will be
+    # Type checks for `module_name` and `input_quantities` will be
     # performed by the `module_info` and `check_module_input_quantities`
     # functions
     error_messages <- check_vector(list(arg_names = arg_names))
@@ -187,7 +187,7 @@ partial_evaluate_module <- function(
 
     # Check to make sure the quantities specified in `arg_names` are actually
     # required by the module
-    info <- module_info(module_specification, verbose = FALSE)
+    info <- module_info(module_name, verbose = FALSE)
     extraneous_args <- arg_names[!arg_names %in% info[['inputs']]]
 
     if (length(extraneous_args) > 0) {
@@ -195,7 +195,7 @@ partial_evaluate_module <- function(
             error_messages,
             paste0(
                 "`", extraneous_args, "` was provided in `arg_names`, but ",
-                "the `", module_specification,
+                "the `", module_name,
                 "` module does not require this quantity\n"
             )
         )
@@ -209,7 +209,7 @@ partial_evaluate_module <- function(
 
     error_messages <- append(
         error_messages,
-        check_module_input_quantities(module_specification, input_quantities)
+        check_module_input_quantities(module_name, input_quantities)
     )
 
     send_error_messages(error_messages)
@@ -231,14 +231,14 @@ partial_evaluate_module <- function(
             temp_input_quantities[[arg_names[i]]] <- x[i]
         }
         output_quantities <-
-            evaluate_module(module_specification, temp_input_quantities)
+            evaluate_module(module_name, temp_input_quantities)
 
         list(inputs = temp_input_quantities, outputs = output_quantities)
     }
 }
 
 module_response_curve <- function(
-    module_specification,
+    module_name,
     fixed_quantities,
     varying_quantities
 )
@@ -246,7 +246,7 @@ module_response_curve <- function(
     # Check that the following type conditions are met:
     # - `varying_quantities` should be a data frame of numeric elements with
     #    named columns
-    # Type checks for `module_specification` and `fixed_quantities` will be
+    # Type checks for `module_name` and `fixed_quantities` will be
     # performed by the `module_info` and `partial_evaluate_module` functions
     error_messages <-
         check_data_frame(list(varying_quantities = varying_quantities))
@@ -266,7 +266,7 @@ module_response_curve <- function(
     # Use `partial_evaluate_module` to create a function that calls the module
     # with the appropriate inputs
     evaluation_function <- partial_evaluate_module(
-        module_specification,
+        module_name,
         fixed_quantities,
         names(varying_quantities)
     )
@@ -281,7 +281,7 @@ module_response_curve <- function(
 
     # Combine the data frames into one data frame, add the module name as the
     # first column, and return it
-    cbind(module_specification = module_specification, do.call(rbind, df_list))
+    cbind(module_name = module_name, do.call(rbind, df_list))
 }
 
 quantity_list_from_names <- function(quantity_names)
