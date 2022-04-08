@@ -1,6 +1,6 @@
 # A helping function for "checking out" a module from a module library. Here,
 # `module_name` should be a fully-qualified module name string formatted like
-# "module_library_name:module_name". Example: "BioCro:c3_canopy".
+# "module_library_name:local_module_name". Example: "BioCro:c3_canopy".
 check_out_module <- function(module_name) {
     error_messages <-
         check_vector(list(module_name = module_name))
@@ -22,7 +22,7 @@ check_out_module <- function(module_name) {
 
     send_error_messages(error_messages)
 
-    # Try to extract the module library name and the module name from the
+    # Try to extract the module library name and the local module name from the
     # fully-qualified module name string
     parsed_string <- strsplit(module_name, ':', fixed = TRUE)[[1]]
 
@@ -35,7 +35,7 @@ check_out_module <- function(module_name) {
     }
 
     library_name <- parsed_string[1]
-    base_module_name <- parsed_string[2]
+    local_module_name <- parsed_string[2]
 
     # Try to find the module library function
     library_func <- tryCatch(
@@ -52,7 +52,7 @@ check_out_module <- function(module_name) {
         }
     )
 
-    return(library_func(base_module_name)[[1]])
+    return(library_func(local_module_name)[[1]])
 }
 
 # TO-DO: should the reported module name be a fully-qualified module name instead?

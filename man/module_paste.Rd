@@ -10,29 +10,29 @@
   \code{\link{run_biocro}} or other BioCro functions.
 }
 
-\usage{module_paste(lib_name, module_names)}
+\usage{module_paste(lib_name, local_module_names)}
 
 \arguments{
   \item{lib_name}{A string specifying a module library name.}
 
-  \item{module_names}{A vector or list of module name strings.}
+  \item{local_module_names}{A vector or list of module name strings.}
 }
 
 \details{
   \code{module_paste} is a convenience function for specifying multiple modules
   from the same library; it prepends the library name to each module name,
-  preserving the \code{names} and \code{class} of \code{module_names}.
+  preserving the \code{names} and \code{class} of \code{local_module_names}.
 
-  Note that a simple call to \code{paste0(lib_name, ':', module_names)} will
-  produce a similar output with two important differences: (1)
-  \code{\link{paste0}} will not preserve names if \code{module_names} has any
-  named elements and (2) \code{\link{paste0}} will always return a character
-  vector, even if \code{module_names} is a list.
+  Note that a simple call to \code{paste0(lib_name, ':', local_module_names)}
+  will produce a similar output with two important differences: (1)
+  \code{\link{paste0}} will not preserve names if \code{local_module_names} has
+  any named elements and (2) \code{\link{paste0}} will always return a character
+  vector, even if \code{local_module_names} is a list.
 }
 
 \value{
   A vector or list of fully-qualified module name strings formatted like
-  \code{lib_name:module_name}.
+  \code{lib_name:local_module_name}.
 }
 
 \seealso{

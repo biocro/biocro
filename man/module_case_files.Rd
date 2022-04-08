@@ -40,11 +40,11 @@
 
 \arguments{
   \item{module_name}{
-    A string expressing the fully-qualified name of one BioCro module, formatted
-    like \code{library_name:module_name}, where \code{library_name} is the name
-    of a library that contains a module with name \code{module_name};
-    fully-qualified module names can be formed manually or with
-    \code{\link{module_paste}}.
+    A string specifying one BioCro module, formatted like
+    \code{library_name:local_module_name}, where \code{library_name} is the name
+    of a library that contains a module with local name
+    \code{local_module_name}; such fully-qualified module names can be formed
+    manually or with \code{\link{module_paste}}.
   }
 
   \item{directory}{

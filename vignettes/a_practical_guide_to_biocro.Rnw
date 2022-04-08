@@ -275,17 +275,18 @@ module, and one module may define terms of multiple \differentialmemberfunction.
 \subsubsection*{R implemetation}
 
 BioCro modules are organized into groups called \emph{module libraries} (Section
-\ref{sec:module_libraries}); each module and library has a name, allowing
-individual modules to be identified by specially-formatted strings of the type
-\newline \texttt{library\_name:module\_name}, where the library name
-(\texttt{library\_name}) and module name (\texttt{module\_name}) are separated
-by a colon (\texttt{:}); we refer to these strings as \emph{fully-qualified
-module names}. Collections of modules (which may come from multiple libraries)
-can be specified in R using the \texttt{c} command, which creates an R vector
-from its input arguments. For example, if we wish to use a module called
-\texttt{Module\_1} from a library called \texttt{libA} and a module called
-\texttt{Module\_2} from a library called \texttt{libB}, we could write the
-following:
+\ref{sec:module_libraries}); each library has a name, and each module within it
+has a local name, allowing individual modules to be identified by
+specially-formatted strings of the type
+\texttt{library\_name:local\_module\_name}, where the library name
+(\texttt{library\_name}) and local module name (\texttt{local\_module\_name})
+are separated by a colon (\texttt{:}); we refer to these strings as
+\emph{fully-qualified module names}. Collections of modules (which may come from
+multiple libraries) can be specified in R using the \texttt{c} command, which
+creates an R vector from its input arguments. For example, if we wish to use a
+module called \texttt{Module\_1} from a library called \texttt{libA} and a
+module called \texttt{Module\_2} from a library called \texttt{libB}, we could
+write the following:
 
 <<example_module_vector>>=
 modules <- c(
@@ -337,9 +338,9 @@ can be compared in the context of a soybean simulation, see the
 It may be tedious to repeatedly specify the same library name multiple times in
 a set of fully-qualified module names. Doing so can be avoided by using the
 \texttt{module\_paste} function, which automatically prepends a library name to
-a vector or list of module names, forming a set of fully-qualified module names.
-For example, we can create the same list of differential module names using
-\texttt{module\_paste} as follows:
+a vector or list of local module names, forming a set of fully-qualified module
+names. For example, we can create the same list of differential module names
+using \texttt{module\_paste} as follows:
 
 <<example_module_paste>>=
 differential_modules <- module_paste('BioCro', list(
@@ -973,7 +974,7 @@ To do this, we begin by using the \texttt{get\_all\_quantities} function, which
 is part of the BioCro framework. This function requires the name of a module
 library as its input argument, and it returns a data frame with three columns:
 \texttt{quantity\_name}, \texttt{quantity\_type}, and
-\texttt{module\name}. Each row in this data frame represents an input or output
+\texttt{module\_name}. Each row in this data frame represents an input or output
 of one of the modules from the specified module library.
 
 Once we get information about all the BioCro quantities, we can take a subset

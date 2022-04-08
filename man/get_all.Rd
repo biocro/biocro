@@ -10,8 +10,8 @@
 
 \description{
   \code{get_all_modules} returns the fully-qualified names (of the form
-  \code{library_name:module_name}) for all modules available in a BioCro module
-  library package.
+  \code{library_name:local_module_name}) for all modules available in a BioCro
+  module library package.
 
   \code{get_all_quantities} returns information about all quantities used as
   inputs or outputs by modules available in a BioCro module library package.

@@ -54,10 +54,10 @@ case <- function(inputs, expected_outputs, description) {
 }
 
 # A function for generating a test case file path from a fully-qualified module
-# name of the form `library_name:module_name`. To form the file name, any colons
-# in the fully-qualified module name are replaced by underscores and `.csv` is
-# appended to the end. The full path is formed by including the directory. This
-# is only intended to be used internally by `csv_from_cases` and
+# name of the form `library_name:local_module_name`. To form the file name, any
+# colons in the fully-qualified module name are replaced by underscores and
+# `.csv` is appended to the end. The full path is formed by including the
+# directory. This is only intended to be used internally by `csv_from_cases` and
 # `cases_from_csv`.
 module_case_file_path <- function(module_name, directory) {
     file.path(

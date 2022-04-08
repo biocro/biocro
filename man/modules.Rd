@@ -12,9 +12,9 @@
   BioCro modules are named sets of equations, and each module is available from
   a BioCro module library. Each module is identified by a
   \href{https://en.wikipedia.org/wiki/Fully_qualified_name}{fully-qualified name}
-  that includes both the module and library names. The functions here provide
-  ways to access information about modules and to calculate their output values
-  from sets of input values.
+  that includes the name of its library and its local name within that library.
+  The functions here provide ways to access information about modules and to
+  calculate their output values from sets of input values.
 
   \code{module_info} returns essential information about a BioCro module.
 
@@ -40,11 +40,11 @@
 
 \arguments{
   \item{module_name}{
-    A string expressing the fully-qualified name of one BioCro module, formatted
-    like \code{library_name:module_name}, where \code{library_name} is the name
-    of a library that contains a module with name \code{module_name};
-    fully-qualified module names can be formed manually or with
-    \code{\link{module_paste}}.
+    A string specifying one BioCro module, formatted like
+    \code{library_name:local_module_name}, where \code{library_name} is the name
+    of a library that contains a module with local name
+    \code{local_module_name}; such fully-qualified module names can be formed
+    manually or with \code{\link{module_paste}}.
   }
 
   \item{verbose}{
