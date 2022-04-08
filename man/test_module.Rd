@@ -8,9 +8,9 @@
 \title{Run BioCro module test cases}
 
 \description{
-  Modules can be tested using test cases, which are data sets of known outputs
-  that correspond to particular inputs. The functions here provide ways to
-  create test cases and test modules.
+  Modules can be tested using test cases, which are sets of known outputs that
+  correspond to particular inputs. The functions here provide ways to create
+  test cases and test modules.
 
   \code{test_module} runs one test case for a module, returning an error message
   if its output does not match the expected value.

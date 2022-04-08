@@ -3,7 +3,6 @@
 
 #include "../framework/state_map.h"
 #include "../framework/module.h"
-#include "../framework/state_map.h"
 
 namespace standardBML
 {

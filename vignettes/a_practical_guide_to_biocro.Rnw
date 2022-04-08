@@ -279,7 +279,7 @@ BioCro modules are organized into groups called \emph{module libraries} (Section
 individual modules to be identified by specially-formatted strings of the type
 \newline \texttt{library\_name:module\_name}, where the library name
 (\texttt{library\_name}) and module name (\texttt{module\_name}) are separated
-by a colon (\texttt{:}); we refer to these strings as \emph{full-qualified
+by a colon (\texttt{:}); we refer to these strings as \emph{fully-qualified
 module names}. Collections of modules (which may come from multiple libraries)
 can be specified in R using the \texttt{c} command, which creates an R vector
 from its input arguments. For example, if we wish to use a module called
@@ -820,7 +820,7 @@ varying \texttt{Qp} while keeping the other input quantities fixed. The values
 of several other input quantities are specified in \texttt{soybean\_parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
-To run the module, we will need the \texttt{evaluate\_module function}, which
+To run the module, we will need the \texttt{evaluate\_module} function, which
 requires a fully-qualified module name and a named list of input quantities. It
 attempts to run the module, returning its outputs as a named list. If any of the
 module's inputs are not provided, a helpful error message will be returned. So

@@ -5,7 +5,6 @@
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "c4_leaf_photosynthesis.h"
-#include "../framework/state_map.h"
 
 namespace standardBML
 {

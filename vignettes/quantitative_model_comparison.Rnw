@@ -99,7 +99,7 @@ biomass_columns <- c('time', 'Grain', 'Leaf', 'Root', 'Stem')
 \section{Overview}
 
 This vignette is a guided walkthrough of the code used to produce the figures in
-Section 3 of the BioCro II paper (accepted by \emph{in silico} Plants; citation
+Section 3 of the BioCro II paper (accepted by \emph{in silico Plants}; citation
 forthcoming). Briefly, this section of the paper compares two different models
 for \cthree\ photosynthesis: the mechanistic Farquhar-von-Cammerer-Berry (FvCB)
 model and an empirical radiation use efficiency (RUE) model. Each of these
@@ -334,7 +334,7 @@ rue_fvcb_square_difference = function(alpha_rue) {
 }
 @
 
-Here we use the \texttt{optim} function which is included with every R
+Here we use the \texttt{optim} function, which is included with every R
 installation; it accepts \texttt{f(x)} and finds the value of \texttt{x} that
 minimizes \texttt{f(x)}. It requires a starting value for \texttt{x}, and for
 the \texttt{Brent} method, upper and lower bounds of \texttt{x}. It returns a

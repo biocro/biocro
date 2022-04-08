@@ -31,7 +31,7 @@
 }
 
 \value{
-  A vector or list of fullly-qualified module name strings formatted like
+  A vector or list of fully-qualified module name strings formatted like
   \code{lib_name:module_name}.
 }
 
@@ -44,19 +44,19 @@
 
 \examples{
 # Example: Specifying several modules from the `BioCro` module library.
-full_module_names <- module_paste(
+modules <- module_paste(
   'BioCro',
   list('total_biomass', canopy_photosynthesis = 'c3_canopy')
 )
 
 # Compare to the output from `paste0`
-full_module_names2 <- paste0(
+modules2 <- paste0(
   'BioCro',
   ':',
   list('total_biomass', canopy_photosynthesis = 'c3_canopy')
 )
 
-str(full_module_names)
-str(full_module_names2)
+str(modules)
+str(modules2)
 
 }

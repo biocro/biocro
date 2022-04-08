@@ -3,7 +3,6 @@
 
 #include "../framework/state_map.h"
 #include "../framework/module.h"
-#include "../framework/state_map.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 namespace standardBML

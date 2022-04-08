@@ -5,8 +5,8 @@
 \title{Run module test cases for an entire BioCro module library}
 
 \description{
-  Modules can be tested using test cases, which are data sets of known outputs
-  that correspond to particular inputs. The \code{test_module_library} function
+  Modules can be tested using test cases, which are sets of known outputs that
+  correspond to particular inputs. The \code{test_module_library} function
   provides a way to run all test cases for all modules in a BioCro module
   library.
 }

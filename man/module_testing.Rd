@@ -18,8 +18,8 @@
   defining and running module test cases. Such tests form a critical component
   of BioCro's regression testing system, and test cases should be defined for
   all BioCro modules in all BioCro module libraries. These functions are not
-  required to use the BioCro package, but are critical to understand when
-  creating or modifying modules.
+  required in order to use the BioCro package, but they are critical to
+  understand when creating or modifying modules.
 
   A module test case consists of a set of module inputs, a set of module
   outputs, and a short description of the case. To run the test, the inputs are
