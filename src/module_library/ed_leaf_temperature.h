@@ -1,11 +1,13 @@
 #ifndef ED_LEAF_TEMPERATURE_H
 #define ED_LEAF_TEMPERATURE_H
 
-#include <cmath>           // for fabs
+#include <cmath>                     // for fabs
 #include "../framework/constants.h"  // for eps_zero, molar_mass_of_water
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_leaf_temperature
  *
@@ -176,4 +178,5 @@ void ed_leaf_temperature::do_operation() const
     update(sensible_heat_loss_op, sensible_heat_loss);
 }
 
+}  // namespace standardBML
 #endif

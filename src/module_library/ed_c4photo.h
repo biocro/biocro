@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "c4photo.h"
 
+namespace standardBML
+{
 /**
  * @class ed_c4photo
  *
@@ -163,4 +165,5 @@ void ed_c4photo::do_operation() const
     update(assimilation_net_op, c4_results.Assim * 1e-6);              // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

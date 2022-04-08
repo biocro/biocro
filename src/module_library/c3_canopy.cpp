@@ -3,6 +3,8 @@
 #include "BioCro.h"     // For c3CanAC
 #include <cmath>        // For floor
 
+using standardBML::c3_canopy;
+
 string_vector c3_canopy::get_inputs()
 {
     return {

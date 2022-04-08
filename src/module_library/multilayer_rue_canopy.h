@@ -6,6 +6,8 @@
 #include "multilayer_canopy_properties.h"
 #include "rue_leaf_photosynthesis.h"
 
+namespace standardBML
+{
 using ten_layer_rue_canopy_parent =
     multilayer_canopy_photosynthesis<
         ten_layer_canopy_properties,
@@ -54,4 +56,5 @@ class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

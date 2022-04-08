@@ -31,6 +31,8 @@ double rasmussen_specific_heat_of_air(
     double mole_fraction_h2o  // dimensionless
 );
 
+namespace standardBML
+{
 /**
  * @class rasmussen_specific_heat
  *
@@ -69,4 +71,5 @@ class rasmussen_specific_heat : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

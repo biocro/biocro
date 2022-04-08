@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "c3photo.hpp"
 
+namespace standardBML
+{
 /**
  * @class c3_assimilation
  *
@@ -186,4 +188,5 @@ void c3_assimilation::do_operation() const
     update(GrossAssim_op, c3_results.GrossAssim);
 }
 
+}  // namespace standardBML
 #endif

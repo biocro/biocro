@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class night_and_day_trackers : public differential_module
 {
    public:
@@ -86,4 +88,5 @@ void night_and_day_trackers::do_operation() const
     update(day_tracker_op, tracker_rate * (light - day_tracker));
 }
 
+}  // namespace standardBML
 #endif

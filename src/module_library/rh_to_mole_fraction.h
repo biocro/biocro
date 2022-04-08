@@ -1,12 +1,14 @@
 #ifndef RH_TO_MOLE_FRACTION_H
 #define RH_TO_MOLE_FRACTION_H
 
-#include <cmath>           // for fabs
-#include "AuxBioCro.h"     // for saturation_vapor_pressure
+#include <cmath>                     // for fabs
+#include "AuxBioCro.h"               // for saturation_vapor_pressure
 #include "../framework/constants.h"  // for calculation_constants::eps_zero
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class rh_to_mole_fraction
  *
@@ -101,4 +103,5 @@ void rh_to_mole_fraction::do_operation() const
                atmospheric_pressure);  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

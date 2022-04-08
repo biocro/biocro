@@ -111,7 +111,7 @@ output_directory = $(complete_docs_directory)
 
 #### Fixed variables used in computing target-specific variables:
 
-framework_source =  ../src ../src/framework ../src/framework/se_solver_library ../src/framework/ode_solver_library ../src/framework/utils markdown
+framework_source =  ../src ../src/framework ../src/framework_ed ../src/framework_ed/se_solver_library ../src/framework/ode_solver_library ../src/framework/utils markdown
 module_source = ../src/module_library markdown
 all_source = $(framework_source) $(module_source)
 source_file_extensions = h hpp cpp md markdown dox

@@ -6,6 +6,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_integrator
  *
@@ -255,4 +257,5 @@ void ten_layer_canopy_integrator::do_operation() const
     multilayer_canopy_integrator::run();
 }
 
+}  // namespace standardBML
 #endif

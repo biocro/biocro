@@ -6,6 +6,8 @@
 #include "AuxBioCro.h"  // For ws_str
 #include "BioCro.h"     // For watstr
 
+namespace standardBML
+{
 class one_layer_soil_profile : public differential_module
 {
    public:
@@ -94,4 +96,5 @@ void one_layer_soil_profile::do_operation() const
     update(soil_water_content_op, WaterS.awc - (*soil_water_content_ip));
 }
 
+}  // namespace standardBML
 #endif

@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_multilayer_canopy_properties
  *
@@ -333,4 +335,5 @@ void ed_ten_layer_canopy_properties::do_operation() const
     ed_multilayer_canopy_properties::run();
 }
 
+}  // namespace standardBML
 #endif

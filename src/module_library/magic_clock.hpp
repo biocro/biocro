@@ -6,6 +6,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class magic_clock : public differential_module
 {
    public:
@@ -149,4 +151,5 @@ void magic_clock::do_operation() const
     update(ref_a_op, ref_friction * ref_a - natural_freq * ref_b);
 }
 
+}  // namespace standardBML
 #endif

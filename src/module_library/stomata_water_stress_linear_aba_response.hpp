@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include <cmath>  // for exp
 
+namespace standardBML
+{
 class stomata_water_stress_linear_and_aba_response : public direct_module
 {
    public:
@@ -82,4 +84,5 @@ void stomata_water_stress_linear_and_aba_response::do_operation() const
     update(b1_op, max_b1 * aba_effect);
 }
 
+}  // namespace standardBML
 #endif

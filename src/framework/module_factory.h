@@ -8,9 +8,6 @@
 #include <unordered_map>
 #include "module_creator.h"
 
-using creator_fcn = module_creator* (*)();
-using creator_map = std::map<std::string, creator_fcn>;
-
 /**
  *  @class module_factory
  *
@@ -93,8 +90,8 @@ std::unordered_map<std::string, string_vector> module_factory<T>::get_all_quanti
     };
 
     // Fill the output map with all the quantities
-    for (std::string const& module_name : module_factory<T>::get_all_modules()) {
-        auto w = module_factory<T>::retrieve(module_name);
+    for (std::string const& module_name : get_all_modules()) {
+        auto w = retrieve(module_name);
 
         // Add the module's inputs to the parameter map
         for (std::string const& input_name : w->get_inputs()) {

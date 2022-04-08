@@ -2,6 +2,9 @@
 #include "BioCro.h"     // for sunML, RHprof, WINDprof
 #include "AuxBioCro.h"  // for LNprof
 
+using standardBML::multilayer_canopy_properties;
+using standardBML::ten_layer_canopy_properties;
+
 /**
  * @brief Define all inputs required by the module
  */

@@ -6,6 +6,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class oscillator_clock_calculator : public direct_module
 {
    public:
@@ -199,4 +201,5 @@ void oscillator_clock_calculator::do_operation() const
     update(sunset_op, sunset);
 }
 
+}  // namespace standardBML
 #endif

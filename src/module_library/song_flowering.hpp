@@ -16,6 +16,8 @@
 //  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (http://sv.insysbio.com/online/)
 //
 
+namespace standardBML
+{
 class song_flowering : public differential_module
 {
    public:
@@ -250,4 +252,5 @@ void song_flowering::do_operation() const
     update(cPn_op, (1.0 - L) * p5 - m15 * mm(cPn, k13) - q3 * L * cPn);
 }
 
+}  // namespace standardBML
 #endif

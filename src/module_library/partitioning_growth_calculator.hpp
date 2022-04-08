@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "BioCro.h"  // for resp
 
+namespace standardBML
+{
 /**
  *  @class partitioning_growth_calculator
  *
@@ -198,4 +200,5 @@ void partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
+}  // namespace standardBML
 #endif

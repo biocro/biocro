@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_development_rate_calculator
  *
@@ -137,4 +139,5 @@ void thermal_time_development_rate_calculator::do_operation() const
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

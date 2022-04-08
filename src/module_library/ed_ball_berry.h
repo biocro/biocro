@@ -3,11 +3,13 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <cmath>           // for fabs
-#include <algorithm>       // for std::max
+#include <cmath>                     // for fabs
+#include <algorithm>                 // for std::max
 #include "../framework/constants.h"  // for eps_zero
-#include "AuxBioCro.h"     // for saturation_vapor_pressure
+#include "AuxBioCro.h"               // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class ed_ball_berry
  *
@@ -118,17 +120,20 @@ string_vector ed_ball_berry::get_outputs()
 void ed_ball_berry::do_operation() const
 {
     // Calculate values for the output quantities
-    const double ball_berry_index = std::max(0.0, *assimilation_net_ip) * *mole_fraction_h2o_leaf_surface_ip * *atmospheric_pressure_ip /
-                                    (*mole_fraction_co2_leaf_surface_ip * saturation_vapor_pressure(*temperature_leaf_ip));
+    const double ball_berry_index =
+        std::max(0.0, *assimilation_net_ip) * *mole_fraction_h2o_leaf_surface_ip * *atmospheric_pressure_ip /
+        (*mole_fraction_co2_leaf_surface_ip * saturation_vapor_pressure(*temperature_leaf_ip));
 
-    const double ball_berry_conductance = *ball_berry_slope_ip * ball_berry_index + *ball_berry_intercept_ip;
+    const double ball_berry_conductance =
+        *ball_berry_slope_ip * ball_berry_index + *ball_berry_intercept_ip;
 
-    const double adjusted_conductance = *conductance_stomatal_h2o_min_ip +
-                                        *conductance_adjustment_factor_WS_ip * (ball_berry_conductance - *conductance_stomatal_h2o_min_ip);
+    const double adjusted_conductance =
+        *conductance_stomatal_h2o_min_ip +
+        *conductance_adjustment_factor_WS_ip * (ball_berry_conductance - *conductance_stomatal_h2o_min_ip);
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"mole_fraction_co2_leaf_surface cannot be zero", fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},                 // divide by zero
+        {"mole_fraction_co2_leaf_surface cannot be zero",    fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},              // divide by zero
         {"saturation_vapor_pressure in leaf cannot be zero", fabs(saturation_vapor_pressure(*temperature_leaf_ip)) < calculation_constants::eps_zero}  // divide by zero
     };
 
@@ -138,4 +143,5 @@ void ed_ball_berry::do_operation() const
     update(conductance_stomatal_h2o_op, adjusted_conductance);
 }
 
+}  // namespace standardBML
 #endif

@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class utilization_senescence_calculator : public direct_module
 {
    public:
@@ -117,4 +119,5 @@ void utilization_senescence_calculator::do_operation() const
     update(senescence_rhizome_op, senescence_rhizome);
 }
 
+}  // namespace standardBML
 #endif

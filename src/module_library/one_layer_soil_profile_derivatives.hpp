@@ -4,8 +4,10 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // for molar_mass_of_water
-#include <cmath>           // for log
+#include <cmath>                     // for log
 
+namespace standardBML
+{
 class one_layer_soil_profile_derivatives : public differential_module
 {
    public:
@@ -74,16 +76,14 @@ string_vector one_layer_soil_profile_derivatives::get_inputs()
         "precipitation_rate",
         "soil_saturation_capacity",
         "soil_sand_content",
-        "evapotranspiration"
-    };
+        "evapotranspiration"};
 }
 
 string_vector one_layer_soil_profile_derivatives::get_outputs()
 {
     return {
         "soil_water_content",
-        "soil_n_content"
-    };
+        "soil_n_content"};
 }
 
 void one_layer_soil_profile_derivatives::do_operation() const
@@ -99,7 +99,7 @@ void one_layer_soil_profile_derivatives::do_operation() const
     double precipitation_m_s = precipitation_rate * 1e-3;    // m s^-2.
 
     double second_per_hour = 3600;
-    double runoff = (soil_water_content - soil_saturation_capacity) * soil_depth / second_per_hour;                         // m s^-1. The previous model drained everything in a single time-step. By default the time step was one hour, so use a rate that drains everything in one hour.
+    double runoff = (soil_water_content - soil_saturation_capacity) * soil_depth / second_per_hour;                                 // m s^-1. The previous model drained everything in a single time-step. By default the time step was one hour, so use a rate that drains everything in one hour.
     double n_leach = runoff / (1e3 * physical_constants::molar_mass_of_water) * (0.2 + 0.7 * soil_sand_content) / second_per_hour;  // Base the rate on an hour for the same reason as was used with `runoff`.
 
     double evapotranspiration_volume = evapotranspiration / density_of_water_at_20_celcius / 1e4 / second_per_hour;  // m^3 m^-2 s^-1
@@ -109,4 +109,5 @@ void one_layer_soil_profile_derivatives::do_operation() const
     update(soil_n_content_op, -n_leach);
 }
 
+}  // namespace standardBML
 #endif

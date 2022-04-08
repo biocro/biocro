@@ -3,9 +3,11 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"     // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
+#include "AuxBioCro.h"               // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
 #include "../framework/constants.h"  // for ideal gas constant and celsius_to_kelvin
 
+namespace standardBML
+{
 /**
  * @class ed_water_vapor_properties
  *
@@ -111,4 +113,5 @@ void ed_water_vapor_properties::do_operation() const
     update(psychrometric_parameter_op, psychrometric_parameter);
 }
 
+}  // namespace standardBML
 #endif

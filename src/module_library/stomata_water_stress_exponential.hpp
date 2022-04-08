@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include <cmath>  // for exp
 
+namespace standardBML
+{
 class stomata_water_stress_exponential : public direct_module
 {
    public:
@@ -66,4 +68,5 @@ void stomata_water_stress_exponential::do_operation() const
     update(StomataWS_op, std::min(std::max((1.0 - exp(-2.5 * (theta - soil_wilting_point) / (1.0 - soil_wilting_point))) / (1.0 - exp(-2.5)), 1e-10), 1.0));
 }
 
+}  // namespace standardBML
 #endif

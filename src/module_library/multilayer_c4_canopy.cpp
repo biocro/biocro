@@ -1,5 +1,8 @@
 #include "multilayer_c4_canopy.h"
 
+using standardBML::ten_layer_c4_canopy;
+using standardBML::ten_layer_c4_canopy_parent;
+
 int const ten_layer_c4_canopy::nlayers = 10;  // Set the number of layers
 
 string_vector ten_layer_c4_canopy::get_inputs()

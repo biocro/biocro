@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class thermal_time_and_frost_senescence
  *
@@ -376,4 +378,5 @@ void thermal_time_and_frost_senescence::do_operation() const
     update(rhizome_senescence_index_op, drhizome_senescence_index);
 }
 
+}  // namespace standardBML
 #endif

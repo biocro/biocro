@@ -3,10 +3,12 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <cmath>           // for fabs
+#include <cmath>                     // for fabs
 #include "../framework/constants.h"  // for eps_zero
-#include "AuxBioCro.h"     // for saturation_vapor_pressure
+#include "AuxBioCro.h"               // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class ed_rh_to_mole_fraction
  *
@@ -80,4 +82,5 @@ void ed_rh_to_mole_fraction::do_operation() const
     update(mole_fraction_h2o_atmosphere_op, *relative_humidity_atmosphere_ip * saturation_vapor_pressure(*temperature_air_ip) / *atmospheric_pressure_ip);
 }
 
+}  // namespace standardBML
 #endif

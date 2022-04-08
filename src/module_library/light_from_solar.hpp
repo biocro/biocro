@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class light_from_solar : public direct_module
 {
    public:
@@ -84,4 +86,5 @@ void light_from_solar::do_operation() const
     update(light_op, light);
 }
 
+}  // namespace standardBML
 #endif

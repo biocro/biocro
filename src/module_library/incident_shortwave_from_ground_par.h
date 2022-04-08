@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class incident_shortwave_from_ground_par
  *
@@ -113,4 +115,5 @@ void incident_shortwave_from_ground_par::do_operation() const
     update(nir_incident_diffuse_op, nir_incident_diffuse);
 }
 
+}  // namespace standardBML
 #endif

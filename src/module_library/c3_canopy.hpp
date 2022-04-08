@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class c3_canopy : public direct_module
 {
    public:
@@ -114,4 +116,5 @@ class c3_canopy : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

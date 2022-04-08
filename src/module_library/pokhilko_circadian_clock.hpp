@@ -11,6 +11,8 @@
 //  and available online from https://github.com/danielseaton/frameworkmodel
 // Values for parameters were taken from the SBML model available in the supplemental information of the 2012 paper
 
+namespace standardBML
+{
 class pokhilko_circadian_clock : public differential_module
 {
    public:
@@ -429,4 +431,5 @@ void pokhilko_circadian_clock::do_operation() const
     update(COP1_cytoplasm_op, 1.0 * n5 - p6 * COP1_cytoplasm - m27 * COP1_cytoplasm * (1.0 + p15 * L));
 }
 
+}  // namespace standardBML
 #endif

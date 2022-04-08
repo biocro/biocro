@@ -2,6 +2,8 @@
 #include "c4photo.h"  // for c4photoC
 #include "BioCro.h"   // for EvapoTrans2
 
+using standardBML::c4_leaf_photosynthesis;
+
 string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {

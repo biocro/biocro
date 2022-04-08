@@ -1,5 +1,7 @@
 #include "penman_monteith_leaf_temperature.hpp"
 
+using standardBML::penman_monteith_leaf_temperature;
+
 string_vector penman_monteith_leaf_temperature::get_inputs()
 {
     return {

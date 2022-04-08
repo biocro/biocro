@@ -6,6 +6,8 @@
 #include "AuxBioCro.h"  // For nitroParms and Can_Str
 #include "BioCro.h"     // For CanAC
 
+namespace standardBML
+{
 class c4_canopy : public direct_module
 {
    public:
@@ -229,4 +231,5 @@ void c4_canopy::do_operation() const
     update(GrossAssim_op, can_result.GrossAssim);
 }
 
+}  // namespace standardBML
 #endif

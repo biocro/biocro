@@ -4,8 +4,12 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
- * \brief Model for soybean development and flowering based on Grimm et al.
+ * @class grimm_soybean_flowering_calculator
+ *
+ * @brief Model for soybean development and flowering based on Grimm et al.
  * (1993)
  *
  * This module is intended to be used to model soybean development and flowering
@@ -229,4 +233,5 @@ void grimm_soybean_flowering_calculator::do_operation() const
     update(grimm_flowering_op, is_flowering);
 }
 
+}  // namespace standardBML
 #endif

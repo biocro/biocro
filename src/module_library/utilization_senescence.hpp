@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class utilization_senescence : public differential_module
 {
    public:
@@ -117,4 +119,5 @@ void utilization_senescence::do_operation() const
     update(RhizomeLitter_op, senescence_rhizome * (1 - remobilization_fraction));
 }
 
+}  // namespace standardBML
 #endif

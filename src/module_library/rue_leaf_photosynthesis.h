@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class rue_leaf_photosynthesis
  *
@@ -194,4 +196,5 @@ class rue_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

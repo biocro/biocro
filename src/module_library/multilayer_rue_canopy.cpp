@@ -1,5 +1,8 @@
 #include "multilayer_rue_canopy.h"
 
+using standardBML::ten_layer_rue_canopy;
+using standardBML::ten_layer_rue_canopy_parent;
+
 int const ten_layer_rue_canopy::nlayers = 10;  // Set the number of layers
 
 string_vector ten_layer_rue_canopy::get_inputs()

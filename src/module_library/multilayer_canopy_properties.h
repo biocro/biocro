@@ -5,6 +5,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_properties
  *
@@ -183,4 +185,5 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

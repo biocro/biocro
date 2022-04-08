@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class buck_swvp
  *
@@ -63,4 +65,5 @@ void buck_swvp::do_operation() const
            saturation_vapor_pressure(temp));  // Pa
 }
 
+}  // namespace standardBML
 #endif

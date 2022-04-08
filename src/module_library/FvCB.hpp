@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class FvCB : public direct_module
 {
    public:
@@ -126,4 +128,5 @@ void FvCB::do_operation() const
     update(Ci_op, Ci);
 }
 
+}  // namespace standardBML
 #endif

@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_bilinear
  *
@@ -150,4 +152,5 @@ void thermal_time_bilinear::do_operation() const
     update(TTc_op, rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

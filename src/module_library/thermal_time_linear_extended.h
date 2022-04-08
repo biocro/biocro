@@ -4,7 +4,9 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-/**
+namespace standardBML
+{
+    /**
  * @class thermal_time_linear_extended
  *
  * @brief Calculates the rate of thermal time accumulation using an extended linear
@@ -141,4 +143,5 @@ void thermal_time_linear_extended::do_operation() const
     update(TTc_op, rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

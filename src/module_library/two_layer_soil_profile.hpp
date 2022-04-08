@@ -6,6 +6,8 @@
 #include "AuxBioCro.h"  // For soilML_str
 #include "BioCro.h"     // For soilML
 
+namespace standardBML
+{
 class two_layer_soil_profile : public differential_module
 {
    public:
@@ -180,4 +182,5 @@ void two_layer_soil_profile::do_operation() const
     update(soil_water_content_op, cws_mean - soil_water_content);
 }
 
+}  // namespace standardBML
 #endif

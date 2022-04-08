@@ -94,6 +94,8 @@ string_vector get_other_leaf_inputs()
 }
 }  // namespace MLCP
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_photosynthesis
  *
@@ -352,4 +354,5 @@ void multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::run
     }
 }
 
+}  // namespace standardBML
 #endif

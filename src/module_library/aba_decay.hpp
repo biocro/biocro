@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class aba_decay : public differential_module
 {
    public:
@@ -61,4 +63,5 @@ void aba_decay::do_operation() const
     update(soil_aba_concentration_op, decay_rate);
 }
 
+}  // namespace standardBML
 #endif

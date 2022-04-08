@@ -5,6 +5,8 @@
 #include "../framework/state_map.h"
 #include <cmath>  // for exp
 
+namespace standardBML
+{
 class stomata_water_stress_sigmoid : public direct_module
 {
    public:
@@ -68,4 +70,5 @@ void stomata_water_stress_sigmoid::do_operation() const
     update(StomataWS_op, std::min(std::max(1.0 / (1.0 + exp((phi10 - soil_water_content) / phi1)), 1e-10), 1.0));
 }
 
+}  // namespace standardBML
 #endif

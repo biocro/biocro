@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 class penman_monteith_transpiration : public direct_module
 {
    public:
@@ -90,4 +92,5 @@ void penman_monteith_transpiration::do_operation() const
     update(leaf_transpiration_rate_op, evapotranspiration);  // kg / m^2 / s (leaf area basis)
 }
 
+}  // namespace standardBML
 #endif

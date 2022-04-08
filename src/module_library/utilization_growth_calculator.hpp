@@ -4,6 +4,8 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class utilization_growth_calculator
  *
@@ -312,4 +314,5 @@ void utilization_growth_calculator::do_operation() const
     update(kGrain_scale_op, kGrain_scale);
 }
 
+}  // namespace standardBML
 #endif
