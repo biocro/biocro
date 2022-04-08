@@ -3,9 +3,9 @@
 
 // When creating a new module library R package, it will be necessary to modify
 // the namespace in this file to match the one defined in `module_library.h`.
-// See that file for more details. It will also be necessary to change the
-// included module header files, as well as the entries in the `creator_map`
-// table below.
+// See that file for more details. It will also be necessary to include
+// different module header files and to make corresponding changes to the
+// entries in the `creator_map` table.
 
 // Include all the header files that define the modules.
 #include "harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
