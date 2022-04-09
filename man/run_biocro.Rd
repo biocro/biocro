@@ -38,7 +38,7 @@ run_biocro(
   }
 
   \item{direct_module_names}{
-    A character vector or list of the fullly-qualified names of the direct
+    A character vector or list of the fully-qualified names of the direct
     modules to use in the system; lists of available modules can be obtained via
     the \code{\link{get_all_modules}} function.
   }
