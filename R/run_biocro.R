@@ -253,12 +253,13 @@ partial_run_biocro <- function(
         }
     }
 
-    # Find the locations of the parameters specified in arg_names and check for
-    # errors
-    # We can't use just %in% because that doesn't preserve the order.
-    # However, match() only returns the first match, which doesn't work for things like drivers.
-    # So use %in% for each arg_name so you can get all elements in the correct order.
-    controls <- do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
+    # Find the locations of the quantities specified in arg_names and check for
+    # errors. We can't use just %in% because that doesn't preserve the order.
+    # However, match() only returns the first match, which doesn't work for
+    # things like drivers. So use %in% for each arg_name so we can get all
+    # elements in the correct order.
+    controls <-
+        do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
 
     missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
@@ -272,17 +273,20 @@ partial_run_biocro <- function(
 
     send_error_messages(error_messages)
 
-    # Make a function that calls run_biocro with new values for the
-    # parameters specified in arg_names
+    # Make a function that calls run_biocro with new values for the quantities
+    # specified in arg_names
     function(x)
     {
         if (!is.null(names(x))) {
-            if (length(names(x)) != length(arg_names)) {
-                stop("The `x` argument has names, but a different number of names than `arg_names`")
-            }
-
-            if (!all(names(x) %in% arg_names)) {
-                stop("The names of the `x` argument do not match those specified by `arg_names`")
+            if (!all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
+                msg <- paste0(
+                    "The names of the `x` argument do not match those ",
+                    "specified by `arg_names`:\n  `arg_names`: ",
+                    paste(arg_names, collapse = ", "),
+                    "\n  `names(x)`: ",
+                    paste(names(x), collapse = ", ")
+                )
+                stop(msg)
             }
             x <- x[arg_names]
         }
