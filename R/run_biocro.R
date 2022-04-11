@@ -291,10 +291,17 @@ partial_run_biocro <- function(
             x <- x[arg_names]
         }
 
-        x = unlist(x)
+        x <- unlist(x)
 
         if (length(x) != nrow(controls)) {
-            stop("The `x` argument does not have the correct number of elements")
+            msg <- paste0(
+                "The unlisted and reordered `x` argument (unlist(x[arg_names])) ",
+                "does not have the correct number of elements: required = ",
+                nrow(controls),
+                ", actual = ",
+                length(x)
+            )
+            stop(msg)
         }
 
         temp_arg_list = arg_list
