@@ -223,12 +223,15 @@ partial_evaluate_module <- function(
     # named elements of a list
     function(x) {
         if (!is.null(names(x))) {
-            if (length(names(x)) != length(arg_names)) {
-                stop("The `x` argument has names, but a different number of names than `arg_names`")
-            }
-
-            if (!all(names(x) %in% arg_names)) {
-                stop("The names of the `x` argument do not match those specified by `arg_names`")
+            if (length(names(x)) != length(arg_names) || !all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
+                msg <- paste0(
+                    "The names of the `x` argument do not match those ",
+                    "specified by `arg_names`:\n  `arg_names`: ",
+                    paste(arg_names, collapse = ", "),
+                    "\n  `names(x)`: ",
+                    paste(names(x), collapse = ", ")
+                )
+                stop(msg)
             }
             x <- x[arg_names]
         }
@@ -236,7 +239,14 @@ partial_evaluate_module <- function(
         x = unlist(x)
 
         if (length(x) != length(arg_names)) {
-            stop("The `x` argument does not have the correct number of elements")
+            msg <- paste0(
+                "The unlisted `x` argument (`unlist(x)`) does not have the ",
+                "correct number of elements: required = ",
+                length(arg_names),
+                ", actual = ",
+                length(x)
+            )
+            stop(msg)
         }
 
         temp_input_quantities = input_quantities

@@ -278,7 +278,7 @@ partial_run_biocro <- function(
     function(x)
     {
         if (!is.null(names(x))) {
-            if (!all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
+            if (length(names(x)) != length(arg_names) || !all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
                 msg <- paste0(
                     "The names of the `x` argument do not match those ",
                     "specified by `arg_names`:\n  `arg_names`: ",
@@ -295,8 +295,8 @@ partial_run_biocro <- function(
 
         if (length(x) != nrow(controls)) {
             msg <- paste0(
-                "The unlisted and reordered `x` argument (unlist(x[arg_names])) ",
-                "does not have the correct number of elements: required = ",
+                "The unlisted `x` argument (`unlist(x)`) does not have the ",
+                "correct number of elements: required = ",
                 nrow(controls),
                 ", actual = ",
                 length(x)

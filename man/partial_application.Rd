@@ -95,11 +95,14 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
     (except those specified in \code{arg_names}) set to the values specified by
     the original call to \code{partial_run_biocro}. The new function has one
     input (\code{x}), which can be a vector or list specifying the values of the
-    quantities in \code{arg_names}. If \code{x} has names, they must be
-    identical to the elements of \code{arg_names} but can be in any order.
-    Elements of \code{x} corresponding to drivers must be vectors having the
-    same length as the other drivers. The return value of the new function is a
-    data frame as would be produced by \code{\link{run_biocro}}.
+    quantities in \code{arg_names}. If \code{x} has no names, its elements must
+    be supplied in the same order as in the original \code{arg_names}. If
+    \code{x} has names, they must be identical to the elements of
+    \code{arg_names} but can be in any order. Elements of \code{x} corresponding
+    to drivers must be vectors having the same length as the other drivers; they
+    can be specified as a named element of a list or as sequential elements of
+    a vector without names. The return value of the new function is a data frame
+    as would be produced by \code{\link{run_biocro}}.
   }
 
   \item{partial_evaluate_module}{
@@ -107,13 +110,14 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
     quantities (except those specified in \code{arg_names}) set to the values
     specified by the original call to \code{partial_evaluate_module}. The new
     function has one input (\code{x}), which can be a vector or list specifying
-    the values of the quantities in \code{arg_names}. If \code{x} has names,
-    they must be identical to the elements of \code{arg_names} but can be in any
-    order. The return value of the new function is a list with two elements
-    (\code{inputs} and \code{outputs}), each of which is a list of named numeric
-    elements representing the module's input and output values. (Note that this
-    differs from the output of \code{evaluate_module}, which only returns the
-    outputs.)
+    the values of the quantities in \code{arg_names}. If \code{x} has no names,
+    its elements must be supplied in the same order as in the original
+    \code{arg_names}. If \code{x} has names, they must be identical to the
+    elements of \code{arg_names} but can be in any order. The return value of
+    the new function is a list with two elements (\code{inputs} and
+    \code{outputs}), each of which is a list of named numeric elements
+    representing the module's input and output values. (Note that this differs
+    from the output of \code{evaluate_module}, which only returns the outputs.)
   }
 }
 
@@ -159,6 +163,10 @@ temperature_simulation <- partial_run_biocro(
 hot_result_1 <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
 hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather2002$temp + 2.0))
 hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.0, Catm = 500))
+
+# Note that these commands will both produce errors:
+# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather2002$temp + 2.0))
+# hot_result_5 <- temperature_simulation(setNames(c(500, soybean_weather2002$temp + 2.0), c("Catm", rep("temp", length(soybean_weather2002$temp)))))
 
 # Example 3: varying the base and air temperature inputs to the
 # 'thermal_time_linear' module from the 'BioCro' module library. The commands
