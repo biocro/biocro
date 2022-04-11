@@ -168,6 +168,11 @@ hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.
 # hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather2002$temp + 2.0))
 # hot_result_5 <- temperature_simulation(setNames(c(500, soybean_weather2002$temp + 2.0), c("Catm", rep("temp", length(soybean_weather2002$temp)))))
 
+# Note that this command will produce a strange result where the first
+# temperature value will be incorrectly interpreted as a `Catm` value, and the
+# `Catm` value will be interpreted as the final temperature value.
+# hot_result_6 <- temperature_simulation(c(soybean_weather2002$temp + 2.0, 500))
+
 # Example 3: varying the base and air temperature inputs to the
 # 'thermal_time_linear' module from the 'BioCro' module library. The commands
 # below that call `thermal_time_rate` all produce the same result.
