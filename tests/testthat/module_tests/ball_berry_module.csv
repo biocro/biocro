@@ -1,0 +1,3 @@
+b1,b0,rh,net_assimilation_rate,atmospheric_co2_concentration,leaf_stomatal_conductance,description
+input,input,input,input,input,output,NA
+1,1,1,1,2,2200,not realistic values but they work

@@ -1,4 +1,4 @@
-biocro-dev requires explicit permission to use; github.com/ebimodeling/biocro is public. We migrate features there after publication
+biocro-dev requires explicit permission to use; github.com/ebimodeling/biocro is public. We migrate features there after publication.
 
 ## This is the master copy of the BioCro License
 
@@ -31,3 +31,7 @@ IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
+
+This software uses a portion of the Boost software library, which has its own
+separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the license
+is included with this package in the file boost_1_71_0/LICENSE_1_0.txt.

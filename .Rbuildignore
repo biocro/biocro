@@ -1,13 +1,71 @@
 ^.*\.Rproj$
-^\.Rproj\.user$
-^.*.gz
-ChangeLog
-TODO
-build.sh
-calibration.RData
-documentation
-^.*.log
-.git/*
-^\.travis\.yml$
-tags
+# Designates the directory as an RStudio Project
 
+^\.Rproj\.user$
+# Used by RStudio for temporary files
+
+/\.RData
+# Only a root level .RData file is ignored by default.
+
+^vignettes/.*\.aux$
+^vignettes/.*\.out$
+# Only exclude PDFs in the vignettes directory itself, not those in
+# subdirectories:
+^vignettes/[^/]*\.pdf$
+^vignettes/.*\.tex$
+^vignettes/.*\.toc$
+^vignettes/figure$
+^vignettes/.*\.log$
+# Vignette-build by-products.
+
+^vignettes/pdf_vignette_index.Rmd$
+# Vignette only for pkgdown.
+
+^.*\.gz$
+# If these files occur only as by-products of building vignettes, this
+# could be made more specific: ^vignettes/.*\.gz
+
+^ChangeLog$
+# The latest entry in this file is from 2012.  This change log should
+# probably be trashed and a new change log started per these
+# guidelines: https://keepachangelog.com/en/1.0.0/.  Entries should
+# correspond to package version releases.  And if the name
+# ChangeLog.md is used, Markdown can be used for easy readability on
+# GitHub.  See the PEcAn and BETYdb change logs for examples.
+
+^TODO$
+# Consider removing this file.  It's a remnant of BioCro 1 and is 8 years old.
+
+^build\.sh$
+# Consider removing this file or improving it.  It's a remnant of
+# BioCro 1 and doesn't work properly on MacOS and maybe not at all on
+# Windows.
+
+^tags$
+# Not sure what produces these files.
+
+^\.github$
+# GitHub actions and workflows.
+
+^src/.*\.o$
+^src/BioCro.so$
+# C++ build by-products.
+
+## Other files related to package development:
+
+^\.clang-format$
+^\.editorconfig$
+
+
+^src/Makefile.project$
+# This file can possibly be eliminated.
+
+## Developer documentation directories:
+
+^bookdown$
+^developer_documentation$
+^documentation$
+^doxygen$
+
+## File created by documentation/script/run_pkgdown.sh:
+^index.md$

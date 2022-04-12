@@ -2,9 +2,6 @@
 
 #' @export
 SoilType <- function(soiltype){
-
-  print(soiltype)
-
   if(soiltype == 0){
     nm <- c("sand soil")
     silt <- 0.05

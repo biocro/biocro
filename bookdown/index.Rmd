@@ -1,0 +1,15 @@
+---
+title: "BioCro Development"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+biblio-style: apalike
+link-citations: yes
+---
+# Introduction {-}
+
+The documentation in this short book is aimed at developers—at those
+who will be writing new modules or modifying existing ones; and most
+especially at those fixing bugs in or adding new features to the
+BioCro simulation framework, and those involved with the overall
+maintenance of the BioCro package.

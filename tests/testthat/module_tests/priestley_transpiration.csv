@@ -1,0 +1,3 @@
+PhiN,latent_heat_vaporization_of_water,slope_water_vapor,psychrometric_parameter,transpiration_rate,description
+input,input,input,input,output,NA
+1,1,1,1,0.63,automatically-generated test case

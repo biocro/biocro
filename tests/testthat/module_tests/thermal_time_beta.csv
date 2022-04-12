@@ -1,0 +1,3 @@
+sowing_time,temp,ttc_scale,tbeta,time,tbase,tmax,talpha,TTc,description
+input,input,input,input,input,input,input,input,output,NA
+1,1,1,1,1,1,1,1,0,automatically-generated test case
