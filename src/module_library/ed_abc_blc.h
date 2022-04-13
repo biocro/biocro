@@ -1,10 +1,12 @@
 #ifndef ED_ABC_BLC_H
 #define ED_ABC_BLC_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
 
+namespace standardBML
+{
 /**
  * @class ed_abc_blc
  *
@@ -99,4 +101,5 @@ void ed_abc_blc::do_operation() const
     update(conductance_boundary_h2o_op, blc_mol);
 }
 
+}  // namespace standardBML
 #endif

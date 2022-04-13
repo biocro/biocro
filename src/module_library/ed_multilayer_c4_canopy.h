@@ -1,11 +1,13 @@
 #ifndef ED_MULTILAYER_C4_CANOPY_H
 #define ED_MULTILAYER_C4_CANOPY_H
 
-#include "../state_map.h"
+#include "../framework/state_map.h"
 #include "multilayer_canopy_photosynthesis.h"
 #include "ed_multilayer_canopy_properties.h"
 #include "ed_c4_leaf_photosynthesis4.h"
 
+namespace standardBML
+{
 /**
  * @class ed_ten_layer_c4_canopy
  *
@@ -59,4 +61,5 @@ void ed_ten_layer_c4_canopy::do_operation() const
     multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>::run();
 }
 
+}  // namespace standardBML
 #endif

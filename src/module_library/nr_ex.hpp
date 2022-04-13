@@ -1,8 +1,8 @@
 #ifndef NR_EX_H
 #define NR_EX_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 // This module is an example in Chapter 16 of Numerical Recipes in C
 // The analytical solution is:
@@ -10,6 +10,8 @@
 //  v = -exp(-x) + exp(-1000x)
 // For u(0) = 1, v(0) = 0
 
+namespace standardBML
+{
 class nr_ex : public differential_module
 {
    public:
@@ -65,4 +67,5 @@ void nr_ex::do_operation() const
     update(v_op, -999.0 * (*u_ip) - 1999.0 * (*v_ip));
 }
 
+}  // namespace standardBML
 #endif

@@ -1,12 +1,14 @@
 #ifndef ED_GAS_CONCENTRATIONS_H
 #define ED_GAS_CONCENTRATIONS_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include <cmath>           // for fabs
-#include "../constants.h"  // for eps_zero
-#include "AuxBioCro.h"     // for saturation_vapor_pressure
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include <cmath>                     // for fabs
+#include "../framework/constants.h"  // for eps_zero
+#include "AuxBioCro.h"               // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class ed_gas_concentrations
  *
@@ -157,4 +159,5 @@ void ed_gas_concentrations::do_operation() const
     update(mole_fraction_h2o_intercellular_op, mole_fraction_h2o_intercellular);
 }
 
+}  // namespace standardBML
 #endif

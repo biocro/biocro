@@ -1,11 +1,11 @@
 #ifndef ED_NIKOLOV_CONDUCTANCE_H
 #define ED_NIKOLOV_CONDUCTANCE_H
 
-#include <cmath>           // for fabs and sqrt
-#include "../constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
-#include "../module.h"
-#include "../state_map.h"
-#include "se_module.h"
+#include <cmath>                     // for fabs and sqrt
+#include "../framework/constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework_ed/se_module.h"
 #include "AuxBioCro.h"
 
 namespace nikolov
@@ -17,6 +17,8 @@ constexpr double Tvdiff_factor = 0.378;
 
 }  // namespace nikolov
 
+namespace standardBML
+{
 /**
  * @class ed_nikolov_conductance_forced
  *
@@ -299,7 +301,7 @@ namespace ed_nikolov_conductance_free_solve_stuff
 std::string const module_name = "ed_nikolov_conductance_free_solve";
 
 // Create module wrapper objects for the sub-modules
-module_creator_impl<ed_nikolov_conductance_free> conductance;
+module_creator_impl<standardBML::ed_nikolov_conductance_free> conductance;
 
 // Create pointers to the wrappers
 mc_vector const sub_mcs = {&conductance};
@@ -394,4 +396,5 @@ std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_
     };
 }
 
+}  // namespace standardBML
 #endif

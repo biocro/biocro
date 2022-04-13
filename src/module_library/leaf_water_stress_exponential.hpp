@@ -1,10 +1,12 @@
 #ifndef LEAF_WATER_STRESS_EXPONENTIAL_H
 #define LEAF_WATER_STRESS_EXPONENTIAL_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // For calculation_constants::eps_zero
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"  // For calculation_constants::eps_zero
 
+namespace standardBML
+{
 class leaf_water_stress_exponential : public direct_module
 {
    public:
@@ -69,4 +71,5 @@ void leaf_water_stress_exponential::do_operation() const
     update(LeafWS_op, leaf_water_stress);
 }
 
+}  // namespace standardBML
 #endif

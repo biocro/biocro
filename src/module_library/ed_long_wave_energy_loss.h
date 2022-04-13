@@ -2,10 +2,12 @@
 #define ED_LONG_WAVE_ENERGY_LOSS_H
 
 #include <cmath>  // For pow
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class ed_long_wave_energy_loss
  *
@@ -81,4 +83,5 @@ void ed_long_wave_energy_loss::do_operation() const
     update(long_wave_energy_loss_leaf_op, net_energy_loss_leaf);
 }
 
+}  // namespace standardBML
 #endif

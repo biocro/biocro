@@ -1,10 +1,12 @@
 #ifndef NO_LEAF_RESP_NEG_ASSIM_PARTITIONING_GROWTH_CALCULATOR_H
 #define NO_LEAF_RESP_NEG_ASSIM_PARTITIONING_GROWTH_CALCULATOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "BioCro.h"  // for resp
 
+namespace standardBML
+{
 /**
  *  @class no_leaf_resp_neg_assim_partitioning_growth_calculator
  *
@@ -188,4 +190,5 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
+}  // namespace standardBML
 #endif

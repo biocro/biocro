@@ -99,17 +99,18 @@ biomass_columns <- c('time', 'Grain', 'Leaf', 'Root', 'Stem')
 \section{Overview}
 
 This vignette is a guided walkthrough of the code used to produce the figures in
-Section 3 of the BioCro II paper (currently under review). Briefly, this section
-of the paper compares two different models for \cthree\ photosynthesis: the
-mechanistic Farquhar-von-Cammerer-Berry (FvCB) model and an empirical radiation
-use efficiency (RUE) model. Each of these models is available as a BioCro module
-and can be used as a component in a larger crop model. The FvCB version in
-particular plays a key role in BioCro's validated soybean model, and it can be
-considered as the more accurate model for \cthree\ photosynthesis. On the other
-hand, the RUE model has several known shortcomings, such as being insensitive to
-atmospheric [\cotwo] levels. The main idea of Section 3 is to compare the
-behavior of these two models, both on their own and in the context of a larger
-soybean growth simulation. The analysis proceeds in the following steps:
+Section 3 of the BioCro II paper (accepted by \emph{in silico Plants}; citation
+forthcoming). Briefly, this section of the paper compares two different models
+for \cthree\ photosynthesis: the mechanistic Farquhar-von-Cammerer-Berry (FvCB)
+model and an empirical radiation use efficiency (RUE) model. Each of these
+models is available as a BioCro module and can be used as a component in a
+larger crop model. The FvCB version in particular plays a key role in BioCro's
+validated soybean model, and it can be considered as the more accurate model for
+\cthree\ photosynthesis. On the other hand, the RUE model has several known
+shortcomings, such as being insensitive to atmospheric [\cotwo] levels. The main
+idea of Section 3 is to compare the behavior of these two models, both on their
+own and in the context of a larger soybean growth simulation. The analysis
+proceeds in the following steps:
 \begin{enumerate}
 
 \item Find a value of the radiation use efficiency \ar\ that optimizes the
@@ -139,11 +140,11 @@ future.
 
 For brevity, this R vignette does not display the code used for processing
 weather data, retrieving weather data, or creating figures, although this code
-is contained in the Sweave file used to create it. This is to place emphasis on
-the BioCro functionality related to analyzing modules, since this part of the
-code will be of more general use. For other analyses, the required weather data
-will likely be different, and each user may have their own preferences regarding
-plotting that differ from the strategies used here.
+is contained in the associated R script. This is to place emphasis on the BioCro
+functionality related to analyzing modules, since this part of the code will be
+of more general use. For other analyses, the required weather data will likely
+be different, and each user may have their own preferences regarding plotting
+that differ from the strategies used here.
 
 In this section, we provide a short overview of the hidden code that is required
 to complete the analysis and produce the figures, but isn't explicitly included
@@ -262,12 +263,12 @@ pdf_print <- function(
 We want to find the value of \ar\ that creates output most similar to the FvCB
 model.  To do this, we will use an optimizer to find the value of \ar\ that
 minimizes the squared difference in end-of-season total mass between the two
-models for one year. Our example problem can be considered a trivial case of
+models for one year. Our example problem can be considered a simple case of
 least-squares fitting, where the number of model parameters being considered is
 one.
 
 The first step is to run the FvCB soybean model for the year 2002, adding the
-\texttt{total\_biomass} module to the set of default soybean modules.
+\texttt{BioCro:total\_biomass} module to the set of default soybean modules.
 Afterwards, we can extract the final biomass for 2002 as predicted by the FvCB
 model. Since we will be extracting the final biomass from the results of
 multiple simulations during this analysis, we will create a reusable function
@@ -278,7 +279,7 @@ fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
     soybean_parameters,
     weather[['2002']],
-    append(soybean_direct_modules, 'total_biomass'),
+    append(soybean_direct_modules, 'BioCro:total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -299,8 +300,8 @@ fewer arguments. In BioCro, a convenience function for using partial application
 with \texttt{run\_biocro} is provided: the \texttt{partial\_run\_biocro}
 function. Here we use it to fix all inputs to \texttt{run\_biocro} except \ar.
 Note that we also replace the default canopy photosynthesis module in addition
-to adding the \texttt{total\_biomass} module (as before). The return value from
-\texttt{partial\_run\_biocro} is a function that we have called
+to adding the \texttt{BioCro:total\_biomass} module (as before). The return
+value from \texttt{partial\_run\_biocro} is a function that we have called
 \texttt{rue\_2002}; this function takes a value of \ar\ as an input, runs a
 simulation using that value and the other arguments specified in the original
 call to \texttt{partial\_run\_biocro}, and returns the resulting data frame.
@@ -312,20 +313,20 @@ rue_2002 <- partial_run_biocro(
     within(soybean_parameters, {alpha_rue = NA}),
     weather[['2002']],
     append(within(soybean_direct_modules,
-        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
+        {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}), 'BioCro:total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver,
     'alpha_rue'  # here we specify the names of any quantities whose values
 )                # should not be fixed
 @
 
-The optimizer requires a function that accepts one argument (the value of the
-parameter being optimized) and returns one value (the value to minimize). Here,
-we create a function that accepts a value of \ar, passes it to
+The optimizer we will use requires a function that accepts one argument (the
+value of the parameter being optimized) and returns one value (the value to
+minimize). Here, we create a function that accepts a value of \ar, passes it to
 \texttt{rue\_2002} to run a soybean simulation, extracts the end-of-season
 biomass, and calculates the squared difference between that result and the FvCB
 result. This function provides a means for associating an error metric with each
-value of \ar.
+value of \ar, and it is suitable for passing to the optimizer.
 
 <<rue_fvcb_square_difference>>=
 rue_fvcb_square_difference = function(alpha_rue) {
@@ -333,13 +334,14 @@ rue_fvcb_square_difference = function(alpha_rue) {
 }
 @
 
-The \texttt{optim} function accepts \texttt{f(x)} and finds the value of
-\texttt{x} that minimizes \texttt{f(x)}. It requires a starting value for
-\texttt{x}, and for the \texttt{Brent} method, upper and lower bounds of
-\texttt{x}. It returns a list with information about the optimization (including
-the parameters it found, which are included in the \texttt{par} list element).
-Here we pass the \texttt{rue\_fvcb\_square\_difference} function to
-\texttt{optim} in order to find the best value for \ar.
+Here we use the \texttt{optim} function, which is included with every R
+installation; it accepts \texttt{f(x)} and finds the value of \texttt{x} that
+minimizes \texttt{f(x)}. It requires a starting value for \texttt{x}, and for
+the \texttt{Brent} method, upper and lower bounds of \texttt{x}. It returns a
+list with information about the optimization (including the parameters it found,
+which are included in the \texttt{par} list element). Here we pass the
+\texttt{rue\_fvcb\_square\_difference} function to \texttt{optim} in order to
+find the best value for \ar.
 
 <<alpha_rue_optimization>>=
 opt_par = optim(
@@ -427,7 +429,7 @@ optimal_rue_result_2002 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     weather[['2002']],
     append(within(soybean_direct_modules,
-        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
+        {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}), 'BioCro:total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -569,15 +571,15 @@ pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
   \end{center}
 \end{figure}
 
-\section{FvCB light curve sensitivity analysis}
+\section{FvCB light response curve sensitivity analysis}
 % TO DO: try using `module_response_curve` or `partial_evaluate_module` here
 % TO DO: can we reduce duplicated code for numerically calculating derivatives?
 
 Here we calculate the sensitivity of the FvCB model to various inputs known to
 influence the photosynthetic rate. To do this, we will use the
-\texttt{c3\_leaf\_photosynthesis} module to produce light curves. This module
-requires incident PPFD and absorbed shortwave energy as inputs, so we create a
-series of each.
+\texttt{BioCro:c3\_leaf\_photosynthesis} module to produce light curves. This
+module requires incident PPFD and absorbed shortwave energy as inputs, so we
+create a series of each.
 
 <<fvcb_light_curve_inputs>>=
 # Choose a set of incident PPFD values to use (micromol / m^2 / s)
@@ -629,30 +631,30 @@ c = \frac{df / dx}{f(x_0) / x_0}
 In this function, the \texttt{evaluate\_module} BioCro function is used to
 calculate the gross assimilation rate for different values of the independent
 variable specified by \texttt{varname}; in other words, \texttt{varname} is $x$
-and the \texttt{c3\_leaf\_photosynthesis} module defines $f(x)$.
+and the \texttt{BioCro:c3\_leaf\_photosynthesis} module defines $f(x)$.
 
 <<assim_sensitivity>>=
 assim_sensitivity <- function(
     varname,
-    base_module_inputs,
-    relative_perturbation_size = 1e-6
+    base_inputs,
+    relative_perturbation = 1e-6
 )
 {
-    var_center <- base_module_inputs[[varname]]
+    var_center <- base_inputs[[varname]]
     gross_assim_center <-
-        evaluate_module('c3_leaf_photosynthesis', base_module_inputs)[['GrossAssim']]
+        evaluate_module('BioCro:c3_leaf_photosynthesis', base_inputs)[['GrossAssim']]
 
-    neg_module_inputs <- base_module_inputs
-    neg_var <- base_module_inputs[[varname]] * (1 - relative_perturbation_size)
-    neg_module_inputs[[varname]] <- neg_var
+    neg_inputs <- base_inputs
+    neg_var <- base_inputs[[varname]] * (1 - relative_perturbation)
+    neg_inputs[[varname]] <- neg_var
     gross_assim_neg <-
-        evaluate_module('c3_leaf_photosynthesis', neg_module_inputs)[['GrossAssim']]
+        evaluate_module('BioCro:c3_leaf_photosynthesis', neg_inputs)[['GrossAssim']]
 
-    pos_module_inputs <- base_module_inputs
-    pos_var <- base_module_inputs[[varname]] * (1 + relative_perturbation_size)
-    pos_module_inputs[[varname]] <- pos_var
+    pos_inputs <- base_inputs
+    pos_var <- base_inputs[[varname]] * (1 + relative_perturbation)
+    pos_inputs[[varname]] <- pos_var
     gross_assim_pos <-
-        evaluate_module('c3_leaf_photosynthesis', pos_module_inputs)[['GrossAssim']]
+        evaluate_module('BioCro:c3_leaf_photosynthesis', pos_inputs)[['GrossAssim']]
 
     dadx = (gross_assim_pos - gross_assim_neg) / (pos_var - neg_var)
     return(dadx / (gross_assim_center / var_center))
@@ -743,14 +745,14 @@ biomass_driver_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_perturbation_size = 1e-5
+    relative_perturbation = 1e-5
 )
 {
     steady_state_modules <- append(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        'total_biomass'
+        'BioCro:total_biomass'
     )
 
     c_to_k <- 273.15
@@ -767,7 +769,7 @@ biomass_driver_sensitivity <- function(
     )
 
     neg_drivers <- default_drivers
-    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_perturbation_size)
+    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_perturbation)
     neg_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -778,7 +780,7 @@ biomass_driver_sensitivity <- function(
     )
 
     pos_drivers <- default_drivers
-    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_perturbation_size)
+    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_perturbation)
     pos_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -813,13 +815,13 @@ paper).
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
     'temp',
     soybean_parameters,
-    'ten_layer_c3_canopy'
+    'BioCro:ten_layer_c3_canopy'
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
     'temp',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    'ten_layer_rue_canopy'
+    'BioCro:ten_layer_rue_canopy'
 )
 @
 
@@ -871,14 +873,14 @@ biomass_parameter_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_perturbation_size = 1e-6
+    relative_perturbation = 1e-6
 )
 {
     steady_state_modules <- append(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        'total_biomass'
+        'BioCro:total_biomass'
     )
 
     default_result <- run_biocro(
@@ -891,7 +893,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     neg_parameters <- parameters
-    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_perturbation_size)
+    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_perturbation)
     neg_result <- run_biocro(
         soybean_initial_values,
         neg_parameters,
@@ -902,7 +904,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     pos_parameters <- parameters
-    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_perturbation_size)
+    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_perturbation)
     pos_result <- run_biocro(
         soybean_initial_values,
         pos_parameters,
@@ -937,13 +939,13 @@ paper).
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
     'Catm',
     soybean_parameters,
-    'ten_layer_c3_canopy'
+    'BioCro:ten_layer_c3_canopy'
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
     'Catm',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    'ten_layer_rue_canopy'
+    'BioCro:ten_layer_rue_canopy'
 )
 @
 
@@ -1010,7 +1012,7 @@ rue_result_2006 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
     weather[['2006']],
     within(soybean_direct_modules,
-        {canopy_photosynthesis = 'ten_layer_rue_canopy'}),
+        {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -1075,28 +1077,29 @@ catm_seq <- numeric(length(years))
 
 # Get final biomass values for each year in each model
 for (i in seq_along(years)) {
-    # Run the RUE soybean model for this year, adding the 'total_biomass' module
-    # to the set of default modules and ensuring that we're using the correct
-    # value for the atmospheric CO2 concentration
+    # Run the RUE soybean model for this year, adding the
+    # 'BioCro:total_biomass' module to the set of default modules and ensuring
+    # that we're using the correct value for the atmospheric CO2 concentration
     rue_result <- run_biocro(
         soybean_initial_values,
         within(soybean_parameters,
             {alpha_rue = best_alpha_rue; Catm = catm[[years[i]]]}),
         weather[[years[i]]],
         append(within(soybean_direct_modules,
-            {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
+            {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}),
+              'BioCro:total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )
 
-    # Run the FvCB soybean model for this year, adding the 'total_biomass'
-    # module to the set of default modules and ensuring that we're using the
-    # correct value for the atmospheric CO2 concentration
+    # Run the FvCB soybean model for this year, adding the
+    # 'BioCro:total_biomass' module to the set of default modules and ensuring
+    # that we're using the correct value for the atmospheric CO2 concentration
     fvcb_result <- run_biocro(
         soybean_initial_values,
         within(soybean_parameters, {Catm = catm[[years[i]]]}),
         weather[[years[i]]],
-        append(soybean_direct_modules, 'total_biomass'),
+        append(soybean_direct_modules, 'BioCro:total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )

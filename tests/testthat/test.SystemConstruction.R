@@ -20,7 +20,7 @@ test_that("drivers must not be empty", {
     )
 })
 
-test_that("certain run_biocro inputs must have the correct type", {
+test_that("certain run_biocro inputs must be lists or data frames", {
     expect_error(
         run_biocro(
             unlist(miscanthus_x_giganteus_initial_values),
@@ -45,15 +45,13 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(miscanthus_x_giganteus_initial_values, {bad_initial_value = numeric(0)}),
             within(miscanthus_x_giganteus_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather2005),
-            within(miscanthus_x_giganteus_direct_modules, {bad_direct_module = character(0)}),
-            within(miscanthus_x_giganteus_differential_modules, {bad_differential_module = character(0)}),
+            miscanthus_x_giganteus_direct_modules,
+            miscanthus_x_giganteus_differential_modules,
             within(miscanthus_x_giganteus_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
             "  The following `parameters` members have lengths other than 1, but all members must have a length of exactly 1: bad_parameter.\n",
-            "  The following `direct_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_direct_module.\n",
-            "  The following `differential_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_differential_module.\n",
             "  The following `ode_solver` members have lengths other than 1, but all members must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
@@ -115,27 +113,10 @@ test_that("certain run_biocro inputs must be numeric", {
 })
 
 test_that("All modules must exist", {
-    # Set up some bad inputs
-
-    initial_values <- list(
-        unused_initial_value = 0
-    )
-
-    parameters <- list(
-        unused_parameter = 0
-    )
-
-    drivers <- data.frame(
-        unused_varying_parameter=rep(0, MAX_INDEX)
-    )
-
-    direct_module_names <- c("module_that_does_not_exist")
-
-    differential_module_names <- c()
+    # TO-DO: move this test to a module-library-specific testing file
 
     # This should throw an error
-
-    expect_error(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_error(BioCro:::check_out_module("BioCro:module_that_does_not_exist"))
 
 })
 
@@ -159,13 +140,20 @@ test_that("Duplicated quantities produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names,
+        verbose=VERBOSE
+    ))
 
 })
 
@@ -188,13 +176,20 @@ test_that("Missing inputs produce an error during validation", {
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names,
+        verbose=VERBOSE
+    ))
 
 })
 
@@ -217,13 +212,20 @@ test_that("Differential modules only supply derivatives for quantities in the in
         hour=seq(from=0, by=1, length=MAX_INDEX)
     )
 
-    direct_module_names <- c("harmonic_energy")
+    direct_module_names <- "BioCro:harmonic_energy"
 
-    differential_module_names <- c("harmonic_oscillator")
+    differential_module_names <- "BioCro:harmonic_oscillator"
 
     # Validation should return FALSE
 
-    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_false(validate_dynamical_system_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names,
+        verbose=VERBOSE
+    ))
 
 })
 
@@ -242,18 +244,32 @@ test_that("Direct modules are not required to be supplied in the correct order",
         unused_varying_parameter=rep(0, MAX_INDEX)
     )
 
-    direct_module_names <- c("Module_1", "Module_2")
+    direct_module_names <- c("BioCro:Module_1", "BioCro:Module_2")
 
     differential_module_names <- c()
 
     # This should be valid
 
-    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_true(validate_dynamical_system_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names,
+        verbose=VERBOSE
+    ))
 
     # If we change the module order, it should still be valid
 
-    direct_module_names <- c("Module_2", "Module_1")
+    direct_module_names <- c("BioCro:Module_2", "BioCro:Module_1")
 
-    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, verbose=VERBOSE))
+    expect_true(validate_dynamical_system_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names,
+        verbose=VERBOSE
+    ))
 
 })

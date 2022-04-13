@@ -1,9 +1,11 @@
 #ifndef SENESCENCE_LOGISTIC_H
 #define SENESCENCE_LOGISTIC_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class senescence_logistic
  *
@@ -144,24 +146,24 @@ void senescence_logistic::do_operation() const
     double dLeaf = -senescence_leaf + kLeaf * senescence_leaf * remobilization_fraction;  // Mg / ha
 
     // change in amount of leaf litter
-    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction); // Mg / ha
+    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction);  // Mg / ha
 
     // change in stem biomass = minus amount senesced + new stem tissue from
     // remobilized leaf fraction
     double dStem = -senescence_stem + kStem * senescence_leaf * remobilization_fraction;  // Mg / ha
 
-    double dStemLitter = senescence_stem; // Mg / ha, change in amount of stem litter
+    double dStemLitter = senescence_stem;  // Mg / ha, change in amount of stem litter
 
     // change in root biomass = minus amount senesced + new root tissue from remobilized
     // leaf fraction
-    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction; // Mg / ha
+    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction;  // Mg / ha
 
-    double dRootLitter = senescence_root; // Mg / ha, change in amount of root litter
+    double dRootLitter = senescence_root;  // Mg / ha, change in amount of root litter
 
     // change in rhizome biomass = minus amount senesced + new rhizome from remobilized
     // leaf fraction
-    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction; // Mg / ha
-    double dRhizomeLitter = senescence_rhizome; // Mg / ha, change in rhizome litter
+    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction;  // Mg / ha
+    double dRhizomeLitter = senescence_rhizome;                                                    // Mg / ha, change in rhizome litter
 
     // change in grain biomass = new grain from remobilized leaf fraction.
     // currently do not include grain senescence.
@@ -178,4 +180,5 @@ void senescence_logistic::do_operation() const
     update(RhizomeLitter_op, dRhizomeLitter);  // Mg / ha
 }
 
+}  // namespace standardBML
 #endif

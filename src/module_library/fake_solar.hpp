@@ -1,11 +1,16 @@
 #ifndef FAKE_SOLAR_H
 #define FAKE_SOLAR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
-/** @brief
- *  Class created by EBL for testing and experimentation ... not meant for real simulations!
+namespace standardBML
+{
+/**
+ *  @class fake_solar
+ *
+ *  @brief Class created by EBL for testing and experimentation ... not meant
+ *  for real simulations!
  */
 class fake_solar : public direct_module
 {
@@ -117,4 +122,5 @@ void fake_solar::do_operation() const
     update(solar_op, solar);
 }
 
+}  // namespace standardBML
 #endif

@@ -1,14 +1,13 @@
 #ifndef SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_H
 #define SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>      // for log, pow
 #include <algorithm>  // for max
 
-double photoFunc(double P, double Popt, double Pcrit);
-double tempFunc(double T, double Tmin, double Topt, double Tmax);
-
+namespace standardBML
+{
 /**
  * @class soybean_development_rate_calculator
  *
@@ -49,6 +48,9 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
  *  UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
+double photoFunc(double P, double Popt, double Pcrit);
+double tempFunc(double T, double Tmin, double Topt, double Tmax);
+
 class soybean_development_rate_calculator : public direct_module
 {
    public:
@@ -258,4 +260,5 @@ double photoFunc(double P, double Popt, double Pcrit)
     return fP;  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

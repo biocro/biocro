@@ -1,6 +1,6 @@
 #include "BioCro.h"
 #include "c3photo.hpp"
-#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
+#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str c3CanAC(
     double LAI,                  // dimensionless

@@ -1,12 +1,12 @@
 #ifndef PARTITIONING_COEFFICIENT_LOGISTIC_H
 #define PARTITIONING_COEFFICIENT_LOGISTIC_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include <cmath>  // for exp
 
-double kcoeff(double alpha, double beta, double DVI, double denom);
-
+namespace standardBML
+{
 /**
  * @class partitioning_coefficient_logistic
  *
@@ -44,6 +44,8 @@ double kcoeff(double alpha, double beta, double DVI, double denom);
  * UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  */
+double kcoeff(double alpha, double beta, double DVI, double denom);
+
 class partitioning_coefficient_logistic : public direct_module
 {
    public:
@@ -159,4 +161,5 @@ double kcoeff(double alpha, double beta, double DVI, double denom)
     return k;  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

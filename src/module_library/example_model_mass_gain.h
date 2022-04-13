@@ -1,9 +1,11 @@
 #ifndef EXAMPLE_MODEL_MASS_GAIN_H
 #define EXAMPLE_MODEL_MASS_GAIN_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class example_model_mass_gain
  *
@@ -101,4 +103,5 @@ void example_model_mass_gain::do_operation() const
     update(mass_gain_op, mass_gain);
 }
 
+}  // namespace standardBML
 #endif

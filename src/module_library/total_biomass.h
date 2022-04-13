@@ -1,9 +1,11 @@
 #ifndef TOTAL_BIOMASS_H
 #define TOTAL_BIOMASS_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class total_biomass
  *
@@ -71,4 +73,5 @@ void total_biomass::do_operation() const
     update(total_biomass_op, Leaf + Stem + Root + Rhizome + Grain);
 }
 
+}  // namespace standardBML
 #endif

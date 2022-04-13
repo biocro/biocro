@@ -1,10 +1,12 @@
 #ifndef BALL_BERRY_MODULE_H
 #define BALL_BERRY_MODULE_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "ball_berry.hpp"
 
+namespace standardBML
+{
 class ball_berry_module : public direct_module
 {
    public:
@@ -74,4 +76,5 @@ void ball_berry_module::do_operation() const
     update(leaf_stomatal_conductance_op, stomatal_conductance);
 }
 
+}  // namespace standardBML
 #endif

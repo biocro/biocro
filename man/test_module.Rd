@@ -8,12 +8,12 @@
 \title{Run BioCro module test cases}
 
 \description{
-  Modules can be tested using test cases - data sets with known outputs for a
-  given input. The functions here provide ways to create test cases and test
-  modules.
+  Modules can be tested using test cases, which are sets of known outputs that
+  correspond to particular inputs. The functions here provide ways to create
+  test cases and test modules.
 
-  \code{test_module} runs one test case for a module, throwing an error if its
-  output does not match the expected value.
+  \code{test_module} runs one test case for a module, returning an error message
+  if its output does not match the expected value.
 
   \code{case} helps define test cases for module testing by combining the
   required elements into a list with the correct names as required by
@@ -33,7 +33,11 @@
 
 \arguments{
   \item{module_name}{
-    A string representing the name of one BioCro module.
+    A string specifying one BioCro module, formatted like
+    \code{library_name:local_module_name}, where \code{library_name} is the name
+    of a library that contains a module with local name
+    \code{local_module_name}; such fully-qualified module names can be formed
+    manually or with \code{\link{module_paste}}.
   }
 
   \item{case_to_test}{
@@ -66,7 +70,7 @@
 
   \item{directory}{
     The directory where module test case files are stored, e.g.
-    \code{file.path('tests', 'testthat', 'module_tests')}
+    \code{file.path('tests', 'module_test_cases')}
   }
 
 }
@@ -79,6 +83,11 @@
 }
 
 \value{
+  \item{test_module}{
+    If the test passes, an empty string; otherwise, an informative message about
+    what went wrong.
+  }
+
   \item{case}{
     A list with three named elements (\code{inputs}, \code{expected_outputs},
     and \code{description}) formed from the input arguments.
@@ -94,14 +103,18 @@
   \itemize{
     \item \code{\link{modules}}
     \item \code{\link{module_case_files}}
+    \item \code{\link{module_paste}}
     \item \code{\link{module_testing}}
+    \item \code{\link{test_module_library}}
   }
 }
 
 \examples{
-# Example 1: Defining an individual test case and running it.
+# Example 1: Defining an individual test case for the 'BioCro' module library's
+# 'thermal_time_linear' module and running the test. This test will pass, so the
+# return value will be an empty string: `character(0)`
 test_module(
-  'thermal_time_linear',
+  'BioCro:thermal_time_linear',
   case(
     list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
     list(TTc = 1.0),
@@ -109,12 +122,25 @@ test_module(
   )
 )
 
-# Example 2: Loading a set of test cases from a file and running one of them.
+# Example 2: Defining an individual test case for the 'BioCro' module library's
+# 'thermal_time_linear' module and running the test. This test will fail, so the
+# return value will be a message indicating the failure.
+test_module(
+  'BioCro:thermal_time_linear',
+  case(
+    list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+    list(TTc = 2.0),
+    'temp above tbase'
+  )
+)
+
+# Example 3: Loading a set of test cases from a file and running one of them.
 # Note: here we use the `initialize_csv` function first to ensure that there is
 # a properly defined test file in the current directory.
 \dontrun{
-initialize_csv('thermal_time_linear', '.')
-cases <- cases_from_csv('thermal_time_linear', '.')
-test_module('thermal_time_linear', cases[[1]])
+module_name <- 'BioCro:thermal_time_linear'
+initialize_csv(module_name, '.')
+cases <- cases_from_csv(module_name, '.')
+test_module(module_name, cases[[1]])
 }
 }

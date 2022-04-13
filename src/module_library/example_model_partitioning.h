@@ -1,9 +1,11 @@
 #ifndef EXAMPLE_MODEL_PARTITIONING_H
 #define EXAMPLE_MODEL_PARTITIONING_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class example_model_partitioning
  *
@@ -90,4 +92,5 @@ void example_model_partitioning::do_operation() const
     update(Root_op, dRoot);
 }
 
+}  // namespace standardBML
 #endif

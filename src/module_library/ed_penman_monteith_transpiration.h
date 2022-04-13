@@ -2,11 +2,13 @@
 #define ED_PENMAN_MONTEITH_TRANSPIRATION_H
 
 #include <cmath>  // For pow
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // for ideal_gas_constant, celsius_to_kelvin,
-                           // molar_mass_of_water
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin,
+                                     // molar_mass_of_water
 
+namespace standardBML
+{
 /**
  * @class ed_penman_monteith_transpiration
  *
@@ -155,4 +157,5 @@ void ed_penman_monteith_transpiration::do_operation() const
     update(transpiration_rate_op, transpiration_rate);
 }
 
+}  // namespace standardBML
 #endif

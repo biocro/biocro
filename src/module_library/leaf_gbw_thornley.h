@@ -1,10 +1,12 @@
 #ifndef LEAF_GBW_THORNLEY_H
 #define LEAF_GBW_THORNLEY_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_thornley
 
+namespace standardBML
+{
 /**
  * @class leaf_gbw_thornley
  *
@@ -95,4 +97,5 @@ void leaf_gbw_thornley::do_operation() const
     update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

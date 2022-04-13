@@ -1,9 +1,11 @@
 #ifndef PARTITIONING_GROWTH_H
 #define PARTITIONING_GROWTH_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class partitioning_growth
  *
@@ -228,4 +230,5 @@ void partitioning_growth::do_operation() const
     update(Grain_op, dGrain);
 }
 
+}  // namespace standardBML
 #endif

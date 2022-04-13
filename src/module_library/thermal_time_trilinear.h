@@ -1,9 +1,11 @@
 #ifndef THERMAL_TIME_TRILINEAR_H
 #define THERMAL_TIME_TRILINEAR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_trilinear
  *
@@ -160,4 +162,5 @@ void thermal_time_trilinear::do_operation() const
     update(TTc_op, rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

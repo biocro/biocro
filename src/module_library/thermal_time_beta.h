@@ -2,9 +2,11 @@
 #define THERMAL_TIME_BETA_H
 
 #include <cmath>  // for pow
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_beta
  *
@@ -178,4 +180,5 @@ void thermal_time_beta::do_operation() const
     update(TTc_op, rate);
 }
 
+}  // namespace standardBML
 #endif

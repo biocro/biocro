@@ -1,9 +1,11 @@
 #ifndef C3_CANOPY_H
 #define C3_CANOPY_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class c3_canopy : public direct_module
 {
    public:
@@ -114,4 +116,5 @@ class c3_canopy : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

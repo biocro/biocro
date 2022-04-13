@@ -2,9 +2,11 @@
 #define ED_BOUNDARY_CONDUCTANCE_H
 
 #include <algorithm>  // for std::max
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_boundary_conductance_quadrature
  *
@@ -142,4 +144,5 @@ void ed_boundary_conductance_max::do_operation() const
     update(conductance_boundary_h2o_op, overall_conductance);
 }
 
+}  // namespace standardBML
 #endif

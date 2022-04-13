@@ -1,9 +1,11 @@
 #ifndef UTILIZATION_GROWTH_H
 #define UTILIZATION_GROWTH_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class utilization_growth
  *
@@ -161,4 +163,5 @@ void utilization_growth::do_operation() const
     update(substrate_pool_rhizome_op, d_substrate_rhizome);
 }
 
+}  // namespace standardBML
 #endif

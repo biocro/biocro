@@ -38,15 +38,15 @@ run_biocro(
   }
 
   \item{direct_module_names}{
-    A character vector or list specifying the names of direct modules to use in
-    the system; a list of available modules can be obtained via the
-    \code{\link{get_all_modules}} function
+    A character vector or list of the fully-qualified names of the direct
+    modules to use in the system; lists of available modules can be obtained via
+    the \code{\link{get_all_modules}} function.
   }
 
   \item{differential_module_names}{
-    A character vector or list specifying the names of differential modules to
-    use in the system; a list of available modules can be obtained via the
-    \code{\link{get_all_modules}} function
+    A character vector or list of the fully-qualified names of the differential
+    modules to use in the system; lists of available modules can be obtained via
+    the \code{\link{get_all_modules}} function.
   }
 
   \item{ode_solver}{

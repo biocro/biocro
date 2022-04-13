@@ -2,17 +2,17 @@ context("Test to make sure the simultaneous equation solvers function as expecte
 
 # Use the "golden ratio hyperbola" to test the solver
 run_trial_se <- function(initial_value, lower_bounds, upper_bounds, abs_error_tols, rel_error_tols, solver_type, trial_description) {
-	
+
 	# Set up inputs
-	direct_module_names <- c("golden_ratio_hyperbola")
+	direct_modules <- BioCro:::module_creators("golden_ratio_hyperbola")
 	known_quantities <- list()
 	unknown_quantities <- list(x = initial_value)
-	
+
 	# test for any errors
 	# regexp = NA indicates that no error should be encountered
 	test_that(trial_description, {
 		expect_error(solve_simultaneous_equations(
-						direct_module_names,
+						direct_modules,
 						known_quantities,
 						unknown_quantities,
 						lower_bounds,

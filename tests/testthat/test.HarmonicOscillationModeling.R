@@ -76,8 +76,8 @@ debug_view <- function(ob) {
 
 
 
-differential_modules <- c("harmonic_oscillator")
-direct_modules <- c("harmonic_energy")
+differential_modules <- "BioCro:harmonic_oscillator"
+direct_modules <- "BioCro:harmonic_energy"
 drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
 default_ode_solver <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 

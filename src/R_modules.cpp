@@ -1,10 +1,12 @@
-#include <Rinternals.h>  // for Rprintf
-#include <vector>
 #include <string>
-#include "R_helper_functions.h"
-#include "state_map.h"
-#include "module_creator.h"
-#include "module.h"
+#include <memory>                          // for unique_ptr
+#include <Rinternals.h>                    // for Rprintf, Rf_error
+#include "framework/R_helper_functions.h"  // for mc_vector_from_list, list_from_module_info, list_from_map
+#include "framework/state_map.h"           // for state_map, string_vector
+#include "framework/module_creator.h"
+#include "framework/module.h"
+
+using std::string;
 
 extern "C" {
 
@@ -31,7 +33,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Get the module's name
-        std::string module_name = w->get_name();
+        string module_name = w->get_name();
 
         // Make maps for the module's inputs and outputs
         state_map module_inputs;
@@ -39,14 +41,14 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 
         // Get the module's inputs and give them default values
         double const default_value = 1.0;
-        std::vector<std::string> inputs = w->get_inputs();
-        for (std::string param : inputs) {
+        string_vector inputs = w->get_inputs();
+        for (string param : inputs) {
             module_inputs[param] = default_value;
         }
 
         // Get the module's outputs and give them default values
-        std::vector<std::string> outputs = w->get_outputs();
-        for (std::string param : outputs) {
+        string_vector outputs = w->get_outputs();
+        for (string param : outputs) {
             module_outputs[param] = default_value;
         }
 
@@ -54,7 +56,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         bool create_success = true;
         bool is_differential = false;
         bool requires_euler_ode_solver = false;
-        std::string creation_error_message = "none";
+        string creation_error_message = "none";
         try {
             std::unique_ptr<module> module_ptr = w->create_module(
                 module_inputs,
@@ -80,7 +82,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             if (inputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
-                for (std::string param : inputs) {
+                for (string param : inputs) {
                     Rprintf("\n  %s", param.c_str());
                 }
                 Rprintf("\n\n");
@@ -91,7 +93,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             if (outputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
-                for (std::string param : outputs) {
+                for (string param : outputs) {
                     Rprintf("\n  %s", param.c_str());
                 }
                 Rprintf("\n\n");
@@ -129,9 +131,9 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
+        Rf_error((string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_module_info: ") + e.what()).c_str());
+        Rf_error((string("Caught exception in R_module_info: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_module_info.");
     }
@@ -170,7 +172,7 @@ SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
         // the values in module_output_map, the result only makes sense if each
         // parameter is initialized to 0.
         string_vector module_outputs = w->get_outputs();
-        for (std::string param : module_outputs) {
+        for (string param : module_outputs) {
             module_output_map[param] = 0.0;
         }
 
@@ -182,9 +184,9 @@ SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
         return list_from_map(module_output_map);
 
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
+        Rf_error((string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
+        Rf_error((string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_evaluate_module.");
     }

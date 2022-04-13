@@ -1,11 +1,13 @@
 #ifndef ED_EVAPOTRANS2_H
 #define ED_EVAPOTRANS2_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "c4photo.h"
 #include "BioCro.h"  // for absorbed_shortwave_from_incident_ppfd
 
+namespace standardBML
+{
 /**
  * @class ed_evapotrans2
  *
@@ -125,4 +127,5 @@ void ed_evapotrans2::do_operation() const
     update(gbw_op, et_results.boundary_layer_conductance);                    // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

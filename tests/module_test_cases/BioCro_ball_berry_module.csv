@@ -1,0 +1,3 @@
+input,input,input,input,input,output,"description"
+atmospheric_co2_concentration,b0,b1,net_assimilation_rate,rh,leaf_stomatal_conductance,NA
+2,1,1,1,1,2200,"not realistic values but they work"

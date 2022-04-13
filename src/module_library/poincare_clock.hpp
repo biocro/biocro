@@ -2,10 +2,12 @@
 #define POINCARE_CLOCK_H
 
 #include <cmath>
-#include "../constants.h"
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class poincare_clock : public differential_module
 {
    public:
@@ -143,4 +145,5 @@ void poincare_clock::do_operation() const
     update(ref_a_op, ref_friction * ref_a - natural_freq * ref_b);
 }
 
+}  // namespace standardBML
 #endif

@@ -1,10 +1,11 @@
 #ifndef MULTILAYER_CANOPY_PROPERTIES_H
 #define MULTILAYER_CANOPY_PROPERTIES_H
 
-#include "../state_map.h"
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/state_map.h"
+#include "../framework/module.h"
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_properties
  *
@@ -47,7 +48,7 @@
  * type (e.g. sunlit leaves in layer 1).
  *
  * Note that this module has a non-standard constructor, so it cannot be created
- * using the module_library. Rather, it is expected that directly-usable
+ * using the module_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
 class multilayer_canopy_properties : public direct_module
@@ -183,4 +184,5 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

@@ -1,10 +1,12 @@
 #ifndef SOIL_EVAPORATION_H
 #define SOIL_EVAPORATION_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "BioCro.h"  // For SoilEvapo
 
+namespace standardBML
+{
 class soil_evaporation : public direct_module
 {
    public:
@@ -106,4 +108,5 @@ void soil_evaporation::do_operation() const
     update(soil_evaporation_rate_op, soilEvap);
 }
 
+}  // namespace standardBML
 #endif

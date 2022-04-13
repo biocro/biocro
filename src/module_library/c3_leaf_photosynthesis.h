@@ -1,9 +1,11 @@
 #ifndef C3_LEAF_PHOTOSYNTHESIS_H
 #define C3_LEAF_PHOTOSYNTHESIS_H
 
-#include "../state_map.h"
-#include "../module.h"
+#include "../framework/state_map.h"
+#include "../framework/module.h"
 
+namespace standardBML
+{
 /**
  * @class c3_leaf_photosynthesis
  *
@@ -102,4 +104,5 @@ class c3_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

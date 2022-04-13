@@ -18,7 +18,7 @@
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
 #include "BioCro.h"
-#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
+#include "../framework/constants.h"  // for ideal_gas_constant, molar_mass_of_water,
                            // stefan_boltzmann, celsius_to_kelvin
 
 struct ET_Str c3EvapoTrans(

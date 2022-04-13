@@ -1,11 +1,13 @@
 #ifndef SOLAR_POSITION_MICHALSKY_H
 #define SOLAR_POSITION_MICHALSKY_H
 
-#include <cmath>                     // for floor, fmod
-#include "../degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
-#include "../module.h"
-#include "../state_map.h"
+#include <cmath>                               // for floor, fmod
+#include "../framework/degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class solar_position_michalsky
  *
@@ -256,4 +258,5 @@ void solar_position_michalsky::do_operation() const
     update(solar_azimuth_angle_op, az);
 }
 
+}  // namespace standardBML
 #endif

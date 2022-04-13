@@ -40,12 +40,16 @@
 
 \arguments{
   \item{module_name}{
-    A string representing the name of one BioCro module.
+    A string specifying one BioCro module, formatted like
+    \code{library_name:local_module_name}, where \code{library_name} is the name
+    of a library that contains a module with local name
+    \code{local_module_name}; such fully-qualified module names can be formed
+    manually or with \code{\link{module_paste}}.
   }
 
   \item{directory}{
     The directory where module test case files are stored, e.g.
-    \code{file.path('tests', 'testthat', 'module_tests')}.
+    \code{file.path('tests', 'module_test_cases')}.
   }
 
   \item{inputs}{
@@ -82,7 +86,7 @@
   The \code{add_csv_row} function will evaluate the module for a set of input
   quantities, define a test case from the resulting outputs and the description,
   and add it to the module's corresponding \code{csv} file. If no \code{csv}
-  file exists, one will be initialized before adding the new case.
+  file exists, one will be initialized with the new case.
 
   The \code{update_csv_cases} function will evaluate the module for all input
   values specified in its \code{csv} case file and update the stored values of
@@ -114,33 +118,35 @@
 \seealso{
   \itemize{
     \item \code{\link{modules}}
-    \item \code{\link{test_module}}
+    \item \code{\link{module_paste}}
     \item \code{\link{module_testing}}
+    \item \code{\link{test_module_library}}
+    \item \code{\link{test_module}}
   }
 }
 
 \examples{
-# First, we will initialize a test case file for the `thermal_time_linear`
-# module, which will be saved in the current directory as
-# `thermal_time_linear.csv`. Then, we will add a new case to the file. Finally,
-# we will update the file. Note that the call to `update_csv_cases` will not
-# actually modify the file unless it is manually edited beforehand to change an
-# input or output value.
+# First, we will initialize a test case file for the 'BioCro' library's
+# 'thermal_time_linear' module, which will be saved in the current directory as
+# 'BioCro_thermal_time_linear.csv'. Then, we will add a new case to the file.
+# Finally, we will update the file. Note that the call to `update_csv_cases`
+# will not actually modify the file unless it is manually edited beforehand to
+# change an input or output value.
 \dontrun{
 initialize_csv(
-  'thermal_time_linear',
+  'BioCro:thermal_time_linear',
   '.',
   nonstandard_inputs = list(temp = -1),
   overwrite = TRUE
 )
 
 add_csv_row(
-  'thermal_time_linear',
+  'BioCro:thermal_time_linear',
   '.',
   list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
   'temp above tbase'
 )
 
-update_csv_cases('thermal_time_linear', '.')
+update_csv_cases('BioCro:thermal_time_linear', '.')
 }
 }

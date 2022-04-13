@@ -1,10 +1,12 @@
 #ifndef SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 #define SHORTWAVE_ATMOSPHERIC_SCATTERING_H
 
-#include "../module.h"
-#include "../constants.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/constants.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class shortwave_atmospheric_scattering
  *
@@ -107,4 +109,5 @@ void shortwave_atmospheric_scattering::do_operation() const
     update(irradiance_diffuse_fraction_op, irradiance_diffuse_fraction);
 }
 
+}  // namespace standardBML
 #endif

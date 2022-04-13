@@ -1,9 +1,11 @@
 #ifndef THERMAL_TIME_AND_FROST_SENESCENCE_H
 #define THERMAL_TIME_AND_FROST_SENESCENCE_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class thermal_time_and_frost_senescence
  *
@@ -376,4 +378,5 @@ void thermal_time_and_frost_senescence::do_operation() const
     update(rhizome_senescence_index_op, drhizome_senescence_index);
 }
 
+}  // namespace standardBML
 #endif

@@ -1,10 +1,10 @@
-#include <Rinternals.h>
 #include <vector>
 #include <string>
-#include <exception>    // for std::exception
-#include "state_map.h"  // for state_map, state_vector_map, string_vector
-#include "dynamical_system.h"
-#include "R_helper_functions.h"
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error
+#include "framework/R_helper_functions.h"  // for map_from_list, map_vector_from_list, mc_vector_from_list, list_from_map
+#include "framework/state_map.h"           // for state_map, state_vector_map, string_vector
+#include "framework/dynamical_system.h"
 
 using std::string;
 using std::vector;

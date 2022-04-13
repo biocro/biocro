@@ -1,9 +1,11 @@
 #ifndef ED_MULTILAYER_CANOPY_PROPERTIES_H
 #define ED_MULTILAYER_CANOPY_PROPERTIES_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_multilayer_canopy_properties
  *
@@ -12,7 +14,7 @@
  * leaf classes (sunlit & shaded). Leaf class is added to output
  * parameters as a prefix, while layer number is added as a suffix.
  * Note that this module has a non-standard constructor, so it cannot
- * be created using the module_library.
+ * be created using the module_factory.
  *
  * For compatibility with the multilayer canopy photosynthesis module,
  * the outputs of this module must be split into the following categories:
@@ -333,4 +335,5 @@ void ed_ten_layer_canopy_properties::do_operation() const
     ed_multilayer_canopy_properties::run();
 }
 
+}  // namespace standardBML
 #endif

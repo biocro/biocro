@@ -1,9 +1,11 @@
 #ifndef PARTITIONING_COEFFICIENT_SELECTOR_H
 #define PARTITIONING_COEFFICIENT_SELECTOR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class partitioning_coefficient_selector : public direct_module
 {
    public:
@@ -191,4 +193,5 @@ void partitioning_coefficient_selector::do_operation() const
     update(kGrain_op, kGrain);
 }
 
+}  // namespace standardBML
 #endif

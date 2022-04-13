@@ -2,10 +2,12 @@
 #define HYPERBOLAS_H
 
 #include <cmath>  // For pow
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class golden_ratio_hyperbola
  *
@@ -127,4 +129,5 @@ void hyperbola_2d::do_operation() const
     update(y_op, 1 + 1 / (2 * *x_ip - *y_ip));
 }
 
+}  // namespace standardBML
 #endif

@@ -21,9 +21,14 @@
   Also} section contains a list of functions that directly rely on
   \code{module_creators}.
 
-  The R documentation for \code{externalptr} objects is sparse, but some
-  information can be found
-  \href{https://stat.ethz.ch/R-manual/R-devel/library/methods/html/BasicClasses.html}{here}.
+  Although the description of \code{externalptr} objects is sparse, some
+  information can be found in the online R documentation for
+  \href{https://stat.ethz.ch/R-manual/R-devel/library/methods/html/BasicClasses.html}{basic classes}.
+
+  This function should not be used directly, and each module library package
+  must have its own version. For these reasons, this function is not exported to
+  the package namespace and can only be accessed using the package name via the
+  \code{\link{:::}} operator.
 }
 
 \value{
@@ -33,6 +38,7 @@
 
 \seealso{
   \itemize{
+    \item \code{\link{run_biocro}}
     \item \code{\link{module_info}}
     \item \code{\link{evaluate_module}}
   }
@@ -41,7 +47,7 @@
 \examples{
 # Example: creating a vector of pointers to several module wrappers representing
 # three options for thermal time calculations
-module_pointers <- module_creators(c(
+module_pointers <- BioCro:::module_creators(c(
   'thermal_time_linear',
   'thermal_time_bilinear',
   'thermal_time_trilinear'

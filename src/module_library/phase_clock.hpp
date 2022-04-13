@@ -2,10 +2,12 @@
 #define PHASE_CLOCK_H
 
 #include <cmath>
-#include "../constants.h"
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class phase_clock : public differential_module
 {
    public:
@@ -112,4 +114,5 @@ void phase_clock::do_operation() const
     update(phi_op, natural_freq * (1 + R * light));
 }
 
+}  // namespace standardBML
 #endif

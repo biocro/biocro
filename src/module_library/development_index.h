@@ -1,9 +1,11 @@
 #ifndef DEVELOPMENT_INDEX_H
 #define DEVELOPMENT_INDEX_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class development_index
  *
@@ -50,7 +52,6 @@
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  *
  */
-
 class development_index : public differential_module
 {
    public:
@@ -103,4 +104,5 @@ void development_index::do_operation() const
     update(DVI_op, development_rate_per_hour);  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

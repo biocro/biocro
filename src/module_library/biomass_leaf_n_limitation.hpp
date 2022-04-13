@@ -1,10 +1,12 @@
 #ifndef BIOMASS_LEAF_N_LIMITATION_H
 #define BIOMASS_LEAF_N_LIMITATION_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // For calculation_constants::eps_zero
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"  // For calculation_constants::eps_zero
 
+namespace standardBML
+{
 class biomass_leaf_n_limitation : public direct_module
 {
    public:
@@ -70,4 +72,5 @@ void biomass_leaf_n_limitation::do_operation() const
     update(LeafN_op, std::min(*LeafN_0_ip, leaf_n));
 }
 
+}  // namespace standardBML
 #endif

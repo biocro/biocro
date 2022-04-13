@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,"description"
+assimilation_adjustment_factor_WS,collatz_PAR_flux,collatz_alpha,collatz_beta,collatz_k,collatz_q10,collatz_rd,collatz_rubisco_temperature_lower,collatz_rubisco_temperature_upper,collatz_theta,collatz_vmax,mole_fraction_co2_intercellular,temperature_leaf,assimilation_carbon_limited,assimilation_gross,assimilation_light_limited,assimilation_net,assimilation_rubisco_limited,collatz_KT,collatz_RT,collatz_VT,respiration,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.25,1,-0.749999907864,0.25,1,0.999999907864,0.25,0.999999907864,"automatically-generated test case"

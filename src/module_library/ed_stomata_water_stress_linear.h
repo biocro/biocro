@@ -1,9 +1,11 @@
 #ifndef ED_STOMATA_WATER_STRESS_LINEAR_H
 #define ED_STOMATA_WATER_STRESS_LINEAR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class ed_stomata_water_stress_linear
  *
@@ -91,4 +93,5 @@ void ed_stomata_water_stress_linear::do_operation() const
     update(StomataWS_op, StomataWS);
 }
 
+}  // namespace standardBML
 #endif

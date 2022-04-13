@@ -19,16 +19,37 @@ system_derivatives(
 }
 
 \arguments{
-  The input arguments to \code{system_derivatives} are the same as the
-  corresponding inputs to \code{\link{run_biocro}}.
+  \item{parameters}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{drivers}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{direct_module_names}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
+
+  \item{differential_module_names}{
+    Identical to the corresponding argument from \code{\link{run_biocro}}.
+  }
 }
 
 \value{
+  \code{system_derivatives} accepts the same input arguments as
+  \code{\link{run_biocro}} with the exceptions of \code{ode_solver} and
+  \code{initial_values}; this function is intended to be passed to an ODE solver
+  in R, which will solve for the system's time dependence as its diffferential
+  quantities evolve from their initial values, so \code{ode_solver} and
+  \code{initial_values} are not required here.
+
   The return value of \code{system_derivatives} is a function with three inputs
   (\code{t}, \code{differential_quantities}, and \code{parms}) that returns
   derivatives for each of the differential quantities in the dynamical system
   determined by the original inputs (\code{parameters}, \code{drivers},
-  \code{direct_module_names}, and \code{differential_module_names}).
+  \code{direct_module_names}, and
+  \code{differential_module_names}).
 
   This function signature and the requirements for its inputs are set by the
   \code{LSODES} function from the \code{deSolve} package. The \code{t} input
@@ -71,8 +92,8 @@ if (require(deSolve)) {
       spring_constant = 1
     ),
     data.frame(time=times),
-    character(),
-    'harmonic_oscillator'
+    c(),
+    'BioCro:harmonic_oscillator'
   )
 
   result <- as.data.frame(lsodes(

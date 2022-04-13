@@ -59,7 +59,7 @@ check_run_biocro_inputs <- function(
     )
 
     # The elements of initial_values, parameters, direct_module_names,
-    # differential_module_names, and ode_solver should all have length 1
+    # differential_module_names, and ode_solver should each have a length of 1
     error_message <- append(
         error_message,
         check_element_length(
@@ -87,8 +87,8 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # The direct_module_names, differential_module_names, and the ode_solver's
-    # `type` element should all be vectors or lists of strings
+    # The direct_module_names and differential_module_names should be vectors or
+    # lists of strings. The ode_solver's `type` element should also be a string.
     error_message <- append(
         error_message,
         check_strings(
@@ -122,7 +122,7 @@ run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver,
+    ode_solver = BioCro:::default_ode_solver,
     verbose = FALSE
 )
 {
@@ -142,9 +142,16 @@ run_biocro <- function(
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
-    # Make sure the module names are vectors of strings
-    direct_module_names <- unlist(direct_module_names)
-    differential_module_names <- unlist(differential_module_names)
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(
+        direct_module_names,
+        check_out_module
+    )
+
+    differential_module_creators <- sapply(
+        differential_module_names,
+        check_out_module
+    )
 
     # Collect the ode_solver info
     ode_solver_type <- ode_solver$type
@@ -171,8 +178,8 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        module_creators(direct_module_names),
-        module_creators(differential_module_names),
+        direct_module_creators,
+        differential_module_creators,
         ode_solver_type,
         ode_solver_output_step_size,
         ode_solver_adaptive_rel_error_tol,
@@ -198,7 +205,7 @@ partial_run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver,
+    ode_solver = BioCro:::default_ode_solver,
     arg_names,
     verbose = FALSE
 )
@@ -214,20 +221,20 @@ partial_run_biocro <- function(
     )
 
     arg_list = list(
-        initial_values=initial_values,
-        parameters=parameters,
-        drivers=drivers,
-        direct_module_names=direct_module_names,
-        differential_module_names=differential_module_names,
-        ode_solver=ode_solver,
-        verbose=verbose
+        initial_values = initial_values,
+        parameters = parameters,
+        drivers = drivers,
+        direct_module_names = direct_module_names,
+        differential_module_names = differential_module_names,
+        ode_solver = ode_solver,
+        verbose = verbose
     )
 
     df = data.frame(
-        control=character(),
-        arg_name=character(),
-        index=numeric(),
-        stringsAsFactors=FALSE
+        control = character(),
+        arg_name = character(),
+        index = numeric(),
+        stringsAsFactors = FALSE
     )
 
     for (i in seq_len(3)) {
@@ -246,12 +253,13 @@ partial_run_biocro <- function(
         }
     }
 
-    # Find the locations of the parameters specified in arg_names and check for
-    # errors
-    # We can't use just %in% because that doesn't preserve the order.
-    # However, match() only returns the first match, which doesn't work for things like drivers.
-    # So use %in% for each arg_name so you can get all elements in the correct order.
-    controls <- do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
+    # Find the locations of the quantities specified in arg_names and check for
+    # errors. We can't use just %in% because that doesn't preserve the order.
+    # However, match() only returns the first match, which doesn't work for
+    # things like drivers. So use %in% for each arg_name so we can get all
+    # elements in the correct order.
+    controls <-
+        do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
 
     missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
@@ -265,19 +273,44 @@ partial_run_biocro <- function(
 
     send_error_messages(error_messages)
 
-    # Make a function that calls run_biocro with new values for the
-    # parameters specified in arg_names
+    # Make a function that calls run_biocro with new values for the quantities
+    # specified in arg_names
     function(x)
     {
-        x = unlist(x)
-        if (length(x) != nrow(controls)) {
-            stop("The `x` argument does not have the correct number of elements")
+        if (!is.null(names(x))) {
+            if (length(names(x)) != length(arg_names) || !all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
+                msg <- paste0(
+                    "The names of the `x` argument do not match those ",
+                    "specified by `arg_names`:\n  `arg_names`: ",
+                    paste(arg_names, collapse = ", "),
+                    "\n  `names(x)`: ",
+                    paste(names(x), collapse = ", ")
+                )
+                stop(msg)
+            }
+            x <- x[arg_names]
         }
+
+        x <- unlist(x)
+
+        if (length(x) != nrow(controls)) {
+            msg <- paste0(
+                "The unlisted `x` argument (`unlist(x)`) does not have the ",
+                "correct number of elements: required = ",
+                nrow(controls),
+                ", actual = ",
+                length(x)
+            )
+            stop(msg)
+        }
+
         temp_arg_list = arg_list
+
         for (i in seq_along(x)) {
             c_row = controls[i, ]
             temp_arg_list[[c_row$control]][[c_row$arg_name]][c_row$index] = x[i]
         }
+
         do.call(run_biocro, temp_arg_list)
     }
 }

@@ -1,14 +1,15 @@
 #ifndef ED_COLLATZ_C4_ASSIMILATION_H
 #define ED_COLLATZ_C4_ASSIMILATION_H
 
-#include <cmath>  // For pow, exp
-#include "../constants.h"  // for eps_zero
-#include "../module.h"
-#include "../state_map.h"
-#include <Rinternals.h>          // for debugging
+#include <cmath>                     // For pow, exp
+#include "../framework/constants.h"  // for eps_zero
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include <Rinternals.h>            // for debugging
 const bool collatz_print = false;  // for debugging
 
-
+namespace standardBML
+{
 /**
  * @class ed_collatz_c4_assimilation
  *
@@ -247,4 +248,5 @@ void ed_collatz_c4_assimilation::do_operation() const
     update(assimilation_net_op, adjusted_assimilation_net);
 }
 
+}  // namespace standardBML
 #endif

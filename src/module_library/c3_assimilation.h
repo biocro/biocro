@@ -1,10 +1,12 @@
 #ifndef C3_ASSIMILATION_H
 #define C3_ASSIMILATION_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "c3photo.hpp"
 
+namespace standardBML
+{
 /**
  * @class c3_assimilation
  *
@@ -186,4 +188,5 @@ void c3_assimilation::do_operation() const
     update(GrossAssim_op, c3_results.GrossAssim);
 }
 
+}  // namespace standardBML
 #endif

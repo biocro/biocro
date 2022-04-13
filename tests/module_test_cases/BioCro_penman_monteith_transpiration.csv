@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,output,"description"
+latent_heat_vaporization_of_water,leaf_boundary_layer_conductance,leaf_net_irradiance,leaf_stomatal_conductance,psychrometric_parameter,slope_water_vapor,vapor_density_deficit,leaf_transpiration_rate,NA
+1,1,1,1,1,1,1,4.87776206276658e-05,"automatically-generated test case"

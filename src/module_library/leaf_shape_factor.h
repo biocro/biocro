@@ -2,9 +2,11 @@
 #define LEAF_SHAPE_FACTOR_H
 
 #include <limits>
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class leaf_shape_factor
  *
@@ -96,4 +98,5 @@ void leaf_shape_factor::do_operation() const
     update(leaf_shape_factor_op, LSF);
 }
 
+}  // namespace standardBML
 #endif

@@ -1,11 +1,12 @@
 #ifndef MULTILAYER_CANOPY_INTEGRATOR_H
 #define MULTILAYER_CANOPY_INTEGRATOR_H
 
-#include "../state_map.h"
-#include "../module.h"
-#include "../state_map.h"
-#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
+#include "../framework/state_map.h"
+#include "../framework/module.h"
+#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_integrator
  *
@@ -255,4 +256,5 @@ void ten_layer_canopy_integrator::do_operation() const
     multilayer_canopy_integrator::run();
 }
 
+}  // namespace standardBML
 #endif

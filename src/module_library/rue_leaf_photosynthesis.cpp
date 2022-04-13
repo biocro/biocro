@@ -1,9 +1,11 @@
 #include "rue_leaf_photosynthesis.h"
-#include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
+#include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "ball_berry.hpp"  // for ball_berry
 #include "BioCro.h"        // for c3EvapoTrans
 #include "AuxBioCro.h"     // for arrhenius_exponent
 #include <cmath>           // for exp
+
+using standardBML::rue_leaf_photosynthesis;
 
 // Define a structure for storing the output of `rue_photo()`
 struct rue_str {

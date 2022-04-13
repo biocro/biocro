@@ -1,12 +1,12 @@
 #ifndef SENESCENCE_COEFFICIENT_LOGISTIC_H
 #define SENESCENCE_COEFFICIENT_LOGISTIC_H
 
-#include "../module.h"
-#include "../state_map.h"
-#include <cmath> // for exp
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include <cmath>  // for exp
 
-double ksene(double rate, double alpha, double beta, double DVI);
-
+namespace standardBML
+{
 /**
  * @class senescence_coefficient_logistic
  *
@@ -46,6 +46,8 @@ double ksene(double rate, double alpha, double beta, double DVI);
  * model of soybean growth"
  *
  */
+double ksene(double rate, double alpha, double beta, double DVI);
+
 class senescence_coefficient_logistic : public direct_module
 {
    public:
@@ -155,4 +157,5 @@ double ksene(double rate, double alpha, double beta, double DVI)
     return kSene;  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

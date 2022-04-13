@@ -1,9 +1,11 @@
 #ifndef LINEAR_VMAX_FROM_LEAF_N_H
 #define LINEAR_VMAX_FROM_LEAF_N_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class linear_vmax_from_leaf_n : public direct_module
 {
    public:
@@ -67,4 +69,5 @@ void linear_vmax_from_leaf_n::do_operation() const
     update(vmax_op, (LeafN_0 - LeafN) * vmax_n_intercept + vmax1);
 }
 
+}  // namespace standardBML
 #endif

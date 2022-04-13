@@ -1,11 +1,13 @@
 #ifndef TWO_LAYER_SOIL_PROFILE_H
 #define TWO_LAYER_SOIL_PROFILE_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // For soilML_str
 #include "BioCro.h"     // For soilML
 
+namespace standardBML
+{
 class two_layer_soil_profile : public differential_module
 {
    public:
@@ -180,4 +182,5 @@ void two_layer_soil_profile::do_operation() const
     update(soil_water_content_op, cws_mean - soil_water_content);
 }
 
+}  // namespace standardBML
 #endif

@@ -1,8 +1,8 @@
 #ifndef POKHILKO_CIRCADIAN_CLOCK_H
 #define POKHILKO_CIRCADIAN_CLOCK_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 // This module is based on the circadian clock gene network described in
 //  Pokhilko, A. et al. The clock gene circuit in Arabidopsis includes a repressilator with additional feedback loops. Molecular Systems Biology 8, 574 (2012).
@@ -11,6 +11,8 @@
 //  and available online from https://github.com/danielseaton/frameworkmodel
 // Values for parameters were taken from the SBML model available in the supplemental information of the 2012 paper
 
+namespace standardBML
+{
 class pokhilko_circadian_clock : public differential_module
 {
    public:
@@ -429,4 +431,5 @@ void pokhilko_circadian_clock::do_operation() const
     update(COP1_cytoplasm_op, 1.0 * n5 - p6 * COP1_cytoplasm - m27 * COP1_cytoplasm * (1.0 + p15 * L));
 }
 
+}  // namespace standardBML
 #endif

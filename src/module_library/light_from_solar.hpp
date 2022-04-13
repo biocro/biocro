@@ -1,9 +1,11 @@
 #ifndef LIGHT_FROM_SOLAR_H
 #define LIGHT_FROM_SOLAR_H
 
-#include "../module.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 class light_from_solar : public direct_module
 {
    public:
@@ -84,4 +86,5 @@ void light_from_solar::do_operation() const
     update(light_op, light);
 }
 
+}  // namespace standardBML
 #endif
