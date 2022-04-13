@@ -166,7 +166,10 @@ hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.
 
 # Note that these commands will both produce errors:
 # hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather2002$temp + 2.0))
-# hot_result_5 <- temperature_simulation(setNames(c(500, soybean_weather2002$temp + 2.0), c("Catm", rep("temp", length(soybean_weather2002$temp)))))
+# hot_result_5 <- temperature_simulation(setNames(
+#   c(500, soybean_weather2002$temp + 2.0),
+#   c("Catm", rep("temp", length(soybean_weather2002$temp)))
+# ))
 
 # Note that this command will produce a strange result where the first
 # temperature value will be incorrectly interpreted as a `Catm` value, and the
