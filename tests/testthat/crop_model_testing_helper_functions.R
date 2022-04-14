@@ -26,7 +26,7 @@ MAX_SAMPLE_SIZE <- 5
 RELATIVE_ERROR_TOLERANCE <- 5e-3
 
 # Choose default weather
-WEATHER <- get_growing_season_climate(weather2005)
+WEATHER <- get_growing_season_climate(weather$'2005')
 
 # Make a helping function for specifying crop information
 specify_crop <- function(

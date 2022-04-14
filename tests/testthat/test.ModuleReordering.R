@@ -16,7 +16,7 @@ NUMBER_OF_PERMUTATIONS <- 4
 baseline_result  <- run_biocro(
     miscanthus_x_giganteus_initial_values,
     c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam),
-    get_growing_season_climate(weather2005),
+    get_growing_season_climate(weather$'2005'),
     miscanthus_x_giganteus_direct_modules,
     miscanthus_x_giganteus_differential_modules
 )
@@ -50,7 +50,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
     result <- run_biocro(
         miscanthus_x_giganteus_initial_values,
         c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam),
-        get_growing_season_climate(weather2005),
+        get_growing_season_climate(weather$'2005'),
         permuted_direct_module_list,
         miscanthus_x_giganteus_differential_modules
     )

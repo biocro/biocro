@@ -8,7 +8,7 @@ context("Test partial application")
 # Get the baseline simulation result, which is based on the 2005 Miscanthus
 # simulation, but where we have changed the atmospheric CO2 concentration and
 # all hourly air temperatures
-weather <- get_growing_season_climate(weather2005)
+weather <- get_growing_season_climate(weather$'2005')
 new_catm <- 500
 temp_offset <- 1
 

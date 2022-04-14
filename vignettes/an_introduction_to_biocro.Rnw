@@ -203,6 +203,11 @@ cat(
 
 \tableofcontents
 
+\section{Disclaimer}
+
+This document uses some outdated terminology and needs to be updated to reflect
+some of the recent changes to BioCro.
+
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
 
@@ -602,7 +607,7 @@ provided as one means of subsetting climate data.\footnote{The
 2005 showing the first few rows of the growing season:
 
 <<weather2005>>=
-head(get_growing_season_climate(weather2005))
+head(get_growing_season_climate(weather$'2005'))
 @
 
 \subsubsection{Function output}
@@ -636,10 +641,14 @@ development of a crop as follows:
 
 % Run the code to validate it, but don't show the figure.
 <<Gro_example, fig.show='hide'>>=
-result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather2005),
-             sorghum_direct_modules, sorghum_differential_modules,
-             sorghum_ode_solver)
+result = run_biocro(
+  sorghum_initial_values,
+  c(sorghum_parameters, soil_parameters$clay_loam),
+  get_growing_season_climate(weather$'2005'),
+  sorghum_direct_modules,
+  sorghum_differential_modules,
+  sorghum_ode_solver
+)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # `xyplot` requires the lattice package.
                                                # The output is not shown here.
 @

@@ -26,7 +26,7 @@
 \usage{soybean_weather}
 
 \format{
-  A list of named elements, where each element is a data frame corrsponding to
+  A list of 4 named elements, where each element is a data frame corrsponding to
   one year of weather data and the name of each element is a year, for example
   \code{'2004'}. Each data frame has 2952 - 3384 rows and 14 columns:
   \itemize{

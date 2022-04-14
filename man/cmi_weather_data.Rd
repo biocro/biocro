@@ -2,59 +2,31 @@
 
 \docType{data}
 
-\alias{weatherYYYY}
+\alias{weather}
 \alias{cmi_weather_data}
-\alias{weather1995}
-\alias{weather1996}
-\alias{weather1997}
-\alias{weather1998}
-\alias{weather1999}
-\alias{weather2000}
-\alias{weather2001}
-\alias{weather2002}
-\alias{weather2003}
-\alias{weather2004}
-\alias{weather2005}
-\alias{weather2006}
-\alias{weather2007}
-\alias{weather2008}
-\alias{weather2009}
-\alias{weather2010}
-\alias{weather2011}
-\alias{weather2012}
-\alias{weather2013}
-\alias{weather2014}
-\alias{weather2015}
-\alias{weather2016}
-\alias{weather2017}
-\alias{weather2018}
-\alias{weather2019}
-\alias{weather2020}
 
 \title{Champaign, IL weather data}
 
 \description{
-  Multiple years of Champaign, IL weather data specified at hourly intervals in
-  the CST time zone. The columns correspond to typical inputs required for
+  Champaign, IL weather data specified at hourly intervals in the CST time zone
+  for the years 1995 - 2020. The data includes typical inputs required for
   BioCro simulations. Note: some values are missing near the start of 1995 since
-  the data is not available from SURFRAD.
+  those time points are not available from SURFRAD.
 
   This weather data is included in the BioCro package so users can reproduce
-  calculations in the BioCro II paper (citation forthcoming) and for exploratory
-  purposes; it is likely that most BioCro studies will require different data
-  sets, and no attempt is made here to be exhaustive.
+  the calculations of Lochocki \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diac003}] and for exploratory purposes; it is
+  likely that most BioCro studies will require different data sets, and no
+  attempt is made here to be exhaustive.
 }
 
-\usage{
-## YYYY should be replaced with a 4-digit year from the available set of years,
-## e.g. 2002
-weatherYYYY
-}
+\usage{weather}
 
 \format{
-  26 data frames corresponding to 26 years of weather data (1995 - 2020), where
-  each data frame has 8760 or 8784 rows (representing hourly time points) and 9
-  columns:
+  A list of 26 named elements, where each element is a data frame corrsponding
+  to one year of weather data and the name of each element is a year, for
+  example \code{'2004'}. Each data frame has 8760 or 8784 rows (representing
+  hourly time points) and 9 columns:
   \itemize{
     \item \code{year}: the year
     \item \code{doy}: the day of year
@@ -74,8 +46,9 @@ weatherYYYY
 
 \source{
   Weather data were obtained from the public SURFRAD and WARM databases and
-  processed according to the method described in the BioCro II paper
-  (submitted). See that paper for a full description of the data processing.
+  processed according to the method described in Lochocki \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diac003}]. See that paper for a full description
+  of the data processing.
 
   In brief, the columns in the data frames were determined from SURFRAD and WARM
   variables as follows:
