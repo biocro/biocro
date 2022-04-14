@@ -1,9 +1,10 @@
+source('soil_properties.R')
+
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # manihot_esculenta_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
 
 manihot_esculenta_direct_modules <- list(
-    "BioCro:soil_type_selector",
     stomata_water_stress = "BioCro:stomata_water_stress_linear",
     "BioCro:leaf_water_stress_exponential",
     "BioCro:parameter_calculator",
@@ -127,7 +128,6 @@ manihot_esculenta_parameters = with(list(), {
     soil_depth3                            10.0
     soil_reflectance                       0.2
     soil_transmission                      0.01
-    soil_type_indicator                    6
     sowing_time                            0
     specific_heat_of_air                   1010
     Sp_thermal_time_decay                  0
@@ -146,3 +146,9 @@ manihot_esculenta_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
+
+# Include soil properties
+manihot_esculenta_parameters <- c(
+    manihot_esculenta_parameters,
+    soil_properties$clay_loam
+)

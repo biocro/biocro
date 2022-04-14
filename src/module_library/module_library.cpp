@@ -13,7 +13,6 @@
 #include "one_layer_soil_profile.hpp"
 #include "one_layer_soil_profile_derivatives.hpp"
 #include "two_layer_soil_profile.hpp"
-#include "soil_type_selector.hpp"
 #include "soil_evaporation.hpp"
 #include "parameter_calculator.hpp"
 #include "c3_canopy.hpp"
@@ -123,7 +122,6 @@ creator_map standardBML::module_library::library_entries =
      {"one_layer_soil_profile",                                &create_mc<one_layer_soil_profile>},
      {"one_layer_soil_profile_derivatives",                    &create_mc<one_layer_soil_profile_derivatives>},
      {"two_layer_soil_profile",                                &create_mc<two_layer_soil_profile>},
-     {"soil_type_selector",                                    &create_mc<soil_type_selector>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
      {"parameter_calculator",                                  &create_mc<parameter_calculator>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},

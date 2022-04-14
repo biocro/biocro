@@ -1,9 +1,10 @@
+source('soil_properties.R')
+
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # soybean_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
 
 soybean_direct_modules <- list(
-    "BioCro:soil_type_selector",
     stomata_water_stress = "BioCro:stomata_water_stress_linear",
     "BioCro:parameter_calculator",
     "BioCro:soybean_development_rate_calculator",
@@ -81,9 +82,6 @@ soybean_initial_values = with(list(), {
 soybean_parameters = with(list(), {
     datalines =
     "symbol                                 value
-    # soil_type_selector module
-    soil_type_indicator                     6
-
     # parameter_calculator module
     iSp                                     3.5         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
     Sp_thermal_time_decay                   0           # not used in Soybean-BioCro (see Note 1 at end of file), but must be defined
@@ -216,6 +214,12 @@ soybean_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
+
+# Include soil properties
+soybean_parameters <- c(
+    soybean_parameters,
+    soil_properties$clay_loam
+)
 
 # Also include separate initial values, parameters, and modules for the soybean
 # circadian clock. (We can use the same ODE solver as the main soybean model.)

@@ -1488,13 +1488,3 @@ struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rf
     }
     return  result;
 }
-
-
-soilText_str get_soil_properties(int soiltype) {
-    return get_soil_properties(static_cast<SoilType>(soiltype));
-}
-
-const soilText_str get_soil_properties(SoilType soiltype)
-{
-    return soil_parameters.at(soiltype);
-}
