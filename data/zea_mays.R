@@ -1,5 +1,3 @@
-source('soil_properties.R')
-
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # zea_mays_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
@@ -190,12 +188,6 @@ zea_mays_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
-
-# Include soil properties
-zea_mays_parameters <- c(
-    zea_mays_parameters,
-    soil_properties$clay_loam
-)
 
 # Note: Maize is photoperiod insensitive except for tassel initiation.
 # The Osborne et al (doi:10.5194/gmd-8-1139-2015) model assumes

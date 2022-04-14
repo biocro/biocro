@@ -1,5 +1,3 @@
-source('soil_properties.R')
-
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # manihot_esculenta_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
@@ -146,9 +144,3 @@ manihot_esculenta_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
-
-# Include soil properties
-manihot_esculenta_parameters <- c(
-    manihot_esculenta_parameters,
-    soil_properties$clay_loam
-)

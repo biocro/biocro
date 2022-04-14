@@ -70,7 +70,7 @@ system_derivatives(
 # Example 1: calculating a single derivative using a soybean model
 
 soybean_system <- system_derivatives(
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules
@@ -117,7 +117,7 @@ if (require(deSolve)) {
 \dontrun{
 if (require(deSolve)) {
   soybean_system <- system_derivatives(
-    soybean_parameters,
+    c(soybean_parameters, soil_parameters$clay_loam),
     soybean_weather$'2002',
     soybean_direct_modules,
     soybean_differential_modules

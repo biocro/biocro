@@ -67,10 +67,10 @@ validate_dynamical_system_inputs(
 \seealso{\code{\link{run_biocro}}}
 
 \examples{
-# Example 1: missing a parameter and an initial value
+# Example 1: missing some parameters and an initial value
 validate_dynamical_system_inputs(
-  within(soybean_initial_values, rm(Leaf)),         # remove the initial `Leaf` value
-  within(soybean_parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
+  within(soybean_initial_values, rm(Leaf)), # remove the initial `Leaf` value
+  soybean_parameters,                       # don't include soil parameters
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules
@@ -79,7 +79,7 @@ validate_dynamical_system_inputs(
 # Example 2: a valid set of input arguments
 validate_dynamical_system_inputs(
   soybean_initial_values,
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules

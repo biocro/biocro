@@ -272,12 +272,15 @@ The first step is to run the FvCB soybean model for the year 2002, adding the
 Afterwards, we can extract the final biomass for 2002 as predicted by the FvCB
 model. Since we will be extracting the final biomass from the results of
 multiple simulations during this analysis, we will create a reusable function
-for doing this.
+for doing this. Note that we also define a set of soybean parameters specialized
+for Champaign, IL that includes clay loam soil parameters.
 
 <<fvcb_result_2002>>=
+cmi_soybean_parameters <- c(soybean_parameters, soil_parameters$clay_loam)
+
 fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
-    soybean_parameters,
+    cmi_soybean_parameters,
     weather[['2002']],
     append(soybean_direct_modules, 'BioCro:total_biomass'),
     soybean_differential_modules,
@@ -310,7 +313,7 @@ call to \texttt{partial\_run\_biocro}, and returns the resulting data frame.
 # The first six arguments are the same as for `run_biocro`
 rue_2002 <- partial_run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {alpha_rue = NA}),
+    within(cmi_soybean_parameters, {alpha_rue = NA}),
     weather[['2002']],
     append(within(soybean_direct_modules,
         {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}), 'BioCro:total_biomass'),
@@ -426,7 +429,7 @@ paper).
 <<optimal_rue_result_2002>>=
 optimal_rue_result_2002 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
+    within(cmi_soybean_parameters, {alpha_rue = best_alpha_rue}),
     weather[['2002']],
     append(within(soybean_direct_modules,
         {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}), 'BioCro:total_biomass'),
@@ -587,19 +590,19 @@ incident_ppfd <- seq(0, 1000, length.out = 501)
 
 # Determine corresponding incident PAR values (J / m^2 / s) using the average
 # energy per micromole of photosynthetically active photons in sunlight
-incident_par <- incident_ppfd * soybean_parameters[['par_energy_content']]
+incident_par <- incident_ppfd * cmi_soybean_parameters[['par_energy_content']]
 
 # Determine the corresponding incident shorwave values using the fraction of
 # solar energy that lies in the PAR band (J / m^2 / s)
-incident_shortwave <- incident_par / soybean_parameters[['par_energy_fraction']]
+incident_shortwave <- incident_par / cmi_soybean_parameters[['par_energy_fraction']]
 
 # Determine the corresponding absorbed shortwave energy values using the
 # shortwave reflectance and transmittance of the leaf (J / m^2 / s)
 average_absorbed_shortwave <-
     incident_shortwave *
-    (1 - soybean_parameters[['leaf_reflectance']] -
-        soybean_parameters[['leaf_transmittance']]) /
-    (1 - soybean_parameters[['leaf_transmittance']])
+    (1 - cmi_soybean_parameters[['leaf_reflectance']] -
+        cmi_soybean_parameters[['leaf_transmittance']]) /
+    (1 - cmi_soybean_parameters[['leaf_transmittance']])
 
 # Make a data frame with the incident PPFD and absorbed shortwave values, where
 # we also include values of a few other required parameters
@@ -679,7 +682,7 @@ fvcb_sensitivity_light_curve_result <- data.frame(
 for (varname in fvcb_light_curve_sensitivity_variables) {
     fvcb_sensitivity_light_curve_result[[varname]] <-
         apply(light_curve_inputs, 1,
-            function(x) assim_sensitivity(varname, c(soybean_parameters, as.list(x))))
+            function(x) assim_sensitivity(varname, c(cmi_soybean_parameters, as.list(x))))
 }
 @
 
@@ -814,13 +817,13 @@ paper).
 <<biomass_temp_sensitivity>>=
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
     'temp',
-    soybean_parameters,
+    cmi_soybean_parameters,
     'BioCro:ten_layer_c3_canopy'
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
     'temp',
-    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
+    within(cmi_soybean_parameters, {alpha_rue = best_alpha_rue}),
     'BioCro:ten_layer_rue_canopy'
 )
 @
@@ -938,13 +941,13 @@ paper).
 <<biomass_catm_sensitivity>>=
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
     'Catm',
-    soybean_parameters,
+    cmi_soybean_parameters,
     'BioCro:ten_layer_c3_canopy'
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
     'Catm',
-    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
+    within(cmi_soybean_parameters, {alpha_rue = best_alpha_rue}),
     'BioCro:ten_layer_rue_canopy'
 )
 @
@@ -999,7 +1002,7 @@ predicted mass values (Figure \ref{fig_biomass_comparison_2006}; this is Figure
 <<biomass_comparison_2006>>=
 fvcb_result_2006 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {Catm = catm[['2006']]}),
+    within(cmi_soybean_parameters, {Catm = catm[['2006']]}),
     weather[['2006']],
     soybean_direct_modules,
     soybean_differential_modules,
@@ -1009,7 +1012,7 @@ fvcb_result_2006 <- run_biocro(
 # Run the RUE model with the optimal value for alpha_rue determined for 2002
 rue_result_2006 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
+    within(cmi_soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
     weather[['2006']],
     within(soybean_direct_modules,
         {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}),
@@ -1082,7 +1085,7 @@ for (i in seq_along(years)) {
     # that we're using the correct value for the atmospheric CO2 concentration
     rue_result <- run_biocro(
         soybean_initial_values,
-        within(soybean_parameters,
+        within(cmi_soybean_parameters,
             {alpha_rue = best_alpha_rue; Catm = catm[[years[i]]]}),
         weather[[years[i]]],
         append(within(soybean_direct_modules,
@@ -1097,7 +1100,7 @@ for (i in seq_along(years)) {
     # that we're using the correct value for the atmospheric CO2 concentration
     fvcb_result <- run_biocro(
         soybean_initial_values,
-        within(soybean_parameters, {Catm = catm[[years[i]]]}),
+        within(cmi_soybean_parameters, {Catm = catm[[years[i]]]}),
         weather[[years[i]]],
         append(soybean_direct_modules, 'BioCro:total_biomass'),
         soybean_differential_modules,

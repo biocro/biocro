@@ -1,5 +1,3 @@
-source('soil_properties.R')
-
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # miscanthus_x_giganteus_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
@@ -177,9 +175,3 @@ miscanthus_x_giganteus_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
-
-# Include soil properties
-miscanthus_x_giganteus_parameters <- c(
-    miscanthus_x_giganteus_parameters,
-    soil_properties$clay_loam
-)

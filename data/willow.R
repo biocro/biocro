@@ -1,5 +1,3 @@
-source('soil_properties.R')
-
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # willow_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
@@ -171,9 +169,3 @@ willow_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
-
-# Include soil properties
-willow_parameters <- c(
-    willow_parameters,
-    soil_properties$clay_loam
-)

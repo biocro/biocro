@@ -159,7 +159,7 @@ simulating soybean growth:
 <<run_biocro>>=
 soybean_result = run_biocro(
   soybean_initial_values,
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
@@ -423,11 +423,15 @@ as representing simple individual equations like Equations \ref{eq:param} and
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of parameters
 and initial values when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_parameters} and \texttt{soybean\_initial\_values}. These lists
-include quantities that characterize soybean physiological processes (such as
-$v_{\rm{c,max}}$), specifics related to field conditions (such as the initial
-seed mass per unit ground area), and other important categories of quantities.
-To learn about specific quantities, see Section \ref{sec:quantity_info}.
+\texttt{soybean\_parameters}, \texttt{soil\_parameters\$clay\_loam}, and
+\texttt{soybean\_initial\_values}. Two separate parameter lists
+(\texttt{soybean\_parameters} and \texttt{soil\_parameters\$clay\_loam}) were
+combined with the \texttt{c} command to form one list with soybean \emph{and}
+soil parameter values. As a whole, these lists include quantities that
+characterize soybean physiological processes (such as $v_{\rm{c,max}}$),
+specifics related to field conditions (such as the initial seed mass per unit
+ground area), and other important categories of quantities. To learn about
+specific quantities, see Section \ref{sec:quantity_info}.
 
 \subsection{Choosing the drivers \label{sec:choose_drivers}}
 
@@ -611,8 +615,8 @@ will occur:
 
 <<run_biocro_error_quantity>>=
 soybean_result = run_biocro(
-  within(soybean_initial_values, rm(Leaf)),         # remove the initial `Leaf` value
-  within(soybean_parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
+  within(soybean_initial_values, rm(Leaf)), # remove the initial `Leaf` value
+  soybean_parameters,                       # don't include soil parameters
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
@@ -627,7 +631,7 @@ libraries:
 <<run_biocro_error_module>>=
 soybean_result = run_biocro(
   soybean_initial_values,
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   append(soybean_direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
   soybean_differential_modules,
@@ -651,7 +655,7 @@ reordering is required).
 # This code is not evaluated here since it produces a large amount of text
 valid <- validate_dynamical_system_inputs(
   soybean_initial_values,
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   rev(soybean_direct_modules), # Reverse the order of the direct modules
   soybean_differential_modules

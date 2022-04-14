@@ -1,8 +1,8 @@
-\name{soil_properties}
+\name{soil_parameters}
 
 \docType{data}
 
-\alias{soil_properties}
+\alias{soil_parameters}
 
 \title{Soil properties}
 
@@ -10,7 +10,7 @@
   A collection of soil property data.
 }
 
-\usage{soil_properties}
+\usage{soil_parameters}
 
 \format{
   A list of named elements, where each element represents the hydraulic

@@ -1,5 +1,3 @@
-source('soil_properties.R')
-
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
 # soybean_direct_modules$canopy_photosynthesis <- 'BioCro:ten_layer_rue_canopy'
@@ -215,13 +213,7 @@ soybean_parameters = with(list(), {
     values
 })
 
-# Include soil properties
-soybean_parameters <- c(
-    soybean_parameters,
-    soil_properties$clay_loam
-)
-
-# Also include separate initial values, parameters, and modules for the soybean
+# Also define separate initial values, parameters, and modules for the soybean
 # circadian clock. (We can use the same ODE solver as the main soybean model.)
 soybean_clock_direct_modules <- c(
     "BioCro:light_from_solar",

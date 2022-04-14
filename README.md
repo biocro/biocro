@@ -12,16 +12,16 @@ The `run_biocro()` function accepts initial values, parameters, climate variable
 library(BioCro)
 library(lattice)
 
-result = run_biocro(
+result <- run_biocro(
   soybean_initial_values,
-  soybean_parameters,
+  c(soybean_parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver
 )
 
-xyplot(Stem + Leaf ~ TTc, result, type='l')
+xyplot(Stem + Leaf ~ TTc, data = result, type='l', auto = TRUE)
 ```
 
 There are parameters and modules for soybean (_Glycine max_), miscanthus (_Miscanthus_ x _giganteus_), and willow (_Saliceae salix_).

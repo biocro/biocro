@@ -1,4 +1,4 @@
-soil_properties <- lapply(
+soil_parameters <- lapply(
     list(
         sand =            c(0.05, 0.03, 0.92, -0.7, 1.7, 5.8e-3, 0.87, 0.09, 0.03, 1.60),
         loamy_sand =      c(0.12, 0.07, 0.81, -0.9, 2.1, 1.7e-3, 0.72, 0.13, 0.06, 1.55),

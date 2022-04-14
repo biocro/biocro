@@ -14,7 +14,7 @@ temp_offset <- 1
 
 baseline_rb_result <- run_biocro(
     miscanthus_x_giganteus_initial_values,
-    within(miscanthus_x_giganteus_parameters, {Catm = new_catm}),
+    within(c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam), {Catm = new_catm}),
     within(weather, {temp = temp + temp_offset}),
     miscanthus_x_giganteus_direct_modules,
     miscanthus_x_giganteus_differential_modules,
@@ -24,7 +24,7 @@ baseline_rb_result <- run_biocro(
 # Now use partial application
 miscanthus_func <- partial_run_biocro(
     miscanthus_x_giganteus_initial_values,
-    miscanthus_x_giganteus_parameters,
+    c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam),
     weather,
     miscanthus_x_giganteus_direct_modules,
     miscanthus_x_giganteus_differential_modules,
