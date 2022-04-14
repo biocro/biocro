@@ -15,7 +15,7 @@ library(lattice)
 result = run_biocro(
   soybean_initial_values,
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver

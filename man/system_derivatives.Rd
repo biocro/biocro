@@ -71,7 +71,7 @@ system_derivatives(
 
 soybean_system <- system_derivatives(
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules
 )
@@ -118,7 +118,7 @@ if (require(deSolve)) {
 if (require(deSolve)) {
   soybean_system <- system_derivatives(
     soybean_parameters,
-    soybean_weather2002,
+    soybean_weather$'2002',
     soybean_direct_modules,
     soybean_differential_modules
   )

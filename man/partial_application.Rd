@@ -154,27 +154,27 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver,
   c("Catm", "temp")
 )
-hot_result_1 <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
-hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather2002$temp + 2.0))
-hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.0, Catm = 500))
+hot_result_1 <- temperature_simulation(c(500, soybean_weather$'2002'$temp + 2.0))
+hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
+hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp + 2.0, Catm = 500))
 
 # Note that these commands will both produce errors:
-# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather2002$temp + 2.0))
+# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
 # hot_result_5 <- temperature_simulation(setNames(
-#   c(500, soybean_weather2002$temp + 2.0),
-#   c("Catm", rep("temp", length(soybean_weather2002$temp)))
+#   c(500, soybean_weather$'2002'$temp + 2.0),
+#   c("Catm", rep("temp", length(soybean_weather$'2002'$temp)))
 # ))
 
 # Note that this command will produce a strange result where the first
 # temperature value will be incorrectly interpreted as a `Catm` value, and the
 # `Catm` value will be interpreted as the final temperature value.
-# hot_result_6 <- temperature_simulation(c(soybean_weather2002$temp + 2.0, 500))
+# hot_result_6 <- temperature_simulation(c(soybean_weather$'2002'$temp + 2.0, 500))
 
 # Example 3: varying the base and air temperature inputs to the
 # 'thermal_time_linear' module from the 'BioCro' module library. The commands

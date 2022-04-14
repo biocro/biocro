@@ -160,7 +160,7 @@ simulating soybean growth:
 soybean_result = run_biocro(
   soybean_initial_values,
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver
@@ -482,9 +482,9 @@ print(drivers)
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined data frame of
 drivers when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_weather2002}. Assembling drivers that represent weather data in
-a particular location can be a complicated process because different weather
-data sets or weather sensors produce different outputs and use different
+\texttt{soybean\_weather\$'2002'}. Assembling drivers that represent weather
+data in a particular location can be a complicated process because different
+weather data sets or weather sensors produce different outputs and use different
 formats, precluding a general approach to obtaining and processing weather data.
 For convenience, the BioCro package includes some pre-processed weather data
 from Champaign, Illinois which can be used to replicate the analysis of a few
@@ -613,7 +613,7 @@ will occur:
 soybean_result = run_biocro(
   within(soybean_initial_values, rm(Leaf)),         # remove the initial `Leaf` value
   within(soybean_parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
-  soybean_weather2002,
+  soybean_weather$'2002',
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver
@@ -628,7 +628,7 @@ libraries:
 soybean_result = run_biocro(
   soybean_initial_values,
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   append(soybean_direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
   soybean_differential_modules,
   soybean_ode_solver
@@ -652,7 +652,7 @@ reordering is required).
 valid <- validate_dynamical_system_inputs(
   soybean_initial_values,
   soybean_parameters,
-  soybean_weather2002,
+  soybean_weather$'2002',
   rev(soybean_direct_modules), # Reverse the order of the direct modules
   soybean_differential_modules
 )
@@ -1207,7 +1207,7 @@ analogy to the light reponse curve we calculated in Section \ref{sec:response}.
 \begin{figure}[htbp]
   \begin{center}
     \includegraphics[width=0.7\textwidth]{a_practical_guide_to_biocro/temperature_response_curve.pdf}
-    \caption{Response of soybean net assimilation to air temperature.}
+    \caption{Response of soybean net assimilation to leaf temperature.}
     \label{fig:soybean_temperature_response}
   \end{center}
 \end{figure}
