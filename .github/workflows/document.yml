@@ -5,7 +5,6 @@ name: Update Documentation
 
 on:
   push:
-    branches: [ master ]
     paths:
     # Include all possible Doxygen source files ...
     - 'src/**.cpp'
