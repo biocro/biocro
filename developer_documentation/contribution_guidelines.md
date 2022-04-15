@@ -3,7 +3,7 @@
 ## Making Changes
 
 ### Discuss first
-* Check the list of [GitHub issues](https://github.com/ebimodeling/biocro-dev/issues)<!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro-dev TO ebimodeling/biocro!!! --> for a discussion of the issue. If there is not one, create an issue with a description of the problem and your proposed solution.
+* Check the list of [GitHub issues](https://github.com/ebimodeling/biocro/issues) for a discussion of the issue. If there is not one, create an issue with a description of the problem and your proposed solution.
 
  By making changes without discussing it with the group, you risk spending time working on a solution that others may not accept. The members of the group also have diverse backgrounds and likely can give valuable design insights.
 

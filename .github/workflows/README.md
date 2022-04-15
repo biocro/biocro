@@ -24,7 +24,7 @@ files to a _different_ repository (namely,
 "ebimodeling/biocro-documentation"); see steps 2 and 6 below.
 
 2. The private key was added as a _secret_ in the
-`ebimodeling/biocro-dev` repository (*this* repository) under the key
+`ebimodeling/biocro` repository (*this* repository) under the key
 `PRIVATE_SSH_KEY`.  (See
 https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository.
 The key name matches the reference `secrets.PRIVATE_SSH_KEY` used in
@@ -44,8 +44,8 @@ https://ebimodeling.github.io/biocro-documentation/.
 
 6. The *public* SSH key was added as a deploy key to the
 "ebimodeling/biocro-documentation" repository under the name "Access
-from biocro-dev action".  (See
+from ebimodeling/biocro actions".  (See
 https://docs.github.com/en/developers/overview/managing-deploy-keys#setup-2.
-The name "Access from biocro-dev action" is for informational purposes
+The name "Access from biocro action" is for informational purposes
 only and has no programmatic significance.)
 

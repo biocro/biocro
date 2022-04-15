@@ -104,7 +104,7 @@ jobs:
         cd target
 
         # user.name is somewhat arbitrary but must be provided:
-        git config user.name biocro-dev-action
+        git config user.name biocro-action
         git add .
         git commit -m "generated pgkdown and bookdown documentation"
         git push
