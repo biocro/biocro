@@ -12,14 +12,14 @@ The `run_biocro()` function accepts initial values, parameters, climate variable
 library(BioCro)
 library(lattice)
 
-result <- run_biocro(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+result <- with(soybean, {run_biocro(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver
-)
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 
 xyplot(Stem + Leaf ~ TTc, data = result, type='l', auto = TRUE)
 ```

@@ -32,24 +32,20 @@ WEATHER <- get_growing_season_climate(weather$'2005')
 specify_crop <- function(
     plant_name,
     should_run,
-    initial_values,
-    parameters,
+    crop_info,
     drivers,
-    direct_modules,
-    differential_modules,
-    ode_solver,
     ignored_variables
 )
 {
     list(
         plant_name = plant_name,
         should_run = should_run,
-        initial_values = initial_values,
-        parameters = c(parameters, soil_parameters$clay_loam),
+        initial_values = crop_info$initial_values,
+        parameters = c(crop_info$parameters, soil_parameters$clay_loam),
         drivers = drivers,
-        direct_modules = direct_modules,
-        differential_modules = differential_modules,
-        ode_solver = ode_solver,
+        direct_modules = crop_info$direct_modules,
+        differential_modules = crop_info$differential_modules,
+        ode_solver = crop_info$ode_solver,
         stored_result_file = paste0(
             "../test_data/",
             plant_name,
@@ -101,13 +97,13 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("glycine_max",            TRUE,  glycine_max_initial_values,            glycine_max_parameters,            WEATHER,                glycine_max_direct_modules,            glycine_max_differential_modules,            glycine_max_ode_solver,            GLYCINE_MAX_IGNORE),            # INDEX = 1
-    specify_crop("manihot_esculenta",      FALSE, manihot_esculenta_initial_values,      manihot_esculenta_parameters,      WEATHER,                manihot_esculenta_direct_modules,      manihot_esculenta_differential_modules,      manihot_esculenta_ode_solver,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
-    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, WEATHER,                miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
-    specify_crop("sorghum",                TRUE,  sorghum_initial_values,                sorghum_parameters,                WEATHER,                sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver,                SORGHUM_IGNORE),                # INDEX = 4
-    specify_crop("willow",                 TRUE,  willow_initial_values,                 willow_parameters,                 WEATHER,                willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver,                 WILLOW_IGNORE),                 # INDEX = 5
-    specify_crop("zea_mays",               FALSE, zea_mays_initial_values,               zea_mays_parameters,               WEATHER,                zea_mays_direct_modules,               zea_mays_differential_modules,               zea_mays_ode_solver,               ZEA_MAYS_IGNORE),               # INDEX = 6
-    specify_crop("soybean",                TRUE,  soybean_initial_values,                soybean_parameters,                soybean_weather$'2002', soybean_direct_modules,                soybean_differential_modules,                soybean_ode_solver,                SOYBEAN_IGNORE)                 # INDEX = 7
+    specify_crop("glycine_max",            TRUE,  glycine_max,            WEATHER,                GLYCINE_MAX_IGNORE),            # INDEX = 1
+    specify_crop("manihot_esculenta",      FALSE, manihot_esculenta,      WEATHER,                MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
+    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
+    specify_crop("sorghum",                TRUE,  sorghum,                WEATHER,                SORGHUM_IGNORE),                # INDEX = 4
+    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 5
+    specify_crop("zea_mays",               FALSE, zea_mays,               WEATHER,                ZEA_MAYS_IGNORE),               # INDEX = 6
+    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 7
 )
 
 # Make a helping function that runs a simulation for one crop

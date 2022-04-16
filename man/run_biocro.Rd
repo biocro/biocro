@@ -101,15 +101,15 @@ run_biocro(
 
 \examples{
 # Example: running a miscanthus simulation using weather data from 2005
-result <- run_biocro(
-    miscanthus_x_giganteus_initial_values,
-    c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam),
+result <- with(miscanthus_x_giganteus, {run_biocro(
+    initial_values,
+    c(parameters, soil_parameters$clay_loam),
     get_growing_season_climate(weather$'2005'),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
-    miscanthus_x_giganteus_ode_solver,
+    direct_modules,
+    differential_modules,
+    ode_solver,
     TRUE
-)
+)})
 
 lattice::xyplot(
   Leaf + Stem + Root + Grain ~ TTc,

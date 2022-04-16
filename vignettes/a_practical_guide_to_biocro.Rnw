@@ -124,7 +124,7 @@ example:
 ?run_biocro
 
 # Access documentation for a BioCro data set, even if the package is not loaded
-?BioCro::soybean_parameters
+?BioCro::soybean
 
 # Access documentation for a base R function
 ?list
@@ -157,14 +157,14 @@ of values that can be passed as input arguments to \texttt{run\_biocro} when
 simulating soybean growth:
 
 <<run_biocro>>=
-soybean_result = run_biocro(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+soybean_result = with(soybean, {run_biocro(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver
-)
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 @
 
 This command begins to illustrate the power of BioCro: with one function call,
@@ -361,7 +361,7 @@ contents of these lists can be printed to the R console using the \texttt{str}
 command, which nicely shows the \emph{str}ucture of the object being printed:
 
 <<viewing_soybean_modules>>=
-str(soybean_differential_modules)
+str(soybean$differential_modules)
 @
 
 To learn about specific modules, see Section \ref{sec:module_info}.
@@ -562,7 +562,7 @@ calling the \texttt{run\_biocro} function: \newline
 list:
 
 <<view_ode_solver>>=
-str(soybean_ode_solver)
+str(soybean$ode_solver)
 @
 
 Here the \texttt{boost\_rkck54} ODE solver is used. This is the \texttt{Boost}
@@ -614,14 +614,14 @@ quantities is missing an initial value, or if a parameter is missing, an error
 will occur:
 
 <<run_biocro_error_quantity>>=
-soybean_result = run_biocro(
-  within(soybean_initial_values, rm(Leaf)), # remove the initial `Leaf` value
-  soybean_parameters,                       # don't include soil parameters
+soybean_result <- within(soybean, {run_biocro(
+  within(initial_values, rm(Leaf)), # remove the initial `Leaf` value
+  parameters,                       # don't include soil parameters
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver
-)
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 @
 
 \noindent Additionally, error messages will be generated if the name of a module
@@ -629,14 +629,14 @@ or the type of the \texttt{ode\_solver} cannot be found in the corresponding
 libraries:
 
 <<run_biocro_error_module>>=
-soybean_result = run_biocro(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+soybean_result <- within(soybean, {run_biocro(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  append(soybean_direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
-  soybean_differential_modules,
-  soybean_ode_solver
-)
+  append(direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
+  differential_modules,
+  ode_solver
+)})
 @
 
 \noindent If the modules are not provided in a suitable order for evaluation,
@@ -653,13 +653,13 @@ reordering is required).
 
 <<validate_inputs,eval=FALSE>>=
 # This code is not evaluated here since it produces a large amount of text
-valid <- validate_dynamical_system_inputs(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+valid <- within(soybean, {validate_dynamical_system_inputs(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  rev(soybean_direct_modules), # Reverse the order of the direct modules
-  soybean_differential_modules
-)
+  rev(direct_modules), # Reverse the order of the direct modules
+  differential_modules
+)})
 @
 
 \section{Viewing and saving the results of a BioCro simulation \label{sec:view_simulation}}
@@ -834,7 +834,7 @@ we can try passing the \texttt{soybean\_parameters} list as an input to the
 that we need to define.
 
 <<c3_assimilation_v1>>=
-outputs <- evaluate_module('BioCro:c3_assimilation', soybean_parameters)
+outputs <- evaluate_module('BioCro:c3_assimilation', soybean$parameters)
 @
 
 Here, as expected, an error occurs because several input quantities are not
@@ -843,7 +843,7 @@ defined. We can choose values for these and add them to the parameter list:
 <<c3_assimilation_v2>>=
 outputs <- evaluate_module(
   'BioCro:c3_assimilation',
-  within(soybean_parameters, {
+  within(soybean$parameters, {
     rh = 0.7      # dimensionless
     Qp = 1800     # micromol / m^2 / s
     Tleaf = 27    # degrees C
@@ -878,7 +878,7 @@ curve data frame:
 <<c3_light_response_curve>>=
 rc <- module_response_curve(
   'BioCro:c3_assimilation',
-  within(soybean_parameters, {
+  within(soybean$parameters, {
     rh = 0.7
     Tleaf = 27
     StomataWS = 1

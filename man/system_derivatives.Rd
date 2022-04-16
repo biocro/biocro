@@ -69,14 +69,14 @@ system_derivatives(
 \examples{
 # Example 1: calculating a single derivative using a soybean model
 
-soybean_system <- system_derivatives(
-  c(soybean_parameters, soil_parameters$clay_loam),
+soybean_system <- with(soybean, {system_derivatives(
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules
-)
+  direct_modules,
+  differential_modules
+)})
 
-derivs <- soybean_system(0, unlist(soybean_initial_values), NULL)
+derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
 # Example 2: a simple oscillator with only one module (requires deSolve)
 
@@ -116,16 +116,16 @@ if (require(deSolve)) {
 # `run_biocro`.
 \dontrun{
 if (require(deSolve)) {
-  soybean_system <- system_derivatives(
-    c(soybean_parameters, soil_parameters$clay_loam),
+  soybean_system <- with(soybean, {system_derivatives(
+    c(parameters, soil_parameters$clay_loam),
     soybean_weather$'2002',
-    soybean_direct_modules,
-    soybean_differential_modules
-  )
+    direct_modules,
+    differential_modules
+  )})
 
   times = seq(from=0, to=500, by=1)
 
-  result <- as.data.frame(lsodes(unlist(soybean_initial_values), times, soybean_system))
+  result <- as.data.frame(lsodes(unlist(soybean$initial_values), times, soybean_system))
 
   lattice::xyplot(Leaf + Stem ~ time, type='l', auto=TRUE, data=result)
 }

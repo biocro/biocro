@@ -68,20 +68,20 @@ validate_dynamical_system_inputs(
 
 \examples{
 # Example 1: missing some parameters and an initial value
-validate_dynamical_system_inputs(
-  within(soybean_initial_values, rm(Leaf)), # remove the initial `Leaf` value
-  soybean_parameters,                       # don't include soil parameters
+with(soybean, {validate_dynamical_system_inputs(
+  within(initial_values, rm(Leaf)), # remove the initial `Leaf` value
+  parameters,                       # don't include soil parameters
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules
-)
+  direct_modules,
+  differential_modules
+)})
 
 # Example 2: a valid set of input arguments
-validate_dynamical_system_inputs(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+with(soybean, {validate_dynamical_system_inputs(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules
-)
+  direct_modules,
+  differential_modules
+)})
 }

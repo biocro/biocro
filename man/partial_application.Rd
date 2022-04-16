@@ -136,30 +136,30 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 #  - seneStem: 2100 degrees C * day
 #  - seneRoot: 2200 degrees C * day
 #  - seneRhizome: 2300 degrees C * day
-senescence_simulation <- partial_run_biocro(
-    miscanthus_x_giganteus_initial_values,
-    c(miscanthus_x_giganteus_parameters, soil_parameters$clay_loam),
+senescence_simulation <- with(miscanthus_x_giganteus, {partial_run_biocro(
+    initial_values,
+    c(parameters, soil_parameters$clay_loam),
     get_growing_season_climate(weather$'2005'),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
-    miscanthus_x_giganteus_ode_solver,
+    direct_modules,
+    differential_modules,
+    ode_solver,
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
-)
+)})
 senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example 2: a crude method for simulating the effects of climate change; here
 # we increase the atmospheric CO2 concentration to 500 ppm and the temperature
 # by 2 degrees C relative to 2002 temperatures. The commands below that call
 # `temperature_simulation` all produce the same result.
-temperature_simulation <- partial_run_biocro(
-  soybean_initial_values,
-  c(soybean_parameters, soil_parameters$clay_loam),
+temperature_simulation <- with(soybean, {partial_run_biocro(
+  initial_values,
+  c(parameters, soil_parameters$clay_loam),
   soybean_weather$'2002',
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver,
+  direct_modules,
+  differential_modules,
+  ode_solver,
   c("Catm", "temp")
-)
+)})
 hot_result_1 <- temperature_simulation(c(500, soybean_weather$'2002'$temp + 2.0))
 hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
 hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp + 2.0, Catm = 500))
@@ -181,7 +181,7 @@ hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp +
 # below that call `thermal_time_rate` all produce the same result.
 thermal_time_rate <- partial_evaluate_module(
   'BioCro:thermal_time_linear',
-  within(miscanthus_x_giganteus_parameters, {time = 1}),
+  within(miscanthus_x_giganteus$parameters, {time = 1}),
   c("temp", "tbase")
 )
 rate_result_1 <- thermal_time_rate(c(25, 10))

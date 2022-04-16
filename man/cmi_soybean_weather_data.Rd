@@ -95,7 +95,7 @@
   \code{day_length} are extracted from the WARM and SURFRAD data. Then, BioCro
   is used to run the circadian clock model that determines photoperiod length.
   (See this page for additional information about the clock model:
-  \code{\link{crop_specifications}}.) The result from this calculation is then
+  \code{\link{soybean_clock}}.) The result from this calculation is then
   appended to the weather data frame as a new column.
 
   The \code{time_zone_offset} is set to a constant value of -6 since this data
