@@ -1,5 +1,5 @@
 Package: BioCro
-Version: 2.0
+Version: 2.0.0
 Title: A Software Package for Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
