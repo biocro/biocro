@@ -7,7 +7,7 @@
 # time ("workflow_dispatch" in the YAML file).
 
 # The workflow can be run manually from
-# https://github.com/ebimodeling/biocro-dev/actions?query=workflow%3AR-CMD-check.
+# https://github.com/ebimodeling/biocro/actions?query=workflow%3AR-CMD-check.
 # For a manual run, the user can specify different eight yes/no (or
 # y/n) options.  (Note that these input values are case insensitive.)
 
@@ -78,8 +78,6 @@ name: R-CMD-check
 
 on:
   push:
-    branches:
-      - master
   workflow_dispatch:
     # When running manually, allow users to customize the run:
     inputs:
