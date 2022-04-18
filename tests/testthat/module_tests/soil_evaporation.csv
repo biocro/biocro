@@ -1,0 +1,3 @@
+stefan_boltzman,soil_transmission,par_energy_content,specific_heat_of_air,soil_reflectance,soil_clod_size,rsec,rh,temp,windspeed,solar,soil_field_capacity,soil_water_content,lai,soil_wilting_point,soil_evaporation_rate,description
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,NaN,automatically-generated test case

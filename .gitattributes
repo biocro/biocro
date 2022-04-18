@@ -33,3 +33,5 @@
 # Other
 # =====
 *.pdf       binary
+*.csv       text
+

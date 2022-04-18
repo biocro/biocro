@@ -1,0 +1,3 @@
+kRoot,remobilization_fraction,kStem,kSeneRhizome,Leaf,Stem,Rhizome,kLeaf,kSeneRoot,kSeneLeaf,kRhizome,Root,kGrain,kSeneStem,RhizomeLitter,Leaf,Grain,Rhizome,Stem,LeafLitter,StemLitter,RootLitter,Root,description
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,0,0,1,1,0,automatically-generated test case

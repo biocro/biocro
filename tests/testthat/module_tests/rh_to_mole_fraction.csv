@@ -1,0 +1,3 @@
+saturation_water_vapor_pressure_atmosphere,rh,atmospheric_pressure,mole_fraction_h2o_atmosphere,description
+input,input,input,output,NA
+1,1,1,1,automatically-generated test case

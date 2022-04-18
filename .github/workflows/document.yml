@@ -1,0 +1,141 @@
+# This workflow is triggered by a push to the master branch and that
+# can also be manually triggered.
+
+name: Update Documentation
+
+on:
+  push:
+    paths:
+    # Include all possible Doxygen source files ...
+    - 'src/**.cpp'
+    - 'src/**.hpp'
+    - 'src/**.h'
+    - 'src/**.dox'
+    - 'src/**.md'
+    - 'src/**.markdown'
+    - 'doxygen/markdown/*.md'
+    # ... plus files administering the workflow ...
+    - '.github/**'
+    - 'doxygen/Makefile'
+    - 'doxygen/Doxyfile'
+  workflow_dispatch:
+    # [no inputs]
+
+env:
+  publish-to: "ebimodeling/biocro-documentation"
+
+  # The version directory names are hard-coded into the Make file and
+  # are determined by the Make target.  An exception to this is
+  # "doxygen_docs_modules_public_members_only", which is explicitly
+  # set as the output directory in step 2c below, overriding the
+  # default output directory for the Make file target
+  # "module-docs-html".  (The default output directory was already
+  # used as the output directory for the documentation version created
+  # in step 2b, and we don't want to overwrite it.)
+
+  version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
+  
+jobs:
+  # This workflow contains a single job called "build".
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # Checks out this repository under $GITHUB_WORKSPACE/source:
+
+    - name: 1. Check out master
+      uses: actions/checkout@v2
+      with:
+        path: source
+
+
+    # The following four steps use the doxygen action defined in the
+    # actions directory to build four different versions of the
+    # Doxygen documentation:
+
+    - name: 2a. Doxygen Action for default
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/doxygen"
+        # Not generating the tree-view index makes source code browsing easier.
+        generate-treeview: NO
+        # Makefile target
+        makefile-target: "all-html"
+
+    - name: 2b. Doxygen Action for modules only
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/doxygen"
+        # Color
+        color: 53
+        # Makefile target
+        makefile-target: "module-docs-html"
+
+    - name: 2c. Doxygen Action for public members of modules only
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/doxygen"
+        # Color
+        color: 323
+        # Document private members
+        document-private: "NO"
+        # Extra setting: override default output directory
+        extra-settings: "module_docs_directory=doxygen_docs_modules_public_members_only"
+        # Makefile target
+        makefile-target: "module-docs-html"
+
+    - name: 2d. Doxygen Action for framework
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/doxygen"
+        # Color
+        color: 233
+        # Not generating the tree-view index makes source code browsing easier.
+        generate-treeview: NO
+        # Makefile target
+        makefile-target: "framework-docs-html"
+
+
+    # The "publish-to" repository is where the documentation will be
+    # copied to and then checked in (to the default branch).
+    # Providing ssh-key to this checkout action gives us permission to
+    # check in our changes later, in the Push step:
+
+    - name: 3. Check out master of the "publish-to" repository
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.publish-to }}
+        path: target
+        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
+
+
+    - name: 4. Copy files into working copy of the target repository
+      run: |
+        cd target
+        for dir in ${{ env.version_directories }}; do
+
+            # Remove directory $dir if it exists; we are going to replace it:
+            git rm -r --ignore-unmatch $dir
+
+            # Recreate directory $dir:
+            mkdir $dir
+
+            # Copy the documentation into it:
+            cp -R ../source/doxygen/$dir/html/. $dir
+
+        done
+
+    - name: 5. Commit updates and push to target (documentation) repository
+      run: |
+        cd target
+
+        # user.name is somewhat arbitrary but must be provided:
+        git config user.name biocro-action
+        git add .
+        git commit -m "generated"
+        git push
