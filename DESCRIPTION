@@ -16,6 +16,7 @@ Authors@R: c(
     person("Wang", "Dan", role = 'ctb'),
     person("LeBauer", "David", role = 'ctb')
     )
+Depends: R (>= 3.5.0)
 Imports:
     stats
 Suggests:
