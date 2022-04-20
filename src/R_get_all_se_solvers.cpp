@@ -1,9 +1,9 @@
 #include <string>
 #include <exception>                       // for std::exception
-#include <Rinternals.h>                    // for Rf_error
 #include "framework/R_helper_functions.h"  // for r_string_vector_from_vector
 #include "framework/state_map.h"           // for string_vector
 #include "framework_ed/se_solver_library/se_solver_factory.h"
+#include "R_get_all_se_solvers.h"
 
 using std::string;
 
