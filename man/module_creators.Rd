@@ -21,9 +21,8 @@
   Also} section contains a list of functions that directly rely on
   \code{module_creators}.
 
-  Although the description of \code{externalptr} objects is sparse, some
-  information can be found in the online R documentation for
-  \href{https://stat.ethz.ch/R-manual/R-devel/library/methods/html/BasicClasses.html}{basic classes}.
+  Although the description of \code{externalptr} objects is sparse, they are
+  briefly mentioned in the R documentation: \code{\link{externalptr-class}}.
 
   This function should not be used directly, and each module library package
   must have its own version. For these reasons, this function is not exported to
