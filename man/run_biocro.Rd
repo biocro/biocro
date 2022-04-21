@@ -103,7 +103,7 @@ run_biocro(
 # Example: running a miscanthus simulation using weather data from 2005
 result <- with(miscanthus_x_giganteus, {run_biocro(
     initial_values,
-    c(parameters, soil_parameters$clay_loam),
+    parameters,
     get_growing_season_climate(weather$'2005'),
     direct_modules,
     differential_modules,

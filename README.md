@@ -14,7 +14,7 @@ library(lattice)
 
 result <- with(soybean, {run_biocro(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   direct_modules,
   differential_modules,

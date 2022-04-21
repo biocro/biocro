@@ -79,7 +79,7 @@ with(soybean, {validate_dynamical_system_inputs(
 # Example 2: a valid set of input arguments
 with(soybean, {validate_dynamical_system_inputs(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   direct_modules,
   differential_modules

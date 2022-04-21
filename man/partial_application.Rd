@@ -138,7 +138,7 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 #  - seneRhizome: 2300 degrees C * day
 senescence_simulation <- with(miscanthus_x_giganteus, {partial_run_biocro(
     initial_values,
-    c(parameters, soil_parameters$clay_loam),
+    parameters,
     get_growing_season_climate(weather$'2005'),
     direct_modules,
     differential_modules,
@@ -153,7 +153,7 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 # `temperature_simulation` all produce the same result.
 temperature_simulation <- with(soybean, {partial_run_biocro(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   direct_modules,
   differential_modules,

@@ -17,7 +17,7 @@ NUMBER_OF_PERMUTATIONS <- 4
 ## Run the simulation:
 baseline_result <- with(CROP, {run_biocro(
     initial_values,
-    c(parameters, soil_parameters$clay_loam),
+    parameters,
     get_growing_season_climate(weather$'2005'),
     direct_modules,
     differential_modules,
@@ -51,7 +51,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
     result <- with(CROP, {run_biocro(
         initial_values,
-        c(parameters, soil_parameters$clay_loam),
+        parameters,
         get_growing_season_climate(weather$'2005'),
         permuted_direct_module_list,
         differential_modules,

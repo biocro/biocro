@@ -12,9 +12,11 @@
   \emph{Miscanthus x giganteus} growth simulations in Champaign, Illinois and
   other locations.
 
-  To represent miscanthus growth in Champaign, IL, these values must be paired
-  with the clay loam soil parameters (see \code{\link{soil_parameters}}) and the
-  Champaign weather data (\code{\link{cmi_weather_data}}).
+  To represent \emph{Miscanthus} growth in Champaign, IL, these values must be
+  paired with the Champaign weather data (\code{\link{cmi_weather_data}}). The
+  parameters already include the \code{clay_loam} values from the
+  \code{\link{soil_parameters}} dataset, which is the appropriate soil type for
+  Champaign.
 
   Some specifications, such as the values of photosynthetic parameters, would
   remain the same in any location; others, such as the latitude or longitude,

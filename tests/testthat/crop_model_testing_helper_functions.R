@@ -41,7 +41,7 @@ specify_crop <- function(
         plant_name = plant_name,
         should_run = should_run,
         initial_values = crop_info$initial_values,
-        parameters = c(crop_info$parameters, soil_parameters$clay_loam),
+        parameters = crop_info$parameters,
         drivers = drivers,
         direct_modules = crop_info$direct_modules,
         differential_modules = crop_info$differential_modules,

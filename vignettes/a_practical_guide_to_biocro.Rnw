@@ -159,7 +159,7 @@ simulating soybean growth:
 <<run_biocro>>=
 soybean_result = with(soybean, {run_biocro(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   direct_modules,
   differential_modules,
@@ -353,8 +353,8 @@ differential_modules <- module_paste('BioCro', list(
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of modules
 when calling the \texttt{run\_biocro} function:
-\newline \texttt{soybean\_direct\_modules} and
-\texttt{soybean\_differential\_modules}. As discussed in that section, these
+\newline \texttt{soybean\$direct\_modules} and
+\texttt{soybean\$differential\_modules}. As discussed in that section, these
 modules define a large set of equations that represent many important processes
 involved in the growth of a crop and its interactions with its environment. The
 contents of these lists can be printed to the R console using the \texttt{str}
@@ -423,15 +423,11 @@ as representing simple individual equations like Equations \ref{eq:param} and
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of parameters
 and initial values when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_parameters}, \texttt{soil\_parameters\$clay\_loam}, and
-\texttt{soybean\_initial\_values}. Two separate parameter lists
-(\texttt{soybean\_parameters} and \texttt{soil\_parameters\$clay\_loam}) were
-combined with the \texttt{c} command to form one list with soybean \emph{and}
-soil parameter values. As a whole, these lists include quantities that
-characterize soybean physiological processes (such as $v_{\rm{c,max}}$),
-specifics related to field conditions (such as the initial seed mass per unit
-ground area), and other important categories of quantities. To learn about
-specific quantities, see Section \ref{sec:quantity_info}.
+\texttt{soybean\$parameters} and \texttt{soybean\$initial\_values}. These lists
+include quantities that characterize soybean physiological processes (such as
+$v_{\rm{c,max}}$), specifics related to field conditions (such as the initial
+seed mass per unit ground area), and other important categories of quantities.
+To learn about specific quantities, see Section \ref{sec:quantity_info}.
 
 \subsection{Choosing the drivers \label{sec:choose_drivers}}
 
@@ -558,7 +554,7 @@ an adaptive step-size ODE solver tries to find a new step size.
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined ODE solver when
 calling the \texttt{run\_biocro} function: \newline
-\texttt{soybean\_ode\_solver}. Its contents can be viewed as with any other
+\texttt{soybean\$ode\_solver}. Its contents can be viewed as with any other
 list:
 
 <<view_ode_solver>>=
@@ -615,8 +611,8 @@ will occur:
 
 <<run_biocro_error_quantity>>=
 soybean_result <- within(soybean, {run_biocro(
-  within(initial_values, rm(Leaf)), # remove the initial `Leaf` value
-  parameters,                       # don't include soil parameters
+  within(initial_values, rm(Leaf)),         # remove the initial `Leaf` value
+  within(parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
   soybean_weather$'2002',
   direct_modules,
   differential_modules,
@@ -631,7 +627,7 @@ libraries:
 <<run_biocro_error_module>>=
 soybean_result <- within(soybean, {run_biocro(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   append(direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
   differential_modules,
@@ -655,7 +651,7 @@ reordering is required).
 # This code is not evaluated here since it produces a large amount of text
 valid <- within(soybean, {validate_dynamical_system_inputs(
   initial_values,
-  c(parameters, soil_parameters$clay_loam),
+  parameters,
   soybean_weather$'2002',
   rev(direct_modules), # Reverse the order of the direct modules
   differential_modules
@@ -822,14 +818,14 @@ module_info('BioCro:c3_assimilation')
 Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
 \texttt{Assim} output represents the net assimilation rate $A_n$. So we will be
 varying \texttt{Qp} while keeping the other input quantities fixed. The values
-of several other input quantities are specified in \texttt{soybean\_parameters}.
+of several other input quantities are specified in \texttt{soybean\$parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
 To run the module, we will need the \texttt{evaluate\_module} function, which
 requires a fully-qualified module name and a named list of input quantities. It
 attempts to run the module, returning its outputs as a named list. If any of the
 module's inputs are not provided, a helpful error message will be returned. So
-we can try passing the \texttt{soybean\_parameters} list as an input to the
+we can try passing the \texttt{soybean\$parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
@@ -1128,7 +1124,7 @@ the \texttt{rm} command as follows: \texttt{rm(list=ls())}.
 \item It is possible to check a variable's type using the \texttt{class}
 command, for example: \texttt{class(c('doy', 'hour', 'Leaf'))} will return
 \texttt{character}, meaning that \texttt{c('doy', 'hour', 'Leaf')} produces a
-character vector. On the other hand, \texttt{class(soybean\_parameters)} will
+character vector. On the other hand, \texttt{class(soybean\$parameters)} will
 return \texttt{list}.
 
 \end{itemize}

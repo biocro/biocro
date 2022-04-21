@@ -42,16 +42,11 @@
   }
 
   These model definitions are not sufficient for running a simulation because
-  \code{\link{run_biocro}} also requires drivers. The crop parameter lists also
-  do not include soil parameter values; these are typically specified by
-  combining the crop parameter list with one of the soil parameter lists from
-  the \code{\link{soil_parameters}} dataset. For simulations in Champaign,
-  Illinois, the \code{soil_parameters$clay_loam} set should be used.
-
-  The \code{\link{soybean}} model is intended to be used along with the
-  specialized soybean weather data (\code{\link{cmi_soybean_weather_data}}). The
-  other crops should be used with the other weather data
-  (\code{\link{cmi_weather_data}}).
+  \code{\link{run_biocro}} also requires drivers; for these crop growth models,
+  the drivers should be sets of weather data. The \code{\link{soybean}} model is
+  intended to be used along with the specialized soybean weather data
+  (\code{\link{cmi_soybean_weather_data}}). The other crops should be used with
+  the other weather data (\code{\link{cmi_weather_data}}).
 
   Some quantities in the crop model definitions, such as the values of
   photosynthetic parameters, would remain the same in any location; others, such
@@ -62,11 +57,11 @@
   Typically, the modules in a crop model definition are defined as lists with
   some named elements; the names facilitate on-the-fly module swapping via the
   \code{\link{within}} function. For example, to change the soybean canopy
-  photosynthesis module to the \code{ten_layer_rue_canopy} module, one could
-  pass
-  \code{within(soybean$direct_modules, {canopy_photosynthesis = "BioCro:ten_layer_rue_canopy"})}
-  as the \code{direct_module_names} argument when calling
-  \code{\link{run_biocro}} instead of \code{soybean$direct_modules}.
+  photosynthesis module to the \code{BioCro:ten_layer_rue_canopy} module, one
+  could pass \code{within(soybean$direct_modules, {canopy_photosynthesis =
+  "BioCro:ten_layer_rue_canopy"})} as the \code{direct_module_names} argument
+  when calling \code{\link{run_biocro}} instead of
+  \code{soybean$direct_modules}.
 
   Because each crop model definition is stored as a list with named elements,
   it is possible to use the \code{\link{with}} function to save some typing when
@@ -74,15 +69,14 @@
   equivalent:
   \itemize{
     \item \code{
-    result <- run_biocro(soybean$initial_values,
-    c(soybean$parameters, soil_parameters$clay_loam), soybean_weather$'2002',
-    soybean$direct_modules, soybean$differential_modules, soybean$ode_solver)
+    result <- run_biocro(soybean$initial_values, soybean$parameters,
+    soybean_weather$'2002', soybean$direct_modules,
+    soybean$differential_modules, soybean$ode_solver)
     }
 
     \item \code{
-    result <- with(soybean, {run_biocro(initial_values,
-    c(parameters, soil_parameters$clay_loam), soybean_weather$'2002',
-    direct_modules, differential_modules, ode_solver)})
+    result <- with(soybean, {run_biocro(initial_values, parameters,
+    soybean_weather$'2002', direct_modules, differential_modules, ode_solver)})
     }
   }
 }

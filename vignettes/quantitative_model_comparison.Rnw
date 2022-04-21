@@ -245,15 +245,14 @@ The first step is to run the FvCB soybean model for the year 2002. Afterwards,
 we can extract the final biomass for 2002 as predicted by the FvCB model. Since
 we will be extracting the final biomass from the results of multiple simulations
 during this analysis, we will create a reusable function for doing this. Note
-that we also define a soybean model specialized for Champaign, Illinois that
-includes clay loam soil parameters and an additional module
-(\texttt{BioCro:total\_biomass}) that is not part of the standard soybean model;
-as its name suggests, this module simply calculates the total biomass by adding
-the separate tissues together, and including it simplifies later calculations.
+that we also define a soybean model specialized for this analysis that includes
+an additional module (\texttt{BioCro:total\_biomass}) that is not part of the
+standard soybean model; as its name suggests, this module simply calculates the
+total biomass by adding the separate tissues together, and including it in the
+model simplifies some of the later calculations.
 
 <<fvcb_result_2002>>=
 cmi_soybean <- within(soybean, {
-  parameters = c(parameters, soil_parameters$clay_loam)
   direct_modules = append(direct_modules, 'BioCro:total_biomass')
 })
 

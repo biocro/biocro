@@ -15,7 +15,7 @@ temp_offset <- 1
 
 baseline_rb_result <- with(CROP, {run_biocro(
     initial_values,
-    within(c(parameters, soil_parameters$clay_loam), {Catm = new_catm}),
+    within(parameters, {Catm = new_catm}),
     within(weather, {temp = temp + temp_offset}),
     direct_modules,
     differential_modules,
@@ -25,7 +25,7 @@ baseline_rb_result <- with(CROP, {run_biocro(
 # Now use partial application
 crop_func <- with(CROP, {partial_run_biocro(
     initial_values,
-    c(parameters, soil_parameters$clay_loam),
+    parameters,
     weather,
     direct_modules,
     differential_modules,
