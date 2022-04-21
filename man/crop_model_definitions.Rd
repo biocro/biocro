@@ -18,7 +18,7 @@
 
 \details{
   Each crop model definition is stored as a list with the following named
-  elements that are suitable for passing to \code{\link{run_biocro}}:
+  elements:
   \itemize{
     \item \code{direct_modules}: A list of direct module names; can be passed to
     \code{\link{run_biocro}} as its \code{direct_module_names} argument.
@@ -62,11 +62,11 @@
   Typically, the modules in a crop model definition are defined as lists with
   some named elements; the names facilitate on-the-fly module swapping via the
   \code{\link{within}} function. For example, to change the soybean canopy
-  photosynthesis module to the \code{ten_layer_rue_canopy}, one could pass
-  \code{within(soybean$direct_modules, {canopy_photosynthesis = "ten_layer_rue_canopy"})}
+  photosynthesis module to the \code{ten_layer_rue_canopy} module, one could
+  pass
+  \code{within(soybean$direct_modules, {canopy_photosynthesis = "BioCro:ten_layer_rue_canopy"})}
   as the \code{direct_module_names} argument when calling
-  \code{\link{run_biocro}} rather than the standard module set defined by
-  \code{soybean$direct_modules}.
+  \code{\link{run_biocro}} instead of \code{soybean$direct_modules}.
 
   Because each crop model definition is stored as a list with named elements,
   it is possible to use the \code{\link{with}} function to save some typing when

@@ -23,10 +23,10 @@
 \usage{weather}
 
 \format{
-  A list of 26 named elements, where each element is a data frame corrsponding
+  A list of 26 named elements, where each element is a data frame corresponding
   to one year of weather data and the name of each element is a year, for
-  example \code{'2004'}. Each data frame has 8760 or 8784 rows (representing
-  hourly time points) and 9 columns:
+  example \code{'2004'}. Each data frame has 8760 or 8784 observations
+  (representing hourly time points) of 9 variables:
   \itemize{
     \item \code{year}: the year
     \item \code{doy}: the day of year
