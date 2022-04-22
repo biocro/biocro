@@ -1,7 +1,7 @@
 context("Test `check_distinct_names`")
 
 # Define some helpful objects
-list_with_duplicates <- list(a = 1, b = 2, a = 3)
+list_with_duplicates <- list(a = 1, b = 2, a = 3, a = 4)
 vector_with_duplicates <- unlist(list_with_duplicates)
 list_without_names <- list(1, 2, 3)
 list_with_duplicates_and_unnamed_elements <- list(1, b = 2, 3, b = 4)
@@ -33,7 +33,8 @@ test_that("Duplicated list elements are detected", {
             "`arg1` contains multiple instances of some quantities:\n",
             "  `a` takes the following values:\n",
             "    1\n",
-            "    3\n"
+            "    3\n",
+            "    4\n"
         )
     )
 })
@@ -46,7 +47,8 @@ test_that("Duplicated vector elements are detected", {
             "`arg1` contains multiple instances of some quantities:\n",
             "  `a` takes the following values:\n",
             "    1\n",
-            "    3\n"
+            "    3\n",
+            "    4\n"
         )
     )
 })
@@ -60,10 +62,12 @@ test_that("Duplicated elements in multiple lists are detected", {
             "  `a` takes the following values:\n",
             "    1\n",
             "    3\n",
+            "    4\n",
             "`arg2` contains multiple instances of some quantities:\n",
             "  `a` takes the following values:\n",
             "    1\n",
-            "    3\n"
+            "    3\n",
+            "    4\n"
         )
     )
 })
