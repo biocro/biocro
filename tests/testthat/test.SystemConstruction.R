@@ -3,6 +3,7 @@
 context("Test error conditions during system validation and construction")
 
 CROP <- miscanthus_x_giganteus
+WEATHER <- get_growing_season_climate(weather$'2005')
 MAX_INDEX <- 100
 VERBOSE <- FALSE
 
@@ -26,7 +27,7 @@ test_that("certain run_biocro inputs must be lists or data frames", {
         with(CROP, {run_biocro(
             unlist(initial_values),
             unlist(parameters),
-            unlist(get_growing_season_climate(weather$'2005')),
+            unlist(WEATHER),
             direct_modules,
             differential_modules,
             unlist(ode_solver['type'])
@@ -45,7 +46,7 @@ test_that("certain run_biocro inputs must not have empty elements", {
         with(CROP, {run_biocro(
             within(initial_values, {bad_initial_value = numeric(0)}),
             within(parameters, {bad_parameter = numeric(0)}),
-            get_growing_season_climate(weather$'2005'),
+            WEATHER,
             direct_modules,
             differential_modules,
             within(ode_solver, {bad_ode_solver_setting = numeric(0)})
@@ -63,7 +64,7 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
         with(CROP, {run_biocro(
             within(initial_values, {bad_initial_value = c(1,2)}),
             within(parameters, {bad_parameter = c(1,2)}),
-            get_growing_season_climate(weather$'2005'),
+            WEATHER,
             direct_modules,
             differential_modules,
             within(ode_solver, {bad_ode_solver_setting = c(1,2)})
@@ -81,7 +82,7 @@ test_that("certain run_biocro inputs must be strings", {
         with(CROP, {run_biocro(
             initial_values,
             parameters,
-            get_growing_season_climate(weather$'2005'),
+            WEATHER,
             append(direct_modules, 1.23),
             append(differential_modules, 4.56),
             within(ode_solver, {type = 7.89})
@@ -99,7 +100,7 @@ test_that("certain run_biocro inputs must be numeric", {
         with(CROP, {run_biocro(
             within(initial_values, {bad_initial_value = "terrible"}),
             within(parameters, {bad_parameter = "awful"}),
-            within(get_growing_season_climate(weather$'2005'), {bad_driver = "offensive"}),
+            within(WEATHER, {bad_driver = "offensive"}),
             direct_modules,
             differential_modules,
             within(ode_solver, {bad_ode_solver_setting = "heinous"})
@@ -115,14 +116,14 @@ test_that("certain run_biocro inputs must be numeric", {
 
 test_that("element names are not repeated", {
     expect_error(
-        run_biocro(
-            c(miscanthus_x_giganteus_initial_values, list(TTc = 1e3)),
-            c(miscanthus_x_giganteus_parameters, list(Catm = 2e3)),
-            cbind(get_growing_season_climate(weather2005), temp = get_growing_season_climate(weather2005)$temp + 3e3),
-            c(miscanthus_x_giganteus_direct_modules, list(canopy_photosynthesis = 'BioCro:c3_canopy')),
-            c(miscanthus_x_giganteus_differential_modules, list(thermal_time = 'BioCro:thermal_time_bilinear')),
-            c(miscanthus_x_giganteus_ode_solver, list(type = 'boost_euler'))
-        ),
+        with(CROP, {run_biocro(
+            c(initial_values, list(TTc = 1e3)),
+            c(parameters, list(Catm = 2e3)),
+            cbind(WEATHER, temp = WEATHER$temp + 3e3),
+            c(direct_modules, list(canopy_photosynthesis = 'BioCro:c3_canopy')),
+            c(differential_modules, list(thermal_time = 'BioCro:thermal_time_bilinear')),
+            c(ode_solver, list(type = 'boost_euler'))
+        )}),
         regexp = paste0(
             "`initial_values` contains multiple instances of some quantities:\n",
             "    `TTc` takes the following values:\n",
