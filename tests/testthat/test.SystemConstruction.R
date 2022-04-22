@@ -113,6 +113,45 @@ test_that("certain run_biocro inputs must be numeric", {
     )
 })
 
+test_that("element names are not repeated", {
+    expect_error(
+        run_biocro(
+            c(miscanthus_x_giganteus_initial_values, list(TTc = 1e3)),
+            c(miscanthus_x_giganteus_parameters, list(Catm = 2e3)),
+            cbind(get_growing_season_climate(weather2005), temp = get_growing_season_climate(weather2005)$temp + 3e3),
+            c(miscanthus_x_giganteus_direct_modules, list(canopy_photosynthesis = 'BioCro:c3_canopy')),
+            c(miscanthus_x_giganteus_differential_modules, list(thermal_time = 'BioCro:thermal_time_bilinear')),
+            c(miscanthus_x_giganteus_ode_solver, list(type = 'boost_euler'))
+        ),
+        regexp = paste0(
+            "`initial_values` contains multiple instances of some quantities:\n",
+            "    `TTc` takes the following values:\n",
+            "      0\n",
+            "      1000\n",
+            "  `parameters` contains multiple instances of some quantities:\n",
+            "    `Catm` takes the following values:\n",
+            "      400\n",
+            "      2000\n",
+            "  `drivers` contains multiple instances of some quantities:\n",
+            "    `temp` takes the following values:\n",
+            "      2.12, 1.72, 1.61, 1.13, 0.47, ...\n",
+            "      3002.12, 3001.72, 3001.61, 3001.13, 3000.47, ...\n",
+            "  `direct_module_names` contains multiple instances of some quantities:\n",
+            "    `canopy_photosynthesis` takes the following values:\n",
+            "      BioCro:c4_canopy\n",
+            "      BioCro:c3_canopy\n",
+            "  `differential_module_names` contains multiple instances of some quantities:\n",
+            "    `thermal_time` takes the following values:\n",
+            "      BioCro:thermal_time_linear\n",
+            "      BioCro:thermal_time_bilinear\n",
+            "  `ode_solver` contains multiple instances of some quantities:\n",
+            "    `type` takes the following values:\n",
+            "      auto\n",
+            "      boost_euler\n"
+        )
+    )
+})
+
 test_that("All modules must exist", {
     # TO-DO: move this test to a module-library-specific testing file
 

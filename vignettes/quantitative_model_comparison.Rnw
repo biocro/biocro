@@ -655,8 +655,14 @@ fvcb_sensitivity_light_curve_result <- data.frame(
 # intensities in `light_curve_inputs`
 for (varname in fvcb_light_curve_sensitivity_variables) {
   fvcb_sensitivity_light_curve_result[[varname]] <-
-    apply(light_curve_inputs, 1,
-      function(x) assim_sensitivity(varname, c(cmi_soybean$parameters, as.list(x))))
+    apply(
+      light_curve_inputs,
+      1,
+      function(x) {assim_sensitivity(
+        varname,
+        c(within(cmi_soybean$parameters, {rm(Catm)}), as.list(x))
+      )}
+    )
 }
 @
 
