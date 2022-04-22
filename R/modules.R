@@ -105,7 +105,7 @@ check_module_input_quantities <- function(
 {
     # Check that the following type conditions are met:
     # - `input_quantities` should be a list of named numeric elements, each of
-    #    which has length 1
+    #    which has length 1; duplicated element names are not allowed
     # Type checks for `module_name` will be made by the `module_info`
     # function
     error_messages <- check_list(list(input_quantities = input_quantities))
@@ -123,6 +123,11 @@ check_module_input_quantities <- function(
     error_messages <- append(
         error_messages,
         check_element_length(list(input_quantities = input_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_distinct_names(list(input_quantities = input_quantities))
     )
 
     # Check for any missing module input quantities
@@ -270,7 +275,7 @@ module_response_curve <- function(
 {
     # Check that the following type conditions are met:
     # - `varying_quantities` should be a data frame of numeric elements with
-    #    named columns
+    #    named columns; duplicated column names are not allowed
     # Type checks for `module_name` and `fixed_quantities` will be
     # performed by the `module_info` and `partial_evaluate_module` functions
     error_messages <-
@@ -284,6 +289,11 @@ module_response_curve <- function(
     error_messages <- append(
         error_messages,
         check_element_names(list(varying_quantities = varying_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_distinct_names(list(varying_quantities = varying_quantities))
     )
 
     send_error_messages(error_messages)

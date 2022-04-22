@@ -73,6 +73,23 @@ check_run_biocro_inputs <- function(
         )
     )
 
+    # The elements of initial_values, parameters, drivers, direct_module_names,
+    # differential_module_names, and ode_solver should not have any duplicated
+    # names
+    error_message <- append(
+        error_message,
+        check_distinct_names(
+            list(
+                initial_values=initial_values,
+                parameters=parameters,
+                drivers=drivers,
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names,
+                ode_solver=ode_solver
+            )
+        )
+    )
+
     # The initial_values, parameters, drivers, and all elements of ode_solver
     # except `type` should have numeric values
     error_message <- append(
