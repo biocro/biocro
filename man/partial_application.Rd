@@ -87,6 +87,11 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
   \code{parameters}, or \code{drivers}. For \code{partial_evaluate_module}, each
   element of \code{arg_names} must be the name of one of the module's input
   quantities.
+
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to \code{partial_run_biocro};
+  see the documentation for \code{\link{crop_model_definitions}} for more
+  information.
 }
 
 \value{
@@ -136,30 +141,30 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 #  - seneStem: 2100 degrees C * day
 #  - seneRoot: 2200 degrees C * day
 #  - seneRhizome: 2300 degrees C * day
-senescence_simulation <- with(miscanthus_x_giganteus, {partial_run_biocro(
-    initial_values,
-    parameters,
-    get_growing_season_climate(weather$'2005'),
-    direct_modules,
-    differential_modules,
-    ode_solver,
-    c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
-)})
+senescence_simulation <- partial_run_biocro(
+  miscanthus_x_giganteus$initial_values,
+  miscanthus_x_giganteus$parameters,
+  get_growing_season_climate(weather$'2005'),
+  miscanthus_x_giganteus$direct_modules,
+  miscanthus_x_giganteus$differential_modules,
+  miscanthus_x_giganteus$ode_solver,
+  c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
+)
 senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example 2: a crude method for simulating the effects of climate change; here
 # we increase the atmospheric CO2 concentration to 500 ppm and the temperature
 # by 2 degrees C relative to 2002 temperatures. The commands below that call
 # `temperature_simulation` all produce the same result.
-temperature_simulation <- with(soybean, {partial_run_biocro(
-  initial_values,
-  parameters,
+temperature_simulation <- partial_run_biocro(
+  soybean$initial_values,
+  soybean$parameters,
   soybean_weather$'2002',
-  direct_modules,
-  differential_modules,
-  ode_solver,
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver,
   c("Catm", "temp")
-)})
+)
 hot_result_1 <- temperature_simulation(c(500, soybean_weather$'2002'$temp + 2.0))
 hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
 hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp + 2.0, Catm = 500))

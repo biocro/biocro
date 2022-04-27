@@ -1,6 +1,7 @@
 #include <string>
 #include <unordered_map>
 #include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error
 #include "framework/state_map.h"           // for string_vector
 #include "framework/R_helper_functions.h"  // for make_vector, r_string_vector_from_vector, list_from_map
 #include "framework/module_creator.h"      // for module_creator

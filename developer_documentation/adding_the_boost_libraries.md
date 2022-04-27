@@ -23,7 +23,7 @@ The packages BioCro uses are as follows:
 4. If necessary, delete any directories that contain old versions of boost, e.g. `boost_[old_version_number]`
 4. Check that the Boost license in `boost_[version_num]` is correct for the version used, and update the package `LICENSE` file if necssary.
 5. Update the path to the Boost license in the package `LICENSE` file.
-6. Run `R CMD check` and truncate any boost file paths that are flagged as exceeding 100 characters.
+6. Run `R CMD check` and truncate any boost file paths that are flagged as exceeding 100 characters. Be sure to update any associated `#include` directives that reference these files; otherwise, compilation errors will occur. See [commit 9620b2b994c4dbe0421354cd2c52a82eb170a96](https://github.com/ebimodeling/biocro-dev/pull/422/commits/9620b2b994c4dbe0421354cd2c52a82eb170a967) for an example.
 
 ### Notes for using bcp in Windows
 First, follow the instructions in the "Getting Started on Windows" [Boost page](https://www.boost.org/doc/libs/1_71_0/more/getting_started/windows.html).

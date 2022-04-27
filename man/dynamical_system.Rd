@@ -51,13 +51,19 @@ validate_dynamical_system_inputs(
   \code{\link{run_biocro}} with the exception of \code{ode_solver} (which is
   not required to check the validity of a dynamical system).
 
-  \code{validate_system_inputs} checks a set of parameters, drivers, modules,
-  and initial values to see if they can properly define a dynamical system and
-  can therefore be used as inputs to \code{\link{run_biocro}}. Although the
-  \code{\link{run_biocro}} function performs the same validity checks, the
-  \code{validate_system_inputs} includes additional information, such as a list
-  of parameters whose values are not used as inputs by any modules, since in
-  principle these parameters could be removed for clarity.
+  \code{validate_dynamical_system_inputs} checks a set of parameters, drivers,
+  modules, and initial values to see if they can properly define a dynamical
+  system and can therefore be used as inputs to \code{\link{run_biocro}}.
+  Although the \code{\link{run_biocro}} function performs the same validity
+  checks, the \code{validate_dynamical_system_inputs} includes additional
+  information, such as a list of parameters whose values are not used as inputs
+  by any modules, since in principle these parameters could be removed for
+  clarity.
+
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to
+  \code{validate_dynamical_system_inputs}; see the documentation for
+  \code{\link{crop_model_definitions}} for more information.
 }
 
 \value{
@@ -67,21 +73,21 @@ validate_dynamical_system_inputs(
 \seealso{\code{\link{run_biocro}}}
 
 \examples{
-# Example 1: missing some parameters and an initial value
-with(soybean, {validate_dynamical_system_inputs(
-  within(initial_values, rm(Leaf)), # remove the initial `Leaf` value
-  parameters,                       # don't include soil parameters
+# Example 1: missing a parameter and an initial value
+validate_dynamical_system_inputs(
+  within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
+  within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
   soybean_weather$'2002',
-  direct_modules,
-  differential_modules
-)})
+  soybean$direct_modules,
+  soybean$differential_modules
+)
 
 # Example 2: a valid set of input arguments
-with(soybean, {validate_dynamical_system_inputs(
-  initial_values,
-  parameters,
+validate_dynamical_system_inputs(
+  soybean$initial_values,
+  soybean$parameters,
   soybean_weather$'2002',
-  direct_modules,
-  differential_modules
-)})
+  soybean$direct_modules,
+  soybean$differential_modules
+)
 }

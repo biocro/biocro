@@ -9,9 +9,9 @@
 
 \description{
   Champaign, IL weather data specified at hourly intervals in the CST time zone
-  for the years 1995 - 2020. The data includes typical inputs required for
-  BioCro simulations. Note: some values are missing near the start of 1995 since
-  those time points are not available from SURFRAD.
+  for the years 1995--2020. The data includes typical inputs required for BioCro
+  imulations. Note: some values are missing near the start of 1995 since those
+  time points are not available from SURFRAD.
 
   This weather data is included in the BioCro package so users can reproduce
   the calculations of Lochocki \emph{et al.} (2022)

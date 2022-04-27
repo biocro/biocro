@@ -167,7 +167,7 @@ appropriate to use for the soybean simulations in this analysis. Full years of
 weather data are included in the BioCro package as the \texttt{weather} dataset.
 To create \texttt{soy\_weather}, photoperiod length as determined from the
 soybean circadian clock model is added to the original weather data, and then
-the full yearly set is truncated to days 152 - 288.
+the full yearly set is truncated to days 152--288.
 
 \end{itemize}
 

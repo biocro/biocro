@@ -5,7 +5,9 @@
 \title{Truncate weather data to one growing season}
 
 \description{
-  Attempt to restrict a year of weather data to a growing season.
+  Attempt to restrict a year of weather data to a growing season; not intended
+  to be a general-use function (see below for a detailed discussion of its
+  shortcomings).
 }
 
 \usage{
@@ -27,6 +29,11 @@ get_growing_season_climate(climate, threshold_temperature = 0)
 }
 
 \details{
+  \strong{DISCLAIMER}: This function is included here primarily to reproduce
+  the output of older BioCro calculations, where it used to be hard-coded into
+  every simulation. It has several severe limitations which are discussed below,
+  and is not intended to be a general-use function for subsetting weather data.
+
   To determine the growing season, this function locates its beginning and end
   based on the air temperature data. The start of the growing season is set by
   the last day in the first half of the year where the air temperature is below
@@ -47,25 +54,32 @@ get_growing_season_climate(climate, threshold_temperature = 0)
   for locations where this is the case. It is therefore unlikely to work
   properly in the Southern Hemisphere or the tropics.
 
-  In general, the appropriate threshold temperature will depend on the species
+  In general, an appropriate threshold temperature would depend on the species
   that is being modeled. For a perennial grass, the growth season might be said
   to begin after the last freeze, requiring a threshold temperature of 0 degrees
   C. Of course, this is an oversimplification of a complicated biological
   process, and a plant has no way of knowing when it has experienced the last
   freezing day of the year.
 
-  On the other hand, annual crops like soybean are not typically sown until
-  conditions are warmer and might require a higher threshold, such as 15 degrees
-  C. Again, this is an oversimplification of a complicated process. Farmers
-  typically take trends in temperature, historical data, soil conditions, and
-  weather predictions into account when deciding to sow, and they may also be
+  On the other hand, annual crops like maize or soybean are not typically sown
+  until conditions are warmer and might require a higher threshold. Again, this
+  is an oversimplification of a complicated process. Farmers typically take
+  trends in temperature, historical data, soil conditions, and weather
+  predictions into account when deciding to sow, and they may also be
   constrained by external factors like the availability of machinery, seeds, or
   labor.
 
-  Thus, the logic encoded here is an oversimplification in many cases. It is
-  likely not appropriate in every situation, and more tailored approaches might
-  be required. Nevertheless, it can be a simple way to make a decent estimation
-  of a growing season that is sufficient for some purposes.
+  It should also be noted that as the threshold temperature increases, the
+  likelihood of that air temperature occurring at night, even in the middle of
+  summer, also increases. Consequently, if the threshold is set too high, an
+  unrealistically short growing season may be predicted. For example, calling
+  \code{get_growing_season_climate(weather$'2005', 15)} returns a two-day
+  growing season (days 183--184) because the temperatures in the late night of
+  day 183 and the early morning of day 184 both dip below 15 degrees C.
+
+  Thus, the logic encoded here is an oversimplification in several ways. It is
+  likely not appropriate in many situations, and more tailored approaches would
+  be required.
 }
 
 \value{

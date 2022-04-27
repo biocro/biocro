@@ -1,5 +1,5 @@
 soil_parameters <- local({
-    soil_row <- function(...) {setNames(list(...), c(
+    soil_row <- function(...) {stats::setNames(list(...), c(
         "soil_silt_content",           # dimensionless
         "soil_clay_content",           # dimensionless
         "soil_sand_content",           # dimensionless

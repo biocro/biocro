@@ -45,8 +45,8 @@
   \code{\link{run_biocro}} also requires drivers; for these crop growth models,
   the drivers should be sets of weather data. The \code{\link{soybean}} model is
   intended to be used along with the specialized soybean weather data
-  (\code{\link{cmi_soybean_weather_data}}). The other crops should be used with
-  the other weather data (\code{\link{cmi_weather_data}}).
+  (see \code{\link{cmi_soybean_weather_data}}). The other crops should be used
+  with the other weather data (see \code{\link{cmi_weather_data}}).
 
   Some quantities in the crop model definitions, such as the values of
   photosynthetic parameters, would remain the same in any location; others, such
@@ -65,20 +65,52 @@
 
   Because each crop model definition is stored as a list with named elements,
   it is possible to use the \code{\link{with}} function to save some typing when
-  calling \code{\link{run_biocro}}. For example, the following two commands are
-  equivalent:
-  \itemize{
-    \item \code{
-    result <- run_biocro(soybean$initial_values, soybean$parameters,
-    soybean_weather$'2002', soybean$direct_modules,
-    soybean$differential_modules, soybean$ode_solver)
-    }
+  calling \code{\link{run_biocro}} or related functions such as
+  \code{\link{partial_run_biocro}} or
+  \code{\link{validate_dynamical_system_inputs}}. For an example, compare
+  \verb{Example 1} and \verb{Example 2} below. Besides shortening the code,
+  using \code{with} also makes it easy to modify a command to simulate the
+  growth of a different crop; if the two models can use the same drivers, this
+  switch can be accomplished with one small change. For an example, note that
+  \verb{Example 2} below can be changed to simulate willow growth by replacing
+  the single instance of the \code{miscanthus_x_giganteus} list with the
+  \code{willow} list (see \verb{Example 3}). In contrast, switching
+  \verb{Example 1} to willow would require five separate changes since the
+  \code{miscanthus_x_giganteus} list appears five times.
+}
 
-    \item \code{
-    result <- with(soybean, {run_biocro(initial_values, parameters,
-    soybean_weather$'2002', direct_modules, differential_modules, ode_solver)})
-    }
-  }
+\examples{
+# Example 1: Simulating Miscanthus growth using its model definition list
+result1 <- run_biocro(
+  miscanthus_x_giganteus$initial_values,
+  miscanthus_x_giganteus$parameters,
+  get_growing_season_climate(weather$'2002'),
+  miscanthus_x_giganteus$direct_modules,
+  miscanthus_x_giganteus$differential_modules,
+  miscanthus_x_giganteus$ode_solver
+)
+
+# Example 2: Performing the same simulation as in Example 1, but making use of
+# the `with` command to reduce repeated references to the model definition list
+result2 <- with(miscanthus_x_giganteus, {run_biocro(
+  initial_values,
+  parameters,
+  get_growing_season_climate(weather$'2002'),
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
+
+# Example 3: Simulating willow growth using the same weather data as Examples 1
+# and 2, which just requires one change relative to Example 2
+result3 <- with(willow, {run_biocro(
+  initial_values,
+  parameters,
+  get_growing_season_climate(weather$'2002'),
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 }
 
 \seealso{

@@ -60,6 +60,11 @@ system_derivatives(
 
   This function can be passed to \code{LSODES} as an alternative integration
   method, rather than using one of BioCro's built-in solvers.
+
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to \code{system_derivatives};
+  see the documentation for \code{\link{crop_model_definitions}} for more
+  information.
 }
 
 \seealso{
@@ -69,12 +74,12 @@ system_derivatives(
 \examples{
 # Example 1: calculating a single derivative using a soybean model
 
-soybean_system <- with(soybean, {system_derivatives(
-  parameters,
+soybean_system <- system_derivatives(
+  soybean$parameters,
   soybean_weather$'2002',
-  direct_modules,
-  differential_modules
-)})
+  soybean$direct_modules,
+  soybean$differential_modules
+)
 
 derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
@@ -116,12 +121,12 @@ if (require(deSolve)) {
 # `run_biocro`.
 \dontrun{
 if (require(deSolve)) {
-  soybean_system <- with(soybean, {system_derivatives(
-    parameters,
+  soybean_system <- system_derivatives(
+    soybean$parameters,
     soybean_weather$'2002',
-    direct_modules,
-    differential_modules
-  )})
+    soybean$direct_modules,
+    soybean$differential_modules
+  )
 
   times = seq(from=0, to=500, by=1)
 

@@ -61,8 +61,8 @@
     \code{(20 seeds / m) * (0.15 g / seed) / (0.38 m) = 7.89 g / m^2},
     equivalent to \code{0.0789 Mg / ha} in the typical BioCro units. Since this
     model does not have a seed component, this value is used to determine the
-    initial \code{Leaf}, \code{Stem}, and \code{Root} biomass, assuming 80%
-    leaf, 10% stem, and 10% root.
+    initial \code{Leaf}, \code{Stem}, and \code{Root} biomass, assuming 80\%
+    leaf, 10\% stem, and 10\% root.
 
     \item For historical reasons, the reproductive tissue in this model is
     called \code{Grain} but should be interpreted as the pod biomass, which
@@ -78,7 +78,7 @@
 
     \item For historical reasons, some of the modules that define Soybean-BioCro
     require input quantities that are not actually used for any calculations;
-    these "extraneous" parameters are identified \code{data/soybean.R}.
+    these "extraneous" parameters are identified in \code{data/soybean.R}.
 
     \item The \code{sowing_time} input to the
     \code{soybean_development_rate_calculator} module is set to 0 because

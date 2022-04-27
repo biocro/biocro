@@ -1,4 +1,6 @@
 #include <string>
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error and Rprintf
 #include <memory>                          // for unique_ptr
 #include "framework/R_helper_functions.h"  // for mc_vector_from_list, list_from_module_info, list_from_map
 #include "framework/state_map.h"           // for state_map, string_vector

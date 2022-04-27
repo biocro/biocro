@@ -1,5 +1,6 @@
 #include <string>
 #include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error and Rprintf
 #include "framework/R_helper_functions.h"  // for r_logical_from_boolean, map_from_list, map_vector_from_list, mc_vector_from_list
 #include "framework/state_map.h"           // for state_map, state_vector_map
 #include "framework/module_creator.h"      // for mc_vector
