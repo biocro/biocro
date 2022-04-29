@@ -71,12 +71,7 @@
   \verb{Example 1} and \verb{Example 2} below. Besides shortening the code,
   using \code{with} also makes it easy to modify a command to simulate the
   growth of a different crop; if the two models can use the same drivers, this
-  switch can be accomplished with one small change. For an example, note that
-  \verb{Example 2} below can be changed to simulate willow growth by replacing
-  the single instance of the \code{miscanthus_x_giganteus} list with the
-  \code{willow} list (see \verb{Example 3}). In contrast, switching
-  \verb{Example 1} to willow would require five separate changes since the
-  \code{miscanthus_x_giganteus} list appears five times.
+  switch can be accomplished with one small change (\verb{Example 3}).
 }
 
 \examples{
