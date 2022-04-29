@@ -1,10 +1,11 @@
-#include <Rinternals.h>
 #include <string>
 #include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error and Rprintf
 #include "framework/R_helper_functions.h"  // for map_from_list, map_vector_from_list, mc_vector_from_list, list_from_map
 #include "framework/state_map.h"           // for state_map, state_vector_map, string_vector
 #include "framework/module_creator.h"      // for mc_vector
 #include "framework/biocro_simulation.h"
+#include "R_run_biocro.h"
 
 using std::string;
 

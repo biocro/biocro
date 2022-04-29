@@ -1,5 +1,5 @@
 /*
- boost/numeric/odeint/stepper/detail/generation_controlled_adams_bashforth_moulton.hpp
+ boost/numeric/odeint/stepper/detail/generation_controlled_adams_bashfort.hpp
 
  [begin_description]
  Spezialization of the generation functions for creation of the controlled adams bashforth moulton stepper.

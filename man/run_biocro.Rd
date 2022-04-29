@@ -81,7 +81,12 @@ run_biocro(
   \code{run_biocro} is the most important function in the BioCro package. The
   input arguments to this function are used to define a dynamical system and
   solve for its time evolution during a desired time period. For more details
-  about how this function operates, see the BioCro II paper.
+  about how this function operates, see Lochocki \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diac003}].
+
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to \code{run_biocro}; see the
+  documentation for \code{\link{crop_model_definitions}} for more information.
 }
 
 \value{
@@ -102,13 +107,12 @@ run_biocro(
 \examples{
 # Example: running a miscanthus simulation using weather data from 2005
 result <- run_biocro(
-    miscanthus_x_giganteus_initial_values,
-    miscanthus_x_giganteus_parameters,
-    get_growing_season_climate(weather2005),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
-    miscanthus_x_giganteus_ode_solver,
-    TRUE
+  miscanthus_x_giganteus$initial_values,
+  miscanthus_x_giganteus$parameters,
+  get_growing_season_climate(weather$'2005'),
+  miscanthus_x_giganteus$direct_modules,
+  miscanthus_x_giganteus$differential_modules,
+  miscanthus_x_giganteus$ode_solver
 )
 
 lattice::xyplot(

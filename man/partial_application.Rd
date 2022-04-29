@@ -87,6 +87,11 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
   \code{parameters}, or \code{drivers}. For \code{partial_evaluate_module}, each
   element of \code{arg_names} must be the name of one of the module's input
   quantities.
+
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to \code{partial_run_biocro};
+  see the documentation for \code{\link{crop_model_definitions}} for more
+  information.
 }
 
 \value{
@@ -137,13 +142,13 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 #  - seneRoot: 2200 degrees C * day
 #  - seneRhizome: 2300 degrees C * day
 senescence_simulation <- partial_run_biocro(
-    miscanthus_x_giganteus_initial_values,
-    miscanthus_x_giganteus_parameters,
-    get_growing_season_climate(weather2005),
-    miscanthus_x_giganteus_direct_modules,
-    miscanthus_x_giganteus_differential_modules,
-    miscanthus_x_giganteus_ode_solver,
-    c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
+  miscanthus_x_giganteus$initial_values,
+  miscanthus_x_giganteus$parameters,
+  get_growing_season_climate(weather$'2005'),
+  miscanthus_x_giganteus$direct_modules,
+  miscanthus_x_giganteus$differential_modules,
+  miscanthus_x_giganteus$ode_solver,
+  c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
 senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
@@ -152,33 +157,36 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 # by 2 degrees C relative to 2002 temperatures. The commands below that call
 # `temperature_simulation` all produce the same result.
 temperature_simulation <- partial_run_biocro(
-  soybean_initial_values,
-  soybean_parameters,
-  soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver,
+  soybean$initial_values,
+  soybean$parameters,
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver,
   c("Catm", "temp")
 )
-hot_result_1 <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
-hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather2002$temp + 2.0))
-hot_result_3 <- temperature_simulation(list(temp = soybean_weather2002$temp + 2.0, Catm = 500))
+hot_result_1 <- temperature_simulation(c(500, soybean_weather$'2002'$temp + 2.0))
+hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
+hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp + 2.0, Catm = 500))
 
 # Note that these commands will both produce errors:
-# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather2002$temp + 2.0))
-# hot_result_5 <- temperature_simulation(setNames(c(500, soybean_weather2002$temp + 2.0), c("Catm", rep("temp", length(soybean_weather2002$temp)))))
+# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
+# hot_result_5 <- temperature_simulation(setNames(
+#   c(500, soybean_weather$'2002'$temp + 2.0),
+#   c("Catm", rep("temp", length(soybean_weather$'2002'$temp)))
+# ))
 
 # Note that this command will produce a strange result where the first
 # temperature value will be incorrectly interpreted as a `Catm` value, and the
 # `Catm` value will be interpreted as the final temperature value.
-# hot_result_6 <- temperature_simulation(c(soybean_weather2002$temp + 2.0, 500))
+# hot_result_6 <- temperature_simulation(c(soybean_weather$'2002'$temp + 2.0, 500))
 
 # Example 3: varying the base and air temperature inputs to the
 # 'thermal_time_linear' module from the 'BioCro' module library. The commands
 # below that call `thermal_time_rate` all produce the same result.
 thermal_time_rate <- partial_evaluate_module(
   'BioCro:thermal_time_linear',
-  within(miscanthus_x_giganteus_parameters, {time = 1}),
+  within(miscanthus_x_giganteus$parameters, {time = 1}),
   c("temp", "tbase")
 )
 rate_result_1 <- thermal_time_rate(c(25, 10))

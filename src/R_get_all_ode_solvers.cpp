@@ -4,6 +4,7 @@
 #include "framework/R_helper_functions.h"  // for r_string_vector_from_vector
 #include "framework/state_map.h"           // for string_vector
 #include "framework/ode_solver_library/ode_solver_factory.h"
+#include "R_get_all_ode_solvers.h"
 
 using std::string;
 

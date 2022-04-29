@@ -1,12 +1,13 @@
 #include <string>
 #include <unordered_map>
-#include <Rinternals.h>                    // for Rf_error
 #include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error
 #include "framework/state_map.h"           // for string_vector
 #include "framework/R_helper_functions.h"  // for make_vector, r_string_vector_from_vector, list_from_map
 #include "framework/module_creator.h"      // for module_creator
 #include "framework/module_factory.h"
 #include "module_library/module_library.h"
+#include "R_module_library.h"
 
 // When creating a new module library R package, it will be necessary to modify
 // the namespace in this file to match the one defined in

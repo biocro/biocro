@@ -2,13 +2,23 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
-% See
-% https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
-% for why this is needed:
-<<preliminary-hooks,include=FALSE,error=TRUE>>=
-knitr::knit_hooks$set(document = function(x) {
+% In this document, the `hyperref` latex package automatically loads the
+% `xcolor` package, which causes conflicts with `knitr`. Prior to version 1.39
+% of `knitr`, `knitr` automatically loaded the `color` package, which introduced
+% incompatible color definitions. Starting with version 1.39, `knitr` loads
+% the `xcolor` package instead, which can cause problems if the `xcolor` options
+% specified by `knitr` do not match the `xcolor` options specified by
+% `hyperref`. See the following pages for more information:
+% - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+<<solve_latex_color_problems,include=FALSE,error=TRUE>>=
+if (packageVersion('knitr') >= "1.39") {
+  knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames,table')
+} else {
+  knitr::knit_hooks$set(document = function(x) {
     sub('\\usepackage[]{color}', '\\usepackage[dvipsnames,table]{xcolor}', x, fixed = TRUE)
-})
+  })
+}
 @
 
 \documentclass[10pt,letterpaper,oneside]{article}
@@ -124,7 +134,7 @@ example:
 ?run_biocro
 
 # Access documentation for a BioCro data set, even if the package is not loaded
-?BioCro::soybean_parameters
+?BioCro::soybean
 
 # Access documentation for a base R function
 ?list
@@ -157,15 +167,18 @@ of values that can be passed as input arguments to \texttt{run\_biocro} when
 simulating soybean growth:
 
 <<run_biocro>>=
-soybean_result = run_biocro(
-  soybean_initial_values,
-  soybean_parameters,
-  soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver
+soybean_result <- run_biocro(
+  soybean$initial_values,
+  soybean$parameters,
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver
 )
 @
+
+\noindent (See Section \ref{sec:with} for an alternate way to write this
+command.)
 
 This command begins to illustrate the power of BioCro: with one function call,
 we are able to run a complex crop growth simulation including a mechanistic
@@ -353,15 +366,15 @@ differential_modules <- module_paste('BioCro', list(
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of modules
 when calling the \texttt{run\_biocro} function:
-\newline \texttt{soybean\_direct\_modules} and
-\texttt{soybean\_differential\_modules}. As discussed in that section, these
+\newline \texttt{soybean\$direct\_modules} and
+\texttt{soybean\$differential\_modules}. As discussed in that section, these
 modules define a large set of equations that represent many important processes
 involved in the growth of a crop and its interactions with its environment. The
 contents of these lists can be printed to the R console using the \texttt{str}
 command, which nicely shows the \emph{str}ucture of the object being printed:
 
 <<viewing_soybean_modules>>=
-str(soybean_differential_modules)
+str(soybean$differential_modules)
 @
 
 To learn about specific modules, see Section \ref{sec:module_info}.
@@ -423,7 +436,7 @@ as representing simple individual equations like Equations \ref{eq:param} and
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of parameters
 and initial values when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_parameters} and \texttt{soybean\_initial\_values}. These lists
+\texttt{soybean\$parameters} and \texttt{soybean\$initial\_values}. These lists
 include quantities that characterize soybean physiological processes (such as
 $v_{\rm{c,max}}$), specifics related to field conditions (such as the initial
 seed mass per unit ground area), and other important categories of quantities.
@@ -482,9 +495,9 @@ print(drivers)
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined data frame of
 drivers when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_weather2002}. Assembling drivers that represent weather data in
-a particular location can be a complicated process because different weather
-data sets or weather sensors produce different outputs and use different
+\texttt{soybean\_weather\$'2002'}. Assembling drivers that represent weather
+data in a particular location can be a complicated process because different
+weather data sets or weather sensors produce different outputs and use different
 formats, precluding a general approach to obtaining and processing weather data.
 For convenience, the BioCro package includes some pre-processed weather data
 from Champaign, Illinois which can be used to replicate the analysis of a few
@@ -554,11 +567,11 @@ an adaptive step-size ODE solver tries to find a new step size.
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined ODE solver when
 calling the \texttt{run\_biocro} function: \newline
-\texttt{soybean\_ode\_solver}. Its contents can be viewed as with any other
+\texttt{soybean\$ode\_solver}. Its contents can be viewed as with any other
 list:
 
 <<view_ode_solver>>=
-str(soybean_ode_solver)
+str(soybean$ode_solver)
 @
 
 Here the \texttt{boost\_rkck54} ODE solver is used. This is the \texttt{Boost}
@@ -610,13 +623,13 @@ quantities is missing an initial value, or if a parameter is missing, an error
 will occur:
 
 <<run_biocro_error_quantity>>=
-soybean_result = run_biocro(
-  within(soybean_initial_values, rm(Leaf)),         # remove the initial `Leaf` value
-  within(soybean_parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
-  soybean_weather2002,
-  soybean_direct_modules,
-  soybean_differential_modules,
-  soybean_ode_solver
+soybean_result <- run_biocro(
+  within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
+  within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver
 )
 @
 
@@ -625,13 +638,13 @@ or the type of the \texttt{ode\_solver} cannot be found in the corresponding
 libraries:
 
 <<run_biocro_error_module>>=
-soybean_result = run_biocro(
-  soybean_initial_values,
-  soybean_parameters,
-  soybean_weather2002,
-  append(soybean_direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
-  soybean_differential_modules,
-  soybean_ode_solver
+soybean_result <- run_biocro(
+  soybean$initial_values,
+  soybean$parameters,
+  soybean_weather$'2002',
+  append(soybean$direct_modules, 'BioCro:nonexistent_module'), # add a nonexistent module
+  soybean$differential_modules,
+  soybean$ode_solver
 )
 @
 
@@ -650,11 +663,11 @@ reordering is required).
 <<validate_inputs,eval=FALSE>>=
 # This code is not evaluated here since it produces a large amount of text
 valid <- validate_dynamical_system_inputs(
-  soybean_initial_values,
-  soybean_parameters,
-  soybean_weather2002,
-  rev(soybean_direct_modules), # Reverse the order of the direct modules
-  soybean_differential_modules
+  soybean$initial_values,
+  soybean$parameters,
+  soybean_weather$'2002',
+  rev(soybean$direct_modules), # Reverse the order of the direct modules
+  soybean$differential_modules
 )
 @
 
@@ -818,19 +831,19 @@ module_info('BioCro:c3_assimilation')
 Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
 \texttt{Assim} output represents the net assimilation rate $A_n$. So we will be
 varying \texttt{Qp} while keeping the other input quantities fixed. The values
-of several other input quantities are specified in \texttt{soybean\_parameters}.
+of several other input quantities are specified in \texttt{soybean\$parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
 To run the module, we will need the \texttt{evaluate\_module} function, which
 requires a fully-qualified module name and a named list of input quantities. It
 attempts to run the module, returning its outputs as a named list. If any of the
 module's inputs are not provided, a helpful error message will be returned. So
-we can try passing the \texttt{soybean\_parameters} list as an input to the
+we can try passing the \texttt{soybean\$parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
 <<c3_assimilation_v1>>=
-outputs <- evaluate_module('BioCro:c3_assimilation', soybean_parameters)
+outputs <- evaluate_module('BioCro:c3_assimilation', soybean$parameters)
 @
 
 Here, as expected, an error occurs because several input quantities are not
@@ -839,7 +852,7 @@ defined. We can choose values for these and add them to the parameter list:
 <<c3_assimilation_v2>>=
 outputs <- evaluate_module(
   'BioCro:c3_assimilation',
-  within(soybean_parameters, {
+  within(soybean$parameters, {
     rh = 0.7      # dimensionless
     Qp = 1800     # micromol / m^2 / s
     Tleaf = 27    # degrees C
@@ -874,7 +887,7 @@ curve data frame:
 <<c3_light_response_curve>>=
 rc <- module_response_curve(
   'BioCro:c3_assimilation',
-  within(soybean_parameters, {
+  within(soybean$parameters, {
     rh = 0.7
     Tleaf = 27
     StomataWS = 1
@@ -1108,7 +1121,82 @@ doesn't match the module class name. For example, the
 \texttt{ten\_layer\_rue\_canopy} class page includes a link to the source code
 file \texttt{multilayer\_rue\_canopy.h} where it is defined.
 
-\section{Additional R commands and resources \label{sec:extra_help}}
+\section{Tips and tricks}
+
+\subsection{Writing more efficient R code}
+
+\subsubsection{Reducing duplication with the \texttt{with} command \label{sec:with}}
+
+In Section \ref{sec:simulation} and several other places in this document,
+elements of pre-defined crop model definition lists like \texttt{soybean} were
+passed to BioCro functions like \texttt{run\_biocro}. These commands often
+involve repeating the crop model name multiple times, such as when the
+\texttt{soybean\_result} data frame was calculated in Section
+\ref{sec:run_simulation}. In that command, \texttt{soybean\$} appears five
+times.
+
+There is an alternative way to formulate these commands where the R function
+\texttt{with} can be used to reduce the duplicated typing. For example, the
+soybean simulation in Section \ref{sec:run_simulation} can be run as follows:
+
+<<run_biocro_with,eval=FALSE>>=
+soybean_result <- with(soybean, {run_biocro(
+  initial_values,
+  parameters,
+  soybean_weather$'2002',
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
+@
+
+Besides shortening the code, using \texttt{with} also makes it easy to modify a
+command to simulate the growth of another crop. Such a switch may only
+require one change to the command, where the single instance of the name of a
+crop is replaced by another. (Additional changes may be required if the drivers
+need to be different for the new crop.) For more examples, see the help page for
+\texttt{crop\_model\_definitions} by typing \texttt{?crop\_model\_definitions}
+in R.
+
+\subsubsection{Modifying lists on-the-fly with \texttt{within} and \texttt{append}}
+
+Sometimes it may be useful to make a small change to one of the pre-set model
+definition components; for example, the value of a parameter might need to be
+changed, or an additional module may be required. In these situations,
+\texttt{within} and \texttt{append} can be very handy.
+
+The \texttt{within} command allows us to modify the named elements of a list or
+vector, returning a new one. For example:
+
+<<within>>=
+# Create a small list
+original_list <- list(a = 1, b = 2, c = 3)
+
+# Create a new list from the original one by removing the `a` element and
+# changing the value of the `c` element
+new_list <- within(original_list, {
+  rm(a)
+  c = 4
+})
+
+# We don't need to actually store the new list; instead we can pass it directly
+# to another function. Here we perform the same operations (but separate them
+# with `;` instead of writing them on separate lines) and pass the result
+# directly to `str` without storing it as a named object.
+str(within(original_list, {rm(a); c = 4}))
+@
+
+The \texttt{append} command allows us to add an unnamed element to a list or
+vector, returning a new one. For example:
+
+<<append>>=
+str(append(original_list, 5))
+@
+
+Both of these commands are used throughout this document; for examples, see
+Section \ref{sec:validate}.
+
+\subsection{Additional R commands and resources \label{sec:extra_help}}
 
 There are a few R commands that may be useful but weren't specifically mentioned
 elsewhere in this guide:
@@ -1124,7 +1212,7 @@ the \texttt{rm} command as follows: \texttt{rm(list=ls())}.
 \item It is possible to check a variable's type using the \texttt{class}
 command, for example: \texttt{class(c('doy', 'hour', 'Leaf'))} will return
 \texttt{character}, meaning that \texttt{c('doy', 'hour', 'Leaf')} produces a
-character vector. On the other hand, \texttt{class(soybean\_parameters)} will
+character vector. On the other hand, \texttt{class(soybean\$parameters)} will
 return \texttt{list}.
 
 \end{itemize}
@@ -1207,7 +1295,7 @@ analogy to the light reponse curve we calculated in Section \ref{sec:response}.
 \begin{figure}[htbp]
   \begin{center}
     \includegraphics[width=0.7\textwidth]{a_practical_guide_to_biocro/temperature_response_curve.pdf}
-    \caption{Response of soybean net assimilation to air temperature.}
+    \caption{Response of soybean net assimilation to leaf temperature.}
     \label{fig:soybean_temperature_response}
   \end{center}
 \end{figure}

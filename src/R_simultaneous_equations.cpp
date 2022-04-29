@@ -1,4 +1,4 @@
-#include <Rinternals.h>  // for Rprintf
+#include <Rinternals.h>  // for Rf_error and Rprintf
 #include <vector>
 #include <string>
 #include <boost/numeric/ublas/matrix.hpp>

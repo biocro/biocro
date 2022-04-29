@@ -203,6 +203,11 @@ cat(
 
 \tableofcontents
 
+\section{Disclaimer}
+
+This document uses some outdated terminology and needs to be updated to reflect
+some of the recent changes to BioCro.
+
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
 
@@ -538,7 +543,7 @@ and willow and are named using names of the form
   footnote.} for example, \code{willow\_initial\_state}:
 
 <<willow_initial_values>>=
-str(head(willow_initial_values)) # head truncates the list to six items
+str(head(willow$initial_values)) # head truncates the list to six items
 @
 
 \code{varying\_parameters}, since it is made up of variables whose
@@ -602,7 +607,7 @@ provided as one means of subsetting climate data.\footnote{The
 2005 showing the first few rows of the growing season:
 
 <<weather2005>>=
-head(get_growing_season_climate(weather2005))
+head(get_growing_season_climate(weather$'2005'))
 @
 
 \subsubsection{Function output}
@@ -636,10 +641,14 @@ development of a crop as follows:
 
 % Run the code to validate it, but don't show the figure.
 <<Gro_example, fig.show='hide'>>=
-result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather2005),
-             sorghum_direct_modules, sorghum_differential_modules,
-             sorghum_ode_solver)
+result <- with(sorghum, {run_biocro(
+  initial_values,
+  parameters,
+  get_growing_season_climate(weather$'2005'),
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # `xyplot` requires the lattice package.
                                                # The output is not shown here.
 @

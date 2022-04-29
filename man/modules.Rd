@@ -157,7 +157,7 @@ outputs <- evaluate_module('BioCro:thermal_time_linear', inputs)
 # data frame of all possible combinations of their values.
 rc <- module_response_curve(
   'BioCro:c3_assimilation',
-  within(soybean_parameters, {Qp = 2000; StomataWS = 1}),
+  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
   expand.grid(
     Tleaf = seq(from = 0, to = 40, length.out = 201),
     rh = c(0.2, 0.5, 0.8)
