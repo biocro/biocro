@@ -2,13 +2,23 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
-% See
-% https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
-% for why this is needed:
-<<preliminary-hooks,include=FALSE,error=TRUE>>=
-knitr::knit_hooks$set(document = function(x) {
+% In this document, the `hyperref` latex package automatically loads the
+% `xcolor` package, which causes conflicts with `knitr`. Prior to version 1.39
+% of `knitr`, `knitr` automatically loaded the `color` package, which introduced
+% incompatible color definitions. Starting with version 1.39, `knitr` loads
+% the `xcolor` package instead, which can cause problems if the `xcolor` options
+% specified by `knitr` do not match the `xcolor` options specified by
+% `hyperref`. See the following pages for more information:
+% - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+<<solve_latex_color_problems,include=FALSE,error=TRUE>>=
+if (packageVersion('knitr') >= "1.39") {
+  knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames,table')
+} else {
+  knitr::knit_hooks$set(document = function(x) {
     sub('\\usepackage[]{color}', '\\usepackage[dvipsnames,table]{xcolor}', x, fixed = TRUE)
-})
+  })
+}
 @
 
 \documentclass[10pt,letterpaper,oneside]{article}
