@@ -355,12 +355,30 @@ jobs:
         if: needs.get_configuration.outputs.need-tinytex == 'true' 
         run: |
 
-          # Do a trial build of pdf_vignette_index.Rmd, which itself
-          # builds the Rnw vignettes, installing any needed LaTeX
-          # packages:
+          # Iterate through Rnw vignettes to find what LaTeX packages
+          # need to be installed and install them.
 
-          install.packages('rmarkdown')
-          xfun::in_dir('vignettes', tools::buildVignette('pdf_vignette_index.Rmd'))
+          Rnw_files <- list.files('vignettes', pattern = '*.Rnw')
+          lapply(Rnw_files, function(Rnw_file) {
+            # Turn off evaluation of code chucks to avoid an error
+            # about BioCro not being installed:
+            knitr::opts_chunk$set(eval = FALSE)
+
+            # Build the LaTeX file but don't compile it yet:
+            xfun::in_dir('vignettes', tools::buildVignette(Rnw_file, latex = FALSE))
+
+            # Get the name of the LaTeX file just created:
+            LaTeX_file <- paste0(tools::file_path_sans_ext(Rnw_file), '.tex')
+
+            # Compile the LaTeX file using tinytex::pdflatex because
+            # this will automatically install any required LaTeX
+            # packages that may be missing from the default TinyTex
+            # installation.  These builds will likely fail (hence the
+            # "try()", but not before installing needed LaTeX
+            # packages:
+            try(xfun::in_dir('vignettes', tinytex::pdflatex(LaTeX_file)))
+          })
+
         shell: Rscript {0}
 
       - name: Check package
