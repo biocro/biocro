@@ -498,15 +498,30 @@ extract_aq_scatter <- function(biocro_output) {
 Now it is possible to produce scatter plots of ($Q$, $A_g$) values for each
 model during 2002 (Figures \ref{fig_fvcb_aq_scatter_plot} and
 \ref{fig_rue_aq_scatter_plot}; these two figures are combined to form Figure 4b
-in the BioCro II paper).
+in the BioCro II paper). Note: because the canopy model uses ten layers and two
+leaf classes, there are twenty ($Q$, $A_g$) pairs per time point; because the
+crop's state is stored at hourly intervals over a growing season that lasts
+for 137 days, there are 3,288 time points, yielding 65,760 ($Q$, $A_g$) pairs in
+total for each simulation. Plotting all of these points results in very large
+files, so, to reduce the size of the vignette PDF, here we only plot a subset of
+the points.
 
 <<figure_4b,echo=FALSE,results=FALSE>>=
 fvcb_aq_scatter_2002 <- extract_aq_scatter(fvcb_result_2002)
 rue_aq_scatter_2002 <- extract_aq_scatter(optimal_rue_result_2002)
 
+# Plot a fraction of the points, chosen at equally-spaced intervals. To plot all
+# the points, set `frac_to_plot` to 1.
+frac_to_plot <- 0.06
+points_to_plot <- seq(
+  from = 1,
+  to = nrow(fvcb_aq_scatter_2002),
+  length.out = frac_to_plot * nrow(fvcb_aq_scatter_2002)
+)
+
 fvcb_aq_scatter_plot <- xyplot(
     gross_assimilation ~ incident_ppfd,
-    data = fvcb_aq_scatter_2002,
+    data = fvcb_aq_scatter_2002[points_to_plot,],
     type = 'p',
     pch = 16,
     xlim = ppfd_range,
@@ -521,7 +536,7 @@ pdf_print(fvcb_aq_scatter_plot, 'fvcb_aq_scatter_plot.pdf')
 
 rue_aq_scatter_plot <- xyplot(
     gross_assimilation ~ incident_ppfd,
-    data = rue_aq_scatter_2002,
+    data = rue_aq_scatter_2002[points_to_plot,],
     type = 'p',
     pch = 16,
     xlim = ppfd_range,

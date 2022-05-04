@@ -29,8 +29,8 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
 
 ### Installation
 #### Requirements
-- The [R environment](https://cran.r-project.org/) version 3.2.3 or greater.
-- On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.5 is not recommended as of 2019-12-05 since that version is not frozen).
+- The [R environment](https://cran.r-project.org/) version 3.5.0 or greater.
+- On Windows, a version of [Rtools](https://cran.r-project.org/bin/windows/Rtools/) appropriate for your version of R.
 - On Linux, gcc and g++ version 4.9.3 or greater (consult documentation for your distribution for installation instructions).
 - On MacOS, Xcode.
 
