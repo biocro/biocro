@@ -38,6 +38,7 @@
 
 ^\.clang-format$
 ^\.editorconfig$
+^cran-comments\.md
 # Other files related to package development.
 
 ^bookdown$
