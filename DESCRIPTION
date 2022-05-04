@@ -7,16 +7,24 @@ Description: A cross-platform representation of models as sets of equations
     Documentation is provided by several vignettes included in this package;
     also see Lochocki et al. (2022) <doi:10.1093/insilicoplants/diac003>.
 Authors@R: c(
-    person("McGrath", "Justin M.", email = "jmcgrath@illinois.edu", role =
-           c('cre', 'aut')),
-    person("Lochocki", "Edward B.", role = 'aut'),
-    person("Rohde", "Scott", role = 'aut'),
-    person("Jaiswal", "Deepak", role = 'aut'),
-    person("Matthews", "Megan L.", role = 'aut'),
-    person("Miguez", "Fernando E.", role = 'aut'),
-    person("Long", "Stephen P.", role = 'aut'),
+    person("McGrath", "Justin M.", role = c('cre', 'aut'),
+           email = "jmcgrath@illinois.edu",
+           comment = c(ORCID = "0000-0002-7025-3906")),
+    person("Lochocki", "Edward B.", role = 'aut',
+           comment = c(ORCID = "0000-0002-4912-9783")),
+    person("Rohde", "Scott", role = 'aut',
+           comment = c(ORCID = "0000-0001-9030-0936")),
+    person("Jaiswal", "Deepak", role = 'aut',
+           comment = c(ORCID = "0000-0002-4077-3919")),
+    person("Matthews", "Megan L.", role = 'aut',
+           comment = c(ORCID = "0000-0002-5513-9320")),
+    person("Miguez", "Fernando E.", role = 'aut',
+           comment = c(ORCID = "0000-0002-4627-8329")),
+    person("Long", "Stephen P.", role = 'aut',
+           comment = c(ORCID = "0000-0002-8501-7164")),
     person("Wang", "Dan", role = 'ctb'),
-    person("LeBauer", "David", role = 'ctb')
+    person("LeBauer", "David", role = 'ctb',
+           comment = c(ORCID = "0000-0001-7228-053X"))
     )
 Depends: R (>= 3.5.0)
 Imports:
