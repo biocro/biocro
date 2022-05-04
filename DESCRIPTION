@@ -1,9 +1,11 @@
 Package: BioCro
 Version: 3.0.0
-Title: A Software Package for Modular Crop Growth Simulations
+Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
     modern techniques for numerical integration and data visualization.
+    Documentation is provided by several vignettes included in this package;
+    also see Lochocki et al. (2022) <doi:10.1093/insilicoplants/diac003>.
 Authors@R: c(
     person("McGrath", "Justin M.", email = "jmcgrath@illinois.edu", role =
            c('cre', 'aut')),
