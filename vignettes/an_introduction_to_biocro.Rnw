@@ -2,13 +2,18 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
-% See
-% https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
-% for why this is needed:
-<<preliminary-hooks,include=FALSE,error=TRUE>>=
-knitr::knit_hooks$set(document = function(x) {
+% Prior to version 1.39 of `knitr`, `knitr` automatically loaded the `color`
+% package, which introduced color definitions that were incompatible with those
+% defined by `xcolor`. Starting with version 1.39, `knitr` automatically loads
+% the `xcolor` package instead. See the following pages for more information:
+% - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+<<solve_latex_color_problems,include=FALSE,error=TRUE>>=
+if (packageVersion('knitr') < "1.39") {
+  knitr::knit_hooks$set(document = function(x) {
     sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)
-})
+  })
+}
 @
 
 \documentclass{article}

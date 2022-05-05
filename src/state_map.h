@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <stdexcept>  // for std::out_of_range
 #include <algorithm>  // for std::sort
 
 /**
