@@ -41,6 +41,19 @@
   now stored as two elements of the `soybean` list: `soybean$parameters` and
   `soybean$initial_values`.
 
+- The function returned by `partial_run_biocro` can now properly respond to
+  vectors and lists of named elements.
+
+## BUG FIXES
+
+- The elements of the `arg_names` input to `partial_run_biocro` can now be in
+  any order; previously, they were required to be supplied in the same order as
+  the appear in the other inputs to `partial_run_biocro`, for example, the names
+  of any initial values were required to come before the names of any
+  parameters. If the arguments were supplied in the wrong order, then the inputs
+  to the function returned by `partial_run_biocro` would be interpreted in the
+  wrong order.
+
 # CHANGES IN BioCro VERSION 2.0.0
 
 ## NEW FEATURES
