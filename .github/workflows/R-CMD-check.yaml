@@ -355,6 +355,9 @@ jobs:
         if: needs.get_configuration.outputs.need-tinytex == 'true' 
         run: |
 
+          # Install the tinytex R package to run tinytex::pdflatex.
+          install.packages('tinytex')
+
           # Iterate through Rnw vignettes to find what LaTeX packages
           # need to be installed and install them.
 
