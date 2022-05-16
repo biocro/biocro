@@ -1,3 +1,9 @@
+# WARNING: The .Rbuildignore syntax has no way to indicate a comment, so all the
+# lines in this file that begin with `#` are actually commands to exclude files
+# with peculiar names that include substrings like `# subdirectories.`. For this
+# reason, there should not be any blank comment lines, because they would
+# exclude any files with `#` in the filename, possibly causing confusing issues.
+
 ^.*\.Rproj$
 # Designates the directory as an RStudio Project.
 

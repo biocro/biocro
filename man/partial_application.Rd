@@ -157,7 +157,7 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example 2: a crude method for simulating the effects of climate change; here
 # we increase the atmospheric CO2 concentration to 500 ppm and the temperature
-# by 2 degrees C relative to 2002 temperatures. The commands below that call
+# by 2 degrees C relative to 2005 temperatures. The commands below that call
 # `temperature_simulation` all produce the same result.
 temperature_simulation <- partial_run_biocro(
   miscanthus_x_giganteus$initial_values,

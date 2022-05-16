@@ -1,6 +1,24 @@
-# CHANGES IN BioCro VERSION 3.0.0
+<!--
+This file should document all pull requests and all user-visible changes.
 
-## NEW FEATURES
+When a pull request is completed, changes made should be added to a section at
+the top of this file called "# Unreleased". All changes should be categorized
+under "## MAJOR CHANGES", "## MINOR CHANGES", or "## BUG FIXES" following the
+major.minor.patch structure of semantic versioning. When applicable, entries
+should include direct links to the relevant pull requests.
+
+Then, when a new release is made, "# Unreleased" should be replaced by a heading
+with the new version number, such as "# CHANGES IN BioCro VERSION 2.0.0." This
+section will combine all of the release notes from all of the pull requests
+merged in since the previous release.
+
+Subsequent commits will then include a new "Unreleased" section in preparation
+for the next release.
+-->
+
+# UNRELEASED
+
+## MAJOR CHANGES
 
 - This version introduces the concept of distinct module libraries, allowing
   users to develop modules in private and to create collections of related
@@ -10,18 +28,16 @@
   was previously known as `thermal_time_linear` must now be referred to as
   `BioCro:thermal_time_linear`.
 
-## MAJOR CHANGES
-
 - Any R package representing a BioCro module library must now have three
   non-exported functions accessing its modules: `get_all_modules`,
   `get_all_quantities`, and `module_creators`. When a fully-qualified module
   name like `library_name:local_module_name` is passed to a function like
   `module_info`, an internal call to
   `library_name:::module_creators(module_name)` will be made to retrieve a
-  pointer to a module. Here, `library_name` must be the same as the package
-  name. This is a required part of a method for passing C objects from a module
-  library to the core BioCro framework via R; the full details are not discussed
-  here.
+  pointer to a module. Hence, `library_name` must be the same as the module
+  library package name. This is a required part of a method for passing C
+  objects from a module library to the core BioCro framework via R; the full
+  details are not discussed here.
 
 - The code in the `src` directory has been reorganized to reflect the division
   between framework code, module code, and "R-to-C" code discussed in the
@@ -44,6 +60,8 @@
 - The function returned by `partial_run_biocro` can now properly respond to
   vectors and lists of named elements.
 
+- Module testing functions have been added to the package namespace.
+
 ## BUG FIXES
 
 - The elements of the `arg_names` input to `partial_run_biocro` can now be in
@@ -56,7 +74,7 @@
 
 # CHANGES IN BioCro VERSION 2.0.0
 
-## NEW FEATURES
+## MAJOR CHANGES
 
 - This version is a major update to the design of BioCro. In this version,
   subsets of a model are called _modules_. The design attempts to meet the
@@ -85,4 +103,5 @@
 - This is the last release of the original version of BioCro, which was first
   described in [Miguez et al., 2009](https://doi.org/10.1111/j.1757-1707.2009.01019.x)
   and updated over the years to add more crop models and R functions. A full
-  change log for this version and previous versions is not available.
+  change log for this version and previous versions is not available in this
+  document.
