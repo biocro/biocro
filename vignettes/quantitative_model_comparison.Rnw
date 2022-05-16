@@ -8,6 +8,11 @@
 %
 % - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
 % - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+%
+%
+% This chunk must explicitly set eval=TRUE (the default) to ensure
+% that this chunk is evaluated, even when eval has been set to FALSE
+% at the global level, as in the R-CMD-check GitHub workflow.
 
 <<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
 
