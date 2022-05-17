@@ -2,13 +2,37 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
-% See
-% https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
-% for why this is needed:
-<<preliminary-hooks,include=FALSE,error=TRUE>>=
+
+% See the following pages for more information about the LaTeX
+% problems addressed by the following chunk:
+%
+% - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+%
+%
+% This chunk must explicitly set eval=TRUE (the default) to ensure
+% that this chunk is evaluated, even when eval has been set to FALSE
+% at the global level, as in the R-CMD-check GitHub workflow.
+
+<<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
+
+## Versions of knitr before 1.39 used the color package, but we want
+## to use xcolor instead (together with the "dvipsnames" option), so
+## we use a hook to do a substitution.  (This hook is a no-op for
+## knitr version 1.39, assuming the color package is not explicitly
+## used by the Rnw file.)
+
 knitr::knit_hooks$set(document = function(x) {
-    sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)
+  sub('\\usepackage[]{color}', '\\usepackage[dvipsnames]{xcolor}', x, fixed = TRUE)
 })
+
+## Version 1.39 of knitr *does* use the xcolor package, but we still
+## have to set it to use the dvipsnames option.  (This option setting
+## is a no-op for knitr versions before 1.39, assuming the xcolor
+## package is not explicitly used by the Rnw file.)
+
+knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
+
 @
 
 \documentclass{article}
