@@ -134,6 +134,9 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 }
 
 \examples{
+# Specify weather data to use in these examples
+ex_weather <- get_growing_season_climate(weather$'2005')
+
 # Example 1: varying the thermal time values at which senescence starts for
 # different organs in a simulation; here we set them to the following values
 # instead of the defaults:
@@ -144,7 +147,7 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
 senescence_simulation <- partial_run_biocro(
   miscanthus_x_giganteus$initial_values,
   miscanthus_x_giganteus$parameters,
-  get_growing_season_climate(weather$'2005'),
+  ex_weather,
   miscanthus_x_giganteus$direct_modules,
   miscanthus_x_giganteus$differential_modules,
   miscanthus_x_giganteus$ode_solver,
@@ -154,32 +157,32 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example 2: a crude method for simulating the effects of climate change; here
 # we increase the atmospheric CO2 concentration to 500 ppm and the temperature
-# by 2 degrees C relative to 2002 temperatures. The commands below that call
+# by 2 degrees C relative to 2005 temperatures. The commands below that call
 # `temperature_simulation` all produce the same result.
 temperature_simulation <- partial_run_biocro(
-  soybean$initial_values,
-  soybean$parameters,
-  soybean_weather$'2002',
-  soybean$direct_modules,
-  soybean$differential_modules,
-  soybean$ode_solver,
+  miscanthus_x_giganteus$initial_values,
+  miscanthus_x_giganteus$parameters,
+  ex_weather,
+  miscanthus_x_giganteus$direct_modules,
+  miscanthus_x_giganteus$differential_modules,
+  miscanthus_x_giganteus$ode_solver,
   c("Catm", "temp")
 )
-hot_result_1 <- temperature_simulation(c(500, soybean_weather$'2002'$temp + 2.0))
-hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
-hot_result_3 <- temperature_simulation(list(temp = soybean_weather$'2002'$temp + 2.0, Catm = 500))
+hot_result_1 <- temperature_simulation(c(500, ex_weather$temp + 2.0))
+hot_result_2 <- temperature_simulation(list(Catm = 500, temp = ex_weather$temp + 2.0))
+hot_result_3 <- temperature_simulation(list(temp = ex_weather$temp + 2.0, Catm = 500))
 
 # Note that these commands will both produce errors:
-# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = soybean_weather$'2002'$temp + 2.0))
-# hot_result_5 <- temperature_simulation(setNames(
-#   c(500, soybean_weather$'2002'$temp + 2.0),
-#   c("Catm", rep("temp", length(soybean_weather$'2002'$temp)))
+# hot_result_4 <- temperature_simulation(c(Catm = 500, temp = ex_weather$temp + 2.0))
+# hot_result_5 <- temperature_simulation(stats::setNames(
+#   c(500, ex_weather$temp + 2.0),
+#   c("Catm", rep("temp", length(ex_weather$temp)))
 # ))
 
 # Note that this command will produce a strange result where the first
 # temperature value will be incorrectly interpreted as a `Catm` value, and the
 # `Catm` value will be interpreted as the final temperature value.
-# hot_result_6 <- temperature_simulation(c(soybean_weather$'2002'$temp + 2.0, 500))
+# hot_result_6 <- temperature_simulation(c(ex_weather$temp + 2.0, 500))
 
 # Example 3: varying the base and air temperature inputs to the
 # 'thermal_time_linear' module from the 'BioCro' module library. The commands
