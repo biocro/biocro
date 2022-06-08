@@ -56,3 +56,6 @@
 
 ^index.md$
 # File created by documentation/script/run_pkgdown.sh
+
+^LICENSE\.md$
+# Required by the GNU GPL license but not allowed on CRAN

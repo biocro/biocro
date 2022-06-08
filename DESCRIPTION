@@ -24,7 +24,10 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-8501-7164")),
     person("Wang", "Dan", role = 'ctb'),
     person("LeBauer", "David", role = 'ctb',
-           comment = c(ORCID = "0000-0001-7228-053X"))
+           comment = c(ORCID = "0000-0001-7228-053X")),
+    person(family = "University of Illinois", role = "cph"),
+    person(family = "Boost Organization", role = "cph",
+           comment = "Author of included Boost library")
     )
 Depends: R (>= 3.5.0)
 Imports:
@@ -35,7 +38,7 @@ Suggests:
     lattice
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make
-License: BSD_3_clause + file LICENSE
+License: GPL (>= 2)
 LazyData: true
 ByteCompile: TRUE
 URL: https://github.com/ebimodeling/biocro
