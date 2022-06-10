@@ -25,7 +25,7 @@ Authors@R: c(
     person("Wang", "Dan", role = 'ctb'),
     person("LeBauer", "David", role = 'ctb',
            comment = c(ORCID = "0000-0001-7228-053X")),
-    person(family = "University of Illinois", role = "cph"),
+    person(family = "BioCro authors", role = "cph"),
     person(family = "Boost Organization", role = "cph",
            comment = "Author of included Boost library")
     )
