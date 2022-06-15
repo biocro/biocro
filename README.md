@@ -28,9 +28,9 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
 
 #### Installation steps
 
-- BioCro can be installed directly from GitHub by typing the following in the R command line: `remotes::install_github('ebimodeling/biocro')`. Note that this method requires the `remotes` R package.
+- There are several R packages (such as `devtools`, `remotes`, and possibly others) that can be used to install other R packages (including BioCro) directly from GitHub. For example: `devtools::install_github('ebimodeling/biocro')`.
 
-- Another option is to download the BioCro source code from GitHub, unzip the file (if necessary), and install the package using one of the following sets of commands, which both assume that the source files are in a directory named "biocro":
+- Another option that does not require any additional R packages is to download the BioCro source code from GitHub, unzip the file (if necessary), and install the package using one of the following sets of commands, which both assume that the source files are in a directory named "biocro":
 
   - From the command line
   ```
