@@ -1,0 +1,11 @@
+The BioCro package as a whole is distributed under version 2 or greater of the
+GNU General Public License (GPL).
+
+Any distributors that combine and distribute commercially licensed software with
+BioCro software and do not wish to distribute the source code for the
+commercially licensed software under version 2 or greater of the GNU GPL must
+enter into a commercial license agreement with the authors.
+
+The BioCro package uses a portion of the Boost software library, which has its
+own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the
+license is included with this package in the file boost_1_71_0/LICENSE_1_0.txt.
