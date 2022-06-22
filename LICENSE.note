@@ -15,6 +15,10 @@ Wayback Machine (https://archive.org/web/).
 The `ball_berry()` function is based on Fortran code provided by Joe Berry to
 Fernando Miguez via email.
 
-The BioCro package uses a portion of the Boost software library, which has its
-own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the
+The functions declared in `R_helper_functions.h` use a portion of the Rinternals
+software library, which is licensed under version 2.1 or greater of the GNU
+Lesser General Public License.
+
+The BioCro package includes a portion of the Boost software library, which has
+its own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the
 license is included with this package in the file boost_1_71_0/LICENSE_1_0.txt.
