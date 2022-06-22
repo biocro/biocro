@@ -6,6 +6,15 @@ BioCro software and do not wish to distribute the source code for the
 commercially licensed software under version 2 or greater of the GNU GPL must
 enter into a commercial license agreement with the authors.
 
+Parts of some BioCro modules are based on code from WIMOVAC. WIMOVAC is
+copyrighted by Stephen Long and Stephen Humphries. More information about
+WIMOVAC is available at http://www.life.illinois.edu/plantbio/wimovac/. This
+website is no longer maintained but can be accessed using the Internet Archive's
+Wayback Machine (https://archive.org/web/).
+
+The `ball_berry()` function is based on Fortran code provided by Joe Berry to
+Fernando Miguez via email.
+
 The BioCro package uses a portion of the Boost software library, which has its
 own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the
 license is included with this package in the file boost_1_71_0/LICENSE_1_0.txt.

@@ -1,9 +1,5 @@
 #ifndef C3PHOTO_H
 #define C3PHOTO_H
-/*
- *  /src/c4photo.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
- *
- */
 
 struct c3_str {
     double Assim;

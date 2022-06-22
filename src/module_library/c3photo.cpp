@@ -1,8 +1,3 @@
-/*
- *  /src/c3photo.c by Fernando Ezequiel Miguez  Copyright (C) 2009
- *
- */
-
 #include <cmath>
 #include "c3photo.hpp"
 #include "ball_berry.hpp"

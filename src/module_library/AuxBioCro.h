@@ -4,12 +4,6 @@
 #include <map>
 #include "../framework/constants.h" // for ideal_gas_constant
 
-/*
- *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
- *
- */
-
-
 /* This file will contain functions which are common to several */
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */

@@ -1,15 +1,3 @@
-
-/*
- *  /src/c4photo.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
- *
- *
- *  Part of this code (see function c4photoC) is based on the C4 photo of
- *  WIMOVAC. WIMOVAC is copyright of Stephen P Long and Stephen Humphries.
- *  Documentation for WIMOVAC can be found at
- *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
- *
- */
-
 #include <cmath>
 #include "collatz_photo.hpp"
 

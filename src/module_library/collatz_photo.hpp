@@ -1,9 +1,5 @@
 #ifndef COLLATZ_PHOTO_H
 #define COLLATZ_PHOTO_H
-/*
- *  /src/c4photo.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
- *
- */
 
 struct collatz_result {
     double assimilation;

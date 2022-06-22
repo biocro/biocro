@@ -1,11 +1,3 @@
-/*
- *  /src/ball_berry.cpp by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
- *
- *  The ball_berry code is based on code provided by Joe Berry in an e-mail.
- *  The original function was written in Fortran. I translated it to C.
- * 
- */
-
 #include <cmath>
 #include <stdexcept>
 #include "ball_berry.hpp"
@@ -23,7 +15,7 @@ double ball_berry(double assimilation,  // mol / m^2 / s
     if (assimilation > 0) {
         const double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
-            throw std::range_error("Thrown in ball_berry: Cs is less than 0."); 
+            throw std::range_error("Thrown in ball_berry: Cs is less than 0.");
         }
 
         double acs = assimilation / Cs;
@@ -33,7 +25,7 @@ double ball_berry(double assimilation,  // mol / m^2 / s
 
         /* Calculate leaf surface relative humidity, hs, from the quadratic equation:
          * a * hs^2 + b * hs + c = 0
-         * 
+         *
          * This can be derived as follows:
          * At steady-state
          *  E = gs * (hs - hi)  -- Equation 1
@@ -46,7 +38,7 @@ double ball_berry(double assimilation,  // mol / m^2 / s
          *  Where A is assimilation rate, hs is relative humidity at the surface of the leaf, and cs is the CO2 mole fraction at the surface of the leaf.
          *
          * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
-         * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code. 
+         * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code.
          */
         const double a = beta1 * acs;  // Equivalent to a = beta1 * assimilation / cs
         const double b = beta0 + gbw - beta1 * acs;  // Equivalent to b = beta0 + gbw - beta1 * assimilation / cs
