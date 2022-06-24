@@ -92,7 +92,8 @@ df_from_case_list <- function(case_list, col_type, col_names) {
                 case[[col_type]][[name]]
             })
         })),
-        row.names = NULL
+        row.names = NULL,
+        stringsAsFactors = FALSE
     )
 }
 
