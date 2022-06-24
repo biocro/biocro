@@ -6,38 +6,32 @@
 
 using math_constants::pi;
 
-template <typename T>
-double sin_deg(T angle)
+double sin_deg(double angle)
 {
     return sin(angle * pi / 180.0);
 }
 
-template <typename T>
-double cos_deg(T angle)
+double cos_deg(double angle)
 {
     return cos(angle * pi / 180.0);
 }
 
-template <typename T>
-double tan_deg(T angle)
+double tan_deg(double angle)
 {
     return tan(angle * pi / 180.0);
 }
 
-template <typename T>
-double asin_deg(T arg)
+double asin_deg(double arg)
 {
     return asin(arg) * 180.0 / pi;
 }
 
-template <typename T>
-double acos_deg(T arg)
+double acos_deg(double arg)
 {
     return acos(arg) * 180.0 / pi;
 }
 
-template <typename T>
-double atan2_deg(T y, T x)
+double atan2_deg(double y, double x)
 {
     return atan2(y, x) * 180.0 / pi;
 }
