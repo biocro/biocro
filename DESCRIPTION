@@ -7,26 +7,26 @@ Description: A cross-platform representation of models as sets of equations
     Documentation is provided by several vignettes included in this package;
     also see Lochocki et al. (2022) <doi:10.1093/insilicoplants/diac003>.
 Authors@R: c(
-    person("McGrath", "Justin M.", role = c('cre', 'aut'),
+    person("Justin M.", "McGrath", role = c('cre', 'aut'),
            email = "jmcgrath@illinois.edu",
            comment = c(ORCID = "0000-0002-7025-3906")),
-    person("Lochocki", "Edward B.", role = 'aut',
+    person("Edward B.", "Lochocki", role = 'aut',
            comment = c(ORCID = "0000-0002-4912-9783")),
-    person("Rohde", "Scott", role = 'aut',
+    person("Scott", "Rohde", role = 'aut',
            comment = c(ORCID = "0000-0001-9030-0936")),
-    person("Jaiswal", "Deepak", role = 'aut',
+    person("Deepak", "Jaiswal", role = 'aut',
            comment = c(ORCID = "0000-0002-4077-3919")),
-    person("Matthews", "Megan L.", role = 'aut',
+    person("Megan L.", "Matthews", role = 'aut',
            comment = c(ORCID = "0000-0002-5513-9320")),
-    person("Miguez", "Fernando E.", role = 'aut',
+    person("Fernando E.", "Miguez", role = 'aut',
            comment = c(ORCID = "0000-0002-4627-8329")),
-    person("Long", "Stephen P.", role = 'aut',
+    person("Stephen P.", "Long", role = 'aut',
            comment = c(ORCID = "0000-0002-8501-7164")),
-    person("Wang", "Dan", role = 'ctb'),
-    person("LeBauer", "David", role = 'ctb',
+    person("Dan", "Wang", role = 'ctb'),
+    person("David", "LeBauer", role = 'ctb',
            comment = c(ORCID = "0000-0001-7228-053X")),
-    person(family = "BioCro authors", role = "cph"),
-    person(family = "Boost Organization", role = "cph",
+    person("BioCro authors", role = "cph"),
+    person("Boost Organization", role = "cph",
            comment = "Author of included Boost library")
     )
 Depends: R (>= 3.5.0)
