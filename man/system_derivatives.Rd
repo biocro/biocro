@@ -86,7 +86,6 @@ derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 # Example 2: a simple oscillator with only one module (requires deSolve)
 
 \dontrun{
-if (require(deSolve)) {
 
   times = seq(0, 5, length=100)
 
@@ -101,7 +100,7 @@ if (require(deSolve)) {
     'BioCro:harmonic_oscillator'
   )
 
-  result <- as.data.frame(lsodes(
+  result <- as.data.frame(deSolve::lsodes(
     c(position=0, velocity=1),
     times,
     oscillator_system_derivatives
@@ -113,14 +112,14 @@ if (require(deSolve)) {
     auto=TRUE,
     data=result
   )
-}
+
 }
 
 # Example 3: solving 500 hours of a soybean simulation. This requires the
 # deSolve package and will run very slow compared to a regular call to
 # `run_biocro`.
 \dontrun{
-if (require(deSolve)) {
+
   soybean_system <- system_derivatives(
     soybean$parameters,
     soybean_weather$'2002',
@@ -130,9 +129,9 @@ if (require(deSolve)) {
 
   times = seq(from=0, to=500, by=1)
 
-  result <- as.data.frame(lsodes(unlist(soybean$initial_values), times, soybean_system))
+  result <- as.data.frame(deSolve::lsodes(unlist(soybean$initial_values), times, soybean_system))
 
   lattice::xyplot(Leaf + Stem ~ time, type='l', auto=TRUE, data=result)
-}
+
 }
 }

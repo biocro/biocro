@@ -1,5 +1,27 @@
+template:
+  bootstrap: 5
+  bootswatch: cyborg
+  theme: arrow-dark
 navbar:
+  structure:
+    left:  [about, reference, articles, news]
+    right: [search, github]
   components:
     about:
       text: About
       href: about_pkgdown_documentation.html
+    articles:
+      text: Articles
+      menu:
+      - text: A Practical Guide to BioCro (PDF)
+        href: articles/a_practical_guide_to_biocro.pdf
+      - text: "    R code" # four non-breaking spaces (NO-BREAK SPACE, Unicode U+00A0) used for indentation here
+        href: articles/a_practical_guide_to_biocro.R
+      - text: ---
+      - text: Quantitative Comparison Between Two Photosynthesis Models (PDF)
+        href: articles/quantitative_model_comparison.pdf
+      - text: "    R code"
+        href: articles/quantitative_model_comparison.R
+      - text: ---
+      - text: An Introduction to BioCro for Those Who Want to Add Models (PDF)
+        href: articles/an_introduction_to_biocro.pdf

@@ -1,13 +1,5 @@
-#!
+#! /usr/bin/env bash
 
-# Go to the bookdown directory:
-cd ../../bookdown
-
-
-
-
-
-# Now run bookdown:
-Rscript -e "bookdown::render_book()"
+Rscript ./run_bookdown.R
 
 
