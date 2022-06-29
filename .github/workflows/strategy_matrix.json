@@ -26,7 +26,7 @@
         "http-user-agent": "release"
     },
     {
-        "configName": "R release version Windows",
+        "configName": "R release version on Windows",
         "os": "windows-latest",
         "r": "release"
     },
