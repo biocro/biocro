@@ -52,7 +52,7 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 ```
 
 ### Making contributions
-Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
+Please see the [contribution guidelines](developer_documentation/contribution_guidelines.md) before submitting changes.
 
 ### Software Documentation
 

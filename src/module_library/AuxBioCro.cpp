@@ -1,14 +1,3 @@
-/*
- *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2015
- *
- *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
- *  the *prof functions) are based on code in WIMOVAC. WIMOVAC is
- *  copyright of Stephen Long and Stephen Humphries.
- *  Documentation for WIMOVAC can be found at
- *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
- *
- */
-
 /* This file will contain functions which are common to several */
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */
