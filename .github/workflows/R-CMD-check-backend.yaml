@@ -150,8 +150,8 @@ jobs:
         if: inputs.debug
         run: |
           echo "github.event_name: ${{ github.event_name }}"
-          echo "NEED_TEX: $NEED_TEX"
-          echo "NEED_TEX_EXTRAS: $NEED_TEX_EXTRAS"
+          echo "NEED_TEX: ${{ env.NEED_TEX }}"
+          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
 
       - name: Install Pandoc
         if: ${{ !inputs.debug }}
