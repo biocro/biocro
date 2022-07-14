@@ -24,5 +24,15 @@
         "os": "ubuntu-20.04",
         "r": "devel",
         "http-user-agent": "release"
+    },
+    {
+        "configName": "R release version on Windows",
+        "os": "windows-latest",
+        "r": "release"
+    },
+    {
+        "configName": "R release version on macOS",
+        "os": "macOS-latest",
+        "r": "release"
     }
 ]

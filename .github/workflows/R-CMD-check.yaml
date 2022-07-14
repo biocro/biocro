@@ -39,11 +39,13 @@ on:
         description: 'Platform to check'
         type: choice
         options:
-          - R 3.5 on macOS
-          - R 3.5 on Windows
           - R 3.5 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
+          - R 3.5 on macOS
+          - R release version on macOS
+          - R 3.5 on Windows
+          - R release version on Windows
         default: R 3.5 on Ubuntu
 
 jobs:
