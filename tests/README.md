@@ -302,9 +302,3 @@ tests failed.
 
 [^devtools_note]: Or you can use _devtools::test()_.  See [tl;dr for
 devtools users] and [Using devtools].
-
-[^in_dir-note]: Again, if the working directory is _not_ inside the
-package source tree, you could use `xfun::in_dir` instead of `setwd`
-to make things work:
-
-    `xfun::in_dir('<path to some directory in the package source tree>', test())`
