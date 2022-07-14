@@ -55,7 +55,8 @@
 # Developer documentation directories.
 
 ^index.md$
-# File created by documentation/script/run_pkgdown.sh
+^about_pkgdown_documentation.md$
+# Files created by documentation/script/run_pkgdown.sh
 
 ^LICENSE\.md$
 # Required by the GNU GPL license but not allowed on CRAN
