@@ -137,7 +137,9 @@ test_module(
 # Example 3: Loading a set of test cases from a file and running one of them.
 # Note: here we use the `initialize_csv` function first to ensure that there is
 # a properly defined test file in the current directory.
+
 \dontrun{
+
 module_name <- 'BioCro:thermal_time_linear'
 initialize_csv(module_name, '.')
 cases <- cases_from_csv(module_name, '.')

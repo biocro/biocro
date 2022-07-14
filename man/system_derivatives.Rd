@@ -87,51 +87,50 @@ derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
 \dontrun{
 
-  times = seq(0, 5, length=100)
+times = seq(0, 5, length=100)
 
-  oscillator_system_derivatives <- system_derivatives(
-    list(
-      timestep = 1,
-      mass = 1,
-      spring_constant = 1
-    ),
-    data.frame(time=times),
-    c(),
-    'BioCro:harmonic_oscillator'
-  )
+oscillator_system_derivatives <- system_derivatives(
+  list(
+    timestep = 1,
+    mass = 1,
+    spring_constant = 1
+  ),
+  data.frame(time=times),
+  c(),
+  'BioCro:harmonic_oscillator'
+)
 
-  result <- as.data.frame(deSolve::lsodes(
-    c(position=0, velocity=1),
-    times,
-    oscillator_system_derivatives
-  ))
+result <- as.data.frame(deSolve::lsodes(
+  c(position=0, velocity=1),
+  times,
+  oscillator_system_derivatives
+))
 
-  lattice::xyplot(
-    position + velocity ~ time,
-    type='l',
-    auto=TRUE,
-    data=result
-  )
-
+lattice::xyplot(
+  position + velocity ~ time,
+  type='l',
+  auto=TRUE,
+  data=result
+)
 }
 
 # Example 3: solving 500 hours of a soybean simulation. This requires the
 # deSolve package and will run very slow compared to a regular call to
 # `run_biocro`.
+
 \dontrun{
 
-  soybean_system <- system_derivatives(
-    soybean$parameters,
-    soybean_weather$'2002',
-    soybean$direct_modules,
-    soybean$differential_modules
-  )
+soybean_system <- system_derivatives(
+  soybean$parameters,
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules
+)
 
-  times = seq(from=0, to=500, by=1)
+times = seq(from=0, to=500, by=1)
 
-  result <- as.data.frame(deSolve::lsodes(unlist(soybean$initial_values), times, soybean_system))
+result <- as.data.frame(deSolve::lsodes(unlist(soybean$initial_values), times, soybean_system))
 
-  lattice::xyplot(Leaf + Stem ~ time, type='l', auto=TRUE, data=result)
-
+lattice::xyplot(Leaf + Stem ~ time, type='l', auto=TRUE, data=result)
 }
 }

@@ -132,7 +132,9 @@
 # Finally, we will update the file. Note that the call to `update_csv_cases`
 # will not actually modify the file unless it is manually edited beforehand to
 # change an input or output value.
+
 \dontrun{
+
 initialize_csv(
   'BioCro:thermal_time_linear',
   '.',
