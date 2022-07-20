@@ -1,142 +1,163 @@
-# This workflow is triggered by a push to the master branch and that
-# can also be manually triggered.
-
-name: Update Documentation
+name: Generate documentation
 
 on:
   push:
-    branches: [ master ]
-    paths:
-    # Include all possible Doxygen source files ...
-    - 'src/**.cpp'
-    - 'src/**.hpp'
-    - 'src/**.h'
-    - 'src/**.dox'
-    - 'src/**.md'
-    - 'src/**.markdown'
-    - 'doxygen/markdown/*.md'
-    # ... plus files administering the workflow ...
-    - '.github/**'
-    - 'doxygen/Makefile'
-    - 'doxygen/Doxyfile'
+    branches:
+      - main
+
+    tags:
+      - '*'
+
+  # This event creates an artifact for download but does not write to
+  # the BioCro documentation repository:
+  pull_request:
+
   workflow_dispatch:
-    # [no inputs]
+    inputs:
+      pkgdown-build:
+        description: Build the pkgdown site
+        type: boolean
+        default: true
+      bookdown-build:
+        description: Build the developer manual
+        type: boolean
+        default: true
+      doxygen-build:
+        description: Build the Doxygen documentation
+        type: boolean
+        default: true
 
 env:
-  publish-to: "ebimodeling/biocro-documentation"
+  # The documentation repository:
+  PUBLISH_TO: "ebimodeling/biocro-dev-documentation"
+  # Relative path from the GitHub workspace directory to the directory
+  # where the documentation repository will be checked out:
+  BIOCRO_DOCUMENTATION_ROOT: biocro_documentation_repository
+  VERSION: ${{ github.ref_name }}
 
-  # The version directory names are hard-coded into the Make file and
-  # are determined by the Make target.  An exception to this is
-  # "doxygen_docs_modules_public_members_only", which is explicitly
-  # set as the output directory in step 2c below, overriding the
-  # default output directory for the Make file target
-  # "module-docs-html".  (The default output directory was already
-  # used as the output directory for the documentation version created
-  # in step 2b, and we don't want to overwrite it.)
-
-  version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
-  
 jobs:
-  # This workflow contains a single job called "build".
   build:
+    name: Build pkgdown, bookdown, and Doxygen documentation
+
     runs-on: ubuntu-latest
 
     steps:
 
-    # Checks out this repository under $GITHUB_WORKSPACE/source:
+    - name: 1. Check out repository
+      uses: actions/checkout@v2
 
-    - name: 1. Check out master
+    - name: 2. Set up R
+      if: inputs.bookdown-build || inputs.pkgdown-build
+      uses: r-lib/actions/setup-r@v2
+
+    - name: 3a. Install dependencies and pkgdown
+      if: inputs.pkgdown-build
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        extra-packages: any::pkgdown, local::.
+
+    - name: 3b. Install dependencies
+      if: inputs.bookdown-build && !inputs.pkgdown-build
+      uses: r-lib/actions/setup-r-dependencies@v2
+
+    - name: 4. Build Bookdown book
+      if: inputs.bookdown-build
+      uses: './.github/actions/render_bookdown_book'
+
+    - name: 5. Build pkgdown book
+      if: inputs.pkgdown-build
+      uses: ./.github/actions/build_pkgdown_site
+
+    - name: 6. Build Doxygen documentation
+      if: inputs.doxygen-build
+      uses: ./.github/actions/run_doxygen
+
+    # The "PUBLISH_TO" repository is where the documentation will be
+    # pushed to (on the default branch).  Providing ssh-key to this
+    # checkout action gives us permission to check in our changes
+    # later, in the Push step:
+
+    - name: 7. Check out the target "PUBLISH_TO" repository
+      if: github.event_name != 'pull_request'
       uses: actions/checkout@v2
       with:
-        path: source
-
-
-    # The following four steps use the doxygen action defined in the
-    # actions directory to build four different versions of the
-    # Doxygen documentation:
-
-    - name: 2a. Doxygen Action for default
-      uses: ./source/.github/actions/doxygen-action
-      with:
-        # Working directory
-        working-directory: "source/doxygen"
-        # Not generating the tree-view index makes source code browsing easier.
-        generate-treeview: NO
-        # Makefile target
-        makefile-target: "all-html"
-
-    - name: 2b. Doxygen Action for modules only
-      uses: ./source/.github/actions/doxygen-action
-      with:
-        # Working directory
-        working-directory: "source/doxygen"
-        # Color
-        color: 53
-        # Makefile target
-        makefile-target: "module-docs-html"
-
-    - name: 2c. Doxygen Action for public members of modules only
-      uses: ./source/.github/actions/doxygen-action
-      with:
-        # Working directory
-        working-directory: "source/doxygen"
-        # Color
-        color: 323
-        # Document private members
-        document-private: "NO"
-        # Extra setting: override default output directory
-        extra-settings: "module_docs_directory=doxygen_docs_modules_public_members_only"
-        # Makefile target
-        makefile-target: "module-docs-html"
-
-    - name: 2d. Doxygen Action for framework
-      uses: ./source/.github/actions/doxygen-action
-      with:
-        # Working directory
-        working-directory: "source/doxygen"
-        # Color
-        color: 233
-        # Not generating the tree-view index makes source code browsing easier.
-        generate-treeview: NO
-        # Makefile target
-        makefile-target: "framework-docs-html"
-
-
-    # The "publish-to" repository is where the documentation will be
-    # copied to and then checked in (to the default branch).
-    # Providing ssh-key to this checkout action gives us permission to
-    # check in our changes later, in the Push step:
-
-    - name: 3. Check out master of the "publish-to" repository
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ env.publish-to }}
-        path: target
+        repository: ${{ env.PUBLISH_TO }}
+        path: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
         ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
+    - name: 8. "Copy newly-generated documentation files into working
+                copy of the target repository"
 
-    - name: 4. Copy files into working copy of the target repository
+      if: github.event_name != 'pull_request'
+
+      env:
+
+        # The Doxygen version directory names are hard-coded into the
+        # Make file and are determined by the Make target.  An
+        # exception to this is
+        # "doxygen_docs_modules_public_members_only", which is
+        # explicitly set as an output directory in the run_doxygen
+        # action, overriding the default output directory for the Make
+        # file target "module-docs-html".  (The default output
+        # directory "doxygen_docs_modules" was already used as the
+        # output directory for a version of the module documentation
+        # that included documentation of private members, and we don't
+        # want to overwrite it.)
+
+        version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
+
+      working-directory: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
+
       run: |
-        cd target
-        for dir in ${{ env.version_directories }}; do
+        # (Re)create target documentation directory:
+        mkdir -p $VERSION
 
-            # Remove directory $dir if it exists; we are going to replace it:
-            git rm -r --ignore-unmatch $dir
+        # Copy the respective documentation into them:
 
-            # Recreate directory $dir:
-            mkdir $dir
+        if [[ ${{ inputs.pkgdown-build }} == true ]]
+        then
+            echo "Copying pkgdown files"
+            rsync -a --delete ../docs/ $VERSION/pkgdown || true
+        fi
 
-            # Copy the documentation into it:
-            cp -R ../source/doxygen/$dir/html/. $dir
+        if [[ ${{ inputs.bookdown-build }} == true ]]
+        then
+            echo "copying bookdown files"
+            rsync -a --delete ../bookdown/_book/ $VERSION/bookdown || true
+        fi
 
-        done
+        if [[ ${{ inputs.doxygen-build }} == true ]]
+        then
+            echo "copying doxygen files"
+            mkdir -p $VERSION/doxygen
+            for dir in ${{ env.version_directories }}; do
 
-    - name: 5. Commit updates and push to target (documentation) repository
+                # Copy the documentation for version $dir:
+                rsync -a --delete ../doxygen/$dir/html/ $VERSION/doxygen/$dir || true
+
+            done
+        fi
+
+    - name: 9. Commit updates and push to target (documentation) repository
+
+      if: github.event_name != 'pull_request'
+
+      working-directory: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
       run: |
-        cd target
 
         # user.name is somewhat arbitrary but must be provided:
-        git config user.name biocro-dev-action
+        git config user.name biocro-action
         git add .
-        git commit -m "generated"
+        git commit -m "generated pgkdown and bookdown documentation"
         git push
+
+    - name: 10. Zip documentation
+      run: |
+        tar -czf biocro-docs-from-$VERSION.tgz -C $BIOCRO_DOCUMENTATION_ROOT/$VERSION .
+
+    - name: 11. Upload artifact containing documentation
+      uses: actions/upload-artifact@v2
+      with:
+        name: biocro-documentation
+        path: biocro-docs-from-${{ env.VERSION }}.tgz
+        retention-days: 1
