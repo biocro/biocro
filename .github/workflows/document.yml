@@ -152,10 +152,12 @@ jobs:
         git push
 
     - name: 10. Zip documentation
+      if: always() # Even if some steps fail, at least try to make a documentation artifact.
       run: |
         tar -czf biocro-docs-from-$VERSION.tgz -C $BIOCRO_DOCUMENTATION_ROOT/$VERSION .
 
     - name: 11. Upload artifact containing documentation
+      if: always() # Even if some steps fail, at least try to make a documentation artifact.
       uses: actions/upload-artifact@v2
       with:
         name: biocro-documentation
