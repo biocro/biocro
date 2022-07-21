@@ -47,11 +47,11 @@ jobs:
       uses: actions/checkout@v2
 
     - name: 2. Set up R
-      if: inputs.bookdown-build || inputs.pkgdown-build
+      if: (inputs.bookdown-build || inputs.pkgdown-build) || github.event_name != 'workflow_dispatch'
       uses: r-lib/actions/setup-r@v2
 
     - name: 3a. Install dependencies and pkgdown
-      if: inputs.pkgdown-build
+      if: inputs.pkgdown-build || github.event_name != 'workflow_dispatch'
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         extra-packages: any::pkgdown, local::.
@@ -61,15 +61,15 @@ jobs:
       uses: r-lib/actions/setup-r-dependencies@v2
 
     - name: 4. Build Bookdown book
-      if: inputs.bookdown-build
+      if: inputs.bookdown-build || github.event_name != 'workflow_dispatch'
       uses: './.github/actions/render_bookdown_book'
 
     - name: 5. Build pkgdown book
-      if: inputs.pkgdown-build
+      if: inputs.pkgdown-build || github.event_name != 'workflow_dispatch'
       uses: ./.github/actions/build_pkgdown_site
 
     - name: 6. Build Doxygen documentation
-      if: inputs.doxygen-build
+      if: inputs.doxygen-build || github.event_name != 'workflow_dispatch'
       uses: ./.github/actions/run_doxygen
 
     # The "PUBLISH_TO" repository is where the documentation will be
