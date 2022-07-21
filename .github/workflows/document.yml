@@ -33,7 +33,6 @@ env:
   # Relative path from the GitHub workspace directory to the directory
   # where the documentation repository will be checked out:
   BIOCRO_DOCUMENTATION_ROOT: biocro_documentation_repository
-  VERSION: ${{ github.ref_name }}
 
 jobs:
   build:
@@ -42,6 +41,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - name: 0. Set the environment variable VERSION using the GitHub ref name
+      id: step_one
+      run: |
+        # This is a very arcane Bash syntax for replacing occurrences of '/' in GITHUB_REF_NAME with '_':
+        echo "VERSION=${GITHUB_REF_NAME////_}" >> $GITHUB_ENV
 
     - name: 1. Check out repository
       uses: actions/checkout@v2
