@@ -32,7 +32,7 @@ env:
   PUBLISH_TO: "ebimodeling/biocro-dev-documentation"
   # Relative path from the GitHub workspace directory to the directory
   # where the documentation repository will be checked out:
-  BIOCRO_DOCUMENTATION_ROOT: biocro_documentation_repository
+  BIOCRO_DOCUMENTATION_ROOT: biocro_documentation_root
 
 jobs:
   build:
@@ -82,7 +82,7 @@ jobs:
     # checkout action gives us permission to check in our changes
     # later, in the Push step:
 
-    - name: 7. Check out the target "PUBLISH_TO" repository
+    - name: 7a. Check out the target "PUBLISH_TO" repository
       if: github.event_name != 'pull_request'
       uses: actions/checkout@v2
       with:
@@ -90,10 +90,13 @@ jobs:
         path: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
         ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
+    - name: 7b. Make sure that the root documentation directory exists
+      if: github.event_name == 'pull_request'
+      run: |
+        mkdir -p ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
+
     - name: 8. "Copy newly-generated documentation files into working
                 copy of the target repository"
-
-      if: github.event_name != 'pull_request'
 
       env:
 
