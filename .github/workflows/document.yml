@@ -1,16 +1,21 @@
 name: Generate documentation
 
 on:
-  push:
-    branches:
-      - main
 
-    tags:
-      - '*'
-
-  # This event creates an artifact for download but does not write to
-  # the BioCro documentation repository:
-  pull_request:
+  workflow_call:
+    inputs:
+      pkgdown-build:
+        description: Build the pkgdown site
+        type: boolean
+        default: true
+      bookdown-build:
+        description: Build the developer manual
+        type: boolean
+        default: true
+      doxygen-build:
+        description: Build the Doxygen documentation
+        type: boolean
+        default: true
 
   workflow_dispatch:
     inputs:
@@ -52,11 +57,11 @@ jobs:
       uses: actions/checkout@v2
 
     - name: 2. Set up R
-      if: (inputs.bookdown-build || inputs.pkgdown-build) || github.event_name != 'workflow_dispatch'
+      if: inputs.bookdown-build || inputs.pkgdown-build
       uses: r-lib/actions/setup-r@v2
 
     - name: 3a. Install dependencies and pkgdown
-      if: inputs.pkgdown-build || github.event_name != 'workflow_dispatch'
+      if: inputs.pkgdown-build
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         extra-packages: any::pkgdown, local::.
@@ -66,15 +71,15 @@ jobs:
       uses: r-lib/actions/setup-r-dependencies@v2
 
     - name: 4. Build Bookdown book
-      if: inputs.bookdown-build || github.event_name != 'workflow_dispatch'
+      if: inputs.bookdown-build
       uses: './.github/actions/render_bookdown_book'
 
     - name: 5. Build pkgdown book
-      if: inputs.pkgdown-build || github.event_name != 'workflow_dispatch'
+      if: inputs.pkgdown-build
       uses: ./.github/actions/build_pkgdown_site
 
     - name: 6. Build Doxygen documentation
-      if: inputs.doxygen-build || github.event_name != 'workflow_dispatch'
+      if: inputs.doxygen-build
       uses: ./.github/actions/run_doxygen
 
     # The "PUBLISH_TO" repository is where the documentation will be

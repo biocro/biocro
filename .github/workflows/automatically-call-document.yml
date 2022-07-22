@@ -1,0 +1,23 @@
+name: Automatically generate documentation
+
+
+on:
+  push:
+    branches:
+      - main
+
+    tags:
+      - '*'
+
+  # This event creates an artifact for download but does not write to
+  # the BioCro documentation repository:
+  pull_request:
+
+
+jobs:
+
+  call-generate-documentation:
+    uses: ./.github/workflows/document.yml
+    with:
+      pkgdown-build: false
+      doxygen-build: false
