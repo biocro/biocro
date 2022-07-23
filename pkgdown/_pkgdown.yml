@@ -10,9 +10,6 @@ navbar:
     about:
       text: About
       href: about_pkgdown_documentation.html
-    dev_manual:
-      text: Developer's Manual
-      href: ../bookdown/_book/index.html
     articles:
       text: Articles
       menu:
@@ -28,12 +25,3 @@ navbar:
       - text: ---
       - text: An Introduction to BioCro for Those Who Want to Add Models (PDF)
         href: articles/an_introduction_to_biocro.pdf
-    doxygen_docs:
-      text: C++ Library
-      menu:
-      - text: Complete Doxygen Documentation
-        href: ../doxygen/doxygen_docs_complete/index.html
-      - text: Framework Documentation
-        href: ../doxygen/doxygen_docs_framework/index.html
-      - text: BioCro Module Documentation
-        href: ../doxygen/doxygen_docs_modules/index.html
