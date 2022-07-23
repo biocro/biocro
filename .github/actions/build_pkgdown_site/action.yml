@@ -33,6 +33,7 @@ runs:
     - name: Copy custom configuration file to override defaults
       run: |
         cp ./.github/actions/build_pkgdown_site/_pkgdown.yml .
+      shell: bash
 
     - name: Run pkgdown
       working-directory: ${{ inputs.package_root }}/documentation/script
