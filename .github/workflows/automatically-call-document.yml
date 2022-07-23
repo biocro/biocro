@@ -18,6 +18,3 @@ jobs:
 
   call-generate-documentation:
     uses: ./.github/workflows/document.yml
-    with:
-      pkgdown-build: false
-      doxygen-build: false
