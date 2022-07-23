@@ -37,3 +37,5 @@ navbar:
         href: ../doxygen/doxygen_docs_framework/index.html
       - text: BioCro Module Documentation
         href: ../doxygen/doxygen_docs_modules/index.html
+      - text: BioCro Module Documentation (public members only)
+        href: ../doxygen/doxygen_docs_modules_public_members_only/index.html
