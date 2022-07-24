@@ -2,7 +2,7 @@ name: 'Render Bookdown Book'
 description: 'Builds the Bookdown developer documentation, installing any needed prerequisites'
 inputs:
   package_root:
-    description: 'The root directory of the source tree of an R package relative to the GitHub workspace directory'
+    description: 'The root directory of the source tree of the BioCro package relative to the GitHub workspace directory'
     default: '.'
 runs:
   using: "composite"

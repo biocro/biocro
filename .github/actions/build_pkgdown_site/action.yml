@@ -2,7 +2,7 @@ name: 'Build pkgdown site'
 description: 'Builds a pkgdown site from the source files of the package at package_root'
 inputs:
   package_root:
-    description: 'The root directory of the source tree of an R package relative to the GitHub workspace directory'
+    description: 'The root directory of the source tree of the BioCro package relative to the GitHub workspace directory'
     default: '.'
 runs:
   using: "composite"
