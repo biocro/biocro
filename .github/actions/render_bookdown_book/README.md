@@ -22,5 +22,6 @@ installed already.
 
 ### 'package_root'
 
-This should be the relative path from the GitHub workspace directory
-to the root directory of the BioCro source tree.  Default: '.'
+**Optional** This should be the relative path from the GitHub
+  workspace directory to the root directory of the BioCro source tree.
+  Default: '.'

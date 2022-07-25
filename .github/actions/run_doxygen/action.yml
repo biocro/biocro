@@ -23,12 +23,12 @@ runs:
       # directory of the source tree of the BioCro package relative to
       # the GitHub workspace directory.  Unlike in the case of the
       # "render_bookdown_book" and "build_pkgdown_site" actions, this
-      # value really can not be anything other than the default '.'.
+      # value really cannot be anything other than the default '.'.
       # This is because the
       # "uses: ./.github/actions/doxygen-action" settings assume that the
       # package root is identical to the GitHub workspace directory.
       #
-      # (The "uses" value can not, as of this writing, be set using a
+      # (The "uses" value cannot, as of this writing, be set using a
       # context expression such as
       #     
       #     "${{ inputs.package_root }}/.github/actions/doxygen-action".
