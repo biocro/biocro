@@ -89,10 +89,11 @@ jobs:
       if: inputs.bookdown-build
       uses: './.github/actions/render_bookdown_book'
 
-    - name: 5a. Compute base url for pkgdown book
+    - name: 5a. Compute base URL for pkgdown book
       if: inputs.pkgdown-build
       run: |
-        if [[ '${{ inputs.custom-url }}' == '' ]]
+        if [[ inputs.publish == true ||             # Use the computed default if we are publishing the site ...
+              '${{ inputs.custom-url }}' == '' ]]   # ... or if no URL value was set.
         then
           echo "BASE_URL=https://${PUBLISH_TO/\//.github.io\/}/$VERSION/pkgdown/" >> $GITHUB_ENV
         else
