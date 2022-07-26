@@ -28,3 +28,8 @@ packages needed by the vignettes.
 **Optional** This should be the relative path from the GitHub
   workspace directory to the root directory of the BioCro source tree.
   Default: '.'
+
+### 'base_url'
+
+**Optional** If provided, this will be the setting for `url` in the
+  pkgdown configuration file.

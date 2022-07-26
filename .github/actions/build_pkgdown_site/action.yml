@@ -4,6 +4,9 @@ inputs:
   package_root:
     description: 'The root directory of the source tree of the BioCro package relative to the GitHub workspace directory'
     default: '.'
+  base_url:
+    description: 'The URL of the site where the pkgdown documentation will be hosted.'
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -30,9 +33,13 @@ runs:
 
       shell: Rscript {0}
 
-    - name: Copy custom configuration file to override defaults
+    - name: Copy and modify custom configuration file to override defaults
       run: |
         cp ./.github/actions/build_pkgdown_site/_pkgdown.yml .
+        if [[ ${{ inputs.base_url != '' ]]
+        then
+            echo "url: ${{ inputs.base_url }}" >> _pkgdown.yml
+        fi
       shell: bash
 
     - name: Run pkgdown

@@ -16,6 +16,13 @@ on:
         description: Build the Doxygen documentation
         type: boolean
         default: true
+      publish:
+        description: Whether or not to publish the documentation
+        type: boolean
+        default: true
+      custom-url:
+        description: The base url for the pkgdown documentation
+        default: '' # (means the default will be computed below)
 
   workflow_dispatch:
     inputs:
@@ -31,6 +38,13 @@ on:
         description: Build the Doxygen documentation
         type: boolean
         default: true
+      publish:
+        description: Whether or not to publish the documentation
+        type: boolean
+        default: false
+      custom-url:
+        description: The base url for the pkgdown documentation
+        default: '' # (means the default will be computed below)
 
 env:
   # The documentation repository:
@@ -48,7 +62,6 @@ jobs:
     steps:
 
     - name: 0. Set the environment variable VERSION using the GitHub ref name
-      id: step_one
       run: |
         # This is a very arcane Bash syntax for replacing occurrences of '/' in GITHUB_REF_NAME with '_':
         echo "VERSION=${GITHUB_REF_NAME////_}" >> $GITHUB_ENV
@@ -74,9 +87,21 @@ jobs:
       if: inputs.bookdown-build
       uses: './.github/actions/render_bookdown_book'
 
-    - name: 5. Build pkgdown book
+    - name: 5a. Compute base url for pkgdown book
+      if: inputs.pkgdown-build
+      run: |
+        if [[ ${{ inputs.custom-url }} == '' ]]
+        then
+          echo "BASE_URL=https://${PUBLISH_TO/\//.github.io\/}/$VERSION/pkgdown/" >> $GITHUB_ENV
+        else
+          echo "BASE_URL=${{ inputs.custom-url }}" >> $GITHUB_ENV
+        fi
+
+    - name: 5b. Build pkgdown book
       if: inputs.pkgdown-build
       uses: ./.github/actions/build_pkgdown_site
+      with:
+        base_url: ${{ env.BASE_URL }}
 
     - name: 6. Build Doxygen documentation
       if: inputs.doxygen-build
@@ -88,7 +113,7 @@ jobs:
     # later, in the Push step:
 
     - name: 7a. Check out the target "PUBLISH_TO" repository
-      if: github.event_name != 'pull_request'
+      if: inputs.publish
       uses: actions/checkout@v2
       with:
         repository: ${{ env.PUBLISH_TO }}
@@ -96,7 +121,7 @@ jobs:
         ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
     - name: 7b. Make sure that the root documentation directory exists
-      if: github.event_name == 'pull_request'
+      if: '!inputs.publish'
       run: |
         mkdir -p ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
 
@@ -153,7 +178,7 @@ jobs:
 
     - name: 9. Commit updates and push to target (documentation) repository
 
-      if: github.event_name != 'pull_request'
+      if: inputs.publish
 
       working-directory: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
       run: |

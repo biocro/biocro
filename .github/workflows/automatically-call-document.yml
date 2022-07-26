@@ -18,3 +18,5 @@ jobs:
 
   call-generate-documentation:
     uses: ./.github/workflows/document.yml
+    with:
+      publish: ${{ github.event_name != 'pull_request' }}
