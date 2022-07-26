@@ -17,11 +17,12 @@ on:
         type: boolean
         default: true
       publish:
-        description: Whether or not to publish the documentation
+        description: Publish the documentation
         type: boolean
         default: true
       custom-url:
         description: The base url for the pkgdown documentation
+        type: string
         default: '' # (means the default will be computed below)
 
   workflow_dispatch:
@@ -39,11 +40,12 @@ on:
         type: boolean
         default: true
       publish:
-        description: Whether or not to publish the documentation
+        description: Publish the documentation
         type: boolean
         default: false
       custom-url:
         description: The base url for the pkgdown documentation
+        type: string
         default: '' # (means the default will be computed below)
 
 env:
