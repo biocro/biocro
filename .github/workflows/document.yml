@@ -92,7 +92,7 @@ jobs:
     - name: 5a. Compute base url for pkgdown book
       if: inputs.pkgdown-build
       run: |
-        if [[ ${{ inputs.custom-url }} == '' ]]
+        if [[ '${{ inputs.custom-url }}' == '' ]]
         then
           echo "BASE_URL=https://${PUBLISH_TO/\//.github.io\/}/$VERSION/pkgdown/" >> $GITHUB_ENV
         else

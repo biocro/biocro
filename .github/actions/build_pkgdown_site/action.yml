@@ -36,7 +36,7 @@ runs:
     - name: Copy and modify custom configuration file to override defaults
       run: |
         cp ./.github/actions/build_pkgdown_site/_pkgdown.yml .
-        if [[ ${{ inputs.base_url != '' ]]
+        if [[ '${{ inputs.base_url }}' != '' ]]
         then
             echo "url: ${{ inputs.base_url }}" >> _pkgdown.yml
         fi
