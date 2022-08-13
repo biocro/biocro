@@ -1,0 +1,314 @@
+---
+title: "BioCro II Paper: Section 1.1 Example"
+output:
+  html_document:
+    toc: true
+
+vignette: >
+  %\VignetteIndexEntry{BioCro II Paper: Section 1.1 Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+nocite: "[@*]"
+references:
+- author:
+  - family: Lochocki
+    given: Edward B
+  - family: Rohde
+    given: Scott
+  - family: Jaiswal
+    given: Deepak
+  - family: Matthews
+    given: Megan L
+  - family: Miguez
+    given: Fernando
+  - family: Long
+    given: Stephen P
+  - family: McGrath
+    given: Justin M
+  container-title: in silico Plants
+  doi: 10.1093/insilicoplants/diac003
+  id: 10.1093/insilicoplants/diac003
+  issn: 2517-5025
+  issue: 1
+  issued: 2022-02
+  note: diac003
+  title: "[BioCro II: a software package for modular crop growth
+    simulations]{.nocase}"
+  type: article-journal
+  url: "https://doi.org/10.1093/insilicoplants/diac003"
+  volume: 4
+---
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  cache = TRUE,
+  autodep = TRUE
+)
+```
+
+## Introduction
+
+This is a demonstration of the example discussed in Section 1.1 and
+Appendix 1 of the seminal BioCro II paper
+[@10.1093/insilicoplants/diac003].  A few corrections to and
+clarifications of the exposition given in the paper are given in the
+comments below.
+
+## The Code
+
+```{r, original-example, fig.show="hold", out.width="50%"}
+library(BioCro)
+library(lattice)
+library(knitr) # for kable(), which yields nicer-looking tables
+
+## Set plotting character globally
+trellis.par.set("plot.symbol", list(pch = '.'))
+
+################################################################################
+
+parameters <- list(
+    alpha_rue = 0.07, # kg / mol
+    SLA = 25,         # m^2 / kg
+    C_conv = 0.03,    # kg / mol
+    f_leaf = 0.2,     # kg / kg
+    f_root = 0.8,     # kg / kg
+    timestep = 1      # s
+)
+
+initial_values <- list(
+    Leaf = 1, # kg
+    Root = 1  # kg
+)
+
+Q <- function(time) sin(time/3600/12 * pi) * 2000e-6 # mol / m^2 / s
+
+times <- 0:(3600 * 12) # seconds
+
+light_intensity <- data.frame(
+    time = times,
+    Q = Q(times)
+)
+
+result <- run_biocro(
+    initial_values,
+    parameters,
+    light_intensity,
+    'BioCro:example_model_mass_gain',
+    'BioCro:example_model_partitioning'
+)
+
+xyplot(Q ~ time, data = result, xlab = "time (s)", ylab = "Q (mol / m^2 / s)")
+
+xyplot(Leaf ~ time, data = result, xlab = "time (s)", ylab = "Leaf (kg)")
+```
+
+### A few comments
+
+#### The formula for the driver
+
+A somewhat plausible mechanistic model of the photosynthetic photon
+flux density Q due to the sun would give it as being roughly
+proportional to the sine of the angle the sun makes with the horizon.
+Assuming 12 hours of daylight, with the sun passing directly overhead,
+(a condition that approximately holds at the equator during an
+equinox), this angle (measured in radians) is approximately
+`time/3600/12 * pi`, where `time` is the number of seconds that have
+elapsed since sunrise.  (Here, an angle greater than `pi/2` is taken
+to be the angle of the position of the sun measured from its position
+at sunrise; this value thus takes a maximum value of `pi` at sunset.)
+Assuming a maxumum flux density of `2000e-6 mol / m^2 /s` (attained at
+solar noon when the sine is 1) then yields the function given for `Q`.
+
+Note that instead of supplying `Q` as a driver, we could have instead
+written a direct module that computed Q from the time of day.  The
+latter would then be, for this example, the only driver.
+
+#### The `timestep` parameter
+
+Note that the timestep value given in the parameters is in seconds.
+**But also note that almost all differential modules in the BioCro
+library assume that timestep values are given in hours!**
+
+If a timestep value is given in seconds rather than in hours, three
+important things must be kept in mind:
+
+1. _All_ differential modules used in the simulation must assume that
+the timestep value is given in seconds.  Another way of saying this is
+that the outputs of the differential modules used should represent the
+rate of change of the output quantities *per second*.
+
+2. In almost all cases, the output columns "doy", "hour", and possibly
+"time" won't make sense and (if not filtered out) should be ignored.
+
+3. In almost all cases, no module having "doy", "hour", or "time" as
+input should be used.  (See below for further discussion.)
+
+The same precepts apply, _mutatis mutandi_, to any other timestep
+units one may wish to use.
+
+As always, the difference in time between any row n in the _drivers_
+dataframe and the row n + 1 that immediately follows it should be
+equal to "timestep" (in whatever units _timestep_ has been given).
+
+
+## First modification: 24 hour simulation
+
+Although in the paper it is stated that "Light intensity is given as a
+table of values at every second in a 24-h period,", the period here is
+actually only 12 hours (time ranges from 0 to `3600 * 12` seconds = 12
+hours).  As noted above, for the purposes of this example, it may be
+assumed that time ranges from sunrise to sunset of a 12-hour day so
+that "time" represents the number of seconds that have elapsed since
+sunrise.
+
+Alternatively, we could have assumed time to range over a 24-hour
+period starting and ending at solar midnight, with Q being zero before
+sunrise and after sunset.  This entails a slight modification to the
+defining equations:
+
+    times <- 0:(3600 * 24) # seconds
+
+    Q <- function(time) pmax(0, sin((time/3600 - 6)/12 * pi) * 2000e-6) # mol / m^2 / s
+
+(The "- 6" here adjusts the phase of the sine function so that the
+positive values correspond to the daylight hours, assumed to begin at
+6 a.m. solar time.)
+
+Here is how the 24-hour version of the example would look.  A few rows
+of the result table are printed at significant portions of the day: at
+the beginning, just after midnight, when it is dark and there is no
+mass accumulation; at dawn, when the rate of mass accumulation first
+becomes non-zero; at noon, when the flux Q is highest; at dusk, when
+the rate of mass accumulation again drops to zero; and at the end of
+the simulation, when the final Leaf and Root mass are known.
+
+As noted above, **_the values in the result for `doy` and `hour`
+should be ignored!  They are nonsensical in the context of this
+example!_** And the values in the `time` column should be interpreted
+as the number of elapsed seconds from solar midnight (not the number
+of (fractional) days that have elapsed since midnight at the start of
+December 31, which is the correct interpretation for a "normal" BioCro
+simulation).
+
+```{r, 24-hour-version}
+times <- 0:(3600 * 24) # seconds
+
+Q <- function(time) {
+    pmax(0, sin((time/3600 - 6)/12 * pi) * 2000e-6) # mol / m^2 / s
+}
+
+light_intensity <- data.frame(
+    time = times,
+    Q = Q(times)
+)
+
+result <- run_biocro(
+    initial_values,
+    parameters,
+    light_intensity,
+    'BioCro:example_model_mass_gain',
+    'BioCro:example_model_partitioning'
+)
+
+## kable = (nicely-formatted) knitr table
+kable(result[1:4,]) # beginning
+kable(result[seq(21590, 21660, 10),]) # around dawn
+kable(result[43198:43202,]) # around mid day
+kable(result[seq(64740, 64810, 10),]) # around dusk
+kable(result[86398:86401,]) # end
+```
+
+In the following graphs, we have changed the labeling on the x axis so
+that time is shown in hours rather than seconds.
+
+```{r, plots-for-24-hour-version, fig.show="hold", out.width="50%"}
+xyplot(Q ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)", ylab = "Q (mol / m^2 / s)")
+
+xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)", ylab = "Leaf (kg)")
+```
+
+## Second modification: Making the `doy` and `hour` duration consistent with the duration calculated from `timestep`
+
+As noted above, in most cases the outputs "doy" and "hour" should be
+ignored if timestep is not given in units of hours.  This is because
+in most such cases, the difference in the values of doy and hour from
+one row to the next will not correspond to a difference in time of one
+timestep.  In the 24-hour simulation just shown, for example, 86400
+one-second timesteps elapse between the beginning time of the
+simulation and the ending time, correspond to a duration of 24 hours.
+But the value of doy ranges from 0 at the beginning to 86400 at the
+end, corresponding to a duration of as many days, and the value shown
+for _hour_ is always zero.
+
+We could, however, remedy this inconsistency by ensuring that the
+values of time in our dataframe correspond to units of days but
+that the value, nevertheless, increases by only an amount
+corresponding to one second from row to row:
+
+```{r, consistent-durations, fig.show="hold", out.width="50%"}
+light_intensity <- data.frame(
+    time = times/86400,
+    Q = Q(times)
+)
+
+result <- run_biocro(
+    initial_values,
+    parameters,
+    light_intensity,
+    'BioCro:example_model_mass_gain',
+    'BioCro:example_model_partitioning'
+)
+
+kable(result[1:4,]) # beginning
+kable(result[seq(21590, 21660, 10),]) # around dawn
+kable(result[43198:43202,]) # around mid day
+kable(result[seq(64740, 64810, 10),]) # around dusk
+kable(result[86398:86401,]) # end
+
+xyplot(Q ~ (hour + 24 * doy), data = result, xlim = c(0, 24), xlab = "hour", ylab = "Q (mol / m^2 / s)")
+
+xyplot(Leaf ~ (hour + 24 * doy), data = result, xlim = c(0, 24), xlab = "hour", ylab = "Leaf (kg)")
+```
+
+## Third modification: Making the `doy`, `hour`, and `time` variables consistent with a reasonable time of year
+
+The simulation just shown takes care of making the time step
+consistent with the time duration represented by the doy and hour
+columns.  But the doy value of 0 corresponds to December 31, and this
+is not consistent with a day having 12 hours of daylight unless we are
+at an equatorial location.  We may remedy this by shifting the time
+values forward by 79 days to the time of the spring equinox.  Now time
+represents not just a duration in days, but more precisely, it
+represents the number of (fractional) days that have elapsed since
+midnight at the start of December 31 of the previous year.  Modules
+that rely on this meaning for time, such as
+`solar_position_michalsky`, could now be used if we wished.
+
+```{r, realistic-time-of-year, fig.show="hold", out.width="50%"}
+light_intensity <- data.frame(
+    time = times/86400 + 79,
+    Q = Q(times)
+)
+
+result <- run_biocro(
+    initial_values,
+    parameters,
+    light_intensity,
+    'BioCro:example_model_mass_gain',
+    'BioCro:example_model_partitioning'
+)
+
+
+kable(result[1:4,]) # beginning
+kable(result[seq(21590, 21660, 10),]) # around dawn
+kable(result[43198:43202,]) # around mid day
+kable(result[seq(64740, 64810, 10),]) # around dusk
+kable(result[86398:86401,]) # end
+
+xyplot(Q ~ hour, data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
+
+xyplot(Leaf ~ hour, data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
+```
+
+## References
