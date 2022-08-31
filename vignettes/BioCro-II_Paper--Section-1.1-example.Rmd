@@ -62,6 +62,17 @@ library(BioCro)
 library(lattice)
 library(knitr) # for kable(), which yields nicer-looking tables
 
+## customized version of kable with defined options:
+columns_to_print <- c('time', 'Q', 'mass_gain', 'Root', 'Leaf')
+show_row_number <- FALSE
+format <- list(scientific = FALSE, digits = 7)
+cable <- function(x, ...) {
+   kable(x[, columns_to_print],
+         row.names = show_row_number,
+         format.args = format,
+         ...)
+}
+
 ## Set plotting character globally
 trellis.par.set("plot.symbol", list(pch = '.'))
 
@@ -147,8 +158,8 @@ input should be used.  (See below for further discussion.)
 The same precepts apply, _mutatis mutandi_, to any other timestep
 units one may wish to use.
 
-As always, the difference in time between any row n in the _drivers_
-dataframe and the row n + 1 that immediately follows it should be
+As always, the difference in time between any row _n_ in the _drivers_
+dataframe and the row _n + 1_ that immediately follows it should be
 equal to "timestep" (in whatever units _timestep_ has been given).
 
 
@@ -181,13 +192,14 @@ the beginning, just after midnight, when it is dark and there is no
 mass accumulation; at dawn, when the rate of mass accumulation first
 becomes non-zero; at noon, when the flux Q is highest; at dusk, when
 the rate of mass accumulation again drops to zero; and at the end of
-the simulation, when the final Leaf and Root mass are known.
+the simulation, when the final leaf and root mass are known.
 
-As noted above, **_the values in the result for `doy` and `hour`
-should be ignored!  They are nonsensical in the context of this
-example!_** And the values in the `time` column should be interpreted
-as the number of elapsed seconds from solar midnight (not the number
-of (fractional) days that have elapsed since midnight at the start of
+As noted above, the values in the result for `doy` and `hour` are
+nonsensical in the context of this example and so we have filtered
+them out (along with `ncalls`, which is not of particular interest).
+And the values in the `time` column should be interpreted as the
+number of elapsed seconds from solar midnight (not the number of
+(fractional) days that have elapsed since midnight at the start of
 December 31, which is the correct interpretation for a "normal" BioCro
 simulation).
 
@@ -211,12 +223,13 @@ result <- run_biocro(
     'BioCro:example_model_partitioning'
 )
 
+## cable = customized version of kable (see above)
 ## kable = (nicely-formatted) knitr table
-kable(result[1:4,]) # beginning
-kable(result[seq(21590, 21660, 10),]) # around dawn
-kable(result[43198:43202,]) # around mid day
-kable(result[seq(64740, 64810, 10),]) # around dusk
-kable(result[86398:86401,]) # end
+cable(result[1:4,]) # beginning
+cable(result[seq(21591, 21661, 10),]) # around dawn
+cable(result[43198:43202,]) # around mid day
+cable(result[seq(64741, 64811, 10),]) # around dusk
+cable(result[86398:86401,]) # end
 ```
 
 In the following graphs, we have changed the labeling on the x axis so
@@ -228,23 +241,28 @@ xyplot(Q ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)"
 xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)", ylab = "Leaf (kg)")
 ```
 
-## Second modification: Making the `doy` and `hour` duration consistent with the duration calculated from `timestep`
+## Second modification: Changing the time specification from seconds to days
 
-As noted above, in most cases the outputs "doy" and "hour" should be
-ignored if timestep is not given in units of hours.  This is because
-in most such cases, the difference in the values of doy and hour from
-one row to the next will not correspond to a difference in time of one
-timestep.  In the 24-hour simulation just shown, for example, 86400
-one-second timesteps elapse between the beginning time of the
-simulation and the ending time, correspond to a duration of 24 hours.
-But the value of doy ranges from 0 at the beginning to 86400 at the
-end, corresponding to a duration of as many days, and the value shown
-for _hour_ is always zero.
+The usual assumption in BioCro is that the `time` quantity represents
+the time, in days, from the beginning of the year, not the number of
+seconds that have elapsed from the start of the simulation.  (More
+precisely, the integral part of the `time` value should be the day of
+the year, counting from one, and the fractional part should be the
+portion of the day that has elapsed since midnight at the begining of
+that day.  Thus `time = 4.25` would occur at 6 a.m. on January 4.)
 
-We could, however, remedy this inconsistency by ensuring that the
-values of time in our dataframe correspond to units of days but
-that the value, nevertheless, increases by only an amount
-corresponding to one second from row to row:
+Thus, the way we have been using the `time` variable in the previous
+examples in inconsistent with the usual interpretation of time in two
+respects: First, the units were in seconds rather than days.  Second,
+the time represented the amount of time elapsed from the beginning of
+the simulation rather than an "absolute" time, that is, a time value
+specifying a specific time of day on a specific day of the year.
+
+The first of these inconsistencies is easily remedied by rescaling the
+time values so that instead of running from 0 to 86400 (seconds), they
+run from from 0 to 1 (days): we simply divide each former time value
+by 86400.  Now, the value of `time` increases by 1/86400 (days!) from
+row to row (an amount still corresponding to one second):
 
 ```{r, consistent-durations, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
@@ -260,30 +278,34 @@ result <- run_biocro(
     'BioCro:example_model_partitioning'
 )
 
-kable(result[1:4,]) # beginning
-kable(result[seq(21590, 21660, 10),]) # around dawn
-kable(result[43198:43202,]) # around mid day
-kable(result[seq(64740, 64810, 10),]) # around dusk
-kable(result[86398:86401,]) # end
+cable(result[1:4,]) # beginning
+cable(result[seq(21591, 21661, 10),]) # around dawn
+cable(result[43198:43202,]) # around mid day
+cable(result[seq(64741, 64811, 10),]) # around dusk
+cable(result[86398:86401,]) # end
 
-xyplot(Q ~ (hour + 24 * doy), data = result, xlim = c(0, 24), xlab = "hour", ylab = "Q (mol / m^2 / s)")
+xyplot(Q ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Q (mol / m^2 / s)")
 
-xyplot(Leaf ~ (hour + 24 * doy), data = result, xlim = c(0, 24), xlab = "hour", ylab = "Leaf (kg)")
+xyplot(Leaf ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Leaf (kg)")
 ```
 
-## Third modification: Making the `doy`, `hour`, and `time` variables consistent with a reasonable time of year
+## Third modification: Making the `time` variable consistent with a reasonable time of year
 
 The simulation just shown takes care of making the time step
-consistent with the time duration represented by the doy and hour
-columns.  But the doy value of 0 corresponds to December 31, and this
-is not consistent with a day having 12 hours of daylight unless we are
-at an equatorial location.  We may remedy this by shifting the time
-values forward by 79 days to the time of the spring equinox.  Now time
-represents not just a duration in days, but more precisely, it
-represents the number of (fractional) days that have elapsed since
-midnight at the start of December 31 of the previous year.  Modules
-that rely on this meaning for time, such as
-`solar_position_michalsky`, could now be used if we wished.
+consistent with the time duration represented by the time column in
+its usual interpretation.  But the `time` value of 0 corresponds to
+midnight at the start of December 31, and this is not consistent with
+a day having 12 hours of daylight unless we are at an equatorial
+location.  We may remedy this by shifting the time values forward by
+79 days to the time of the spring equinox.  Now time represents not
+just a duration in days, but more precisely, it represents the number
+of (fractional) days that have elapsed since midnight at the start of
+December 31 of the previous year.  Direct modules that rely on this
+meaning for time, such as `solar_position_michalsky`, could now be
+used if we wished.  (We still can not mix in derivative modules such
+as the thermal time modules that use `time` as input, however, since
+these, unlike the `example_model_partitioning` module we are using,
+assume the timestep value to be in hours, not seconds.)
 
 ```{r, realistic-time-of-year, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
@@ -300,15 +322,15 @@ result <- run_biocro(
 )
 
 
-kable(result[1:4,]) # beginning
-kable(result[seq(21590, 21660, 10),]) # around dawn
-kable(result[43198:43202,]) # around mid day
-kable(result[seq(64740, 64810, 10),]) # around dusk
-kable(result[86398:86401,]) # end
+cable(result[1:4,]) # beginning
+cable(result[seq(21591, 21661, 10),]) # around dawn
+cable(result[43198:43202,]) # around mid day
+cable(result[seq(64741, 64811, 10),]) # around dusk
+cable(result[86398:86401,]) # end
 
-xyplot(Q ~ hour, data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
+xyplot(Q ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
 
-xyplot(Leaf ~ hour, data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
+xyplot(Leaf ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
 ```
 
 ## References
