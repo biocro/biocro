@@ -9,35 +9,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 
-nocite: "[@*]"
-references:
-- author:
-  - family: Lochocki
-    given: Edward B
-  - family: Rohde
-    given: Scott
-  - family: Jaiswal
-    given: Deepak
-  - family: Matthews
-    given: Megan L
-  - family: Miguez
-    given: Fernando
-  - family: Long
-    given: Stephen P
-  - family: McGrath
-    given: Justin M
-  container-title: in silico Plants
-  doi: 10.1093/insilicoplants/diac003
-  id: 10.1093/insilicoplants/diac003
-  issn: 2517-5025
-  issue: 1
-  issued: 2022-02
-  note: diac003
-  title: "[BioCro II: a software package for modular crop growth
-    simulations]{.nocase}"
-  type: article-journal
-  url: "https://doi.org/10.1093/insilicoplants/diac003"
-  volume: 4
+bibliography: references/BioCro.bibtex
 ---
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
