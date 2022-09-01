@@ -3,6 +3,7 @@ title: "BioCro II Paper: Section 1.1 Example"
 output:
   html_document:
     toc: true
+    toc_depth: 2
 
 vignette: >
   %\VignetteIndexEntry{BioCro II Paper: Section 1.1 Example}
@@ -19,12 +20,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+<!-- Note that we start with a level-2 heading so that, following best
+practices, the document title is the one and only h1 element in the
+document. -->
+
 ## Introduction
 
 This is a demonstration of the example discussed in Section 1.1 and
 Appendix 1 of the seminal BioCro II paper
 [@10.1093/insilicoplants/diac003].  A few corrections to and
-clarifications of the exposition given in the paper are given in the
+clarifications of the exposition given in that paper are given in the
 comments below.
 
 ## The Code
@@ -93,7 +98,7 @@ xyplot(Leaf ~ time, data = result, xlab = "time (s)", ylab = "Leaf (kg)")
 A somewhat plausible mechanistic model of the photosynthetic photon
 flux density Q due to the sun would give it as being roughly
 proportional to the sine of the angle the sun makes with the horizon.
-Assuming 12 hours of daylight, with the sun passing directly overhead,
+Assuming 12 hours of daylight, with the sun passing directly overhead
 (a condition that approximately holds at the equator during an
 equinox), this angle (measured in radians) is approximately
 `time/3600/12 * pi`, where `time` is the number of seconds that have
@@ -124,8 +129,8 @@ rate of change of the output quantities *per second*.
 2. In almost all cases, the output columns "doy", "hour", and possibly
 "time" won't make sense and (if not filtered out) should be ignored.
 
-3. In almost all cases, no module having "doy", "hour", or "time" as
-input should be used.  (See below for further discussion.)
+3. In almost all cases, no module having `time` as input should be
+used.  (See below for further discussion.)
 
 The same precepts apply, _mutatis mutandi_, to any other timestep
 units one may wish to use.
@@ -139,7 +144,7 @@ equal to "timestep" (in whatever units _timestep_ has been given).
 
 Although in the paper it is stated that "Light intensity is given as a
 table of values at every second in a 24-h period,", the period here is
-actually only 12 hours (time ranges from 0 to `3600 * 12` seconds = 12
+actually only 12 hours (time ranges from 0 to 3600 × 12 seconds = 12
 hours).  As noted above, for the purposes of this example, it may be
 assumed that time ranges from sunrise to sunset of a 12-hour day so
 that "time" represents the number of seconds that have elapsed since
@@ -154,7 +159,7 @@ defining equations:
 
     Q <- function(time) pmax(0, sin((time/3600 - 6)/12 * pi) * 2000e-6) # mol / m^2 / s
 
-(The "- 6" here adjusts the phase of the sine function so that the
+(The "− 6" here adjusts the phase of the sine function so that the
 positive values correspond to the daylight hours, assumed to begin at
 6 a.m. solar time.)
 
@@ -172,7 +177,7 @@ them out (along with `ncalls`, which is not of particular interest).
 And the values in the `time` column should be interpreted as the
 number of elapsed seconds from solar midnight (not the number of
 (fractional) days that have elapsed since midnight at the start of
-December 31, which is the correct interpretation for a "normal" BioCro
+December 31, which is the correct interpretation in a "normal" BioCro
 simulation).
 
 ```{r, 24-hour-version}
@@ -199,7 +204,7 @@ result <- run_biocro(
 ## kable = (nicely-formatted) knitr table
 cable(result[1:4,]) # beginning
 cable(result[seq(21591, 21661, 10),]) # around dawn
-cable(result[43198:43202,]) # around mid day
+cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 ```
@@ -223,18 +228,25 @@ the year, counting from one, and the fractional part should be the
 portion of the day that has elapsed since midnight at the begining of
 that day.  Thus `time = 4.25` would occur at 6 a.m. on January 4.)
 
-Thus, the way we have been using the `time` variable in the previous
-examples in inconsistent with the usual interpretation of time in two
-respects: First, the units were in seconds rather than days.  Second,
-the time represented the amount of time elapsed from the beginning of
-the simulation rather than an "absolute" time, that is, a time value
-specifying a specific time of day on a specific day of the year.
+It follows, then, that the way we have been using the `time` variable
+in the previous examples in inconsistent with the usual interpretation
+of time in two respects: First, the units were in seconds rather than
+days.  Second, the time represented the amount of time elapsed from
+the beginning of the simulation rather than an "absolute" time, that
+is, a time value specifying a specific time of day on a specific day
+of the year.  (There is no great harm in using the `time` variable in
+this unconventional way of the previous examples, as long as we know
+what we are doing and as long as we aren't using any modules that
+assume the _conventional_ interpretation of the `time` variable.  In
+fact, in simulations such as these ones, the result table is arguably
+more readable when we have our time value in seconds or hours rather
+than in days.)
 
 The first of these inconsistencies is easily remedied by rescaling the
 time values so that instead of running from 0 to 86400 (seconds), they
 run from from 0 to 1 (days): we simply divide each former time value
-by 86400.  Now, the value of `time` increases by 1/86400 (days!) from
-row to row (an amount still corresponding to one second):
+by 86400.  Now, the value of `time` increases by 1/86400 (of a day!)
+from row to row (an amount still corresponding to one second):
 
 ```{r, consistent-durations, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
@@ -252,7 +264,7 @@ result <- run_biocro(
 
 cable(result[1:4,]) # beginning
 cable(result[seq(21591, 21661, 10),]) # around dawn
-cable(result[43198:43202,]) # around mid day
+cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 
@@ -265,17 +277,18 @@ xyplot(Leaf ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "
 
 The simulation just shown takes care of making the time step
 consistent with the time duration represented by the time column in
-its usual interpretation.  But the `time` value of 0 corresponds to
-midnight at the start of December 31, and this is not consistent with
-a day having 12 hours of daylight unless we are at an equatorial
+its usual interpretation.  But the `time` value of 0 corresponds (in
+the conventional BioCro interpretation) to midnight at the start of
+December 31, and this is not consistent with a sun passing directly
+overhead during the course of a 12 hour day, even at an equatorial
 location.  We may remedy this by shifting the time values forward by
-79 days to the time of the spring equinox.  Now time represents not
+79 days to the time of the March equinox.  Now time represents not
 just a duration in days, but more precisely, it represents the number
 of (fractional) days that have elapsed since midnight at the start of
 December 31 of the previous year.  Direct modules that rely on this
 meaning for time, such as `solar_position_michalsky`, could now be
-used if we wished.  (We still can not mix in derivative modules such
-as the thermal time modules that use `time` as input, however, since
+used if we wished.  (But we still can not mix in derivative modules,
+such as the thermal time modules, that use `time` as input, since
 these, unlike the `example_model_partitioning` module we are using,
 assume the timestep value to be in hours, not seconds.)
 
@@ -296,7 +309,7 @@ result <- run_biocro(
 
 cable(result[1:4,]) # beginning
 cable(result[seq(21591, 21661, 10),]) # around dawn
-cable(result[43198:43202,]) # around mid day
+cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 
