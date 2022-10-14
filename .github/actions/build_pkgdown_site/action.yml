@@ -11,14 +11,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: Test for Pandoc
-      id: pandoc-test
-      run: pandoc --version
-      shell: bash
-      continue-on-error: true
-
     - name: Install Pandoc
-      if: steps.pandoc-test.outcome == 'failure'
       uses: r-lib/actions/setup-pandoc@v2
 
     - name: Install TinyTex
