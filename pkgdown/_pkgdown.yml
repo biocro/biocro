@@ -1,7 +1,7 @@
 template:
   bootstrap: 5
-  bootswatch: cyborg
-  theme: arrow-dark
+  bootswatch: flatly
+  theme: arrow-light
 navbar:
   structure:
     left:  [about, reference, articles, dev_manual, news, doxygen_docs]
