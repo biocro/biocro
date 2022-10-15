@@ -1,7 +1,17 @@
+# IMPORTANT: Be sure to keep this file and pkgdown/_pkgdown.yml in
+# sync (while maintaining essential differences).
+
 template:
   bootstrap: 5
   bootswatch: flatly
   theme: arrow-light
+  bslib:
+    pkgdown-nav-height: 90px # This is slightly larger than the value
+                             # returned by running
+                             # $(".navbar").outerHeight() in the
+                             # JavaScript console (which is the value
+                             # recommended at
+                             # https://pkgdown.r-lib.org/articles/customise.html#theming).
 navbar:
   structure:
     left:  [about, reference, articles, dev_manual, news, doxygen_docs]
