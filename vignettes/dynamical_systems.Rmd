@@ -1928,9 +1928,9 @@ isomophic to $\R^p$.  In many contexts, we could just go ahead and
 consider them not just isomophic but identical.  But here we want to
 be more careful because we want to be able to simultaneously consider
 functions into $\R$ having non-overlapping domains.
-\par
-Note that in practice, in a model of a real-world system, $\vec{f}$
-may not be defined for all $\vec{x}\in\vs{X}$ and all
+
+    Note that in practice, in a model of a real-world system,
+$\vec{f}$ may not be defined for all $\vec{x}\in\vs{X}$ and all
 $\vec{u}\in\vs{U}$.  A coordinate corresponding to temperature in
 degrees Kelvin, for example, can not meaningfully take on values less
 than zero.  In general, however, $\vec{f}$ will be defined for all
