@@ -3,7 +3,7 @@
 <!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro-dev TO ebimodeling/biocro!!! -->
 [GitHub issues]: https://github.com/ebimodeling/biocro-dev/issues "Doxygen documentation" {target="_blank"}
 
-[Solar Position module]: `r params$base_src_url`/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
+[Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
 <!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro-dev TO ebimodeling/biocro!!! -->
 [Solar Position module rendering]: https://ebimodeling.github.io/biocro-dev-documentation/master/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
@@ -12,7 +12,7 @@
 [Doxygen]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
 [physical quantity]: https://en.wikipedia.org/wiki/Physical_quantity "Wikipedia's entry on Physical Quantities" {target="_blank"}
 [coherent units]: https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29 "Wikipedia's entry on Coherent Units" {target="_blank"}
-[src/parameters.h]: `r params$base_src_url`/parameters.h "The BioCro parameters.h file" {target="_blank"}
+[src/parameters.h]: `r params$biocro_root`/src/parameters.h "The BioCro parameters.h file" {target="_blank"}
 [unit tests for modules]: https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
 [C++ guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
 [aspects of coding and design]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming "C++ Core Guidelines' naming and layout suggestions" {target="_blank"}

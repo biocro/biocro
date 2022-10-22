@@ -25,5 +25,5 @@ runs:
     - name: 9. Run bookdown
       working-directory: ${{ inputs.package_root }}/documentation/script
       run: |
-        REFERENCE_ONLINE_BIOCRO_FILES=TRUE Rscript run_bookdown.R
-      shell: bash
+        run_bookdown.R
+      shell: Rscript {0}

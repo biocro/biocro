@@ -6,9 +6,9 @@ documentclass: book
 biblio-style: apalike
 link-citations: yes
 params:
-  base_src_url: ../../src # relative path from the bookdown/_book
-                          # directory; this can be overridden in the
-                          # call to bookdown::render_book()
+  biocro_root: ../.. # relative path from the bookdown/_book
+                     # directory; this can be overridden in the call
+                     # to bookdown::render_book()
 ---
 # Introduction {-}
 

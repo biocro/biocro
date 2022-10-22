@@ -6,8 +6,10 @@ if (requireNamespace("bookdown", quietly = TRUE)) {
 
         ## Go to the bookdown directory:
         setwd("../../bookdown")
-        if (Sys.getenv("REFERENCE_ONLINE_BIOCRO_FILES")=="TRUE") {
-            bookdown::render_book(params = list(base_src_url = "https://github.com/ebimodeling/biocro-dev/tree/master/src"))
+
+        ## This is automatically set to "true" when run by a GitHub action:
+        if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+            bookdown::render_book(params = list(biocro_root = "https://github.com/ebimodeling/biocro-dev/tree/master"))
         } else {
             bookdown::render_book()
         }
