@@ -1,4 +1,4 @@
-## Note about the types of documentation in BioCro {-}
+## Note about the types of documentation in BioCro {- #documenation-types}
 
 There several categories of documentation for BioCro:
 

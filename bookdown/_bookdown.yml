@@ -1,3 +1,8 @@
+# (The indentation level of files listed here is used only as a visual
+# indication of which files contain top-level headings and which ones
+# contain only subsection headings.  It has no effect upon how the
+# book will be rendered.)
+
 rmd_files: [
     "index.Rmd",
         "../documentation/README.md",
