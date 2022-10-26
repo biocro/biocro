@@ -16,7 +16,7 @@ namespace standardBML
  *  @brief Calculates the solar position using the model described in
  *  Michalsky, J. J. ["The Astronomical Almanac's algorithm for
  *  approximate solar position (1950–2050)"][michalsky] Solar Energy
- *  40, 227–235 * (1988)
+ *  40, 227–235 (1988)
  *
  *  As the paper's title indicates, this method is only recommended for years
  *  between 1950 - 2050.
