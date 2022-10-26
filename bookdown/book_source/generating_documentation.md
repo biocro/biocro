@@ -1,6 +1,6 @@
 # Generating Documentation
 
-## When to generate documentation
+## When to generate documentation {#sec:when-to-generate-docs}
 
 [online docs]: https://ebimodeling.github.io/biocro-dev-documentation/
   "On-line documentation for BioCro (dev version)" {target="_blank"}
@@ -65,8 +65,8 @@ In addition, one can always manually trigger a workflow build of the
 documentation for a specific branch and either have it deployed, or
 merely built for download.  One can also choose which types of
 documentation to generate.  (See the introductory section about [types
-of documentation](#documenation-types) for discussion of the various
-types of BioCro documentation.)
+of documentation](#sec:documenation-types) for discussion of the
+various types of BioCro documentation.)
 
 If you choose to deploy the branch documentation, the result will live
 at a URL of the form
