@@ -23,3 +23,66 @@ There several categories of documentation for BioCro:
   book, if you are reading this page in _bookdown_) using the
   `bookdown` package.  This documentation is targeted at BioCro
   developers and maintainers.
+
+## The on-line documentation {-}
+
+Each of the above categories of documentation is available on-line at
+https://ebimodeling.github.io/biocro-dev-documentation/.  This is the
+landing page for various versions of the on-line documentation of the
+code in the `ebimodeling/biocro-dev` repository.  (Note that this page
+does not necessarily contain links to all available versions of the
+documentation.  This page must be updated manually by editing the file
+`README.md` at the top level of the
+`ebimodeling/biocro-dev-documentation` GitHub repository.  See
+information about direct links to known versions below.)
+
+Each time a change is made to the master branch of the repository, the
+documentation for the branch is automatically generated and deployed.
+**The URL for the latest version of the _master_ branch is
+https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html.**
+
+Automatic generation and deployment also happens each time a version
+of the code is tagged.  The direct link for a tagged version is
+`https://ebimodeling.github.io/biocro-dev-documentation/<tag-name>/pkgdown/index.html`,
+where `<tag-name>` is the name of the tag used.
+
+The layout of the on-line documentation is in the form of a
+[pkgdown](https://pkgdown.r-lib.org/index.html) document.  Each of the
+categories of documentation listed above corresponds to a portion of
+this document as follows:
+
+* The `README.md` document appears on the pkgdown home page (_BioCro_
+  in the menu).
+
+* The `man` pages appear under the menu item _References_.  (Note that
+  although the page heading on this page says _Function reference_,
+  documentation of the various data sets is included as well.)
+
+* The vignettes appear under the menu item _Articles_.
+
+* The Doxygen documentation appears under the menu item _C++ Library_.
+  Note that there are various forms of this documentation of varying
+  concision and comprehensiveness.
+
+* The developer documentation (this book!) appears under the menu item
+  _Developer's Manual_.
+
+Note that the Developer's Manual, the C++ documentation, and the
+PDF-style vignettes are not well integrated into pkgdown, and the user
+will have to click the browser _back_ button to return to pkgdown
+proper to have access to all of the menu items.
+
+In addition to the documentation proper, the menu bar contains some
+other useful links:
+
+* The _About_ page gives useful information about the
+  documentation---namely, which branch and commit version it
+  corresponds to and the commit and generation dates.
+
+* The _Changelog_ shows the BioCro version history.
+
+* Finally, there is a search box at the right of the menu bar.  **Note
+  that this will not search the portions of the documentation not
+  integrated into pkgdown, that is, it will not search the Developer's
+  Manual, the C++ documentation, or the PDF-style vignettes.** And the
+  search box only functions when pkgdown is deployed on a server.
