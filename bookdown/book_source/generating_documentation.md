@@ -1,8 +1,12 @@
+<!--  external references -->
+
 [online docs]: https://ebimodeling.github.io/biocro-dev-documentation/
   "Online documentation for BioCro (dev version)" {target="_blank"}
 
 [master branch online docs]: https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html
   "Online documentation for BioCro master branch (dev version)" {target="_blank"}
+
+<!-- main text -->
 
 # Generating Documentation
 
@@ -38,4 +42,4 @@ a developer might make to the documentation include:
 * Changes to the vignettes
 
 In most other cases, developers can simply consult the
-automatically-generated online version of the documentation.  
+automatically-generated online version of the documentation.
