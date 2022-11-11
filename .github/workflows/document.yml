@@ -203,4 +203,4 @@ jobs:
       with:
         name: biocro-documentation
         path: biocro-docs-from-${{ env.VERSION }}.tgz
-        retention-days: 1
+        retention-days: 3

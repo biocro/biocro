@@ -1,4 +1,59 @@
-## Note about the types of documentation in BioCro {- #sec:documenation-types}
+<!-- external references -->
+
+[online docs]: https://ebimodeling.github.io/biocro-dev-documentation/
+  "Online documentation for BioCro (dev version)" {target="_blank"}
+
+[master branch docs URL]:
+https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html
+"Online documentation for the master branch of BioCro (dev version)"
+{target="_blank"}
+
+[biocro-dev auto-document workflows]:
+  https://github.com/ebimodeling/biocro-dev/actions/workflows/automatically-call-document.yml
+  "Documentation workflow runs (automatic)" {target="_blank"}
+
+[biocro-dev documention workflows]:
+  https://github.com/ebimodeling/biocro-dev/actions/workflows/document.yml
+  "Documentation workflow runs (manual)" {target="_blank"}
+
+[pkgdown]: https://pkgdown.r-lib.org/index.html "The pkgdown web site" {target="_blank"}
+
+<!-- footnotes -->
+
+[^landing_page]: Note that this page does not necessarily contain
+links to all available versions of the documentation: it is generated
+from the file `README.md` at the top level of the
+`ebimodeling/biocro-dev-documentation` GitHub repository, and it must
+be updated manually to change the links that appear.  See the section
+[_When online documentation is generated_](#sec:generation-triggers)
+for information about the URLs for various generated versions.
+
+[^latest_version]: If there is more than one run for a given pull
+request, you will probably want the latest one.  If the Zip file has
+expired, you may have to manually call the workflow to regenerate it.
+(Be sure to choose to run the workflow on the branch corresponding to
+the pull request you are interested in.)
+
+    Manually-triggered workflow runs may be found at
+[https://github.com/ebimodeling/biocro-dev/actions/workflows/automatically-call-document.yml][biocro-dev
+documention workflows]
+
+[^direct_links_to_doxygen_docs]: If you manually generate the Doxygen
+documentation without generating the pkgdown framework, you can access
+the Doxygen documents directly by using URLs of the form
+`https://ebimodeling.github.io/biocro-dev-documentation/<branch
+name>/doxygen/<version>/index.html`, where `<version>` is one of
+`doxygen_docs_complete`, `doxygen_docs_framework`,
+`doxygen_docs_modules`, or `doxygen_docs_modules_public_members_only`.
+
+[^direct_links_to_developer_manual]: If you manually generate the
+developer (Bookdown) documentation without generating the pkgdown
+framework, you can access the Bookdown book directly by using URLs of
+the form
+`https://ebimodeling.github.io/biocro-dev-documentation/<branch
+name>/bookdown/index.html`.
+
+## Note about the types of documentation in BioCro {.unnumbered #sec:documenation-types}
 
 There several categories of documentation for BioCro:
 
@@ -24,32 +79,62 @@ There several categories of documentation for BioCro:
   `bookdown` package.  This documentation is targeted at BioCro
   developers and maintainers.
 
-## The on-line documentation {-}
+## The online documentation {-}
 
-Each of the above categories of documentation is available on-line at
-https://ebimodeling.github.io/biocro-dev-documentation/.  This is the
-landing page for various versions of the on-line documentation of the
-code in the `ebimodeling/biocro-dev` repository.  (Note that this page
-does not necessarily contain links to all available versions of the
-documentation.  This page must be updated manually by editing the file
-`README.md` at the top level of the
-`ebimodeling/biocro-dev-documentation` GitHub repository.  See
-information about direct links to known versions below.)
+Each of the above categories of documentation is available online at
+[https://ebimodeling.github.io/biocro-dev-documentation/][online
+docs], the landing page for various versions of the online
+documentation of the code in the `ebimodeling/biocro-dev`
+repository.[^landing_page]
 
-Each time a change is made to the master branch of the repository, the
-documentation for the branch is automatically generated and deployed.
 **The URL for the latest version of the _master_ branch is
-https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html.**
+[https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html][master branch docs URL].**
 
-Automatic generation and deployment also happens each time a version
-of the code is tagged.  The direct link for a tagged version is
-`https://ebimodeling.github.io/biocro-dev-documentation/<tag-name>/pkgdown/index.html`,
-where `<tag-name>` is the name of the tag used.
+### When online documentation is generated {- #sec:generation-triggers}
 
-The layout of the on-line documentation is in the form of a
-[pkgdown](https://pkgdown.r-lib.org/index.html) document.  Each of the
-categories of documentation listed above corresponds to a portion of
-this document as follows:
+Documentation is automatically generated when
+
+* The master branch of the repository on GitHub is updated.
+
+  This version of the documentation lives at
+  [https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html][master
+  branch online docs].
+
+* A version of the repository's history is tagged, and that tag is
+  pushed to the GitHub repository.
+
+  Each tagged version's documentation lives at a URL of the form
+  `https://ebimodeling.github.io/biocro-dev-documentation/<tag
+  name>/pkgdown/index.html`.
+
+* A pull request is created or updated.
+
+  In this case, the documentation is generated and packaged as a Zip
+  file available for download but is not deployed online.  To download
+  such a file, go to
+  [https://github.com/ebimodeling/biocro-dev/actions/workflows/automatically-call-document.yml][biocro-dev
+  auto-document workflows] and find a workflow run corresponding to
+  the pull request whose documentation you wish to view.  Click on it,
+  and then find the artifact to download near the bottom of the
+  page.[^latest_version]
+
+In addition, one can always manually trigger a workflow build of the
+documentation for a specific branch.  You can either have it deployed,
+or merely built for download.  One can also choose which types of
+documentation to generate.  (See the introductory section about [types
+of documentation](#sec:documenation-types) for discussion of the
+various types of BioCro documentation.)
+
+If you choose to deploy the branch documentation, the result will live
+at a URL of the form
+`https://ebimodeling.github.io/biocro-dev-documentation/<branch
+name>/pkgdown/index.html`.
+
+### The layout of the online documentation {-}
+
+The layout of the online documentation is in the form of a [pkgdown]
+document.  Each of the categories of documentation listed above
+corresponds to a portion of this document as follows:
 
 * The `README.md` document appears on the pkgdown home page (_BioCro_
   in the menu).
@@ -62,15 +147,15 @@ this document as follows:
 
 * The Doxygen documentation appears under the menu item _C++ Library_.
   Note that there are various forms of this documentation of varying
-  concision and comprehensiveness.
+  concision and comprehensiveness.[^direct_links_to_doxygen_docs]
 
 * The developer documentation (this book!) appears under the menu item
-  _Developer's Manual_.
+  _Developer's Manual_.[^direct_links_to_developer_manual]
 
 Note that the Developer's Manual, the C++ documentation, and the
 PDF-style vignettes are not well integrated into pkgdown, and the user
 will have to click the browser _back_ button to return to pkgdown
-proper to have access to all of the menu items.
+proper to once again have access to the pkgdown menu items.
 
 In addition to the documentation proper, the menu bar contains some
 other useful links:

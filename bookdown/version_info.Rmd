@@ -1,27 +1,14 @@
 ## Version Info {-}
 
-```{r, version_info, echo=FALSE, comment=''}
-# Show the current commit hash and the date of that commit.
-cat(
-  paste0(
-    system2('git',
-            args = c('show',
-                     '-s',
-                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD%n"'
-                    ),
-            stdout = TRUE
-    ),
-    sep = '',
-    collapse = '\n'
-  ),
-  "Branch: ",
-  system2('git',
-          args = c('branch',
-                   '--show-current'),
-          stdout = TRUE
-  ),
-  "\n",
-  { if (length(system2('git', 'diff', stdout = TRUE)) != 0) "**Some files have been altered from the given commit version.**\n" },
-  sep = ""
-)
-```
+This document was generated from the version of BioCro specified as
+follows:
+
+* **Commit Hash:** `r system2('git', args = c('show', '-s', '--format="%h"'), stdout = TRUE)`
+
+* **Commit Date:** `r system2('git', args = c('show', '-s', '--format="%aD"'), stdout = TRUE)`
+
+* **Branch:** ``r system2('git', args = c('branch', '--show-current'), stdout = TRUE)``
+
+* **Generation Time:** `r format(Sys.time(), "%a, %e %b %Y %H:%M:%S %z")`
+
+`r if (length(system2('git', 'diff', stdout = TRUE)) != 0) "_Some files had been altered from the given commit version._"`
