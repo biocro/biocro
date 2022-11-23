@@ -6,7 +6,13 @@ if (requireNamespace("bookdown", quietly = TRUE)) {
 
         ## Go to the bookdown directory:
         setwd("../../bookdown")
-        bookdown::render_book()
+
+        ## This is automatically set to "true" when run by a GitHub action:
+        if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+            bookdown::render_book(params = list(biocro_root = "https://github.com/ebimodeling/biocro-dev/tree/master"))
+        } else {
+            bookdown::render_book()
+        }
 
     } else {
         print("version 0.22 or greater of the bookdown package is required")
