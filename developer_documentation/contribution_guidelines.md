@@ -269,7 +269,9 @@ For example,
     ```c++
     x = (-b + sqrt(b * b - 4 * a * c)) / (2 * a);
     ```
+
     may be rewritten in three lines as
+
     ```c++
     num = -b + sqrt(b * b - 4 * a * c);
     denom = 2 * a;
