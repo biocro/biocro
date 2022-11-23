@@ -1,3 +1,9 @@
+<!-- This file is raw R Markdown code.  To see this as a
+correctly-rendered web page, visit the online documentation at
+https://ebimodeling.github.io/biocro-dev-documentation/, go to the
+Developer's Manual, and find the chapter on contributing to BioCro.
+-->
+
 # Contributing to BioCro
 
 <!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro-dev TO ebimodeling/biocro!!! -->
