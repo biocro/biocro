@@ -1,10 +1,18 @@
-## Formatting Tools
+<!-- This file is raw R Markdown code.  To see this as a
+correctly-rendered web page, visit the online documentation at
+https://ebimodeling.github.io/biocro-dev-documentation/, go to the
+Developer's Manual, and find the section on formatting tools in the
+chapter on contributing to BioCro.  -->
+
+<!-- external references -->
 
 [clang-format]: https://clang.llvm.org/docs/ClangFormat.html "Documentation of the ClangFormat tool at the Clang documentation site" {target="_blank"}
 [.clang-format]: `r params$biocro_root`/.clang-format "The Clang configuration file for BioCro" {target="_blank"}
 [.editorconfig]: `r params$biocro_root`/.editorconfig "BioCro's .editorconfig file" {target="_blank"}
 [EditorConfig]: https://editorconfig.org/ "The EditorConfig Web site" {target="_blank"}
 [Homebrew]: https://brew.sh/ "The Homebrew package manager Web site" {target="_blank"}
+
+## Formatting Tools
 
 ### Clang's formatting tool
 
