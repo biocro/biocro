@@ -58,6 +58,7 @@ HTML_COLORSTYLE_GAMMA  = 201
 HTML_TIMESTAMP         = YES
 HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
+EXT_LINKS_IN_WINDOW    = YES
 USE_MATHJAX            = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the LaTeX output

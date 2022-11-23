@@ -11,10 +11,12 @@ namespace standardBML
 /**
  *  @class solar_position_michalsky
  *
+ *  [michalsky]: https://doi.org/10.1016/0038-092X(88)90045-X "Michalsky article"
+
  *  @brief Calculates the solar position using the model described in
- *  [Michalsky, J. J. "The Astronomical Almanac's algorithm for approximate
- *  solar position (1950–2050)" Solar Energy 40, 227–235 (1988)]
- *  (https://doi.org/10.1016/0038-092X(88)90045-X).
+ *  Michalsky, J. J. ["The Astronomical Almanac's algorithm for
+ *  approximate solar position (1950–2050)"][michalsky] Solar Energy
+ *  40, 227–235 (1988)
  *
  *  As the paper's title indicates, this method is only recommended for years
  *  between 1950 - 2050.
