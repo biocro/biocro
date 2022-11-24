@@ -1,6 +1,7 @@
 ## Documenting the C/C++ code.
 
 <!-- external references -->
+
 [Doxygen]: https://www.doxygen.nl/index.html "Doxygen home page" {target="_blank"}
 [Doxygen Downloads page]: https://www.doxygen.nl/download.html "Doxygen download page" {target="_blank"}
 [Doxygen Installation page]: https://www.doxygen.nl/manual/install.html "Doxygen installation page" {target="_blank"}
@@ -10,7 +11,6 @@
 [Configuration section]: https://doxygen.nl/manual/config.html "Configuring Doxygen" {target="_blank"}
 [Configuration options related to the dot tool]: https://www.doxygen.nl/manual/config.html#config_dot "Configuring Dot" {target="_blank"}
 [hue numbers]: https://en.wikipedia.org/wiki/Hue "Hue (Wikipedia)" {target="_blank"}
-
 
 <!-- footnotes -->
 
@@ -35,6 +35,10 @@ _MathJax_ code file.  And it requires that JavaScript be enabled.
 
 [^note_make_version]: Although versions earlier than 4.3 will probably
 mostly work, you will get a warning when you use them.
+
+[^note_gmake]: Some users will have to type `gmake` in place of `make`
+to get the latest version of Gnu Make.  Type `make --version` or
+`gmake --version` to see exactly what version you are calling.
 
 [^always_make_option]: If you are compiling the documentation using
 _Make_ and haven't changed any source files since last running it, add
@@ -82,8 +86,8 @@ To generate documentation for the C/C++ code, we use
 As mentioned in Section \@ref(sec:when-to-generate-docs), developers
 should rarely need to generate documentation themselves since all of
 the documentation is regularly generated and published on-line.  But
-there are cases where it make sense to "do it yourself."  For Doxygen,
-these include:
+there are cases where it makes sense to "do it yourself."  For
+Doxygen, these include:
 
 #. You are altering the code or documentation of a particular C++
    source file, and you want to check that changes you make show up
@@ -156,6 +160,11 @@ Ghostscript and the Graph visualization toolkit as
 well.  (To do something similar on a Mac with Homebrew, run `brew
 install doxygen graphviz ghostscript`.)
 
+Depending on your system setup and operating system, you may
+additionally need to take pains to ensure that all required
+tools---`gs`, `make`, `dot` (from Graphviz), and `doxygen`
+itself---are on your system path.
+
 ### Generating the Documentation {#sec:running-doxygen}
 
 #### If you have _Make_ installed {-}
@@ -165,24 +174,23 @@ with more or less the same customizations as appear in the [on-line
 version] is to open a terminal to the `doxygen` directory and run
 
 ```
+make all-html
+```
+
+(Since `all-html` is the default Make target, you can also simply type
+`make`.)  This will generate the most complete HTML version of the
+Doxygen documentation.[^note_gmake] To view it, open your browser to
+the landing page for the documentation, located at
+`doxygen/doxygen_docs_complete/html/index.html`.  (On many systems,
+typing
+
+```
 make view
 ```
 
-This will open the landing page of a local copy of the complete BioCro
-Doxygen documentation in your default browser, generating it first if
-needed.
+will generate the documentation and open it in a browser in a single
+step.)
 
-(If the browser should fail to open the landing page, open the file
-`doxygen/doxygen_docs_complete/html/index.html` manually in your
-browser.)
-
-Once you have your browser open to the documentation, you can update
-the documentation after making changes to the source-code files by
-simply typing
-
-```
-make
-```
 
 There are other _Make_ targets available.  To see a list, run
 
