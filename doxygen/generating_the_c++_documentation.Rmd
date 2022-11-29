@@ -1,3 +1,9 @@
+<!-- This file is raw R Markdown code.  To see this as a
+correctly-rendered web page, visit the online documentation at
+https://ebimodeling.github.io/biocro-dev-documentation/, go to the
+Developer's Manual, and find the chapter on generating documentation.
+-->
+
 ## Documenting the C/C++ code.
 
 <!-- external references -->
