@@ -5,7 +5,7 @@ rmd_files: [
     "../developer_documentation/contribution_guidelines.Rmd",
         "../developer_documentation/formatting_tools.md",
     "book_source/generating_documentation.md",
-        "../doxygen/generating_the_c++_documentation.md",
+        "../doxygen/generating_the_c++_documentation.Rmd",
         "../vignettes/building_the_vignettes.md",
         "README.md",
     "../tests/README.md",
