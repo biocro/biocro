@@ -34,6 +34,7 @@ vignettes/*.R
 vignettes/*.toc
 vignettes/*.aux
 vignettes/*.out
+vignettes/*.html
 vignettes/figure/
 vignettes/*synctex.gz
 cache/
