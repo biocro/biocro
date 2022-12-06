@@ -46,41 +46,6 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 
 <!-- footnotes -->
 
-[^stdlib-vs-boost]: It is fair to ask why, for a user installing
-BioCro from source, it is necessary to have a copy of the C++ Standard
-Library but not required to have the very-widely used Boost library,
-many of whose founders are on the C++ standards committee---why BioCro
-includes its own copy of the latter instead.  Russ Cox, in his article
-[Our Software Dependency Problem], points to a significant difference
-between the two libraries.  One important factor, he says, in
-evaluating a potential dependency is the clarity with which the
-library or package writer has documented what they expect from client
-code in order to make future upgrades compatible.  The Standard
-Library, he points out, has such a document ([Standard Library
-Compatibility]).
-
-    The Boost documentation, on the other hand, explicitly states that
-"many of the Boost libraries are actively maintained and improved" so
-that "backward compatibility with prior version [sic] isn't always
-possible" and advises the user to "deal with this by freezing the
-version of the Boost libraries used by your project."  (See the
-question "How can the Boost libraries be used successfully for
-important projects?" in the [Boost FAQ].)
-
-    For this reason, BioCro includes a fixed version of (a subset of)
-the Boost library known to be compatible with BioCro's own C++ code.
-This, however, does not obviate the need to stay abreast of changes to
-(in this case) the Boost library and its API.  If a flaw should be
-discovered in the library serious enough to produce incorrect results,
-one would of course want to upgrade to a version that corrects this
-flaw.  And an upgrade will be more difficult if the library's API has
-changed significantly between the version included with BioCro and the
-version fixing the flaw.  Or, if a serious security flaw were to be
-discovered, one would want to replace the flawed version as quickly as
-possible.  (There have been at least two security flaws discovered and
-fixed between Boost versions 1.70.0 and 1.80.0.  Fortunately, none of
-these affect the portions of the library that BioCro uses.)
-
 [^BioCro-C++]: As of this writing, BioCro is in the process of being
 split into two libraries: a _framework_ library, and a _module_
 library.  Moreover, individual users will be able to write additional
@@ -102,6 +67,22 @@ for the workshop [Reproducible analysis and Research Transparency].
 
     The BioCro maintainers don't currently make available
 containerized versions of BioCro.
+
+[^biocro_dependencies]: BioCro's strong dependencies are the R
+framework, the C++ compiler used in installing the BioCro package, the
+C++ Standard Library, the and the Boost C++ Library.
+
+    As for R package dependencies, BioCro depends only upon packages
+in the R standard library (stats and utils) for its basic installation
+and functioning.  BioCro does use other, non-standard R packages for
+building the vignettes (knitr) and for testing (testthat), but these
+are not essential to a fully-functioning BioCro installation.
+
+    For further reading on the benefits and pitfalls of using
+dependencies, see, for example, Russ Cox's article [Our Software
+Dependency Problem] and Bill Sourour's article [Code dependencies are
+the devil].
+
 
 <!-- main text -->
 
@@ -184,38 +165,8 @@ of key points should be kept in mind:
     (The [renv] package can help with this, of course, but it would be
     far better if we didn't have to use it at all.[^reproducibility])
 
-  BioCro _does_ of course have _many_ dependencies.  As Bill Sourour
-  says in his article [Code dependencies are the devil],
-
-  > It’s increasingly difficult — if not impossible — to build any
-    kind of non-trivial app without leveraging external
-    dependencies.
-
-  This statement comes just after the assertion
-
-  > External dependencies pose a great threat to the long term
-    stability and viability of any application.
-
-  so he does recognize the serious tradeoffs inherent in relying
-  upon external dependencies.
-
-  (He also starts at the most fundamental level when enumerating all
-  the things a software app (in his case, a web app) depends upon,
-  beginning with "Power, Connectivity, ..., Operating System" before
-  even getting to the application code---things that, while perhaps
-  not relevant to the discussion at hand, should never be completely
-  lost sight of.)
-
-  With BioCro, the strong dependencies are the R framework, the C++
-  compiler used in installing the BioCro package, the C++ Standard
-  Library, the and the Boost C++ Library.[^stdlib-vs-boost]
-
-  As for R package dependencies, BioCro depends only upon packages
-  in the R standard library (stats and utils) for its basic
-  installation and functioning.  BioCro does use other, non-standard
-  R packages for building the vignettes (knitr) and for testing
-  (testthat), but these are not essential to a fully-functioning
-  BioCro installation.
+  BioCro has few dependencies, and all things being equal, we would
+  like to keep it that way.[^biocro_dependencies]
 
         
 
