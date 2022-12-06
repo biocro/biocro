@@ -111,7 +111,16 @@ benefits to BioCro users:
 
 If you propose something that makes BioCro difficult to use or maintain, the
 burden of justification is on you, and you should be ready to explain why your
-modification will bring a huge benefit to BioCro users or developers.
+modification will bring a huge benefit to BioCro users or developers. To be more
+specific: along with your proposal, please include a discussion of the following
+questions, which should be considered over a time frame of 5 - 10 years:
+
+1. How will time costs change for maintainers, developers, and users?
+
+2. Will there be more or fewer opportunities for BioCro to break due to changes
+  in its dependencies?
+
+3. Which BioCro features will be added or lost?
 
 ## Code style
 
