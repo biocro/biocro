@@ -27,7 +27,7 @@ document. -->
 ## Introduction
 
 This is a demonstration of the example discussed in Section 1.1 and
-Appendix 1 of the seminal BioCro II paper
+Appendix 1 of the BioCro II paper
 [@10.1093/insilicoplants/diac003].  A few corrections to and
 clarifications of the exposition given in that paper are given in the
 comments below.
