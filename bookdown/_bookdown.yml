@@ -10,12 +10,12 @@ rmd_files: [
         "version_info.Rmd",
 
     # 1. Contribution guidelines
-    "../developer_documentation/contribution_guidelines.md",
-        "../developer_documentation/formatting_tools.md",
+    "../developer_documentation/contribution_guidelines.Rmd",
+        "../developer_documentation/formatting_tools.Rmd",
 
     # 2. Generating documentation
     "book_source/generating_documentation.md",
-        "../doxygen/generating_the_c++_documentation.md",
+        "../doxygen/generating_the_c++_documentation.Rmd",
         "../vignettes/building_the_vignettes.md",
         "README.md",
 
