@@ -25,6 +25,7 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 [Google C++ style guide]: https://google.github.io/styleguide/cppguide.html#Formatting "Google's guidelines for formatting C++ code" {target="_blank"}
 [Strategies to Speedup R Code]: https://datascienceplus.com/strategies-to-speedup-r-code/ "datascience+ article on speeding up R code" {target="_blank"}
 [Why loops are slow in R]: https://privefl.github.io/blog/why-loops-are-slow-in-r/ "Florian Privé's article on the pitfalls of R loops" {target="_blank"}
+[Lochocki et al. (2022)]: https://doi.org/10.1093/insilicoplants/diac003 "Lochocki et al. (2022)" {target="_blank"}
 
 ## Making Changes
 
@@ -38,6 +39,88 @@ Developer's Manual, and find the chapter on contributing to BioCro.
  spending time working on a solution that others may not accept. The
  members of the group also have diverse backgrounds and likely can
  give valuable design insights.
+
+### Proposing large-scale modifications to BioCro
+
+From time to time, someone will propose making a large change to the
+organizational structure of BioCro or a change to a central component of BioCro.
+Such changes have the potential to greatly influence the way users and
+developers interact with BioCro, and must be carefully considered and discussed
+before they are implemented. When considering such proposals, there are two key
+points that should be kept in mind:
+
+- BioCro is designed for computational modelers who want to focus on biology
+  rather than computer programming, so it is essential for BioCro to be easy to
+  install and use. This is more than a matter of convenience. A friendly user
+  experience makes BioCro accessible to a wide range of possible users who each
+  may be able to contribute to broader scientific understanding through
+  modeling. Thus, it is important to consider how the proposed modification will
+  affect the installation and usage of BioCro. Any modifications that add new
+  installation steps or otherwise complicate the process of acquiring and using
+  BioCro may pose barriers that prevent some scientists from using it. Such
+  complications are only justified when they are offset by clear and significant
+  benefits to the users.
+
+- BioCro is developed and maintained by a small team who are also computational
+  modelers. Any proposed large-scale modifications will be implemented by this
+  core team, and any resulting changes to regular upkeep and maintenance will
+  become their responsibilities. Thus, it is important to consider how the
+  proposed modification will affect the development workload. Any changes that
+  take a long time to implement or maintain will prevent the developers from
+  working on their own research projects. Such time sinks are only justified
+  when they are offset by clear and significant benefits to the users.
+
+For example, following the release of BioCro version `2.0.0`, a proposal was
+made to completely separate module libraries from the BioCro framework; in other
+words, to split the original BioCro R package into at least two packages:
+the central framework and the "standard" library of crop growth modules. This
+makes the user experience more complicated because two R packages are now
+required to run a crop growth simulation, and it makes more work for the
+developers who need to make sure multiple packages and repositories are properly
+working together. However, this change provides several key benefits, such as
+the ability for researchers to develop modules in private. It was decided that
+this change was justified by its benefits.
+
+In general, the following types of proposals will be met with opposition or
+outright rejected unless they can be shown to provide clear and significant
+benefits to BioCro users:
+
+- Modifications that make BioCro less self-contained by introducing new
+  dependencies on pieces of software that are not distributed along with BioCro.
+  For example, a C++ library that can be bundled with the BioCro framework is
+  probably okay, but a C++ library that must be separately obtained and
+  installed by the user is probably not okay because it complicates the user
+  experience. If the non-bundled software has frequent updates that are not
+  backwards-compatible, this will also generate extra work for the development
+  team since BioCro will need to accomodate possibly different versions of the
+  external software.
+
+- Modifications that make any core BioCro functionality partially or wholly
+  reliant on a feature of R. BioCro is conceptualized as C++ software with an R
+  interface, and this is a central part of the BioCro philosophy, as described
+  in [Lochocki et al. (2022)][]. Dependencies on R will penalize users who
+  directly use the C++ code and make it difficult or impossible to create other
+  BioCro interfaces in the future, negatively impacting the user experience. For
+  example, replacing a C++ library with a related R package is probably not okay
+  because it creates extra work for C++ users who must find an alternative way
+  to access the C++ library.
+
+- Modifications that would prevent any BioCro R packages from being accepted by
+  CRAN. Distributing BioCro via CRAN is a key part of keeping it accessible to
+  all users with maximum ease.
+
+If you propose something that makes BioCro difficult to use or maintain, the
+burden of justification is on you, and you should be ready to explain why your
+modification will bring a huge benefit to BioCro users or developers. To be more
+specific: along with your proposal, please include a discussion of the following
+questions, which should be considered over a time frame of 5 - 10 years:
+
+1. How will time costs change for maintainers, developers, and users?
+
+2. Will there be more or fewer opportunities for BioCro to break due to changes
+  in its dependencies?
+
+3. Which BioCro features will be added or lost?
 
 ## Code style
 
