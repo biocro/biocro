@@ -1,15 +1,33 @@
+# (The indentation level of files listed here is used only as a visual
+# indication of which files contain top-level headings and which ones
+# contain only subsection headings.  It has no effect upon how the
+# book will be rendered.)
+
 rmd_files: [
+    # Introduction
     "index.Rmd",
         "../documentation/README.md",
         "version_info.Rmd",
+
+    # 1. Contribution guidelines
     "../developer_documentation/contribution_guidelines.Rmd",
         "../developer_documentation/formatting_tools.Rmd",
+
+    # 2. Generating documentation
     "book_source/generating_documentation.md",
         "../doxygen/generating_the_c++_documentation.Rmd",
         "../vignettes/building_the_vignettes.md",
         "README.md",
+
+    # 3. Running tests
     "../tests/README.md",
+
+    # 4. Adding Boost
     "../developer_documentation/adding_the_boost_libraries.md",
+
+    # 5. The Update Documentation workflow
     "../.github/workflows/README.md",
+
+    # 6. The Doxygen Docker action
     "../.github/actions/doxygen-action/README.md"
 ]

@@ -1,27 +1,53 @@
 ## Version Info {-}
 
-```{r, version_info, echo=FALSE, comment=''}
-# Show the current commit hash and the date of that commit.
-cat(
-  paste0(
-    system2('git',
-            args = c('show',
-                     '-s',
-                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD%n"'
-                    ),
-            stdout = TRUE
-    ),
-    sep = '',
-    collapse = '\n'
-  ),
-  "Branch: ",
-  system2('git',
-          args = c('branch',
-                   '--show-current'),
-          stdout = TRUE
-  ),
-  "\n",
-  { if (length(system2('git', 'diff', stdout = TRUE)) != 0) "**Some files have been altered from the given commit version.**\n" },
-  sep = ""
-)
+This document was generated from the version of BioCro specified as
+follows:
+
+* **Commit Hash:** `r system2('git', args = c('show', '-s', '--format="%h"'), stdout = TRUE)`
+
+* **Commit Date:** `r system2('git', args = c('show', '-s', '--format="%aD"'), stdout = TRUE)`
+
+```{r, echo=FALSE, warning=FALSE, results='asis'}
+branch <- system2('git', args = c('branch', '--show-current'), stdout = TRUE)
+
+merge_ref <- system2('git', args = c('show-ref', 'merge'), stdout = TRUE)
+
+pull_request_number <- (function() {
+  if (!is.null(attr(merge_ref, 'status')) &&
+      attr(merge_ref, 'status') == 1) {
+    ## not a merge
+    return('')
+  }
+
+  parts <- unlist(strsplit(merge_ref, ' '))
+
+  if (length(parts) != 2) {
+    ## something's wrong
+    return('')
+  }
+
+  subparts <- unlist(strsplit(parts[[2]], '/'))
+
+  if (length(subparts) != 5 ||
+      subparts[1] != 'refs' ||
+      subparts[2] != 'remotes' ||
+      subparts[3] != 'pull' ||
+      subparts[5] != 'merge') {
+      return('')
+   }
+
+   return(subparts[4])
+})()
+
+if (length(branch) != 0) {
+  cat("* **Branch:** `", system2('git', args = c('branch', '--show-current'), stdout = TRUE), "`")
+}
+
+if (pull_request_number != '') {
+  cat("* **Pull request number:** ", pull_request_number)
+}
 ```
+
+* **Generation Time:** `r format(Sys.time(), "%a, %e %b %Y %H:%M:%S %z")`
+
+`r if (length(system2('git', 'diff', stdout = TRUE)) != 0) "_Some files had been altered from the given commit version._"`

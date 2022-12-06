@@ -3,3 +3,5 @@ bookdown::gitbook:
   config:
     toc:
       collapse: subsection
+    fontsettings:
+      size: 3
