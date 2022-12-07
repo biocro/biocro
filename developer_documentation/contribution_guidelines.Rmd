@@ -46,13 +46,6 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 
 <!-- footnotes -->
 
-[^BioCro-C++]: As of this writing, BioCro is in the process of being
-split into two libraries: a _framework_ library, and a _module_
-library.  Moreover, individual users will be able to write additional
-module libraries, which may be used together with the framework and
-BioCro's standard module library.  But regardless the number of
-libraries, the same principles apply.
-
 [^public-API]: As of this writing, no C++ API for BioCro has been
 defined: there is no document that makes clear what publicly
 accessible portions of the framework and standard library are
@@ -128,10 +121,9 @@ of key points should be kept in mind:
   Distributing BioCro via CRAN is a key part of keeping it accessible
   to all users with maximum ease.
 
-- At its core, BioCro is a C++ library;[^BioCro-C++] the BioCro R
-  package merely provides a convenient R interface.  Even though this
-  R interface exists, we wish the C++ core to remain usable on its
-  own.
+- At its core, BioCro is a C++ library; the BioCro R package merely
+  provides a convenient R interface.  Even though this R interface
+  exists, we wish the C++ core to remain usable on its own.
 
   This has two implications:
 
