@@ -53,13 +53,12 @@ guaranteed to remain stable and available to be programmed against and
 which portions are subject to change.
 
 [^reproducibility]: Irrespective of what dependencies BioCro now has
-or are added to it, if one wants to get serious about reproducability,
-using a containerized version of BioCro should be considered.  See,
-for example, the chapter [Docker and Reproducability] in the document
-for the workshop [Reproducible analysis and Research Transparency].
-
-    The BioCro maintainers don't currently make available
-containerized versions of BioCro.
+or are added to it, a researcher who is serious about reproducability
+should consider making a containerized version of BioCro.  See, for
+example, the chapter [Docker and Reproducability] in the document for
+the workshop [Reproducible analysis and Research Transparency].  The
+BioCro maintainers don't provide containerized versions of BioCro as
+we think this is a task better left to the individual researcher.
 
 [^biocro_dependencies]: BioCro's strong dependencies are the R
 framework, the C++ compiler used in installing the BioCro package, the
@@ -146,16 +145,14 @@ of key points should be kept in mind:
     for example, Russ Cox's discussion of the 2017 Equifax fiasco in
     his article [Our Software Dependency Problem].)
 
-  + Limiting dependencies makes maintaining some semblance of
-    reproducibilty easier.
+  + Limiting dependencies makes reproducibilty easier.
 
-    If we wish to replicate results of a BioCro simulation, our task
-    is more difficult if we have to worry not only about what
+    If one wishes to replicate results of a BioCro simulation, the
+    task is more difficult if one has to worry not only about what
     platform, what version of R, and what version of BioCro were used
-    to obtain the original results, but if, on top of that, we have to
-    worry about the versions of other R packages we may depend upon.
-    (The [renv] package can help with this, of course, but it would be
-    far better if we didn't have to use it at all.[^reproducibility])
+    to obtain the original results, but if, on top of that, one has to
+    worry about the versions of other R packages depended
+    upon.[^reproducibility]
 
   BioCro has few dependencies, and all things being equal, we would
   like to keep it that way.[^biocro_dependencies]
