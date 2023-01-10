@@ -157,8 +157,6 @@ of key points should be kept in mind:
   BioCro has few dependencies, and all things being equal, we would
   like to keep it that way.[^biocro_dependencies]
 
-        
-
 ## Code style
 
 (Most of what is discussed here pertains specifically to code for the BioCro C++ library.)

@@ -1,5 +1,8 @@
 name: Automatically generate documentation
 
+# If you update these workflow triggers, be sure to update the
+# corresponding documentation in the "When online documentation is
+# generated" section of the Bookdown book.
 
 on:
   push:

@@ -189,7 +189,7 @@ jobs:
         # user.name is somewhat arbitrary but must be provided:
         git config user.name biocro-action
         git add .
-        git commit -m "generated pgkdown and bookdown documentation"
+        git commit -m "generated pkgdown and bookdown documentation"
         git push
 
     - name: 10. Zip documentation
@@ -203,4 +203,4 @@ jobs:
       with:
         name: biocro-documentation
         path: biocro-docs-from-${{ env.VERSION }}.tgz
-        retention-days: 1
+        retention-days: 3

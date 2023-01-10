@@ -1,4 +1,4 @@
-# Doxyfile 1.9.0
+# Doxyfile 1.9.2
 
 ## Note: DON'T USE DOUBLE-HASHES (## ...) FOR END-LINE COMMENTS!
 ## Doxygen will treat the following line as part of the option
@@ -10,7 +10,6 @@
 PROJECT_NAME           = "The BioCro C++ Library"
 PROJECT_NUMBER         = # This could be set automatically to the version
                          # tag.
-OUTPUT_DIRECTORY       = doxygen_docs_complete
 TAB_SIZE               = 8 # Consider changing this to 4.  Or just get rid
                            # of all tabs.
 #---------------------------------------------------------------------------

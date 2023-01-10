@@ -90,7 +90,7 @@ dynamical_system::dynamical_system(
     driver_quantity_ptr_pairs = get_pointer_pairs(
         driver_quantity_names,
         all_quantities,
-        drivers);
+        this->drivers);
 
     // Get a pointer to the timestep
     if (params.find("timestep") == params.end()) {

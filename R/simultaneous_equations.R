@@ -22,6 +22,12 @@ solve_simultaneous_equations <- function(
     # Make sure silent is a logical variable
     silent <- lapply(silent, as.logical)
 
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(
+        direct_modules,
+        check_out_module
+    )
+
     # Run the C++ code
     result <- .Call(
         R_solve_simultaneous_equations,
@@ -31,11 +37,12 @@ solve_simultaneous_equations <- function(
         upper_bounds,
         abs_error_tols,
         rel_error_tols,
-        direct_modules,
+        direct_module_creators,
         solver_type,
         max_it,
         silent)
-    return(result)
+
+    return(as.data.frame(result))
 }
 
 
@@ -47,8 +54,14 @@ validate_simultaneous_equations <- function(direct_modules, known_quantities, un
     # Make sure silent is a logical variable
     silent <- lapply(silent, as.logical)
 
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(
+        direct_modules,
+        check_out_module
+    )
+
     # Run the C++ code
-    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, direct_modules, silent)
+    result <- .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, direct_module_creators, silent)
     return(result)
 }
 
@@ -58,7 +71,13 @@ test_simultaneous_equations <- function(direct_modules, known_quantities, unknow
     known_quantities <- lapply(known_quantities, as.numeric)
     unknown_quantities <- lapply(unknown_quantities, as.numeric)
 
+    # Make module creators from the specified names and libraries
+    direct_module_creators <- sapply(
+        direct_modules,
+        check_out_module
+    )
+
     # Run the C++ code
-    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, direct_modules)
+    result <- .Call(R_test_simultaneous_equations, known_quantities, unknown_quantities, direct_module_creators)
     return(result)
 }
