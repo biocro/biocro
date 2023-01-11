@@ -20,8 +20,8 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 [Boost FAQ]: https://www.boost.org/users/faq.html "The Boost FAQ" {target="_blank"}
 [CRAN policies]: https://cran.r-project.org/web/packages/policies.html "CRAN Repository Policy" {target="_blank"}
 [renv]: https://rstudio.github.io/renv/ "The renv package" {target="_blank"}
-[Docker and Reproducability]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/8.Intro-Docker.html
-        "Docker and Reproducability" {target="_blank"}
+[Docker and Reproducibility]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/8.Intro-Docker.html
+        "Docker and Reproducibility" {target="_blank"}
 [Reproducible analysis and Research Transparency]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/index.html
         "Reproducible analysis and Research Transparency" {target="_blank"}
 
@@ -53,9 +53,9 @@ guaranteed to remain stable and available to be programmed against and
 which portions are subject to change.
 
 [^reproducibility]: Irrespective of what dependencies BioCro now has
-or are added to it, a researcher who is serious about reproducability
+or are added to it, a researcher who is concerned about reproducability
 should consider making a containerized version of BioCro.  See, for
-example, the chapter [Docker and Reproducability] in the document for
+example, the chapter [Docker and Reproducibility] in the document for
 the workshop [Reproducible analysis and Research Transparency].  The
 BioCro maintainers don't provide containerized versions of BioCro as
 we think this is a task better left to the individual researcher.
@@ -64,8 +64,8 @@ we think this is a task better left to the individual researcher.
 framework, the C++ compiler used in installing the BioCro package, the
 C++ Standard Library, the and the Boost C++ Library.
 
-    As for R package dependencies, BioCro depends only upon packages
-in the R standard library (stats and utils) for its basic installation
+    As for R package dependencies, the BioCro R package depends only upon
+packages in the R standard library (stats and utils) for its basic installation
 and functioning.  BioCro does use other, non-standard R packages for
 building the vignettes (knitr) and for testing (testthat), but these
 are not essential to a fully-functioning BioCro installation.
@@ -91,13 +91,15 @@ the devil].
  members of the group also have diverse backgrounds and likely can
  give valuable design insights.
 
-### Making large-scale modifications to BioCro
+### Making large modifications to BioCro
 
 From time to time, someone will propose making a large change to the
 organizational structure of BioCro or to one of its central
-components.  Such changes must be carefully considered and discussed
-before they are implemented. When considering such proposals, a number
-of key points should be kept in mind:
+components. Here we also consider any modification that influences the
+way users or developers interact with BioCro to be "large." Large
+changes must be carefully considered and discussed before they are
+implemented. When considering such proposals, a number of key points
+should be kept in mind:
 
 - BioCro is designed for computational modelers who want to focus on
   biology rather than computer programming; it is essential for BioCro
@@ -110,7 +112,7 @@ of key points should be kept in mind:
   it.
 
 - BioCro is developed and maintained by a small team, most of whom
-  have numerous other responsibilities.  Thus, it is important to
+  have numerous other responsibilities. Thus, it is important to
   carefully consider the implementation and maintenance costs that may
   be associated with any proposed change, carefully weighing these
   against the perceived benefits.
@@ -121,17 +123,17 @@ of key points should be kept in mind:
   to all users with maximum ease.
 
 - At its core, BioCro is a C++ library; the BioCro R package merely
-  provides a convenient R interface.  Even though this R interface
+  provides a convenient R interface. Even though this R interface
   exists, we wish the C++ core to remain usable on its own.
 
   This has two implications:
 
-  + The core C++ library should maintain a consistent interface.  Any
-  changes to the public API should be carefully considered and
-  carefully delineated.[^public-API]
+  + The core C++ library should maintain a consistent interface. Any
+    changes to the public API should be carefully considered and
+    carefully delineated.[^public-API]
 
   + It should be and should remain relatively painless to obtain and
-  use this library without having to have a full R installation.
+    use this library without having to have a full R installation.
 
 - With BioCro, a premium is put on keeping it relatively
   self-contained; needless dependencies should be avoided.
@@ -154,8 +156,21 @@ of key points should be kept in mind:
     worry about the versions of other R packages depended
     upon.[^reproducibility]
 
+  + Limiting dependencies means that fewer steps are required to
+    install BioCro.
+
   BioCro has few dependencies, and all things being equal, we would
   like to keep it that way.[^biocro_dependencies]
+
+If you propose a large modification to BioCro, please be prepared to
+discuss the following questions:
+
+1. How will time costs change for maintainers, developers, and users?
+
+2. Will there be more or fewer opportunities for BioCro to break due
+   to changes in its dependencies?
+
+3. Which BioCro features will be added or lost?
 
 ## Code style
 
