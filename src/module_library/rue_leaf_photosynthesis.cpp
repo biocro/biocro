@@ -1,9 +1,9 @@
 #include "rue_leaf_photosynthesis.h"
 #include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
-#include "ball_berry.hpp"  // for ball_berry
-#include "BioCro.h"        // for c3EvapoTrans
-#include "AuxBioCro.h"     // for arrhenius_exponent
-#include <cmath>           // for exp
+#include "ball_berry.hpp"            // for ball_berry
+#include "BioCro.h"                  // for c3EvapoTrans
+#include "AuxBioCro.h"               // for arrhenius_exponential
+#include <cmath>                     // for exp
 
 using standardBML::rue_leaf_photosynthesis;
 
@@ -44,7 +44,7 @@ struct rue_str rue_photo(
     // from Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
     // https://doi.org/10.1111/j.1365-3040.2001.00668.x
     double const rd = Rd0 *
-                      arrhenius_exponent(
+                      arrhenius_exponential(
                           18.72,
                           46.39e3,
                           tlk);  // mol / m^2 / s

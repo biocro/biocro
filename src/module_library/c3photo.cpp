@@ -2,7 +2,7 @@
 #include <algorithm>  // for std::min, std::max
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
-#include "AuxBioCro.h"               // for arrhenius_exponent
+#include "AuxBioCro.h"               // for arrhenius_exponential
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
 struct c3_str c3photoC(
@@ -39,12 +39,12 @@ struct c3_str c3photoC(
     // - Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
     //   https://doi.org/10.1111/j.1365-3040.2001.00668.x
     // Note: Values in Dubois and Bernacchi are incorrect.
-    double const Kc = arrhenius_exponent(38.05, 79.43e3, Tleaf_K);              // micromol / mol
-    double const Ko = arrhenius_exponent(20.30, 36.38e3, Tleaf_K);              // mmol / mol
-    double const Gstar = arrhenius_exponent(19.02, 37.83e3, Tleaf_K);           // micromol / mol
-    double const Vcmax = Vcmax0 * arrhenius_exponent(26.35, 65.33e3, Tleaf_K);  // micromol / m^2 / s
-    double const Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3, Tleaf_K);    // micromol / m^2 / s
-    double const Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3, Tleaf_K);        // micromol / m^2 / s
+    double const Kc = arrhenius_exponential(38.05, 79.43e3, Tleaf_K);              // micromol / mol
+    double const Ko = arrhenius_exponential(20.30, 36.38e3, Tleaf_K);              // mmol / mol
+    double const Gstar = arrhenius_exponential(19.02, 37.83e3, Tleaf_K);           // micromol / mol
+    double const Vcmax = Vcmax0 * arrhenius_exponential(26.35, 65.33e3, Tleaf_K);  // micromol / m^2 / s
+    double const Jmax = Jmax0 * arrhenius_exponential(17.57, 43.54e3, Tleaf_K);    // micromol / m^2 / s
+    double const Rd = Rd0 * arrhenius_exponential(18.72, 46.39e3, Tleaf_K);        // micromol / m^2 / s
 
     double const theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf, 2);  // dimensionless
 
@@ -75,14 +75,14 @@ struct c3_str c3photoC(
     // its value at 25 degrees C (as shown in the figure itself). Using the
     // equation, the rate at 25 degrees C can be found to have the value
     // 306.742, so here we normalize the equation by this value.
-    double const TPU_c = 25.5;                                            // dimensionless (fitted constant)
-    double const Ha = 62.99e3;                                            // J / mol (enthalpy of activation)
-    double const S = 0.588e3;                                             // J / K / mol (entropy)
-    double const Hd = 182.14e3;                                           // J / mol (enthalpy of deactivation)
-    double const R = physical_constants::ideal_gas_constant;              // J / K / mol (ideal gas constant)
-    double const top = Tleaf_K * arrhenius_exponent(TPU_c, Ha, Tleaf_K);  // dimensionless
-    double const bot = 1.0 + arrhenius_exponent(S / R, Hd, Tleaf_K);      // dimensionless
-    double TPU_rate_multiplier = (top / bot) / 306.742;                   // dimensionless
+    double const TPU_c = 25.5;                                               // dimensionless (fitted constant)
+    double const Ha = 62.99e3;                                               // J / mol (enthalpy of activation)
+    double const S = 0.588e3;                                                // J / K / mol (entropy)
+    double const Hd = 182.14e3;                                              // J / mol (enthalpy of deactivation)
+    double const R = physical_constants::ideal_gas_constant;                 // J / K / mol (ideal gas constant)
+    double const top = Tleaf_K * arrhenius_exponential(TPU_c, Ha, Tleaf_K);  // dimensionless
+    double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
+    double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
 
     // The alpha constant for calculating Ap is from Eq. 2.26, von Caemmerer, S.
     // Biochemical models of leaf photosynthesis.
