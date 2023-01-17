@@ -1,4 +1,5 @@
-#include <cmath>  // for pow, sqrt
+#include <cmath>      // for pow, sqrt
+#include <algorithm>  // for std::min, std::max
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "AuxBioCro.h"               // for arrhenius_exponent
@@ -114,9 +115,6 @@ struct c3_str c3photoC(
                      2.0 * electrons_per_oxygenation * Gstar;  // micromol / mol
 
         double Aj = Aj1 / Aj2;  // micromol / m^2 / s
-        if (Aj < 0.0) {
-            Aj = 0.0;  // micromol / m^2 / s
-        }
 
         // Triose phosphate utilization limited
         double Ap = 3.0 * TPU_rate_max * (Ci - Gstar) /
@@ -124,21 +122,16 @@ struct c3_str c3photoC(
 
         Ap = Ap * TPU_rate_multiplier;  // micromol / m^2 / s
 
-        // The gross assimilation rate Vc is the smaller of Ac, Aj, and Ap.
-        // Note: this if-else statement seems like a wonky way to do this. What
-        // happens if Ac == Aj == Ap?
-        if (Ac < Aj && Ac < Ap) {
-            Vc = Ac;  // micromol / m^2 / s
-        } else if (Aj < Ac && Aj < Ap) {
-            Vc = Aj;  // micromol / m^2 / s
-        } else if (Ap < Ac && Ap < Aj) {
-            if (Ap < 0) {
-                Ap = 0;  // micromol / m^2 / s
-            }
-            Vc = Ap;  // micromol / m^2 / s
-        }
-
-        co2_assimilation_rate = Vc - Rd;  // micromol / m^2 / s
+        // The net CO2 assimilation rate is the smaller of Ac - Rd, Aj - Rd, and
+        // Ap - Rd. There is one caveat: at low values of Ci, assimilation
+        // should be Rubisco-limited, even if Aj or Ap is smaller than Ac. To
+        // ensure this, we would like to set Aj and Ap to 0 when Ci < Gstar.
+        // However, it turns out to be simpler to set a minimum value of 0 for
+        // Aj and Ap, which has the same end result as a condition on Ci.
+        Aj = std::max(0.0, Aj);               // micromol / m^2 / s
+        Ap = std::max(0.0, Ap);               // micromol / m^2 / s
+        Vc = std::min(Ac, std::min(Aj, Ap));  // micromol / m^2 / s
+        co2_assimilation_rate = Vc - Rd;      // micromol / m^2 / s
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
