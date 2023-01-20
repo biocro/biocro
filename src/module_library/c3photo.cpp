@@ -1,5 +1,6 @@
 #include <cmath>      // for pow, sqrt
 #include <algorithm>  // for std::min, std::max
+#include <limits>     // fot std::numeric_limits
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "AuxBioCro.h"               // for arrhenius_exponential
@@ -30,7 +31,7 @@ struct c3_str c3photoC(
     double const Tleaf_K =
         Tleaf + conversion_constants::celsius_to_kelvin;  // K
 
-    // Define the leaf reflectance (why is this hard-coded?)
+    // Define the leaf reflectance
     double const leaf_reflectance = 0.2;  // dimensionless
 
     // Temperature corrections are from the following sources:
@@ -84,16 +85,17 @@ struct c3_str c3photoC(
     double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
     double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
 
+    double TPU = TPU_rate_max * TPU_rate_multiplier;  // micromol / m^2 / s
+
     // The alpha constant for calculating Ap is from Eq. 2.26, von Caemmerer, S.
     // Biochemical models of leaf photosynthesis.
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Initialize variables before running fixed point iteration in a loop
-    double Ci_pa{};                      // Pa
-    double Vc{};                         // micromol / m^2 / s
     double Gs{};                         // mol / m^2 / s
     double Ci{};                         // micromol / mol
-    double co2_assimilation_rate = 0.0;  // micromol / m^2 / s
+    double Ci_pa = 0.0;                  // Pa                 (initial guess)
+    double co2_assimilation_rate = 0.0;  // micromol / m^2 / s (initial guess)
     double const Tol = 0.01;             // micromol / m^2 / s
     int iterCounter = 0;
     int max_iter = 1000;
@@ -101,37 +103,39 @@ struct c3_str c3photoC(
     // Run iteration loop
     while (iterCounter < max_iter) {
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
+        Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        // Rubisco limited carboxylation
-        Ci = (Ci_pa / AP) * 1e6;               // micromol / mol
-        double Ac1 = Vcmax * (Ci - Gstar);     // (micromol / m^2 / s) * (micromol / mol)
-        double Ac2 = Ci + Kc * (1 + Oi / Ko);  // micromol / mol
-        double Ac = Ac1 / Ac2;                 // micromol / m^2 / s
+        // Calculate the net CO2 assimilation rate using the method described in
+        // "Avoiding Pitfalls When Using the FvCB Model"
+        if (Ci == 0.0) {
+            // RuBP-saturated net assimilation rate when Ci is 0
+            double Ac0 = -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - Rd;  // micromol / m^2 / s
 
-        // Light limited portion
-        double Aj1 = J * (Ci - Gstar);  // (micromol / m^2 / s) * (micromol / mol)
+            // RuBP-regeneration-limited net assimilation when C is 0
+            double Aj0 =
+                -Gstar * J / (2.0 * electrons_per_oxygenation * Gstar) - Rd;  // micromol / m^2 / s
 
-        double Aj2 = electrons_per_carboxylation * Ci +
-                     2.0 * electrons_per_oxygenation * Gstar;  // micromol / mol
+            co2_assimilation_rate = std::max(Ac0, Aj0);  // micromol / m^2 / s
+        } else {
+            // RuBP-saturated carboxylation rate
+            double Wc = Vcmax * Ci /
+                        (Ci + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
 
-        double Aj = Aj1 / Aj2;  // micromol / m^2 / s
+            // RuBP-regeneration-limited carboxylation rate
+            double Wj = J * Ci /
+                        (electrons_per_carboxylation * Ci +
+                         2.0 * electrons_per_oxygenation * Gstar);  // micromol / m^2 / s
 
-        // Triose phosphate utilization limited
-        double Ap = 3.0 * TPU_rate_max * (Ci - Gstar) /
-                    (Ci - (1.0 + 1.5 * alpha_TPU) * Gstar);  // micromol / m^2 / s
+            // Triose-phosphate-utilization-limited carboxylation rate
+            double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
+                            ? 3.0 * TPU * Ci / (Ci - (1.0 + 3.0 * alpha_TPU) * Gstar)
+                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
 
-        Ap = Ap * TPU_rate_multiplier;  // micromol / m^2 / s
+            // Limiting carboxylation rate
+            double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s
 
-        // The net CO2 assimilation rate is the smaller of Ac - Rd, Aj - Rd, and
-        // Ap - Rd. There is one caveat: at low values of Ci, assimilation
-        // should be Rubisco-limited, even if Aj or Ap is smaller than Ac. To
-        // ensure this, we would like to set Aj and Ap to 0 when Ci < Gstar.
-        // However, it turns out to be simpler to set a minimum value of 0 for
-        // Aj and Ap, which has the same end result as a condition on Ci.
-        Aj = std::max(0.0, Aj);               // micromol / m^2 / s
-        Ap = std::max(0.0, Ap);               // micromol / m^2 / s
-        Vc = std::min(Ac, std::min(Aj, Ap));  // micromol / m^2 / s
-        co2_assimilation_rate = Vc - Rd;      // micromol / m^2 / s
+            co2_assimilation_rate = (1.0 - Gstar / Ci) * Vc - Rd;  // micromol / m^2 / s
+        }
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
@@ -144,7 +148,7 @@ struct c3_str c3photoC(
         }
 
         if (Gs <= 0) {
-            Gs = 1e-5;  // mol / m^2 / s
+            Gs = 1e-8;  // mol / m^2 / s
         }
 
         Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * 1.6 * AP / Gs;  // Pa
