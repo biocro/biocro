@@ -13,6 +13,9 @@
 /\.RData
 # Only a root level .RData file is ignored by default.
 
+^vignettes/articles$
+# Exclude articles from the package
+
 ^vignettes/.*\.aux$
 ^vignettes/.*\.log$
 ^vignettes/.*\.out$

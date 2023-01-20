@@ -4,10 +4,6 @@ output:
   bookdown::html_vignette2:
     toc: true
     number_sections: true
-vignette: >
-  %\VignetteIndexEntry{Avoiding Pitfalls When Using the FvCB Model}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 bibliography: fvcb_references.bib
 link-citations: yes
 pkgdown:
