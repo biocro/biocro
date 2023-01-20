@@ -172,28 +172,15 @@ struct c3_str c3photoC(
     return result;
 }
 
-double solc(double LeafT)
+// This function returns the solubility of O2 in H2O relative to its value at
+// 25 degrees C. The equation used here was developed by forming a polynomial
+// fit to tabulated solubility values from a reference book, and then a
+// subsequent normalization to the return value at 25 degrees C. For more
+// details, See Long, Plant, Cell & Environment 14, 729–739 (1991)
+// (https://doi.org/10.1111/j.1365-3040.1991.tb01439.x).
+double solo(
+    double LeafT  // degrees C
+)
 {
-    double tmp;
-
-    if (LeafT > 24 && LeafT < 26) {
-        tmp = 1;
-    } else {
-        tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT, 2) - 8.874081e-06 * pow(LeafT, 3)) / 0.735465;
-    }
-
-    return tmp;
-}
-
-double solo(double LeafT)
-{
-    double tmp;
-
-    if (LeafT > 24 && LeafT < 26) {
-        tmp = 1;
-    } else {
-        tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
-    }
-
-    return tmp;
+    return (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
 }
