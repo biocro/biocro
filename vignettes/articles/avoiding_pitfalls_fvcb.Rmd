@@ -414,7 +414,7 @@ A_j (C = 0) = - \frac{\Gamma^* \cdot J}{8 \cdot \Gamma^*} - R_d
 \end{equation}
 and
 \begin{equation}
-A_c (C = 0) = - \frac{\Gamma^* \cdot V_{cmax}}{K_c \cdot \left( 1 + O / K_o\right)}.
+A_c (C = 0) = - \frac{\Gamma^* \cdot V_{cmax}}{K_c \cdot \left( 1 + O / K_o\right)} - R_d.
 \end{equation}
 Remembering that Equation \@ref(eq:analt) _always_ makes the wrong choice for
 $C < \Gamma^*$, we can reverse its behavior to find $A_n$ when $C = 0$:
