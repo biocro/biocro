@@ -129,7 +129,7 @@ struct c3_str c3photoC(
             // Triose-phosphate-utilization-limited carboxylation rate
             double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
                             ? 3.0 * TPU * Ci / (Ci - (1.0 + 3.0 * alpha_TPU) * Gstar)
-                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
+                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s. There is an asymptote at Ci == Gstar * (1 + 3 * alpha_TPU). A simple way to handle the asymptote and Ci values less than it is to make Wp infinite, so it is never limiting.
 
             // Limiting carboxylation rate
             double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s
