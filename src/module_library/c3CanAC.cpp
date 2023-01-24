@@ -41,7 +41,8 @@ struct Can_Str c3CanAC(
     double leaf_transmittance,           // dimensionless
     double leaf_reflectance,             // dimensionless
     double minimum_gbw,                  // mol / m^2 / s
-    double WindSpeedHeight               // m
+    double WindSpeedHeight,              // m
+    double beta_PSII                     // dimensionless (fraction of absorbed light that reaches photosystem II)
 )
 {
     struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
@@ -105,7 +106,8 @@ struct Can_Str c3CanAC(
                 i_dir, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
-                electrons_per_carboxylation, electrons_per_oxygenation)
+                electrons_per_carboxylation, electrons_per_oxygenation,
+                beta_PSII)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_direct =
@@ -121,7 +123,8 @@ struct Can_Str c3CanAC(
                 i_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
-                electrons_per_carboxylation, electrons_per_oxygenation);
+                electrons_per_carboxylation, electrons_per_oxygenation,
+                beta_PSII);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -137,7 +140,8 @@ struct Can_Str c3CanAC(
                 i_diff, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
-                electrons_per_carboxylation, electrons_per_oxygenation)
+                electrons_per_carboxylation, electrons_per_oxygenation,
+                beta_PSII)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_diffuse =
@@ -154,7 +158,7 @@ struct Can_Str c3CanAC(
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, o2, theta, StomataWS,
                 water_stress_approach, electrons_per_carboxylation,
-                electrons_per_oxygenation);
+                electrons_per_oxygenation, beta_PSII);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

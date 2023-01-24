@@ -30,7 +30,8 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "height",                       // m
         "specific_heat_of_air",         // J / kg / K
         "minimum_gbw",                  // mol / m^2 / s
-        "windspeed_height"              // m
+        "windspeed_height",             // m
+        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
     };
 }
 
@@ -58,7 +59,7 @@ void c3_leaf_photosynthesis::do_operation() const
             incident_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
-            electrons_per_oxygenation)
+            electrons_per_oxygenation, beta_PSII)
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
@@ -78,7 +79,7 @@ void c3_leaf_photosynthesis::do_operation() const
             incident_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
-            electrons_per_carboxylation, electrons_per_oxygenation);
+            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

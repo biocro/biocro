@@ -46,7 +46,8 @@ string_vector c3_canopy::get_inputs()
         "leaf_transmittance",   // dimensionless
         "leaf_reflectance",     // dimensionless
         "minimum_gbw",          // mol / m^2 / s
-        "windspeed_height"      // m
+        "windspeed_height",     // m
+        "beta_PSII"             // dimensionless (fraction of absorbed light that reaches photosystem II)
     };
 }
 
@@ -70,7 +71,7 @@ void c3_canopy::do_operation() const
         water_stress_approach, electrons_per_carboxylation,
         electrons_per_oxygenation, absorptivity_par, par_energy_content,
         par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw,
-        windspeed_height);
+        windspeed_height, beta_PSII);
 
     // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

@@ -26,7 +26,8 @@ struct c3_str c3photoC(
     double const StomWS,
     int const water_stress_approach,
     double const electrons_per_carboxylation,
-    double const electrons_per_oxygenation);
+    double const electrons_per_oxygenation,
+    double const beta_PSII);
 
 double solc(double LeafT);
 double solo(double LeafT);

@@ -22,7 +22,8 @@ test_that("c3photo is sensitive to changes in vcmax", {
         StomataWS = 1,
         water_stress_approach = 1,
         electrons_per_carboxylation = 4.5,
-        electrons_per_oxygenation = 5.25
+        electrons_per_oxygenation = 5.25,
+        beta_PSII = 0.5
     )
 
     # Get net assimilation for vmax = 100 micromol / m^2 / s

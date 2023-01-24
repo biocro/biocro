@@ -139,6 +139,7 @@ soybean <- list(
         water_stress_approach       = 1,
         minimum_gbw                 = 0.08,
         windspeed_height            = 5,
+        beta_PSII                   = 0.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
 
         # ten_layer_canopy_integrator module
         growth_respiration_fraction = 0,

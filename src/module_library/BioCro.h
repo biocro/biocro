@@ -31,7 +31,8 @@ struct Can_Str c3CanAC(
     double electrons_per_carboxylation, double electrons_per_oxygenation,
     double absorptivity_par, double par_energy_content,
     double par_energy_fraction, double leaf_transmittance,
-    double leaf_reflectance, double minimum_gbw, double WindSpeedHeight);
+    double leaf_reflectance, double minimum_gbw, double WindSpeedHeight,
+    double beta_PSII);
 
 double resp(double comp, double mrc, double temp);
 

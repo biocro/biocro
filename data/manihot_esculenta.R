@@ -49,6 +49,7 @@ manihot_esculenta <- list(
         atmospheric_pressure             = 101325,
         b0                               = 0.08,
         b1                               = 5,
+        beta_PSII                        = 0.5,
         Catm                             = 400,
         chil                             = 0.8,
         electrons_per_carboxylation      = 4.5,

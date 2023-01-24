@@ -54,6 +54,7 @@ class c3_canopy : public direct_module
           leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
+          beta_PSII(get_input(input_quantities, "beta_PSII")),
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -106,6 +107,7 @@ class c3_canopy : public direct_module
     double const& leaf_reflectance;
     double const& minimum_gbw;
     double const& windspeed_height;
+    double const& beta_PSII;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

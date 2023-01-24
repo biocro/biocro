@@ -24,7 +24,8 @@ struct c3_str c3photoC(
     double const StomWS,                       // dimensionless
     int const water_stress_approach,           // (flag)
     double const electrons_per_carboxylation,  // self-explanatory units
-    double const electrons_per_oxygenation     // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const beta_PSII                     // dimensionless (fraction of absorbed light that reaches photosystem II)
 )
 {
     // Get leaf temperature in Kelvin
@@ -54,7 +55,7 @@ struct c3_str c3photoC(
         0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 1e4;  // dimensionless (Bernacchi et al. (2003))
 
     double const I2 =
-        Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;  // micromol / m^2 / s
+        Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) * beta_PSII;  // micromol / m^2 / s
 
     double const J =
         (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4.0 * theta * I2 * Jmax)) /
