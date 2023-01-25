@@ -539,28 +539,54 @@ fvcb_compare <- function(
   clim <- c(0, 1000)
   alim <- c(-20, 50)
 
+  colors <- c(
+    "#000000",
+    "#66C2A5",
+    "#FC8D62",
+    "#8DA0CB",
+    "#E78AC3"
+  )
+
   if (plot_type == 1) {
     xyplot(
-      Wc + Wj + Wp + Vc + An ~ C_seq,
+      An + Vc + Wc + Wj + Wp ~ C_seq,
       data = fvcb_model_res,
       type = 'l',
+      lty = c(1, 1, 2, 2, 2),
+      lwd = c(3, 3, 2, 2, 2),
+      par.settings = list(
+        superpose.line = list(col = colors),
+        superpose.symbol = list(col = colors)
+      ),
       grid = TRUE,
       xlim = clim,
       ylim = alim,
-      auto = TRUE,
+      auto.key = list(
+        lines = TRUE,
+        points = FALSE
+      ),
       xlab = 'C (microbar)',
       ylab = 'Rates (micromol / m^2 / s)',
       main = 'FvCB Model'
     )
   } else if (plot_type == 2) {
     xyplot(
-      Ac + Aj + Ap + An ~ C_seq,
+      An + Ac + Aj + Ap ~ C_seq,
       data = pseudo_fvcb_model_res,
       type = 'l',
+      lty = c(1, 2, 2, 2),
+      lwd = c(3, 2, 2, 2),
+      par.settings = list(
+        superpose.line = list(col = colors),
+        superpose.symbol = list(col = colors)
+      ),
       grid = TRUE,
       xlim = clim,
       ylim = alim,
-      auto = TRUE,
+      auto.key = list(
+        lines = TRUE,
+        points = FALSE
+      ),
       xlab = 'C (microbar)',
       ylab = 'Rates (micromol / m^2 / s)',
       main = 'Pseudo-FvCB Model'
@@ -569,15 +595,22 @@ fvcb_compare <- function(
     xyplot(
       fvcb_model_res$An + pseudo_fvcb_model_res$An ~ C_seq,
       type = 'l',
+      lty = c(1, 2),
+      lwd = c(3, 2),
+      par.settings = list(
+        superpose.line = list(col = colors),
+        superpose.symbol = list(col = colors)
+      ),
       grid = TRUE,
       xlim = clim,
       ylim = alim,
-      auto = TRUE,
       xlab = 'C (microbar)',
       ylab = 'An (micromol / m^2 / s)',
       main = 'FvCB vs. Pseudo-FvCB Models',
       auto.key = list(
-        text = c('FvCB model', 'Pseudo-FvCB model')
+        text = c('FvCB model', 'Pseudo-FvCB model'),
+        lines = TRUE,
+        points = FALSE
       )
     )
   }
