@@ -34,7 +34,7 @@ conditions than those usually encountered during gas exchange measurements. The
 goal of this document is to identify several possible pitfalls associated with
 these assumptions and explain how to avoid them when using the FvCB model.
 
-# The Central FvCB Equation
+# The Central FvCB Equation {#sec:centraleq}
 
 The FvCB model is rooted in a biochemical understanding of the photosynthetic
 process, especially the carboxylation (or oxygenation) of RuBP by the enzyme
@@ -331,33 +331,54 @@ pseudo-FvCB model can be found in Section \@ref(sec:examples).
 
 # Including Triose Phosphate Utilization
 
-Triose phosphate is the primary end product of photosynthesis; it is exported
-from the chloroplast and eventually used to form monosaccharide sugars such as
-glucose. When glucose is created, most of the phosphate from the triose
-phosphate molecules is released back to the choloroplast. Thus, if triose
-phosphate is not utilized quickly enough, chloroplast phosphate can become
-depleted, placing a limitation on photosynthesis [@mcclain_triose_2019]. While
-this limitation was not included in the original FvCB model, its importance was
-realized soon afterwards [@sharkey_photosynthesis_1985; @harley_improved_1991]
-and it has since become a standard part of the model.
-
-Under this limitation, the rate of phosphate consumption due to photosynthesis
-is equal to the rate of triose phosphate utilization (TPU), as expressed by
-Equation 2.25 of @caemmerer_biochemical_2000:
+The sum of the chemical reactions in the Calvin–Benson–Bassham (CBB) cycle can
+be written as follows:
+\begin{align}
+\rm 3 \, CO_2 + 6 \, NADPH + 6 \, H^+ + &9 \, ATP + 5 \, H_2O \rightarrow \\
+                                        &(G3P) + 6 \, NADP^+ + 9 \, ADP + 8 \, P_i, (\#eq:cbb)
+\end{align}
+where G3P refers to glyceraldehyde 3-phosphate (also known as triose phosphate)
+and P~i~ refers to inorganic phosphate (an ion). Each molecule of ATP is
+synthesized from three inorganic phosphate ions; thus, the CBB reaction requires
+nine P~i~ ions, eight of which remain free at the end. The missing inorganic
+phosphate is contained in the triose phosphate molecule, which is exported from
+the chloroplast and eventually used to form monosaccharide sugars. Since the CBB
+reaction requires three CO~2~ molecules, each of which originate from a RuBP
+carboxylation, we can see that each carboxylation effectively consumes one third
+of an inorganic phosphate. By separately considering the impact of RuBP
+oxygenation (not included here), it can be shown that the overall rate of
+inorganic phosphate consumption during photosynthesis ($R_{pc}$) can be given by
 \begin{equation}
-\frac{V_c}{3} - \frac{\phi \cdot V_c}{6} - \frac{\alpha \cdot \phi \cdot V_c}{2} = T_p, (\#eq:tpu)
+R_{pc} = \frac{V_c}{3} - \frac{V_o}{6} - \frac{\alpha \cdot V_o}{2},
 \end{equation}
 where $0 \leq \alpha \leq 1$ is the fraction of glycolate carbon not returned to
-the chloroplast, the left-hand side is the rate of phosphate consumption, and
-$T_p$ is the TPU rate. Using the definition of $\phi$, Equation \@ref(eq:s), and
-Equation \@ref(eq:gstar), we can replace $V_o$ in Equation \@ref(eq:tpu) by
-$2 \cdot V_c \cdot \Gamma^* / C$ and solve for $V_c$ to find the TPU-limited
-carboxylation rate, which is typically called $W_p$:
+the chloroplast (see Section 2.4.3 in @caemmerer_biochemical_2000). As in
+Section \@ref(sec:centraleq), we can use $V_o = \phi \cdot V_c$ and
+$\phi / 2 = \Gamma^* / C$ to rewrite this equation as follows:
+\begin{equation}
+R_{pc} = \frac{V_c}{3 \cdot C} \cdot \left[ C - \Gamma^* \left( 1 + 3 \cdot \alpha \right) \right].  (\#eq:rpc)
+\end{equation}
+
+The inorganic phosphate supply is replenished when triose phosphate is used to
+form sugars; although it happens elsewhere, the inorganic phosphate liberated
+during this reaction is returned to the chloroplast. Under some circumstances,
+the rate of triose phosphate utilization (TPU) is slow enough to limit the
+inorganic phosphate available for use in the choloroplast for photosynthesis; in
+this case, the carboxylation rate is said to be TPU-limited and $R_{pc} = T_p$,
+where $T_p$ is the rate of triose phosphate utilization. This equation can be
+solved for the corresponding carboxylation rate, which is referred to as $W_p$
+in this case:
 \begin{equation}
 W_p = \frac{3 \cdot T_p \cdot C}{C - \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)}. (\#eq:wp)
 \end{equation}
-Since we are now considering a new possible limitation in the model, we must
-update Equation \@ref(eq:mincj) to include $W_p$:
+
+This represents a third possible limitation to the carboxylation rate in
+addition to the RuBP-saturated and RuBP-regeneration-limited rates. While this
+limitation was not included in the original FvCB model, its importance was
+realized soon afterwards [@sharkey_photosynthesis_1985; @harley_improved_1991]
+and it has since become a standard part of the model. Since we are now
+considering a new process in the model, we must update Equation \@ref(eq:mincj)
+to include $W_p$:
 \begin{equation}
 V_c = \min \{ W_c, W_j, W_p \}. (\#eq:mincjp)
 \end{equation}
@@ -368,19 +389,18 @@ Inspecting Equation \@ref(eq:wp), we can see that when
 $C < \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)$, the denominator of the
 equation is negative, and hence $W_p < 0$. However, $W_p$ represents a
 carboxylation rate, which cannot be negative. So what's going on here? One way
-to understand the situation is to set
-$C = \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)$ and evaluate the
-left-hand side of Equation \@ref(eq:tpu), which represents the rate of phosphate
-consumption from photosynthesis. Doing so, we find that this rate is exactly 0
-when $C = \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)$. In other words,
-when $C$ is low enough, photosynthesis is not consuming _any_ phosphate, and it
-is therefore impossible for carboxylation to be limited by TPU. One way to
-indicate this restriction is to modify Equation \@ref(eq:wp) to the following:
+to understand the situation is to evaluate Equation \@ref(eq:rpc) with
+$C$ set to $\Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)$. Doing so, we find
+that the rate of inorganic phosphate consumption in this case is exactly 0. In
+other words, when $C$ is low enough, photosynthesis is not consuming _any_
+inorganic phosphate, and it is therefore impossible for carboxylation to be
+limited by TPU. One way to indicate this restriction is to modify Equation
+\@ref(eq:wp) to the following:
 \begin{equation}
   W_p =
   \begin{cases}
-    \infty, & 0 \leq C \leq \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right) \\[1ex]
-    \frac{3 \cdot T_p \cdot C}{C - \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)}, & \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right) < C
+    \infty \;, & 0 \leq C \leq \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right) \\[1ex]
+    \frac{3 \cdot T_p \cdot C}{C - \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right)} \;, & \Gamma^* \cdot \left( 1 + 3 \cdot \alpha \right) < C
   \end{cases} (\#eq:wpnew)
 \end{equation}
 With this modification, $W_p$ is never negative, and it can never be the
@@ -473,7 +493,9 @@ fvcb_model <- function(
 }
 ```
 
-Now, we will define a function that implements the pseudo-FvCB model:
+Now, we will define a function that implements the pseudo-FvCB model; here we
+will intentionally fail to restrict $A_p$ to its proper $C$ domain, allowing it
+to become limiting at low $C$:
 
 ```{r}
 pseudo_fvcb_model <- function(
