@@ -751,4 +751,21 @@ do.call(fvcb_compare, within(defaults, {J = 10; plot_type = 2}))
 do.call(fvcb_compare, within(defaults, {J = 10; plot_type = 3}))
 ```
 
+# Final Remarks
+
+In this document, we have shown that although the pseudo-FvCB model equations
+are frequently used by plant biologists, they are not exactly equivalent to the
+original FvCB model. Differences occur at low CO~2~ concentrations where
+$C < \Gamma^*$; in this situation, the two models always disagree as to which
+process limits carboxylation and determines the overall net CO~2~ assimilation
+rate. While these differences may not always be consequential (for example,
+CO~2~ concentrations are rarely low enough in the context of a typical crop
+growth simulation), it is nevertheless important to ensure that any mathematical
+model is described accurately, and that any code implementation of a model
+faithfully represents it. If this is not the case, then evaluating the ability
+of a model to represent reality---an essential goal of computational
+modeling---becomes an impossible task. For this reason, we recommend that the
+original formulation of the model be preferred to the pseudo-FvCB version when
+using the FvCB model.
+
 # References
