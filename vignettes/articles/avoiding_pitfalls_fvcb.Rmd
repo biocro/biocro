@@ -242,12 +242,30 @@ high (an assumption often met while measuring an A-Ci curve).
 
 There is nothing in the FvCB model equations (Equations \@ref(eq:anfinal),
 \@ref(eq:wc), \@ref(eq:wj), and \@ref(eq:mincj)) that enforces $W_c < W_j$ below
-some threshold value of $C$. The special points $\Gamma^*$ and the CO~2~
-compensation point are interesting; however, neither of these have any bearing
-on which processes might be limiting the carboxylation rate. In fact, there is
-simple counterexample demonstrating a situation where $W_j < W_c$ at low $C$:
-darkness. Darkness ensures that $J = 0$ and hence $W_j \leq W_c$ for all values
-of $C$.
+some threshold value of $C$. In fact, there is a simple counterexample
+demonstrating a situation where $W_j < W_c$ at low $C$: darkness. Darkness
+ensures that $J = 0$ and hence $W_j \leq W_c$ for all values of $C$.
+
+It is possible to find the point where the process limiting the carboxylation
+rate changes; this can be done by setting $W_c = W_j$ and solving for $C$. The
+result is given by Equation 2.52 in @caemmerer_biochemical_2000, where this
+special value of $C$ is called $C_c$:
+\begin{equation}
+C_c = \frac{K_c \cdot \left( 1 + O / K_o \right) \cdot J / \left( 4 \cdot V_{cmax} \right) - 2 \cdot \Gamma^*}{1 - J / \left( 4 \cdot V_{cmax} \right)} (\#eq:cc)
+\end{equation}
+From a physical point of view, $C_c$ cannot be negative; however, Equation
+\@ref(eq:cc) can mathematically produce negative values for $C_c$. When this
+happens, it simply means that there is no crossover, and one or the other
+process limits carboxylation for all realistic values of $C$. Inspecting the
+equation, we can see that there are two ways for it to become negative. One is
+for the denominator to be negative, which happens when $4 \cdot V_{cmax} < J$.
+This is a situation where $V_{cmax}$ is small and carboxylation is always
+RuBP-saturated. On the other hand, the numerator becomes negative when
+$J < 8 \cdot V_{cmax} / \left[ K_c \cdot \left( 1 + O / K_o \right) \right]$.
+This is a situation where $J$ is small and carboxylation is always
+RuBP-regeneration-limited. Essentially, Equation \@ref(eq:cc) tells us that
+there is no simple rule for determining which process limits carboxylation in
+the FvCB model.
 
 ## Pitfall: Choosing Minimal Assimilation Rates {#sec:pitfallassim}
 
