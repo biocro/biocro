@@ -113,7 +113,7 @@ struct c3_str c3photoC(
 
             // RuBP-regeneration-limited net assimilation when C is 0
             double Aj0 =
-                -Gstar * J / (2.0 * electrons_per_oxygenation * Gstar) - Rd;  // micromol / m^2 / s
+                -J / (2.0 * electrons_per_oxygenation) - Rd;  // micromol / m^2 / s
 
             co2_assimilation_rate = std::max(Ac0, Aj0);  // micromol / m^2 / s
         } else {
