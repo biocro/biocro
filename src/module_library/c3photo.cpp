@@ -130,10 +130,10 @@ struct c3_str c3photoC(
             // an asymptote at Ci = Gstar * (1 + 3 * alpha_TPU), and TPU cannot
             // limit the carboxylation rate for values of Ci below this
             // asymptote. A simple way to handle this is to make Wp infinite for
-            // Ci <= Gstar * (1 + 3 * alpha_TPU), so it is never limiting in
-            // this range.
+            // Ci <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting
+            // in this case.
             double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
-                            ? 3.0 * TPU * Ci / (Ci - (1.0 + 3.0 * alpha_TPU) * Gstar)
+                            ? 3.0 * TPU * Ci / (Ci - Gstar * (1.0 + 3.0 * alpha_TPU))
                             : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
 
             // Limiting carboxylation rate
