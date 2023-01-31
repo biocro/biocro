@@ -256,16 +256,21 @@ C_c = \frac{K_c \cdot \left( 1 + O / K_o \right) \cdot J / \left( 4 \cdot V_{cma
 From a physical point of view, $C_c$ cannot be negative; however, Equation
 \@ref(eq:cc) can mathematically produce negative values for $C_c$. When this
 happens, it simply means that there is no crossover, and one or the other
-process limits carboxylation for all realistic values of $C$. Inspecting the
-equation, we can see that there are two ways for it to become negative. One is
-for the denominator to be negative, which happens when $4 \cdot V_{cmax} < J$.
-This is a situation where $V_{cmax}$ is small and carboxylation is always
-RuBP-saturated. On the other hand, the numerator becomes negative when
-$J < 8 \cdot V_{cmax} / \left[ K_c \cdot \left( 1 + O / K_o \right) \right]$.
+process limits carboxylation for all realistic values of $C$. This occurs
+whenever the denominator and numerator have opposite signs. The denominator
+becomes negative when $4 \cdot V_{cmax} < J$. This is a situation where
+$V_{cmax}$ is small and carboxylation is always RuBP-saturated. On the other
+hand, the numerator becomes negative when
+$J < 8 \cdot V_{cmax} \cdot \Gamma^* / \left[ K_c \cdot \left( 1 + O / K_o \right) \right]$.
 This is a situation where $J$ is small and carboxylation is always
-RuBP-regeneration-limited. Essentially, Equation \@ref(eq:cc) tells us that
-there is no simple rule for determining which process limits carboxylation in
-the FvCB model.
+RuBP-regeneration-limited. (Of course, $C_c$ will still be positive if both the
+numerator and denominator are negative.) Even when $C_c$ is positive, it may not
+be realistically obtainable; for example, if $J$ is just a tiny bit larger than
+$4 \cdot Vcmax$, $C_c$ can take very large values that would only be achievable
+in a gas evironment of nearly pure CO~2~. Essentially, this analysis of Equation
+\@ref(eq:cc) tells us that there is no simple rule for determining which process
+limits carboxylation in the FvCB model, and it is even possible that a crossover
+between limiting processes may not occur.
 
 ## Pitfall: Choosing Minimal Assimilation Rates {#sec:pitfallassim}
 
@@ -333,10 +338,10 @@ pseudo-FvCB model can be found in Section \@ref(sec:examples).
 
 The sum of the chemical reactions in the Calvin–Benson–Bassham (CBB) cycle can
 be written as follows:
-\begin{align}
-\rm 3 \, CO_2 + 6 \, NADPH + 6 \, H^+ + &9 \, ATP + 5 \, H_2O \rightarrow \\
-                                        &(G3P) + 6 \, NADP^+ + 9 \, ADP + 8 \, P_i, (\#eq:cbb)
-\end{align}
+\begin{multline}
+\qquad 3 \, \mathrm{CO_2} + 6 \, \mathrm{NADPH} + 6 \, \mathrm{H^+} +  9 \, \mathrm{ATP} + 5 \, \mathrm{H_2O} \rightarrow \\
+\mathrm{(G3P)} + 6 \, \mathrm{NADP^+} + 9 \, \mathrm{ADP} + 8 \, \mathrm{P_i}, \qquad (\#eq:cbb)
+\end{multline}
 where G3P refers to glyceraldehyde 3-phosphate (also known as triose phosphate)
 and P~i~ refers to inorganic phosphate (an ion). Each molecule of ATP is
 synthesized from three inorganic phosphate ions; thus, the CBB reaction requires
@@ -455,7 +460,7 @@ A_j \big|_{C = 0} = - \frac{J}{8} - R_d.
 Remembering that Equation \@ref(eq:analt) _always_ makes the wrong choice for
 $C < \Gamma^*$, we can reverse its behavior to find $A_n$ when $C = 0$:
 \begin{equation}
-\left. A_n \right|_{C = 0} = \max \bigl\{ A_c \big|_{C = 0}, A_j \big|_{C = 0} \bigr\}.
+A_n \big|_{C = 0} = \max \bigl\{ A_c \big|_{C = 0}, A_j \big|_{C = 0} \bigr\}.
 \end{equation}
 
 # Examples Comparing the FvCB and Pseudo-FvCB Models {#sec:examples}
@@ -494,7 +499,7 @@ fvcb_model <- function(
 ```
 
 Now, we will define a function that implements the pseudo-FvCB model; here we
-will intentionally fail to restrict $A_p$ to its proper $C$ domain, allowing it
+will intentionally avoid restricting $A_p$ to its proper $C$ domain, allowing it
 to become limiting at low $C$:
 
 ```{r}
