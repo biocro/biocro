@@ -171,9 +171,9 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla)
  *
  *  @param [in] temperature Absolute temperature in Kelvin
  *
- *  @return Return The Arrhenius exponent `e^(c - E_a / R / T)`
+ *  @return Return The Arrhenius exponential `e^(c - E_a / R / T)`
  */
-inline double arrhenius_exponent(
+inline double arrhenius_exponential(
     double c,                  // dimensionless
     double activation_energy,  // J / mol
     double temperature         // Kelvin

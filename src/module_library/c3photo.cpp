@@ -1,178 +1,165 @@
-#include <cmath>
+#include <cmath>      // for pow, sqrt
+#include <algorithm>  // for std::min, std::max
+#include <limits>     // fot std::numeric_limits
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
-#include "biocro_units.h"
+#include "AuxBioCro.h"               // for arrhenius_exponential
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
-using namespace biocro_units;
-
-/*! Calculate the exponential term of the Arrhenius function.
- *
- * The Arrhenius equation is A * e^(c - E_a / R / temperature).
- * The result has the same units as A, which depends on the quantity of
- * interest. In order to make this function reusable, it only calculates the
- * exponential term, which is always dimensionless.
- */
-quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c,
-                                           quantity<energy_over_amount> activation_energy,
-                                           quantity<temperature> temperature)
-{
-    const quantity<energy_over_temperature_amount> R = physical_constants::ideal_gas_constant * joule / kelvin / mole;
-    return exp(c - activation_energy / (R * temperature));
-}
-
 struct c3_str c3photoC(
-    double _Qp,
-    double _Tleaf,
-    double RH,
-    double _Vcmax0,
-    double _Jmax0,
-    double _TPU_rate_max,
-    double _Rd0,
-    double bb0,
-    double bb1,
-    double Gs_min,
-    double Ca,
-    double AP,
-    double _O2,
-    double thet,
-    double StomWS,
-    int water_stress_approach,
-    double electrons_per_carboxylation,
-    double electrons_per_oxygenation)
+    double const Qp,                           // micromol / m^2 / s
+    double const Tleaf,                        // degrees C
+    double const RH,                           // dimensionless
+    double const Vcmax0,                       // micromol / m^2 / s
+    double const Jmax0,                        // micromol / m^2 / s
+    double const TPU_rate_max,                 // micromol / m^2 / s
+    double const Rd0,                          // micromol / m^2 / s
+    double const bb0,                          // mol / m^2 / s
+    double const bb1,                          // dimensionless
+    double const Gs_min,                       // mol / m^2 / s
+    double Ca,                                 // micromol / mol
+    double const AP,                           // Pa
+    double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
+    double const thet,                         // dimensionless
+    double const StomWS,                       // dimensionless
+    int const water_stress_approach,           // (flag)
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation     // self-explanatory units
+)
 {
-    // Assign units to the input quantities. The parameters can be renamed and
-    // this section can be removed when call functions that call c3photoC() are
-    // also using units.
-    const quantity<flux> Rd0 = _Rd0 * 1e-6 * mole / square_meter / second;
-    const quantity<flux> Vcmax0 = _Vcmax0 * 1e-6 * mole / square_meter / second;
-    const quantity<mole_fraction> atmospheric_oxygen_mole_fraction = _O2 * 1e-3 * mole / mole;
-    const quantity<flux> Jmax0 = _Jmax0 * 1e-6 * mole / square_meter / second;
-    const quantity<temperature> leaf_temperature = (_Tleaf + conversion_constants::celsius_to_kelvin) * kelvin;
-    const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
-    const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
+    // Get leaf temperature in Kelvin
+    double const Tleaf_K =
+        Tleaf + conversion_constants::celsius_to_kelvin;  // K
 
-    const quantity<pressure> atmospheric_pressure = AP * pascal;
-    const quantity<dimensionless> leaf_reflectance = 0.2;
-    const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
+    // Define the leaf reflectance
+    double const leaf_reflectance = 0.2;  // dimensionless
 
-    /* Temperature corrections are from the following sources:
-     Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
-         https://doi.org/10.1046/j.0016-8025.2003.01050.x
-     Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
-         https://doi.org/10.1111/j.1365-3040.2001.00668.x */
-    /* Note: Values in Dubois and Bernacchi are incorrect. */
-    const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
-    const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
-    const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
-    const quantity<flux> Vcmax = Vcmax0 * arrhenius_exponent(26.35, 65.33e3 * joule / mole, leaf_temperature);
-    const quantity<flux> Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3 * joule / mole, leaf_temperature);
-    const quantity<flux> Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3 * joule / mole, leaf_temperature);
+    // Temperature corrections are from the following sources:
+    // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
+    //   https://doi.org/10.1046/j.0016-8025.2003.01050.x
+    // - Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
+    //   https://doi.org/10.1111/j.1365-3040.2001.00668.x
+    // Note: Values in Dubois and Bernacchi are incorrect.
+    double const Kc = arrhenius_exponential(38.05, 79.43e3, Tleaf_K);              // micromol / mol
+    double const Ko = arrhenius_exponential(20.30, 36.38e3, Tleaf_K);              // mmol / mol
+    double const Gstar = arrhenius_exponential(19.02, 37.83e3, Tleaf_K);           // micromol / mol
+    double const Vcmax = Vcmax0 * arrhenius_exponential(26.35, 65.33e3, Tleaf_K);  // micromol / m^2 / s
+    double const Jmax = Jmax0 * arrhenius_exponential(17.57, 43.54e3, Tleaf_K);    // micromol / m^2 / s
+    double const Rd = Rd0 * arrhenius_exponential(18.72, 46.39e3, Tleaf_K);        // micromol / m^2 / s
 
-    const double leaf_temperature_celsius = leaf_temperature.value() - conversion_constants::celsius_to_kelvin;
-    const quantity<dimensionless> theta =
-        thet + 0.018 * leaf_temperature_celsius - 3.7e-4 * pow(leaf_temperature_celsius, 2);
+    double const theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf, 2);  // dimensionless
 
-    /* Light limited */
-    const quantity<dimensionless> dark_adapted_phi_PSII =
-        0.352 + 0.022 * leaf_temperature_celsius -
-        3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. (2003).  See reference above.
-    const quantity<flux> I2 = Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;
+    // Light limited
+    double const dark_adapted_phi_PSII =
+        0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 1e4;  // dimensionless (Bernacchi et al. (2003))
 
-    const quantity<flux> J = (Jmax + I2 - root<2>(pow<2>(Jmax + I2) - 4.0 * theta * I2 * Jmax)) / (2.0 * theta);
+    double const I2 =
+        Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;  // micromol / m^2 / s
 
-    const quantity<mole_fraction> Oi = atmospheric_oxygen_mole_fraction * solo(leaf_temperature_celsius);
+    double const J =
+        (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4.0 * theta * I2 * Jmax)) /
+        (2.0 * theta);  // micromol / m^2 / s
+
+    double const Oi = O2 * solo(Tleaf);  // mmol / mol
 
     if (Ca <= 0) {
-        Ca = 1e-4;
+        Ca = 1e-4;  // micromol / mol
     }
 
-    const quantity<pressure> Ca_pa = Ca * 1e-6 * atmospheric_pressure;  // Pa.
+    double const Ca_pa = Ca * 1e-6 * AP;  // Pa.
 
-    quantity<pressure> Ci_pa = 0.0 * pascal;
-    quantity<flux> Vc;
-    quantity<flux> Tol = 0.01 * 1e-6 * mole / square_meter / second;
-    quantity<flux> Gs;
-    quantity<flux> co2_assimilation_rate = 0 * mole / square_meter / second;
-    quantity<mole_fraction> Ci;
+    // TPU rate temperature dependence from Figure 7, Yang et al. (2016) Planta,
+    // 243, 687-698. https://doi.org/10.1007/s00425-015-2436-8
+    //
+    // In Yang et al., the equation in the caption of Figure 7 calculates the
+    // maximum rate of TPU utilization, but here we need the rate relative to
+    // its value at 25 degrees C (as shown in the figure itself). Using the
+    // equation, the rate at 25 degrees C can be found to have the value
+    // 306.742, so here we normalize the equation by this value.
+    double const TPU_c = 25.5;                                               // dimensionless (fitted constant)
+    double const Ha = 62.99e3;                                               // J / mol (enthalpy of activation)
+    double const S = 0.588e3;                                                // J / K / mol (entropy)
+    double const Hd = 182.14e3;                                              // J / mol (enthalpy of deactivation)
+    double const R = physical_constants::ideal_gas_constant;                 // J / K / mol (ideal gas constant)
+    double const top = Tleaf_K * arrhenius_exponential(TPU_c, Ha, Tleaf_K);  // dimensionless
+    double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
+    double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
 
-    /* TPU rate temperature dependence from Fig. 7, Yang et al. (2016) Planta,
-       243, 687-698. https://doi.org/10.1007/s00425-015-2436-8 */
-    const double TPU_c = 25.5;                                                                                          // dimensionless. fitted constant
-    const quantity<energy_over_amount> Ha = 62.99e3 * joule / mole;                                                     // enthalpy of activation
-    const quantity<energy_over_temperature_amount> S = 0.588e3 * joule / kelvin / mole;                                 // entropy
-    const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                                                    // enthalpy of deactivation
-    const quantity<energy_over_temperature_amount> R = physical_constants::ideal_gas_constant * joule / kelvin / mole;  // gas constant
-    const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c, Ha, leaf_temperature);
-    const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S / R, Hd, leaf_temperature);
-    double TPU_rate_scaler = top.value() / bot.value();  // dimensionless
+    double TPU = TPU_rate_max * TPU_rate_multiplier;  // micromol / m^2 / s
 
-    /* In Yang et al. the equation for `TPU_rate_scaler` is described as
-       producing the TPU rate relative to 25 degrees C. However, it does not do
-       that. Here we calculate the value of that equation at 25 degrees C, then
-       divide `TPU_rate_scaler` by that value to get a rate relative to 25
-       degrees C. */
-    const double TPU_rate_scaler25 = 306.742;  // dimensionless. This is `top / bottom` at 25 degrees C.
-    TPU_rate_scaler /= TPU_rate_scaler25;       // dimensionless. Normalize to 25 degrees C.
+    // The alpha constant for calculating Ap is from Eq. 2.26, von Caemmerer, S.
+    // Biochemical models of leaf photosynthesis.
+    double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
-    /* The alpha constant for calculating Ap is from
-       Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
-    double alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
-
+    // Initialize variables before running fixed point iteration in a loop
+    double Gs{};                         // mol / m^2 / s
+    double Ci{};                         // micromol / mol
+    double Ci_pa = 0.0;                  // Pa                 (initial guess)
+    double co2_assimilation_rate = 0.0;  // micromol / m^2 / s (initial guess)
+    double const Tol = 0.01;             // micromol / m^2 / s
     int iterCounter = 0;
     int max_iter = 1000;
+
+    // Run iteration loop
     while (iterCounter < max_iter) {
-        quantity<flux> OldAssim = co2_assimilation_rate;
+        double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
+        Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        /* Rubisco limited carboxylation */
-        Ci = Ci_pa / atmospheric_pressure;
-        quantity<flux> Ac1 = Vcmax * (Ci - Gstar);
-        double Ac2 = Ci + Kc * (1 + Oi / Ko);
-        quantity<flux> Ac = Ac1 / Ac2;
+        // Calculate the net CO2 assimilation rate using the method described in
+        // "Avoiding Pitfalls When Using the FvCB Model"
+        if (Ci == 0.0) {
+            // RuBP-saturated net assimilation rate when Ci is 0
+            double Ac0 = -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - Rd;  // micromol / m^2 / s
 
-        /* Light limited portion */
-        quantity<flux> Aj1 = J * (Ci - Gstar);
-        double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
-        quantity<flux> Aj = Aj1 / Aj2;
-        if (Aj < 0.0 * mole / square_meter / second) {
-            Aj = 0.0 * mole / square_meter / second;
+            // RuBP-regeneration-limited net assimilation when C is 0
+            double Aj0 =
+                -J / (2.0 * electrons_per_oxygenation) - Rd;  // micromol / m^2 / s
+
+            co2_assimilation_rate = std::max(Ac0, Aj0);  // micromol / m^2 / s
+        } else {
+            // RuBP-saturated carboxylation rate
+            double Wc = Vcmax * Ci /
+                        (Ci + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
+
+            // RuBP-regeneration-limited carboxylation rate
+            double Wj = J * Ci /
+                        (electrons_per_carboxylation * Ci +
+                         2.0 * electrons_per_oxygenation * Gstar);  // micromol / m^2 / s
+
+            // Triose-phosphate-utilization-limited carboxylation rate. There is
+            // an asymptote at Ci = Gstar * (1 + 3 * alpha_TPU), and TPU cannot
+            // limit the carboxylation rate for values of Ci below this
+            // asymptote. A simple way to handle this is to make Wp infinite for
+            // Ci <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting
+            // in this case.
+            double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
+                            ? 3.0 * TPU * Ci / (Ci - Gstar * (1.0 + 3.0 * alpha_TPU))
+                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
+
+            // Limiting carboxylation rate
+            double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s
+
+            co2_assimilation_rate = (1.0 - Gstar / Ci) * Vc - Rd;  // micromol / m^2 / s
         }
-
-        /* Triose phosphate utilization limited */
-        quantity<flux> Ap = 3.0 * maximum_tpu_rate * (Ci - Gstar) / (Ci - (1.0 + 1.5 * alpha_TPU) * Gstar);
-        Ap = Ap * TPU_rate_scaler;
-
-        if (Ac < Aj && Ac < Ap) {
-            Vc = Ac;
-        } else if (Aj < Ac && Aj < Ap) {
-            Vc = Aj;
-        } else if (Ap < Ac && Ap < Aj) {
-            if (Ap < 0 * mole / square_meter / second) {
-                Ap = 0 * mole / square_meter / second;
-            }
-            Vc = Ap;
-        }
-
-        co2_assimilation_rate = Vc - Rd;
 
         if (water_stress_approach == 0) {
-            co2_assimilation_rate *= quantity<dimensionless>(StomWS);
+            co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
         }
 
-        Gs = ball_berry(co2_assimilation_rate.value(), Ca * 1e-6, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
+        Gs = ball_berry(co2_assimilation_rate * 1e-6, Ca * 1e-6, RH, bb0, bb1) * 1e-3;  // mol / m^2 / s
 
         if (water_stress_approach == 1) {
-            Gs = Gsw_min + StomWS * (Gs - Gsw_min);
+            Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
         }
 
-        if (Gs <= 0 * mole / square_meter / second) {
-            Gs = 1e-5 * 1e-3 * mole / square_meter / second;
+        if (Gs <= 0) {
+            Gs = 1e-8;  // mol / m^2 / s
         }
 
-        Ci_pa = Ca_pa - co2_assimilation_rate * 1.6 * atmospheric_pressure / Gs;
+        Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * 1.6 * AP / Gs;  // Pa
 
-        if (Ci_pa < 0 * pascal) {
-            Ci_pa = 1e-5 * pascal;
+        if (Ci_pa < 0) {
+            Ci_pa = 1e-5;  // Pa
         }
 
         if (abs(OldAssim - co2_assimilation_rate) < Tol) {
@@ -183,35 +170,22 @@ struct c3_str c3photoC(
     }
 
     struct c3_str result;
-    result.Assim = co2_assimilation_rate.value() * 1e6;                      // micromole / m^2 / s.
-    result.Gs = Gs.value() * 1e3;                                            // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;                                            // micromole / mol.
-    result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
+    result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
+    result.Gs = Gs * 1e3;                            // mmol / m^2 / s
+    result.Ci = Ci;                                  // micromol / mol
+    result.GrossAssim = co2_assimilation_rate + Rd;  // micromol / m^2 / s
     return result;
 }
 
-double solc(double LeafT)
+// This function returns the solubility of O2 in H2O relative to its value at
+// 25 degrees C. The equation used here was developed by forming a polynomial
+// fit to tabulated solubility values from a reference book, and then a
+// subsequent normalization to the return value at 25 degrees C. For more
+// details, See Long, Plant, Cell & Environment 14, 729–739 (1991)
+// (https://doi.org/10.1111/j.1365-3040.1991.tb01439.x).
+double solo(
+    double LeafT  // degrees C
+)
 {
-    double tmp;
-
-    if (LeafT > 24 && LeafT < 26) {
-        tmp = 1;
-    } else {
-        tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT, 2) - 8.874081e-06 * pow(LeafT, 3)) / 0.735465;
-    }
-
-    return tmp;
-}
-
-double solo(double LeafT)
-{
-    double tmp;
-
-    if (LeafT > 24 && LeafT < 26) {
-        tmp = 1;
-    } else {
-        tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
-    }
-
-    return tmp;
+    return (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
 }
