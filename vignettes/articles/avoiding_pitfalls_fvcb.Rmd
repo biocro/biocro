@@ -4,6 +4,7 @@ output:
   bookdown::html_vignette2:
     toc: true
     number_sections: true
+    fig_caption: yes
 bibliography: fvcb_references.bib
 link-citations: yes
 pkgdown:
@@ -270,7 +271,83 @@ $4 \cdot Vcmax$, $C_c$ can take very large values that would only be achievable
 in a gas evironment of nearly pure CO~2~. Essentially, this analysis of Equation
 \@ref(eq:cc) tells us that there is no simple rule for determining which process
 limits carboxylation in the FvCB model, and it is even possible that a crossover
-between limiting processes may not occur.
+between limiting processes may not occur (see Figure \@ref(fig:cc)).
+
+```{r cc, echo = FALSE}
+#| fig.cap = "Solution space of Equation \\@ref(eq:cc) indicating where a
+#|   crossover is impossible because `Cc` is negative (pink), unlikely because
+#|   `Cc` is too large (dark blue), or otherwise possible (white). The upper
+#|   pink region is bounded from below by
+#|   `Vcmax = J * [ Kc * (1 + O / Ko)] / (8 * GammaStar)` and the lower pink
+#|   region is bounded from above by `Vcmax = J / 4`. In this calculation,
+#|   `Kc` = 259 microbar, `O` = 200 mbar, `Ko` = 179 mbar, `GammaStar` =
+#|   38.6 microbar, and `Cc` is considered to be too large when it exceeds
+#|   2000 microbar."
+
+# Define a function that calculates the crossover point and returns an
+# indication of whether it can or cannot occur. Here, -1 means Cc is negative
+# and a crossover is impossible; 1 means Cc exceeds a threshold value (2000
+# microbar) and is unlikely to be realistically achievable; 0 means that a
+# crossover occurs at a reasonable value.
+crossover <- function(
+    J,    # micromol / m^2 / s
+    Vcmax # micromol / m^2 / s
+)
+{
+    Kc <- 259     # microbar
+    O <- 200      # mbar
+    Ko <- 179     # mbar
+    Gstar <- 38.6 # microbar
+
+    jv <- J / (4 * Vcmax) # dimensionless
+
+    Cc <- (Kc * (1.0 + O / Ko) * jv - 2.0 * Gstar) / (1.0 - jv) # microbar
+
+    if (Cc < 0) {
+        -1
+    } else if (Cc > 2000) {
+        1
+    } else {
+        0
+    }
+}
+
+# Set up the input values and the output matrix
+npts <- 1001
+j_seq <- seq(0, 100, length.out = npts)
+v_seq <- seq(1, 100, length.out = npts)
+z_cc <- matrix(nrow = length(j_seq), ncol = length(v_seq))
+
+# Fill in the matrix
+for (i in seq_along(j_seq)) {
+  for (j in seq_along(v_seq)) {
+    z_cc[i,j] <- crossover(j_seq[i], v_seq[j])
+  }
+}
+
+# Make the image
+cc_image <- list(x = j_seq, y = v_seq, z = z_cc)
+
+# Make a custom image plotting function
+plot_image <- function(F_image, ...) {
+    cols <- c('#F2CEE6', '#FFFFFF', '#7798AB')
+    breaks <- c(-10, -0.5, 0.5, 10)
+    image(
+        F_image,
+        breaks = breaks,
+        col = cols,
+        useRaster = TRUE,
+        ...
+    )
+}
+
+# Plot the image
+plot_image(
+    cc_image,
+    xlab = 'J (micromol / m^2 / s)',
+    ylab = 'Vcmax (micromol / m^2 / s)'
+)
+```
 
 ## Pitfall: Choosing Minimal Assimilation Rates {#sec:pitfallassim}
 
