@@ -265,7 +265,7 @@ $J < 8 \cdot V_{cmax} \cdot \Gamma^* / \left[ K_c \cdot \left( 1 + O / K_o \righ
 This is a situation where $J$ is small and carboxylation is always
 RuBP-regeneration-limited. (Of course, $C_c$ will still be positive if both the
 numerator and denominator are negative.) Even when $C_c$ is positive, it may not
-be realistically obtainable; for example, if $J$ is just a tiny bit larger than
+be realistically obtainable; for example, if $J$ is just a tiny bit smaller than
 $4 \cdot Vcmax$, $C_c$ can take very large values that would only be achievable
 in a gas evironment of nearly pure CO~2~. Essentially, this analysis of Equation
 \@ref(eq:cc) tells us that there is no simple rule for determining which process
