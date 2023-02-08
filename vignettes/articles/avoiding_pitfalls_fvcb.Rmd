@@ -6,6 +6,7 @@ output:
     number_sections: true
     fig_caption: yes
 bibliography: fvcb_references.bib
+csl: elsevier-harvard.csl
 link-citations: yes
 pkgdown:
   as_is: true
