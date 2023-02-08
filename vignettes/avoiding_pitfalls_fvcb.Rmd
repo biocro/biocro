@@ -5,6 +5,10 @@ output:
     toc: true
     number_sections: true
     fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Avoiding Pitfalls When Using the FvCB Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 bibliography: fvcb_references.bib
 csl: elsevier-harvard.csl
 link-citations: yes
