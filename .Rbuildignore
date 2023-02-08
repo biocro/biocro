@@ -13,14 +13,12 @@
 /\.RData
 # Only a root level .RData file is ignored by default.
 
-^vignettes/articles$
-# Exclude articles from the package
-
 ^vignettes/.*\.aux$
 ^vignettes/.*\.log$
 ^vignettes/.*\.out$
 ^vignettes/.*\.tex$
 ^vignettes/.*\.toc$
+^vignettes/BioCro-II_Paper--Section-1.1-example_cache$
 # Vignette-build by-products
 
 ^vignettes/[^/]*\.pdf$
@@ -60,6 +58,9 @@
 ^index.md$
 ^about_pkgdown_documentation.md$
 # Files created by documentation/script/run_pkgdown.sh
+
+^docs$
+# Files created by pkgdown::build_site()
 
 ^LICENSE\.md$
 # Required by the GNU GPL license but not allowed on CRAN
