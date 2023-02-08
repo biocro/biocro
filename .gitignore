@@ -39,6 +39,7 @@ vignettes/figure/
 vignettes/*synctex.gz
 cache/
 figure/
+BioCro-II_Paper--Section-1.1-example_cache/
 
 # Files created by vim
 *.swp
