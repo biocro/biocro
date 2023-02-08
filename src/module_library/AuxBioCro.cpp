@@ -82,6 +82,62 @@ Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
 }
 
 /**
+ *  @brief Computes absorbed light from incident light for leaves in a canopy.
+ *
+ *  @param [in] leaf_reflectance The fractional amount of light reflected by
+ *              the leaves (weighted across the appropriate wavelength band)
+ *
+ *  @param [in] leaf_transmittance The fractional amount of light transmitted by
+ *              the leaves (weighted across the appropriate wavelength band)
+ *
+ *  @param [in] incident_light The amount of light incident on the leaves; for
+ *              quantum fluxes, the units will typically be micromol / m^2 / s;
+ *              for energy fluxes, the units will typically be J / m^2 / s.
+ *
+ *  @return The amount of radiation absorbed by the leaves expressed in the same
+ *              units as `incident_light`.
+ *
+ *  In general, the light absorbed by a leaf (`Iabs`) is related to the light
+ *  incident on the leaf (`Iinc`) by the leaf absorptance (`abs`), which
+ *  represents the fraction of light absorbed by the leaf. In other words,
+ *  `Iabs = abs * Iinc`.
+ *
+ *  For a leaf in isolation, any light that is reflected or transmitted is not
+ *  absorbed, so `abs = 1 - leaf_reflectance - leaf_transmittance`. This is the
+ *  typical definition of leaf absorptance.
+ *
+ *  The situation is more complicated for a leaf within a plant canopy because
+ *  any reflected or transmitted light can be subseqently reflected back to the
+ *  leaf by other leaves in the canopy. In this case, it can be shown (see Notes
+ *  below) that the fraction of absorbed light is given by
+ *  `abs = (1 - leaf_reflectance - leaf_transmittance) / (1 - leaf_transmittance)`.
+ *  Provided that the the leaf transmittance is not zero, this "canopy leaf
+ *  absorptance" will be larger than the absorptance of a leaf in isolation.
+ *
+ *  Notes from EBL: So far, I have not actually found an explanation for this
+ *  equation. It can be found as Eq 8.7c on page 204 of Thornley and Johnson
+ *  (2000) Plant and Crop Modelling: A Mathematical Approach to Plant and Crop
+ *  Physiology. However, I don't think this book explains where it comes from.
+ *  Also note that when leaf transmittance is zero, the "canopy leaf
+ *  absorptance" is identical to the absorptance of a leaf in isolation. From
+ *  this it seems that the equation only considers that transmitted light will
+ *  be reflected back to the leaf; thus, it may actually only be appropriate for
+ *  upper or sunlit leaves, where any reflected light can be safely assumed to
+ *  be "lost."
+ */
+double absorbed_from_incident_in_canopy(
+    double leaf_reflectance,    // dimensionless
+    double leaf_transmittance,  // dimensionless
+    double incident_light       // Light units such as `micromol / m^2 / s` or
+                                //   `J / m^2 / s`
+)
+{
+    return incident_light *
+           (1 - leaf_reflectance - leaf_transmittance) /
+           (1 - leaf_transmittance);  // same units as `incident_light`
+}
+
+/**
  *  @brief Computes total absorbed shortwave radiation from the
  *  photosynthetically active photon flux density (PPFD) incident on a leaf
  *
@@ -131,9 +187,10 @@ double absorbed_shortwave_from_incident_ppfd(
 
     double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
 
-    return incident_shortwave *
-           (1 - leaf_reflectance - leaf_transmittance) /
-           (1 - leaf_transmittance);  // J / m^2 / s
+    return absorbed_from_incident_in_canopy(
+        leaf_reflectance,
+        leaf_transmittance,
+        incident_shortwave);  // J / m^2 / s
 }
 
 /**

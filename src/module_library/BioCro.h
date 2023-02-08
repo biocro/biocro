@@ -59,6 +59,13 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 
+double absorbed_from_incident_in_canopy(
+    double leaf_reflectance,    // dimensionless
+    double leaf_transmittance,  // dimensionless
+    double incident_light       // Light units such as `micromol / m^2 / s` or
+                                //   `J / m^2 / s`
+);
+
 double absorbed_shortwave_from_incident_ppfd(
     double incident_ppfd,        // micromol / m^2 / s
     double par_energy_content,   // J / micromol
