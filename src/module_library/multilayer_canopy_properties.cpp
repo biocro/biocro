@@ -50,6 +50,7 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 {
     return {
         "incident_ppfd",       // micromol / (m^2 leaf) / s
+        "absorbed_ppfd",       // micromol / (m^2 leaf) / s
         "absorbed_shortwave",  // J / (m^2 leaf) / s
         "fraction"             // dimensionless
     };
@@ -137,10 +138,12 @@ void multilayer_canopy_properties::run() const
     for (int i = 0; i < nlayers; ++i) {
         update(sunlit_fraction_ops[i], light_profile.sunlit_fraction[i]);
         update(sunlit_incident_ppfd_ops[i], light_profile.sunlit_incident_ppfd[i]);
+        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit_absorbed_ppfd[i]);
         update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit_absorbed_shortwave[i]);
 
         update(shaded_fraction_ops[i], light_profile.shaded_fraction[i]);
         update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd[i]);
+        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded_absorbed_ppfd[i]);
         update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave[i]);
 
         update(average_incident_ppfd_ops[i], light_profile.average_incident_ppfd[i]);

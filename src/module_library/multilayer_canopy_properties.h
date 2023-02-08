@@ -85,9 +85,11 @@ class multilayer_canopy_properties : public direct_module
           // Get pointers to output quantities
           sunlit_fraction_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")),
           sunlit_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")),
+          sunlit_absorbed_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_ppfd")),
           sunlit_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_shortwave")),
           shaded_fraction_ops(get_multilayer_op(output_quantities, nlayers, "shaded_fraction")),
           shaded_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")),
+          shaded_absorbed_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_ppfd")),
           shaded_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_shortwave")),
           average_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "average_incident_ppfd")),
           average_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "average_absorbed_shortwave")),
@@ -125,9 +127,11 @@ class multilayer_canopy_properties : public direct_module
     // Pointers to output parameters
     std::vector<double*> const sunlit_fraction_ops;
     std::vector<double*> const sunlit_incident_ppfd_ops;
+    std::vector<double*> const sunlit_absorbed_ppfd_ops;
     std::vector<double*> const sunlit_absorbed_shortwave_ops;
     std::vector<double*> const shaded_fraction_ops;
     std::vector<double*> const shaded_incident_ppfd_ops;
+    std::vector<double*> const shaded_absorbed_ppfd_ops;
     std::vector<double*> const shaded_absorbed_shortwave_ops;
     std::vector<double*> const average_incident_ppfd_ops;
     std::vector<double*> const average_absorbed_shortwave_ops;

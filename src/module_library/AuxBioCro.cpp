@@ -338,7 +338,7 @@ Light_profile sunML(
             average_ppfd = 0;
         }
 
-        // Store these values of incident PPFD
+        // Store values of incident PPFD
         light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + diffuse_ppfd;  // micromole / (m^2 leaf) / s
         light_profile.incident_ppfd_scattered[i] = scattered_ppfd;                      // micromole / m^2 / s
         light_profile.shaded_incident_ppfd[i] = diffuse_ppfd;                           // micromole / (m^2 leaf) / s
@@ -347,8 +347,20 @@ Light_profile sunML(
         light_profile.shaded_fraction[i] = shaded_fraction;                             // dimensionless from m^2 / m^2
         light_profile.height[i] = (lai - cumulative_lai) / heightf;                     // m
 
-        // We also need to determine the total amount of absorbed solar energy
-        // for sunlit and shaded leaves
+        // Store values of absorbed PPFD
+        light_profile.sunlit_absorbed_ppfd[i] =
+            absorbed_from_incident_in_canopy(
+                leaf_reflectance,
+                leaf_transmittance,
+                ambient_ppfd_beam_leaf + diffuse_ppfd);  // micromol / m^2 / s
+
+        light_profile.shaded_absorbed_ppfd[i] =
+            absorbed_from_incident_in_canopy(
+                leaf_reflectance,
+                leaf_transmittance,
+                diffuse_ppfd);  // micromol / m^2 / s
+
+        // Store values of absorbed solar energy (including PAR and NIR)
         light_profile.sunlit_absorbed_shortwave[i] =
             absorbed_shortwave_from_incident_ppfd(
                 ambient_ppfd_beam_leaf + diffuse_ppfd,
