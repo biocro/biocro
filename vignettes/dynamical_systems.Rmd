@@ -93,9 +93,9 @@ system consists of a system of equations putting certain constraints
 on the function $h$:
                               <!-- (no par break) -->
 \begin{align}
-  h(0)         & = h_0  \notag \\
-  h'(t)|_{t=0} & = 0    \label{eq:ode-system} \\
-  h''(t)       & = -g   \notag
+  h(0)         & = h_0      \notag \\
+  h'(t)\big|_{t=0} & = 0    \label{eq:ode-system} \\
+  h''(t)       & = -g       \notag
 \end{align}
                               <!-- (no par break) -->
 (The third constraint would more accurately be written as
@@ -208,7 +208,7 @@ we assume that for any sufficiently small interval of time $\Delta t$,
 
 ## Applying Euler's method to the falling-body problem
 
-In the system of equations at \eqref{eq:ode-system}, $h$ is the only
+In the system of equations \eqref{eq:ode-system}, $h$ is the only
 system variable.  But there is no valid equation that gives $dh/dt$ as
 a function of the state when the state is represented by $h$ alone.
 
@@ -339,13 +339,12 @@ theory of general systems, dynamical and otherwise, see
 
 As is common, we will take $f: C \to B$ to mean "$f$ is a function
 with domain $C$ taking values in the set $B$."  Usually, this means
-$f(c)$ is defined for every $c\in C$, but in what follows, we
-occasionally won't always be entirely strict about this.  Following
-@vaught, we write $B^C$ to denote the set of all such functions
-$f$.[^sets_of_functions] We use $\R$, $\Z$, and $\N$ to denote the
-real numbers, the integers, and the natural numbers (the finite
-ordinals, including zero), respectively.  $\Z^+$ denotes the
-_positive_ integers.
+$f(c)$ is defined for every $c\in C$, but in what follows, we won't
+always be entirely strict about this.  Following @vaught, we write
+$B^C$ to denote the set of all such functions $f$.[^sets_of_functions]
+We use $\R$, $\Z$, and $\N$ to denote the real numbers, the integers,
+and the natural numbers (the finite ordinals, including zero),
+respectively.  $\Z^+$ denotes the _positive_ integers.
 
 Following von Neumann, it will sometimes be convenient to identify
 each natural number $n$ with the set of all of its predecessors.  For
@@ -360,16 +359,17 @@ $3=\{0,1,2\}$!)  Thus, we can identify a 3-tuple $(x,y,z)$ with a
 mapping $v: \{0,1,2\}\to \R$, where $v(0) = x$, $v(1) = y$, and $v(2)
 = z$.  We often write $v_i$ in place of $v(i)$ and identify a mapping
 $v: \{0, 1, 2, \dots, n-1\}\to \R$ with an n-tuple or n-coordinate
-vector $\vec{v}=(v_0, v_1, v_2, \dots, v_{n-1})$.  Often, however,
-there will be some level of indirection involved in our use of the
-notation $v_i$ for a coordinate of $\vec{v}$.  For example, if
-$\vs{U}$ is a proper subspace of $\R^n$, so that $\vs{U} = \R^U$ for
-some proper subset $U$ of $n = \{0,1,\dots,n-1\}$, then we may regard
-$u_i$ as the value taken by the $i$th member of $U$ in some arbitrary
-but fixed ordering of the members of $U$.  We even allow the case
-where the function domain $U$ isn't a set of intergers at all but just
-some finite collection of objects.  In this case, in the context of
-considering vectors (_qua_ mappings) $\vec{v}\in \R^U$, $v_i$ may
+vector $\vec{v}=(v_0, v_1, v_2, \dots, v_{n-1})$.
+
+Often, however, there will be some level of indirection involved in
+our use of the notation $v_i$ for a coordinate of $\vec{v}$.  For
+example, if $\vs{U}$ is a proper subspace of $\R^n$ such that $\vs{U}
+= \R^U$ for some proper subset $U$ of $n = \{0,1,\dots,n-1\}$, then we
+may regard $u_i$ as the value taken by the $i$th member of $U$ in some
+arbitrary but fixed ordering of the members of $U$.  We even allow the
+case where the function domain $U$ isn't a set of intergers at all but
+just some finite collection of objects.  In this case, in the context
+of considering vectors (_qua_ mappings) $\vec{v}\in \R^U$, $v_i$ may
 denote alternately the i'th member of $U$ in some fixed enumeration;
 the name of a variable associated with that member; or the value of
 the i'th coordinate of some particular vector $\vec{v}$.  In the later
@@ -433,7 +433,7 @@ define the _union_ $f\cup g$ of $f$ and $g$ by the rule
                               <!-- (no par break) -->
 Note that this is exactly the same function as that we get by
 regarding functions as sets of ordered pairs and then taking the
-literal union of $f$ and $g$.  Also, clearly,
+literal (set) union of $f$ and $g$.  Also, clearly,
                               <!-- (no par break) -->
 \begin{align*}
     f &= (f\cup g)|X \\
@@ -574,8 +574,8 @@ model, their laws of evolution would be included right alongside the
 laws determining plant growth.  But generally, to do so would overly
 complicate the model, and by and large, given the inherently chaotic
 nature of meteorological processes and the vast amounts of additional
-data that would be required, it isn't even feasible to do so.  So in
-BioCro, we regard them as a part of the system---as part of the
+data that would be required, it is not at all feasible to do so.  So
+in BioCro, we regard them as a part of the system---as part of the
 _state_ of the system---but as a part that is taken as given rather
 than as a part that is to be derived from some general rules governing
 the evolution of natural systems.
@@ -784,7 +784,7 @@ be solved is determined by specifying a solver.)[^alternate_treatment]
 
 Aside from differences in the concept of _state_, the Khalil model
 fits very well with an idealized version of the BioCro model in which
-time is considered to be continuous.  We will see this in the Section
+time is considered to be continuous.  We will see this in the section
 \ref{sec:BioCro_systems}, where we discuss the two models
 side-by-side.  But first, we will elaborate a bit further on the
 Khalil model.
@@ -802,7 +802,7 @@ the input $\vec{u}$:
 Let us denote the domains of $\vec{x}$ and $\vec{u}$ (vis-à-vis the
 function $\vec{f}$) by $\vs{X}$ and $\vs{U}$.  $\vs{X}$ and $\vs{U}$
 are vector spaces over the reals, and following the conventions set
-out in Section \ref{sec:notation}, we may view them as sets of
+out in section \ref{sec:notation}, we may view them as sets of
 mappings from finite _index_ sets into the reals.  Thus
                               <!-- (no par break) -->
 \begin{align}
@@ -824,9 +824,9 @@ may given by some function of time and/or the state:
   \vec{u} &= \boldsymbol\gamma(t, \vec{x}).
 \end{align*}
                               <!-- (no par break) -->
-In terms of the individual components of $\vec{u}$, each component
-$u_i$ of $\vec{u}$ can be expressed as a function $\gamma_i$ of $t$
-or $\vec{x}$ or both:
+Thinking in terms of the individual components of $\vec{u}$, each component
+$u_i$ of $\vec{u}$ can be expressed as a function $\gamma_i$ of $t$ or $\vec{x}$
+or both:
                               <!-- (no par break) -->
 \begin{align*}
   u_i &= \gamma_i(t), \\
@@ -856,10 +856,10 @@ alone.
 depends on the value of $\vec{x}$ (and possibly also on $t$).
 
 \noindent
-Thus $U=K\cup D\cup W$, allowing us to partition the vector space
-$\vs{U}$ into corresponding sub-vector spaces $\vs{K}$, $\vs{D}$, and
-$\vs{W}$; that is,
-                              <!-- (no par break) -->
+Thus $U=K\cup D\cup W$, where $K$, $D$, and $W$ are pairwise disjoint.  This
+allows us to partition the vector space $\vs{U}$ into corresponding sub-vector
+spaces $\vs{K}$, $\vs{D}$, and $\vs{W}$; that is,
+<!-- (no par break) -->
 \[
   \vs{U} = \vs{K}\times\vs{D}\times\vs{W},
 \]
@@ -951,6 +951,11 @@ differential component.)
   constant function $\gamma^\vs{K}$.  This will be a $q$-tuple of
   values $\vec{k} = (k_0, k_1, \dots, k_{q-1})$, where $q$ is the
   number of parameters, the dimension of the vector subspace $\vs{K}$.
+
+  (A special case is the parameter `timestep`, which must always be
+  included among the BioCro parameters, but which does not naturally
+  belong among the bona fide parameters belonging to the set $K$.  We
+  discuss `timestep` further in section \ref{sec:biocro_time}.)
 
 * The _drivers_ correspond to the function $\gamma^\vs{D}:T\to\R^r$,
   giving the value of $\vec{d}$ as a function of time.  Writing
@@ -1051,13 +1056,13 @@ case, each module $\M_i$ corresponds to a function of the form
   \gamma^{\vs{W}_i}: \vs{X}\times\vs{K}\times\vs{D}\times\vs{\overline{W}}_i \to \vs{W}_i,
 \end{equation}
                               <!-- (no par break) -->
-where $\vs{W}_i$ is the subspace of $\vs{W}$ generated by the
-variables in the output of module $\M_i$ and $\vs{\overline{W}}_i$ is
-the subspace of $\vs{W}$ generated by those inputs to module $\M_i$
-that are not in $X$, $K$, or $D$.  ($\vs{\overline{W}}_i$ is
-complementary to $\vs{W}_i$, with $\vs{W}_i \times
-\vs{\overline{W}}_i$ a subspace of $\vs{W}$.)  We will discuss this
-further in the section on modularization.
+where $\vs{W}_i$ is the subspace of $\vs{W}$ generated by the variables in the
+output of module $\M_i$ and $\vs{\overline{W}}_i$ is the subspace of $\vs{W}$
+generated by those inputs to module $\M_i$ that are not in $X$, $K$, or $D$.  (A
+direct module's inputs and outputs are always disjoint so that
+$\vs{\overline{W}}_i$ is complementary to $\vs{W}_i$, with $\vs{W}_i \times
+\vs{\overline{W}}_i$ a subspace of $\vs{W}$.)  We will discuss this further in
+the section on modularization.
 
 Second, it should be mentioned that the Khalil model allows for the
 inclusion of an output function
@@ -1074,12 +1079,12 @@ informational purposes only.
 
 The closest analogue to these variables in BioCro are those variables
 that are outputs of the direct module of the system but are not inputs
-to the differential module.  (An example of such variables in the
+to the differential module.  An example of such variables in the
 BioCro library are the _kinetic energy_, _spring energy_, and _total
 energy_ outputs of the harmonic energy module (class
 `harmonic_energy`).  These exist only to give information about the
 system using this module since (at least of this writing) there are no
-existing modules that use these as inputs.)
+existing modules that use these as inputs.
 
 * The _differential module_ corresponds to the function $\vec{f}$ in
   equation \eqref{eq:BioCro_state_equation}.  This is the Khalil state
@@ -1095,16 +1100,16 @@ existing modules that use these as inputs.)
   is assumed that $\dot{x}_i = 0$; that is, that component of the
   state remains constant throughout the life of the system.)
 
-## BioCro's concept of time
+## BioCro's concept of time \label{sec:biocro_time}
 
 In the C++ interface to the BioCro library, there is only one required
 user-facing time-related variable---namely, the quantity `timestep`,
 which must be provided as one (and possibly the only) of the
-parameters when setting up a system.  (In the R interface, there are
-always three additional quantities---`doy`, `hour`, and `time`---which
-always come into play when we set up or run a system.  These are
-artifacts of certain aspects of the R interface and are subject to
-revision, and we will mostly ignore them here.)
+parameters when setting up a system.[^timestep_parameter] (In the R
+interface, there are always three additional quantities---`doy`,
+`hour`, and `time`---which always come into play when we set up or run
+a system.  These are artifacts of certain aspects of the R interface
+and are subject to revision, and we will mostly ignore them here.)
 
 The `timestep` quantity, however, gives rise to an implicit quantity,
 the _elapsed time_, that corresponds well with the _time_ variable as
@@ -1161,7 +1166,7 @@ quantity; or a derived quantity, that is, a quantity whose value at
 any given time can be directly computed from the values of other
 quantities at that same time using some more or less simple formula.
 (These correspond, respectively, to the subspaces $\vs{K}$, $\vs{D}$,
-$\vs{X}$, and $\vs{W}$ discussed in Sections
+$\vs{X}$, and $\vs{W}$ discussed in sections
 \ref{sec:khalil_elaboration} and \ref{sec:BioCro_systems} and to the
 arguments $\vec{k}$, $\vec{d}$, $\vec{x}$, and $\vec{w}$ in the state
 equation in the form given in equation
@@ -1177,7 +1182,7 @@ quantities of the system at some particular point in time as the
 _state_ of the system at that time.  This section attempts to
 reconcile this conception of state with that commonly used in
 dynamical systems theory, and in particular, with the formulations
-presented in section \ref{sec:formulations}.
+presented in chapter \ref{sec:formulations}.
 
 ### BioCro state and the Giunti model
 
@@ -1263,7 +1268,7 @@ climate conditions in the greenhouse repeat exactly the same pattern
 from one day to the next.  In this system, the driver state at
 noon---the "weather" prediction for each moment going forward (one
 hour later, 10 hours later, 10 days later)---will be exactly the same
-from one day to the next.  And so to will the evolution of a generic
+from one day to the next.  And so too will the evolution of a generic
 seedling: the evolution of a seedling planted at noon on one day will
 be the same as the evolution of an identical seedling planted at noon
 twenty days later.
@@ -1373,7 +1378,7 @@ is at the top of Mount Everest.[^elevation])
 
 ## Modularization in BioCro
 
-As mentioned in Section \ref{sec:BioCro_systems}, any BioCro system
+As mentioned in section \ref{sec:BioCro_systems}, any BioCro system
 can be replaced by an equivalent system using only a single module of
 each type.  We merely have to write one direct module and one
 differential module, where each (respectively) combines the effects of
@@ -1393,7 +1398,7 @@ differential module case since it is the simpler of the two.
 
 ### Modularization of the derivative function
 
-As mentioned in Section \ref{sec:BioCro_systems}, when a BioCro system
+As mentioned in section \ref{sec:BioCro_systems}, when a BioCro system
 uses only a single differential module, that module corresponds to the
 function $\vec{f}$ in Khalil state equation
 \eqref{eq:BioCro_state_equation}.  We shall henceforth refer to
@@ -1514,7 +1519,7 @@ rewrite multiple modules that might use it.
 
 Let $\Sys$ be a BioCro system, and let $\vs{S} =
 \vs{X}\times\vs{K}\times\vs{D} \times \vs{W}$ be the state space of
-$\Sys$.  As mentioned in Section \ref{sec:BioCro_systems}, the direct
+$\Sys$.  As mentioned in section \ref{sec:BioCro_systems}, the direct
 module component of a BioCro system $\Sys$ corresponds to a function
                               <!-- (no par break) -->
 \begin{equation}
@@ -1533,7 +1538,7 @@ $\vs{X}\times\vs{K}\times\vs{D}$.  Thus we may write
 
 In general, however, the direct module component of a system will be
 subdivided into two or more submodules, and, as also mentioned in
-Section \ref{sec:BioCro_systems}, when a system has more than one
+section \ref{sec:BioCro_systems}, when a system has more than one
 direct module, each constituent module $\M_i$ corresponds to a
 function
                               <!-- (no par break) -->
@@ -1640,7 +1645,7 @@ is defined by
 \begin{equation}
     f\ast g = (f\circ\pi^{ A\cup C\to A})
               \cup
-              (g\circ(\pi^{ A\cup C \to C})).
+              (g\circ\pi^{ A\cup C \to C}).
 \end{equation}
                               <!-- (no par break) -->
 In this case, the ordering is immaterial, and $\M_j+\M_i=\M_i+\M_j$,
@@ -1839,7 +1844,7 @@ and `hour` must be; if only one is, we get obscure error:
 
 ## A system having a differential variable but no differential module
 
-As noted in Section \ref{sec:BioCro_systems}, it is the
+As noted in section \ref{sec:BioCro_systems}, it is the
 `initial_values` parameter that determines which variables are
 differential variables.  Usually, each differential variable will be
 an output of one or more differential modules, but this is not
@@ -1936,7 +1941,7 @@ degrees Kelvin, for example, can not meaningfully take on values less
 than zero.  In general, however, $\vec{f}$ will be defined for all
 $\vec{x}\in\vs{X'}$ and all $\vec{u}\in\vs{U'}$ where $\vs{X'}$ and
 $\vs{U'}$ are connected subsets of $\vs{X}$ and $\vs{U}$.  We will
-reconsider this issue in Section \ref{sec:manifold}.
+reconsider this issue in section \ref{sec:manifold}.
 
 [^solar_function]: This particular function is, in fact, the function
 you would get if you expressed the total PAR flux density (in
@@ -1952,6 +1957,15 @@ from equation \eqref{eq:BioCro_state_equation}.  (If all three sets
 are empty, then of course we have no inputs and the system is
 automatically described by the unforced state equation
 \eqref{eq:unforced_state_equation}.)
+
+[^timestep_parameter]: The timestep parameter is different in
+character from the other parameters the make up part of the
+specification of a BioCro system.  It does not correspond to a
+physical attribute of the real dynamical system being modeled.
+Rather, it is an artifact of the way in which the real system is
+modeled mathematically.  As such, we don't consider it as one of the
+variables in the set $K$ that we introduced in section
+\ref{sec:khalil_elaboration}.
 
 [^giunti]: I shall henceforth refer to the model from @Giunti&Mazzola
 presented in section \ref{sec:giunti-mazzola} as simply the _Giunti_
