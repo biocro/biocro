@@ -1,0 +1,15 @@
+The Chicago citation style specifications were downloaded from the Zotero Style
+Repository (https://www.zotero.org/styles) on 2023-02-08.
+
+Two small changes have been made to the original version:
+
+- `subsequent-author-substitute="&#8212;&#8212;&#8212;"` was removed from the
+   `bibliography` options so that all authors are always shown in the
+   bibliography, even when there are multiple works with the same content
+   creators.
+
+- `et-al-min` in the `citation` options was changed from 4 to 3 to avoid very
+  long citations in the text.
+
+These modifications can be found in the git history for the
+`chicago-author-date.csl` file.
