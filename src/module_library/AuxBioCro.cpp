@@ -82,6 +82,42 @@ Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
 }
 
 /**
+ *  @brief Computes absorbed light from incident light for isolated leaves.
+ *
+ *  @param [in] leaf_reflectance The fractional amount of light reflected by
+ *              the leaves (weighted across the appropriate wavelength band)
+ *
+ *  @param [in] leaf_transmittance The fractional amount of light transmitted by
+ *              the leaves (weighted across the appropriate wavelength band)
+ *
+ *  @param [in] incident_light The amount of light incident on the leaves; for
+ *              quantum fluxes, the units will typically be micromol / m^2 / s;
+ *              for energy fluxes, the units will typically be J / m^2 / s.
+ *
+ *  @return The amount of radiation absorbed by the leaves expressed in the same
+ *              units as `incident_light`.
+ *
+ *  In general, the light absorbed by a leaf (`Iabs`) is related to the light
+ *  incident on the leaf (`Iinc`) by the leaf absorptance (`abs`), which
+ *  represents the fraction of light absorbed by the leaf. In other words,
+ *  `Iabs = abs * Iinc`.
+ *
+ *  For a leaf in isolation, any light that is reflected or transmitted is not
+ *  absorbed, so `abs = 1 - leaf_reflectance - leaf_transmittance`. This is the
+ *  typical definition of leaf absorptance.
+ */
+double absorbed_from_incident_leaf(
+    double leaf_reflectance,    // dimensionless
+    double leaf_transmittance,  // dimensionless
+    double incident_light       // Light units such as `micromol / m^2 / s` or
+                                //   `J / m^2 / s`
+)
+{
+    // Return value has same units as `incident_light`
+    return incident_light * (1 - leaf_reflectance - leaf_transmittance);
+}
+
+/**
  *  @brief Computes absorbed light from incident light for leaves in a canopy.
  *
  *  @param [in] leaf_reflectance The fractional amount of light reflected by
@@ -349,13 +385,13 @@ Light_profile sunML(
 
         // Store values of absorbed PPFD
         light_profile.sunlit_absorbed_ppfd[i] =
-            absorbed_from_incident_in_canopy(
+            absorbed_from_incident_leaf(
                 leaf_reflectance,
                 leaf_transmittance,
                 ambient_ppfd_beam_leaf + diffuse_ppfd);  // micromol / m^2 / s
 
         light_profile.shaded_absorbed_ppfd[i] =
-            absorbed_from_incident_in_canopy(
+            absorbed_from_incident_leaf(
                 leaf_reflectance,
                 leaf_transmittance,
                 diffuse_ppfd);  // micromol / m^2 / s
