@@ -6,7 +6,7 @@ test_that("c3photo is sensitive to changes in vcmax", {
     # Set up basic inputs for the "c3_assimilation" module, which is
     # just a wrapper for the `c3photoC` function
     inputs <- list(
-        Qp = 1500,
+        Qabs = 1500,
         Tleaf = 10,
         rh = 0.7,
         jmax = 180,

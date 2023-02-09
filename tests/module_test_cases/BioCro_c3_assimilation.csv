@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,"description"
-beta_PSII,Catm,Gs_min,O2,Qp,Rd,StomataWS,Tleaf,atmospheric_pressure,b0,b1,electrons_per_carboxylation,electrons_per_oxygenation,jmax,rh,theta,tpu_rate_max,vmax1,water_stress_approach,Assim,Ci,GrossAssim,Gs,NA
-0.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.232584051722875,1.38412126117448,-0.0369986867823784,1000,"automatically-generated test case"
+Catm,Gs_min,O2,Qabs,Rd,StomataWS,Tleaf,atmospheric_pressure,b0,b1,beta_PSII,electrons_per_carboxylation,electrons_per_oxygenation,jmax,rh,theta,tpu_rate_max,vmax1,water_stress_approach,Assim,Ci,GrossAssim,Gs,NA
+1,1,1,1,1,1,1,1,1,1,0.5,1,1,1,1,1,1,1,1,-0.232584051722875,1.38412126117448,-0.0369986867823784,1000,"automatically-generated test case"
