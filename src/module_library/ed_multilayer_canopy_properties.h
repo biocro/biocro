@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "sunML.h"  // for sunML
 
 namespace standardBML
 {

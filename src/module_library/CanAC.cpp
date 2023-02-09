@@ -1,5 +1,6 @@
 #include "BioCro.h"
-#include "c4photo.h"
+#include "c4photo.h"                 // for c4photoC
+#include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str CanAC(

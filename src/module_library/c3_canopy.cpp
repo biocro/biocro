@@ -1,7 +1,6 @@
 #include "c3_canopy.hpp"
-#include "AuxBioCro.h"  // For Can_Str
-#include "BioCro.h"     // For c3CanAC
-#include <cmath>        // For floor
+#include "c3CanAC.h"  // For c3CanAC
+#include <cmath>      // For floor
 
 using standardBML::c3_canopy;
 
@@ -62,7 +61,6 @@ string_vector c3_canopy::get_outputs()
 
 void c3_canopy::do_operation() const
 {
-    // c3CanAC is located in c3CanAc.cpp
     struct Can_Str can_result = c3CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax, jmax,
         tpu_rate_max, Rd, Catm, O2, b0, b1, Gs_min, theta, kd, heightf, LeafN,

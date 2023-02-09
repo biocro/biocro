@@ -1,6 +1,7 @@
 #include "multilayer_canopy_properties.h"
-#include "BioCro.h"     // for sunML, RHprof, WINDprof
+#include "BioCro.h"     // for RHprof, WINDprof
 #include "AuxBioCro.h"  // for LNprof
+#include "sunML.h"      // for sunML
 
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;

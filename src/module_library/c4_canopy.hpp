@@ -3,8 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // For nitroParms and Can_Str
-#include "BioCro.h"     // For CanAC
+#include "CanAC.h"  // For CanAC
 
 namespace standardBML
 {
@@ -215,7 +214,6 @@ void c4_canopy::do_operation() const
     nitroP.lnb0 = nlnb0;
     nitroP.lnb1 = nlnb1;
 
-    // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
         kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, LeafN,
