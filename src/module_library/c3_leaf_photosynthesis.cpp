@@ -7,7 +7,7 @@ using standardBML::c3_leaf_photosynthesis;
 string_vector c3_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_ppfd",                // micromol / (m^2 leaf) / s
+        "absorbed_ppfd",                // micromol / (m^2 leaf) / s
         "temp",                         // deg. C
         "rh",                           // dimensionless
         "vmax1",                        // micromole / m^2 / s
@@ -56,7 +56,7 @@ void c3_leaf_photosynthesis::do_operation() const
     // air temperature
     double const initial_stomatal_conductance =
         c3photoC(
-            incident_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
+            absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
             electrons_per_oxygenation, beta_PSII)
@@ -76,7 +76,7 @@ void c3_leaf_photosynthesis::do_operation() const
     // using the new leaf temperature
     const struct c3_str photo =
         c3photoC(
-            incident_ppfd, leaf_temperature, rh, vmax1, jmax,
+            absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
             electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII);

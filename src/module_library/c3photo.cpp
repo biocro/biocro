@@ -7,7 +7,7 @@
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
 struct c3_str c3photoC(
-    double const Qp,                           // micromol / m^2 / s
+    double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
     double const RH,                           // dimensionless
     double const Vcmax0,                       // micromol / m^2 / s
@@ -32,9 +32,6 @@ struct c3_str c3photoC(
     double const Tleaf_K =
         Tleaf + conversion_constants::celsius_to_kelvin;  // K
 
-    // Define the leaf reflectance
-    double const leaf_reflectance = 0.2;  // dimensionless
-
     // Temperature corrections are from the following sources:
     // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
     //   https://doi.org/10.1046/j.0016-8025.2003.01050.x
@@ -54,8 +51,18 @@ struct c3_str c3photoC(
     double const dark_adapted_phi_PSII =
         0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 1e4;  // dimensionless (Bernacchi et al. (2003))
 
+    // The variable that we call `I2` here has been described as "the useful
+    // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
+    // maximum fraction of incident quanta that could be utilized in electron
+    // transport" (Bernacchi et al. (2003)). Here we calculate its value using
+    // Equation 3 from Bernacchi et al. (2003), except that we have replaced the
+    // factor `Q * alpha_leaf` (the product of the incident PPFD `Q` and the
+    // leaf absorptance) with the absorbed PPFD, as this is clearly the intended
+    // meaning of the `Q * alpha_leaf` factor. See also Equation 8 from the
+    // original FvCB paper, where `J` (equivalent to our `I2`) is proportional
+    // to the absorbed PPFD rather than the incident PPFD.
     double const I2 =
-        Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) * beta_PSII;  // micromol / m^2 / s
+        absorbed_ppfd * dark_adapted_phi_PSII * beta_PSII;  // micromol / m^2 / s
 
     double const J =
         (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4.0 * theta * I2 * Jmax)) /

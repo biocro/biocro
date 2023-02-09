@@ -30,7 +30,7 @@ namespace standardBML
  * ### BioCro module implementation
  *
  * In BioCro, we use the following names for this model's input quantities:
- * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
+ * - ``'Qabs'`` for the absorbed quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax1'`` for the rubisco carboxylation rate at 25 degrees C
@@ -64,7 +64,7 @@ class c3_assimilation : public direct_module
         : direct_module(),
 
           // Get pointers to input quantities
-          Qp(get_input(input_quantities, "Qp")),
+          Qabs(get_input(input_quantities, "Qabs")),
           Tleaf(get_input(input_quantities, "Tleaf")),
           rh(get_input(input_quantities, "rh")),
           vmax1(get_input(input_quantities, "vmax1")),
@@ -97,7 +97,7 @@ class c3_assimilation : public direct_module
 
    private:
     // References to input quantities
-    double const& Qp;
+    double const& Qabs;
     double const& Tleaf;
     double const& rh;
     double const& vmax1;
@@ -130,7 +130,7 @@ class c3_assimilation : public direct_module
 string_vector c3_assimilation::get_inputs()
 {
     return {
-        "Qp",                           // micromol / m^2 / s
+        "Qabs",                         // micromol / m^2 / s
         "Tleaf",                        // degrees C
         "rh",                           // dimensionless
         "vmax1",                        // micromol / m^2 / s
@@ -165,7 +165,7 @@ string_vector c3_assimilation::get_outputs()
 void c3_assimilation::do_operation() const
 {
     c3_str c3_results = c3photoC(
-        Qp,
+        Qabs,
         Tleaf,
         rh,
         vmax1,

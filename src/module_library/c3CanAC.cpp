@@ -97,13 +97,13 @@ struct Can_Str c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_dir = light_profile.sunlit_incident_ppfd[current_layer];  // micromole / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];    // dimensionless
-        double Leafsun = LAIc * pLeafsun;                                  // dimensionless
+        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];  // micromole / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction[current_layer];       // dimensionless
+        double Leafsun = LAIc * pLeafsun;                                     // dimensionless
 
         double direct_stomatal_conductance =
             c3photoC(
-                i_dir, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_dir, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -120,7 +120,7 @@ struct Can_Str c3CanAC(
 
         struct c3_str direct_photo =
             c3photoC(
-                i_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
+                iabs_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -131,13 +131,13 @@ struct Can_Str c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_diff = light_profile.shaded_incident_ppfd[current_layer];  // micromole / m^2 /s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];   // dimensionless
-        double Leafshade = LAIc * pLeafshade;                               // dimensionless
+        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];  // micromole / m^2 /s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];      // dimensionless
+        double Leafshade = LAIc * pLeafshade;                                  // dimensionless
 
         double diffuse_stomatal_conductance =
             c3photoC(
-                i_diff, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_diff, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS, water_stress_approach,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -154,7 +154,7 @@ struct Can_Str c3CanAC(
 
         struct c3_str diffuse_photo =
             c3photoC(
-                i_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
+                iabs_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, o2, theta, StomataWS,
                 water_stress_approach, electrons_per_carboxylation,

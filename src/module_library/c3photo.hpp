@@ -9,7 +9,7 @@ struct c3_str {
 };
 
 struct c3_str c3photoC(
-    double const Qp,
+    double const absorbed_ppfd,
     double const Tleaf,
     double const RH,
     double const Vcmax0,
