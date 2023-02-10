@@ -62,7 +62,7 @@ double absorbed_from_incident_leaf(
  *  Physiology. However, I don't think this book explains where it comes from.
  *  Also note that when leaf transmittance is zero, the "canopy leaf
  *  absorptance" is identical to the absorptance of a leaf in isolation. From
- *  this it seems that the equation only considers that transmitted light will
+ *  this it seems that the equation considers that only transmitted light will
  *  be reflected back to the leaf; thus, it may actually only be appropriate for
  *  upper or sunlit leaves, where any reflected light can be safely assumed to
  *  be "lost."

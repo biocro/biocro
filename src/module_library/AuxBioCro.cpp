@@ -15,9 +15,13 @@ double poisson_density(int x, double lambda)
 {
     // The probability density for the Poisson distribution is
     // e^-lambda * lambda^x / x!
-    // The factorial term produces numbers too large to hold, so perform the
-    // calculation in the log domain.
-    // n! can be estimated by the approximation sqrt(2 * pi * x) * (x / e)^x.
+    //
+    // Both the numerator and denominator can become very large, potentially
+    // causing numerical errors when calculating their ratio. These errors can
+    // be mitigated by moving to the log domain.
+    //
+    // Also note that we use Stirling's approximation to calculate the
+    // factorial; this approximates n! by `sqrt(2 * pi * x) * (x / e)^x`.
     using math_constants::e;
     using math_constants::pi;
 
@@ -70,8 +74,15 @@ Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
         const double pressure_ratio = atmospheric_pressure / physical_constants::atmospheric_pressure_at_sea_level;  // dimensionless.
         constexpr double proportion_of_irradiance_scattered = 0.3;                                                   // dimensionless.
 
-        direct_irradiance_transmittance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));                             // Modified from equation 11.11 of Norman and Campbell.
-        diffuse_irradiance_transmittance = proportion_of_irradiance_scattered * (1 - direct_irradiance_transmittance) * cosine_zenith_angle;  // Modified from equation 11.13 of Norman and Campbell.
+        // Modified from equation 11.11 of Norman and Campbell.
+        direct_irradiance_transmittance =
+            pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
+
+        // Modified from equation 11.13 of Norman and Campbell.
+        diffuse_irradiance_transmittance =
+            proportion_of_irradiance_scattered *
+            (1 - direct_irradiance_transmittance) *
+            cosine_zenith_angle;
     }
 
     Light_model light_model;
