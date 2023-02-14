@@ -1,4 +1,5 @@
-#include "BioCro.h"
+#include "CanAC.h"
+#include "BioCro.h"                  // for lightME, RHprof, WINDprof, EvapoTrans2
 #include "c4photo.h"                 // for c4photoC
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
