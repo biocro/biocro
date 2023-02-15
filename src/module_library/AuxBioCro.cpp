@@ -7,6 +7,7 @@
 #include <cmath>
 #include "c4photo.h"
 #include "BioCro.h"
+#include "sunML.h"                   // for thick_layer_absorption
 #include "../framework/constants.h"  // for pi, e, atmospheric_pressure_at_sea_level,
                                      // ideal_gas_constant, molar_mass_of_water,
                                      // stefan_boltzmann, celsius_to_kelvin
@@ -785,7 +786,15 @@ double SoilEvapo(
     double DiffCoef = 2.126e-5 + 1.48e-7 * SoilTemp;
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
-    double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
+    // Here we calculate the total amount of PAR energy absorbed by the soil
+    // using `thick_layer_absorption`. We assume half of the solar energy lies
+    // in the PAR band, so we multiply by 2 to get the total absorbed solar
+    // energy. This is almost certainly untrue for light that has passed through
+    // a plant canopy.
+    double Ja = 2 * thick_layer_absorption(
+                        soil_reflectance,
+                        soil_transmission,
+                        TotalRadiation);
 
     double rlc = 4 * physical_constants::stefan_boltzmann * pow((conversion_constants::celsius_to_kelvin + SoilTemp), 3) * 0.005;
     // The last term should be the difference between air temperature and soil.

@@ -25,7 +25,7 @@ double absorbed_from_incident_leaf(
                                 //   `J / m^2 / s`
 );
 
-double absorbed_from_incident_in_canopy(
+double thick_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
     double incident_light       // Light units such as `micromol / m^2 / s` or
