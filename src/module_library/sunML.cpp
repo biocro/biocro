@@ -1,39 +1,43 @@
 #include "sunML.h"
 
 /**
- *  @brief Computes absorbed light from incident light for isolated leaves.
+ *  @brief Computes absorbed light from incident light for a thin layer of
+ *  material.
  *
- *  In general, the light absorbed by a leaf (`Iabs`) is related to the light
- *  incident on the leaf (`Iinc`) by the leaf absorptance (`abs`), which
- *  represents the fraction of light absorbed by the leaf. In other words,
- *  `Iabs = abs * Iinc`.
+ *  Suppose light of intensity `I_0` (represent a flux density of photons or
+ *  energy, expressed in units of photons per area per time or energy per area
+ *  per time) is incident on a thin layer of a material that reflects, absorbs,
+ *  and transmits light. If `R` represents the fraction of light reflected by
+ *  the layer and `T` represents the fraction of light transmitted through the
+ *  layer, then we can calculate the absorbed light (`I_abs`) as follows:
  *
- *  For a leaf in isolation, any light that is reflected or transmitted is not
- *  absorbed, so `abs = 1 - leaf_reflectance - leaf_transmittance`. This is the
- *  typical definition of leaf absorptance.
+ *  `I_abs = I_0 * (1 - R - T)`     [Equation (1)]
  *
- *  @param [in] leaf_reflectance The fractional amount of light reflected by
- *              the leaves (weighted across the appropriate wavelength band)
+ *  In this equation, the factor `(1 - R - T)` represents the fraction of light
+ *  absorbed by the layer. In BioCro, this equation is often used to calculate
+ *  the light absorbed by a leaf or a thin layer of leaf material.
  *
- *  @param [in] leaf_transmittance The fractional amount of light transmitted by
- *              the leaves (weighted across the appropriate wavelength band)
+ *  @param [in] R The fractional amount of light reflected by a thin layer of
+ *              the material in the appropriate wavelength band.
  *
- *  @param [in] incident_light The amount of light incident on the leaves; for
- *              quantum fluxes, the units will typically be micromol / m^2 / s;
- *              for energy fluxes, the units will typically be J / m^2 / s.
+ *  @param [in] T The fractional amount of light transmitted by a thin layer of
+ *              the material in the appropriate wavelength band.
  *
- *  @return The amount of radiation absorbed by the leaves expressed in the same
- *              units as `incident_light`.
+ *  @param [in] I0 The amount of light incident on the material, perhaps
+ *              restricted to a particular wavelength band; for quantum fluxes,
+ *              the units will typically be micromol / m^2 / s; for energy
+ *              fluxes, the units will typically be J / m^2 / s.
+ *
+ *  @return The amount of radiation absorbed by the material expressed in the
+ *              same units as `I0`.
  */
-double absorbed_from_incident_leaf(
-    double leaf_reflectance,    // dimensionless
-    double leaf_transmittance,  // dimensionless
-    double incident_light       // Light units such as `micromol / m^2 / s` or
-                                //   `J / m^2 / s`
+double thin_layer_absorption(
+    double R,  // dimensionless
+    double T,  // dimensionless
+    double I0  // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
 )
 {
-    // Return value has same units as `incident_light`
-    return incident_light * (1 - leaf_reflectance - leaf_transmittance);
+    return I0 * (1 - R - T);  // same units as `I0`
 }
 
 /**
@@ -196,13 +200,13 @@ double absorbed_from_incident_leaf(
  *              from a thin layer in isolation (see full description for more
  *              details).
  *
- *  @param [in] I0 The amount of light incident on the leaves, perhaps
+ *  @param [in] I0 The amount of light incident on the material, perhaps
  *              restricted to a particular wavelength band; for quantum fluxes,
  *              the units will typically be micromol / m^2 / s; for energy
  *              fluxes, the units will typically be J / m^2 / s.
  *
- *  @return The amount of radiation absorbed by the leaves expressed in the same
- *              units as `I0`.
+ *  @return The amount of radiation absorbed by the material expressed in the
+ *              same units as `I0`.
  */
 double thick_layer_absorption(
     double R,  // dimensionless
@@ -425,13 +429,13 @@ Light_profile sunML(
 
         // Store values of absorbed PPFD
         light_profile.sunlit_absorbed_ppfd[i] =
-            absorbed_from_incident_leaf(
+            thin_layer_absorption(
                 leaf_reflectance,
                 leaf_transmittance,
                 ambient_ppfd_beam_leaf + diffuse_ppfd);  // micromol / m^2 / s
 
         light_profile.shaded_absorbed_ppfd[i] =
-            absorbed_from_incident_leaf(
+            thin_layer_absorption(
                 leaf_reflectance,
                 leaf_transmittance,
                 diffuse_ppfd);  // micromol / m^2 / s

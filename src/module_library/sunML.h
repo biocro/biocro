@@ -18,7 +18,7 @@ struct Light_profile {
     double height[MAXLAY];                      // m
 };
 
-double absorbed_from_incident_leaf(
+double thin_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
     double incident_light       // Light units such as `micromol / m^2 / s` or
