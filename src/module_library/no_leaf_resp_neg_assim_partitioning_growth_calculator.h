@@ -74,6 +74,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           mrc1{get_input(input_quantities, "mrc1")},
           mrc2{get_input(input_quantities, "mrc2")},
           temp{get_input(input_quantities, "temp")},
+          LeafWS(get_input(input_quantities, "LeafWS")),
 
           // Get pointers to output quantities
           net_assimilation_rate_leaf_op{get_op(output_quantities, "net_assimilation_rate_leaf")},
@@ -98,6 +99,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     const double& mrc1;
     const double& mrc2;
     const double& temp;
+    const double& LeafWS;
 
     // Pointers to output quantities
     double* net_assimilation_rate_leaf_op;
@@ -121,7 +123,8 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs(
         "canopy_assimilation_rate",  // Mg / ha / hour
         "mrc1",                      // dimensionless
         "mrc2",                      // dimensionless
-        "temp"                       // degrees C
+        "temp",                       // degrees C
+        "LeafWS"                       //dimensionless 
     };
 }
 
@@ -146,7 +149,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 
     // Calculate the rate of new leaf production
     if (kLeaf > 0) {
-        net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf;
+        net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf * LeafWS;
     } else {
         net_assimilation_rate_leaf = 0.0;
     }

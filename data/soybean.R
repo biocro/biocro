@@ -3,6 +3,7 @@ soybean <- list(
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:parameter_calculator",
         "BioCro:soybean_development_rate_calculator",
+        leaf_water_stress = "BioCro:leaf_water_stress_exponential",
         partitioning_coefficients = "BioCro:partitioning_coefficient_logistic",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
