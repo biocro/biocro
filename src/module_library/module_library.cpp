@@ -17,6 +17,7 @@
 #include "parameter_calculator.hpp"
 #include "c3_canopy.hpp"
 #include "c4_canopy.hpp"
+#include "varying_Jmax25.hpp"
 #include "stomata_water_stress_linear.hpp"
 #include "stomata_water_stress_exponential.hpp"
 #include "stomata_water_stress_linear_aba_response.hpp"
@@ -126,6 +127,7 @@ creator_map standardBML::module_library::library_entries =
      {"parameter_calculator",                                  &create_mc<parameter_calculator>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
+     {"varying_Jmax25",                                             &create_mc<varying_Jmax25>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
