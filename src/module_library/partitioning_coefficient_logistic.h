@@ -59,9 +59,11 @@ class partitioning_coefficient_logistic : public direct_module
           alphaRoot{get_input(input_quantities, "alphaRoot")},
           alphaStem{get_input(input_quantities, "alphaStem")},
           alphaLeaf{get_input(input_quantities, "alphaLeaf")},
+          alphaPod{get_input(input_quantities, "alphaPod")},
           betaRoot{get_input(input_quantities, "betaRoot")},
           betaStem{get_input(input_quantities, "betaStem")},
           betaLeaf{get_input(input_quantities, "betaLeaf")},
+          betaPod{get_input(input_quantities, "betaPod")},
           kRhizome_emr{get_input(input_quantities, "kRhizome_emr")},
 
           // Get pointers to output quantities
@@ -69,6 +71,7 @@ class partitioning_coefficient_logistic : public direct_module
           kLeaf_op{get_op(output_quantities, "kLeaf")},
           kRoot_op{get_op(output_quantities, "kRoot")},
           kRhizome_op{get_op(output_quantities, "kRhizome")},
+          kPod_op{get_op(output_quantities, "kPod")},
           kGrain_op{get_op(output_quantities, "kGrain")}
     {
     }
@@ -82,9 +85,11 @@ class partitioning_coefficient_logistic : public direct_module
     const double& alphaRoot;
     const double& alphaStem;
     const double& alphaLeaf;
+    const double& alphaPod;
     const double& betaRoot;
     const double& betaStem;
     const double& betaLeaf;
+    const double& betaPod;
     const double& kRhizome_emr;
 
     // Pointers to output quantities
@@ -93,6 +98,7 @@ class partitioning_coefficient_logistic : public direct_module
     double* kRoot_op;
     double* kRhizome_op;
     double* kGrain_op;
+    double* kPod_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -105,9 +111,11 @@ string_vector partitioning_coefficient_logistic::get_inputs()
         "alphaRoot",    // dimensionless
         "alphaStem",    // dimensionless
         "alphaLeaf",    // dimensionless
+        "alphaPod",     // dimensionless
         "betaRoot",     // dimensionless
         "betaStem",     // dimensionless
         "betaLeaf",     // dimensionless
+        "betaPod",      // dimensionless
         "kRhizome_emr"  // dimensionless
     };
 }
@@ -119,6 +127,7 @@ string_vector partitioning_coefficient_logistic::get_outputs()
         "kLeaf",     // dimesnionless
         "kRoot",     // dimensionless
         "kRhizome",  // dimensionless
+        "kPod",      // dimensionless
         "kGrain"     // dimensionless
     };
 }
@@ -129,11 +138,12 @@ void partitioning_coefficient_logistic::do_operation() const
     // from Osborne et al., 2015 JULES-crop https://doi.org/10.5194/gmd-8-1139-2015
 
     // denominator term for kRoot, kStem, kLeaf, and kGrain
-    double kDenom = exp(alphaRoot + betaRoot * DVI) + exp(alphaLeaf + betaLeaf * DVI) + exp(alphaStem + betaStem * DVI) + 1.0;  // dimensionless
+    double kDenom = exp(alphaRoot + betaRoot * DVI) + exp(alphaLeaf + betaLeaf * DVI) + exp(alphaStem + betaStem * DVI) + exp(alphaPod + betaPod * DVI) +1.0;  // dimensionless
 
     double kRoot = kcoeff(alphaRoot, betaRoot, DVI, kDenom);  // dimensionless
     double kStem = kcoeff(alphaStem, betaStem, DVI, kDenom);  // dimensionless
     double kLeaf = kcoeff(alphaLeaf, betaLeaf, DVI, kDenom);  // dimensionless
+    double kPod  = kcoeff(alphaPod, betaPod, DVI, kDenom);  // dimensionless
     double kGrain = 1.0 / kDenom;                             // dimensionless
 
     // Give option for rhizome to contribute to growth during the emergence stage,
@@ -152,6 +162,7 @@ void partitioning_coefficient_logistic::do_operation() const
     update(kLeaf_op, kLeaf);        //dimensionless
     update(kRoot_op, kRoot);        //dimensionless
     update(kRhizome_op, kRhizome);  //dimensionless
+    update(kPod_op, kPod);          //dimensionless
     update(kGrain_op, kGrain);      //dimensionless
 }
 

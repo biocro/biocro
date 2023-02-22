@@ -75,11 +75,13 @@ class partitioning_growth : public differential_module
           kRoot{get_input(input_quantities, "kRoot")},
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
+          kPod{get_input(input_quantities, "kPod")},
           net_assimilation_rate_leaf{get_input(input_quantities, "net_assimilation_rate_leaf")},
           net_assimilation_rate_stem{get_input(input_quantities, "net_assimilation_rate_stem")},
           net_assimilation_rate_root{get_input(input_quantities, "net_assimilation_rate_root")},
           net_assimilation_rate_rhizome{get_input(input_quantities, "net_assimilation_rate_rhizome")},
           net_assimilation_rate_grain{get_input(input_quantities, "net_assimilation_rate_grain")},
+          net_assimilation_rate_pod{get_input(input_quantities, "net_assimilation_rate_pod")},
           Leaf{get_input(input_quantities, "Leaf")},
           Stem{get_input(input_quantities, "Stem")},
           Root{get_input(input_quantities, "Root")},
@@ -90,7 +92,8 @@ class partitioning_growth : public differential_module
           Stem_op{get_op(output_quantities, "Stem")},
           Root_op{get_op(output_quantities, "Root")},
           Rhizome_op{get_op(output_quantities, "Rhizome")},
-          Grain_op{get_op(output_quantities, "Grain")}
+          Grain_op{get_op(output_quantities, "Grain")},
+          Pod_op{get_op(output_quantities, "Pod")}
     {
     }
     static string_vector get_inputs();
@@ -106,11 +109,13 @@ class partitioning_growth : public differential_module
     const double& kRoot;
     const double& kRhizome;
     const double& kGrain;
+    const double& kPod;
     const double& net_assimilation_rate_leaf;
     const double& net_assimilation_rate_stem;
     const double& net_assimilation_rate_root;
     const double& net_assimilation_rate_rhizome;
     const double& net_assimilation_rate_grain;
+    const double& net_assimilation_rate_pod;
     const double& Leaf;
     const double& Stem;
     const double& Root;
@@ -122,6 +127,7 @@ class partitioning_growth : public differential_module
     double* Root_op;
     double* Rhizome_op;
     double* Grain_op;
+    double* Pod_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -137,11 +143,13 @@ string_vector partitioning_growth::get_inputs()
         "kRoot",                          // dimensionless
         "kRhizome",                       // dimensionless
         "kGrain",                         // dimensionless
+        "kPod",                           // dimensionless
         "net_assimilation_rate_leaf",     // Mg / ha / hour
         "net_assimilation_rate_stem",     // Mg / ha / hour
         "net_assimilation_rate_root",     // Mg / ha / hour
         "net_assimilation_rate_rhizome",  // Mg / ha / hour
         "net_assimilation_rate_grain",    // Mg / ha / hour
+        "net_assimilation_rate_pod",      // Mg / ha / hour
         "Leaf",                           // Mg / ha
         "Stem",                           // Mg / ha
         "Root",                           // Mg / ha
@@ -156,6 +164,7 @@ string_vector partitioning_growth::get_outputs()
         "Stem",     // Mg / ha / hour
         "Root",     // Mg / ha / hour
         "Rhizome",  // Mg / ha / hour
+        "Pod",      // Mg / ha / hour
         "Grain"     // Mg / ha / hour
     };
 }
@@ -168,6 +177,7 @@ void partitioning_growth::do_operation() const
     double dRoot{0.0};
     double dRhizome{0.0};
     double dGrain{0.0};
+    double dPod{0.0};
 
     // Determine whether Leaf is growing or decaying
     if (kLeaf > 0.0) {
@@ -175,9 +185,10 @@ void partitioning_growth::do_operation() const
     } else {
         dLeaf += Leaf * kLeaf;
         dRhizome += kRhizome * (-dLeaf) * retrans;
-        dStem += kStem * (-dLeaf) * retrans;
-        dRoot += kRoot * (-dLeaf) * retrans;
+        dStem  += kStem * (-dLeaf) * retrans;
+        dRoot  += kRoot * (-dLeaf) * retrans;
         dGrain += kGrain * (-dLeaf) * retrans;
+        dPod   += kPod * (-dLeaf) * retrans;
     }
 
     // Determine whether Stem is growing or decaying
@@ -189,6 +200,7 @@ void partitioning_growth::do_operation() const
         dLeaf += kLeaf * (-dStem) * retrans;
         dRoot += kRoot * (-dStem) * retrans;
         dGrain += kGrain * (-dStem) * retrans;
+        dPod  += kPod  * (-dStem) * retrans;
     }
 
     // Determine whether Root is growing or decaying
@@ -200,6 +212,7 @@ void partitioning_growth::do_operation() const
         dStem += kStem * (-dRoot) * retrans;
         dLeaf += kLeaf * (-dRoot) * retrans;
         dGrain += kGrain * (-dRoot) * retrans;
+        dPod += kPod * (-dRoot) * retrans;
     }
 
     // Determine whether Rhizome is growing or decaying
@@ -215,11 +228,16 @@ void partitioning_growth::do_operation() const
         dStem += kStem * (-dRhizome) * retrans_rhizome;
         dLeaf += kLeaf * (-dRhizome) * retrans_rhizome;
         dGrain += kGrain * (-dRhizome) * retrans_rhizome;
+        dPod   += kPod  * (-dRhizome) * retrans_rhizome;
     }
 
     // Determine whether Grain is growing
     if (kGrain > 0.0) {
         dGrain += net_assimilation_rate_grain;
+    }
+
+    if (kPod > 0.0) {
+        dPod += net_assimilation_rate_pod;
     }
 
     // Update the output quantity list
@@ -228,6 +246,7 @@ void partitioning_growth::do_operation() const
     update(Root_op, dRoot);
     update(Rhizome_op, dRhizome);
     update(Grain_op, dGrain);
+    update(Pod_op, dPod);
 }
 
 }  // namespace standardBML
