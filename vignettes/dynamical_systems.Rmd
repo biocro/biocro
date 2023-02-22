@@ -100,9 +100,9 @@ on the function $h$:
                               <!-- (no par break) -->
 (The third constraint would more accurately be written as
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   h''(t) = -g \quad\text{\emph{if} h(t) > 0},
-\]
+\end{equation*}
                               <!-- (no par break) -->
 but for simplicity, we will only consider the system over durations sufficiently small that the object has not yet hit the ground.)
 
@@ -110,9 +110,9 @@ Anyone who has studied differential equations will immediately
 recognize this as an initial-value problem, one whose unique solution
 is
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   h(t) = h_0 - 1/2\,gt^2.
-\]
+\end{equation*}
                               <!-- (no par break) -->
 Thus, from knowing only the initial height and velocity of the object
 and some basic principles of physics, we are able to obtain a complete
@@ -196,15 +196,15 @@ If $\vec{s}$ denotes the state, with $\vec{s}(t)$ denoting its value
 at time $t$, and if $x$ is one of the state variables, with $x(t)$
 denoting its value at time $t$, then, given
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   dx/dt = f(\vec{s}),
-\]
+\end{equation*}
                               <!-- (no par break) -->
 we assume that for any sufficiently small interval of time $\Delta t$,
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   x(t+\Delta t) \approx x(t) + f(\vec{s}(t))\cdot\Delta t.
-\]
+\end{equation*}
 
 ## Applying Euler's method to the falling-body problem
 
@@ -229,9 +229,9 @@ And so now, the states of our system have two components, height and
 velocity, and we can think of each state $\vec{s}$ as a point in a
 2-dimensional Euclidean space, that is,
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   \vec{s} = (s_0, s_1).
-\]
+\end{equation*}
                               <!-- (no par break) -->
 We will identify the height $h$ with the first component $s_0$ and the
 velocity $v$ with the second component $s_1$.  We will consider $v$ to
@@ -277,14 +277,14 @@ Now we can write a recursive definition for the state $\vec{s}$ as a function of
                          \pi_1(\vec{s}(t_i)) - \delta\cdot g)\quad\text{for i$\geq$0}.
                          \label{eq:falling_body_recursion}
 \end{align}
-  
+
 ## Note about abstraction and recursive systems
 
 We have just performed the following abstraction to arrive at a
 recursively-defined function giving the state of a system as a
 function of time:
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   \begin{array}{c}
     \text{\sc real system} \\
     \downarrow \\
@@ -292,7 +292,7 @@ function of time:
     \downarrow \\
     \text{\sc discrete-time approximation (recursive equations)}
   \end{array}
-\]
+\end{equation*}
                               <!-- (no par break) -->
 It should be pointed out, however, that not all discrete-time abstract
 dynamical systems arise as abstractions of real systems or even as
@@ -302,9 +302,9 @@ Consider, for example, a system with a state space $\vs{Z}^2$
 consisting of all ordered pairs $\vec{v} = (v_0, v_1)$ of integers,
 and a transition rule
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   \vec{v}(t_{i + 1}) = (\pi_1(\vec{v}(t_i)), \pi_0(\vec{v}(t_i)) + \pi_1(\vec{v}(t_i))).
-\]
+\end{equation*}
                               <!-- (no par break) -->
 Given an initial state $\vec{v}(t_0)$, we now have a way to compute
 the state $\vec{v}(t_i)$ at any time $t_i$.  This abstract dynamical
@@ -314,9 +314,9 @@ might imagine, but it is an abstract dynamical system nevertheless.
 (If we take $\vec{v}(t_0) = (0, 1)$, by the way, the function $F:
 \N\to\Z$ defined by the rule
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   i \mapsto \pi_0(\vec{v}(t_i))
-\]
+\end{equation*}
                               <!-- (no par break) -->
 defines the Fibonacci sequence $0, 1, 1, 2, 3, 5, 8, 13, \dots\,$.)
 
@@ -381,18 +381,18 @@ Any function $f: C \to B$ may be identified with the set $\{(c,
 f(c))\,:\,c\in C\}$.  Thus, the target set $B$ is not an intrinsic
 part of the function $f$.  But, defining the _image set_ of $f$ as
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \Im f = \{b\,: \text{there exists $c\in C$ such that} (c, b) \in f\},
-\]
+\end{equation*}
                               <!-- (no par break) -->
 we can at least say $\Im f\subseteq B$.
 
 Given any function $f: C \to B$ and any subset $C_0\subseteq C$, we
 can define $f|C_0$, the _restriction of $f$ to $C_0$_, as
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     f|C_0 := \{(c, b) \in f\,:\,c\in C_0\}
-\]
+\end{equation*}
                               <!-- (no par break) -->
 We shall be particularly interested in restrictions of functions
 specifying points in Euclidean space.  Suppose $\vec{x}\in \R^n$, and
@@ -405,17 +405,17 @@ $R^k$.  ($R^W$ and $R^k$ are equal iff $W=k$ (that is, iff $W = \{0,
 1, \dots, k-1\})$.)  We define the projection mapping $\pi^{n\to W}:
 R^n\to R^W$ by the rule
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     v \mapsto v|W.
-\]
+\end{equation*}
 
 More generally, given any two finite sets $W\subseteq U$ (not
 necessarily sets of integers), we may define a projection mapping
 $\pi^{U\to W}: R^U\to R^W$ by the rule
                               <!-- (no par break) -->
-\[
+\begin{equation*}
    v \in R^U \mapsto v|W.
-\]
+\end{equation*}
 
 Just as we can restrict the domain of a function, we can expand it as
 well.
@@ -424,12 +424,12 @@ Suppose we have two functions $f\in\R^X$ and $g\in\R^Y$, where either
 $X$ and $Y$ are disjoint, or $f(z) = g(z)$ for all $z\in X\cap Y$.  We
 define the _union_ $f\cup g$ of $f$ and $g$ by the rule
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     (f\cup g)(z) = \begin{cases}
            f(z) & \text{if $z\in X$,} \\
            g(z) & \text{if $z\in Y\smallsetminus X$.}
        \end{cases}
-\]
+\end{equation*}
                               <!-- (no par break) -->
 Note that this is exactly the same function as that we get by
 regarding functions as sets of ordered pairs and then taking the
@@ -443,17 +443,17 @@ literal (set) union of $f$ and $g$.  Also, clearly,
 
 Lastly, given any two sets $A$ and $B$, we define the _Cartesian
 product_ of $A$ and $B$ to be a set of ordered couples:
-\[
+\begin{equation*}
     A\times B = \{(a, b): a\in A \text{ and } b\in B\}
-\]
+\end{equation*}
                               <!-- (no par break) -->
 If $A=\R^X$ and $B=\R^U$ with $X\cap U=\emptyset$, then there is a
 natural isomorphism between $\R^X\times\R^U$ and $\R^{X\cup U}$ given
 by
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     (\vec{x}, \vec{u}) \mapsto \vec{x}\cup\vec{u}.
-\]
+\end{equation*}
 (The inverse mapping is given by $\vec{v} \mapsto (\vec{v}|X,
 \vec{v}|U)$ for $\vec{v}\in \R^{X\cup U}$.)
                               <!-- (no par break) -->
@@ -524,7 +524,7 @@ the state equation may be written more succinctly as the vector equation
 (Note that Khalil actually uses 1-based indexing of vector coordinates
 in his exposition, so the vector $\vec{x}$, for example, is defined by
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   \vec{x} = \begin{bmatrix}
                      x_1 \\
                      x_2 \\
@@ -532,7 +532,7 @@ in his exposition, so the vector $\vec{x}$, for example, is defined by
                      \vdots \\
                      x_n
                \end{bmatrix}.
-\]
+\end{equation*}
                               <!-- (no par break) -->
 Here we use 0-based indexing instead in order to be consistent with
 other parts of this article.)
@@ -740,9 +740,9 @@ The definition goes on to define higher-order mappings:
 
 > _We define recursively_
 >
-> \[
+> \begin{equation*}
 >     f^n = f\circ f^{n-1}
-> \]
+> \end{equation*}
 >
 > _for each $n\in\Z^+$, with the convention that $f^0 = \id$.  When $f$
 > is invertible, we also define $f^{-n} = (f^{-1})^n$ for each
@@ -757,9 +757,9 @@ derived from applying Euler's method to the falling body problem fits
 nicely into this model: take $\vs{X}$ to be Euclidean 2-space and the
 function $f$ to be defined by the rule
 
-\[
+\begin{equation*}
     (x, y) \mapsto (x + \delta y, y - \delta g).
-\]
+\end{equation*}
 
 (Barreira and Valls go on to define "a dynamical system _with
 continuous time_" [@alma99954905266605899, Definition 1.7] in precisely the same way as Giunti
@@ -795,9 +795,9 @@ Recall that the Khalil model expresses the derivative $d\vec{x}/dt$
 of the state as a function of time $t$, the state $\vec{x}$, and
 the input $\vec{u}$:
                               <!-- (no par break) -->
-\[
+\begin{equation*}
   \dot{\vec{x}} = \vec{f}(t, \vec{x}, \vec{u}).
-\]
+\end{equation*}
 
 Let us denote the domains of $\vec{x}$ and $\vec{u}$ (vis-à-vis the
 function $\vec{f}$) by $\vs{X}$ and $\vs{U}$.  $\vs{X}$ and $\vs{U}$
@@ -860,9 +860,9 @@ Thus $U=K\cup D\cup W$, where $K$, $D$, and $W$ are pairwise disjoint.  This
 allows us to partition the vector space $\vs{U}$ into corresponding sub-vector
 spaces $\vs{K}$, $\vs{D}$, and $\vs{W}$; that is,
 <!-- (no par break) -->
-\[
+\begin{equation*}
   \vs{U} = \vs{K}\times\vs{D}\times\vs{W},
-\]
+\end{equation*}
                               <!-- (no par break) -->
 where $\vs{K}=\R^K$, $\vs{D}=\R^D$, and $\vs{W} = \R^W$.  Each input
 $\vec{u}$ may now be written as a triplet $(\vec{k}, \vec{d},
@@ -1418,9 +1418,9 @@ Thus, $\vec{f}: \vs{X}\times\vs{K}\times\vs{D}\times\vs{W}\to\vs{X}$.
 From here on out, we shall adopt BioCro's notion of state space and
 denote it as $\vs{S}$, so that
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \vs{S} = \vs{X}\times\vs{K}\times\vs{D}\times\vs{W}.
-\]
+\end{equation*}
                               <!-- (no par break) -->
 $\vec{f}$ is then a function $\vec{f}: \vs{S} \to \vs{X}$, and the
 state equation, which we shall now refer to as the _derivative_
@@ -1435,10 +1435,10 @@ where $\vec{s}$ denotes a state in the state space $\vs{S}$.
 In general, we can write any state $\vec{s}$ in terms of the
 coordinate variables describing each of the component spaces; that is,
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \vec{s} = (x_0, x_1, \dots, x_{n-1}, k_0, k_1, \dots,
                k_{q-1}, d_0, d_1, \dots, d_{r-1}, w_0, w_1, \dots, w_{s-1})
-\]
+\end{equation*}
                               <!-- (no par break) -->
 where $n$, $q$, $r$, and $s$ are the dimensions of the component
 spaces $\vs{X}$, $\vs{K}$, $\vs{D}$, and $\vs{W}$, respectively.
@@ -1450,10 +1450,10 @@ a BioCro system.
 Let $X = \{x_0, x_1, \dots, x_{n-1}\}$ be the set of differential
 variables of the system, and let
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     S = \{x_0, x_1, \dots, x_{n-1}, k_0, k_1, \dots, k_{q-1},
           d_0, d_1, \dots, d_{r-1}, w_0, w_1, \dots, w_{s-1}\}
-\]
+\end{equation*}
                               <!-- (no par break) -->
 be the set of _all_ the coordinate variables needed to specify a state
 in the state space of the system.  Then $\M$ is a valid differential
@@ -1465,9 +1465,9 @@ the input variables of $\M$ and let $\vs{M}_\text{out}$ be the vector
 subspace of $\vs{X}$ generated by the output variables of $\M$.  Then
 the _derivative function_ for $\M$ is some function
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \hat{\vec{f}}_\vs{M}: \vs{M}_\text{in} \to \vs{M}_\text{out}.
-\]
+\end{equation*}
                               <!-- (no par break) -->
 To each such function, we may associate a unique function
 $\vec{f}_\vs{M}: \vs{S} \to \vs{X}$ as follows:
@@ -1477,12 +1477,12 @@ and let $\pmb{\iota}$ be the injective function of $\vs{M}_\text{out}$
 into $\vs{X}$ that assigns each coordinate in $X$ that is not an
 output variable of $\M$ the value zero.  Then we define
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \vec{f}_\vs{M} = \pmb{\iota} \circ \hat{\vec{f}}_\vs{M} \circ \pmb{\pi}:
         \vs{S} \stackrel{\pmb{\pi}}{\to} \vs{M}_\text{in}
                \stackrel{\hat{\vec{f}}_\vs{M}}{\longrightarrow} \vs{M}_\text{out}
                \stackrel{\pmb{\iota}}{\to} \vs{X}.
-\]
+\end{equation*}
                               <!-- (no par break) -->
 We shall call the function $\vec{f}_\vs{M}$ the _system-complete
 derivative function for $\M$_.
@@ -1494,15 +1494,15 @@ system, and let $\{\vec{f}_\vs{M_1}, \vec{f}_\vs{M_1}, \dots,
 functions.  Then the _combined derivative function_ for $\{\M_1, \M_2,
 \dots, \M_m\}$ is the function
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \vec{f} = \sum_{i\in \{1, 2, \dots, m\}} \vec{f}_\vs{M_i},
-\]
+\end{equation*}
                               <!-- (no par break) -->
 defined by the rule
 
-\[
+\begin{equation*}
     \vec{s} \mapsto \sum_{i\in \{1, 2, \dots, m\}} \vec{f}_\vs{M_i}(\vec{s}).
-\]
+\end{equation*}
                               <!-- (no par break) -->
 If $\{\M_1, \M_2, \dots, \M_m\}$ comprise the differential modules for
 a system, then $\vec{f}$ is that system's derivative function.
@@ -1532,9 +1532,9 @@ follows, we shall write $\vs{H}$ to abbreviate the cross product
 $\vs{X}\times\vs{K}\times\vs{D}$.  Thus we may write
 \eqref{eq:dir_mod_component_fn} as
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \gamma^\vs{W}: \vs{H} \to \vs{W}.
-\]
+\end{equation*}
 
 In general, however, the direct module component of a system will be
 subdivided into two or more submodules, and, as also mentioned in
@@ -1567,9 +1567,9 @@ never share inputs and outputs.  Note that it may be the case that
 $\In\M_i\subseteq H$; in this case $\vs{\overline{W}}_i$ is
 0-dimensional and \ref{eq:dir_mod_fn} reduces to
                               <!-- (no par break) -->
-\[
+\begin{equation*}
     \gamma^{\vs{W}_i}: \vs{H} \to \vs{W}_i.
-\]
+\end{equation*}
 
 $H$ corresponds to the union of all the differential variables,
 parameters, and driver variables of the system.  Usually, it will be
@@ -1698,7 +1698,7 @@ empty since a member of $\In M_J$ that is _not_ in $\Out\M_i$ can't
 also be _in_ $\Out\M_i$.  Finally, $\In\M_i\cap\Out\M_j=\emptyset$ was
 a stipulation made when defining the ordered sum of $\M_i$ and $\M_j$.
 
-           
+
 Equation \ref{eq:ordered_sum} perhaps requires a little explication in
 order to be comprehended.
 
@@ -1838,7 +1838,7 @@ Note also that if `time` is a driver, it dominates: `doy` and `hour`
 and `hour` must be; if only one is, we get obscure error:
 
 ```
-  Error in floor(result$time) : 
+  Error in floor(result$time) :
     non-numeric argument to mathematical function
 ```
 
@@ -1901,7 +1901,7 @@ having any modules, it doesn't really _do_ anything.
 result <- run_biocro(parameters = list(timestep=1),
                      drivers = weather$`2005`[1000:1010,])
 result[c('year', 'doy', 'hour', 'precip', 'rh', 'solar', 'temp', 'windspeed')]
-```                     
+```
 
 The weather information this run displays could just as easily be
 displayed using
