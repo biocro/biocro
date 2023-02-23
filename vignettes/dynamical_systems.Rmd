@@ -164,7 +164,7 @@ gravitational field) and ignore all other attributes of the system, is
 rather good in the case of compact, relatively-dense objects.  (It's
 not so good for feathers.)
 
-# Continuous time versus discrete time
+# Continuous time versus discrete time \label{sec:discrete_time}
 
 In the system just shown---a mathematical model of a real-world
 dynamical system---the differential equation constraining the solution
@@ -319,10 +319,9 @@ real-world phenomena.  (See, for example, @alma99496872912205899.)
 
 # An overview of some abstract dynamical system formulations \label{sec:formulations}
 
-This section will provide a short survey of some formulations of
-abstract dynamical system, along with discussion of how BioCro's
-terminology may differ in sometimes unexpected ways from terminology
-the reader may be used to.
+This section will provide a short survey of some formulations of abstract
+dynamical systems; in later sections, we will discuss how these formulations
+relate to the types of systems represented in BioCro.
 
 (For a insightful and thoroughly abstract mathematical study of the
 theory of general systems, dynamical and otherwise, see
@@ -464,7 +463,8 @@ $(a,b,c)$ (instead of $((a,b),c)$ or $(a,(b,c)$).
 The first model we consider is that described by Khalil
 [@alma99454477012205899].  This model is both expressive and flexible,
 and we believe it is the most intuitively natural way to view the sort
-of systems BioCro deals with at the systems level.
+of systems BioCro deals with at the systems level (Section
+\ref{sec:BioCro_systems}).
 
 In the opening chapter, the author introduces dynamical systems as a
 finite collection of coupled first-order ordinary differential
@@ -530,55 +530,6 @@ in his exposition, so the vector $\vec{x}$, for example, is defined by
 Here we use 0-based indexing instead in order to be consistent with
 other parts of this article.)
 
-### The notion of state in the Khalil and BioCro models
-
-Khalil remarks that the state variables "represent the memory that the
-dynamical systems has of its past."  As Laplace
-[@alma99954908866305899] remarks, "We ought then to consider the
-present state of the universe as the effect of its previous state and
-as the cause of that which is to follow."  The inputs in the model, on
-the other hand, are in general completely arbitrary.  They are not
-determined by the state or by their own past or future values.  They
-help determine, but are not determined by, the evolution of the state
-of the system.  In a sense, they are like the hand of the
-experimenter-god touching and influencing this otherwise
-mechanistically-determined system.
-
-In BioCro, the inputs are referred to as _drivers_.  It should also be
-remarked that in the terminology used to discuss BioCro, and in the
-terminology of the software itself, the driver variables are
-considered a part of the state.  This is partly for expedience: in
-certain contexts, it is convenient to treat all quantities that vary
-with time (and sometimes even those that don't) uniformly.
-
-But convenience aside, there is also some philosophical justification
-for this: In many systems, the inputs may clearly be thought of as
-somehow external to the system.  When studying an electrical circuit,
-for example, the experimenter may apply electrical inputs to the
-system and see how the system responds.  Even in a controlled
-plant-growth experiment conducted in a climate-controlled greenhouse,
-the environmental inputs may be applied somewhat arbitrarily.  In
-BioCro, by contrast, the inputs (the _drivers_) are usually related to
-weather and other aspects of the environment---temperature, humidity,
-radiation, and so on.  Unlike in a controlled experiment, these
-environmental variables evolve according to their own laws; they are
-not under the control of the experimenter.  In a truly comprehensive
-model, their laws of evolution would be included right alongside the
-laws determining plant growth.  But generally, to do so would overly
-complicate the model, and by and large, given the inherently chaotic
-nature of meteorological processes and the vast amounts of additional
-data that would be required, it is not at all feasible to do so.  So
-in BioCro, we regard them as a part of the system---as part of the
-_state_ of the system---but as a part that is taken as given rather
-than as a part that is to be derived from some general rules governing
-the evolution of natural systems.
-
-None of this is to say, of course, that BioCro can't also be used to
-model controlled experiments, such as those carried out in a green
-house; or to model "thought experiments" or "what if" scenarios: _What
-would happen if we used the weather data from 2005 but assumed a much
-higher $\text{CO}_\text{2}$ concentration?_
-
 ### Variants of Khalil's model
 
 At this point, it is worth bringing up two restricted versions of the
@@ -618,21 +569,16 @@ that is, if
 \end{equation}
                               <!-- (no par break) -->
 The behavior of an autonomous system is invariant to shifts in time
-origin.  (The falling body system considered above was autonomous: it
-doesn't matter precisely when the object is released, its subsequent
-motion will follow the same pattern.)
+origin. (Formally, however, as we shall see later in Section
+\ref{sec:biocro_time}, a non-autonomous system can be made into an automous one
+by introducing a time-related variable into the state.)
 
-With the exception of certain "toy" examples, such as those based upon
-the harmonic oscillator module, the systems with which BioCro deals
-will, on a conceptual level, almost invariably be non-autonomous or
-time-varying.  This is largely due to the time-dependence of the
-drivers: it matters whether we start our plants growing in March or in
-May.  (Formally, however, as we shall see, a non-autonomous system can
-be made into an automous one by introducing a time-related variable
-into the state.)
-
-We will discuss the Khalil model further we discuss the systems model
-used by BioCro.
+The falling body system considered above was autonomous: the motion of the body
+will follow the same pattern independent of when it is released. On the other
+hand, more realistic biological models tend to be non-autonomous or
+time-varying. This is largely due to the influence of weather and other
+environmental factors; for example, it matters whether seeds are sown in March
+or in May.
 
 ## The Giunti-Mazzola model \label{sec:giunti-mazzola}
 
@@ -649,10 +595,10 @@ it generalizes the concept of time used for dynamical system from the
 real numbers (which the Khalil model assumes) to any monoid.  In
 particular, we may consider time domains consisting of the
 non-negative integers, or some fixed multiple of the same, such as the
-non-negative even integers.  This is one of the natural ways to view
-time in BioCro systems: in an idealized view of BioCro-modeled
-systems, time is continuous, but on a practical level, we compute the
-behavior of such systems in discrete jumps.
+non-negative even integers. This is one of the natural ways to view time
+in discrete-time systems, which often arise in practice because continuous-time
+systems are discretized when applying numeric solution methods (Section
+\ref{sec:discrete_time}).
 
 We quote Giunti and Mazzola's definition of a dynamical system
 verbatim (\emph{Definition~1} in @Giunti&Mazzola):
@@ -681,13 +627,9 @@ verbatim (\emph{Definition~1} in @Giunti&Mazzola):
 \noindent
 Notice that not only can the time model now be any monoid, the state
 space can now be any non-empty set: it is no longer required to be a
-subset of a Euclidean space.  It needn't even be a continuum!  A
-fortiori, there is no longer any requirement that the state
-transitions be differential equation based.  (In BioCro, however, no
-use is made of this generalization: in BioCro, the state space always
-_will_ be a subset (in fact, a _connected_ subset) of a Euclidean
-space, and state transitions (using _state_ in Khalil's sense) will
-always be differential equation based.)
+subset of a Euclidean space.  It needn't even be a continuum!
+_A fortiori_, there is no longer any requirement that the state
+transitions be differential equation based.
 
 Instead of differential equations, we have condition (iv.b), sometimes
 called the _semi-group_ property, which relates the structure of the
@@ -704,20 +646,6 @@ system.  Without it, there is no structure to the way in which such a
 system evolves: the system may pass from one state to the next
 willy-nilly without any constraint on the relationship between states
 over time.
-
-Giunti and Mazzola's model definition was cited in the supplementary
-materials to @10.1093/insilicoplants/diac003 as justification for
-considering all quantities involved in a system (except for time) as
-part of the state.  Whatever the merits of that argument, in
-retrospect, this possibly amounts to a sort of cherry-picking of the
-Giunti-Mazzola definition because it is not altogether clear whether
-BioCro dynamical systems, as envisioned in that paper, have, in
-general, a collection of well-defined transition functions $(g^t)_{t
-\in T}$.  Whether they do or do not turns on the question of how we
-interpret the stipulation, given in the supplement, that "the term
-state is used to refer to all quantities involved in the system,
-except time."  We will elaborate on this question further in what
-follows.
 
 ## The Barreira-Valls model
 
@@ -775,12 +703,11 @@ These five entities tell us everything about the dynamics of the
 system that we need in order to "solve" it.  (How, precisely, it will
 be solved is determined by specifying a solver.)[^alternate_treatment]
 
-Aside from differences in the concept of _state_, the Khalil model
-fits very well with an idealized version of the BioCro model in which
-time is considered to be continuous.  We will see this in the section
-\ref{sec:BioCro_systems}, where we discuss the two models
-side-by-side.  But first, we will elaborate a bit further on the
-Khalil model.
+Aside from differences in the concept of _state_ (Section \ref{sec:state}), the
+Khalil model fits very well with an idealized version of the BioCro model in
+which time is considered to be continuous.  We will see this in the section
+\ref{sec:BioCro_systems}, where we discuss the two models side-by-side. But
+first, we must elaborate a bit further on the Khalil model.
 
 ## Elaboration on the Khalil model \label{sec:khalil_elaboration}
 
@@ -910,11 +837,12 @@ Khalil model just discussed?
   initial time $t_0$, which for convenience, we will always take to be
   0\. (Thus _time_ is always the amount of time that has elapsed since
   the start of the simulation.)  We will denote this initial state as
-  $\vec{x}_0 = (x_{0,0}, x_{1,0}, \dots, x_{n-1,0})$.  In BioCro, it is
-  the _initial values_ specification that determines (in Khalil's
-  terminology) which variables comprise the state, and the dimension
-  of the state space $\vs{X}$ is equal to the number of variables in
-  $\vec{x}_0$.
+  $\vec{x}_0 = (x_{0,0}, x_{1,0}, \dots, x_{n-1,0})$. In BioCro, the
+  state variables are referred to as _differential quantities_, since
+  they evolve according to differential equations. It is the
+  _initial values_ specification that determines which variables
+  comprise the state, and the dimension of the state space $\vs{X}$ is
+  equal to the number of variables in $\vec{x}_0$.
 
 For now, we shall consider the initial values as part of the
 definition of a system only in so far as they determine the set of
@@ -929,26 +857,10 @@ In what follows, when we need to make this distinction, we shall refer
 to a dynamical system together with a specified initial state as a
 _run_ of a system.
 
-(Note that in most of the documentation and other writing about
-BioCro, _all_ quantities are considered to be a part of the state, and
-the variables whose values are specified when providing the set of
-initial values to a BioCro simulation are referred to as _differential
-variables_.  As such, when we are referring to things using this
-terminology, we will refer to $\vs{X}$ not as the state space, but as
-the _differential component of the state space_.  In BioCro, it is the
-_initial values_ parameter (and not, for example, the set of
-differential modules) that determines which variables belong to the
-differential component.)
-
 * The _parameters_ correspond to the sole value in the codomain of the
   constant function $\gamma^\vs{K}$.  This will be a $q$-tuple of
   values $\vec{k} = (k_0, k_1, \dots, k_{q-1})$, where $q$ is the
   number of parameters, the dimension of the vector subspace $\vs{K}$.
-
-  (A special case is the parameter `timestep`, which must always be
-  included among the BioCro parameters, but which does not naturally
-  belong among the bona fide parameters belonging to the set $K$.  We
-  discuss `timestep` further in section \ref{sec:biocro_time}.)
 
 * The _drivers_ correspond to the function $\gamma^\vs{D}:T\to\R^r$,
   giving the value of $\vec{d}$ as a function of time.  Writing
@@ -1004,8 +916,10 @@ $\gamma^\vs{D}_i$ at time $t_{j-1}$.
 
 (For some numerical methods, we need to know values of
 $\gamma^\vs{D}_i(t)$ for values of $t$ _between_ the time points given
-in this definition.  This can be done by adding an additional case to
-the above rule; namely,
+in this definition. In principle, many approaches are available for this
+type of interpolation, such as cubic splines. At the moment, BioCro
+only offers linear interpolation between neighboring time points. In
+other words, an additional case is added to the above rule:
                               <!-- (no par break) -->
 \begin{equation}
   \gamma^\vs{D}_i(t) = \frac{t_{j + 1} - t}{\Delta t}\,\gamma^\vs{D}_i(t_j)
@@ -1016,13 +930,13 @@ the above rule; namely,
 This makes $\gamma^\vs{D}_i(t)$ into a continuous piece-wise linear
 function.)
 
-Now to the modules.  As we will show below, any BioCro system is
-equivalent to a BioCro system having only a single module of each
-type, but having the same initial values, parameters, and
+Now to the modules. As we will show later (Section \ref{sec:modularization}),
+any BioCro system is equivalent to a BioCro system having only a single
+module of each type, but having the same initial values, parameters, and
 drivers.[^comprehensive_module] Thus, for simplicity, we will here
 consider only the case where there is a single module of each
-type.[^single_module] Later, in the section on modularization, we will
-consider how a single module may be broken up into multiple modules.
+type.[^single_module] Later, we will consider how a single module may be
+broken up into multiple modules (Section \ref{sec:modularization}).
 
 * The _direct module_ corresponds to the function $\gamma^\vs{W}:
   T\times\vs{X} \to \vs{W}$.  In point of fact, we usually think of
@@ -1034,7 +948,7 @@ consider how a single module may be broken up into multiple modules.
 
   Note in particular that the number of output variables of this
   direct module gives the dimension of the $\vs{W}$ component of
-  $\vs{U}$.  We call these variables the _direct_ quantities of the
+  $\vs{U}$.  We call these variables the _direct quantities_ of the
   system (for lack of a better term) since they are the outputs of the
   direct module.
 
@@ -1056,7 +970,7 @@ generated by those inputs to module $\M_i$ that are not in $X$, $K$, or $D$.
 direct module's inputs and outputs are always disjoint. In this case,
 $\vs{\overline{W}}_i$ is complementary to $\vs{W}_i$, with $\vs{W}_i \times
 \vs{\overline{W}}_i$ a subspace of $\vs{W}$.)  We will discuss this further in
-the section on modularization.
+the section on modularization (Section \ref{sec:modularization}).
 
 Second, it should be mentioned that the Khalil model allows for the
 inclusion of an output function
@@ -1084,10 +998,9 @@ existing modules that use these as inputs.
   equation \eqref{eq:BioCro_state_equation}.  This is the Khalil state
   equation, but with $\vec{u}$ divided into components $\vec{k}$,
   $\vec{d}$, and $\vec{w}$.  The primary constraint on the
-  differential module is that its output variables must all be (in the
-  terminology of Khalil) _state_ variables (as determined, you may
-  recall, by which variables are included in the specification of the
-  initial state).
+  differential module is that its output variables must all be
+  differential quantities (or, equivalently, state variables), which
+  are determined by the initial values as discussed above.
 
   (BioCro doesn't require that all state variables be included in the
   differential module outputs: if some state variable $x_i$ is not, it
@@ -1144,7 +1057,7 @@ driver variables we happened to be using); we imagine that we _could_
 do this but that instead, we choose to look at the behavior of the
 system only over some finite period of time.
 
-## BioCro's concept of state
+## BioCro's concept of state \label{sec:state}
 
 In BioCro, at the level of a module, all input quantities are
 considered uniformly.  There are good reasons for this, reasons that
@@ -1155,12 +1068,9 @@ from data observations and thereby be one of the drivers.  But the
 module using that input doesn't care where it comes from.
 
 Once we set up a system, however, each quantity falls neatly into one
-of four categories: it is either a constant; a driver; a differential
-quantity; or a derived quantity, that is, a quantity whose value at
-any given time can be directly computed from the values of other
-quantities at that same time using some more or less simple formula.
-(These correspond, respectively, to the subspaces $\vs{K}$, $\vs{D}$,
-$\vs{X}$, and $\vs{W}$ discussed in sections
+of four categories: it is either a parameter, a driver, a differential
+quantity, or a direct quantity. (These correspond, respectively, to the
+subspaces $\vs{K}$, $\vs{D}$, $\vs{X}$, and $\vs{W}$ discussed in sections
 \ref{sec:khalil_elaboration} and \ref{sec:BioCro_systems} and to the
 arguments $\vec{k}$, $\vec{d}$, $\vec{x}$, and $\vec{w}$ in the state
 equation in the form given in equation
@@ -1173,15 +1083,84 @@ user-defined type called `state_map`, which maps names of quantities
 to the value such quantities have at some particular time.  This
 naturally leads to referring to the aggregate of the values of all
 quantities of the system at some particular point in time as the
-_state_ of the system at that time.  This section attempts to
-reconcile this conception of state with that commonly used in
-dynamical systems theory, and in particular, with the formulations
-presented in chapter \ref{sec:formulations}.
+_state_ of the system at that time. Thus, while Khalil's model
+distinguishes betwee the state and the inputs, the term state as
+used in BioCro refers to the parameters, drivers, differential
+quantities, and direct quantities as a whole (equivalent to
+Khalil's state _and_ drivers).
+
+This section attempts to reconcile this conception of state with that
+commonly used in dynamical systems theory, and in particular, with
+the formulations presented in chapter \ref{sec:formulations}. Elsewhere
+in this document, we endeavor to use the term _state_ exclusively in
+reference to its usual definition as employed in the Khalil, Giuli-Mazzola,
+and Barreira-Valls models; we intentionally avoid using BioCro's idea of
+state, preferring to write _differential quantities_ instead to prevent
+confusion. In this section, we must necessarily use _state_ to refer to
+both conceptions, and try to clarify which definition is meant whenever
+it is unclear from context.
+
+### BioCro state and the Khalil model
+
+Khalil remarks that the state variables "represent the memory that the
+dynamical systems has of its past."  As Laplace
+[@alma99954908866305899] remarks, "We ought then to consider the
+present state of the universe as the effect of its previous state and
+as the cause of that which is to follow."  The inputs in the model, on
+the other hand, are in general completely arbitrary.  They are not
+determined by the state or by their own past or future values.  They
+help determine, but are not determined by, the evolution of the state
+of the system.  In a sense, they are like the hand of the
+experimenter-god touching and influencing this otherwise
+mechanistically-determined system.
+
+In BioCro, the inputs are considered part of the state, partly as a matter of
+convenience; but, convenience aside, there is also a philosophical justification
+for this: In many systems, the inputs may clearly be thought of as
+somehow external to the system.  When studying an electrical circuit,
+for example, the experimenter may apply electrical inputs to the
+system and see how the system responds.  Even in a controlled
+plant-growth experiment conducted in a climate-controlled greenhouse,
+the environmental inputs may be applied somewhat arbitrarily.  In
+BioCro, by contrast, the inputs (the _drivers_) are usually related to
+weather and other aspects of the environment---temperature, humidity,
+radiation, and so on.  Unlike in a controlled experiment, these
+environmental variables evolve according to their own laws; they are
+not under the control of the experimenter.  In a truly comprehensive
+model, their laws of evolution would be included right alongside the
+laws determining plant growth.  But generally, to do so would overly
+complicate the model, and by and large, given the inherently chaotic
+nature of meteorological processes and the vast amounts of additional
+data that would be required, it is not at all feasible to do so.  So
+in BioCro, we regard them as a part of the system---as part of the
+_state_ of the system---but as a part that is taken as given rather
+than as a part that is to be derived from some general rules governing
+the evolution of natural systems.
+
+None of this is to say, of course, that BioCro can't also be used to
+model controlled experiments, such as those carried out in a green
+house; or to model "thought experiments" or "what if" scenarios: _What
+would happen if we used the weather data from 2005 but assumed a much
+higher $\text{CO}_\text{2}$ concentration?_
 
 ### BioCro state and the Giunti model
 
-A BioCro system having drivers but not including a time-like variable
-in its state does not, in general, conform to the Giunti model.
+Giunti and Mazzola's model definition was cited in the supplementary
+materials to @10.1093/insilicoplants/diac003 as justification for
+considering all quantities involved in a system (except for time) as
+part of the state.  Whatever the merits of that argument, in
+retrospect, this possibly amounts to a sort of cherry-picking of the
+Giunti-Mazzola definition because it is not altogether clear whether
+BioCro dynamical systems, as envisioned in that paper, have, in
+general, a collection of well-defined transition functions $(g^t)_{t
+\in T}$.  Whether they do or do not turns on the question of how we
+interpret the stipulation, given in the supplement, that "the term
+state is used to refer to all quantities involved in the system,
+except time."
+
+As we demonstrate here, a BioCro system having drivers but not
+including a time-like variable among its differential quantities
+does not, in general, conform to the Giunti model.
 
 To see this, let us consider a typical BioCro system in which the
 driver component consists of the values of a number of weather-related
@@ -1253,7 +1232,7 @@ The state now, without having to include the date or time,
 encapsulates all the information we need to have in order to know what
 the state will be $x$ amount of time in the future.
 
-I bring this up to show that even in the presence of drivers
+We bring this up to show that even in the presence of drivers
 (_inputs_, in Khalil's terminology), the notion of an autonomous
 system is possible.  And we can have systems that conform to the
 Giunti model without requiring that states on different dates be
@@ -1277,9 +1256,15 @@ least easily defined: if $\gamma$ is the $\vs{D}$ component of some
 state $\vec{s}$, then $g^u(\gamma)$ will be the function defined by
 the rule $t \mapsto \gamma(u + t)$.)
 
-The upshot is that if we want to keep the Giunti model as a model for
-BioCro systems, the best plan is to allow time or some proxy for time
-to be a component variable of the state.
+The upshot is that the Giunti model does not naturally describe
+BioCro systems unless some proxy for time is allowed to be a
+component of the differential quantities. It should also be noted
+that BioCro does not make use of two important generalizations in
+the Giunti model: in BioCro, the state space always _will_ be a
+subset (in fact, a _connected_ subset) of a Euclidean space, and
+state transitions (using _state_ in Khalil's sense) will always be
+differential equation based. Thus, we find that Khalil's model
+provides a better description of BioCro systems.
 
 ### The state space as a manifold \label{sec:manifold}
 
@@ -1301,14 +1286,14 @@ Appendix II in @alma99267312205899,
   indicates the secondary nature of the concept of state_ [emphasis
   mine].
 
-(Here, the authors are presumably using _state_ in the less
+Here, the authors are presumably using _state_ in the less
 comprehensive sense, where it is distinguished from system inputs and
 outputs, though conceivably they could simply mean that which
 attributes we choose to observe and codify into a notion of _state_ is
 not unique; but for the sake of argument, we'll assume they mean at
 least the former.
 
-But the authors, in fact, hint at an altogether different view of what
+(But the authors, in fact, hint at an altogether different view of what
 is meant by the state of a system.  In this view, everything that can
 be observed about a system is encompassed by the system's inputs and
 outputs: the system is essentially a black box, and how it responds to
@@ -1368,9 +1353,7 @@ specify the altitude as 8848.86 (meters), even without having
 specified a longitude or latitude (let alone both), we know the object
 is at the top of Mount Everest.[^elevation])
 
-
-
-## Modularization in BioCro
+## Modularization in BioCro \label{sec:modularization}
 
 As mentioned in section \ref{sec:BioCro_systems}, any BioCro system
 can be replaced by an equivalent system using only a single module of
@@ -1379,7 +1362,7 @@ differential module, where each (respectively) combines the effects of
 all the individual direct and differential modules that were used in
 the original system.
 
-I use "merely" advisedly here, because one of the main strengths of
+We use "merely" advisedly here, because one of the main strengths of
 BioCro is the ability to modularize, so that once we have a wide
 repertoire of modules to choose from, we can choose and combine them
 in whatever way is useful, without having to write a new module each
@@ -1954,14 +1937,17 @@ automatically described by the unforced state equation
 
 [^timestep_parameter]: The timestep parameter is different in
 character from the other parameters the make up part of the
-specification of a BioCro system.  It does not correspond to a
+specification of a BioCro system. It does not correspond to a
 physical attribute of the real dynamical system being modeled.
 Rather, it is an artifact of the way in which the real system is
-modeled mathematically.  As such, we don't consider it as one of the
-variables in the set $K$ that we introduced in section
-\ref{sec:khalil_elaboration}.
+modeled mathematically. In fact, it should not be included in the
+parameters at all, and is only there due to a "historical
+accident." Eventually, it is intended that `timestep` will be
+removed from the BioCro parameters. As such, we don't consider it
+as one of the variables in the set $K$ that we introduced in
+section \ref{sec:khalil_elaboration}.
 
-[^giunti]: I shall henceforth refer to the model from @Giunti&Mazzola
+[^giunti]: We shall henceforth refer to the model from @Giunti&Mazzola
 presented in section \ref{sec:giunti-mazzola} as simply the _Giunti_
 model: it is essentially the same model presented fifteen years
 earlier in @Giunti1997-GIUCDS, but generalized to an arbitrary monoid,
@@ -1984,7 +1970,7 @@ zero, its value at any time will represent the amount of time that has
 elapsed since the start of the simulation, in whatever time units
 `timestep` is in.
 
-[^elevation]: Here, I am using _altitude_ to mean "height above sea
+[^elevation]: Here, we are using _altitude_ to mean "height above sea
 level", or what is, for points on the earth's surface, usually called
 _elevation_.
 
