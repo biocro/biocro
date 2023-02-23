@@ -1,6 +1,6 @@
 /*
  [auto_generated]
- boost/numeric/odeint/stepper/generation/generation_runge_kutta_cash_karp54_c.hpp
+ boost/numeric/odeint/stepper/generation/generation_runge_kutta_cash_karp54_classic.hpp
 
  [begin_description]
  Enable the factory functions for the controller and the dense output of the
