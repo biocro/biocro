@@ -51,14 +51,14 @@ real system as an evolution through a series of states.
 It should be emphasized that when we create a mathematical system to
 model a real one, we are doing more than just quantifying attributes
 of the real system; we are also selecting which attributes to
-incorporate into our model and which ones to ignore.  For there are an
+incorporate into our model and which ones to ignore. For there are an
 endless variety of attributes which could describe the state of a real
 system, and we can't even begin to hope to be able to model all of
 them.
 
 As stated in the Giunti quote, a mathematical dynamical system will
 describe the change of a real system as an evolution through a series
-of states.  (For now, we will interpret "series of states" loosely, so
+of states. (For now, we will interpret "series of states" loosely, so
 as to encompass models that describe this change as a continuous
 evolution of the system state as well as those that describe change in
 terms of a discrete sequence of states.) The real usefulness of such a
@@ -75,7 +75,7 @@ knowledge of the processes that determine how the system behaves.
 A classic example from physics is the falling-body problem: Given a
 stationary, compact, relatively dense object dropped from a height
 $h_0$ above the surface of the earth, what will be its height after a
-duration of time $t$?  The partial knowledge we have of this system
+duration of time $t$? The partial knowledge we have of this system
 consists of:
 
 1. the initial height $h_0$ of the object
@@ -104,7 +104,8 @@ on the function $h$:
   h''(t) = -g \quad\text{\emph{if} h(t) > 0},
 \end{equation*}
                               <!-- (no par break) -->
-but for simplicity, we will only consider the system over durations sufficiently small that the object has not yet hit the ground.)
+but for simplicity, we will only consider the system over durations sufficiently
+small that the object has not yet hit the ground.)
 
 In the field of differential equations, this is known as an initial-value
 problem, and it can be shown that its unique solution is given by
@@ -121,10 +122,10 @@ time.
 ## Some comments on mathematical abstraction
 
 As we mentioned, any mathematical dynamical system that purports to
-model a real system will necessarily leave much out.  In choosing what
+model a real system will necessarily leave much out. In choosing what
 attributes to retain in our abstract model, there are two main
 considerations: First, which attributes of the system are of most
-interest to us?  For a model of plant growth, this might include, for
+interest to us? For a model of plant growth, this might include, for
 example, the rate of growth (mass accumulation) of a plant; the
 nutrient or energy content of the growing plant; the impact of a group
 of plants on the surrounding environment, including the temperature
@@ -141,7 +142,7 @@ object of interest in the _real_ falling object system is the height
 of the object at any given time, then there are certain things about
 the system we may safely ignore: the color of the object or the time
 of day, for example, will probably have no bearing on the trajectory
-of object's motion.  On the other hand, knowing the velocity of the
+of object's motion. On the other hand, knowing the velocity of the
 object at any given time is crucial to predicting its height over
 time, even if we may have no intrinsic interest in knowing the
 velocity.
@@ -157,7 +158,7 @@ object are (to give a very few examples)
                paragraph, so we fake it.  -->
 But as the Italian experimenters of the 16th century demonstrated, the
 weight of a compact and relatively dense object has little impact upon
-the rate at which it falls.  It turns out, as a matter of fact, that
+the rate at which it falls. It turns out, as a matter of fact, that
 the predictive accuracy of our model, in which we look only at the
 height and downward velocity of the object (and the ambient
 gravitational field) and ignore all other attributes of the system, is
@@ -183,7 +184,7 @@ development to occur more rapidly.
 
 In the system just shown---a mathematical model of a real-world
 dynamical system---the differential equation constraining the solution
-has an exact solution as an easily-computable function.  Most often,
+has an exact solution as an easily-computable function. Most often,
 however, we will not be able to find an exact solution, and so we will
 have to settle for a numerical solution.
 
@@ -196,10 +197,10 @@ methods.
 Euler's method, the most basic of methods for numerical integration of
 ordinary differential equations, may be applied to any system in which
 the current rate of change of each of the state variables may be
-expressed as a function of the current state.  Here, we use _state
+expressed as a function of the current state. Here, we use _state
 variable_ to mean any quantifiable attribute of a system whose value we would
 like to predict; the _state_ of a system is then the conglomeration of the
-values of all of these variables at any particular time.  Euler's method makes
+values of all of these variables at any particular time. Euler's method makes
 the assumption that, given a known state of a system at some particular time,
 the state of the system at some very small interval of time later can be
 closely approximated by assuming that the rate of change of each state
@@ -223,7 +224,7 @@ we assume that for any sufficiently small interval of time $\Delta t$,
 ## Applying Euler's method to the falling-body problem
 
 In the system of equations \eqref{eq:ode-system}, $h$ is the only
-system variable.  But there is no valid equation that gives $dh/dt$ as
+system variable. But there is no valid equation that gives $dh/dt$ as
 a function of the state when the state is represented by $h$ alone.
 
 To solve this problem, we will also consider the velocity to be a part of the
@@ -242,9 +243,9 @@ velocity, and we can think of each state $\vec{s}$ as a point in a
 \end{equation*}
                               <!-- (no par break) -->
 We will identify the height $h$ with the first component $s_0$ and the
-velocity $v$ with the second component $s_1$.  We will consider $v$ to
+velocity $v$ with the second component $s_1$. We will consider $v$ to
 be the velocity in the upward direction so that when the object is
-falling, $v < 0$.  We write $v(t)$ to denote $v$ as a function of
+falling, $v < 0$. We write $v(t)$ to denote $v$ as a function of
 time.
 
 Since $v = dh/dt$, we can rewrite the system \eqref{eq:ode-system} as
@@ -277,7 +278,8 @@ components, that is
   \pi_1(\vec{s}) &= s_1.
 \end{align}
                               <!-- (no par break) -->
-Now we can write a recursive definition for the state $\vec{s}$ as a function of $t$:
+Now we can write a recursive definition for the state $\vec{s}$ as a function
+of $t$:
                               <!-- (no par break) -->
 \begin{align}
   \vec{s}(t_0) &= (h_0, 0) \notag \\
@@ -340,7 +342,7 @@ and a transition rule
 \end{equation*}
                               <!-- (no par break) -->
 Given an initial state $\vec{v}(t_0)$, we now have a way to compute
-the state $\vec{v}(t_i)$ at any time $t_i$.  This abstract dynamical
+the state $\vec{v}(t_i)$ at any time $t_i$. This abstract dynamical
 system may not have any relationship to any real dynamical system we
 might imagine, but it is an abstract dynamical system nevertheless.
 
@@ -354,8 +356,8 @@ might imagine, but it is an abstract dynamical system nevertheless.
 defines the Fibonacci sequence $0, 1, 1, 2, 3, 5, 8, 13, \dots\,$.)
 
 Another class of discrete-time abstract dynamical systems are the
-cellular automata.  These, however, may have some value in modeling
-real-world phenomena.  (See, for example, @alma99496872912205899.)
+cellular automata. These, however, may have some value in modeling
+real-world phenomena. (See, for example, @alma99496872912205899.)
 
 # An overview of some abstract dynamical system formulations \label{sec:formulations}
 
@@ -370,48 +372,48 @@ theory of general systems, dynamical and otherwise, see
 ## Some notational preliminaries \label{sec:notation}
 
 As is common, we will take $f: C \to B$ to mean "$f$ is a function
-with domain $C$ taking values in the set $B$."  Usually, this means
+with domain $C$ taking values in the set $B$." Usually, this means
 $f(c)$ is defined for every $c\in C$, but in what follows, we won't
-always be entirely strict about this.  Following @vaught, we write
+always be entirely strict about this. Following @vaught, we write
 $B^C$ to denote the set of all such functions $f$.[^sets_of_functions]
 We use $\R$, $\Z$, and $\N$ to denote the real numbers, the integers,
 and the natural numbers (the finite ordinals, including zero),
-respectively.  $\Z^+$ denotes the _positive_ integers.
+respectively. $\Z^+$ denotes the _positive_ integers.
 
 Following von Neumann, it will sometimes be convenient to identify
-each natural number $n$ with the set of all of its predecessors.  For
-example, $5 = \{0, 1, 2, 3, 4\}$.  This is particularly useful when
-speaking of Euclidian spaces.  For example, $\R^3$, Euclidean 3-space,
+each natural number $n$ with the set of all of its predecessors. For
+example, $5 = \{0, 1, 2, 3, 4\}$. This is particularly useful when
+speaking of Euclidian spaces. For example, $\R^3$, Euclidean 3-space,
 is usually thought of as the set of all 3-coordinate vectors $(x, y,
-z)$.  But we can equally well consider it to be the set of all
+z)$. But we can equally well consider it to be the set of all
 mappings $v: \{0,1,2\}\to \R$, which, using the set-of-functions
-notation given above, can be denoted $\R^{\{0,1,2\}}$.  (Or, using von
+notation given above, can be denoted $\R^{\{0,1,2\}}$. (Or, using von
 Neumann's notion of ordinals, this, too, is denoted $\R^3$, since
-$3=\{0,1,2\}$!)  Thus, we can identify a 3-tuple $(x,y,z)$ with a
+$3=\{0,1,2\}$!) Thus, we can identify a 3-tuple $(x,y,z)$ with a
 mapping $v: \{0,1,2\}\to \R$, where $v(0) = x$, $v(1) = y$, and $v(2)
-= z$.  We often write $v_i$ in place of $v(i)$ and identify a mapping
+= z$. We often write $v_i$ in place of $v(i)$ and identify a mapping
 $v: \{0, 1, 2, \dots, n-1\}\to \R$ with an n-tuple or n-coordinate
 vector $\vec{v}=(v_0, v_1, v_2, \dots, v_{n-1})$.
 
 Often, however, there will be some level of indirection involved in
-our use of the notation $v_i$ for a coordinate of $\vec{v}$.  For
+our use of the notation $v_i$ for a coordinate of $\vec{v}$. For
 example, if $\vs{U}$ is a proper subspace of $\R^n$ such that $\vs{U}
 = \R^U$ for some proper subset $U$ of $n = \{0,1,\dots,n-1\}$, then we
 may regard $u_i$ as the value taken by the $i$th member of $U$ in some
-arbitrary but fixed ordering of the members of $U$.  We even allow the
+arbitrary but fixed ordering of the members of $U$. We even allow the
 case where the function domain $U$ isn't a set of intergers at all but
-just some finite collection of objects.  In this case, in the context
+just some finite collection of objects. In this case, in the context
 of considering vectors (_qua_ mappings) $\vec{v}\in \R^U$, $v_i$ may
 denote alternately the i'th member of $U$ in some fixed enumeration;
 the name of a variable associated with that member; or the value of
-the i'th coordinate of some particular vector $\vec{v}$.  In the later
+the i'th coordinate of some particular vector $\vec{v}$. In the later
 case, $v_i$ doesn't abbreviate $v(i)$ for some function $v\in \R^U$.
 Rather, it stands for $v(u_i)$, where $u_i$ denotes "the i'th member
 of $U$."
 
 Any function $f: C \to B$ may be identified with the set $\{(c,
-f(c))\,:\,c\in C\}$.  Thus, the target set $B$ is not an intrinsic
-part of the function $f$.  But, defining the _image set_ of $f$ as
+f(c))\,:\,c\in C\}$. Thus, the target set $B$ is not an intrinsic
+part of the function $f$. But, defining the _image set_ of $f$ as
                               <!-- (no par break) -->
 \begin{equation*}
     \Im f = \{b\,: \text{there exists $c\in C$ such that} (c, b) \in f\},
@@ -427,14 +429,14 @@ can define $f|C_0$, the _restriction of $f$ to $C_0$_, as
 \end{equation*}
                               <!-- (no par break) -->
 We shall be particularly interested in restrictions of functions
-specifying points in Euclidean space.  Suppose $\vec{x}\in \R^n$, and
-let $W$ be an arbitrary subset of $n=\{0,1,2,\dots,n-1\}$.  Then
+specifying points in Euclidean space. Suppose $\vec{x}\in \R^n$, and
+let $W$ be an arbitrary subset of $n=\{0,1,2,\dots,n-1\}$. Then
 $\vec{x}|W$ will be a member of $\R^W$, the set of functions that
-assign a real number to each member of $W$.  We regard $R^W$ as a
-subspace of $R^n$.  Moreover, if $W$ has $k$ members, $R^W$ will be
+assign a real number to each member of $W$. We regard $R^W$ as a
+subspace of $R^n$. Moreover, if $W$ has $k$ members, $R^W$ will be
 isomorphic to, but not necessarily equal to, the Euclidean space
-$R^k$.  ($R^W$ and $R^k$ are equal iff $W=k$ (that is, iff $W = \{0,
-1, \dots, k-1\})$.)  We define the projection mapping $\pi^{n\to W}:
+$R^k$. ($R^W$ and $R^k$ are equal iff $W=k$ (that is, iff $W = \{0,
+1, \dots, k-1\})$.) We define the projection mapping $\pi^{n\to W}:
 R^n\to R^W$ by the rule
                               <!-- (no par break) -->
 \begin{equation*}
@@ -453,7 +455,7 @@ Just as we can restrict the domain of a function, we can expand it as
 well.
 
 Suppose we have two functions $f\in\R^X$ and $g\in\R^Y$, where either
-$X$ and $Y$ are disjoint, or $f(z) = g(z)$ for all $z\in X\cap Y$.  We
+$X$ and $Y$ are disjoint, or $f(z) = g(z)$ for all $z\in X\cap Y$. We
 define the _union_ $f\cup g$ of $f$ and $g$ by the rule
                               <!-- (no par break) -->
 \begin{equation*}
@@ -465,7 +467,7 @@ define the _union_ $f\cup g$ of $f$ and $g$ by the rule
                               <!-- (no par break) -->
 Note that this is exactly the same function as that we get by
 regarding functions as sets of ordered pairs and then taking the
-literal (set) union of $f$ and $g$.  Also, clearly,
+literal (set) union of $f$ and $g$. Also, clearly,
                               <!-- (no par break) -->
 \begin{align*}
     f &= (f\cup g)|X \\
@@ -501,7 +503,7 @@ $(a,b,c)$ (instead of $((a,b),c)$ or $(a,(b,c)$).
 ## The Khalil model
 
 The first model we consider is that described by Khalil
-[@alma99454477012205899].  This model is both expressive and flexible,
+[@alma99454477012205899]. This model is both expressive and flexible,
 and we believe it is the most intuitively natural way to view the sort
 of systems BioCro deals with at the systems level (Section
 \ref{sec:BioCro_systems}).
@@ -517,7 +519,7 @@ equations
   \dot{x}_{n-1} &= f_{n-1}(t, x_0, \dots, x_{n-1}, u_0, \dots, u_{p-1}).
 \end{align*}
 
-This is somewhat more general than the system we considered in section
+This is somewhat more general than the system we considered in Section
 \ref{opening_example} in that the derivatives depend not only upon the
 state variables $x_0, x_1, \dots, x_{n-1}$, but also upon time $t$ and
 what Khalil refers to as the _input_ variables $u_0, u_1, \dots, u_{p-1}$.
@@ -583,7 +585,7 @@ written as
 \end{equation}
                               <!-- (no par break) -->
 Khalil refers to this as the _unforced_ state equation: it lacks any
-explicit mention of inputs.  But, he points out, if the input can be
+explicit mention of inputs. But, he points out, if the input can be
 specified as an explicit function of time,
                               <!-- (no par break) -->
 \begin{align}
@@ -624,15 +626,15 @@ or in May.
 
 The model due to Giunti and Mazzola is a further generalization of the
 autonomous version of the Khalil model, though cast in a somewhat
-different form.  Being autonomous, it is in some respects more
+different form. Being autonomous, it is in some respects more
 restrictive than the general model given in
 \eqref{eq:Khalil_state_equation}; but in other respects it is
 considerably more general.
 
 We highlight this model for two reasons: First, it is mentioned in the
-supplementary materials to @10.1093/insilicoplants/diac003.  Second,
+supplementary materials to @10.1093/insilicoplants/diac003. Second,
 it generalizes the concept of time used for dynamical system from the
-real numbers (which the Khalil model assumes) to any monoid.  In
+real numbers (which the Khalil model assumes) to any monoid. In
 particular, we may consider time domains consisting of the
 non-negative integers, or some fixed multiple of the same, such as the
 non-negative even integers. This is one of the natural ways to view time
@@ -654,7 +656,7 @@ verbatim (\emph{Definition~1} in @Giunti&Mazzola):
 > system, and $M$ is called its _state space_;
 >
 > (iii) $(g^t)_{t \in T}$ is a family indexed by $T$ of functions from
-> $M$ to $M$.  For any $t\in T$, the function $g^t$ is called the _state
+> $M$ to $M$. For any $t\in T$, the function $g^t$ is called the _state
 > transition of duration $t$_ (briefly, _$t$-transition_, or _$t$-advance_)
 > of the system;
 >
@@ -667,22 +669,22 @@ verbatim (\emph{Definition~1} in @Giunti&Mazzola):
 \noindent
 Notice that not only can the time model now be any monoid, the state
 space can now be any non-empty set: it is no longer required to be a
-subset of a Euclidean space.  It needn't even be a continuum!
+subset of a Euclidean space. It needn't even be a continuum!
 _A fortiori_, there is no longer any requirement that the state
 transitions be differential equation based.
 
 Instead of differential equations, we have condition (iv.b), sometimes
 called the _semi-group_ property, which relates the structure of the
-time model to that of the class of state transitions.  Just as $T$ is
+time model to that of the class of state transitions. Just as $T$ is
 a monoid with operation $+$ and additive identity $0$, so too is the
 collection $(g^t)_{t \in T}$ of state transitions, with the monoid
 operation being function composition and the identity element being
-the identity function.  Condition (iv) asserts that the mapping from
+the identity function. Condition (iv) asserts that the mapping from
 $(T, +)$ to $((g^t)_{t \in T}, \circ)$ whereby $t \mapsto g^t$ is a
 monoid homomorphism.
 
 Condition (iv) is in fact the crux of this definition of a dynamical
-system.  Without it, there is no structure to the way in which such a
+system. Without it, there is no structure to the way in which such a
 system evolves: the system may pass from one state to the next
 willy-nilly without any constraint on the relationship between states
 over time.
@@ -723,10 +725,10 @@ function $f$ to be defined by the rule
 \end{equation*}
 
 (Barreira and Valls go on to define "a dynamical system _with
-continuous time_" [@alma99954905266605899, Definition 1.7] in precisely the same way as Giunti
-and Mazzola (for the case where the time model is $\R$ or $\R_{\geq
-0}$)---that is, as a family of mappings indexed by time satisfying the
-semi-group property.)
+continuous time_" [@alma99954905266605899, Definition 1.7] in precisely
+the same way as Giunti and Mazzola (for the case where the time model is
+$\R$ or $\R_{\geq 0}$)---that is, as a family of mappings indexed by time
+satisfying the semi-group property.)
 
 # The BioCro model
 
@@ -740,12 +742,12 @@ A BioCro system is determined by the specification of five entities:
 
 \noindent
 These five entities tell us everything about the dynamics of the
-system that we need in order to "solve" it.  (How, precisely, it will
+system that we need in order to "solve" it. (How, precisely, it will
 be solved is determined by specifying a solver.)[^alternate_treatment]
 
 Aside from differences in the concept of _state_ (Section \ref{sec:state}), the
 Khalil model fits very well with an idealized version of the BioCro model in
-which time is considered to be continuous.  We will see this in the section
+which time is considered to be continuous. We will see this in the section
 \ref{sec:BioCro_systems}, where we discuss the two models side-by-side. But
 first, we must elaborate a bit further on the Khalil model.
 
@@ -760,10 +762,10 @@ the input $\vec{u}$:
 \end{equation*}
 
 Let us denote the domains of $\vec{x}$ and $\vec{u}$ (vis-à-vis the
-function $\vec{f}$) by $\vs{X}$ and $\vs{U}$.  $\vs{X}$ and $\vs{U}$
+function $\vec{f}$) by $\vs{X}$ and $\vs{U}$. $\vs{X}$ and $\vs{U}$
 are vector spaces over the reals, and following the conventions set
-out in section \ref{sec:notation}, we may view them as sets of
-mappings from finite _index_ sets into the reals.  Thus
+out in Section \ref{sec:notation}, we may view them as sets of
+mappings from finite _index_ sets into the reals. Thus
                               <!-- (no par break) -->
 \begin{align}
     \vs{X} = \R^X \\
@@ -816,7 +818,7 @@ alone.
 depends on the value of $\vec{x}$ (and possibly also on $t$).
 
 \noindent
-Thus $U=K\cup D\cup W$, where $K$, $D$, and $W$ are pairwise disjoint.  This
+Thus $U=K\cup D\cup W$, where $K$, $D$, and $W$ are pairwise disjoint. This
 allows us to partition the vector space $\vs{U}$ into corresponding sub-vector
 spaces $\vs{K}$, $\vs{D}$, and $\vs{W}$; that is,
 <!-- (no par break) -->
@@ -824,7 +826,7 @@ spaces $\vs{K}$, $\vs{D}$, and $\vs{W}$; that is,
   \vs{U} = \vs{K}\times\vs{D}\times\vs{W},
 \end{equation*}
                               <!-- (no par break) -->
-where $\vs{K}=\R^K$, $\vs{D}=\R^D$, and $\vs{W} = \R^W$.  Each input
+where $\vs{K}=\R^K$, $\vs{D}=\R^D$, and $\vs{W} = \R^W$. Each input
 $\vec{u}$ may now be written as a triplet $(\vec{k}, \vec{d},
 \vec{w})$ where $\vec{k}\in \vs{K}$, $\vec{d}\in \vs{D}$, and
 $\vec{w}\in \vs{W}$.[^empty_component] Moreover, there exist functions
@@ -870,13 +872,13 @@ unforced state equation as in equation
 
 In BioCro, as noted above, a system is determined when we specify its
 _initial values_, _parameters_, _drivers_, _direct modules_, and
-_differential modules_.  How do these relate to the version of the
+_differential modules_. How do these relate to the version of the
 Khalil model just discussed?
 
 * The _initial values_ correspond to the state $\vec{x}$ at some
   initial time $t_0$, which for convenience, we will always take to be
   0\. (Thus _time_ is always the amount of time that has elapsed since
-  the start of the simulation.)  We will denote this initial state as
+  the start of the simulation.) We will denote this initial state as
   $\vec{x}_0 = (x_{0,0}, x_{1,0}, \dots, x_{n-1,0})$. In BioCro, the
   state variables are referred to as _differential quantities_, since
   they evolve according to differential equations. It is the
@@ -902,7 +904,7 @@ use of numerical methods that effectively discretize the continous
 system of differential equations of a Khalil system. Whether this is
 considered as the development of a new discrete dynamical system from
 a continuous one, or just a matter of practical convenience, is mostly
-a philosophical issue that we will not discuss any further.[^discrete_biocro]
+a philosophical issue.[^discrete_biocro]
 
 * The _parameters_ correspond to the sole value in the codomain of the
   constant function $\gamma^\vs{K}$.  This will be a $q$-tuple of
@@ -1117,7 +1119,7 @@ module using that input doesn't care where it comes from.
 Once we set up a system, however, each quantity falls neatly into one
 of four categories: it is either a parameter, a driver, a differential
 quantity, or a direct quantity. (These correspond, respectively, to the
-subspaces $\vs{K}$, $\vs{D}$, $\vs{X}$, and $\vs{W}$ discussed in sections
+subspaces $\vs{K}$, $\vs{D}$, $\vs{X}$, and $\vs{W}$ discussed in Sections
 \ref{sec:khalil_elaboration} and \ref{sec:BioCro_systems} and to the
 arguments $\vec{k}$, $\vec{d}$, $\vec{x}$, and $\vec{w}$ in the state
 equation in the form given in equation
@@ -1402,7 +1404,7 @@ is at the top of Mount Everest.[^elevation])
 
 ## Modularization in BioCro \label{sec:modularization}
 
-As mentioned in section \ref{sec:BioCro_systems}, any BioCro system
+As mentioned in Section \ref{sec:BioCro_systems}, any BioCro system
 can be replaced by an equivalent system using only a single module of
 each type.  We merely have to write one direct module and one
 differential module, where each (respectively) combines the effects of
@@ -1422,7 +1424,7 @@ differential module case since it is the simpler of the two.
 
 ### Modularization of the derivative function
 
-As mentioned in section \ref{sec:BioCro_systems}, when a BioCro system
+As mentioned in Section \ref{sec:BioCro_systems}, when a BioCro system
 uses only a single differential module, that module corresponds to the
 function $\vec{f}$ in Khalil state equation
 \eqref{eq:BioCro_state_equation}.  We shall henceforth refer to
@@ -1552,7 +1554,7 @@ rewrite multiple modules that might use it.
 
 Let $\Sys$ be a BioCro system, and let $\vs{S} =
 \vs{X}\times\vs{K}\times\vs{D} \times \vs{W}$ be the state space of
-$\Sys$.  As mentioned in section \ref{sec:BioCro_systems}, the direct
+$\Sys$.  As mentioned in Section \ref{sec:BioCro_systems}, the direct
 module component of a BioCro system $\Sys$ corresponds to a function
                               <!-- (no par break) -->
 \begin{equation}
@@ -1574,7 +1576,7 @@ subdivided into two or more submodules. In this section, we will show that the
 ordered sum of two modules is itself a module, which is the key to understanding
 how to modularize the direct module function.
 
-As mentioned in section \ref{sec:BioCro_systems}, when a system has more than
+As mentioned in Section \ref{sec:BioCro_systems}, when a system has more than
 one direct module, each constituent module $\M_i$ corresponds to a function
                               <!-- (no par break) -->
 \begin{equation}
@@ -1868,7 +1870,8 @@ run_biocro(parameters = list(timestep=1), drivers = data.frame(time=45.625))
 run_biocro(parameters = list(timestep=1), drivers = data.frame(doy=80, hour=14.25))
 ```
 
-Note that `ncalls` always shows up in the output data frame, even though it is constant and even though it is not a system variable.
+Note that `ncalls` always shows up in the output data frame, even though it is
+constant and even though it is not a system variable.
 
 Note also that if `time` is a driver, it dominates: `doy` and `hour`
 (if present) are overwritten.  If `time` is not present, both `doy`
@@ -1881,7 +1884,7 @@ and `hour` must be; if only one is, we get obscure error:
 
 ## A system having a differential variable but no differential module
 
-As noted in section \ref{sec:BioCro_systems}, it is the
+As noted in Section \ref{sec:BioCro_systems}, it is the
 `initial_values` parameter that determines which variables are
 differential variables.  Usually, each differential variable will be
 an output of one or more differential modules, but this is not
@@ -1978,7 +1981,7 @@ degrees Kelvin, for example, can not meaningfully take on values less
 than zero.  In general, however, $\vec{f}$ will be defined for all
 $\vec{x}\in\vs{X'}$ and all $\vec{u}\in\vs{U'}$ where $\vs{X'}$ and
 $\vs{U'}$ are connected subsets of $\vs{X}$ and $\vs{U}$.  We will
-reconsider this issue in section \ref{sec:manifold}.
+reconsider this issue in Section \ref{sec:manifold}.
 
 [^solar_function]: This particular function is, in fact, the function
 you would get if you expressed the total PAR flux density (in
@@ -2005,10 +2008,10 @@ parameters at all, and is only there due to a "historical
 accident." Eventually, it is intended that `timestep` will be
 removed from the BioCro parameters. As such, we don't consider it
 as one of the variables in the set $K$ that we introduced in
-section \ref{sec:khalil_elaboration}.
+Section \ref{sec:khalil_elaboration}.
 
 [^giunti]: We shall henceforth refer to the model from @Giunti&Mazzola
-presented in section \ref{sec:giunti-mazzola} as simply the _Giunti_
+presented in Section \ref{sec:giunti-mazzola} as simply the _Giunti_
 model: it is essentially the same model presented fifteen years
 earlier in @Giunti1997-GIUCDS, but generalized to an arbitrary monoid,
 a generalization we have no need to make use of in BioCro.  (This is
