@@ -147,7 +147,7 @@ time, even if we may have no intrinsic interest in knowing the
 velocity.
 
 Other attributes that _could_ have some bearing on the motion of the
-object are  (to give a very few examples)
+object are (to give a very few examples)
 
 * the size and shape of the object
 * the mass of the object
@@ -161,8 +161,23 @@ the rate at which it falls.  It turns out, as a matter of fact, that
 the predictive accuracy of our model, in which we look only at the
 height and downward velocity of the object (and the ambient
 gravitational field) and ignore all other attributes of the system, is
-rather good in the case of compact, relatively-dense objects.  (It's
-not so good for feathers.)
+rather good in the case of compact, relatively-dense objects.
+
+Of course, if we consider a non-compact object with relatively low
+density, such as a feather, this model may not do a good job of
+predicting its path as it falls through the air. We may find that
+in order to accurately model the free-fall of a feather, we _do_
+need to include attributes in our system that represent the impact
+of air resistance. This process, where a model is compared against
+observations and then updated when it fails to predict the behavior
+of the real system it is meant to represent, is a key part of the
+scientific process and has been responsible for a great deal of
+progress and understanding. Thus, it is never a problem when the
+process of abstraction has left out too many details; instead this
+is an opportunity to learn more about the real world and the model.
+A central goal for BioCro is to make it relatively easy to add new
+components to an existing model, allowing this type of model
+development to occur more rapidly.
 
 # Continuous time versus discrete time \label{sec:discrete_time}
 
@@ -270,6 +285,22 @@ Now we can write a recursive definition for the state $\vec{s}$ as a function of
                          \pi_1(\vec{s}(t_i)) - \delta\cdot g)\quad\text{for i$\geq$0}.
                          \label{eq:falling_body_recursion}
 \end{align}
+                              <!-- (no par break) -->
+Note that we could also express this definition using our original variable
+names and without using the projection operators:
+                              <!-- (no par break) -->
+\begin{align*}
+  \vec{s}(t_0) &= (h_0, 0) \notag \\
+  \vec{s}(t_{i + 1}) &= (h(t_i) +  \Delta t \cdot v(t_i),
+                         v(t_i) - \Delta t \cdot g)\quad\text{for i$\geq$0}.
+\end{align*}
+                              <!-- (no par break) -->
+Thus, Equation \eqref{eq:falling_body_recursion} may seem like a complicated way
+to write a relatively simple rule relating height, velocity, and acceleration.
+However, this notation will become useful later when we begin to consider
+general systems where we do not wish to specify a particular number of state
+variables, a particular rule for determining a future state, or even the
+independent variable (which may not be time).
 
 ## Note about abstraction and recursive systems
 
@@ -287,7 +318,16 @@ function of time:
   \end{array}
 \end{equation*}
                               <!-- (no par break) -->
-It should be pointed out, however, that not all discrete-time abstract
+One important point is that the process of developing a recursive
+equation (or a discrete-time approximation) depends on the algorithm
+chosen for solving the continuous ODE system. For example, if we had
+chosen to use the fourth-order Runge-Kutta method rather than Euler's
+method, we would arrive at a recursive definition different from
+Equation \eqref{eq:falling_body_recursion}. Nevertheless, it would
+represent the same continuous system, and should (usually) produce
+a similar sequence of states.
+
+It should also be pointed out that not all discrete-time abstract
 dynamical systems arise as abstractions of real systems or even as
 abstractions of continuous-time abstract systems.
 
@@ -855,7 +895,14 @@ models don't specify anything analogous to an initial state.
 
 In what follows, when we need to make this distinction, we shall refer
 to a dynamical system together with a specified initial state as a
-_run_ of a system.
+_run_ of a system. It should also be noted, as discussed in Section
+\ref{sec:discrete_time}, that actually running the system (that is,
+allowing the state to evolve from its initial values) requires the
+use of numerical methods that effectively discretize the continous
+system of differential equations of a Khalil system. Whether this is
+considered as the development of a new discrete dynamical system from
+a continuous one, or just a matter of practical convenience, is mostly
+a philosophical issue that we will not discuss any further.[^discrete_biocro]
 
 * The _parameters_ correspond to the sole value in the codomain of the
   constant function $\gamma^\vs{K}$.  This will be a $q$-tuple of
@@ -1384,8 +1431,10 @@ $\vec{f}$ as the _derivative_ function for the system.
 As it turns out, in BioCro, the derivative function never depends on
 $t$ directly; if there is any temporal dependence in function
 $\vec{f}$, it is always via some driver variable or differential
-variable.  Therefore, we can rewrite equation
-\eqref{eq:BioCro_state_equation} as
+variable. (Recall that $t$ represents the elapsed time in a BioCro system;
+although some calculations may depend on the time of year or the time of
+day, they do not depend on the elapsed time.) Therefore, we can rewrite
+equation \eqref{eq:BioCro_state_equation} as
                               <!-- (no par break) -->
 \begin{equation}
   \dot{\vec{x}} = \vec{f}(\vec{x}, \vec{k}, \vec{d}, \vec{w}).
@@ -1484,6 +1533,13 @@ defined by the rule
 If $\{\M_1, \M_2, \dots, \M_m\}$ comprise the differential modules for
 a system, then $\vec{f}$ is that system's derivative function.
 
+In other words, the outputs from each individual differential module are treated
+as terms that must be added together to form the full derivative. For each
+module, the system-complete derivative function as defined above calculates the
+values of some elements of $X$, setting the rest to 0. Then, the output from
+each system-complete derivative function can be added together to form the full
+derivatives. This operation is performed by the combined derivative function.
+
 We could always write a single differential module $\M$ that has
 $\vec{f}$ as its system-complete derivative function and then use it
 in place of the collection of modules $\{\M_1, \M_2, \dots, \M_m\}$ in
@@ -1514,10 +1570,12 @@ $\vs{X}\times\vs{K}\times\vs{D}$.  Thus we may write
 \end{equation*}
 
 In general, however, the direct module component of a system will be
-subdivided into two or more submodules, and, as also mentioned in
-section \ref{sec:BioCro_systems}, when a system has more than one
-direct module, each constituent module $\M_i$ corresponds to a
-function
+subdivided into two or more submodules. In this section, we will show that the
+ordered sum of two modules is itself a module, which is the key to understanding
+how to modularize the direct module function.
+
+As mentioned in section \ref{sec:BioCro_systems}, when a system has more than
+one direct module, each constituent module $\M_i$ corresponds to a function
                               <!-- (no par break) -->
 \begin{equation}
   \gamma^{\vs{W}_i}: \vs{X}\times\vs{K}\times\vs{D}\times\vs{\overline{W}}_i \to \vs{W}_i,
@@ -1594,6 +1652,18 @@ so that
 \end{align*}
                               <!-- (no par break) -->
 with $A\cap B=C\cap D=A\cap D=B\cap D=\emptyset$.
+
+At this point, it is possible to see how the ordered sum of
+two modules is itself a module; the key is to think in terms of
+module inputs and outputs: Given mappings for all values in $A$ and
+all values in $C$ that aren't in $B$, we can obtain mappings for all
+values in $B$ and $D$ as follows: Since we know all the inputs $A$ to
+module $\M_i$, we can use the module to obtain all the outputs $B$.
+Now we know all the inputs $C$ to module $\M_j$---both those that
+_aren't_ in $B$ (which were given at the outset), and those that _are_
+in $B$ (which were obtained by applying module $\M_i$). This yields
+all the outputs $D$ of module $\M_j$. We can also describe this more
+formally, as will be shown in the remainder of this section.
 
 Then we define $\M_i + \M_j$, the _ordered sum of $\M_i$ and $\M_j$_,
 to be the direct module whose corresponding function
@@ -1713,16 +1783,6 @@ the components in $\R^{C\smallsetminus B}$ and $\R^{C\cap B}$ gives us
 a value in $\R^C$, to which we can apply function $g$.  The result is
 a function in $\R^D$ telling how all values (such as $y$) in $D$ are
 mapped.
-
-This is all perhaps easier to understand if we think in terms of
-module inputs and outputs: Given mappings for all values in $A$ and
-all values in $C$ that aren't in $B$, we can obtain mappings for all
-values in $B$ and $D$ as follows: Since we know all the inputs $A$ to
-module $\M_i$, we can use the module to obtain all the outputs $B$.
-Now we know all the inputs $C$ to module $\M_j$---both those that
-_aren't_ in $B$ (which were given at the outset), and those that _are_
-in $B$ (which were obtained by applying module $\M_i$).  This yields
-all the outputs $D$ of module $\M_j$.
 
 #### General ordered sum {-}
 
@@ -1983,3 +2043,11 @@ to the case where there is only a single module of each type, we could
 instead make no stipulation about the number of modules and simply
 substitute the phrase "the direct (differential) module component" in
 every place where we speak of "the direct (differential) module".
+
+[^discrete_biocro]: There are rare exceptions to this rule because it
+is possible to write BioCro modules that assume discrete time steps; in
+other words, modules that require the use of an Euler solver. In this
+case, the discrete-time system is _not_ an abstraction of a continuous
+system. However, such modules are avoided in "modern" BioCro systems,
+and most BioCro systems can be considered as continuous-time models
+that are discretized as a practical necessity.
