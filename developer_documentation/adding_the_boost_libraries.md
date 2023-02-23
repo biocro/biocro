@@ -17,34 +17,26 @@ Boost library to a directory.
 
 The packages BioCro uses are as follows:
 
-| Package name                                 | Notes                                                                                                                       |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `boost/units`                                | Used in `biocro_units.h`                                                                                                    |
-| `boost/typeof/incr_registration_group.hpp`   | This is needed for `boost/units` but it is not exported properly and must be explicitly specificed as of Boost version 1.71 |
-| `boost/algorithm`                            | Used in `parameters.h`                                                                                                      |
-| `boost/graph`                                | Used in `dependency_graph.cpp`                                                                                              |
-| `boost/numeric/ublas`                        | Used in `dynamical_system.h`, among others                                                                                  |
-| `boost/numeric/odeint.hpp`                   | Used in `Gro.cpp`                                                                                                           |
+| Package name               | Notes                                       |
+| -------------------------- | ------------------------------------------- |
+| `boost/graph`              | Used in `dependency_graph.cpp`              |
+| `boost/numeric/ublas`      | Used in `boost_ode_solvers.h`, among others |
+| `boost/numeric/odeint.hpp` | Used in `ode_solver.h`                      |
 
-1. Run the following command:
-   - `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/units" "boost/typeof/incr_registration_group.hpp" "boost/algorithm" "boost/numeric/odeint.hpp" "boost/numeric/ublas" "boost/graph" PATH_TO_TEMPORARY_DIRECTORY`
+1. Run the following command, noting that the path to the temporary directory
+   must exist:
+   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/graph" "boost/numeric/ublas" "boost/numeric/odeint.hpp" PATH_TO_TEMPORARY_DIRECTORY`
 
-2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `boost_[version_number]`
-   directory. Other files and directories my be created in
+2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `inc` directory, overwriting
+   any previous version of `boost`. Other files and directories my be created in
    `PATH_TO_TEMPORARY_DIRECTORY,` but they are not needed.
 
-3. If necessary, update the `PKG_CPPFLAGS` line in `src/Makevars`: e.g.,
-   `PKG_CPPFLAGS=-I"../boost_1_71_0"`.
+3. Check that the Boost license in `inc` is correct for the version used, and
+   update the package `LICENSE` file if necessary.
 
-4. If necessary, delete any directories that contain old versions of boost, e.g.
-   `boost_[old_version_number]`
+4. Update the path to the Boost license in the package `LICENSE` file.
 
-4. Check that the Boost license in `boost_[version_num]` is correct for the
-   version used, and update the package `LICENSE` file if necessary.
-
-5. Update the path to the Boost license in the package `LICENSE` file.
-
-6. Run `R CMD check` and truncate any boost file paths that are flagged as
+5. Run `R CMD check` and truncate any boost file paths that are flagged as
    exceeding 100 characters. Be sure to update any associated `#include`
    directives that reference these files; otherwise, compilation errors will
    occur. See [commit 9620b2b994c4dbe0421354cd2c52a82eb170a96](https://github.com/ebimodeling/biocro-dev/pull/422/commits/9620b2b994c4dbe0421354cd2c52a82eb170a967)
@@ -68,9 +60,9 @@ For V1.71.0, this entails the following:
 
  - Type `.\b2` and press enter. This may also take a little while.
 
-Now the Boost libraries have been built, and we are almost ready to use bcp.
-However, we need to explicitly build the bcp tool using the `Boost.Build` tool,
-which is cryptically named `b2.exe`.
+Now the Boost libraries have been built, and we are almost ready to use `bcp`.
+However, we need to explicitly build the `bcp` tool using the `Boost.Build`
+tool, which is cryptically named `b2.exe`.
 
  - In a VS developer prompt, cd into the tools/bcp directory: e.g.,
    `cd C:\Program Files\boost\boost_1_71_0\tools\bcp`.
