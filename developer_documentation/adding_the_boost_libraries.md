@@ -33,7 +33,7 @@ The packages BioCro uses are as follows:
 
 1. Run the following command, noting that the path to the temporary directory
    must exist:
-   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config" "boost/graph/adjacency_list" "boost/graph/topological_sort" "boost/math/constants/constants" "boost/numeric/odeint" "boost/numeric/ublas/io" "boost/numeric/ublas/lu" "boost/numeric/ublas/matrix" "boost/numeric/ublas/triangular" "boost/numeric/ublas/vector" "boost/numeric/ublas/vector_proxy" PATH_TO_TEMPORARY_DIRECTORY`
+   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config" "boost/graph/adjacency_list" "boost/graph/topological_sort" "boost/math/constants/constants" "boost/numeric/odeint.hpp" "boost/numeric/ublas/io" "boost/numeric/ublas/lu" "boost/numeric/ublas/matrix" "boost/numeric/ublas/triangular" "boost/numeric/ublas/vector" "boost/numeric/ublas/vector_proxy" PATH_TO_TEMPORARY_DIRECTORY`
 
 2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `inc` directory, overwriting
    any previous version of `boost`. Other files and directories my be created in
