@@ -15,21 +15,21 @@ Use the `bcp` tool included with Boost to extract parts of the Boost library.
 `bcp` accepts a list of files or modules and extracts the relevant parts of the
 Boost library to a directory.
 
-The packages BioCro uses are as follows:
+The boost files that BioCro uses are as follows:
 
-| Package name                               | Notes                                                         |
+| File    name                               | Notes                                                         |
 | ------------------------------------------ | ------------------------------------------------------------- |
-| `boost/config`                             | Used in `module_dependency_utilities.cpp`                     |
-| `boost/graph/adjacency_list`               | Used in `module_dependency_utilities.cpp`                     |
-| `boost/graph/topological_sort`             | Used in `module_dependency_utilities.cpp`                     |
-| `boost/math/constants/constants`           | Used in `constants.h`                                         |
+| `boost/config.hpp`                         | Used in `module_dependency_utilities.cpp`                     |
+| `boost/graph/adjacency_list.hpp`           | Used in `module_dependency_utilities.cpp`                     |
+| `boost/graph/topological_sort.hpp`         | Used in `module_dependency_utilities.cpp`                     |
+| `boost/math/constants/constants.hpp`       | Used in `constants.h`                                         |
 | `boost/numeric/odeint.hpp`                 | Used in `ode_solver.h`                                        |
-| `boost/numeric/ublas/io`                   | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/lu`                   | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/matrix`               | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/triangular`           | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/vector`               | Used in `boost_ode_solvers.h`                                 |
-| `boost/numeric/ublas/vector_proxy`         | Used in `newton_raphson_boost.h`                              |
+| `boost/numeric/ublas/io.hpp`               | Used in `newton_raphson_boost.h`                              |
+| `boost/numeric/ublas/lu.hpp`               | Used in `newton_raphson_boost.h`                              |
+| `boost/numeric/ublas/matrix.hpp`           | Used in `newton_raphson_boost.h`                              |
+| `boost/numeric/ublas/triangular.hpp`       | Used in `newton_raphson_boost.h`                              |
+| `boost/numeric/ublas/vector.hpp`           | Used in `boost_ode_solvers.h`                                 |
+| `boost/numeric/ublas/vector_proxy.hpp`     | Used in `newton_raphson_boost.h`                              |
 | `boost/typeof/incr_registration_group.hpp` | This is needed for `boost/units` but is not exported properly |
 
 Note that we do not actually use `boost/units`, but it is included whenever
@@ -39,7 +39,7 @@ operating systems without it. Hence the need for
 
 1. Run the following command, noting that the path to the temporary directory
    must exist:
-   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config" "boost/graph/adjacency_list" "boost/graph/topological_sort" "boost/math/constants/constants" "boost/numeric/odeint.hpp" "boost/numeric/ublas/io" "boost/numeric/ublas/lu" "boost/numeric/ublas/matrix" "boost/numeric/ublas/triangular" "boost/numeric/ublas/vector" "boost/numeric/ublas/vector_proxy" "boost/typeof/incr_registration_group.hpp" PATH_TO_TEMPORARY_DIRECTORY`
+   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config.hpp" "boost/graph/adjacency_list.hpp" "boost/graph/topological_sort.hpp" "boost/math/constants/constants.hpp" "boost/numeric/odeint.hpp" "boost/numeric/ublas/io.hpp" "boost/numeric/ublas/lu.hpp" "boost/numeric/ublas/matrix.hpp" "boost/numeric/ublas/triangular.hpp" "boost/numeric/ublas/vector.hpp" "boost/numeric/ublas/vector_proxy.hpp" "boost/typeof/incr_registration_group.hpp" PATH_TO_TEMPORARY_DIRECTORY`
 
 2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `inc` directory, overwriting
    any previous version of `boost`. Other files and directories my be created in
