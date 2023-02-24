@@ -17,20 +17,21 @@ Boost library to a directory.
 
 The boost files that BioCro uses are as follows:
 
-| File    name                               | Notes                                                         |
-| ------------------------------------------ | ------------------------------------------------------------- |
-| `boost/config.hpp`                         | Used in `module_dependency_utilities.cpp`                     |
-| `boost/graph/adjacency_list.hpp`           | Used in `module_dependency_utilities.cpp`                     |
-| `boost/graph/topological_sort.hpp`         | Used in `module_dependency_utilities.cpp`                     |
-| `boost/math/constants/constants.hpp`       | Used in `constants.h`                                         |
-| `boost/numeric/odeint.hpp`                 | Used in `ode_solver.h`                                        |
-| `boost/numeric/ublas/io.hpp`               | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/lu.hpp`               | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/matrix.hpp`           | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/triangular.hpp`       | Used in `newton_raphson_boost.h`                              |
-| `boost/numeric/ublas/vector.hpp`           | Used in `boost_ode_solvers.h`                                 |
-| `boost/numeric/ublas/vector_proxy.hpp`     | Used in `newton_raphson_boost.h`                              |
-| `boost/typeof/incr_registration_group.hpp` | This is needed for `boost/units` but is not exported properly |
+| File    name                               | Notes                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `boost/config.hpp`                         | Used in `module_dependency_utilities.cpp`                          |
+| `boost/graph/adjacency_list.hpp`           | Used in `module_dependency_utilities.cpp`                          |
+| `boost/graph/topological_sort.hpp`         | Used in `module_dependency_utilities.cpp`                          |
+| `boost/math/constants/constants.hpp`       | Used in `constants.h`                                              |
+| `boost/numeric/odeint.hpp`                 | Used in `ode_solver.h`                                             |
+| `boost/numeric/ublas/io.hpp`               | Used in `newton_raphson_boost.h`                                   |
+| `boost/numeric/ublas/lu.hpp`               | Used in `newton_raphson_boost.h`                                   |
+| `boost/numeric/ublas/matrix.hpp`           | Used in `newton_raphson_boost.h`                                   |
+| `boost/numeric/ublas/triangular.hpp`       | Used in `newton_raphson_boost.h`                                   |
+| `boost/numeric/ublas/vector.hpp`           | Used in `boost_ode_solvers.h`                                      |
+| `boost/numeric/ublas/vector_proxy.hpp`     | Used in `newton_raphson_boost.h`                                   |
+| `boost/typeof/incr_registration_group.hpp` | This is needed for `boost/units` but is not exported properly      |
+| `boost/graph/detail/empty_header.hpp`      | This is needed for `topological_sort` but is not exported properly |
 
 Note that we do not actually use `boost/units`, but it is included whenever
 `boost/numeric/odeint.hpp` is included, and BioCro will not compile on some
@@ -39,7 +40,7 @@ operating systems without it. Hence the need for
 
 1. Run the following command, noting that the path to the temporary directory
    must exist:
-   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config.hpp" "boost/graph/adjacency_list.hpp" "boost/graph/topological_sort.hpp" "boost/math/constants/constants.hpp" "boost/numeric/odeint.hpp" "boost/numeric/ublas/io.hpp" "boost/numeric/ublas/lu.hpp" "boost/numeric/ublas/matrix.hpp" "boost/numeric/ublas/triangular.hpp" "boost/numeric/ublas/vector.hpp" "boost/numeric/ublas/vector_proxy.hpp" "boost/typeof/incr_registration_group.hpp" PATH_TO_TEMPORARY_DIRECTORY`
+   `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/config.hpp" "boost/graph/adjacency_list.hpp" "boost/graph/topological_sort.hpp" "boost/math/constants/constants.hpp" "boost/numeric/odeint.hpp" "boost/numeric/ublas/io.hpp" "boost/numeric/ublas/lu.hpp" "boost/numeric/ublas/matrix.hpp" "boost/numeric/ublas/triangular.hpp" "boost/numeric/ublas/vector.hpp" "boost/numeric/ublas/vector_proxy.hpp" "boost/typeof/incr_registration_group.hpp" "boost/graph/detail/empty_header.hpp" PATH_TO_TEMPORARY_DIRECTORY`
 
 2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `inc` directory, overwriting
    any previous version of `boost`. Other files and directories my be created in
