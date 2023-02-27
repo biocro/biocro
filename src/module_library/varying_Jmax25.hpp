@@ -45,15 +45,15 @@ string_vector varying_Jmax25::get_inputs()
 {
     return {
         "DVI",         // dimensionless
-        "sf_jmax",     // a constant scaling factor for jmax
-        "jmax_mature"
+        "sf_jmax",     // dimensionless. A constant scaling factor for jmax
+        "jmax_mature"  // micromol/m^2/s.
     };
 }
 
 string_vector varying_Jmax25::get_outputs()
 {
     return {
-        "jmax"
+        "jmax"         // micromol/m^2/s
     };
 }
 
@@ -62,9 +62,11 @@ void varying_Jmax25::do_operation() const
     // I use 0.6 here based on Ed's 2021 measurement.
     // The general rule is to reduce jmax for the emergence period, but
     // before the vegetative period.
+    // This works in my optimization tests, but it's open to more tests.
     // The sf_jmax is a scaling factor for jmax_mature.
+    double DVI_threshold = 0.6; 
     double jmax_tmp;
-    if (DVI < 0.6) {
+    if (DVI < DVI_threshold) {
         jmax_tmp = jmax_mature * sf_jmax;
     } else {
         jmax_tmp = jmax_mature;
