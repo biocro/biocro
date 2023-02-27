@@ -130,6 +130,8 @@ soybean <- list(
 
         # ten_layer_c3_canopy module
         jmax                        = 195,         # Bernacchi et al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
+        jmax_mature                 = 195,         # Needed in the varying_Jmax25 module  
+        sf_jmax                     = 0.2,         # Scaling factor for jmax. Needed in the varying_Jmax25 module  
         electrons_per_carboxylation = 4.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         electrons_per_oxygenation   = 5.25,        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         tpu_rate_max                = 13,          # Fitted value based on the A-Ci data measured at UIUC in 2019-08 by Delgrado (unpublished data)
