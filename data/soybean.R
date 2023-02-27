@@ -87,12 +87,14 @@ soybean <- list(
         sowing_time                 = 0,           # Soybean-BioCro uses the weather data to set the sowing time
 
         # partitioning_coefficient_logistic module
-        alphaRoot                   = 34.39,
-        betaRoot                    = -35.79,
-        alphaStem                   = 20.66,
-        betaStem                    = -17.83,
-        alphaLeaf                   = 22.79,
-        betaLeaf                    = -20.51,
+        alphaRoot                   = 41.1547,
+        betaRoot                    = -39.67512,
+        alphaStem                   = 30.8649,
+        betaStem                    = -24.0506,
+        alphaLeaf                   = 29.6565,
+        betaLeaf                    = -22.8073,
+        alphaPod                    = 19.2903,
+        betaPod                     = -14.2270,
         kRhizome_emr                = 0,
 
         # soil_evaporation module
@@ -153,16 +155,16 @@ soybean <- list(
         retrans_rhizome             = 1.0,         # previously hard-coded in the partitioning_growth module
 
         # senescence_coefficient_logistic module
-        rateSeneLeaf                = 0.01213,
-        rateSeneStem                = 0.0005760,
+        rateSeneLeaf                = 0.003384,
+        rateSeneStem                = 0.0007075,
         rateSeneRoot                = 0,           # senescence of root not simulated in Soybean-BioCro
         rateSeneRhizome             = 0,           # no rhizome simulated in Soybean-BioCro
-        alphaSeneLeaf               = 30.05,
-        alphaSeneStem               = 22.54,
+        alphaSeneLeaf               = 40.066,
+        alphaSeneStem               = 17.7961,
         alphaSeneRoot               = 10,          # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         alphaSeneRhizome            = 10,          # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
-        betaSeneLeaf                = -17.83,
-        betaSeneStem                = -15.61,
+        betaSeneLeaf                = -30.3006,
+        betaSeneStem                = -10.9029,
         betaSeneRoot                = -10,         # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         betaSeneRhizome             = -10,         # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
 
