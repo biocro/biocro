@@ -138,12 +138,14 @@ void partitioning_coefficient_logistic::do_operation() const
     // from Osborne et al., 2015 JULES-crop https://doi.org/10.5194/gmd-8-1139-2015
 
     // denominator term for kRoot, kStem, kLeaf, and kGrain
-    double kDenom = exp(alphaRoot + betaRoot * DVI) + exp(alphaLeaf + betaLeaf * DVI) + exp(alphaStem + betaStem * DVI) + exp(alphaPod + betaPod * DVI) +1.0;  // dimensionless
+    double kDenom = exp(alphaRoot + betaRoot * DVI)
+        + exp(alphaLeaf + betaLeaf * DVI) + exp(alphaStem + betaStem * DVI)
+        + exp(alphaPod + betaPod * DVI) + 1.0;  // dimensionless
 
     double kRoot = kcoeff(alphaRoot, betaRoot, DVI, kDenom);  // dimensionless
     double kStem = kcoeff(alphaStem, betaStem, DVI, kDenom);  // dimensionless
     double kLeaf = kcoeff(alphaLeaf, betaLeaf, DVI, kDenom);  // dimensionless
-    double kPod  = kcoeff(alphaPod, betaPod, DVI, kDenom);  // dimensionless
+    double kPod = kcoeff(alphaPod, betaPod, DVI, kDenom);     // dimensionless
     double kGrain = 1.0 / kDenom;                             // dimensionless
 
     // Give option for rhizome to contribute to growth during the emergence stage,

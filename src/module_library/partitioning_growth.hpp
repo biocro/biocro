@@ -185,10 +185,10 @@ void partitioning_growth::do_operation() const
     } else {
         dLeaf += Leaf * kLeaf;
         dRhizome += kRhizome * (-dLeaf) * retrans;
-        dStem  += kStem * (-dLeaf) * retrans;
-        dRoot  += kRoot * (-dLeaf) * retrans;
+        dStem += kStem * (-dLeaf) * retrans;
+        dRoot += kRoot * (-dLeaf) * retrans;
         dGrain += kGrain * (-dLeaf) * retrans;
-        dPod   += kPod * (-dLeaf) * retrans;
+        dPod += kPod * (-dLeaf) * retrans;
     }
 
     // Determine whether Stem is growing or decaying
@@ -200,7 +200,7 @@ void partitioning_growth::do_operation() const
         dLeaf += kLeaf * (-dStem) * retrans;
         dRoot += kRoot * (-dStem) * retrans;
         dGrain += kGrain * (-dStem) * retrans;
-        dPod  += kPod  * (-dStem) * retrans;
+        dPod += kPod * (-dStem) * retrans;
     }
 
     // Determine whether Root is growing or decaying
@@ -228,7 +228,7 @@ void partitioning_growth::do_operation() const
         dStem += kStem * (-dRhizome) * retrans_rhizome;
         dLeaf += kLeaf * (-dRhizome) * retrans_rhizome;
         dGrain += kGrain * (-dRhizome) * retrans_rhizome;
-        dPod   += kPod  * (-dRhizome) * retrans_rhizome;
+        dPod += kPod * (-dRhizome) * retrans_rhizome;
     }
 
     // Determine whether Grain is growing

@@ -3,11 +3,11 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-//Added by Yufeng He. 02-13-2023 
-//
+// Added by Yufeng He. 02-13-2023
+
 namespace standardBML
 {
-class varying_Jmax25: public direct_module
+class varying_Jmax25 : public direct_module
 {
    public:
     varying_Jmax25(
@@ -44,30 +44,30 @@ class varying_Jmax25: public direct_module
 string_vector varying_Jmax25::get_inputs()
 {
     return {
-        "DVI",                  // dimensionless
-        "sf_jmax",              // a constant scaling factor for jmax
-        "jmax_mature"     // 
+        "DVI",         // dimensionless
+        "sf_jmax",     // a constant scaling factor for jmax
+        "jmax_mature"
     };
 }
 
 string_vector varying_Jmax25::get_outputs()
 {
     return {
-        "jmax"  // 
+        "jmax"
     };
 }
 
 void varying_Jmax25::do_operation() const
 {
-    //I use 0.6 here based on Ed's 2021 measurement
-    //The general rule is to reduce jmax for the emergence period, but 
-    //before the vegetative period
-    //The sf_jmax is a scaling factor for jmax_mature 
+    // I use 0.6 here based on Ed's 2021 measurement.
+    // The general rule is to reduce jmax for the emergence period, but
+    // before the vegetative period.
+    // The sf_jmax is a scaling factor for jmax_mature.
     double jmax_tmp;
-    if(DVI < 0.6){ 
-      jmax_tmp = jmax_mature * sf_jmax;
-    }else{
-      jmax_tmp = jmax_mature;
+    if (DVI < 0.6) {
+        jmax_tmp = jmax_mature * sf_jmax;
+    } else {
+        jmax_tmp = jmax_mature;
     }
     // Update the output quantity list
     update(jmax_op, jmax_tmp);

@@ -127,7 +127,7 @@ creator_map standardBML::module_library::library_entries =
      {"parameter_calculator",                                  &create_mc<parameter_calculator>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
-     {"varying_Jmax25",                                             &create_mc<varying_Jmax25>},
+     {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
