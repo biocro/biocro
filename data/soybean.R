@@ -33,7 +33,8 @@ soybean <- list(
         Leaf               = 0.06312,       # Mg / ha, 80% of total seed mass per land area
         Stem               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
         Root               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
-        Grain              = 0.00001,       # Mg / ha, We treat this as the soybean pod and refer to this variable as Pod in Matthews et al.
+        Grain              = 0.00001,       # Mg / ha, this is the seed part 
+        Pod                = 0.00001,       # Mg / ha, this is the pod/shell part 
         LeafLitter         = 0,             # Mg / ha
         RootLitter         = 0,             # Mg / ha
         StemLitter         = 0,             # Mg / ha
