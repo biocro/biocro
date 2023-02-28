@@ -70,7 +70,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           kRoot{get_input(input_quantities, "kRoot")},
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
-          kPod{get_input(input_quantities, "kPod")},
+          kShell{get_input(input_quantities, "kShell")},
           canopy_assimilation_rate{get_input(input_quantities, "canopy_assimilation_rate")},
           mrc1{get_input(input_quantities, "mrc1")},
           mrc2{get_input(input_quantities, "mrc2")},
@@ -82,7 +82,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           net_assimilation_rate_stem_op{get_op(output_quantities, "net_assimilation_rate_stem")},
           net_assimilation_rate_root_op{get_op(output_quantities, "net_assimilation_rate_root")},
           net_assimilation_rate_rhizome_op{get_op(output_quantities, "net_assimilation_rate_rhizome")},
-          net_assimilation_rate_pod_op{get_op(output_quantities, "net_assimilation_rate_pod")},
+          net_assimilation_rate_shell_op{get_op(output_quantities, "net_assimilation_rate_shell")},
           net_assimilation_rate_grain_op{get_op(output_quantities, "net_assimilation_rate_grain")}
     {
     }
@@ -97,7 +97,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     const double& kRoot;
     const double& kRhizome;
     const double& kGrain;
-    const double& kPod;
+    const double& kShell;
     const double& canopy_assimilation_rate;
     const double& mrc1;
     const double& mrc2;
@@ -109,7 +109,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     double* net_assimilation_rate_stem_op;
     double* net_assimilation_rate_root_op;
     double* net_assimilation_rate_rhizome_op;
-    double* net_assimilation_rate_pod_op;
+    double* net_assimilation_rate_shell_op;
     double* net_assimilation_rate_grain_op;
 
     // Implement the pure virtual function do_operation():
@@ -124,7 +124,7 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs(
         "kRoot",                     // dimensionless
         "kRhizome",                  // dimensionless
         "kGrain",                    // dimensionless
-        "kPod",                      // dimensionless
+        "kShell",                      // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "mrc1",                      // dimensionless
         "mrc2",                      // dimensionless
@@ -140,7 +140,7 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs
         "net_assimilation_rate_stem",     // Mg / ha / hour
         "net_assimilation_rate_root",     // Mg / ha / hour
         "net_assimilation_rate_rhizome",  // Mg / ha / hour
-        "net_assimilation_rate_pod",      // Mg / ha / hour
+        "net_assimilation_rate_shell",    // Mg / ha / hour
         "net_assimilation_rate_grain"     // Mg / ha / hour
     };
 }
@@ -152,7 +152,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
     double net_assimilation_rate_root{0.0};
     double net_assimilation_rate_rhizome{0.0};
     double net_assimilation_rate_grain{0.0};
-    double net_assimilation_rate_pod{0.0};
+    double net_assimilation_rate_shell{0.0};
 
     // Calculate the rate of new leaf production
     if (kLeaf > 0) {
@@ -192,11 +192,11 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
         net_assimilation_rate_grain = 0.0;
     }
 
-    // Calculate the rate of new pod/shell production
-    if (kPod > 0) {
-        net_assimilation_rate_pod = canopy_assimilation_rate * kPod;
+    // Calculate the rate of new shell production
+    if (kShell > 0) {
+        net_assimilation_rate_shell = canopy_assimilation_rate * kShell;
     } else {
-        net_assimilation_rate_pod = 0.0;
+        net_assimilation_rate_shell = 0.0;
     }
 
     // Update the output quantity list
@@ -205,7 +205,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_root_op, net_assimilation_rate_root);
     update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
-    update(net_assimilation_rate_pod_op, net_assimilation_rate_pod);
+    update(net_assimilation_rate_shell_op, net_assimilation_rate_shell);
 }
 
 }  // namespace standardBML

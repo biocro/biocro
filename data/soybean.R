@@ -34,7 +34,7 @@ soybean <- list(
         Stem               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
         Root               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
         Grain              = 0.00001,       # Mg / ha, this is the seed part 
-        Pod                = 0.00001,       # Mg / ha, this is the pod/shell part 
+        Shell              = 0.00001,       # Mg / ha, this is the shell part 
         LeafLitter         = 0,             # Mg / ha
         RootLitter         = 0,             # Mg / ha
         StemLitter         = 0,             # Mg / ha
@@ -94,8 +94,8 @@ soybean <- list(
         betaStem                    = -24.0506,
         alphaLeaf                   = 29.6565,
         betaLeaf                    = -22.8073,
-        alphaPod                    = 19.2903,
-        betaPod                     = -14.2270,
+        alphaShell                  = 19.2903,
+        betaShell                   = -14.2270,
         kRhizome_emr                = 0,
 
         # soil_evaporation module

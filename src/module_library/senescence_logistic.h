@@ -41,7 +41,7 @@ class senescence_logistic : public differential_module
           kRoot{get_input(input_quantities, "kRoot")},
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
-          kPod{get_input(input_quantities, "kPod")},
+          kShell{get_input(input_quantities, "kShell")},
           remobilization_fraction{get_input(input_quantities, "remobilization_fraction")},
 
           // Get pointers to output quantities
@@ -54,7 +54,7 @@ class senescence_logistic : public differential_module
           Rhizome_op{get_op(output_quantities, "Rhizome")},
           RhizomeLitter_op{get_op(output_quantities, "RhizomeLitter")},
           Grain_op{get_op(output_quantities, "Grain")},
-          Pod_op{get_op(output_quantities, "Pod")}
+          Shell_op{get_op(output_quantities, "Shell")}
     {
     }
     static string_vector get_inputs();
@@ -76,7 +76,7 @@ class senescence_logistic : public differential_module
     const double& kRoot;
     const double& kRhizome;
     const double& kGrain;
-    const double& kPod;
+    const double& kShell;
     const double& remobilization_fraction;
 
     // Pointers to output quantities
@@ -89,7 +89,7 @@ class senescence_logistic : public differential_module
     double* Rhizome_op;
     double* RhizomeLitter_op;
     double* Grain_op;
-    double* Pod_op;
+    double* Shell_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -116,8 +116,8 @@ string_vector senescence_logistic::get_inputs()
                                    // Rhizome
         "kGrain",                  // dimensionless, fraction carbon allocated to
                                    // Grain
-        "kPod",                    // dimensionless, fraction carbon allocated to 
-                                   // Pod/Shell
+        "kShell",                  // dimensionless, fraction carbon allocated to
+                                   // Shell
         "remobilization_fraction"  // dimensionless, fraction of senesced leaf
                                    // tissue remobilized to other plant organs
     };
@@ -134,7 +134,7 @@ string_vector senescence_logistic::get_outputs()
         "RootLitter",     // Mg / ha
         "Rhizome",        // Mg / ha
         "RhizomeLitter",  // Mg / ha
-        "Pod",            // Mg / ha
+        "Shell",          // Mg / ha
         "Grain"           // Mg / ha
     };
 }
@@ -176,14 +176,14 @@ void senescence_logistic::do_operation() const
     // currently do not include grain senescence.
     double dGrain = kGrain * senescence_leaf * remobilization_fraction;  // Mg / ha
     //
-    double dPod   = kPod   * senescence_leaf * remobilization_fraction;  // Mg / ha
+    double dShell = kShell * senescence_leaf * remobilization_fraction;  // Mg / ha
 
     update(Leaf_op, dLeaf);                    // Mg / ha
     update(Stem_op, dStem);                    // Mg / ha
     update(Root_op, dRoot);                    // Mg / ha
     update(Rhizome_op, dRhizome);              // Mg / ha
     update(Grain_op, dGrain);                  // Mg / ha
-    update(Pod_op, dPod);                      // Mg / ha
+    update(Shell_op, dShell);                  // Mg / ha
     update(LeafLitter_op, dLeafLitter);        // Mg / ha
     update(StemLitter_op, dStemLitter);        // Mg / ha
     update(RootLitter_op, dRootLitter);        // Mg / ha
