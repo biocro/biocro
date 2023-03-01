@@ -26,24 +26,26 @@ zea_mays <- list(
         adaptive_max_steps = 200
     ),
     initial_values = list(
-        cws1                     = 0.32,
-        cws2                     = 0.32,
-        DVI                      = -1,       # upon sowing
-        Grain                    = 0,
-        Leaf                     = 0.00001,
-        LeafLitter               = 0,
-        leaf_senescence_index    = 0,
-        Rhizome                  = 0.008886, # Page 130 of March 2014 lab book
-        RhizomeLitter            = 0,
-        rhizome_senescence_index = 0,
-        Root                     = 0.00001,
-        RootLitter               = 0,
-        root_senescence_index    = 0,
-        soil_water_content       = 0.32,
-        Stem                     = 0.00001,
-        StemLitter               = 0,
-        stem_senescence_index    = 0,
-        TTc                      = 0
+        cws1                        = 0.32,
+        cws2                        = 0.32,
+        DVI                         = -1,       # upon sowing
+        Grain                       = 0,
+        Shell                       = 0,
+        net_assimilation_rate_shell = 0.0,
+        Leaf                        = 0.00001,
+        LeafLitter                  = 0,
+        leaf_senescence_index       = 0,
+        Rhizome                     = 0.008886, # Page 130 of March 2014 lab book
+        RhizomeLitter               = 0,
+        rhizome_senescence_index    = 0,
+        Root                        = 0.00001,
+        RootLitter                  = 0,
+        root_senescence_index       = 0,
+        soil_water_content          = 0.32,
+        Stem                        = 0.00001,
+        StemLitter                  = 0,
+        stem_senescence_index       = 0,
+        TTc                         = 0
     ),
     parameters = list(
         # soil parameters (clay loam)
@@ -111,9 +113,11 @@ zea_mays <- list(
         alphaLeaf                   = 13.0,
         alphaRoot                   = 13.5,     # Osborne et al. (doi:10.5194/gmd-8-1139-2015)
         alphaStem                   = 12.5,
+        alphaShell                  = -9999,    # This large negative value makes kShell near-zero
         betaLeaf                    = -14.0,
         betaRoot                    = -15.5,
         betaStem                    = -12.5,
+        betaShell                   = 0.0,
         kRhizome_emr                = 0,
 
         # senescence_coefficient_logistic module
