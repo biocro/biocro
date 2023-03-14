@@ -60,7 +60,7 @@ namespace standardBML
  *  increases beyond \f$ DVI_0 \f$, \f$ J_{max}(DVI) \f$ gets closer and closer
  *  to the mature value. If we want to specify that the transition is 95%
  *  complete when \f$ DVI = DVI_0 + \Delta_{DVI} \f$, then we can choose
- *  \f$ k = ln(1 / 0.95 - 1) \f$. (We omit the math here, but it is
+ *  \f$ k = - ln(1 / 0.95 - 1) \f$. (We omit the math here, but it is
  *  straightforward to arrive at this answer.)
  *
  *  Now, we can update the equation one more time:
