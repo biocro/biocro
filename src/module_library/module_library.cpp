@@ -114,6 +114,7 @@
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
 #include "litter_cover.h"
+#include "soil_sunlight.h"
 
 creator_map standardBML::module_library::library_entries =
 {
@@ -231,5 +232,6 @@ creator_map standardBML::module_library::library_entries =
      {"leaf_gbw_nikolov",                                      &create_mc<leaf_gbw_nikolov>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
      {"example_model_partitioning",                            &create_mc<example_model_partitioning>},
-     {"litter_cover",                                          &create_mc<litter_cover>}
+     {"litter_cover",                                          &create_mc<litter_cover>},
+     {"soil_sunlight",                                         &create_mc<soil_sunlight>}
 };

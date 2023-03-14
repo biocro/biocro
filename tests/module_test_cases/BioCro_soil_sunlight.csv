@@ -1,0 +1,4 @@
+input,input,output,"description"
+canopy_direct_transmission_fraction,litter_cover_fraction,soil_sunlit_fraction,NA
+0.25,0.75,0.0625,"low transmission through canopy and litter"
+0.75,0.25,0.5625,"high transmission through canopy and litter"
