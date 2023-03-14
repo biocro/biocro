@@ -93,7 +93,7 @@ string_vector multilayer_canopy_properties::get_outputs(int nlayers)
     multilayer_outputs = generate_multilayer_quantity_names(nlayers, multilayer_outputs);
 
     // Include outputs that do not depend on leaf class or number of layers.
-    multilayer_outputs.push_back("soil_sunlit_fraction");
+    multilayer_outputs.push_back("canopy_direct_transmission_fraction");
 
     // Return the full list
     return multilayer_outputs;
@@ -159,7 +159,7 @@ void multilayer_canopy_properties::run() const
     }
 
     // Update other outputs
-    update(soil_sunlit_fraction_op, light_profile.soil_sunlit_fraction);
+    update(canopy_direct_transmission_fraction_op, light_profile.canopy_direct_transmission_fraction);
 }
 
 ////////////////////////////////////////

@@ -226,7 +226,7 @@ Light_profile sunML(
     // that if the sun is at or below the horizon, no part of the soil is
     // sunlit; this corresponds to the case where cosine_zenith_angle is close
     // to or below zero.
-    double soil_sunlit_fraction =
+    double canopy_direct_transmission_fraction =
         cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k * lai); // dimensionless
 
     // Calculate the ambient direct PPFD through a surface parallel to the ground
@@ -237,7 +237,7 @@ Light_profile sunML(
 
     // Start to fill in the light profile values
     Light_profile light_profile;
-    light_profile.soil_sunlit_fraction = soil_sunlit_fraction;
+    light_profile.canopy_direct_transmission_fraction = canopy_direct_transmission_fraction;
 
     // Fill in the layer-dependent light profile values
     for (int i = 0; i < nlayers; ++i) {

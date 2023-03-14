@@ -95,7 +95,7 @@ class multilayer_canopy_properties : public direct_module
           rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
           LeafN_ops(get_multilayer_op(output_quantities, nlayers, "LeafN")),
-          soil_sunlit_fraction_op(get_op(output_quantities, "soil_sunlit_fraction"))
+          canopy_direct_transmission_fraction_op(get_op(output_quantities, "canopy_direct_transmission_fraction"))
     {
     }
 
@@ -136,7 +136,7 @@ class multilayer_canopy_properties : public direct_module
     std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;
     std::vector<double*> const LeafN_ops;
-    double* soil_sunlit_fraction_op;
+    double* canopy_direct_transmission_fraction_op;
 
    protected:
     void run() const;
