@@ -220,13 +220,26 @@ Light_profile sunML(
 
     double lai_per_layer = lai / nlayers;
 
+    // Calculate the fraction of direct radiation that passes through the canopy
+    // using Equation 15.1. Note that this is equivalent to the fraction of
+    // ground area below the canopy that is exposed to direct sunlight. Note
+    // that if the sun is at or below the horizon, no part of the soil is
+    // sunlit; this corresponds to the case where cosine_zenith_angle is close
+    // to or below zero.
+    double canopy_direct_transmission_fraction =
+        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k * lai); // dimensionless
+
     // Calculate the ambient direct PPFD through a surface parallel to the ground
     const double ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
 
     // Calculate the ambient direct PPFD through a unit area of leaf surface
     double ambient_ppfd_beam_leaf = ambient_ppfd_beam_ground * k;  // micromol / (m^2 leaf) / s
 
+    // Start to fill in the light profile values
     Light_profile light_profile;
+    light_profile.canopy_direct_transmission_fraction = canopy_direct_transmission_fraction;
+
+    // Fill in the layer-dependent light profile values
     for (int i = 0; i < nlayers; ++i) {
         // Get the cumulative LAI for this layer, which represents the total
         // leaf area above this layer

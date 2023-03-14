@@ -30,6 +30,7 @@ zea_mays <- list(
         cws2                        = 0.32,
         DVI                         = -1,       # upon sowing
         Grain                       = 0,
+        Shell                       = 0,
         Leaf                        = 0.00001,
         LeafLitter                  = 0,
         Rhizome                     = 0.008886, # Page 130 of March 2014 lab book
@@ -129,7 +130,6 @@ zea_mays <- list(
         rateSeneRhizome             = 0.0000001,
         rateSeneRoot                = 0.0000001,
         rateSeneStem                = 0.0002,
-        Shell                       = 0,
         net_assimilation_rate_shell = 0.0,
         remobilization_fraction     = 0.65,     # Ciampitti et al. 2013 (https://doi.org/10.2134/agronj2012.0467)
 

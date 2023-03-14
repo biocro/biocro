@@ -36,6 +36,7 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
+    bookdown,
     lattice
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make

@@ -188,6 +188,14 @@ soybean <- list(
         # thermal_time_linear module
         tbase                       = 10,          # degrees C
 
+        # litter_cover module
+        # - This module is not always used, but we include this parameter for
+        #   convenience.
+        # - Based on 2021-2022 Energy Farm measurements, the final leaf litter
+        #   is around 1.5 - 2.5 Mg / Ha and covers ~50% of the ground area near
+        #   the plants.
+        km_leaf_litter              = 2.0,      # Mg / ha
+
         # system parameters
         timestep                    = 1
     )
