@@ -185,9 +185,10 @@ soybean <- list(
         # litter_cover module
         # - This module is not always used, but we include this parameter for
         #   convenience.
-        # - See the documentation for this module for an explanation of why we
-        #   divide by 19.
-        km_leaf_litter              = 2 / 19,      # Mg / ha; based on 2021-2022 Energy Farm measurements where the maximum leaf litter is between 1.5 - 2.5 Mg / Ha
+        # - Based on 2021-2022 Energy Farm measurements, the final leaf litter
+        #   is around 1.5 - 2.5 Mg / Ha and covers ~50% of the ground area near
+        #   the plants.
+        km_leaf_litter              = 2.0,      # Mg / ha
 
         # system parameters
         timestep                    = 1
