@@ -22,6 +22,7 @@ struct Light_profile {
     double sunlit_fraction[MAXLAY];             // dimensionless
     double shaded_fraction[MAXLAY];             // dimensionless
     double height[MAXLAY];                      // m
+    double canopy_direct_transmission_fraction; // dimensionless
 };
 
 struct ET_Str {
