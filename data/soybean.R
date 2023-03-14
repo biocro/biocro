@@ -182,6 +182,13 @@ soybean <- list(
         # thermal_time_linear module
         tbase                       = 10,          # degrees C
 
+        # litter_cover module
+        # - This module is not always used, but we include this parameter for
+        #   convenience.
+        # - See the documentation for this module for an explanation of why we
+        #   divide by 19.
+        km_leaf_litter              = 2 / 19,      # Mg / ha; based on 2021-2022 Energy Farm measurements where the maximum leaf litter is between 1.5 - 2.5 Mg / Ha
+
         # system parameters
         timestep                    = 1
     )
