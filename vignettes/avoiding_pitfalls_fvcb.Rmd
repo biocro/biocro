@@ -9,6 +9,7 @@ vignette: >
   %\VignetteIndexEntry{Avoiding Pitfalls When Using the FvCB Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{bookdown}
 bibliography: fvcb_references.bib
 csl: chicago-author-date.csl
 link-citations: yes
