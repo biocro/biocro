@@ -30,21 +30,15 @@ zea_mays <- list(
         cws2                        = 0.32,
         DVI                         = -1,       # upon sowing
         Grain                       = 0,
-        Shell                       = 0,
-        net_assimilation_rate_shell = 0.0,
         Leaf                        = 0.00001,
         LeafLitter                  = 0,
-        leaf_senescence_index       = 0,
         Rhizome                     = 0.008886, # Page 130 of March 2014 lab book
         RhizomeLitter               = 0,
-        rhizome_senescence_index    = 0,
         Root                        = 0.00001,
         RootLitter                  = 0,
-        root_senescence_index       = 0,
         soil_water_content          = 0.32,
         Stem                        = 0.00001,
         StemLitter                  = 0,
-        stem_senescence_index       = 0,
         TTc                         = 0
     ),
     parameters = list(
@@ -135,6 +129,8 @@ zea_mays <- list(
         rateSeneRhizome             = 0.0000001,
         rateSeneRoot                = 0.0000001,
         rateSeneStem                = 0.0002,
+        Shell                       = 0,
+        net_assimilation_rate_shell = 0.0,
         remobilization_fraction     = 0.65,     # Ciampitti et al. 2013 (https://doi.org/10.2134/agronj2012.0467)
 
         # solar_position_michalsky module
