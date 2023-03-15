@@ -74,12 +74,12 @@ class partitioning_coefficient_logistic : public direct_module
           kRhizome_emr{get_input(input_quantities, "kRhizome_emr")},
 
           // Get pointers to output quantities
+          kRoot_op{get_op(output_quantities, "kRoot")},
           kStem_op{get_op(output_quantities, "kStem")},
           kLeaf_op{get_op(output_quantities, "kLeaf")},
-          kRoot_op{get_op(output_quantities, "kRoot")},
-          kRhizome_op{get_op(output_quantities, "kRhizome")},
           kShell_op{get_op(output_quantities, "kShell")},
-          kGrain_op{get_op(output_quantities, "kGrain")}
+          kGrain_op{get_op(output_quantities, "kGrain")},
+          kRhizome_op{get_op(output_quantities, "kRhizome")}
     {
     }
     static string_vector get_inputs();
@@ -100,12 +100,12 @@ class partitioning_coefficient_logistic : public direct_module
     const double& kRhizome_emr;
 
     // Pointers to output quantities
+    double* kRoot_op;
     double* kStem_op;
     double* kLeaf_op;
-    double* kRoot_op;
-    double* kRhizome_op;
-    double* kGrain_op;
     double* kShell_op;
+    double* kGrain_op;
+    double* kRhizome_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -130,12 +130,12 @@ string_vector partitioning_coefficient_logistic::get_inputs()
 string_vector partitioning_coefficient_logistic::get_outputs()
 {
     return {
-        "kStem",     // dimensionless
-        "kLeaf",     // dimesnionless
-        "kRoot",     // dimensionless
-        "kRhizome",  // dimensionless
-        "kShell",    // dimensionless
-        "kGrain"     // dimensionless
+        "kRoot",    // dimensionless
+        "kStem",    // dimensionless
+        "kLeaf",    // dimesnionless
+        "kShell",   // dimensionless
+        "kGrain",   // dimensionless
+        "kRhizome"  // dimensionless
     };
 }
 
@@ -163,12 +163,12 @@ void partitioning_coefficient_logistic::do_operation() const
     double kRhizome{DVI < 0 ? kRhizome_emr : 0};  // dimensionless
 
     // Update the output quantities
+    update(kRoot_op, kRoot);        // dimensionless
     update(kStem_op, kStem);        // dimensionless
     update(kLeaf_op, kLeaf);        // dimensionless
-    update(kRoot_op, kRoot);        // dimensionless
-    update(kRhizome_op, kRhizome);  // dimensionless
     update(kShell_op, kShell);      // dimensionless
     update(kGrain_op, kGrain);      // dimensionless
+    update(kRhizome_op, kRhizome);  // dimensionless
 }
 
 double kcoeff(double alpha, double beta, double DVI, double denom)
