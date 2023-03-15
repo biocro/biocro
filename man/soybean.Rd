@@ -29,6 +29,33 @@
   would need to change when simulating crop growth in different locations. Care
   must be taken to understand each input quantity before attempting to run
   simulations in other places or for other cultivars.
+
+  As improvements are made to the BioCro modules, their behavior changes, and
+  the soybean model parameters must be updated. Following significant module
+  updates, reparameterization is performed using the same method and data as
+  used in Matthews \emph{et al.} (2022). The following is a summary of
+  reparameterizations that have occurred since the original publication of the
+  Soybean-BioCro model:
+  \itemize{
+    \item \emph{2023-03-15}: Several modules have been updated. The most
+    significant changes are that (1) the
+    \code{BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator} now
+    reduces the leaf growth rate in response to water stress and (2) the
+    partitioning modules now include a new tissue type (\code{shell}). The new
+    component allows us to distinguish between components of the soybean pod,
+    where \code{shell} represents the pericarp and \code{grain} represents the
+    seed. This distinction has been found to be important for accurately
+    predicting seed biomass, which is more important in agricultural settings
+    than the entire pod mass, since the pericarp is not included in typical
+    yield measurements. Due to these changes, reparameterization of the
+    following was required: \code{alphaLeaf}, \code{alphaRoot},
+    \code{alphaStem}, \code{alphaShell}, \code{betaLeaf}, \code{betaRoot},
+    \code{betaStem}, \code{betaShell}, \code{rateSeneLeaf}, \code{rateSeneStem},
+    \code{alphaSeneLeaf}, \code{betaSeneLeaf}, \code{alphaSeneStem}, and
+    \code{betaSeneStem}. It was also necessary to add a new direct module to the
+    model definition: \code{BioCro:leaf_water_stress_exponential}. This module
+    calculates the fractional reduction in leaf growth rate due to water stress.
+  }
 }
 
 \usage{soybean}
@@ -64,9 +91,9 @@
     initial \code{Leaf}, \code{Stem}, and \code{Root} biomass, assuming 80\%
     leaf, 10\% stem, and 10\% root.
 
-    \item For historical reasons, the reproductive tissue in this model is
-    called \code{Grain} but should be interpreted as the pod biomass, which
-    also includes the seeds mass.
+    \item For historical reasons, the seed tissue in this model is called
+    \code{Grain}. The entire pod biomass can be calculated by adding the
+    \code{Grain} and \code{Shell} biomass.
 
     \item For historical reasons, this model includes a \code{Rhizome} tissue.
     Soybean does not have a rhizome, so the rhizome in the model does not grow
