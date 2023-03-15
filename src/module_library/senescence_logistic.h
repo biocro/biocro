@@ -13,10 +13,10 @@ namespace standardBML
  *
  * Intended to be used with the `senescence_coefficient_logistic` module.
  *
- * The amount that each plant component is senesced is determined as a percentage
- * (`kSeneLeaf`, `kSeneStem`, `kSeneRoot`, `kSeneRhizome`) of its current biomass.
- * Remobilization of senesced leaf tissue is also included based on the
- * partitioning growth parameters.
+ * The amount that each plant component is senesced is determined as a
+ * percentage (`kSeneLeaf`, `kSeneStem`, `kSeneRoot`, `kSeneRhizome`) of its
+ * current biomass. Remobilization of senesced leaf tissue is also included
+ * based on the partitioning growth parameters.
  *
  */
 class senescence_logistic : public differential_module
@@ -106,18 +106,12 @@ string_vector senescence_logistic::get_inputs()
         "kSeneStem",               // dimensionless, fraction of Stem senesced
         "kSeneRoot",               // dimensionless, fraction of Root senesced
         "kSeneRhizome",            // dimensionless, fraction of Rhizome senesced
-        "kLeaf",                   // dimensionless, fraction carbon allocated to
-                                   // Leaf
-        "kStem",                   // dimensionless, fraction carbon allocated to
-                                   // Stem
-        "kRoot",                   // dimensionless, fraction carbon allocated to
-                                   // Root
-        "kRhizome",                // dimensionless, fraction carbon allocated to
-                                   // Rhizome
-        "kGrain",                  // dimensionless, fraction carbon allocated to
-                                   // Grain
-        "kShell",                  // dimensionless, fraction carbon allocated to
-                                   // Shell
+        "kLeaf",                   // dimensionless, fraction carbon allocated to Leaf
+        "kStem",                   // dimensionless, fraction carbon allocated to Stem
+        "kRoot",                   // dimensionless, fraction carbon allocated to Root
+        "kRhizome",                // dimensionless, fraction carbon allocated to Rhizome
+        "kGrain",                  // dimensionless, fraction carbon allocated to Grain
+        "kShell",                  // dimensionless, fraction carbon allocated to Shell
         "remobilization_fraction"  // dimensionless, fraction of senesced leaf
                                    // tissue remobilized to other plant organs
     };
@@ -144,8 +138,7 @@ void senescence_logistic::do_operation() const
     double senescence_leaf = kSeneLeaf * Leaf;           // Mg / ha, amount of leaf senesced
     double senescence_stem = kSeneStem * Stem;           // Mg / ha, amount of stem senesced
     double senescence_root = kSeneRoot * Root;           // Mg / ha, amount of root senesced
-    double senescence_rhizome = kSeneRhizome * Rhizome;  // Mg / ha, amount of
-                                                         // rhizome senesced
+    double senescence_rhizome = kSeneRhizome * Rhizome;  // Mg / ha, amount of rhizome senesced
 
     // change in leaf biomass = minus amount senesced + new leaf tissue from
     // remobilized amount (Allows for leaves to start senescing while new leaves
@@ -175,7 +168,9 @@ void senescence_logistic::do_operation() const
     // change in grain biomass = new grain from remobilized leaf fraction.
     // currently do not include grain senescence.
     double dGrain = kGrain * senescence_leaf * remobilization_fraction;  // Mg / ha
-    //
+
+    // change in shell biomass = new shell from remobilized leaf fraction.
+    // currently do not include shell senescence.
     double dShell = kShell * senescence_leaf * remobilization_fraction;  // Mg / ha
 
     update(Leaf_op, dLeaf);                    // Mg / ha

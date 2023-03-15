@@ -20,28 +20,35 @@ namespace standardBML
  * - `partitioning_growth_calculator`
  *
  * Using the following function, calculates the percentage of carbon allocated
- * to the root, stem, leaf, and grain at a given development index.
+ * to the root, stem, leaf, shell, and grain at a given development index.
  *
  * \f[ k_i = \frac{\exp{(\alpha_i+\beta_i x)}}  {\exp{(\alpha_R+\beta_R x)} +
- * \exp{(\alpha_L+\beta_L x)} + \exp{(\alpha_S+\beta_S x)} + 1}, \f]
+ * \exp{(\alpha_S+\beta_S x)} + \exp{(\alpha_L+\beta_L x)} +
+ * \exp{(\alpha_{Sh}+\beta_{Sh} x)} + 1}, \f]
  *
- * where \f$ i = {R, L, S} \f$ for root, leaf, and stem respectively, and
- * \f$ x \f$ is the development index. For the grain,
+ * where \f$ i = {R, S, L, Sh} \f$ for root, stem, leaf, and shell respectively,
+ * and \f$ x \f$ is the development index. For the grain,
  *
- * \f[ k_G = \frac{1}{\exp{(\alpha_R+\beta_R x)} + \exp{(\alpha_L+\beta_L x)}
- * + \exp{(\alpha_S+\beta_S x)} + 1}. \f]
+ * \f[ k_G = \frac{1}{\exp{(\alpha_R+\beta_R x)} + \exp{(\alpha_S+\beta_S x)} +
+ * \exp{(\alpha_L+\beta_L x)} + \exp{(\alpha_{Sh}+\beta_{Sh})} + 1}. \f]
  *
  * See Matthews et al. for more description of how this module was used in
  * Soybean-BioCro and for details on the parameter fitting to identify the
- * \f$ \alpha \text{ and } \beta \f$ parameters.
+ * \f$ \alpha \text{ and } \beta \f$ parameters. Note that the original model
+ * did not include a shell component.
+ *
+ * Although it is not used in the soybean model, this module also includes an
+ * option for a rhizome to contribute carbon to other organs during emergence.
+ * See comments in the code for more details.
  *
  * ### References:
  *
- * Matthews, M.L. et al. 2021. in preparation. "Soybean-BioCro: A
- * semi-mechanistic model of soybean growth"
+ * [Matthews, M. L.et al. 2021. "Soybean-BioCro: a semi-mechanistic model of
+ * soybean growth." in silico Plants 4, diab032.]
+ * (https://doi.org/10.1093/insilicoplants/diab032)
  *
- * [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint
- * UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
+ * [Osborne, T. et al. 2015. "JULES-Crop: A Parametrisation of Crops in the Joint
+ * UK Land Environment Simulator." Geoscientific Model Development 8(4): 1139–55.]
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  */
 double kcoeff(double alpha, double beta, double DVI, double denom);
@@ -138,7 +145,10 @@ void partitioning_coefficient_logistic::do_operation() const
     // from Osborne et al., 2015 JULES-crop https://doi.org/10.5194/gmd-8-1139-2015
 
     // denominator term for kRoot, kStem, kLeaf, and kGrain
-    double kDenom = exp(alphaRoot + betaRoot * DVI) + exp(alphaLeaf + betaLeaf * DVI) + exp(alphaStem + betaStem * DVI) + exp(alphaShell + betaShell * DVI) + 1.0;  // dimensionless
+    double kDenom = exp(alphaRoot + betaRoot * DVI) +
+                    exp(alphaStem + betaStem * DVI) +
+                    exp(alphaLeaf + betaLeaf * DVI) +
+                    exp(alphaShell + betaShell * DVI) + 1.0;  // dimensionless
 
     double kRoot = kcoeff(alphaRoot, betaRoot, DVI, kDenom);     // dimensionless
     double kStem = kcoeff(alphaStem, betaStem, DVI, kDenom);     // dimensionless
@@ -150,12 +160,7 @@ void partitioning_coefficient_logistic::do_operation() const
     // kRhizome_emr is an input parameter and should be non-positive.
     // To ignore rhizome, set kRhizome_emr to 0 in input parameter file, and
     // adjust initial leaf, stem, and root biomasses accordingly.
-    double kRhizome;
-    if (DVI < 0) {
-        kRhizome = kRhizome_emr;  // dimensionless
-    } else {
-        kRhizome = 0.0;  // dimensionless
-    }
+    double kRhizome{DVI < 0 ? kRhizome_emr : 0};  // dimensionless
 
     // Update the output quantities
     update(kStem_op, kStem);        // dimensionless
@@ -168,8 +173,7 @@ void partitioning_coefficient_logistic::do_operation() const
 
 double kcoeff(double alpha, double beta, double DVI, double denom)
 {
-    double k = exp(alpha + beta * DVI) / denom;
-    return k;  // dimensionless
+    return exp(alpha + beta * DVI) / denom;  // dimensionless
 }
 
 }  // namespace standardBML

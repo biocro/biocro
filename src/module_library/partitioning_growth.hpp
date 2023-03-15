@@ -36,8 +36,8 @@ namespace standardBML
  *  retranslocated if the system is being solved using the Euler method with a
  *  large step size. The rhizome is especially prone to suffer from this issue,
  *  so a clunky check has been included here to try to prevent it from
- *  occurring. Note that this check introduces a weird discontinuity and is only
- *  relevant when using the Euler solver with a step size of one hour. Strange
+ *  occurring. Note that this check introduces a weird discontinuity and is
+ *  predicated on using the Euler solver with a step size of one hour. Strange
  *  behavior may occur when using other solvers for a plant with a remobilizing
  *  rhizome.
  *
