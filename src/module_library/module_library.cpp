@@ -17,7 +17,7 @@
 #include "parameter_calculator.hpp"
 #include "c3_canopy.hpp"
 #include "c4_canopy.hpp"
-#include "varying_Jmax25.hpp"
+#include "varying_Jmax25.h"
 #include "stomata_water_stress_linear.hpp"
 #include "stomata_water_stress_exponential.hpp"
 #include "stomata_water_stress_linear_aba_response.hpp"
