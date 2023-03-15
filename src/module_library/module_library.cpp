@@ -37,7 +37,7 @@
 #include "song_flowering.hpp"
 #include "fake_solar.hpp"
 #include "partitioning_coefficient_selector.hpp"
-#include "partitioning_growth.hpp"
+#include "partitioning_growth.h"
 #include "partitioning_growth_calculator.hpp"
 #include "no_leaf_resp_partitioning_growth_calculator.hpp"
 #include "thermal_time_senescence.hpp"
