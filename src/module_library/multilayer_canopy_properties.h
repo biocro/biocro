@@ -39,8 +39,7 @@ namespace standardBML
  *    `define_pure_multilayer_outputs()` function.
  *
  *  - other outputs: these outputs do not depend on the leaf class or canopy
- *    layer and do not need to be specified in a special way (there are
- *    currently no outputs of this type)
+ *    layer and do not need to be specified in a special way
  *
  * The base names for the multiclass_multilayer and pure_multilayer outputs will
  * be used by the `multilayer_canopy_photosynthesis` module to correctly pass
@@ -97,7 +96,8 @@ class multilayer_canopy_properties : public direct_module
           height_ops(get_multilayer_op(output_quantities, nlayers, "height")),
           rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
-          LeafN_ops(get_multilayer_op(output_quantities, nlayers, "LeafN"))
+          LeafN_ops(get_multilayer_op(output_quantities, nlayers, "LeafN")),
+          canopy_direct_transmission_fraction_op(get_op(output_quantities, "canopy_direct_transmission_fraction"))
     {
     }
 
@@ -140,6 +140,7 @@ class multilayer_canopy_properties : public direct_module
     std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;
     std::vector<double*> const LeafN_ops;
+    double* canopy_direct_transmission_fraction_op;
 
    protected:
     void run() const;
