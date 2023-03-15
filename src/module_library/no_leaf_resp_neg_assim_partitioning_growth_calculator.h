@@ -63,7 +63,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     no_leaf_resp_neg_assim_partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},
@@ -76,7 +76,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           mrc1{get_input(input_quantities, "mrc1")},
           mrc2{get_input(input_quantities, "mrc2")},
           temp{get_input(input_quantities, "temp")},
-          LeafWS(get_input(input_quantities, "LeafWS")),
+          LeafWS{get_input(input_quantities, "LeafWS")},
 
           // Get pointers to output quantities
           net_assimilation_rate_leaf_op{get_op(output_quantities, "net_assimilation_rate_leaf")},

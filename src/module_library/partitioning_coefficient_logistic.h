@@ -59,7 +59,7 @@ class partitioning_coefficient_logistic : public direct_module
     partitioning_coefficient_logistic(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           DVI{get_input(input_quantities, "DVI")},
