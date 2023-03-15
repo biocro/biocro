@@ -19,10 +19,10 @@ zea_mays <- list(
         soil_profile = "BioCro:two_layer_soil_profile"
     ),
     ode_solver = list(
-        type = 'auto',
+        type = 'boost_rkck54',
         output_step_size = 1.0,
-        adaptive_rel_error_tol = 1e-5,
-        adaptive_abs_error_tol = 1e-5,
+        adaptive_rel_error_tol = 1e-4,
+        adaptive_abs_error_tol = 1e-4,
         adaptive_max_steps = 200
     ),
     initial_values = list(
