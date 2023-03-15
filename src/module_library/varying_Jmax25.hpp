@@ -8,7 +8,7 @@
 
 namespace standardBML
 {
-    /**
+/**
  *  @class varying_Jmax25
  *
  *  @brief Allows Jmax (at 25 degrees C) to vary based on development index.
@@ -76,10 +76,11 @@ namespace standardBML
  *  values, where the transition is centered at \f$ DVI_0 \f$ and has a width of
  *  \f$ \Delta_{DVI} \f$ (in the sense described above).
  *
- *  This module implements Equation `(3)` with \f$ \Delta_{DVI} = 0.001 \f$. The
- *  values of \f$ J_{max}^{mature} \f$, \f$ DVI_0 \f$, and \f$ f_{emerging} \f$
- *  are taken from the BioCro quantities called ``'jmax_mature'``,
- *  ``'DVI0_jmax'``, ``'sf_jmax'``, respectively.
+ *  This module implements Equation `(3)` where the values of
+ *  \f$ J_{max}^{mature} \f$, \f$ DVI_0 \f$, \f$ \Delta_{DVI} \f$ and
+ *  \f$ f_{emerging} \f$ are taken from the BioCro quantities called
+ *  ``'jmax_mature'``, ``'DVI0_jmax'``, ``'Delta_DVI_jmax'``, and ``'sf_jmax'``,
+ *  respectively.
  */
 class varying_Jmax25 : public direct_module
 {
@@ -93,6 +94,7 @@ class varying_Jmax25 : public direct_module
           DVI{get_input(input_quantities, "DVI")},
           jmax_mature{get_input(input_quantities, "jmax_mature")},
           DVI0_jmax{get_input(input_quantities, "DVI0_jmax")},
+          D_DVI{get_input(input_quantities, "Delta_DVI_jmax")},
           sf_jmax{get_input(input_quantities, "sf_jmax")},
 
           // Get pointers to output quantities
@@ -108,6 +110,7 @@ class varying_Jmax25 : public direct_module
     double const& DVI;
     double const& jmax_mature;
     double const& DVI0_jmax;
+    double const& D_DVI;
     double const& sf_jmax;
 
     // Pointers to output quantities
@@ -120,10 +123,11 @@ class varying_Jmax25 : public direct_module
 string_vector varying_Jmax25::get_inputs()
 {
     return {
-        "DVI",         // dimensionless
-        "sf_jmax",     // dimensionless
-        "DVI0_jmax",   // dimensionless
-        "jmax_mature"  // micromol / m^2 / s
+        "DVI",             // dimensionless
+        "sf_jmax",         // dimensionless
+        "DVI0_jmax",       // dimensionless
+        "Delta_DVI_jmax",  // dimensionless
+        "jmax_mature"      // micromol / m^2 / s
     };
 }
 
@@ -136,16 +140,14 @@ string_vector varying_Jmax25::get_outputs()
 
 void varying_Jmax25::do_operation() const
 {
-    double D_DVI = 0.001;
-    double k = - log(1.0 / 0.95 - 1.0);
+    double const k = -log(1.0 / 0.95 - 1.0);  // dimensionless
 
-    double C = jmax_mature * sf_jmax;
-    double L = jmax_mature * (1 - sf_jmax);
+    double const C = jmax_mature * sf_jmax;        // micromol / m^2 / s
+    double const L = jmax_mature * (1 - sf_jmax);  // micromol / m^2 / s
 
-    double jmax_tmp = L / (1.0 + exp(-k * (DVI - DVI0_jmax) / D_DVI)) + C;
+    double const jmax = L / (1.0 + exp(-k * (DVI - DVI0_jmax) / D_DVI)) + C;  // micromol / m^2 / s
 
-    // Update the output quantity list
-    update(jmax_op, jmax_tmp);
+    update(jmax_op, jmax);
 }
 
 }  // namespace standardBML
