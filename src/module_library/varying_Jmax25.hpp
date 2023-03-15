@@ -4,8 +4,6 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-// Added by Yufeng He. 02-13-2023
-
 namespace standardBML
 {
     /**
