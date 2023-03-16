@@ -147,7 +147,7 @@ test_that("element names are not repeated", {
             "      BioCro:thermal_time_bilinear\n",
             "  `ode_solver` contains multiple instances of some quantities:\n",
             "    `type` takes the following values:\n",
-            "      auto\n",
+            "      homemade_euler\n",
             "      boost_euler\n"
         )
     )

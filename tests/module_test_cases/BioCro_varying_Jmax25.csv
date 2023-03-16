@@ -1,0 +1,4 @@
+input,input,input,input,input,output,"description"
+DVI,DVI0_jmax,Delta_DVI_jmax,jmax_mature,sf_jmax,jmax,NA
+0,0.6,0.01,195,0.2,39,"reduce Jmax25"
+1,0.6,0.01,195,0.2,195,"do not reduce Jmax25"
