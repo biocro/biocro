@@ -61,34 +61,34 @@ class c3_assimilation : public direct_module
     c3_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          Qabs(get_input(input_quantities, "Qabs")),
-          Tleaf(get_input(input_quantities, "Tleaf")),
-          rh(get_input(input_quantities, "rh")),
-          vmax1(get_input(input_quantities, "vmax1")),
-          jmax(get_input(input_quantities, "jmax")),
-          tpu_rate_max(get_input(input_quantities, "tpu_rate_max")),
-          Rd(get_input(input_quantities, "Rd")),
-          b0(get_input(input_quantities, "b0")),
-          b1(get_input(input_quantities, "b1")),
-          Gs_min(get_input(input_quantities, "Gs_min")),
-          Catm(get_input(input_quantities, "Catm")),
-          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
-          O2(get_input(input_quantities, "O2")),
-          theta(get_input(input_quantities, "theta")),
-          StomataWS(get_input(input_quantities, "StomataWS")),
-          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
-          electrons_per_carboxylation(get_input(input_quantities, "electrons_per_carboxylation")),
-          electrons_per_oxygenation(get_input(input_quantities, "electrons_per_oxygenation")),
-          beta_PSII(get_input(input_quantities, "beta_PSII")),
+          Qabs{get_input(input_quantities, "Qabs")},
+          Tleaf{get_input(input_quantities, "Tleaf")},
+          rh{get_input(input_quantities, "rh")},
+          vmax1{get_input(input_quantities, "vmax1")},
+          jmax{get_input(input_quantities, "jmax")},
+          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Rd{get_input(input_quantities, "Rd")},
+          b0{get_input(input_quantities, "b0")},
+          b1{get_input(input_quantities, "b1")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          Catm{get_input(input_quantities, "Catm")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          O2{get_input(input_quantities, "O2")},
+          theta{get_input(input_quantities, "theta")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
+          electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
+          electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
 
           // Get pointers to output quantities
-          Assim_op(get_op(output_quantities, "Assim")),
-          Gs_op(get_op(output_quantities, "Gs")),
-          Ci_op(get_op(output_quantities, "Ci")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
+          Assim_op{get_op(output_quantities, "Assim")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
     {
     }
     static string_vector get_inputs();

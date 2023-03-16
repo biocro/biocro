@@ -12,7 +12,7 @@ class c3_canopy : public direct_module
     c3_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},
@@ -54,7 +54,7 @@ class c3_canopy : public direct_module
           leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
-          beta_PSII(get_input(input_quantities, "beta_PSII")),
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
