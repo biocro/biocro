@@ -4,7 +4,7 @@
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.
  *
- *  Suppose light of intensity `I_0` (represent a flux density of photons or
+ *  Suppose light of intensity `I_0` (representing a flux density of photons or
  *  energy, expressed in units of photons per area per time, or energy per area
  *  per time) is incident on a thin layer of a material that reflects, absorbs,
  *  and transmits light. If `R` and `T` represent the fractions of light
@@ -23,29 +23,29 @@
  *  @param [in] T The fractional amount of light transmitted by a thin layer of
  *              the material in the appropriate wavelength band.
  *
- *  @param [in] I0 The amount of light incident on the material, perhaps
+ *  @param [in] I_0 The amount of light incident on the material, perhaps
  *              restricted to a particular wavelength band; for quantum fluxes,
  *              the units will typically be micromol / m^2 / s; for energy
  *              fluxes, the units will typically be J / m^2 / s.
  *
  *  @return The amount of radiation absorbed by the material expressed in the
- *              same units as `I0`.
+ *              same units as `I_0`.
  */
 double thin_layer_absorption(
-    double R,  // dimensionless
-    double T,  // dimensionless
-    double I0  // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double R,   // dimensionless
+    double T,   // dimensionless
+    double I_0  // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
 )
 {
-    return I0 * (1 - R - T);  // same units as `I0`
+    return I_0 * (1 - R - T);  // same units as `I_0`
 }
 
 /**
  *  @brief Computes absorbed light from incident light for a thick layer of
  *  material.
  *
- *  Suppose light of intensity `I_0` (represent a flux density of photons or
- *  energy, expressed in units of photons per area per time or energy per area
+ *  Suppose light of intensity `I_0` (representing a flux density of photons or
+ *  energy, expressed in units of photons per area per time, or energy per area
  *  per time) is incident on an infinitely thick layer of a material that
  *  reflects, absorbs, and transmits light. If `R` and `T` represent the
  *  fractions of light reflected by and transmitted through a thin layer of the
@@ -68,21 +68,21 @@ double thin_layer_absorption(
  *              transmittance is not necessary the same as would be measured
  *              from a thin layer in isolation.
  *
- *  @param [in] I0 The amount of light incident on the material, perhaps
+ *  @param [in] I_0 The amount of light incident on the material, perhaps
  *              restricted to a particular wavelength band; for quantum fluxes,
  *              the units will typically be micromol / m^2 / s; for energy
  *              fluxes, the units will typically be J / m^2 / s.
  *
  *  @return The amount of radiation absorbed by the material expressed in the
- *              same units as `I0`.
+ *              same units as `I_0`.
  */
 double thick_layer_absorption(
-    double R,  // dimensionless
-    double T,  // dimensionless
-    double I0  // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double R,   // dimensionless
+    double T,   // dimensionless
+    double I_0  // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
 )
 {
-    return I0 * (1 - R - T) / (1 - T);  // same units as `I0`
+    return I_0 * (1 - R - T) / (1 - T);  // same units as `I_0`
 }
 
 /**
@@ -241,7 +241,7 @@ Light_profile sunML(
     // sunlit; this corresponds to the case where cosine_zenith_angle is close
     // to or below zero.
     double canopy_direct_transmission_fraction =
-        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k * lai); // dimensionless
+        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k * lai);  // dimensionless
 
     // Calculate the ambient direct PPFD through a surface parallel to the ground
     const double ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
