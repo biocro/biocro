@@ -6,6 +6,7 @@ double ball_berry(
     double atmospheric_co2_concentration,
     double atmospheric_relative_humidity,
     double bb_offset,
-    double bb_slope);
+    double bb_slope,
+    double gbw);
 
 #endif

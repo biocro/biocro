@@ -8,11 +8,11 @@ double ball_berry(
     double atmospheric_co2_concentration,  // mol / mol
     double atmospheric_relative_humidity,  // Pa / Pa
     double bb_offset,                      // mol / m^2 / s
-    double bb_slope                        // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+    double bb_slope,                       // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+    double gbw                             // mol / m^2 / s
 )
 {
-    const double gbw = 1.2;  // mol / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526. The units in the manuscript, micromole / m^2 / s, are wrong . They are actually mol / m^2 / s.
-    double gswmol;           // mol / m^2 / s. stomatal conductance to water vapor.
+    double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
         const double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
