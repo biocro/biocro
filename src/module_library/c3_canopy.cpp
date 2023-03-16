@@ -1,4 +1,4 @@
-#include "c3_canopy.hpp"
+#include "c3_canopy.h"
 #include "c3CanAC.h"  // For c3CanAC
 #include <cmath>      // For floor
 

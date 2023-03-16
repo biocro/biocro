@@ -1,6 +1,6 @@
 #include <cmath>
 #include <stdexcept>
-#include "c3photo.hpp"
+#include "c3photo.h"
 #include "AuxBioCro.h"
 #include "BioCro.h"
 #include "../framework/constants.h"  // for ideal_gas_constant, molar_mass_of_water,

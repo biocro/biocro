@@ -1,6 +1,6 @@
 #include "c3_leaf_photosynthesis.h"
-#include "c3photo.hpp"  // for c3photoC
-#include "BioCro.h"     // for c3EvapoTrans
+#include "c3photo.h"  // for c3photoC
+#include "BioCro.h"   // for c3EvapoTrans
 
 using standardBML::c3_leaf_photosynthesis;
 

@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "c3photo.hpp"
+#include "c3photo.h"
 
 namespace standardBML
 {

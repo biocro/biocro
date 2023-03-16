@@ -1,7 +1,7 @@
 #include <cmath>      // for pow, sqrt
 #include <algorithm>  // for std::min, std::max
 #include <limits>     // fot std::numeric_limits
-#include "c3photo.hpp"
+#include "c3photo.h"
 #include "ball_berry.hpp"
 #include "AuxBioCro.h"               // for arrhenius_exponential
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin

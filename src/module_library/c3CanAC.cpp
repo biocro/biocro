@@ -1,6 +1,6 @@
 #include "c3CanAC.h"
 #include "BioCro.h"                  // for lightME, RHprof, WINDprof, c3EvapoTrans
-#include "c3photo.hpp"               // for c3photoC
+#include "c3photo.h"                 // for c3photoC
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
