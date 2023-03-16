@@ -126,8 +126,8 @@ run_crop_simulation <- function(test_info) {
 #
 # The output from this function is intended to be used in plotting commands like
 #
-# compare_crop_output <- compare_crop(PLANT_TESTING_INFO[[INDEX]])
-# xyplot(Leaf + Stem + Root, group = version, data = compare_crop_output)
+# compare_crop_output <- compare_crop(PLANT_TESTING_INFO[[INDEX]], c('time', 'Leaf', 'Stem', 'Root', 'Grain'))
+# lattice::xyplot(Leaf + Stem + Root + Grain ~ time, group = version, data = compare_crop_output, type = 'l', auto = TRUE, grid = TRUE)
 compare_crop <- function(test_info, columns_to_keep = NULL) {
     new_result <- run_crop_simulation(test_info)
     stored_result <- read.csv(test_info[['stored_result_file']])
