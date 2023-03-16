@@ -1,8 +1,7 @@
 #include <cmath>      // for pow, sqrt
-#include <algorithm>  // for std::min, std::max
-#include <limits>     // fot std::numeric_limits
 #include "c3photo.h"
 #include "ball_berry.hpp"
+#include "FvCB_assim.h"
 #include "AuxBioCro.h"               // for arrhenius_exponential
 #include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
@@ -114,42 +113,19 @@ struct c3_str c3photoC(
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
         Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        // Calculate the net CO2 assimilation rate using the method described in
-        // "Avoiding Pitfalls When Using the FvCB Model"
-        if (Ci == 0.0) {
-            // RuBP-saturated net assimilation rate when Ci is 0
-            double Ac0 = -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - Rd;  // micromol / m^2 / s
-
-            // RuBP-regeneration-limited net assimilation when C is 0
-            double Aj0 =
-                -J / (2.0 * electrons_per_oxygenation) - Rd;  // micromol / m^2 / s
-
-            co2_assimilation_rate = std::max(Ac0, Aj0);  // micromol / m^2 / s
-        } else {
-            // RuBP-saturated carboxylation rate
-            double Wc = Vcmax * Ci /
-                        (Ci + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
-
-            // RuBP-regeneration-limited carboxylation rate
-            double Wj = J * Ci /
-                        (electrons_per_carboxylation * Ci +
-                         2.0 * electrons_per_oxygenation * Gstar);  // micromol / m^2 / s
-
-            // Triose-phosphate-utilization-limited carboxylation rate. There is
-            // an asymptote at Ci = Gstar * (1 + 3 * alpha_TPU), and TPU cannot
-            // limit the carboxylation rate for values of Ci below this
-            // asymptote. A simple way to handle this is to make Wp infinite for
-            // Ci <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting
-            // in this case.
-            double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
-                            ? 3.0 * TPU * Ci / (Ci - Gstar * (1.0 + 3.0 * alpha_TPU))
-                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
-
-            // Limiting carboxylation rate
-            double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s
-
-            co2_assimilation_rate = (1.0 - Gstar / Ci) * Vc - Rd;  // micromol / m^2 / s
-        }
+        co2_assimilation_rate = FvCB_assim(
+            Ci,
+            Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation).An; // micromol / m^2 / s
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s

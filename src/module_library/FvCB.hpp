@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "FvCB_assim.h"
 
 namespace standardBML
 {
@@ -10,28 +11,31 @@ class FvCB : public direct_module
 {
    public:
     FvCB(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          Ci_ip(get_ip(input_quantities, "Ci")),
-          Gstar_ip(get_ip(input_quantities, "Gstar")),
-          Vcmax_ip(get_ip(input_quantities, "Vcmax")),
-          Kc_ip(get_ip(input_quantities, "Kc")),
-          O2_ip(get_ip(input_quantities, "O2")),
-          Ko_ip(get_ip(input_quantities, "Ko")),
-          J_ip(get_ip(input_quantities, "J")),
-          electrons_per_carboxylation_ip(get_ip(input_quantities, "electrons_per_carboxylation")),
-          electrons_per_oxygenation_ip(get_ip(input_quantities, "electrons_per_oxygenation")),
-          maximum_tpu_rate_ip(get_ip(input_quantities, "maximum_tpu_rate")),
-          Rd_ip(get_ip(input_quantities, "Rd")),
-          Ca_ip(get_ip(input_quantities, "Ca")),
-          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
-          leaf_stomatal_conductance_ip(get_ip(input_quantities, "leaf_stomatal_conductance")),
+          Ci{get_input(input_quantities, "Ci")},
+          Gstar{get_input(input_quantities, "Gstar")},
+          J{get_input(input_quantities, "J")},
+          Kc{get_input(input_quantities, "Kc")},
+          Ko{get_input(input_quantities, "Ko")},
+          Oi{get_input(input_quantities, "Oi")},
+          Rd{get_input(input_quantities, "Rd")},
+          TPU{get_input(input_quantities, "TPU")},
+          Vcmax{get_input(input_quantities, "Vcmax")},
+          alpha_TPU{get_input(input_quantities, "alpha_TPU")},
+          electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
+          electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
 
           // Get pointers to output quantities
-          carboxylation_rate_op(get_op(output_quantities, "carboxylation_rate")),
-          net_assimilation_rate_op(get_op(output_quantities, "net_assimilation_rate")),
-          Ci_op(get_op(output_quantities, "Ci"))
+          An_op{get_op(output_quantities, "An")},
+          Ac_op{get_op(output_quantities, "Ac")},
+          Aj_op{get_op(output_quantities, "Aj")},
+          Ap_op{get_op(output_quantities, "Ap")},
+          Vc_op{get_op(output_quantities, "Vc")},
+          Wc_op{get_op(output_quantities, "Wc")},
+          Wj_op{get_op(output_quantities, "Wj")},
+          Wp_op{get_op(output_quantities, "Wp")}
     {
     }
     static string_vector get_inputs();
@@ -39,26 +43,29 @@ class FvCB : public direct_module
     static std::string get_name() { return "FvCB"; }
 
    private:
-    // Pointers to input quantities
-    const double* Ci_ip;
-    const double* Gstar_ip;
-    const double* Vcmax_ip;
-    const double* Kc_ip;
-    const double* O2_ip;
-    const double* Ko_ip;
-    const double* J_ip;
-    const double* electrons_per_carboxylation_ip;
-    const double* electrons_per_oxygenation_ip;
-    const double* maximum_tpu_rate_ip;
-    const double* Rd_ip;
-    const double* Ca_ip;
-    const double* atmospheric_pressure_ip;
-    const double* leaf_stomatal_conductance_ip;
+    // References to input quantities
+    double const& Ci;
+    double const& Gstar;
+    double const& J;
+    double const& Kc;
+    double const& Ko;
+    double const& Oi;
+    double const& Rd;
+    double const& TPU;
+    double const& Vcmax;
+    double const& alpha_TPU;
+    double const& electrons_per_carboxylation;
+    double const& electrons_per_oxygenation;
 
     // Pointers to output quantities
-    double* carboxylation_rate_op;
-    double* net_assimilation_rate_op;
-    double* Ci_op;
+    double* An_op;
+    double* Ac_op;
+    double* Aj_op;
+    double* Ap_op;
+    double* Vc_op;
+    double* Wc_op;
+    double* Wj_op;
+    double* Wp_op;
 
     // Main operation
     void do_operation() const;
@@ -67,65 +74,60 @@ class FvCB : public direct_module
 string_vector FvCB::get_inputs()
 {
     return {
-        "Ci",
-        "Gstar",
-        "Vcmax",
-        "Kc",
-        "O2",
-        "Ko",
-        "J",
-        "electrons_per_carboxylation",
-        "electrons_per_oxygenation",
-        "maximum_tpu_rate",
-        "Rd",
-        "Ca",
-        "atmospheric_pressure",
-        "leaf_stomatal_conductance"};
+        "Ci",                           // micromol / mol
+        "Gstar",                        // micromol / mol
+        "J",                            // micromol / mol
+        "Kc",                           // mmol / mol
+        "Ko",                           // mmol / mol
+        "Oi",                           // micromol / m^2 / s
+        "Rd",                           // micromol / m^2 / s
+        "TPU",                          // micromol / m^2 / s
+        "Vcmax",                        // micromol / m^2 / s
+        "alpha_TPU",                    // dimensionless
+        "electrons_per_carboxylation",  // self-explanatory units
+        "electrons_per_oxygenation"     // self-explanatory units
+    };
 }
 
 string_vector FvCB::get_outputs()
 {
     return {
-        "carboxylation_rate",
-        "net_assimilation_rate",
-        "Ci"};
+        "An",  // micromol / m^2 / s
+        "Ac",  // micromol / m^2 / s
+        "Aj",  // micromol / m^2 / s
+        "Ap",  // micromol / m^2 / s
+        "Vc",  // micromol / m^2 / s
+        "Wc",  // micromol / m^2 / s
+        "Wj",  // micromol / m^2 / s
+        "Wp"   // micromol / m^2 / s
+    };
 }
 
 void FvCB::do_operation() const
 {
-    // Collect input quantities and make calculations
-
-    double Ci = *Ci_ip;
-    double Gstar = *Gstar_ip;
-    double Vcmax = *Vcmax_ip;
-    double Kc = *Kc_ip;
-    double O2 = *O2_ip;
-    double Ko = *Ko_ip;
-    double J = *J_ip;
-    double electrons_per_carboxylation = *electrons_per_carboxylation_ip;
-    double electrons_per_oxygenation = *electrons_per_oxygenation_ip;
-    double maximum_tpu_rate = *maximum_tpu_rate_ip;
-    double Rd = *Rd_ip;
-    double Ca = *Ca_ip;
-    double atmospheric_pressure = *atmospheric_pressure_ip;
-    double leaf_stomatal_conductance = *leaf_stomatal_conductance_ip;
-
-    double rubisco_limited = Vcmax * (Ci - Gstar) / (Ci + Kc * (1.0 + O2 / Ko));
-
-    double rubp_limited = J * (Ci - Gstar) / (electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar);
-    rubp_limited = std::max(rubp_limited, 0.0);  // This rate can't be negative.
-
-    double tpu_limited = 3.0 * maximum_tpu_rate / (1.0 - Gstar / Ci);
-
-    double carboxylation_rate = std::min(rubisco_limited, std::min(rubp_limited, tpu_limited));  // The overall carboxylation rate is the rate of the slowest process.
-    double net_assimilation_rate = carboxylation_rate - Rd;
-
-    Ci = Ca - net_assimilation_rate * 1.6 * atmospheric_pressure / leaf_stomatal_conductance;
+    FvCB_str result = FvCB_assim(
+        Ci,
+        Gstar,
+        J,
+        Kc,
+        Ko,
+        Oi,
+        Rd,
+        TPU,
+        Vcmax,
+        alpha_TPU,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation);
 
     // Update the output quantity list
-    update(carboxylation_rate_op, carboxylation_rate);
-    update(net_assimilation_rate_op, net_assimilation_rate);
-    update(Ci_op, Ci);
+    update(An_op, result.An);
+    update(Ac_op, result.Ac);
+    update(Aj_op, result.Aj);
+    update(Ap_op, result.Ap);
+    update(Vc_op, result.Vc);
+    update(Wc_op, result.Wc);
+    update(Wj_op, result.Wj);
+    update(Wp_op, result.Wp);
 }
 
 }  // namespace standardBML
