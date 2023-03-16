@@ -5,11 +5,11 @@
  *  material.
  *
  *  Suppose light of intensity `I_0` (represent a flux density of photons or
- *  energy, expressed in units of photons per area per time or energy per area
+ *  energy, expressed in units of photons per area per time, or energy per area
  *  per time) is incident on a thin layer of a material that reflects, absorbs,
- *  and transmits light. If `R` represents the fraction of light reflected by
- *  the layer and `T` represents the fraction of light transmitted through the
- *  layer, then we can calculate the absorbed light (`I_abs`) as follows:
+ *  and transmits light. If `R` and `T` represent the fractions of light
+ *  reflected by and transmitted through the layer, then we can calculate the
+ *  light absorbed by the layer (`I_abs`) as follows:
  *
  *  `I_abs = I_0 * (1 - R - T)`     [Equation (1)]
  *
@@ -46,159 +46,27 @@ double thin_layer_absorption(
  *
  *  Suppose light of intensity `I_0` (represent a flux density of photons or
  *  energy, expressed in units of photons per area per time or energy per area
- *  per time) is incident on the surface of an infinitely thick piece of a
- *  material that reflects, absorbs, and transmits light with no lateral
- *  variations. As the light passes through the material, its intensity will
- *  gradually diminish until it eventually reaches zero. We can express this
- *  mathematically via a one-dimensional expression: `I(x) = I_0 * f(x)`, where
- *  `x` is a coordinate that represents the amount of material the light has
- *  passed through, and `f(x)` is the fraction of the original light received by
- *  the material at `x`. Note that if the material does not have uniform
- *  density, `x` is not a spatial coordinate, but instead will have a non-linear
- *  dependence on distance. Although we do not know the particular form of
- *  `f(x)`, we can safely assume that `f(0) = 0` (so the incident light at the
- *  material's surface is `I_0`) and that `f(x)` approaches 0 as `x` approaches
- *  infinity (so the light intensity is fully diminished deep within the
- *  material).
+ *  per time) is incident on an infinitely thick layer of a material that
+ *  reflects, absorbs, and transmits light. If `R` and `T` represent the
+ *  fractions of light reflected by and transmitted through a thin layer of the
+ *  material, then we can calculate the light absorbed by an infinitely thick
+ *  layer of the material (`I_abs`) as follows:
  *
- *  Now consider two points within the material separated by an amount of
- *  material `delta_x`; in other words, points specified by `x_0` and
- *  `x_0 + delta_x`. The decrease in light intensity per unit material between
- *  these two points (`delta_I`) can be expressed as
- *  `delta_I = (I(x_0 + delta_x) - I(x_0)) / delta_x`. Rewriting this using
- *  `f(x)`, we have `delta_I = I_0 * (f(x_0 + delta_x) - f(x_0)) / delta_x`. If
- *  we assume that the decrease in intensity is due to the absorption and
- *  reflection of light by `delta_x`, we can also write
- *  `delta_I = - I(x) * (A + R)`, where `A` and `R` are the fractions of
- *  incident light absorbed and reflected by a thin layer of the material. Thus,
- *  we can equate the two expressions for `delta_I` to find that
- *  `I_0 * (f(x_0 + delta_x) - f(x_0)) / delta_x = - I_0 * f(x) * (A + R)` or,
- *  equivalently, `(f(x_0 + delta_x) - f(x_0)) / delta_x = - f(x) * (A + R)`. As
- *  `delta_x` approaches 0, we can recognize the left-hand side of this equation
- *  as the derivative of `f(x)` with respect to `x`: `f'(x) = - f(x) * (A + R)`.
- *  Rearranging, we can express `f(x)` in terms of its derivative and the
- *  material's optical properties: `f(x) = -f'(x) / (A + R)`. Noting that all
- *  light received by a thin layer of the material must be reflected, absorbed,
- *  or transmitted, we can rewrite this equation using the fraction of
- *  transmitted light `T` using `A + R + T = 1` as follows:
+ *  `I_abs = I_0 * (1 - R - T) / (1 - T)`     [Equation (1)]
  *
- *  `f(x) = -f'(x) / (1 - T)`                    [Equation (1)]
- *
- *  This simple model for calculating light intensities within a material was
- *  first applied in the context of plant biology by Monsi & Saeki (1953), where
- *  it used to calculate light levels within a plant canopy. This paper is
- *  difficult to find and was written in German, but parts of it have been
- *  reproduced in English and are easier to access (Saeki 1960, Saeiki 1963,
- *  Hirose 2004). Saeki (1960) notes the following about this equation: "It must
- *  be noted that in these equations `m` includes not only the fraction
- *  resulting from light transmitted through the leaf blades but also the
- *  fraction reflected downward from inclined leaves. This `m` is not constant
- *  but increases with the depth of foliage, because light of particular
- *  wavelengths is more liable to be reflected and transmitted, and increases in
- *  proportion at deeper positions." (In the original notation, `m` was used in
- *  place of the `T` we use here.) Thus, `T`, `R`, and `A` are not exactly the
- *  same as the corresponding optical properties of an isolated layer of the
- *  material (such as a leaf).
- *
- *  If we consider light from a sufficiently narrow wavelength band, then it may
- *  be reasonable to suppose that `T`, `R`, and `A` are constant throughout the
- *  material. In this case, it is possible to estimate the total amount of light
- *  absorbed by the material. To do this, we first calculate the absorbed light
- *  at depth `x` (`I_abs(x)`) using `I_abs(x) = I(x) * A`. Substituting in
- *  Equation (1), we have `I_abs(x) = - I_0 * f'(x) * (1 - R - T) / (1 - T)`.
- *  Now we can integrate this across the entire range of `x` (0 to infinity) to
- *  find the total amount of light absorbed by the material (`I_abs_tot`):
- *  `I_abs_tot = I_0 * (1 - R - T) / (1 - T) * (f(0) - f(infinity))`.
- *  By assumption, `f(0) = 1` and `f(infinity) = 0`, so this evaluates to
- *
- *  `I_abs_tot = I_0 * (1 - R - T) / (1 - T)`.   [Equation (2)]
- *
- *  Note that Equation (2) agrees with intuition in two extreme situations.
- *  First, if the material does not reflect any light (`R = 0`), then Equation
- *  (2) reduces to `I_abs_tot = I_0`. This makes sense because even if thin
- *  layers of the material transmit light, there is no way for any light to
- *  avoid being absorbed by an infinitely thick layer if there is no reflection.
- *  The other situation is where the material does not transmit any light
- *  (`T = 0`). In this case, Equation (2) reduces to
- *  `I_abs_tot = I_0 * (1 - R)`. This makes sense because the optical properties
- *  of a material with no transmission would be determined only by its surface;
- *  the surface would have the same optical properties as any thin layer,
- *  reflecting a fraction `R` of the light and absorbing the rest.
- *
- *  Although Equation (1) was originally developed for plant canopies, it does
- *  not rely on any specific properties of canopies, and can in principle apply
- *  to any material. (In fact, we have written this derivation in a
- *  material-agnostic way to emphasize this.) Thus, Equation (2) can also apply
- *  to a wide variety of materials. The absorption and reflection of light by
- *  soil is another situation where Equation (2) may be useful, as the
- *  assumption of a thick layer that does not transmit any light through it is
- *  certainly justified in that scenario.
- *
- *  Because it assumes a thick layer of a homogeneous light-absorbing material,
- *  Equation (2) is not appropriate for use in a layered canopy model or one
- *  that makes distinctions between different leaf classes (such as sunlit and
- *  shaded). It is best used for situations like estimating whole-canopy
- *  transpiration or soil evaporation, where it is useful to know the total
- *  solar energy absorbed by a thick layer of leaves or soil. Care must be taken
- *  even in this case, however, since this equation would still not be
- *  appropriate for the small canopies of young plants, which certainly transmit
- *  a significant fraction of the incident light.
- *
- *  Caveat from EL: Although Equation (1) can be found in Monsi & Saeki (1953),
- *  Saeki (1960), and Saeki (1963), Equation (2) is not included in those
- *  references. So, although this derivation makes sense to me, there is still a
- *  chance that it might not be correct. Equation (2) can be found in Steve H's
- *  thesis, the WIMOVAC code, and the BioCro code. In these places, it is
- *  variously attributed to Thornley & Johnson (1990), Monteith (1973), and
- *  Monteith and Unsworth (1990). Unfortunately, these textbooks are not
- *  available in electronic form, and I cannot access them at the moment. Newer
- *  versions of Monteith & Unsworth (1990) are available electronically, but do
- *  not seem to include Equation (2). I have attempted to find an explanation
- *  for Equation (2) elsewhere, but have not been successful so far. Thonrley
- *  (2002) discusses Equation (1), but ultimately just references the
- *  (inaccessible) textbook.
- *
- *  References:
- *
- *  - Monsi, M. & Saeki, T. Über den Lichtfaktor in den Pflanzengesellschaften
- *    und seine Bedeutung für die Stoffproduktion. Japanese Journal of Botany
- *    14, 2252 (1953).
- *
- *  - Saeki, T. Interrelationships between Leaf Amount, Light Distribution and
- *    Total Photosynthesis in a Plant Community. Shokubutsugaku Zasshi 73, 55–63
- *    (1960).
- *
- *  - Saeki, T. Light Relations In Plant Communities. in Environmental Control
- *    of Plant Growth (ed. Evans, L. T.) 79–94 (Academic Press, 1963).
- *
- *  - Hirose, T. Development of the Monsi–Saeki Theory on Canopy Structure and
- *    Function. Annals of Botany 95, 483–494 (2004).
- *
- *  - Thornley, J. H. M. & Johnson, I. R. Plant and crop modelling: A
- *    mathematical approach to plant and crop physiology (2000).
- *
- *  - Monteith, J. L. Principles of Environmental Physics (1973).
- *
- *  - Monteith, J. L. & Unsworth, M. H. Principles of Environmental Physics
- *    (1990).
- *
- *  - Thornley, J. H. M. Instantaneous Canopy Photosynthesis: Analytical
- *    Expressions for Sun and Shade Leaves Based on Exponential Light Decay Down
- *    the Canopy and an Acclimated Non-rectangular Hyperbola for Leaf
- *    Photosynthesis. Ann Bot 89, 451–458 (2002).
- *
+ *  In this equation, the factor `(1 - R - T) / (1 - T)` represents the fraction
+ *  of light absorbed by the thick layer. See the "Light Absorption by a Thick
+ *  Layer" vignette for more information about this equation.
  *
  *  @param [in] R The fractional amount of light reflected by a thin layer of
  *              the material in the appropriate wavelength band; note that this
  *              reflectance is not necessary the same as would be measured from
- *              a thin layer in isolation (see full description for more
- *              details).
+ *              a thin layer in isolation.
  *
  *  @param [in] T The fractional amount of light transmitted by a thin layer of
  *              the material in the appropriate wavelength band; note that this
  *              transmittance is not necessary the same as would be measured
- *              from a thin layer in isolation (see full description for more
- *              details).
+ *              from a thin layer in isolation.
  *
  *  @param [in] I0 The amount of light incident on the material, perhaps
  *              restricted to a particular wavelength band; for quantum fluxes,
