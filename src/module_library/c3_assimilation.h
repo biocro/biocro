@@ -83,6 +83,7 @@ class c3_assimilation : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
+          gbw{get_input(input_quantities, "gbw")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
@@ -116,6 +117,7 @@ class c3_assimilation : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& beta_PSII;
+    double const& gbw;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -148,7 +150,8 @@ string_vector c3_assimilation::get_inputs()
         "water_stress_approach",        // dimensionless
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
-        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "gbw"                           // mol / m^2 / s
     };
 }
 
@@ -183,7 +186,8 @@ void c3_assimilation::do_operation() const
         water_stress_approach,
         electrons_per_carboxylation,
         electrons_per_oxygenation,
-        beta_PSII);
+        beta_PSII,
+        gbw);
 
     // Update the output quantity list
     update(Assim_op, c3_results.Assim);

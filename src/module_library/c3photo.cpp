@@ -25,7 +25,8 @@ struct c3_str c3photoC(
     int const water_stress_approach,           // (flag)
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
-    double const beta_PSII                     // dimensionless (fraction of absorbed light that reaches photosystem II)
+    double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+    double const gbw                           // mol / m^2 / s
 )
 {
     // Get leaf temperature in Kelvin
@@ -154,7 +155,13 @@ struct c3_str c3photoC(
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
         }
 
-        Gs = ball_berry(co2_assimilation_rate * 1e-6, Ca * 1e-6, RH, bb0, bb1) * 1e-3;  // mol / m^2 / s
+        Gs = 1e-3 * ball_berry(
+                        co2_assimilation_rate * 1e-6,
+                        Ca * 1e-6,
+                        RH,
+                        bb0,
+                        bb1,
+                        gbw);  // mol / m^2 / s
 
         if (water_stress_approach == 1) {
             Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s

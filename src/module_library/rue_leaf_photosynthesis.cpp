@@ -28,7 +28,8 @@ struct rue_str rue_photo(
     double Rd0,        // mol / m^2 / s
     double bb0,        // mol / m^2 / s
     double bb1,        // dimensionless
-    double Ca          // dimensionless from mol / mol
+    double Ca,         // dimensionless from mol / mol
+    double gbw         // mol / m^2 / s
 )
 {
     using conversion_constants::celsius_to_kelvin;  // deg. C or K
@@ -52,8 +53,8 @@ struct rue_str rue_photo(
     // Determine net assimilation
     double const an = ag - rd;  // mol / m^2 / s
 
-    // Determine stomatal conductance
-    double const gs = ball_berry(an, Ca, RH, bb0, bb1) * 1e-3;  // mol / m^2 / s
+    // Determine stomatal conductance (mol / m^2 / s)
+    double const gs = ball_berry(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * 1.6 / gs;  // dimensionless
@@ -104,6 +105,9 @@ string_vector rue_leaf_photosynthesis::get_outputs()
 
 void rue_leaf_photosynthesis::do_operation() const
 {
+    // Make an initial guess for boundary layer conductance
+    double const gbw_guess = 1.2;  // mol / m^2 / s
+
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
     const double initial_stomatal_conductance =
@@ -115,7 +119,8 @@ void rue_leaf_photosynthesis::do_operation() const
             Rd * 1e-6,             // mol / m^2 / s
             b0,                    // mol / m^2 / s
             b1,                    // dimensionless
-            Catm * 1e-6            // dimensionless from mol / mol
+            Catm * 1e-6,           // dimensionless from mol / mol
+            gbw_guess              // mol / m^2 / s
             )
             .Gs;  // mmol / m^2 / s
 
@@ -137,14 +142,15 @@ void rue_leaf_photosynthesis::do_operation() const
     // using the new leaf temperature
     const struct rue_str photo =
         rue_photo(
-            incident_ppfd * 1e-6,  // mol / m^2 / s
-            alpha_rue,             // dimensionless
-            leaf_temperature,      // degrees C
-            rh,                    // dimensionless from Pa / Pa
-            Rd * 1e-6,             // mol / m^2 / s
-            b0,                    // mol / m^2 / s
-            b1,                    // dimensionless
-            Catm * 1e-6            // dimensionless from mol / mol
+            incident_ppfd * 1e-6,          // mol / m^2 / s
+            alpha_rue,                     // dimensionless
+            leaf_temperature,              // degrees C
+            rh,                            // dimensionless from Pa / Pa
+            Rd * 1e-6,                     // mol / m^2 / s
+            b0,                            // mol / m^2 / s
+            b1,                            // dimensionless
+            Catm * 1e-6,                   // dimensionless from mol / mol
+            et.boundary_layer_conductance  // mol / m^2 / s
         );
 
     // Update the outputs

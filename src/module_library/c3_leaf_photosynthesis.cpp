@@ -52,6 +52,9 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 
 void c3_leaf_photosynthesis::do_operation() const
 {
+    // Make an initial guess for boundary layer conductance
+    double const gbw_guess = 1.2; // mol / m^2 / s
+
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
     double const initial_stomatal_conductance =
@@ -59,7 +62,7 @@ void c3_leaf_photosynthesis::do_operation() const
             absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
-            electrons_per_oxygenation, beta_PSII)
+            electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
@@ -79,7 +82,8 @@ void c3_leaf_photosynthesis::do_operation() const
             absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
-            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII);
+            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
+            et.boundary_layer_conductance);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

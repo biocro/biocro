@@ -61,33 +61,34 @@ class c4_assimilation : public direct_module
     c4_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          Qp(get_input(input_quantities, "Qp")),
-          Tleaf(get_input(input_quantities, "Tleaf")),
-          rh(get_input(input_quantities, "rh")),
-          vmax(get_input(input_quantities, "vmax")),
-          alpha(get_input(input_quantities, "alpha")),
-          kparm(get_input(input_quantities, "kparm")),
-          theta(get_input(input_quantities, "theta")),
-          beta(get_input(input_quantities, "beta")),
-          Rd(get_input(input_quantities, "Rd")),
-          bb0(get_input(input_quantities, "bb0")),
-          bb1(get_input(input_quantities, "bb1")),
-          Gs_min(get_input(input_quantities, "Gs_min")),
-          StomataWS(get_input(input_quantities, "StomataWS")),
-          Catm(get_input(input_quantities, "Catm")),
-          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
-          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
-          upperT(get_input(input_quantities, "upperT")),
-          lowerT(get_input(input_quantities, "lowerT")),
+          Qp{get_input(input_quantities, "Qp")},
+          Tleaf{get_input(input_quantities, "Tleaf")},
+          rh{get_input(input_quantities, "rh")},
+          vmax{get_input(input_quantities, "vmax")},
+          alpha{get_input(input_quantities, "alpha")},
+          kparm{get_input(input_quantities, "kparm")},
+          theta{get_input(input_quantities, "theta")},
+          beta{get_input(input_quantities, "beta")},
+          Rd{get_input(input_quantities, "Rd")},
+          bb0{get_input(input_quantities, "bb0")},
+          bb1{get_input(input_quantities, "bb1")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          Catm{get_input(input_quantities, "Catm")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
+          upperT{get_input(input_quantities, "upperT")},
+          lowerT{get_input(input_quantities, "lowerT")},
+          gbw{get_input(input_quantities, "gbw")},
 
           // Get pointers to output quantities
-          Assim_op(get_op(output_quantities, "Assim")),
-          Gs_op(get_op(output_quantities, "Gs")),
-          Ci_op(get_op(output_quantities, "Ci")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
+          Assim_op{get_op(output_quantities, "Assim")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
     {
     }
     static string_vector get_inputs();
@@ -114,6 +115,7 @@ class c4_assimilation : public direct_module
     double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
+    double const& gbw;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -145,7 +147,8 @@ string_vector c4_assimilation::get_inputs()
         "atmospheric_pressure",   // Pa
         "water_stress_approach",  // dimensionless
         "upperT",                 // degrees C
-        "lowerT"                  // degrees C
+        "lowerT",                 // degrees C
+        "gbw"                     // mol / m^2 / s
     };
 }
 
@@ -179,7 +182,8 @@ void c4_assimilation::do_operation() const
         atmospheric_pressure,
         water_stress_approach,
         upperT,
-        lowerT);
+        lowerT,
+        gbw);
 
     // Update the output quantity list
     update(Assim_op, c4_results.Assim);

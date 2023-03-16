@@ -19,6 +19,7 @@ class ball_berry_module : public direct_module
           rh{get_input(input_quantities, "rh")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
+          gbw{get_input(input_quantities, "gbw")},
 
           // Get pointers to output quantities
           leaf_stomatal_conductance_op{get_op(output_quantities, "leaf_stomatal_conductance")}
@@ -35,6 +36,7 @@ class ball_berry_module : public direct_module
     double const& rh;
     double const& b0;
     double const& b1;
+    double const& gbw;
 
     // Pointers to output quantities
     double* leaf_stomatal_conductance_op;
@@ -50,7 +52,8 @@ string_vector ball_berry_module::get_inputs()
         "atmospheric_co2_concentration",  // mol / mol
         "rh",                             // Pa / Pa
         "b0",                             // mol / m^2 / s
-        "b1"                              // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+        "b1",                             // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+        "gbw"                             // mol / m^2 / s
     };
 }
 
@@ -63,16 +66,15 @@ string_vector ball_berry_module::get_outputs()
 
 void ball_berry_module::do_operation() const
 {
-    // Collect input quantities and make calculations
-    double stomatal_conductance = ball_berry(
-        net_assimilation_rate,
-        atmospheric_co2_concentration,
-        rh,
-        b0,
-        b1);
-
-    // Update the output quantity list
-    update(leaf_stomatal_conductance_op, stomatal_conductance);
+    update(
+        leaf_stomatal_conductance_op,
+        ball_berry(
+            net_assimilation_rate,
+            atmospheric_co2_concentration,
+            rh,
+            b0,
+            b1,
+            gbw));
 }
 
 }  // namespace standardBML

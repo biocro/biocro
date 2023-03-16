@@ -76,6 +76,8 @@ struct Can_Str CanAC(
     double CanopyPr = 0.0;            // mmol / m^2 / s
     double canopy_conductance = 0.0;  // mmol / m^2 / s
 
+    double gbw_guess = 1.2;  // mol / m^2 / s
+
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -110,17 +112,18 @@ struct Can_Str CanAC(
         double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless. Fraction of LAI that is sunlit.
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
-        double direct_stomatal_conductance =
+        double direct_gsw_estimate =
             c4photoC(
                 i_dir, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT)
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_direct =
             EvapoTrans2(
                 j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
-                direct_stomatal_conductance, leafwidth, specific_heat_of_air,
+                direct_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
         double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
@@ -129,7 +132,8 @@ struct Can_Str CanAC(
             c4photoC(
                 i_dir, leaf_temperature_dir, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT);
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                et_direct.boundary_layer_conductance);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -141,17 +145,18 @@ struct Can_Str CanAC(
         double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless. Fraction of LAI that is shaded.
         double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
-        double diffuse_stomatal_conductance =
+        double diffuse_gsw_estimate =
             c4photoC(
                 i_diff, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT)
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_diffuse =
             EvapoTrans2(
                 j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
-                diffuse_stomatal_conductance, leafwidth, specific_heat_of_air,
+                diffuse_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
         double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
@@ -160,7 +165,8 @@ struct Can_Str CanAC(
             c4photoC(
                 i_diff, leaf_temperature_diff, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT);
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                et_diffuse.boundary_layer_conductance);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
