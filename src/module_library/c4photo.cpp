@@ -66,8 +66,8 @@ photo_str c4photoC(
 
     // Start the loop
     double OldAssim = 0.0, Tol = 0.1, diff;
-    unsigned int iterCounter = 0;
-    unsigned int constexpr max_iterations = 50;
+    int iterCounter = 0;
+    int constexpr max_iterations = 50;
     do {
         // Collatz 1992. Appendix B. Equation 3B.
         double kT_IC_P = kT * InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / m^2 / s
