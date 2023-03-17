@@ -4,10 +4,12 @@
 #include "FvCB_assim.h"              // for FvCB_assim
 #include "AuxBioCro.h"               // for arrhenius_exponential
 #include "../framework/constants.h"  // for ideal_gas_constant,
-                                     //     celsius_to_kelvin, dr_stomata
+                                     //     celsius_to_kelvin, dr_stomata,
+                                     //     dr_boundary
 #include "c3photo.h"
 
 using conversion_constants::celsius_to_kelvin;
+using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 using physical_constants::ideal_gas_constant;
 
@@ -154,7 +156,10 @@ struct c3_str c3photoC(
             Gs = 1e-8;  // mol / m^2 / s
         }
 
-        Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * dr_stomata * AP / Gs;  // Pa
+        // Calculate Ci using the total conductance across the boundary layer
+        // and stomata
+        Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
+            (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
         if (Ci_pa < 0) {
             Ci_pa = 1e-5;  // Pa
