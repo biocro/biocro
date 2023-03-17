@@ -18,15 +18,14 @@ double ball_berry(
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
-        const double Cs = atmospheric_co2_concentration - (dr_boundary / gbw) * assimilation;  // mol / mol.
+        const double Cs = atmospheric_co2_concentration -
+                          (dr_boundary / gbw) * assimilation;  // mol / mol.
+
         if (Cs < 0.0) {
             throw std::range_error("Thrown in ball_berry: Cs is less than 0.");
         }
 
         double acs = assimilation / Cs;
-        if (acs < 1e-6) {
-            acs = 1e-6;
-        }
 
         /* Calculate leaf surface relative humidity, hs, from the quadratic equation:
          * a * hs^2 + b * hs + c = 0
@@ -51,6 +50,10 @@ double ball_berry(
 
         const double root_term = b * b - 4 * a * c;
         const double hs = (-b + sqrt(root_term)) / (2 * a);
+
+        if (hs < 0) {
+            throw std::range_error("Thrown in ball_berry: hs is less than 0.");
+        }
 
         gswmol = bb_slope * hs * assimilation / Cs + bb_offset;  // Ball-Berry equation (Collatz 1991, equation 1).
     } else {

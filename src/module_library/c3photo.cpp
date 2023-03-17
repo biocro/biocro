@@ -152,10 +152,6 @@ struct c3_str c3photoC(
             Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
         }
 
-        if (Gs <= 0) {
-            Gs = 1e-8;  // mol / m^2 / s
-        }
-
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
         Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
