@@ -16,7 +16,7 @@ glycine_max <- list(
         soil_profile = "BioCro:two_layer_soil_profile"
     ),
     ode_solver = list(
-        type = 'auto',
+        type = 'boost_rosenbrock',
         output_step_size = 1.0,
         adaptive_rel_error_tol = 1e-5,
         adaptive_abs_error_tol = 1e-5,
@@ -49,6 +49,7 @@ glycine_max <- list(
         atmospheric_pressure             = 101325,
         b0                               = 0.048,
         b1                               = 5,
+        beta_PSII                        = 0.5,
         Catm                             = 370,
         chil                             = 0.8,
         electrons_per_carboxylation      = 4.5,

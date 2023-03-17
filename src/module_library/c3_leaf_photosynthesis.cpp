@@ -1,13 +1,13 @@
 #include "c3_leaf_photosynthesis.h"
-#include "c3photo.hpp"  // for c3photoC
-#include "BioCro.h"     // for c3EvapoTrans
+#include "c3photo.h"  // for c3photoC
+#include "BioCro.h"   // for c3EvapoTrans
 
 using standardBML::c3_leaf_photosynthesis;
 
 string_vector c3_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_ppfd",                // micromol / (m^2 leaf) / s
+        "absorbed_ppfd",                // micromol / (m^2 leaf) / s
         "temp",                         // deg. C
         "rh",                           // dimensionless
         "vmax1",                        // micromole / m^2 / s
@@ -30,7 +30,8 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "height",                       // m
         "specific_heat_of_air",         // J / kg / K
         "minimum_gbw",                  // mol / m^2 / s
-        "windspeed_height"              // m
+        "windspeed_height",             // m
+        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
     };
 }
 
@@ -55,10 +56,10 @@ void c3_leaf_photosynthesis::do_operation() const
     // air temperature
     double const initial_stomatal_conductance =
         c3photoC(
-            incident_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
+            absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
-            electrons_per_oxygenation)
+            electrons_per_oxygenation, beta_PSII)
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
@@ -75,10 +76,10 @@ void c3_leaf_photosynthesis::do_operation() const
     // using the new leaf temperature
     const struct c3_str photo =
         c3photoC(
-            incident_ppfd, leaf_temperature, rh, vmax1, jmax,
+            absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
-            electrons_per_carboxylation, electrons_per_oxygenation);
+            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

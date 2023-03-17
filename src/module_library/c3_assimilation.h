@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "c3photo.hpp"
+#include "c3photo.h"
 
 namespace standardBML
 {
@@ -30,7 +30,7 @@ namespace standardBML
  * ### BioCro module implementation
  *
  * In BioCro, we use the following names for this model's input quantities:
- * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
+ * - ``'Qabs'`` for the absorbed quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax1'`` for the rubisco carboxylation rate at 25 degrees C
@@ -61,33 +61,34 @@ class c3_assimilation : public direct_module
     c3_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          Qp(get_input(input_quantities, "Qp")),
-          Tleaf(get_input(input_quantities, "Tleaf")),
-          rh(get_input(input_quantities, "rh")),
-          vmax1(get_input(input_quantities, "vmax1")),
-          jmax(get_input(input_quantities, "jmax")),
-          tpu_rate_max(get_input(input_quantities, "tpu_rate_max")),
-          Rd(get_input(input_quantities, "Rd")),
-          b0(get_input(input_quantities, "b0")),
-          b1(get_input(input_quantities, "b1")),
-          Gs_min(get_input(input_quantities, "Gs_min")),
-          Catm(get_input(input_quantities, "Catm")),
-          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
-          O2(get_input(input_quantities, "O2")),
-          theta(get_input(input_quantities, "theta")),
-          StomataWS(get_input(input_quantities, "StomataWS")),
-          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
-          electrons_per_carboxylation(get_input(input_quantities, "electrons_per_carboxylation")),
-          electrons_per_oxygenation(get_input(input_quantities, "electrons_per_oxygenation")),
+          Qabs{get_input(input_quantities, "Qabs")},
+          Tleaf{get_input(input_quantities, "Tleaf")},
+          rh{get_input(input_quantities, "rh")},
+          vmax1{get_input(input_quantities, "vmax1")},
+          jmax{get_input(input_quantities, "jmax")},
+          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Rd{get_input(input_quantities, "Rd")},
+          b0{get_input(input_quantities, "b0")},
+          b1{get_input(input_quantities, "b1")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          Catm{get_input(input_quantities, "Catm")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          O2{get_input(input_quantities, "O2")},
+          theta{get_input(input_quantities, "theta")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
+          electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
+          electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
 
           // Get pointers to output quantities
-          Assim_op(get_op(output_quantities, "Assim")),
-          Gs_op(get_op(output_quantities, "Gs")),
-          Ci_op(get_op(output_quantities, "Ci")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
+          Assim_op{get_op(output_quantities, "Assim")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
     {
     }
     static string_vector get_inputs();
@@ -96,7 +97,7 @@ class c3_assimilation : public direct_module
 
    private:
     // References to input quantities
-    double const& Qp;
+    double const& Qabs;
     double const& Tleaf;
     double const& rh;
     double const& vmax1;
@@ -114,6 +115,7 @@ class c3_assimilation : public direct_module
     double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
+    double const& beta_PSII;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -128,7 +130,7 @@ class c3_assimilation : public direct_module
 string_vector c3_assimilation::get_inputs()
 {
     return {
-        "Qp",                           // micromol / m^2 / s
+        "Qabs",                         // micromol / m^2 / s
         "Tleaf",                        // degrees C
         "rh",                           // dimensionless
         "vmax1",                        // micromol / m^2 / s
@@ -145,7 +147,8 @@ string_vector c3_assimilation::get_inputs()
         "StomataWS",                    // dimensionless
         "water_stress_approach",        // dimensionless
         "electrons_per_carboxylation",  // self-explanatory units
-        "electrons_per_oxygenation"     // self-explanatory units
+        "electrons_per_oxygenation",    // self-explanatory units
+        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
     };
 }
 
@@ -162,7 +165,7 @@ string_vector c3_assimilation::get_outputs()
 void c3_assimilation::do_operation() const
 {
     c3_str c3_results = c3photoC(
-        Qp,
+        Qabs,
         Tleaf,
         rh,
         vmax1,
@@ -179,7 +182,8 @@ void c3_assimilation::do_operation() const
         StomataWS,
         water_stress_approach,
         electrons_per_carboxylation,
-        electrons_per_oxygenation);
+        electrons_per_oxygenation,
+        beta_PSII);
 
     // Update the output quantity list
     update(Assim_op, c3_results.Assim);

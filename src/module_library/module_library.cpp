@@ -15,8 +15,9 @@
 #include "two_layer_soil_profile.hpp"
 #include "soil_evaporation.hpp"
 #include "parameter_calculator.hpp"
-#include "c3_canopy.hpp"
-#include "c4_canopy.hpp"
+#include "c3_canopy.h"
+#include "c4_canopy.h"
+#include "varying_Jmax25.h"
 #include "stomata_water_stress_linear.hpp"
 #include "stomata_water_stress_exponential.hpp"
 #include "stomata_water_stress_linear_aba_response.hpp"
@@ -36,7 +37,7 @@
 #include "song_flowering.hpp"
 #include "fake_solar.hpp"
 #include "partitioning_coefficient_selector.hpp"
-#include "partitioning_growth.hpp"
+#include "partitioning_growth.h"
 #include "partitioning_growth_calculator.hpp"
 #include "no_leaf_resp_partitioning_growth_calculator.hpp"
 #include "thermal_time_senescence.hpp"
@@ -128,6 +129,7 @@ creator_map standardBML::module_library::library_entries =
      {"parameter_calculator",                                  &create_mc<parameter_calculator>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
+     {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},

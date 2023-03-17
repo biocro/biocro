@@ -602,6 +602,12 @@ create a series of each.
 # Choose a set of incident PPFD values to use (micromol / m^2 / s)
 incident_ppfd <- seq(0, 1000, length.out = 501)
 
+# Determine corresponding absorbed PPFD values (micromol / m^2 / s) using the
+# soybean leaf reflectance and transmittance
+absorbed_ppfd <- incident_ppfd *
+    (1 - cmi_soybean$parameters$leaf_reflectance -
+        cmi_soybean$parameters$leaf_transmittance)
+
 # Determine corresponding incident PAR values (J / m^2 / s) using the average
 # energy per micromole of photosynthetically active photons in sunlight
 incident_par <- incident_ppfd * cmi_soybean$parameters$par_energy_content
@@ -622,6 +628,7 @@ average_absorbed_shortwave <-
 # we also include values of a few other required parameters
 light_curve_inputs <- data.frame(
     incident_ppfd = incident_ppfd,
+    absorbed_ppfd = absorbed_ppfd,
     average_absorbed_shortwave = average_absorbed_shortwave,
     rh = 0.75,
     temp = 25,
