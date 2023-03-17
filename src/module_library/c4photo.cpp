@@ -1,7 +1,9 @@
-#include <cmath>
-#include "ball_berry.hpp"
+#include <cmath>                        // for pow, exp, sqrt
+#include <algorithm>                    // for std::min
+#include "ball_berry.hpp"               // for ball_berry
+#include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "../framework/constants.h"     // for dr_stomata, dr_boundary
 #include "c4photo.h"
-#include "../framework/constants.h"  // for dr_stomata
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
@@ -30,7 +32,7 @@ struct c4_str c4photoC(
 {
     constexpr double k_Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
 
-    double Ca_pa = Ca * 1e6 * atmospheric_pressure;  // Pa
+    double Ca_pa = Ca * 1e-6 * atmospheric_pressure;  // Pa
 
     double kT = kparm * pow(k_Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
 
@@ -59,7 +61,8 @@ struct c4_str c4photoC(
     // Ci = 0.4 * Ca.
     double InterCellularCO2{0.4 * Ca_pa};  // Pa
     double Assim{};                        // micromol / m^2 / s
-    double Gs{};                           // mol / m^2 / s
+    double Gs{1e6};                        // mmol / m^2 / s
+    double an_conductance{};               // micromol / m^2 / s
 
     // Start the loop
     double OldAssim = 0.0, Tol = 0.1, diff;
@@ -76,7 +79,21 @@ struct c4_str c4photoC(
 
         Assim = gross_assim - RT;  // micromole / m^2 / s.
 
-        if (water_stress_approach == 0) Assim *= StomaWS;
+        // The net CO2 assimilation is the smaller of the biochemistry-limited
+        // and conductance-limited rates. This will prevent the calculated Ci
+        // value from ever being < 0. This seems to be an important restriction
+        // to prevent numerical errors during the convergence loop, but does not
+        // actually limit the net assimilation rate if the loop converges.
+        an_conductance =
+            conductance_limited_assim(Ca, gbw, Gs * 1e-3);  // micromol / m^2 / s
+
+        Assim = std::min(
+            Assim,
+            an_conductance);  // micromol / m^2 / s
+
+        if (water_stress_approach == 0) {
+            Assim *= StomaWS;
+        }
 
         Gs = ball_berry(
             Assim * 1e-6,
@@ -90,18 +107,18 @@ struct c4_str c4photoC(
             Gs = Gs_min + StomaWS * (Gs - Gs_min);
         }
 
-        if (iterCounter > max_iterations - 10)
-            Gs = bb0 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
+        // If it has gone through this many iterations, the convergence is not
+        // stable. This convergence is inapproriate for high water stress
+        // conditions, so use the minimum gs to try to get a stable system.
+        if (iterCounter > max_iterations - 10) {
+            Gs = bb0 * 1e3;  // mmol / m^2 / s
+        }
 
         // Calculate Ci using the total conductance across the boundary
         // layer and stomata
         InterCellularCO2 =
             Ca_pa - atmospheric_pressure * (Assim * 1e-6) *
                         (dr_boundary / gbw + dr_stomata / (Gs * 1e-3));  // Pa
-
-        if (InterCellularCO2 < 0) {
-            InterCellularCO2 = 1e-5;
-        }
 
         diff = fabs(OldAssim - Assim);  // micromole / m^2 / s
 
@@ -114,11 +131,12 @@ struct c4_str c4photoC(
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
     c4_str result{
-        .Assim = Assim,            // micromole / m^2 /s
-        .Gs = Gs,                  // mmol / m^2 / s
-        .Ci = Ci,                  // micromole / mol
-        .GrossAssim = Assim + RT,  // micromole / m^2 / s
-        .iterations = iterCounter  // not a physical quantity
+        .Assim = Assim,                       // micromole / m^2 /s
+        .Gs = Gs,                             // mmol / m^2 / s
+        .Ci = Ci,                             // micromole / mol
+        .GrossAssim = Assim + RT,             // micromole / m^2 / s
+        .Assim_conductance = an_conductance,  // micromol / m^2 / s
+        .iterations = iterCounter             // not a physical quantity
     };
 
     return result;

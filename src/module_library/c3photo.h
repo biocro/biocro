@@ -6,6 +6,7 @@ struct c3_str {
     double Gs;
     double Ci;
     double GrossAssim;
+    double Assim_conductance;
     int iterations;
 };
 

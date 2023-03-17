@@ -6,6 +6,7 @@ struct c4_str {
     double Gs;
     double Ci;
     double GrossAssim;
+    double Assim_conductance;
     double iterations;
 };
 

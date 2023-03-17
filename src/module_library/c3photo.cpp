@@ -1,11 +1,12 @@
-#include <cmath>                     // for pow, sqrt
-#include <algorithm>                 // for std::min
-#include "ball_berry.hpp"            // for ball_berry
-#include "FvCB_assim.h"              // for FvCB_assim
-#include "AuxBioCro.h"               // for arrhenius_exponential
-#include "../framework/constants.h"  // for ideal_gas_constant,
-                                     //     celsius_to_kelvin, dr_stomata,
-                                     //     dr_boundary
+#include <cmath>                        // for pow, sqrt
+#include <algorithm>                    // for std::min
+#include "ball_berry.hpp"               // for ball_berry
+#include "FvCB_assim.h"                 // for FvCB_assim
+#include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "AuxBioCro.h"                  // for arrhenius_exponential
+#include "../framework/constants.h"     // for ideal_gas_constant,
+                                        //     celsius_to_kelvin, dr_stomata,
+                                        //     dr_boundary
 #include "c3photo.h"
 
 using conversion_constants::celsius_to_kelvin;
@@ -107,8 +108,9 @@ struct c3_str c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Initialize variables before running fixed point iteration in a loop
-    double Gs{};                        // mol / m^2 / s
     double Ci{};                        // micromol / mol
+    double an_conductance{};            // micromol / m^2 / s
+    double Gs{1e3};                     // mol / m^2 / s      (initial guess)
     double Ci_pa{0.0};                  // Pa                 (initial guess)
     double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
     double const Tol{0.01};             // micromol / m^2 / s
@@ -120,7 +122,15 @@ struct c3_str c3photoC(
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
         Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        co2_assimilation_rate =
+        // The net CO2 assimilation is the smaller of the biochemistry-limited
+        // and conductance-limited rates. This will prevent the calculated Ci
+        // value from ever being < 0. This seems to be an important restriction
+        // to prevent numerical errors during the convergence loop, but does not
+        // actually limit the net assimilation rate if the loop converges.
+        an_conductance =
+            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
+
+        co2_assimilation_rate = std::min(
             FvCB_assim(
                 Ci,
                 Gstar,
@@ -134,7 +144,8 @@ struct c3_str c3photoC(
                 alpha_TPU,
                 electrons_per_carboxylation,
                 electrons_per_oxygenation)
-                .An;  // micromol / m^2 / s
+                .An,
+            an_conductance);  // micromol / m^2 / s
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
@@ -157,10 +168,6 @@ struct c3_str c3photoC(
         Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
                             (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
-        if (Ci_pa < 0) {
-            Ci_pa = 1e-5;  // Pa
-        }
-
         if (abs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
         }
@@ -173,6 +180,7 @@ struct c3_str c3photoC(
     result.Gs = Gs * 1e3;                            // mmol / m^2 / s
     result.Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
     result.GrossAssim = co2_assimilation_rate + Rd;  // micromol / m^2 / s
+    result.Assim_conductance = an_conductance;       // micromol / m^2 / s
     result.iterations = iterCounter;                 // not a physical quantity
     return result;
 }
