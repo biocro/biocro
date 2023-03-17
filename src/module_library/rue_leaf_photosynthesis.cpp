@@ -1,26 +1,25 @@
+#include <algorithm>                    // for std::min
+#include <cmath>                        // for exp
+#include "ball_berry_gs.h"              // for ball_berry_gs
+#include "BioCro.h"                     // for c3EvapoTrans
+#include "AuxBioCro.h"                  // for arrhenius_exponential
+#include "photo_str.h"                  // for photo_str
+#include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "../framework/constants.h"     // for celsius_to_kelvin, dr_stomata,
+                                        //     dr_boundary
 #include "rue_leaf_photosynthesis.h"
-#include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
-#include "ball_berry_gs.h"           // for ball_berry_gs
-#include "BioCro.h"                  // for c3EvapoTrans
-#include "AuxBioCro.h"               // for arrhenius_exponential
-#include <cmath>                     // for exp
 
+using conversion_constants::celsius_to_kelvin;
+using physical_constants::dr_boundary;
+using physical_constants::dr_stomata;
 using standardBML::rue_leaf_photosynthesis;
-
-// Define a structure for storing the output of `rue_photo()`
-struct rue_str {
-    double Assim;
-    double Gs;
-    double Ci;
-    double GrossAssim;
-};
 
 // Determine assimilation, stomatal conductance, and Ci following `c3photoC()`.
 // Here, rather than using the FvCB model for C3 photosynthesis, gross
 // assimilation is determined using a simple RUE model. Water stress is ignored.
 // Respiration and stomatal conductance are otherwise calculated using the same
 // methods as `c3photoC()`.
-struct rue_str rue_photo(
+photo_str rue_photo(
     double Qp,         // mol / m^2 / s
     double alpha_rue,  // dimensionless
     double Tleaf,      // degrees C
@@ -32,8 +31,6 @@ struct rue_str rue_photo(
     double gbw         // mol / m^2 / s
 )
 {
-    using conversion_constants::celsius_to_kelvin;  // deg. C or K
-
     // Convert leaf temperature to Kelvin
     double const tlk = Tleaf + celsius_to_kelvin;  // K
 
@@ -51,20 +48,32 @@ struct rue_str rue_photo(
                           tlk);  // mol / m^2 / s
 
     // Determine net assimilation
-    double const an = ag - rd;  // mol / m^2 / s
+    double an = ag - rd;  // mol / m^2 / s
+
+    // The net CO2 assimilation is the smaller of the RUE-limited and
+    // conductance-limited rates. This will prevent the calculated Ci and Cs
+    // values from ever being < 0. This seems to be an important restriction to
+    // prevent numerical errors while running the Ball-Berry model. Here we
+    // just use a very large value for gsw; this may cause a slight understimate
+    // of the net assimilation rate in some cases.
+    double const an_conductance =
+        conductance_limited_assim(Ca * 1e6, gbw, 1e3) * 1e-6;  // mol / m^2 / s
+
+    an = std::min(an_conductance, an);  // mol / m^2 / s
 
     // Determine stomatal conductance (mol / m^2 / s)
     double const gs = ball_berry_gs(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
 
     // Determine intercellular CO2 concentration
-    double const ci = Ca - an * 1.6 / gs;  // dimensionless
+    double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
 
     // Return the results
-    struct rue_str result;
-    result.Assim = an * 1e6;       // micromol / m^2 / s
-    result.Gs = gs * 1e3;          // mmol / m^2 / s
-    result.Ci = ci * 1e6;          // micromole / mol
-    result.GrossAssim = ag * 1e6;  // micromole / m^2 / s
+    photo_str result;
+    result.Assim = an * 1e6;                          // micromol / m^2 / s
+    result.Gs = gs * 1e3;                             // mmol / m^2 / s
+    result.Ci = ci * 1e6;                             // micromole / mol
+    result.GrossAssim = ag * 1e6;                     // micromole / m^2 / s
+    result.Assim_conductance = an_conductance * 1e6;  // micromol / m^2 / s
     return result;
 }
 
@@ -140,7 +149,7 @@ void rue_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
-    const struct rue_str photo =
+    const photo_str photo =
         rue_photo(
             incident_ppfd * 1e-6,          // mol / m^2 / s
             alpha_rue,                     // dimensionless
