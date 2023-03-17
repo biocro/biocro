@@ -1,9 +1,15 @@
-#include <cmath>      // for pow, sqrt
-#include "c3photo.h"
-#include "ball_berry.hpp"
-#include "FvCB_assim.h"
+#include <cmath>                     // for pow, sqrt
+#include <algorithm>                 // for std::min
+#include "ball_berry.hpp"            // for ball_berry
+#include "FvCB_assim.h"              // for FvCB_assim
 #include "AuxBioCro.h"               // for arrhenius_exponential
-#include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
+#include "../framework/constants.h"  // for ideal_gas_constant,
+                                     //     celsius_to_kelvin, dr_stomata
+#include "c3photo.h"
+
+using conversion_constants::celsius_to_kelvin;
+using physical_constants::dr_stomata;
+using physical_constants::ideal_gas_constant;
 
 struct c3_str c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
@@ -29,8 +35,7 @@ struct c3_str c3photoC(
 )
 {
     // Get leaf temperature in Kelvin
-    double const Tleaf_K =
-        Tleaf + conversion_constants::celsius_to_kelvin;  // K
+    double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
 
     // Temperature corrections are from the following sources:
     // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
@@ -88,7 +93,7 @@ struct c3_str c3photoC(
     double const Ha = 62.99e3;                                               // J / mol (enthalpy of activation)
     double const S = 0.588e3;                                                // J / K / mol (entropy)
     double const Hd = 182.14e3;                                              // J / mol (enthalpy of deactivation)
-    double const R = physical_constants::ideal_gas_constant;                 // J / K / mol (ideal gas constant)
+    double const R = ideal_gas_constant;                                     // J / K / mol (ideal gas constant)
     double const top = Tleaf_K * arrhenius_exponential(TPU_c, Ha, Tleaf_K);  // dimensionless
     double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
     double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
@@ -100,32 +105,34 @@ struct c3_str c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Initialize variables before running fixed point iteration in a loop
-    double Gs{};                         // mol / m^2 / s
-    double Ci{};                         // micromol / mol
-    double Ci_pa = 0.0;                  // Pa                 (initial guess)
-    double co2_assimilation_rate = 0.0;  // micromol / m^2 / s (initial guess)
-    double const Tol = 0.01;             // micromol / m^2 / s
-    int iterCounter = 0;
-    int max_iter = 1000;
+    double Gs{};                        // mol / m^2 / s
+    double Ci{};                        // micromol / mol
+    double Ci_pa{0.0};                  // Pa                 (initial guess)
+    double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
+    double const Tol{0.01};             // micromol / m^2 / s
+    int iterCounter{0};
+    int max_iter{1000};
 
     // Run iteration loop
     while (iterCounter < max_iter) {
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
         Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        co2_assimilation_rate = FvCB_assim(
-            Ci,
-            Gstar,
-            J,
-            Kc,
-            Ko,
-            Oi,
-            Rd,
-            TPU,
-            Vcmax,
-            alpha_TPU,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation).An; // micromol / m^2 / s
+        co2_assimilation_rate =
+            FvCB_assim(
+                Ci,
+                Gstar,
+                J,
+                Kc,
+                Ko,
+                Oi,
+                Rd,
+                TPU,
+                Vcmax,
+                alpha_TPU,
+                electrons_per_carboxylation,
+                electrons_per_oxygenation)
+                .An;  // micromol / m^2 / s
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
@@ -147,7 +154,7 @@ struct c3_str c3photoC(
             Gs = 1e-8;  // mol / m^2 / s
         }
 
-        Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * 1.6 * AP / Gs;  // Pa
+        Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * dr_stomata * AP / Gs;  // Pa
 
         if (Ci_pa < 0) {
             Ci_pa = 1e-5;  // Pa

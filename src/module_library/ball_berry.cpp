@@ -1,6 +1,9 @@
 #include <cmath>
 #include <stdexcept>
 #include "ball_berry.hpp"
+#include "../framework/constants.h"  // for dr_boundary
+
+using physical_constants::dr_boundary;
 
 /* Ball Berry stomatal conductance function */
 double ball_berry(
@@ -15,7 +18,7 @@ double ball_berry(
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
-        const double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
+        const double Cs = atmospheric_co2_concentration - (dr_boundary / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
             throw std::range_error("Thrown in ball_berry: Cs is less than 0.");
         }

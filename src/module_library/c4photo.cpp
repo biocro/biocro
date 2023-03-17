@@ -1,6 +1,9 @@
 #include <cmath>
 #include "ball_berry.hpp"
 #include "c4photo.h"
+#include "../framework/constants.h"     // for dr_stomata
+
+using physical_constants::dr_stomata;
 
 struct c4_str c4photoC(
     double Qp,                    // micromol / m^2 / s
@@ -51,7 +54,10 @@ struct c4_str c4photoC(
 
     double M = M1 < M2 ? M1 : M2;  // Use the smallest root.
 
-    double Assim, Gs;
+    double Assim{};
+    double Gs{};
+
+    // Start the loop
     {
         double OldAssim = 0.0, Tol = 0.1, diff;
         unsigned int iterCounter = 0;
@@ -85,7 +91,7 @@ struct c4_str c4photoC(
                 Gs = bb0 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
 
             //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / atmospheric_pressure * 1e6, Assim, Gs, leaf_temperature);
-            InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * atmospheric_pressure / (Gs * 0.001);  // Pa
+            InterCellularCO2 = Csurface - Assim * 1e-6 * dr_stomata * atmospheric_pressure / (Gs * 0.001);  // Pa
 
             if (InterCellularCO2 < 0)
                 InterCellularCO2 = 1e-5;
