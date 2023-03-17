@@ -48,12 +48,14 @@ namespace standardBML
  * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
+ * - ``'gbw'`` for the boundary layer conductance to water vapor
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
+ * - ``'iterations'`` for the number of iterations required for the convergence loop
  */
 class c3_assimilation : public direct_module
 {
@@ -89,7 +91,8 @@ class c3_assimilation : public direct_module
           Assim_op{get_op(output_quantities, "Assim")},
           Gs_op{get_op(output_quantities, "Gs")},
           Ci_op{get_op(output_quantities, "Ci")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          iterations_op{get_op(output_quantities, "iterations")}
     {
     }
     static string_vector get_inputs();
@@ -124,6 +127,7 @@ class c3_assimilation : public direct_module
     double* Gs_op;
     double* Ci_op;
     double* GrossAssim_op;
+    double* iterations_op;
 
     // Main operation
     void do_operation() const;
@@ -158,10 +162,11 @@ string_vector c3_assimilation::get_inputs()
 string_vector c3_assimilation::get_outputs()
 {
     return {
-        "Assim",      // micromol / m^2 / s
-        "Gs",         // millimol / m^2 / s
-        "Ci",         // micromol / mol
-        "GrossAssim"  // micromol / m^2 / s
+        "Assim",       // micromol / m^2 / s
+        "Gs",          // millimol / m^2 / s
+        "Ci",          // micromol / mol
+        "GrossAssim",  // micromol / m^2 / s
+        "iterations"   // not a physical quantity
     };
 }
 
@@ -194,6 +199,7 @@ void c3_assimilation::do_operation() const
     update(Gs_op, c3_results.Gs);
     update(Ci_op, c3_results.Ci);
     update(GrossAssim_op, c3_results.GrossAssim);
+    update(iterations_op, c3_results.iterations);
 }
 
 }  // namespace standardBML

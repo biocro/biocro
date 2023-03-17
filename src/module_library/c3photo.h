@@ -6,6 +6,7 @@ struct c3_str {
     double Gs;
     double Ci;
     double GrossAssim;
+    int iterations;
 };
 
 struct c3_str c3photoC(

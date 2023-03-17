@@ -6,6 +6,7 @@ struct c4_str {
     double Gs;
     double Ci;
     double GrossAssim;
+    double iterations;
 };
 
 struct c4_str c4photoC(

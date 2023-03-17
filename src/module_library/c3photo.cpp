@@ -159,7 +159,7 @@ struct c3_str c3photoC(
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
         Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
-            (dr_boundary / gbw + dr_stomata / Gs);  // Pa
+                            (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
         if (Ci_pa < 0) {
             Ci_pa = 1e-5;  // Pa
@@ -175,8 +175,9 @@ struct c3_str c3photoC(
     struct c3_str result;
     result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
     result.Gs = Gs * 1e3;                            // mmol / m^2 / s
-    result.Ci = Ci;                                  // micromol / mol
+    result.Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
     result.GrossAssim = co2_assimilation_rate + Rd;  // micromol / m^2 / s
+    result.iterations = iterCounter;                 // not a physical quantity
     return result;
 }
 
