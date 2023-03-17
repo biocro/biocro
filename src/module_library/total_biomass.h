@@ -10,7 +10,7 @@ namespace standardBML
  *  @class total_biomass
  *
  *  @brief Calculates the total biomass by adding together the masses of the
- *  `Leaf`, `Stem`, `Root`, `Rhizome`, and `Grain` tissues.
+ *  `Leaf`, `Stem`, `Root`, `Rhizome`, `Shell`, and `Grain` tissues.
  */
 class total_biomass : public direct_module
 {
@@ -25,6 +25,7 @@ class total_biomass : public direct_module
           Stem{get_input(input_quantities, "Stem")},
           Root{get_input(input_quantities, "Root")},
           Rhizome{get_input(input_quantities, "Rhizome")},
+          Shell{get_input(input_quantities, "Shell")},
           Grain{get_input(input_quantities, "Grain")},
 
           // Get pointers to output parameters
@@ -41,6 +42,7 @@ class total_biomass : public direct_module
     const double& Stem;
     const double& Root;
     const double& Rhizome;
+    const double& Shell;
     const double& Grain;
 
     // Pointers to output parameters
@@ -57,6 +59,7 @@ string_vector total_biomass::get_inputs()
         "Stem",     // Mg / ha
         "Root",     // Mg / ha
         "Rhizome",  // Mg / ha
+        "Shell",    // Mg / ha
         "Grain"     // Mg / ha
     };
 }
@@ -70,7 +73,7 @@ string_vector total_biomass::get_outputs()
 
 void total_biomass::do_operation() const
 {
-    update(total_biomass_op, Leaf + Stem + Root + Rhizome + Grain);
+    update(total_biomass_op, Leaf + Stem + Root + Rhizome + Shell + Grain);
 }
 
 }  // namespace standardBML
