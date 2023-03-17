@@ -39,8 +39,8 @@ namespace standardBML
  * - ``'theta'`` for the first quadratic mixing parameter
  * - ``'beta'`` for the second quandratic mixing parameter
  * - ``'Rd'`` for the respiration rate at 25 degrees C
- * - ``'bb0'`` for the Ball-Berry intercept
- * - ``'bb1'`` for the Ball-Berry slope
+ * - ``'b0'`` for the Ball-Berry intercept
+ * - ``'b1'`` for the Ball-Berry slope
  * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
  * - ``'StomataWS'`` for the water stress factor
  * - ``'Catm'`` for the atmospheric CO2 concentration
@@ -76,8 +76,8 @@ class c4_assimilation : public direct_module
           theta{get_input(input_quantities, "theta")},
           beta{get_input(input_quantities, "beta")},
           Rd{get_input(input_quantities, "Rd")},
-          bb0{get_input(input_quantities, "bb0")},
-          bb1{get_input(input_quantities, "bb1")},
+          b0{get_input(input_quantities, "b0")},
+          b1{get_input(input_quantities, "b1")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           StomataWS{get_input(input_quantities, "StomataWS")},
           Catm{get_input(input_quantities, "Catm")},
@@ -111,8 +111,8 @@ class c4_assimilation : public direct_module
     double const& theta;
     double const& beta;
     double const& Rd;
-    double const& bb0;
-    double const& bb1;
+    double const& b0;
+    double const& b1;
     double const& Gs_min;
     double const& StomataWS;
     double const& Catm;
@@ -146,8 +146,8 @@ string_vector c4_assimilation::get_inputs()
         "theta",                  // dimensionless
         "beta",                   // dimensionless
         "Rd",                     // micromol / m^2 / s
-        "bb0",                    // mol / m^2 / s
-        "bb1",                    // dimensionless
+        "b0",                     // mol / m^2 / s
+        "b1",                     // dimensionless
         "Gs_min",                 // mol / m^2 / s
         "StomataWS",              // dimensionless
         "Catm",                   // micromol / mol
@@ -183,8 +183,8 @@ void c4_assimilation::do_operation() const
         theta,
         beta,
         Rd,
-        bb0,
-        bb1,
+        b0,
+        b1,
         Gs_min,
         StomataWS,
         Catm,
