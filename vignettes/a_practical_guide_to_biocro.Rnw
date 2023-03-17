@@ -871,6 +871,7 @@ outputs <- evaluate_module(
     rh = 0.7      # dimensionless
     Qabs = 1800   # micromol / m^2 / s
     Tleaf = 27    # degrees C
+    gbw = 1.2     # mol / m^2 / s
     StomataWS = 1 # dimensionless; 1 indicates no water stress
   })
 )
@@ -905,6 +906,7 @@ rc <- module_response_curve(
   within(soybean$parameters, {
     rh = 0.7
     Tleaf = 27
+    gbw = 1.2
     StomataWS = 1
   }),
   data.frame(Qabs = seq(from = 0, to = 2000, length.out = 501))
