@@ -208,120 +208,113 @@ test_plant_model <- function(test_info) {
             )
         })
 
-        # Some variables may need to be ignored, possibly because their values
-        # depend on the operating system or other factors that may change
-        # between simulation runs. Remove these from the results. If a variable
-        # is flagged to be ignored but is not in the simulation result, this
-        # could indicate that one of the default modules has been changed, and
-        # the list of ignored variables should probably be revisited, so warn
-        # the user.
-        for (variable in test_info[['ignored_variables']]) {
-            if (variable %in% names(result)) {
-                result[[variable]] <- NULL
-            } else {
-                msg <- paste0(
-                    "The regression test reports that '",
-                    variable,
-                    "' is no longer included in the ",
-                    test_info[['plant_name']],
-                    " simulation result. Did a default module change?"
-                )
-                warning(msg)
+        # Make sure the simulation was completed
+        simulation_completed <- nrow(result) == nrow(test_info[['drivers']])
+
+        description <- paste(
+            "The",
+            test_info[['plant_name']],
+            "simulation ran to completion"
+        )
+
+        test_that(description, {
+            expect_equal(nrow(result), nrow(test_info[['drivers']]))
+        })
+
+        # If the simulation finished, make additional checks
+        if (nrow(result) == nrow(test_info[['drivers']])) {
+            # Some variables may need to be ignored, possibly because their
+            # values depend on the operating system or other factors that may
+            # change between simulation runs. Remove these from the results. If
+            # a variable is flagged to be ignored but is not in the simulation
+            # result, this could indicate that one of the default modules has
+            # been changed, and the list of ignored variables should probably be
+            # revisited, so warn the user.
+            for (variable in test_info[['ignored_variables']]) {
+                if (variable %in% names(result)) {
+                    result[[variable]] <- NULL
+                } else {
+                    msg <- paste0(
+                        "The regression test reports that '",
+                        variable,
+                        "' is no longer included in the ",
+                        test_info[['plant_name']],
+                        " simulation result. Did a default module change?"
+                    )
+                    warning(msg)
+                }
             }
-        }
 
-        # Read the stored result from the data file
-        Gro_result <- read.csv(test_info[['stored_result_file']])
+            # Read the stored result from the data file
+            Gro_result <- read.csv(test_info[['stored_result_file']])
 
-        # Make sure all columns contain numeric data
-        Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
+            # Make sure all columns contain numeric data
+            Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
 
-        # Make sure the stored result has the same number of time points
-        index_of_last_row <- length(result[[1]])
+            # Make sure the stored result contains all the non-ignored
+            # quantities in the new result
+            column_names <- names(result)
 
-        description <- paste(
-            "The",
-            test_info[['plant_name']],
-            "simulation result has the correct number of data points"
-        )
+            stored_column_names <- names(Gro_result)
 
-        test_that(description, {
-            expect_equal(index_of_last_row, length(Gro_result[[1]]))
-        })
-
-        # Make sure the results have a sufficient number of time points
-        description <- paste(
-            "The",
-            test_info[['plant_name']],
-            "simulation result has enough data points"
-        )
-
-        test_that(description, {
-            expect_gt(index_of_last_row, 1.0)
-        })
-
-        # Make sure the stored result contains all the non-ignored quantities in
-        # the new result
-        column_names <- names(result)
-
-        stored_column_names <- names(Gro_result)
-
-        for (name in column_names) {
-            description <- paste(
-                "The stored",
-                test_info[['plant_name']],
-                "simulation result includes the",
-                name,
-                "column"
-            )
-
-            test_that(description, {
-                expect_true(name %in% stored_column_names)
-            })
-        }
-
-        # Make a helping function that compares the new result to the old one at
-        # a single index
-        compare_simulation_trial <- function(index) {
-            for (variable in column_names) {
-                description <- paste0(
-                    "The ", test_info[['plant_name']], " simulation result ",
-                    "agrees with the stored result at index ",
-                    index,
-                    " for the '",
-                    variable,
-                    "' quantity"
+            for (name in column_names) {
+                description <- paste(
+                    "The stored",
+                    test_info[['plant_name']],
+                    "simulation result includes the",
+                    name,
+                    "column"
                 )
 
                 test_that(description, {
-                    expect_equal(
-                        result[[variable]][index],
-                        Gro_result[[variable]][index],
-                        tolerance=RELATIVE_ERROR_TOLERANCE
-                    )
+                    expect_true(name %in% stored_column_names)
                 })
             }
-        }
 
-        # Run the test for some equally spaced indices including the first and
-        # last points of the simulation. Note that no problems occur if
-        # `points_to_test` includes non-integer elements, since R automatically
-        # truncates them to integer values when they are used as indices to
-        # access elements of a vector.
-        points_to_test = seq(
-            from = 1,
-            to = index_of_last_row,
-            length.out = max(
-                min(
-                    index_of_last_row,
-                    MAX_SAMPLE_SIZE
-                ),
-                2.0
+            # Make a helping function that compares the new result to the old
+            # one at a single index
+            compare_simulation_trial <- function(index) {
+                for (variable in column_names) {
+                    description <- paste0(
+                        "The ", test_info[['plant_name']], " simulation result ",
+                        "agrees with the stored result at index ",
+                        index,
+                        " for the '",
+                        variable,
+                        "' quantity"
+                    )
+
+                    test_that(description, {
+                        expect_equal(
+                            result[[variable]][index],
+                            Gro_result[[variable]][index],
+                            tolerance=RELATIVE_ERROR_TOLERANCE
+                        )
+                    })
+                }
+            }
+
+            # Run the test for some equally spaced indices including the first
+            # and last points of the simulation. Note that no problems occur if
+            # `points_to_test` includes non-integer elements, since R
+            # automatically truncates them to integer values when they are used
+            # as indices to access elements of a vector.
+            index_of_last_row <- length(result[[1]])
+            points_to_test = seq(
+                from = 1,
+                to = index_of_last_row,
+                length.out = max(
+                    min(
+                        index_of_last_row,
+                        MAX_SAMPLE_SIZE
+                    ),
+                    2.0
+                )
             )
-        )
 
-        for (index in points_to_test) {
-            compare_simulation_trial(index)
+            for (index in points_to_test) {
+                compare_simulation_trial(index)
+            }
         }
     }
 }
