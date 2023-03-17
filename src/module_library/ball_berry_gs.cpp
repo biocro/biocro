@@ -1,12 +1,12 @@
 #include <cmath>
 #include <stdexcept>
-#include "ball_berry.hpp"
+#include "ball_berry_gs.h"
 #include "../framework/constants.h"  // for dr_boundary
 
 using physical_constants::dr_boundary;
 
 /* Ball Berry stomatal conductance function */
-double ball_berry(
+double ball_berry_gs(
     double assimilation,                   // mol / m^2 / s
     double atmospheric_co2_concentration,  // mol / mol
     double atmospheric_relative_humidity,  // Pa / Pa
@@ -22,7 +22,7 @@ double ball_berry(
                           (dr_boundary / gbw) * assimilation;  // mol / mol.
 
         if (Cs < 0.0) {
-            throw std::range_error("Thrown in ball_berry: Cs is less than 0.");
+            throw std::range_error("Thrown in ball_berry_gs: Cs is less than 0.");
         }
 
         double acs = assimilation / Cs;
@@ -52,7 +52,7 @@ double ball_berry(
         const double hs = (-b + sqrt(root_term)) / (2 * a);
 
         if (hs < 0) {
-            throw std::range_error("Thrown in ball_berry: hs is less than 0.");
+            throw std::range_error("Thrown in ball_berry_gs: hs is less than 0.");
         }
 
         gswmol = bb_slope * hs * assimilation / Cs + bb_offset;  // Ball-Berry equation (Collatz 1991, equation 1).

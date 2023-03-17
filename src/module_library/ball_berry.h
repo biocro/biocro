@@ -1,16 +1,16 @@
-#ifndef BALL_BERRY_MODULE_H
-#define BALL_BERRY_MODULE_H
+#ifndef BALL_BERRY_H
+#define BALL_BERRY_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "ball_berry.hpp"
+#include "ball_berry_gs.h"
 
 namespace standardBML
 {
-class ball_berry_module : public direct_module
+class ball_berry : public direct_module
 {
    public:
-    ball_berry_module(state_map const& input_quantities, state_map* output_quantities)
+    ball_berry(state_map const& input_quantities, state_map* output_quantities)
         : direct_module{},
 
           // Get pointers to input quantities
@@ -27,7 +27,7 @@ class ball_berry_module : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    static std::string get_name() { return "ball_berry_module"; }
+    static std::string get_name() { return "ball_berry"; }
 
    private:
     // Pointers to input quantities
@@ -45,7 +45,7 @@ class ball_berry_module : public direct_module
     void do_operation() const;
 };
 
-string_vector ball_berry_module::get_inputs()
+string_vector ball_berry::get_inputs()
 {
     return {
         "net_assimilation_rate",          // mol / m^2 / s
@@ -57,18 +57,18 @@ string_vector ball_berry_module::get_inputs()
     };
 }
 
-string_vector ball_berry_module::get_outputs()
+string_vector ball_berry::get_outputs()
 {
     return {
         "leaf_stomatal_conductance"  // mmol / m^2 / s
     };
 }
 
-void ball_berry_module::do_operation() const
+void ball_berry::do_operation() const
 {
     update(
         leaf_stomatal_conductance_op,
-        ball_berry(
+        ball_berry_gs(
             net_assimilation_rate,
             atmospheric_co2_concentration,
             rh,

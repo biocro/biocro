@@ -1,6 +1,6 @@
 #include <cmath>                        // for pow, sqrt
 #include <algorithm>                    // for std::min
-#include "ball_berry.hpp"               // for ball_berry
+#include "ball_berry_gs.h"              // for ball_berry_gs
 #include "FvCB_assim.h"                 // for FvCB_assim
 #include "conductance_limited_assim.h"  // for conductance_limited_assim
 #include "AuxBioCro.h"                  // for arrhenius_exponential
@@ -151,7 +151,7 @@ struct c3_str c3photoC(
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
         }
 
-        Gs = 1e-3 * ball_berry(
+        Gs = 1e-3 * ball_berry_gs(
                         co2_assimilation_rate * 1e-6,
                         Ca * 1e-6,
                         RH,

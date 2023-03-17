@@ -1,6 +1,6 @@
 #include "rue_leaf_photosynthesis.h"
 #include "../framework/constants.h"  // for ideal_gas_constant and celsius_to_kelvin
-#include "ball_berry.hpp"            // for ball_berry
+#include "ball_berry_gs.h"           // for ball_berry_gs
 #include "BioCro.h"                  // for c3EvapoTrans
 #include "AuxBioCro.h"               // for arrhenius_exponential
 #include <cmath>                     // for exp
@@ -54,7 +54,7 @@ struct rue_str rue_photo(
     double const an = ag - rd;  // mol / m^2 / s
 
     // Determine stomatal conductance (mol / m^2 / s)
-    double const gs = ball_berry(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
+    double const gs = ball_berry_gs(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * 1.6 / gs;  // dimensionless

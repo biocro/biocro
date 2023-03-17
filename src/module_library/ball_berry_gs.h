@@ -1,7 +1,7 @@
-#ifndef BALL_BERRY_H
-#define BALL_BERRY_H
+#ifndef BALL_BERRY_GS_H
+#define BALL_BERRY_GS_H
 
-double ball_berry(
+double ball_berry_gs(
     double assimilation,
     double atmospheric_co2_concentration,
     double atmospheric_relative_humidity,

@@ -1,6 +1,6 @@
 #include <cmath>                        // for pow, exp, sqrt
 #include <algorithm>                    // for std::min
-#include "ball_berry.hpp"               // for ball_berry
+#include "ball_berry_gs.h"              // for ball_berry_gs
 #include "conductance_limited_assim.h"  // for conductance_limited_assim
 #include "../framework/constants.h"     // for dr_stomata, dr_boundary
 #include "c4photo.h"
@@ -95,7 +95,7 @@ struct c4_str c4photoC(
             Assim *= StomaWS;
         }
 
-        Gs = ball_berry(
+        Gs = ball_berry_gs(
             Assim * 1e-6,
             Ca * 1e-6,
             relative_humidity,
