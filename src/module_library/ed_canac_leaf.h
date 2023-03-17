@@ -159,7 +159,7 @@ void ed_canac_leaf::do_operation() const
     double const gbw_guess = 1.2;  // mol / m^2 / s
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
-    const struct c4_str first_c4photoC_output =
+    const photo_str first_c4photoC_output =
         c4photoC(
             Qp, temperature_air, rh, vmax, collatz_alpha, collatz_k,
             collatz_theta, collatz_beta, Rd, ball_berry_intercept,
@@ -179,7 +179,7 @@ void ed_canac_leaf::do_operation() const
     const double leaf_temperature = temperature_air + evapotrans_output.Deltat;
 
     // Run c4photoC a second time to get final values for assimilation and conductance
-    const struct c4_str second_c4photoC_output =
+    const photo_str second_c4photoC_output =
         c4photoC(
             Qp, leaf_temperature, rh, vmax, collatz_alpha, collatz_k,
             collatz_theta, collatz_beta, Rd, ball_berry_intercept,

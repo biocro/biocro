@@ -1,16 +1,9 @@
 #ifndef C4PHOTO_H
 #define C4PHOTO_H
 
-struct c4_str {
-    double Assim;
-    double Gs;
-    double Ci;
-    double GrossAssim;
-    double Assim_conductance;
-    double iterations;
-};
+#include "photo_str.h"  // for photo_str
 
-struct c4_str c4photoC(
+photo_str c4photoC(
     double Qp,
     double Tl,
     double RH,

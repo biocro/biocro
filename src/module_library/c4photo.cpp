@@ -8,7 +8,7 @@
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 
-struct c4_str c4photoC(
+photo_str c4photoC(
     double Qp,                    // micromol / m^2 / s
     double leaf_temperature,      // degrees C
     double relative_humidity,     // dimensionless from Pa / Pa
@@ -130,7 +130,7 @@ struct c4_str c4photoC(
 
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
-    c4_str result{
+    photo_str result{
         .Assim = Assim,                       // micromole / m^2 /s
         .Gs = Gs,                             // mmol / m^2 / s
         .Ci = Ci,                             // micromole / mol

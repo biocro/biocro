@@ -14,7 +14,7 @@ using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 using physical_constants::ideal_gas_constant;
 
-struct c3_str c3photoC(
+photo_str c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
     double const RH,                           // dimensionless
@@ -22,8 +22,8 @@ struct c3_str c3photoC(
     double const Jmax0,                        // micromol / m^2 / s
     double const TPU_rate_max,                 // micromol / m^2 / s
     double const Rd0,                          // micromol / m^2 / s
-    double const bb0,                          // mol / m^2 / s
-    double const bb1,                          // dimensionless
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double Ca,                                 // micromol / mol
     double const AP,                           // Pa
@@ -155,8 +155,8 @@ struct c3_str c3photoC(
                         co2_assimilation_rate * 1e-6,
                         Ca * 1e-6,
                         RH,
-                        bb0,
-                        bb1,
+                        b0,
+                        b1,
                         gbw);  // mol / m^2 / s
 
         if (water_stress_approach == 1) {
@@ -175,7 +175,7 @@ struct c3_str c3photoC(
         ++iterCounter;
     }
 
-    struct c3_str result;
+    photo_str result;
     result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
     result.Gs = Gs * 1e3;                            // mmol / m^2 / s
     result.Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol

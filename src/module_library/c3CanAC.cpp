@@ -122,7 +122,7 @@ struct Can_Str c3CanAC(
 
         double leaf_temperature_dir = air_temperature + et_direct.Deltat;  // degrees C
 
-        struct c3_str direct_photo =
+        photo_str direct_photo =
             c3photoC(
                 iabs_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
@@ -156,7 +156,7 @@ struct Can_Str c3CanAC(
 
         double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;  // degrees C
 
-        struct c3_str diffuse_photo =
+        photo_str diffuse_photo =
             c3photoC(
                 iabs_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,

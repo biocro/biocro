@@ -129,7 +129,7 @@ void ed_c4photo::do_operation() const
     int water_stress_approach = 1;
 
     // Call c4photoC
-    struct c4_str c4_results = c4photoC(
+    photo_str c4_results = c4photoC(
         Qp,
         temperature_leaf,
         rh,

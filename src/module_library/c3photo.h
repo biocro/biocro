@@ -1,16 +1,9 @@
 #ifndef C3PHOTO_H
 #define C3PHOTO_H
 
-struct c3_str {
-    double Assim;
-    double Gs;
-    double Ci;
-    double GrossAssim;
-    double Assim_conductance;
-    int iterations;
-};
+#include "photo_str.h"  // for photo_str
 
-struct c3_str c3photoC(
+photo_str c3photoC(
     double const absorbed_ppfd,
     double const Tleaf,
     double const RH,
