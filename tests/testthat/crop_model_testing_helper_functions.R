@@ -194,10 +194,10 @@ test_plant_model <- function(test_info) {
         )
 
         # Run the simulation
-        result <- 0
+        new_result <- 0
         test_that(description_run, {
             expect_silent(
-                result <<- run_biocro(
+                new_result <<- run_biocro(
                     test_info[['initial_values']],
                     test_info[['parameters']],
                     test_info[['drivers']],
@@ -209,8 +209,6 @@ test_plant_model <- function(test_info) {
         })
 
         # Make sure the simulation was completed
-        simulation_completed <- nrow(result) == nrow(test_info[['drivers']])
-
         description <- paste(
             "The",
             test_info[['plant_name']],
@@ -218,11 +216,11 @@ test_plant_model <- function(test_info) {
         )
 
         test_that(description, {
-            expect_equal(nrow(result), nrow(test_info[['drivers']]))
+            expect_equal(nrow(new_result), nrow(test_info[['drivers']]))
         })
 
         # If the simulation finished, make additional checks
-        if (nrow(result) == nrow(test_info[['drivers']])) {
+        if (nrow(new_result) == nrow(test_info[['drivers']])) {
             # Some variables may need to be ignored, possibly because their
             # values depend on the operating system or other factors that may
             # change between simulation runs. Remove these from the results. If
@@ -231,8 +229,8 @@ test_plant_model <- function(test_info) {
             # been changed, and the list of ignored variables should probably be
             # revisited, so warn the user.
             for (variable in test_info[['ignored_variables']]) {
-                if (variable %in% names(result)) {
-                    result[[variable]] <- NULL
+                if (variable %in% names(new_result)) {
+                    new_result[[variable]] <- NULL
                 } else {
                     msg <- paste0(
                         "The regression test reports that '",
@@ -246,18 +244,18 @@ test_plant_model <- function(test_info) {
             }
 
             # Read the stored result from the data file
-            Gro_result <- read.csv(test_info[['stored_result_file']])
+            stored_result <- read.csv(test_info[['stored_result_file']])
 
             # Make sure all columns contain numeric data
-            Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
+            stored_result <- as.data.frame(sapply(stored_result, as.numeric))
 
             # Make sure the stored result contains all the non-ignored
             # quantities in the new result
-            column_names <- names(result)
+            new_column_names <- names(new_result)
 
-            stored_column_names <- names(Gro_result)
+            stored_column_names <- names(stored_result)
 
-            for (name in column_names) {
+            for (name in new_column_names) {
                 description <- paste(
                     "The stored",
                     test_info[['plant_name']],
@@ -274,7 +272,7 @@ test_plant_model <- function(test_info) {
             # Make a helping function that compares the new result to the old
             # one at a single index
             compare_simulation_trial <- function(index) {
-                for (variable in column_names) {
+                for (variable in new_column_names) {
                     description <- paste0(
                         "The ", test_info[['plant_name']], " simulation result ",
                         "agrees with the stored result at index ",
@@ -286,8 +284,8 @@ test_plant_model <- function(test_info) {
 
                     test_that(description, {
                         expect_equal(
-                            result[[variable]][index],
-                            Gro_result[[variable]][index],
+                            new_result[[variable]][index],
+                            stored_result[[variable]][index],
                             tolerance=RELATIVE_ERROR_TOLERANCE
                         )
                     })
@@ -299,7 +297,7 @@ test_plant_model <- function(test_info) {
             # `points_to_test` includes non-integer elements, since R
             # automatically truncates them to integer values when they are used
             # as indices to access elements of a vector.
-            index_of_last_row <- length(result[[1]])
+            index_of_last_row <- length(new_result[[1]])
             points_to_test = seq(
                 from = 1,
                 to = index_of_last_row,

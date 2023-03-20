@@ -33,8 +33,8 @@ soybean <- list(
         Leaf               = 0.06312,       # Mg / ha, 80% of total seed mass per land area
         Stem               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
         Root               = 0.00789,       # Mg / ha, 10% of total seed mass per land area
-        Grain              = 0.00001,       # Mg / ha, this is the seed part 
-        Shell              = 0.00001,       # Mg / ha, this is the shell part 
+        Grain              = 0.00001,       # Mg / ha, this is the seed part
+        Shell              = 0.00001,       # Mg / ha, this is the shell part
         LeafLitter         = 0,             # Mg / ha
         RootLitter         = 0,             # Mg / ha
         StemLitter         = 0,             # Mg / ha
@@ -130,8 +130,8 @@ soybean <- list(
 
         # ten_layer_c3_canopy module
         jmax                        = 195,         # Bernacchi et al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
-        jmax_mature                 = 195,         # Needed in the varying_Jmax25 module  
-        sf_jmax                     = 0.2,         # Scaling factor for jmax. Needed in the varying_Jmax25 module  
+        jmax_mature                 = 195,         # Needed in the varying_Jmax25 module
+        sf_jmax                     = 0.2,         # Scaling factor for jmax. Needed in the varying_Jmax25 module
         electrons_per_carboxylation = 4.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         electrons_per_oxygenation   = 5.25,        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         tpu_rate_max                = 13,          # Fitted value based on the A-Ci data measured at UIUC in 2019-08 by Delgrado (unpublished data)
