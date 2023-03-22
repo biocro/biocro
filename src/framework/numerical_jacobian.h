@@ -187,7 +187,7 @@ void calculate_time_derivative(
         }
     } else {
         double temp = t - h;
-        h = temp + t;
+        h = t - temp;
         evaluate_equations(equation_ptr, x, t - h, f_perturbed);
         for (size_t j = 0; j < n; j++) {
             dfdt[j] = (f_current[j] - f_perturbed[j]) / h;
