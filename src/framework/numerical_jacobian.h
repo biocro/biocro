@@ -74,7 +74,7 @@ void calculate_jacobian(
         if (h == 0.0) {
             h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
         }
-        double temp = x[i] + h;
+        double volatile temp = x[i] + h;
         h = temp - x[i];
 
         // Calculate the new function value
@@ -179,14 +179,14 @@ void calculate_time_derivative(
         h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
     }
     if (t + h <= max_time) {
-        double temp = t + h;
+        double volatile temp = t + h;
         h = temp - t;
         evaluate_equations(equation_ptr, x, t + h, f_perturbed);
         for (size_t j = 0; j < n; j++) {
             dfdt[j] = (f_perturbed[j] - f_current[j]) / h;
         }
     } else {
-        double temp = t - h;
+        double volatile temp = t - h;
         h = t - temp;
         evaluate_equations(equation_ptr, x, t - h, f_perturbed);
         for (size_t j = 0; j < n; j++) {
