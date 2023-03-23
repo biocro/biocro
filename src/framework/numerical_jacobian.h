@@ -348,8 +348,10 @@ void calculate_jacobian_and_time_derivative(
     matrix_type& jacobi,
     vector_type& dfdt)
 {
-    calculate_jacobian(equation_ptr, x, t, jacobi);
-    calculate_time_derivative(equation_ptr, max_time, x, t, dfdt);
+    vector_type f_current(x.size());
+    evaluate_equations(equation_ptr, x, t, f_current);
+    calculate_jacobian(equation_ptr, x, t, f_current, jacobi);
+    calculate_time_derivative(equation_ptr, max_time, x, t, f_current, dfdt);
 }
 
 #endif
