@@ -1,8 +1,8 @@
-#include <cmath>                        // for pow, exp, sqrt
-#include <algorithm>                    // for std::min
-#include "ball_berry_gs.h"              // for ball_berry_gs
-#include "conductance_limited_assim.h"  // for conductance_limited_assim
-#include "../framework/constants.h"     // for dr_stomata, dr_boundary
+#include <cmath>                          // for pow, exp
+#include "ball_berry_gs.h"                // for ball_berry_gs
+#include "conductance_limited_assim.h"    // for conductance_limited_assim
+#include "../framework/constants.h"       // for dr_stomata, dr_boundary
+#include "../framework/quadratic_root.h"  // for quadratic_root_min
 #include "c4photo.h"
 
 using physical_constants::dr_boundary;
@@ -46,16 +46,14 @@ photo_str c4photoC(
     double Rtd = 1 + exp(1.3 * (leaf_temperature - 55));     // dimensionless
     double RT = Rtn / Rtd;                                   // micromole / m^2 / s
 
-    // Collatz 1992. Appendix B. Equation 2B.
+    // Collatz 1992. Appendix B. Quadratic coefficients from Equation 2B.
     double b0 = VT * alpha * Qp;
-    double b1 = VT + alpha * Qp;
+    double b1 = -(VT + alpha * Qp);
     double b2 = theta;
 
-    /* Calculate the 2 roots */
-    double M1 = (b1 + sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
-    double M2 = (b1 - sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
-
-    double M = M1 < M2 ? M1 : M2;  // Use the smallest root.
+    // Calculate the smaller of the two quadratic roots, as mentioned following
+    // Equation 3B in Collatz 1992.
+    double M = quadratic_root_min(b2, b1, b0);  // micromol / m^2 / s
 
     // Initialize loop variables. Here we make an initial guess that
     // Ci = 0.4 * Ca.
@@ -69,13 +67,15 @@ photo_str c4photoC(
     int iterCounter = 0;
     int constexpr max_iterations = 50;
     do {
-        // Collatz 1992. Appendix B. Equation 3B.
+        // Collatz 1992. Appendix B. Quadratic coefficients from Equation 3B.
         double kT_IC_P = kT * InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / m^2 / s
-        double a = M * kT_IC_P;
-        double b = M + kT_IC_P;
-        double c = beta;
+        double a = beta;
+        double b = -(M + kT_IC_P);
+        double c = M * kT_IC_P;
 
-        double gross_assim = (b - sqrt(b * b - 4 * a * c)) / 2 / c;  // micromole / m^2 / s
+        // Calculate the smaller of the two quadratic roots, as mentioned
+        // following Equation 3B in Collatz 1992.
+        double gross_assim = quadratic_root_min(a, b, c);  // micromol / m^2 / s
 
         Assim = gross_assim - RT;  // micromole / m^2 / s.
 
