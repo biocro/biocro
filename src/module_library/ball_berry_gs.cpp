@@ -1,7 +1,8 @@
 #include <cmath>
 #include <stdexcept>
 #include "ball_berry_gs.h"
-#include "../framework/constants.h"  // for dr_boundary, eps_zero
+#include "../framework/constants.h"       // for dr_boundary
+#include "../framework/quadratic_root.h"  // for quadratic_root_plus
 
 using calculation_constants::eps_zero;
 using physical_constants::dr_boundary;
@@ -48,18 +49,12 @@ double ball_berry_gs(
          * Assume hi = 1 based on saturation of water vapor in the internal
          * airspace of a leaf. Use the equality of equations 1 and 2 to solve
          * for hs, and it's a quadratic with the coefficients given in the code.
-         * Note that if a is zero, then we do not actually need the quadratic
-         * equation; hs is simply given by -c / b.
          */
         const double a = bb_slope * acs;                    // Equivalent to a = bb_slope * assimilation / cs
         const double b = bb_offset + gbw - bb_slope * acs;  // Equivalent to b = bb_offset + gbw - bb_slope * assimilation / cs
         const double c = -atmospheric_relative_humidity * gbw - bb_offset;
 
-        const double root_term = b * b - 4 * a * c;
-
-        const double hs = a < eps_zero
-                              ? -c / b
-                              : (-b + sqrt(root_term)) / (2 * a);
+        const double hs = quadratic_root_plus(a, b, c);
 
         if (hs < 0) {
             throw std::range_error("Thrown in ball_berry_gs: hs is less than 0.");
