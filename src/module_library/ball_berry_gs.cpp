@@ -1,8 +1,9 @@
 #include <cmath>
 #include <stdexcept>
 #include "ball_berry_gs.h"
-#include "../framework/constants.h"  // for dr_boundary
+#include "../framework/constants.h"  // for dr_boundary, eps_zero
 
+using calculation_constants::eps_zero;
 using physical_constants::dr_boundary;
 
 /* Ball Berry stomatal conductance function */
@@ -25,10 +26,11 @@ double ball_berry_gs(
             throw std::range_error("Thrown in ball_berry_gs: Cs is less than 0.");
         }
 
-        double acs = assimilation / Cs;
+        const double acs = assimilation / Cs;
 
-        /* Calculate leaf surface relative humidity, hs, from the quadratic equation:
-         * a * hs^2 + b * hs + c = 0
+        /* Calculate leaf surface relative humidity, hs, from the quadratic
+         * equation:
+         *  a * hs^2 + b * hs + c = 0
          *
          * This can be derived as follows:
          * At steady-state
@@ -37,19 +39,27 @@ double ball_berry_gs(
          *  E = gb * (ha - hs)  -- Equation 2
          *
          * Substitute gs in equation 1 using the Ball-Berry model:
-         *  gs = b1 * A * hs / cs + b0
+         *  gs = b1 * A * hs / cs + b0,
          *
-         *  Where A is assimilation rate, hs is relative humidity at the surface of the leaf, and cs is the CO2 mole fraction at the surface of the leaf.
+         * where A is assimilation rate, hs is relative humidity at the surface
+         *  of the leaf, and cs is the CO2 mole fraction at the surface of the
+         *  leaf.
          *
-         * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
-         * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code.
+         * Assume hi = 1 based on saturation of water vapor in the internal
+         * airspace of a leaf. Use the equality of equations 1 and 2 to solve
+         * for hs, and it's a quadratic with the coefficients given in the code.
+         * Note that if a is zero, then we do not actually need the quadratic
+         * equation; hs is simply given by -c / b.
          */
         const double a = bb_slope * acs;                    // Equivalent to a = bb_slope * assimilation / cs
         const double b = bb_offset + gbw - bb_slope * acs;  // Equivalent to b = bb_offset + gbw - bb_slope * assimilation / cs
         const double c = -atmospheric_relative_humidity * gbw - bb_offset;
 
         const double root_term = b * b - 4 * a * c;
-        const double hs = (-b + sqrt(root_term)) / (2 * a);
+
+        const double hs = a < eps_zero
+                              ? -c / b
+                              : (-b + sqrt(root_term)) / (2 * a);
 
         if (hs < 0) {
             throw std::range_error("Thrown in ball_berry_gs: hs is less than 0.");
