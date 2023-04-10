@@ -16,11 +16,9 @@
 
 #include "R_dynamical_system.h"
 #include "R_get_all_ode_solvers.h"
-#include "R_get_all_se_solvers.h"
 #include "R_module_library.h"
 #include "R_modules.h"
 #include "R_run_biocro.h"
-#include "R_simultaneous_equations.h"
 #include "R_system_derivatives.h"
 
 extern "C" {
@@ -29,15 +27,11 @@ static const R_CallMethodDef callMethods[] = {
     {"R_get_all_modules",                  (DL_FUNC) &R_get_all_modules,                  0},
     {"R_get_all_ode_solvers",              (DL_FUNC) &R_get_all_ode_solvers,              0},
     {"R_get_all_quantities",               (DL_FUNC) &R_get_all_quantities,               0},
-    {"R_get_all_se_solvers",               (DL_FUNC) &R_get_all_se_solvers,               0},
     {"R_module_creators",                  (DL_FUNC) &R_module_creators,                  1},
     {"R_module_info",                      (DL_FUNC) &R_module_info,                      2},
     {"R_run_biocro",                       (DL_FUNC) &R_run_biocro,                       11},
-    {"R_solve_simultaneous_equations",     (DL_FUNC) &R_solve_simultaneous_equations,     10},
     {"R_system_derivatives",               (DL_FUNC) &R_system_derivatives,               6},
-    {"R_test_simultaneous_equations",      (DL_FUNC) &R_test_simultaneous_equations,      3},
     {"R_validate_dynamical_system_inputs", (DL_FUNC) &R_validate_dynamical_system_inputs, 6},
-    {"R_validate_simultaneous_equations",  (DL_FUNC) &R_validate_simultaneous_equations,  4},
     {NULL,                                 NULL,                                          0}
 };
 

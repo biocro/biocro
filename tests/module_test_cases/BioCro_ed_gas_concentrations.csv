@@ -1,3 +1,0 @@
-input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
-assimilation_net,atmospheric_pressure,conductance_boundary_h2o,conductance_ratio_boundary,conductance_ratio_stomata,conductance_stomatal_h2o,mole_fraction_co2_atmosphere,mole_fraction_h2o_atmosphere,temperature_leaf,conductance_boundary_co2,conductance_stomatal_co2,mole_fraction_co2_intercellular,mole_fraction_co2_leaf_surface,mole_fraction_h2o_intercellular,mole_fraction_h2o_leaf_surface,NA
-1,1,1,1,1,1,1,1,1,1,1,-1,0,657.063171383918,329.031585691959,"automatically-generated test case"
