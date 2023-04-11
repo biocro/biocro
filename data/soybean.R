@@ -23,11 +23,11 @@ soybean <- list(
         thermal_time = "BioCro:thermal_time_linear"
     ),
     ode_solver = list(
-        type = 'boost_rk4',
+        type = 'boost_rkck54',
         output_step_size = 1.0,
-        adaptive_rel_error_tol = 1e-4, # not used by boost_rk4
-        adaptive_abs_error_tol = 1e-4, # not used by boost_rk4
-        adaptive_max_steps = 200       # not used by boost_rk4
+        adaptive_rel_error_tol = 1e-5,
+        adaptive_abs_error_tol = 1e-5,
+        adaptive_max_steps = 200
     ),
     initial_values = list(
         Leaf               = 0.06312,       # Mg / ha, 80% of total seed mass per land area
