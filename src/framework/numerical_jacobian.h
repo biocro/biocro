@@ -20,7 +20,7 @@
  *
  *  Here, we numerically calculate the value of the Jacobian matrix at
  *  particular values of \f$ \vec{x} \f$ and \f$ t \f$. To do this, we use the
- *  simplest (and least accurate) method for estimating the value of each
+ *  simplest (but not the most accurate) method for estimating the value of each
  *  partial derivative in the matrix. This can be classified as the "forward
  *  perturbation method" and is defined as follows:
  *
@@ -34,11 +34,11 @@
  *  of \f$ x_j \f$, or a minimal value when \f$ x_j = 0 \f$.
  *
  *  By using this method, we are avoiding more complex options that determine an
- *  optimal value for \f$ h \f$, consider forward and backward perturbations, or
- *  consider additional terms in the Taylor series for \f$ \vec{f} \f$. For our
- *  purposes, the additional computational costs inherent to these methods do
- *  not outweigh the marginal increases in accuracy. For example, see the
- *  discussion of step size from
+ *  optimal value for \f$ h \f$, that consider forward and backward
+ *  perturbations, or that consider additional terms in the Taylor series for
+ *  \f$ \vec{f} \f$. For our purposes, the additional computational costs
+ *  inherent to these methods do not justify the marginal increases in
+ *  accuracy. For example, see the discussion of step size from
  *  [Nadim Khalil's thesis](http://www.iue.tuwien.ac.at/phd/khalil/node14.html):
  *
  *  > It is known that numerical differentiation is an unstable procedure prone
@@ -60,8 +60,8 @@
  *
  *  When calculating numerical derivatives, roundoff error in the value of the
  *  step size \f$ h \f$ can have a significant effect. For that reason, it is
- *  important to ensure that \f$ h \f$ is exactly representable in the code.
- *  This can be accomplished using a simple scheme like
+ *  important to ensure that \f$ h \f$ is exactly representable in the computer
+ *  architecture. This can be accomplished using a simple scheme like
  *
  *  > `double volatile temp = x + h;`
  *  >
