@@ -69,8 +69,9 @@
  *
  *  The `volatile` keyword ensures that the compiler's optimizer does not
  *  eliminate this reassignment process. For more information about this issue,
- *  see Section 5.7 (page 186) of
- *  [Numerical Recipes in C, 2nd Edition](http://s3.amazonaws.com/nrbook.com/book_C210.html).
+ *  see Section 5.7 of _Numerical Recipes in C_,
+ *  [2nd Edition](http://s3.amazonaws.com/nrbook.com/book_C210.html) or
+ *  [3rd Edition](http://numerical.recipes/book/book.html).
  *
  *  In BioCro, the Jacobian is almost always calculated for
  *  \f$ \vec{f}(\vec{x}, t) = d \vec{x} / dt \f$. In this case, \f$ \vec{x} \f$
