@@ -27,10 +27,6 @@
 #include "thermal_time_bilinear.h"
 #include "thermal_time_trilinear.h"
 #include "thermal_time_beta.h"
-#include "utilization_growth.hpp"
-#include "utilization_growth_calculator.hpp"
-#include "utilization_senescence.hpp"
-#include "utilization_senescence_calculator.hpp"
 #include "leaf_water_stress_exponential.hpp"
 #include "biomass_leaf_n_limitation.hpp"
 #include "pokhilko_circadian_clock.hpp"
@@ -115,10 +111,6 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_bilinear",                                 &create_mc<thermal_time_bilinear>},
      {"thermal_time_trilinear",                                &create_mc<thermal_time_trilinear>},
      {"thermal_time_beta",                                     &create_mc<thermal_time_beta>},
-     {"utilization_growth",                                    &create_mc<utilization_growth>},
-     {"utilization_growth_calculator",                         &create_mc<utilization_growth_calculator>},
-     {"utilization_senescence",                                &create_mc<utilization_senescence>},
-     {"utilization_senescence_calculator",                     &create_mc<utilization_senescence_calculator>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
      {"pokhilko_circadian_clock",                              &create_mc<pokhilko_circadian_clock>},

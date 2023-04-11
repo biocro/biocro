@@ -55,35 +55,7 @@ specify_crop <- function(
     )
 }
 
-# Define lists of species-specific variables to ignore. Soybean and cassava
-# both use the utilization growth modules and are solved with the Rosenbrock
-# ode_solver by default. Even with the decreased error tolerances specified above,
-# small differences in the output have been found between operating systems, so
-# we ignore the problematic quantities. The other species use the partitioning
-# growth modules and are solved with the homemade Euler ode_solver by default. No
-# problematic quantities have been identified for these species, so there is no
-# need to ignore any quantities.
-GLYCINE_MAX_IGNORE <- c(
-    "ncalls",
-    "transport_leaf_to_stem",
-    "transport_stem_to_root",
-    "transport_stem_to_grain",
-    "transport_stem_to_rhizome",
-    "utilization_leaf",
-    "utilization_stem",
-    "utilization_root",
-    "utilization_rhizome",
-    "utilization_grain",
-    "mass_fraction_leaf",
-    "mass_fraction_stem",
-    "mass_fraction_root",
-    "mass_fraction_rhizome",
-    "mass_fraction_grain",
-    "kGrain_scale",
-    "LeafWS"
-)
-
-MANIHOT_ESCULENTA_IGNORE <- GLYCINE_MAX_IGNORE
+# Define lists of species-specific variables to ignore.
 
 MISCANTHUS_X_GIGANTEUS_IGNORE <- character(0)
 
@@ -97,13 +69,11 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("glycine_max",            TRUE,  glycine_max,            WEATHER,                GLYCINE_MAX_IGNORE),            # INDEX = 1
-    specify_crop("manihot_esculenta",      FALSE, manihot_esculenta,      WEATHER,                MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
-    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
-    specify_crop("sorghum",                TRUE,  sorghum,                WEATHER,                SORGHUM_IGNORE),                # INDEX = 4
-    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 5
-    specify_crop("zea_mays",               FALSE, zea_mays,               WEATHER,                ZEA_MAYS_IGNORE),               # INDEX = 6
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 7
+    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
+    specify_crop("sorghum",                TRUE,  sorghum,                WEATHER,                SORGHUM_IGNORE),                # INDEX = 2
+    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 3
+    specify_crop("zea_mays",               FALSE, zea_mays,               WEATHER,                ZEA_MAYS_IGNORE),               # INDEX = 4
+    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 5
 )
 
 # Make a helping function that runs a simulation for one crop
