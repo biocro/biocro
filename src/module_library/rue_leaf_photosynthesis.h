@@ -130,33 +130,33 @@ class rue_leaf_photosynthesis : public direct_module
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input parameters
-          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
-          alpha_rue(get_input(input_quantities, "alpha_rue")),
-          temp(get_input(input_quantities, "temp")),
-          rh(get_input(input_quantities, "rh")),
-          Rd(get_input(input_quantities, "Rd")),
-          b0(get_input(input_quantities, "b0")),
-          b1(get_input(input_quantities, "b1")),
-          Catm(get_input(input_quantities, "Catm")),
-          average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
-          windspeed(get_input(input_quantities, "windspeed")),
-          height(get_input(input_quantities, "height")),
-          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
-          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
+          alpha_rue{get_input(input_quantities, "alpha_rue")},
+          temp{get_input(input_quantities, "temp")},
+          rh{get_input(input_quantities, "rh")},
+          Rd{get_input(input_quantities, "Rd")},
+          b0{get_input(input_quantities, "b0")},
+          b1{get_input(input_quantities, "b1")},
+          Catm{get_input(input_quantities, "Catm")},
+          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
+          windspeed{get_input(input_quantities, "windspeed")},
+          height{get_input(input_quantities, "height")},
+          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
+          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
-          Assim_op(get_op(output_quantities, "Assim")),
-          Ci_op(get_op(output_quantities, "Ci")),
-          Gs_op(get_op(output_quantities, "Gs")),
-          TransR_op(get_op(output_quantities, "TransR")),
-          EPenman_op(get_op(output_quantities, "EPenman")),
-          EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
-          gbw_op(get_op(output_quantities, "gbw"))
+          Assim_op{get_op(output_quantities, "Assim")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          TransR_op{get_op(output_quantities, "TransR")},
+          EPenman_op{get_op(output_quantities, "EPenman")},
+          EPriestly_op{get_op(output_quantities, "EPriestly")},
+          leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
+          gbw_op{get_op(output_quantities, "gbw")}
     {
     }
     static string_vector get_inputs();
