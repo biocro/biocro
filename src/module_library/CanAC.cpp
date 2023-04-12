@@ -4,7 +4,7 @@
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
-struct Can_Str CanAC(
+Can_Str CanAC(
     double LAI,                  // dimensionless from m^2 / m^2
     double cosine_zenith_angle,  // dimensionless
     double solarR,               // micromol / m^2 / s
@@ -29,7 +29,7 @@ struct Can_Str CanAC(
     int lnfun,      // dimensionless switch
     double upperT,  // degrees C
     double lowerT,  // degrees C
-    const struct nitroParms& nitroP,
+    const nitroParms& nitroP,
     double leafwidth,             // m
     int eteq,                     // dimensionless switch
     double StomataWS,             // dimensionless
@@ -44,7 +44,7 @@ struct Can_Str CanAC(
     double minimum_gbw            // mol / m^2 / s
 )
 {
-    struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
+    Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
@@ -53,7 +53,7 @@ struct Can_Str CanAC(
 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
-    struct Light_profile light_profile =
+    Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
               1, par_energy_content, par_energy_fraction,
               leaf_transmittance, leaf_reflectance);
@@ -120,7 +120,7 @@ struct Can_Str CanAC(
                 gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
-        struct ET_Str et_direct =
+        ET_Str et_direct =
             EvapoTrans2(
                 j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
                 direct_gsw_estimate, leafwidth, specific_heat_of_air,
@@ -153,7 +153,7 @@ struct Can_Str CanAC(
                 gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
-        struct ET_Str et_diffuse =
+        ET_Str et_diffuse =
             EvapoTrans2(
                 j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
                 diffuse_gsw_estimate, leafwidth, specific_heat_of_air,
@@ -195,7 +195,7 @@ struct Can_Str CanAC(
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    struct Can_Str ans;
+    Can_Str ans;
     ans.Assim = CanopyA * cf;                      // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
