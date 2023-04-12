@@ -14,7 +14,7 @@ using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 using physical_constants::ideal_gas_constant;
 
-photo_str c3photoC(
+photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
     double const RH,                           // dimensionless
@@ -175,7 +175,7 @@ photo_str c3photoC(
         ++iterCounter;
     }
 
-    photo_str result;
+    photosynthesis_outputs result;
     result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
     result.Gs = Gs * 1e3;                            // mmol / m^2 / s
     result.Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol

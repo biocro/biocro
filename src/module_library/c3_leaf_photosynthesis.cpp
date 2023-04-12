@@ -77,7 +77,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
-    const photo_str photo =
+    const photosynthesis_outputs photo =
         c3photoC(
             absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,

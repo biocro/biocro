@@ -128,7 +128,7 @@ struct Can_Str CanAC(
 
         double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
 
-        photo_str direct_photo =
+        photosynthesis_outputs direct_photo =
             c4photoC(
                 i_dir, leaf_temperature_dir, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
@@ -161,7 +161,7 @@ struct Can_Str CanAC(
 
         double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
 
-        photo_str diffuse_photo =
+        photosynthesis_outputs diffuse_photo =
             c4photoC(
                 i_diff, leaf_temperature_diff, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,

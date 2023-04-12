@@ -176,7 +176,7 @@ string_vector c3_assimilation::get_outputs()
 
 void c3_assimilation::do_operation() const
 {
-    photo_str c3_results = c3photoC(
+    photosynthesis_outputs c3_results = c3photoC(
         Qabs,
         Tleaf,
         rh,

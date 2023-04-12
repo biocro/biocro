@@ -1,9 +1,9 @@
 #ifndef C4PHOTO_H
 #define C4PHOTO_H
 
-#include "photo_str.h"  // for photo_str
+#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
 
-photo_str c4photoC(
+photosynthesis_outputs c4photoC(
     double Qp,
     double Tl,
     double RH,

@@ -1,8 +1,8 @@
-#ifndef PHOTO_STR_H
-#define PHOTO_STR_H
+#ifndef PHOTOSYNTHESIS_OUTPUTS_H
+#define PHOTOSYNTHESIS_OUTPUTS_H
 
 // A simple structure for holding the output of photosynthesis calculations.
-struct photo_str {
+struct photosynthesis_outputs {
     double Assim;
     double Gs;
     double Ci;

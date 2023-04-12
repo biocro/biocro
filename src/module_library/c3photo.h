@@ -1,9 +1,9 @@
 #ifndef C3PHOTO_H
 #define C3PHOTO_H
 
-#include "photo_str.h"  // for photo_str
+#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
 
-photo_str c3photoC(
+photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,
     double const Tleaf,
     double const RH,

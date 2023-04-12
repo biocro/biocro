@@ -173,7 +173,7 @@ string_vector c4_assimilation::get_outputs()
 
 void c4_assimilation::do_operation() const
 {
-    photo_str c4_results = c4photoC(
+    photosynthesis_outputs c4_results = c4photoC(
         Qp,
         Tleaf,
         rh,

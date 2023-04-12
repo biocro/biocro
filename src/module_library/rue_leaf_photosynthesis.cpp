@@ -3,7 +3,7 @@
 #include "ball_berry_gs.h"              // for ball_berry_gs
 #include "BioCro.h"                     // for c3EvapoTrans
 #include "AuxBioCro.h"                  // for arrhenius_exponential
-#include "photo_str.h"                  // for photo_str
+#include "photosynthesis_outputs.h"     // for photosynthesis_outputs
 #include "conductance_limited_assim.h"  // for conductance_limited_assim
 #include "../framework/constants.h"     // for celsius_to_kelvin, dr_stomata,
                                         //     dr_boundary
@@ -19,7 +19,7 @@ using standardBML::rue_leaf_photosynthesis;
 // assimilation is determined using a simple RUE model. Water stress is ignored.
 // Respiration and stomatal conductance are otherwise calculated using the same
 // methods as `c3photoC()`.
-photo_str rue_photo(
+photosynthesis_outputs rue_photo(
     double Qp,         // mol / m^2 / s
     double alpha_rue,  // dimensionless
     double Tleaf,      // degrees C
@@ -68,7 +68,7 @@ photo_str rue_photo(
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
 
     // Return the results
-    photo_str result;
+    photosynthesis_outputs result;
     result.Assim = an * 1e6;                          // micromol / m^2 / s
     result.Gs = gs * 1e3;                             // mmol / m^2 / s
     result.Ci = ci * 1e6;                             // micromole / mol
@@ -149,7 +149,7 @@ void rue_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
-    const photo_str photo =
+    const photosynthesis_outputs photo =
         rue_photo(
             incident_ppfd * 1e-6,          // mol / m^2 / s
             alpha_rue,                     // dimensionless
