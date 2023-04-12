@@ -48,7 +48,7 @@
 #include "penman_monteith_transpiration.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 #include "priestley_transpiration.hpp"
-#include "FvCB.hpp"
+#include "FvCB.h"
 #include "bucket_soil_drainage.hpp"
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
