@@ -50,8 +50,8 @@ double ball_berry_gs(
          * airspace of a leaf. Use the equality of equations 1 and 2 to solve
          * for hs, and it's a quadratic with the coefficients given in the code.
          */
-        const double a = bb_slope * acs;                    // Equivalent to a = bb_slope * assimilation / cs
-        const double b = bb_offset + gbw - bb_slope * acs;  // Equivalent to b = bb_offset + gbw - bb_slope * assimilation / cs
+        const double a = bb_slope * acs;       // Equivalent to a = bb_slope * assimilation / cs
+        const double b = bb_offset + gbw - a;  // Equivalent to b = bb_offset + gbw - bb_slope * assimilation / cs
         const double c = -atmospheric_relative_humidity * gbw - bb_offset;
 
         const double hs = quadratic_root_plus(a, b, c);
@@ -60,7 +60,7 @@ double ball_berry_gs(
             throw std::range_error("Thrown in ball_berry_gs: hs is less than 0.");
         }
 
-        gswmol = bb_slope * hs * assimilation / Cs + bb_offset;  // Ball-Berry equation (Collatz 1991, equation 1).
+        gswmol = bb_slope * hs * acs + bb_offset;  // Ball-Berry equation (Collatz 1991, equation 1).
     } else {
         /* Set stomatal conductance to the minimum value, bb_offset */
         gswmol = bb_offset;
