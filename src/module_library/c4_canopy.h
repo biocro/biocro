@@ -67,8 +67,7 @@ class c4_canopy : public direct_module
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
-          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")}
     {
     }
     static string_vector get_inputs();
@@ -129,7 +128,6 @@ class c4_canopy : public direct_module
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
-    double* GrossAssim_op;
 
     // Main operation
     void do_operation() const;
@@ -193,8 +191,7 @@ string_vector c4_canopy::get_outputs()
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr
         "canopy_transpiration_rate",  // Mg / ha / hr
-        "canopy_conductance",         // Mg / ha / hr
-        "GrossAssim"                  // Mg / ha / hr
+        "canopy_conductance"          // Mg / ha / hr
     };
 }
 
@@ -226,7 +223,6 @@ void c4_canopy::do_operation() const
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.
     update(canopy_transpiration_rate_op, can_result.Trans);  // Mg / ha / hr.
     update(canopy_conductance_op, can_result.canopy_conductance);
-    update(GrossAssim_op, can_result.GrossAssim);
 }
 
 }  // namespace standardBML

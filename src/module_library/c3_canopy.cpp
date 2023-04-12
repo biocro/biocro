@@ -53,9 +53,8 @@ string_vector c3_canopy::get_inputs()
 string_vector c3_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",   // Mg / ha / hr
-        "canopy_transpiration_rate",  // Mg / ha / hr
-        "GrossAssim"                  // Mg / ha / hr
+        "canopy_assimilation_rate",  // Mg / ha / hr
+        "canopy_transpiration_rate"  // Mg / ha / hr
     };
 }
 
@@ -74,5 +73,4 @@ void c3_canopy::do_operation() const
     // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.
     update(canopy_transpiration_rate_op, can_result.Trans);  // Mg / ha / hr.
-    update(GrossAssim_op, can_result.GrossAssim);
 }

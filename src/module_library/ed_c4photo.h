@@ -44,7 +44,6 @@ class ed_c4photo : public direct_module
           // Get pointers to output quantities
           mole_fraction_co2_intercellular_op{get_op(output_quantities, "mole_fraction_co2_intercellular")},
           conductance_stomatal_h2o_op{get_op(output_quantities, "conductance_stomatal_h2o")},
-          assimilation_gross_op{get_op(output_quantities, "assimilation_gross")},
           assimilation_net_op{get_op(output_quantities, "assimilation_net")}
 
     {
@@ -77,7 +76,6 @@ class ed_c4photo : public direct_module
     // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
-    double* assimilation_gross_op;
     double* assimilation_net_op;
 
     // Main operation
@@ -113,7 +111,6 @@ string_vector ed_c4photo::get_outputs()
     return {
         "mole_fraction_co2_intercellular",  // dimensionless from mol / mol
         "conductance_stomatal_h2o",         // mol / m^2 / s
-        "assimilation_gross",               // mol / m^2 / s
         "assimilation_net"                  // mol / m^2 / s
     };
 }
@@ -153,7 +150,6 @@ void ed_c4photo::do_operation() const
     // Convert and return the results
     update(mole_fraction_co2_intercellular_op, c4_results.Ci * 1e-6);  // mol / m^2 / s
     update(conductance_stomatal_h2o_op, c4_results.Gs * 1e-3);         // mol / m^2 / s
-    update(assimilation_gross_op, c4_results.GrossAssim * 1e-6);       // mol / m^2 / s
     update(assimilation_net_op, c4_results.Assim * 1e-6);              // mol / m^2 / s
 }
 

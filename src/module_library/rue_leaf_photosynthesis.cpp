@@ -72,7 +72,6 @@ photosynthesis_outputs rue_photo(
     result.Assim = an * 1e6;                          // micromol / m^2 / s
     result.Gs = gs * 1e3;                             // mmol / m^2 / s
     result.Ci = ci * 1e6;                             // micromole / mol
-    result.GrossAssim = ag * 1e6;                     // micromole / m^2 / s
     result.Assim_conductance = an_conductance * 1e6;  // micromol / m^2 / s
     return result;
 }
@@ -101,7 +100,6 @@ string_vector rue_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromole / m^2 /s
-        "GrossAssim",        // micromole / m^2 /s
         "Ci",                // micromole / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
@@ -164,7 +162,6 @@ void rue_leaf_photosynthesis::do_operation() const
 
     // Update the outputs
     update(Assim_op, photo.Assim);
-    update(GrossAssim_op, photo.GrossAssim);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

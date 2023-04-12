@@ -47,7 +47,6 @@ class ed_canac_leaf : public direct_module
           // Get pointers to output quantities
           mole_fraction_co2_intercellular_op{get_op(output_quantities, "mole_fraction_co2_intercellular")},
           conductance_stomatal_h2o_op{get_op(output_quantities, "conductance_stomatal_h2o")},
-          assimilation_gross_op{get_op(output_quantities, "assimilation_gross")},
           assimilation_net_op{get_op(output_quantities, "assimilation_net")},
           evapotranspiration_penman_monteith_op{get_op(output_quantities, "evapotranspiration_penman_monteith")},
           evapotranspiration_penman_op{get_op(output_quantities, "evapotranspiration_penman")},
@@ -89,7 +88,6 @@ class ed_canac_leaf : public direct_module
     // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
-    double* assimilation_gross_op;
     double* assimilation_net_op;
     double* evapotranspiration_penman_monteith_op;
     double* evapotranspiration_penman_op;
@@ -134,7 +132,6 @@ string_vector ed_canac_leaf::get_outputs()
     return {
         "mole_fraction_co2_intercellular",     // dimensionless from mol / mol
         "conductance_stomatal_h2o",            // mol / m^2 / s
-        "assimilation_gross",                  // mol / m^2 / s
         "assimilation_net",                    // mol / m^2 / s
         "evapotranspiration_penman_monteith",  // mol / m^2 / s
         "evapotranspiration_penman",           // mol / m^2 / s
@@ -191,7 +188,6 @@ void ed_canac_leaf::do_operation() const
     // Convert and return the results
     update(mole_fraction_co2_intercellular_op, second_c4photoC_output.Ci * 1e-6);       // mol / m^2 / s
     update(conductance_stomatal_h2o_op, second_c4photoC_output.Gs * 1e-3);              // mol / m^2 / s
-    update(assimilation_gross_op, second_c4photoC_output.GrossAssim * 1e-6);            // mol / m^2 / s
     update(assimilation_net_op, second_c4photoC_output.Assim * 1e-6);                   // mol / m^2 / s
     update(evapotranspiration_penman_monteith_op, evapotrans_output.TransR * 1e-3);     // mol / m^2 / s
     update(evapotranspiration_penman_op, evapotrans_output.EPenman * 1e-3);             // mol / m^2 / s

@@ -39,7 +39,6 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromol / m^2 /s
-        "GrossAssim",        // micromol / m^2 /s
         "Ci",                // micromol / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
@@ -82,7 +81,6 @@ void c4_leaf_photosynthesis::do_operation() const
 
     // Update the outputs
     update(Assim_op, photo.Assim);
-    update(GrossAssim_op, photo.GrossAssim);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

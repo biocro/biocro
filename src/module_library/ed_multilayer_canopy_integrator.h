@@ -30,12 +30,10 @@ class ed_multilayer_canopy_integrator : public direct_module
           // Get pointers to input quantities
           sunlit_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")},
           sunlit_assimilation_net_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_assimilation_net")},
-          sunlit_assimilation_gross_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_assimilation_gross")},
           sunlit_conductance_stomatal_h2o_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_conductance_stomatal_h2o")},
           sunlit_transpiration_rate_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_transpiration_rate")},
           shaded_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")},
           shaded_assimilation_net_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_assimilation_net")},
-          shaded_assimilation_gross_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_assimilation_gross")},
           shaded_conductance_stomatal_h2o_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_conductance_stomatal_h2o")},
           shaded_transpiration_rate_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_transpiration_rate")},
 
@@ -46,8 +44,7 @@ class ed_multilayer_canopy_integrator : public direct_module
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
-          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")}
     {
     }
 
@@ -58,12 +55,10 @@ class ed_multilayer_canopy_integrator : public direct_module
     // Pointers to input quantities
     const std::vector<const double*> sunlit_fraction_ips;
     const std::vector<const double*> sunlit_assimilation_net_ips;
-    const std::vector<const double*> sunlit_assimilation_gross_ips;
     const std::vector<const double*> sunlit_conductance_stomatal_h2o_ips;
     const std::vector<const double*> sunlit_transpiration_rate_ips;
     const std::vector<const double*> shaded_fraction_ips;
     const std::vector<const double*> shaded_assimilation_net_ips;
-    const std::vector<const double*> shaded_assimilation_gross_ips;
     const std::vector<const double*> shaded_conductance_stomatal_h2o_ips;
     const std::vector<const double*> shaded_transpiration_rate_ips;
 
@@ -75,7 +70,6 @@ class ed_multilayer_canopy_integrator : public direct_module
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
-    double* GrossAssim_op;
 
     // Main operation
     virtual void do_operation() const;
@@ -98,12 +92,10 @@ string_vector ed_multilayer_canopy_integrator::get_inputs(int nlayers)
     string_vector multilayer_inputs = {
         "sunlit_fraction",                  // dimensionless
         "sunlit_assimilation_net",          // mol / m^2 /s
-        "sunlit_assimilation_gross",        // mol / m^2 /s
         "sunlit_conductance_stomatal_h2o",  // mol / m^2 / s
         "sunlit_transpiration_rate",        // mol / m^2 / s
         "shaded_fraction",                  // dimensionless
         "shaded_assimilation_net",          // mol / m^2 /s
-        "shaded_assimilation_gross",        // mol / m^2 /s
         "shaded_conductance_stomatal_h2o",  // mol / m^2 / s
         "shaded_transpiration_rate",        // mol / m^2 / s
     };
@@ -126,8 +118,7 @@ string_vector ed_multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr
         "canopy_transpiration_rate",  // Mg / ha / hr
-        "canopy_conductance",         // mmol / m^2 / hr
-        "GrossAssim"                  // Mg / ha / hr
+        "canopy_conductance"          // mmol / m^2 / hr
     };
 }
 
@@ -142,7 +133,6 @@ void ed_multilayer_canopy_integrator::run() const
     double canopy_assimilation_rate = 0;
     double canopy_transpiration_rate = 0;
     double canopy_conductance = 0;
-    double GrossAssim = 0;
 
     // Integrate assimilation, transpiration, and conductance throughout the
     // canopy
@@ -161,10 +151,6 @@ void ed_multilayer_canopy_integrator::run() const
         canopy_conductance +=
             *sunlit_conductance_stomatal_h2o_ips[i] * sunlit_lai +
             *shaded_conductance_stomatal_h2o_ips[i] * shaded_lai;
-
-        GrossAssim +=
-            *sunlit_assimilation_gross_ips[i] * sunlit_lai +
-            *shaded_assimilation_gross_ips[i] * shaded_lai;
     }
 
     // Modify net assimilation to account for respiration
@@ -192,7 +178,6 @@ void ed_multilayer_canopy_integrator::run() const
     // Convert conductance values from mol / m^2 / s to mmol / m^2 / s using 1e3 mmol / mol
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
-    update(GrossAssim_op, GrossAssim * cf);
     update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
     update(canopy_conductance_op, canopy_conductance * 1e3);
 }

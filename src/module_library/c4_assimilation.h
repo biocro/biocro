@@ -54,7 +54,6 @@ namespace standardBML
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
  * - ``'Ci'`` for the intercellular CO2 concentration
- * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
  * - ``'iterations'`` for the number of iterations required for the convergence loop
  */
@@ -91,7 +90,6 @@ class c4_assimilation : public direct_module
           Assim_op{get_op(output_quantities, "Assim")},
           Gs_op{get_op(output_quantities, "Gs")},
           Ci_op{get_op(output_quantities, "Ci")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
           iterations_op{get_op(output_quantities, "iterations")}
     {
@@ -126,7 +124,6 @@ class c4_assimilation : public direct_module
     double* Assim_op;
     double* Gs_op;
     double* Ci_op;
-    double* GrossAssim_op;
     double* Assim_conductance_op;
     double* iterations_op;
 
@@ -165,7 +162,6 @@ string_vector c4_assimilation::get_outputs()
         "Assim",              // micromol / m^2 / s
         "Gs",                 // millimol / m^2 / s
         "Ci",                 // micromol / mol
-        "GrossAssim",         // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
         "iterations"          // not a physical quantity
     };
@@ -198,7 +194,6 @@ void c4_assimilation::do_operation() const
     update(Assim_op, c4_results.Assim);
     update(Gs_op, c4_results.Gs);
     update(Ci_op, c4_results.Ci);
-    update(GrossAssim_op, c4_results.GrossAssim);
     update(Assim_conductance_op, c4_results.Assim_conductance);
     update(iterations_op, c4_results.iterations);
 }
