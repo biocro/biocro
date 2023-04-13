@@ -96,7 +96,8 @@ namespace standardBML
  *  `A_g` and the lack of water stress, this module is the same as the
  *  `c3_leaf_photosynthesis` module:
  *
- *  - It uses the same equation to calculate respiration from leaf temperature.
+ *  - It uses the same equation to calculate day respiration from leaf
+ *    temperature.
  *
  *  - It uses the Ball-Berry model to calculate stomatal conductance from `A_n`.
  *
@@ -151,6 +152,7 @@ class rue_leaf_photosynthesis : public direct_module
           // Get pointers to output parameters
           Assim_op{get_op(output_quantities, "Assim")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Rp_op{get_op(output_quantities, "Rp")},
           Ci_op{get_op(output_quantities, "Ci")},
           Gs_op{get_op(output_quantities, "Gs")},
           TransR_op{get_op(output_quantities, "TransR")},
@@ -184,6 +186,7 @@ class rue_leaf_photosynthesis : public direct_module
     // Pointers to output parameters
     double* Assim_op;
     double* GrossAssim_op;
+    double* Rp_op;
     double* Ci_op;
     double* Gs_op;
     double* TransR_op;

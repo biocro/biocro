@@ -71,8 +71,9 @@ photosynthesis_outputs rue_photo(
     photosynthesis_outputs result;
     result.Assim = an * 1e6;                          // micromol / m^2 / s
     result.Gs = gs * 1e3;                             // mmol / m^2 / s
-    result.Ci = ci * 1e6;                             // micromole / mol
-    result.GrossAssim = ag * 1e6;                     // micromole / m^2 / s
+    result.Ci = ci * 1e6;                             // micromol / mol
+    result.GrossAssim = ag * 1e6;                     // micromol / m^2 / s
+    result.Rp = 0.0;                                  // micromol / m^2 / s
     result.Assim_conductance = an_conductance * 1e6;  // micromol / m^2 / s
     return result;
 }
@@ -84,10 +85,10 @@ string_vector rue_leaf_photosynthesis::get_inputs()
         "alpha_rue",                   // dimensionless
         "temp",                        // deg. C
         "rh",                          // dimensionless
-        "Rd",                          // micromole / m^2 / s
+        "Rd",                          // micromol / m^2 / s
         "b0",                          // mol / m^2 / s
         "b1",                          // dimensionless
-        "Catm",                        // micromole / mol
+        "Catm",                        // micromol / mol
         "average_absorbed_shortwave",  // J / (m^2 leaf) / s
         "windspeed",                   // m / s
         "height",                      // m
@@ -100,9 +101,10 @@ string_vector rue_leaf_photosynthesis::get_inputs()
 string_vector rue_leaf_photosynthesis::get_outputs()
 {
     return {
-        "Assim",             // micromole / m^2 /s
-        "GrossAssim",        // micromole / m^2 /s
-        "Ci",                // micromole / mol
+        "Assim",             // micromol / m^2 /s
+        "GrossAssim",        // micromol / m^2 /s
+        "Rp",                // micromol / m^2 / s
+        "Ci",                // micromol / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
@@ -115,7 +117,7 @@ string_vector rue_leaf_photosynthesis::get_outputs()
 void rue_leaf_photosynthesis::do_operation() const
 {
     // Make an initial guess for boundary layer conductance
-    double const gbw_guess = 1.2;  // mol / m^2 / s
+    double const gbw_guess{1.2};  // mol / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
@@ -165,6 +167,7 @@ void rue_leaf_photosynthesis::do_operation() const
     // Update the outputs
     update(Assim_op, photo.Assim);
     update(GrossAssim_op, photo.GrossAssim);
+    update(Rp_op, photo.Rp);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

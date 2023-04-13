@@ -40,6 +40,7 @@ string_vector c4_leaf_photosynthesis::get_outputs()
     return {
         "Assim",             // micromol / m^2 /s
         "GrossAssim",        // micromol / m^2 /s
+        "Rp",                // micromol / m^2 / s
         "Ci",                // micromol / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
@@ -53,7 +54,7 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 void c4_leaf_photosynthesis::do_operation() const
 {
     // Make an initial guess for boundary layer conductance
-    double const gbw_guess = 1.2;  // mol / m^2 / s
+    double const gbw_guess{1.2};  // mol / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance =
@@ -64,7 +65,7 @@ void c4_leaf_photosynthesis::do_operation() const
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
-    const struct ET_Str et =
+    const ET_Str et =
         EvapoTrans2(
             absorbed_shortwave, average_absorbed_shortwave, temp, rh, windspeed,
             initial_stomatal_conductance, leafwidth, specific_heat_of_air,
@@ -83,6 +84,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Update the outputs
     update(Assim_op, photo.Assim);
     update(GrossAssim_op, photo.GrossAssim);
+    update(Rp_op, photo.Rp);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

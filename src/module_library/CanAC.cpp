@@ -4,7 +4,7 @@
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
-Can_Str CanAC(
+canopy_photosynthesis_outputs CanAC(
     double LAI,                  // dimensionless from m^2 / m^2
     double cosine_zenith_angle,  // dimensionless
     double solarR,               // micromol / m^2 / s
@@ -69,14 +69,15 @@ Can_Str CanAC(
     double leafN_profile[nlayers];
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
 
-    double CanopyA = 0.0;             // micromol / m^2 / s
-    double GCanopyA = 0.0;            // micromol / m^2 / s
-    double CanopyT = 0.0;             // mmol / m^2 / s
-    double CanopyPe = 0.0;            // mmol / m^2 / s
-    double CanopyPr = 0.0;            // mmol / m^2 / s
-    double canopy_conductance = 0.0;  // mmol / m^2 / s
+    double CanopyA{0.0};             // micromol / m^2 / s
+    double GCanopyA{0.0};            // micromol / m^2 / s
+    double canopy_rp{0.0};           // micromol / m^2 / s
+    double CanopyT{0.0};             // mmol / m^2 / s
+    double CanopyPe{0.0};            // mmol / m^2 / s
+    double CanopyPr{0.0};            // mmol / m^2 / s
+    double canopy_conductance{0.0};  // mmol / m^2 / s
 
-    double gbw_guess = 1.2;  // mol / m^2 / s
+    double gbw_guess{1.2};  // mol / m^2 / s
 
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
@@ -172,6 +173,7 @@ Can_Str CanAC(
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
         GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
+        canopy_rp += Leafsun * direct_photo.Rp + Leafshade * diffuse_photo.Rp;                 // micromol / m^2 / s
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
@@ -195,9 +197,10 @@ Can_Str CanAC(
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    Can_Str ans;
+    canopy_photosynthesis_outputs ans;
     ans.Assim = CanopyA * cf;                      // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
+    ans.Rp = canopy_rp * cf;                       // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;  // mmol / m^2 / s

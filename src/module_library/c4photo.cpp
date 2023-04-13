@@ -131,11 +131,12 @@ photosynthesis_outputs c4photoC(
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
     photosynthesis_outputs result{
-        .Assim = Assim,                       // micromole / m^2 /s
-        .Gs = Gs,                             // mmol / m^2 / s
-        .Ci = Ci,                             // micromole / mol
-        .GrossAssim = Assim + RT,             // micromole / m^2 / s
+        .Assim = Assim,                       // micromol / m^2 /s
         .Assim_conductance = an_conductance,  // micromol / m^2 / s
+        .Ci = Ci,                             // micromol / mol
+        .GrossAssim = Assim + RT,             // micromol / m^2 / s
+        .Gs = Gs,                             // mmol / m^2 / s
+        .Rp = 0,                              // micromol / m^2 / s
         .iterations = iterCounter             // not a physical quantity
     };
 
