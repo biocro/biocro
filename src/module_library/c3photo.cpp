@@ -108,7 +108,7 @@ photosynthesis_outputs c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Initialize variables before running fixed point iteration in a loop
-    FvCB_str FvCB_res;
+    FvCB_outputs FvCB_res;
     double Ci{};                        // micromol / mol
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)

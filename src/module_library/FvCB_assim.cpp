@@ -109,7 +109,7 @@ double inf = std::numeric_limits<double>::infinity();
  *          \f$ A_j \f$, \f$ A_p \f$, \f$ W_c \f$, \f$ W_j \f$, \f$ W_p \f$,
  *          which all have units of micromol / m^2 / s.
  */
-FvCB_str FvCB_assim(
+FvCB_outputs FvCB_assim(
     double Ci,                           // micromol / mol
     double Gstar,                        // micromol / mol
     double J,                            // micromol / m^2 / s
@@ -125,7 +125,7 @@ FvCB_str FvCB_assim(
 )
 {
     // Initialize
-    FvCB_str result;
+    FvCB_outputs result;
 
     // Calculate rates
     if (Ci == 0.0) {

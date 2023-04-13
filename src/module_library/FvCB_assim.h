@@ -4,7 +4,7 @@
 /**
  * @brief A simple structure for holding the output of FvCB calculations.
  */
-struct FvCB_str {
+struct FvCB_outputs {
     double An;  //!< Net CO2 assimilation rate (micromol / m^2 / s)
     double Ac;  //!< Rubisco-determined net CO2 assimilation rate (micromol / m^2 / s)
     double Aj;  //!< RuBP-regeneration-determined net CO2 assimilation rate (micromol / m^2 / s)
@@ -15,7 +15,7 @@ struct FvCB_str {
     double Wp;  //!< TPU-limited RuBP carboxylation rate (micromol / m^2 / s)
 };
 
-FvCB_str FvCB_assim(
+FvCB_outputs FvCB_assim(
     double Ci,
     double Gstar,
     double J,

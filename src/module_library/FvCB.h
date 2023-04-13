@@ -105,7 +105,7 @@ string_vector FvCB::get_outputs()
 
 void FvCB::do_operation() const
 {
-    FvCB_str result = FvCB_assim(
+    FvCB_outputs result = FvCB_assim(
         Ci,
         Gstar,
         J,
