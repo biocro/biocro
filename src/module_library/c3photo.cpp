@@ -108,6 +108,7 @@ photosynthesis_outputs c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Initialize variables before running fixed point iteration in a loop
+    FvCB_str FvCB_res;
     double Ci{};                        // micromol / mol
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
@@ -130,22 +131,21 @@ photosynthesis_outputs c3photoC(
         an_conductance =
             conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
-        co2_assimilation_rate = std::min(
-            FvCB_assim(
-                Ci,
-                Gstar,
-                J,
-                Kc,
-                Ko,
-                Oi,
-                Rd,
-                TPU,
-                Vcmax,
-                alpha_TPU,
-                electrons_per_carboxylation,
-                electrons_per_oxygenation)
-                .An,
-            an_conductance);  // micromol / m^2 / s
+        FvCB_res = FvCB_assim(
+            Ci,
+            Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation);
+
+        co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
 
         if (water_stress_approach == 0) {
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
@@ -176,12 +176,12 @@ photosynthesis_outputs c3photoC(
     }
 
     photosynthesis_outputs result;
-    result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
-    result.Gs = Gs * 1e3;                            // mmol / m^2 / s
-    result.Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
-    result.GrossAssim = co2_assimilation_rate + Rd;  // micromol / m^2 / s
-    result.Assim_conductance = an_conductance;       // micromol / m^2 / s
-    result.iterations = iterCounter;                 // not a physical quantity
+    result.Assim = co2_assimilation_rate;       // micromol / m^2 / s
+    result.Gs = Gs * 1e3;                       // mmol / m^2 / s
+    result.Ci = (Ci_pa / AP) * 1e6;             // micromol / mol
+    result.GrossAssim = FvCB_res.Vc;            // micromol / m^2 / s
+    result.Assim_conductance = an_conductance;  // micromol / m^2 / s
+    result.iterations = iterCounter;            // not a physical quantity
     return result;
 }
 
