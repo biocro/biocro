@@ -49,6 +49,7 @@ class c4_leaf_photosynthesis : public direct_module
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
           Ci_op{get_op(output_quantities, "Ci")},
           Gs_op{get_op(output_quantities, "Gs")},
           TransR_op{get_op(output_quantities, "TransR")},
@@ -92,6 +93,7 @@ class c4_leaf_photosynthesis : public direct_module
 
     // Pointers to output quantities
     double* Assim_op;
+    double* GrossAssim_op;
     double* Ci_op;
     double* Gs_op;
     double* TransR_op;

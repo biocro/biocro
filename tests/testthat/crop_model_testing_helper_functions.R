@@ -112,6 +112,9 @@ SOYBEAN_IGNORE <- c(
     "sunlit_Ci_layer_7",
     "sunlit_Ci_layer_8",
     "sunlit_Ci_layer_9",
+    "sunlit_GrossAssim_layer_7",
+    "sunlit_GrossAssim_layer_8",
+    "sunlit_GrossAssim_layer_9",
     "sunlit_Gs_layer_7",
     "sunlit_Gs_layer_8",
     "sunlit_Gs_layer_9"

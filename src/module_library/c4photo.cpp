@@ -134,6 +134,7 @@ photosynthesis_outputs c4photoC(
         .Assim = Assim,                       // micromole / m^2 /s
         .Gs = Gs,                             // mmol / m^2 / s
         .Ci = Ci,                             // micromole / mol
+        .GrossAssim = Assim + RT,             // micromole / m^2 / s
         .Assim_conductance = an_conductance,  // micromol / m^2 / s
         .iterations = iterCounter             // not a physical quantity
     };

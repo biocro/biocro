@@ -6,6 +6,7 @@ struct photosynthesis_outputs {
     double Assim;
     double Gs;
     double Ci;
+    double GrossAssim;
     double Assim_conductance;
     int iterations;
 };

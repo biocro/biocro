@@ -39,6 +39,7 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromole / m^2 /s
+        "GrossAssim",        // micromole / m^2 /s
         "Ci",                // micromole / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
@@ -52,7 +53,7 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 void c3_leaf_photosynthesis::do_operation() const
 {
     // Make an initial guess for boundary layer conductance
-    double const gbw_guess = 1.2;  // mol / m^2 / s
+    double const gbw_guess = 1.2; // mol / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
@@ -86,6 +87,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Update the outputs
     update(Assim_op, photo.Assim);
+    update(GrossAssim_op, photo.GrossAssim);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

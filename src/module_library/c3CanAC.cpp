@@ -71,12 +71,13 @@ struct Can_Str c3CanAC(
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
 
     double CanopyA = 0.0;             // micromol / m^2 / s
+    double GCanopyA = 0.0;            // micromol / m^2 / s
     double CanopyT = 0.0;             // mmol / m^2 / s
     double CanopyPe = 0.0;            // mmol / m^2 / s
     double CanopyPr = 0.0;            // mmol / m^2 / s
     double canopy_conductance = 0.0;  // mmol / m^2 / s
 
-    double gbw_guess = 1.2;  // mol / m^2 / s
+    double gbw_guess = 1.2; // mol / m^2 / s
 
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
@@ -165,8 +166,9 @@ struct Can_Str c3CanAC(
                 et_diffuse.boundary_layer_conductance);
 
         // Combine sunlit and shaded leaves
-        CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;  // micromol / m^2 / s
-        CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;      // mmol / m^2 / s
+        CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
+        CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
+        GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
@@ -192,6 +194,7 @@ struct Can_Str c3CanAC(
 
     struct Can_Str ans;
     ans.Assim = CanopyA * (1.0 - growth_respiration_fraction) * cf;  // Mg / ha / hr
+    ans.GrossAssim = GCanopyA * cf;                                  // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                                       // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;                      // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;                    // mmol / m^2 / s
