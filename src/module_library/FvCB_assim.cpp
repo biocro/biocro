@@ -4,6 +4,111 @@
 
 double inf = std::numeric_limits<double>::infinity();
 
+/**
+ *  @brief Computes the net CO2 assimilation rate (and other values) using the
+ *         Farquhar-von-Caemmerer-Berry model for C3 photosynthesis.
+ *
+ *  Here we use the model equations as described in Lochocki & McGrath (2023; in
+ *  preparation). In this formulation, the net CO2 assimilation rate \f$ A_n \f$
+ *  is given by:
+ *
+ *  \f[
+ *      A_n = \left( 1 - \Gamma^* / C \right) \cdot V_c - R_d, \qquad \text{(1)}
+ *  \f]
+ *
+ *  where \f$ \Gamma^* \f$ is the CO2 compensation point in the absence of day
+ *  respiration, \f$ C \f$ is the concentration of CO2 in the vicinity of
+ *  Rubisco, \f$ V_c \f$ is the RuBP carboxylation rate, and \f$ R_d \f$ is the
+ *  rate of day respiration. The RuBP carboxylation rate is taken to be the
+ *  smallest of three potential carboxylation rates:
+ *
+ *  \f[ V_c = \text{min} \{ W_c, W_j, W_p \}, \qquad \text{(2)} \f]
+ *
+ *  where \f$ W_c \f$, \f$ W_j \f$, and \f$ W_p \f$ are the Rubisco-limited,
+ *  RuBP-regeneration-limited, and triose-phosphate-utilization-limited RuBP
+ *  carboxylation rates, respectively. These rates are defined as follows:
+ *
+ *  \f[
+ *      W_c = \frac{V_{c,max} \cdot C}{C + K_C \cdot
+ *          \left( 1 + O / K_O \right)}, \qquad \text{(3)}
+ *  \f]
+ *
+ *  \f[
+ *      W_j = \frac{J \cdot C}{e_c \cdot C + 2 \cdot e_o \cdot \Gamma^*},
+ *          \qquad \text{(4)}
+ *  \f]
+ *
+ *  and
+ *
+ *  \f[
+ *      W_p = \frac{3 \cdot C \cdot T_p}{C - \Gamma^* \cdot
+ *          \left( 1 + 3 \cdot \alpha \right)}, \qquad \text{(5)}
+ *  \f]
+ *
+ *  where \f$ V_{c,max} \f$ is the maximum Rubisco carboxylation rate,
+ *  \f$ K_C \f$ and \f$ K_O \f$ are Michaelis-Menten constants for cabroxylation
+ *  and oxygenation by Rubisco, \f$ O \f$ is the O2 concentration in the
+ *  vicinity of Rubisco, \f$ J \f$ is the RuBP regeneration rate, \f$ e_c \f$ is
+ *  the number of electrons per carboxylation, \f$ e_o \f$ is the number of
+ *  electrons per oxygenation, \f$ T_p \f$ is the maximum rate of triose
+ *  phosphate utilization, and \f$ \alpha \f$ is the fraction of glycolate
+ *  carbon not returned to the chloroplast. Note that Equation `(5)` is only
+ *  applicable when \f$ C > \Gamma^* \cdot ( 1 + 3 \cdot \alpha ) \f$; for
+ *  smaller values of \f$ C \f$, \f$ W_p = \infty \f$.
+ *
+ *  Finally, it is also possible to use Equations `(1, 3-5)` to calculate the
+ *  net CO2 assimilation rates that would occur when carboxylation is determined
+ *  by either of the three potential rates:
+ *
+ *  \f[
+ *      A_c = \left( 1 - \Gamma^* / C \right) \cdot W_c - R_d, \qquad \text{(6)}
+ *  \f]
+ *
+ *  \f[
+ *      A_j = \left( 1 - \Gamma^* / C \right) \cdot W_j - R_d, \qquad \text{(7)}
+ *  \f]
+ *
+ *  and
+ *
+ *  \f[
+ *      A_p = \left( 1 - \Gamma^* / C \right) \cdot W_p - R_d. \qquad \text{(8)}
+ *  \f]
+ *
+ *  Note that the limits of Equations `(6-8)` as \f$ C \rightarrow 0 \f$ are
+ *  finite even though \f$ 1 - \Gamma^* / C \rightarrow -\infty \f$. So, these
+ *  net CO2 assimilation rates can be calculated even for \f$ C = 0 \f$.
+ *
+ *  @param [in] Ci The value of \f$ C \f$ with units of micromol / mol.
+ *
+ *  @param [in] Gstar The value of \f$ \Gamma^* \f$ with units of
+ *              micromol / mol.
+ *
+ *  @param [in] J The value of \f$ J \f$ with units of micromol / m^2 / s.
+ *
+ *  @param [in] Kc The value of \f$ K_C \f$ with units of micromol / mol.
+ *
+ *  @param [in] Ko The value of \f$ K_O \f$ with units of mmol / mol.
+ *
+ *  @param [in] Oi The value of \f$ O \f$ with units of mmol / mol.
+ *
+ *  @param [in] Rd The value of \f$ R_d \f$ with units of micromol / m^2 / s.
+ *
+ *  @param [in] TPU The value of \f$ T_p \f$ with units of micromol / m^2 / s.
+ *
+ *  @param [in] Vcmax The value of \f$ V_{c,max} \f$ with units of
+ *              micromol / m^2 / s.
+ *
+ *  @param [in] alpha_TPU The value of \f$ 0 \leq \alpha \leq 1 \f$
+ *              (dimensionless).
+ *
+ *  @param [in] electrons_per_carboxylation The value of \f$ e_c \f$.
+ *
+ *  @param [in] electrons_per_oxygenation The value of \f$ e_o \f$.
+ *
+ *  @return A structure containing values of \f$ A_n \f$, \f$ A_c \f$,
+ *          \f$ A_j \f$, \f$ A_p \f$, \f$ W_c \f$, \f$ W_j \f$, \f$ W_p \f$,
+ *          which all have units of micromol / m^2 / s.
+ */
 FvCB_str FvCB_assim(
     double Ci,                           // micromol / mol
     double Gstar,                        // micromol / mol
@@ -22,8 +127,7 @@ FvCB_str FvCB_assim(
     // Initialize
     FvCB_str result;
 
-    // Calculate the net CO2 assimilation rate using the method described in
-    // "Avoiding Pitfalls When Using the FvCB Model"
+    // Calculate rates
     if (Ci == 0.0) {
         // RuBP-saturated net assimilation rate when Ci is 0
         double Ac0 =

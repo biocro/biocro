@@ -1,15 +1,18 @@
 #ifndef FVCB_ASSIM_H
 #define FVCB_ASSIM_H
 
+/**
+ * @brief A simple structure for holding the output of FvCB calculations.
+ */
 struct FvCB_str {
-    double An;  // micromol / m^2 / s
-    double Ac;  // micromol / m^2 / s
-    double Aj;  // micromol / m^2 / s
-    double Ap;  // micromol / m^2 / s
-    double Vc;  // micromol / m^2 / s
-    double Wc;  // micromol / m^2 / s
-    double Wj;  // micromol / m^2 / s
-    double Wp;  // micromol / m^2 / s
+    double An;  //!< Net CO2 assimilation rate (micromol / m^2 / s)
+    double Ac;  //!< Rubisco-determined net CO2 assimilation rate (micromol / m^2 / s)
+    double Aj;  //!< RuBP-regeneration-determined net CO2 assimilation rate (micromol / m^2 / s)
+    double Ap;  //!< TPU-determined net CO2 assimilation rate (micromol / m^2 / s)
+    double Vc;  //!< RuBP carboxylation rate (micromol / m^2 / s)
+    double Wc;  //!< Rubisco-limited RuBP carboxylation rate (micromol / m^2 / s)
+    double Wj;  //!< RuBP-regeneration-limited RuBP carboxylation rate (micromol / m^2 / s)
+    double Wp;  //!< TPU-limited RuBP carboxylation rate (micromol / m^2 / s)
 };
 
 FvCB_str FvCB_assim(

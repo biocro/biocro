@@ -9,7 +9,7 @@
  *  The flow of CO2 from the atmosphere to the intercellular air spaces is
  *  modeled using a simple 1D flux equation:
  *
- *  \f[ A_n = g_{tc} \cdot \left( C_a - C_i \right), \f]    [Equation `(1)`]
+ *  \f[ A_n = g_{tc} \cdot \left( C_a - C_i \right), \qquad \text{(1)} \f]
  *
  *  where \f$ A_n \f$ is the net CO2 assimilation rate, \f$ g_{tc} \f$ is the
  *  total conductance to CO2 diffusion across the boundary layer and through the
@@ -18,30 +18,36 @@
  *  cannot be negative, since it is not possible to have a negative number of
  *  CO2 molecules in a gas mixture; this places a restriction on the maximum
  *  value that \f$ A_n \f$ can take, since very large values would require
- *  \$ C_i < 0 \f$ in Equation `(1)`.
+ *  \f$ C_i < 0 \f$ in Equation `(1)`.
  *
  *  To derive this restriction, we first solve Equation `(1)` for \f$ Ci \f$:
  *
- *  \f[ C_i = C_a - A_n / g_{tc}. \f]    [Equation `(2)`]
+ *  \f[ C_i = C_a - A_n / g_{tc}. \qquad \text{(2)} \f]
  *
  *  Now, if \f$ C_i = 0 \f$ when \f$ A_n = A_n^{max} \f$, where
  *  \f$ A_n^{max} \f$ is the maximum assimilation rate limited by CO2
  *  conductance, we can use Equation `(2)` to solve for \f$ A_n^{max} \f$:
  *
- *  \f[ A_n^{max} = C_a \cdot g_{tc} \f].    [Equation `(3)`]
+ *  \f[ A_n^{max} = C_a \cdot g_{tc}. \qquad \text{(3)} \f]
  *
  *  Finally, we note that the total conductance to CO2 diffusion can be
  *  calculated from the boundary layer conductance to H2O diffusion
  *  (\f$ g_{bw} \f$) and the stomatal conductance to H2O diffusion
  *  (\f$ g_{sw} \f$) according to
  *
- *  \f[ \frac{1}{g_{tc}} = \frac{DR_b}{g_{bw}} + \frac{DR_s}{g_{sw}} \f],    [Equation `(4)`]
+ *  \f[
+ *      \frac{1}{g_{tc}} = \frac{DR_b}{g_{bw}} + \frac{DR_s}{g_{sw}},
+ *          \qquad \text{(4)}
+ *  \f]
  *
  *  where \f$ DR_b \f$ is the ratio of diffusivities of H20 and CO2 in the
  *  boundary layer and \f$ DR_s \f$ is the same ratio in the stomata. Combining
  *  Equations `(3)` and `(4)`, we have:
  *
- *  \f[ A_n^{max} = \frac{C_a}{\frac{DR_b}{g_{bw}} + \frac{DR_s}{g_{sw}}} \f].    [Equation `(5)`]
+ *  \f[
+ *      A_n^{max} = \frac{C_a}{\frac{DR_b}{g_{bw}} + \frac{DR_s}{g_{sw}}}.
+ *          \qquad \text{(5)}
+ *  \f]
  *
  *  This function implements Equation `(5)`.
  *
