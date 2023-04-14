@@ -10,7 +10,7 @@ double inf = std::numeric_limits<double>::infinity();
  *
  *  Here we use the model equations as described in Lochocki & McGrath (2023; in
  *  preparation). In this formulation, the net CO2 assimilation rate \f$ A_n \f$
- *  is given by:
+ *  is given by
  *
  *  \f[
  *      A_n = \left( 1 - \Gamma^* / C \right) \cdot V_c - R_d, \qquad \text{(1)}
@@ -22,11 +22,11 @@ double inf = std::numeric_limits<double>::infinity();
  *  rate of day respiration. The RuBP carboxylation rate is taken to be the
  *  smallest of three potential carboxylation rates:
  *
- *  \f[ V_c = \text{min} \{ W_c, W_j, W_p \}, \qquad \text{(2)} \f]
+ *  \f[ V_c = \text{min} \{ W_c, W_j, W_p \}. \qquad \text{(2)} \f]
  *
- *  where \f$ W_c \f$, \f$ W_j \f$, and \f$ W_p \f$ are the Rubisco-limited,
- *  RuBP-regeneration-limited, and triose-phosphate-utilization-limited RuBP
- *  carboxylation rates, respectively. These rates are defined as follows:
+ *  Here, \f$ W_c \f$, \f$ W_j \f$, and \f$ W_p \f$ are the Rubisco-limited,
+ *  RuBP-regeneration-limited, and triose-phosphate-utilization (TPU)-limited
+ *  RuBP carboxylation rates, respectively. These rates are defined as follows:
  *
  *  \f[
  *      W_c = \frac{V_{c,max} \cdot C}{C + K_C \cdot
@@ -74,28 +74,31 @@ double inf = std::numeric_limits<double>::infinity();
  *      A_p = \left( 1 - \Gamma^* / C \right) \cdot W_p - R_d. \qquad \text{(8)}
  *  \f]
  *
- *  Note that the limits of Equations `(6-8)` as \f$ C \rightarrow 0 \f$ are
- *  finite even though \f$ 1 - \Gamma^* / C \rightarrow -\infty \f$. So, these
- *  net CO2 assimilation rates can be calculated even for \f$ C = 0 \f$.
+ *  Note that the limits of the expressions for \f$ A_c \f$ and \f$ A_j \f$ in
+ *  Equations `(6)` and `(7)` as \f$ C \rightarrow 0 \f$ are finite even when
+ *  \f$ 1 - \Gamma^* / C \rightarrow -\infty \f$. So these net CO2 assimilation
+ *  rates can be calculated even for \f$ C = 0 \f$. As discussed above, TPU
+ *  cannot limit carboxylation or determine the net CO2 assimilation rate when
+ *  \f$ C = 0 \f$.
  *
- *  @param [in] Ci The value of \f$ C \f$ with units of micromol / mol.
+ *  @param [in] Ci The value of \f$ C \f$ in units of micromol / mol.
  *
- *  @param [in] Gstar The value of \f$ \Gamma^* \f$ with units of
+ *  @param [in] Gstar The value of \f$ \Gamma^* \f$ in units of
  *              micromol / mol.
  *
- *  @param [in] J The value of \f$ J \f$ with units of micromol / m^2 / s.
+ *  @param [in] J The value of \f$ J \f$ in units of micromol / m^2 / s.
  *
- *  @param [in] Kc The value of \f$ K_C \f$ with units of micromol / mol.
+ *  @param [in] Kc The value of \f$ K_C \f$ in units of micromol / mol.
  *
- *  @param [in] Ko The value of \f$ K_O \f$ with units of mmol / mol.
+ *  @param [in] Ko The value of \f$ K_O \f$ in units of mmol / mol.
  *
- *  @param [in] Oi The value of \f$ O \f$ with units of mmol / mol.
+ *  @param [in] Oi The value of \f$ O \f$ in units of mmol / mol.
  *
- *  @param [in] Rd The value of \f$ R_d \f$ with units of micromol / m^2 / s.
+ *  @param [in] Rd The value of \f$ R_d \f$ in units of micromol / m^2 / s.
  *
- *  @param [in] TPU The value of \f$ T_p \f$ with units of micromol / m^2 / s.
+ *  @param [in] TPU The value of \f$ T_p \f$ in units of micromol / m^2 / s.
  *
- *  @param [in] Vcmax The value of \f$ V_{c,max} \f$ with units of
+ *  @param [in] Vcmax The value of \f$ V_{c,max} \f$ in units of
  *              micromol / m^2 / s.
  *
  *  @param [in] alpha_TPU The value of \f$ 0 \leq \alpha \leq 1 \f$
@@ -107,7 +110,7 @@ double inf = std::numeric_limits<double>::infinity();
  *
  *  @return A structure containing values of \f$ A_n \f$, \f$ A_c \f$,
  *          \f$ A_j \f$, \f$ A_p \f$, \f$ W_c \f$, \f$ W_j \f$, \f$ W_p \f$,
- *          which all have units of micromol / m^2 / s.
+ *          in units of micromol / m^2 / s.
  */
 FvCB_outputs FvCB_assim(
     double Ci,                           // micromol / mol
@@ -137,7 +140,9 @@ FvCB_outputs FvCB_assim(
         double Aj0 =
             -J / (2.0 * electrons_per_oxygenation) - Rd;  // micromol / m^2 / s
 
-        // Store results
+        // Store results; note that TPU cannot be limiting when
+        // Ci < Gstar * (1 + 3 * alpha_TPU) and that An = max(Ac, Aj) when
+        // Ci < Gstar.
         result.An = std::max(Ac0, Aj0);  // micromol / m^2 / s
         result.Ac = Ac0;                 // micromol / m^2 / s
         result.Aj = Aj0;                 // micromol / m^2 / s

@@ -7,7 +7,7 @@
  *  @brief Computes the conductance-limited net CO2 assimilation rate.
  *
  *  The flow of CO2 from the atmosphere to the intercellular air spaces is
- *  modeled using a simple 1D flux equation:
+ *  modeled using a simple one-dimensional flux equation:
  *
  *  \f[ A_n = g_{tc} \cdot \left( C_a - C_i \right), \qquad \text{(1)} \f]
  *
