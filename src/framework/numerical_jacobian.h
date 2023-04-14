@@ -38,18 +38,19 @@
  *  perturbations, or that consider additional terms in the Taylor series for
  *  \f$ \vec{f} \f$. For our purposes, the additional computational costs
  *  inherent to these methods do not justify the marginal increases in
- *  accuracy. For example, see the discussion of step size from
+ *  accuracy. For example, see this discussion of step size from
  *  [Nadim Khalil's thesis](http://www.iue.tuwien.ac.at/phd/khalil/node14.html):
  *
- *  > It is known that numerical differentiation is an unstable procedure prone
- *  > to truncation and subtractive cancellation errors. Decreasing the step
- *  > size will reduce the truncation error. Unfortunately a smaller step has
- *  > the opposite effect on the cancellation error. Selecting the optimal step
- *  > size for a certain problem is computationally expensive and the benefits
- *  > achieved are not justifiable as the effect of small errors in the values
- *  > of the elements of the Jacobian matrix is minor. For this reason, the
- *  > sizing of the finite difference step is not attempted and a constant
- *  > increment size is used in evaluating the gradient.
+ *  > It is also known that numerical differentiation is an unstable procedure
+ *  > prone to truncation and subtractive cancellation errors. Decreasing the
+ *  > step size [\f$ h \f$ in the equation above] will reduce the truncation
+ *  > error. Unfortunately a smaller step has the opposite effect on the
+ *  > cancellation error. Selecting the _optimal_ step size for a certain
+ *  > problem is computationally expensive and the benefits achieved are not
+ *  > justifiable as the effect of small errors in the values of the elements of
+ *  > the Jacobian matrix is minor. For this reason, the sizing of the finite
+ *  > difference step is not attempted and a constant increment size is used in
+ *  > evaluating the gradient.
  *
  *  Also note that in general, if \f$ \vec{x} \f$ has \f$ N \f$ elements, then
  *  calculating the Jacobian using the forward pertubration scheme requires
@@ -73,11 +74,13 @@
  *  [2nd Edition](http://s3.amazonaws.com/nrbook.com/book_C210.html) or
  *  [3rd Edition](http://numerical.recipes/book/book.html).
  *
- *  In BioCro, the Jacobian is almost always calculated for
+ *  In BioCro, the Jacobian is almost always calculated for the case where
  *  \f$ \vec{f}(\vec{x}, t) = d \vec{x} / dt \f$. In this case, \f$ \vec{x} \f$
- *  and \f$ \vec{y} = \vec{f}(\vec{x}, t) \f$ have the same dimension. Because
- *  of this, here we assume that the output from \f$ \vec{f} \f$ _always_ has
- *  the same length as \f$ \vec{x} \f$.
+ *  and \f$ \vec{y} = \vec{f}(\vec{x}, t) \f$ have the same dimension. Even in
+ *  other BioCro applications where \f$ \vec{f}(\vec{x}, t) \f$ is not the time
+ *  derivative of \f$ \vec{x} \f$, this restriction on dimensionality still
+ *  holds. Because of this, here we assume that the output from \f$ \vec{f} \f$
+ *  _always_ has the same length as \f$ \vec{x} \f$.
  *
  *  @param[in] equation_ptr a pointer to an object that can be used to represent
  *             a vector valued function `f(x, t)`. There must be an associated
@@ -92,35 +95,35 @@
  *
  *  @param[in] f_current the output of `f` evaluated at `x` and `t`
  *
- *  @param[out] jacobi the calculated Jacobian matrix (containing `df_i/dx_j`
- *              evaluated at `x` and `t`)
+ *  @param[out] jacobi the calculated Jacobian matrix (containing the partial
+ *              derivatives \f$ \partial{f_i}/\partial{x_j} \f$ evaluated at `x`
+ *              and `t`)
  */
 template <typename equation_ptr_type,
-          typename x_vector_type,
+          typename vector_type,
           typename time_type,
-          typename f_vector_type,
           typename matrix_type>
 void calculate_jacobian(
     equation_ptr_type const& equation_ptr,
-    x_vector_type const& x,
+    vector_type const& x,
     time_type t,
-    f_vector_type const& f_current,
+    vector_type const& f_current,
     matrix_type& jacobi)
 {
     size_t n = x.size();
 
     // Make a vector to store the perturbed f(x,t)
-    f_vector_type f_perturbed(n);
+    vector_type f_perturbed(n);
 
     // Perturb each element x_i of the input vector to find df_j(x,t)/dx_i,
     // which is stored at jacobi(j,i)
     double h;
-    x_vector_type x_perturbed = x;
+    vector_type x_perturbed = x;
 
     for (size_t i = 0; i < n; i++) {
         // Detemine the step size h by taking a fraction of x[i] defined by
         // h = x[i] * eps_deriv. Ensure that the step size h is close to this
-        // value but is exactly representable.
+        // value but is exactly representable in the computer architecture.
         h = x[i] * calculation_constants::eps_deriv;
         if (h == 0.0) {
             h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
@@ -167,13 +170,12 @@ void calculate_jacobian(
  *  equations that have no time dependence.
  */
 template <typename equation_ptr_type,
-          typename x_vector_type,
-          typename f_vector_type,
+          typename vector_type,
           typename matrix_type>
 void calculate_jacobian_nt(
     equation_ptr_type const& equation_ptr,
-    x_vector_type const& x,
-    f_vector_type const& f_current,
+    vector_type const& x,
+    vector_type const& f_current,
     matrix_type& jacobi)
 {
     calculate_jacobian(equation_ptr, x, 0, f_current, jacobi);
@@ -186,7 +188,6 @@ void calculate_jacobian_nt(
  */
 template <typename equation_ptr_type,
           typename vector_type,
-          typename time_type,
           typename matrix_type>
 void calculate_jacobian(
     equation_ptr_type const& equation_ptr,
@@ -210,9 +211,9 @@ void calculate_jacobian(
  *  where \f$ f_i \f$ is the \f$ i^{th} \f$ component of \f$ \vec{f} \f$. As is
  *  the case with the partial derivatives of `calculate_jacobian()`, this method
  *  is fast but not the most accurate, and requires that \f$ h \f$ be exactly
- *  representable. With this definition, we ignore any possible implicit time
- *  dependence of \f$ \vec{x} \f$, which is why we refer to this derivative as
- *  the "explicit" time derivative.
+ *  representable in the computer architecture. With this definition, we ignore
+ *  any possible implicit time dependence of \f$ \vec{x} \f$, which is why we
+ *  refer to this derivative as the "explicit" time derivative.
  *
  *  One consideration unique to the time derivative is that the time domain is
  *  usually finite. If \f$ t \f$ is close to the maximum possible value, then
@@ -225,11 +226,14 @@ void calculate_jacobian(
  *
  *  This is a backwards perturbation.
  *
- *  In BioCro, the explicit time derivative is almost always calculated for
- *  \f$ \vec{f}(\vec{x}, t) = d \vec{x} / dt \f$. In this case, \f$ \vec{x} \f$
- *  and \f$ \vec{y} = \vec{f}(\vec{x}, t) \f$ have the same dimension. Because
- *  of this, here we assume that the output from \f$ \vec{f} \f$ _always_ has
- *  the same length as \f$ \vec{x} \f$.
+ *  In BioCro, the explicit time derivative is almost always calculated for the
+ *  case where \f$ \vec{f}(\vec{x}, t) = d \vec{x} / dt \f$. In this case,
+ *  \f$ \vec{x} \f$ and \f$ \vec{y} = \vec{f}(\vec{x}, t) \f$ have the same
+ *  dimension. Even in other BioCro applications where
+ *  \f$ \vec{f}(\vec{x}, t) \f$ is not the time derivative of \f$ \vec{x} \f$,
+ *  this restriction on dimensionality still holds. Because of this, here we
+ *  assume that the output from \f$ \vec{f} \f$ _always_ has the same length as
+ *  \f$ \vec{x} \f$.
  *
  *  @param[in] equation_ptr a pointer to an object that can be used to represent
  *             a vector valued function `f(x, t)`. There must be an associated
@@ -246,30 +250,29 @@ void calculate_jacobian(
  *
  *  @param[in] f_current the output of `f` evaluated at `x` and `t`.
  *
- *  @param[out] dfdt the calculated time derivative, i.e., `df_i/dt` evaluated
- *              at `x` and `t`.
+ *  @param[out] dfdt the calculated time derivative, i.e., the vector of
+ *              derivatives \f$ df_i / dt \f$ evaluated at `x` and `t`.
  */
 template <typename equation_ptr_type,
           typename time_type,
-          typename x_vector_type,
-          typename f_vector_type>
+          typename vector_type>
 void calculate_time_derivative(
     equation_ptr_type const& equation_ptr,
     time_type max_time,
-    x_vector_type const& x,
+    vector_type const& x,
     time_type t,
-    f_vector_type const& f_current,
-    f_vector_type& dfdt)
+    vector_type const& f_current,
+    vector_type& dfdt)
 {
     size_t n = x.size();
 
     // Make a vector to store the perturbed f(x,t)
-    f_vector_type f_perturbed(n);
+    vector_type f_perturbed(n);
 
     // Perturb the time to find df(x,t)/dt. Use a forward step whenever
     // possible. Detemine the step size h by taking a fraction of t:
     // h = t * eps_deriv. Ensure that the step size h is close to this value but
-    // is exactly representable.
+    // is exactly representable in the computer architecture.
     double h = t * calculation_constants::eps_deriv;
     if (h == 0.0) {
         h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
@@ -297,16 +300,15 @@ void calculate_time_derivative(
  */
 template <typename equation_ptr_type,
           typename time_type,
-          typename x_vector_type,
-          typename f_vector_type>
+          typename vector_type>
 void calculate_time_derivative(
     equation_ptr_type const& equation_ptr,
     time_type max_time,
-    x_vector_type const& x,
+    vector_type const& x,
     time_type t,
-    f_vector_type& dfdt)
+    vector_type& dfdt)
 {
-    f_vector_type f_current(x.size());
+    vector_type f_current(x.size());
     evaluate_equations(equation_ptr, x, t, f_current);
     calculate_time_derivative(equation_ptr, max_time, x, t, f_current, dfdt);
 }
@@ -331,11 +333,12 @@ void calculate_time_derivative(
  *
  *  @param[in] t an input time to be passed to `f`.
  *
- *  @param[out] jacobi the calculated Jacobian matrix (containing `df_i/dx_j`
- *              evaluated at `x` and `t`)
+ *  @param[out] jacobi the calculated Jacobian matrix (containing the partial
+ *              derivatives \f$ \partial{f_i}/\partial{x_j} \f$ evaluated at `x`
+ *              and `t`)
  *
- *  @param[out] dfdt the calculated time derivative, i.e., `df_i/dt` evaluated
- *              at `x` and `t`.
+ *  @param[out] dfdt the calculated time derivative, i.e., the vector of
+ *              derivatives \f$ df_i / dt \f$ evaluated at `x` and `t`.
  */
 template <typename equation_ptr_type,
           typename time_type,
