@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
 
 namespace standardBML
 {

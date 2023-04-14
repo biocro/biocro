@@ -1,9 +1,9 @@
 #ifndef RH_TO_MOLE_FRACTION_H
 #define RH_TO_MOLE_FRACTION_H
 
-#include <cmath>                     // for fabs
-#include "AuxBioCro.h"               // for saturation_vapor_pressure
-#include "../framework/constants.h"  // for calculation_constants::eps_zero
+#include <cmath>                       // for fabs
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
+#include "../framework/constants.h"    // for calculation_constants::eps_zero
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 

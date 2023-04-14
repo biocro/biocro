@@ -3,10 +3,10 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "../framework/constants.h"  // for ideal_gas_constant, molar_mass_of_water,
-                                     // celsius_to_kelvin
-#include "AuxBioCro.h"               // For saturation_vapor_pressure, TempToSFS, TempToLHV,
-                                     // and TempToDdryA
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure,
+                                       // TempToSFS, TempToLHV, TempToDdryA
+#include "../framework/constants.h"    // for ideal_gas_constant,
+                                       // molar_mass_of_water, celsius_to_kelvin
 
 namespace standardBML
 {
