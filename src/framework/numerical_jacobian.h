@@ -1,6 +1,7 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
+#include <cmath>        // for fabs, std::max, pow
 #include <memory>       // for std::shared_ptr
 #include "constants.h"  // for calculation_constants::eps_deriv
 
@@ -117,17 +118,20 @@ void calculate_jacobian(
 
     // Perturb each element x_i of the input vector to find df_j(x,t)/dx_i,
     // which is stored at jacobi(j,i)
-    double h;
+    double h{};
+    double abs_xi{};
+    double min_h = pow(calculation_constants::eps_deriv, 2);
     vector_type x_perturbed = x;
 
     for (size_t i = 0; i < n; i++) {
-        // Detemine the step size h by taking a fraction of x[i] defined by
-        // h = x[i] * eps_deriv. Ensure that the step size h is close to this
-        // value but is exactly representable in the computer architecture.
-        h = x[i] * calculation_constants::eps_deriv;
-        if (h == 0.0) {
-            h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
-        }
+        // Determine the step size h by taking a fraction of the absolute value
+        // of x[i]. Set a minimum value for h in case x[i] is zero or very
+        // small, since we don't want to divide by zero.
+        abs_xi = fabs(x[i]);
+        h = std::max(abs_xi * calculation_constants::eps_deriv, min_h);
+
+        // Ensure that the step size h is close to this value but is exactly
+        // representable in the computer architecture.
         double volatile temp = x[i] + h;
         h = temp - x[i];
 
@@ -269,25 +273,38 @@ void calculate_time_derivative(
     // Make a vector to store the perturbed f(x,t)
     vector_type f_perturbed(n);
 
-    // Perturb the time to find df(x,t)/dt. Use a forward step whenever
-    // possible. Detemine the step size h by taking a fraction of t:
-    // h = t * eps_deriv. Ensure that the step size h is close to this value but
-    // is exactly representable in the computer architecture.
-    double h = t * calculation_constants::eps_deriv;
-    if (h == 0.0) {
-        h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
-    }
+    // Determine the step size h by taking a fraction of t. Set a minimum value
+    // for h in case t is zero or very small, since we don't want to divide by
+    // zero.
+    double h = std::max(t * calculation_constants::eps_deriv,
+                        pow(calculation_constants::eps_deriv, 2));
+
+    // Use a forward step whenever possible.
     if (t + h <= max_time) {
+        // Ensure that the step size h is close to this value but is exactly
+        // representable in the computer architecture.
         double volatile temp = t + h;
         h = temp - t;
+
+        // Calculate the new function value by adding h to t and evaluating f,
+        // storing its value in f_perturbed.
         evaluate_equations(equation_ptr, x, t + h, f_perturbed);
+
+        // Store the results in the derivative vector
         for (size_t j = 0; j < n; j++) {
             dfdt[j] = (f_perturbed[j] - f_current[j]) / h;
         }
     } else {
+        // Ensure that the step size h is close to this value but is exactly
+        // representable in the computer architecture.
         double volatile temp = t - h;
         h = t - temp;
+
+        // Calculate the new function value by subtracting h from t and
+        // evaluating f, storing its value in f_perturbed.
         evaluate_equations(equation_ptr, x, t - h, f_perturbed);
+
+        // Store the results in the derivative vector
         for (size_t j = 0; j < n; j++) {
             dfdt[j] = (f_current[j] - f_perturbed[j]) / h;
         }
