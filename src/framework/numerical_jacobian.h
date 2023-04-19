@@ -1,7 +1,8 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
-#include <cmath>        // for fabs, std::max, pow
+#include <cmath>        // for fabs, pow
+#include <algorithm>    // for std::max
 #include <memory>       // for std::shared_ptr
 #include "constants.h"  // for calculation_constants::eps_deriv
 
