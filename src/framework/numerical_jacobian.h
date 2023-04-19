@@ -176,7 +176,7 @@ void calculate_jacobian(
 template <typename equation_ptr_type,
           typename vector_type,
           typename matrix_type>
-void calculate_jacobian_nt(
+void calculate_jacobian(
     equation_ptr_type const& equation_ptr,
     vector_type const& x,
     vector_type const& f_current,
