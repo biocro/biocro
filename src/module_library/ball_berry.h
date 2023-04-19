@@ -15,11 +15,13 @@ class ball_berry : public direct_module
 
           // Get pointers to input quantities
           net_assimilation_rate{get_input(input_quantities, "net_assimilation_rate")},
-          atmospheric_co2_concentration{get_input(input_quantities, "atmospheric_co2_concentration")},
-          rh{get_input(input_quantities, "rh")},
+          ambient_c{get_input(input_quantities, "Catm")},
+          ambient_rh{get_input(input_quantities, "rh")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           gbw{get_input(input_quantities, "gbw")},
+          leaf_temperature{get_input(input_quantities, "leaf_temperature")},
+          ambient_air_temperature{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
           leaf_stomatal_conductance_op{get_op(output_quantities, "leaf_stomatal_conductance")}
@@ -32,11 +34,13 @@ class ball_berry : public direct_module
    private:
     // Pointers to input quantities
     double const& net_assimilation_rate;
-    double const& atmospheric_co2_concentration;
-    double const& rh;
+    double const& ambient_c;
+    double const& ambient_rh;
     double const& b0;
     double const& b1;
     double const& gbw;
+    double const& leaf_temperature;
+    double const& ambient_air_temperature;
 
     // Pointers to output quantities
     double* leaf_stomatal_conductance_op;
@@ -48,12 +52,14 @@ class ball_berry : public direct_module
 string_vector ball_berry::get_inputs()
 {
     return {
-        "net_assimilation_rate",          // mol / m^2 / s
-        "atmospheric_co2_concentration",  // mol / mol
-        "rh",                             // Pa / Pa
-        "b0",                             // mol / m^2 / s
-        "b1",                             // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
-        "gbw"                             // mol / m^2 / s
+        "net_assimilation_rate",  // mol / m^2 / s
+        "Catm",                   // mol / mol
+        "rh",                     // Pa / Pa
+        "b0",                     // mol / m^2 / s
+        "b1",                     // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+        "gbw",                    // mol / m^2 / s
+        "leaf_temperature",       // degrees C
+        "temp"                    // degrees C
     };
 }
 
@@ -70,11 +76,13 @@ void ball_berry::do_operation() const
         leaf_stomatal_conductance_op,
         ball_berry_gs(
             net_assimilation_rate,
-            atmospheric_co2_concentration,
-            rh,
+            ambient_c,
+            ambient_rh,
             b0,
             b1,
-            gbw));
+            gbw,
+            leaf_temperature,
+            ambient_air_temperature));
 }
 
 }  // namespace standardBML

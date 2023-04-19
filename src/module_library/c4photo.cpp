@@ -95,13 +95,16 @@ photosynthesis_outputs c4photoC(
             Assim *= StomaWS;
         }
 
+        // Use Ball-Berry model, equating the leaf and air temperatures
         Gs = ball_berry_gs(
             Assim * 1e-6,
             Ca * 1e-6,
             relative_humidity,
             bb0,
             bb1,
-            gbw);  // mmol / m^2 / s
+            gbw,
+            leaf_temperature,
+            leaf_temperature);  // mmol / m^2 / s
 
         if (water_stress_approach == 1) {
             Gs = Gs_min + StomaWS * (Gs - Gs_min);

@@ -3,10 +3,12 @@
 
 double ball_berry_gs(
     double assimilation,
-    double atmospheric_co2_concentration,
-    double atmospheric_relative_humidity,
+    double ambient_c,
+    double ambient_rh,
     double bb_offset,
     double bb_slope,
-    double gbw);
+    double gbw,
+    double leaf_temperature,
+    double ambient_air_temperature);
 
 #endif

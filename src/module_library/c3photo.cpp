@@ -151,13 +151,16 @@ photosynthesis_outputs c3photoC(
             co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
         }
 
+        // Use Ball-Berry model, equating the leaf and air temperatures
         Gs = 1e-3 * ball_berry_gs(
                         co2_assimilation_rate * 1e-6,
                         Ca * 1e-6,
                         RH,
                         b0,
                         b1,
-                        gbw);  // mol / m^2 / s
+                        gbw,
+                        Tleaf,
+                        Tleaf);  // mol / m^2 / s
 
         if (water_stress_approach == 1) {
             Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s

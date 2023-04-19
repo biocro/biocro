@@ -61,8 +61,10 @@ photosynthesis_outputs rue_photo(
 
     an = std::min(an_conductance, an);  // mol / m^2 / s
 
-    // Determine stomatal conductance (mol / m^2 / s)
-    double const gs = ball_berry_gs(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
+    // Determine stomatal conductance using the Ball-Berry model, equating the
+    // leaf and air temperatures (mol / m^2 / s)
+    double const gs =
+        ball_berry_gs(an, Ca, RH, bb0, bb1, gbw, Tleaf, Tleaf) * 1e-3;
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
