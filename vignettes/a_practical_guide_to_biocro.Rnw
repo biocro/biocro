@@ -873,6 +873,7 @@ outputs <- evaluate_module(
     Tleaf = 27    # degrees C
     gbw = 1.2     # mol / m^2 / s
     StomataWS = 1 # dimensionless; 1 indicates no water stress
+    temp = 25     # degrees C
   })
 )
 @
@@ -908,6 +909,7 @@ rc <- module_response_curve(
     Tleaf = 27
     gbw = 1.2
     StomataWS = 1
+    temp = 25
   }),
   data.frame(Qabs = seq(from = 0, to = 2000, length.out = 501))
 )
