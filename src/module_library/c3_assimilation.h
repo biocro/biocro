@@ -32,6 +32,7 @@ namespace standardBML
  * In BioCro, we use the following names for this model's input quantities:
  * - ``'Qabs'`` for the absorbed quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
+ * - ``'temp'`` for the ambient temperature
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax1'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'jmax'`` for the electron transport rate
@@ -71,6 +72,7 @@ class c3_assimilation : public direct_module
           // Get pointers to input quantities
           Qabs{get_input(input_quantities, "Qabs")},
           Tleaf{get_input(input_quantities, "Tleaf")},
+          Tambient{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           vmax1{get_input(input_quantities, "vmax1")},
           jmax{get_input(input_quantities, "jmax")},
@@ -109,6 +111,7 @@ class c3_assimilation : public direct_module
     // References to input quantities
     double const& Qabs;
     double const& Tleaf;
+    double const& Tambient;
     double const& rh;
     double const& vmax1;
     double const& jmax;
@@ -147,6 +150,7 @@ string_vector c3_assimilation::get_inputs()
     return {
         "Qabs",                         // micromol / m^2 / s
         "Tleaf",                        // degrees C
+        "temp",                         // degrees C
         "rh",                           // dimensionless
         "vmax1",                        // micromol / m^2 / s
         "jmax",                         // micromol / m^2 / s
@@ -187,6 +191,7 @@ void c3_assimilation::do_operation() const
     photosynthesis_outputs c3_results = c3photoC(
         Qabs,
         Tleaf,
+        Tambient,
         rh,
         vmax1,
         jmax,

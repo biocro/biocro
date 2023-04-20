@@ -17,6 +17,7 @@ using physical_constants::ideal_gas_constant;
 photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
+    double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
     double const Vcmax0,                       // micromol / m^2 / s
     double const Jmax0,                        // micromol / m^2 / s
@@ -151,7 +152,6 @@ photosynthesis_outputs c3photoC(
 
         co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
 
-        // Use Ball-Berry model, equating the leaf and air temperatures
         BB_res = ball_berry_gs(
             co2_assimilation_rate * 1e-6,
             Ca * 1e-6,
@@ -160,7 +160,7 @@ photosynthesis_outputs c3photoC(
             b1_adj,
             gbw,
             Tleaf,
-            Tleaf);
+            Tambient);
 
         Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
 

@@ -32,6 +32,7 @@ namespace standardBML
  * In BioCro, we use the following names for this model's input quantities:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
+ * - ``'temp'`` for the ambient temperature
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'alpha'`` for the initial slope of the photosynthetic light response
@@ -71,6 +72,7 @@ class c4_assimilation : public direct_module
           // Get pointers to input quantities
           Qp{get_input(input_quantities, "Qp")},
           Tleaf{get_input(input_quantities, "Tleaf")},
+          Tambient{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           vmax{get_input(input_quantities, "vmax")},
           alpha{get_input(input_quantities, "alpha")},
@@ -108,6 +110,7 @@ class c4_assimilation : public direct_module
     // References to input quantities
     double const& Qp;
     double const& Tleaf;
+    double const& Tambient;
     double const& rh;
     double const& vmax;
     double const& alpha;
@@ -143,24 +146,25 @@ class c4_assimilation : public direct_module
 string_vector c4_assimilation::get_inputs()
 {
     return {
-        "Qp",                     // micromol / m^2 / s
-        "Tleaf",                  // degrees C
-        "rh",                     // dimensionless
-        "vmax",                   // micromol / m^2 / s
-        "alpha",                  // mol / mol
-        "kparm",                  // mol / mol
-        "theta",                  // dimensionless
-        "beta",                   // dimensionless
-        "Rd",                     // micromol / m^2 / s
-        "b0",                     // mol / m^2 / s
-        "b1",                     // dimensionless
-        "Gs_min",                 // mol / m^2 / s
-        "StomataWS",              // dimensionless
-        "Catm",                   // micromol / mol
-        "atmospheric_pressure",   // Pa
-        "upperT",                 // degrees C
-        "lowerT",                 // degrees C
-        "gbw"                     // mol / m^2 / s
+        "Qp",                    // micromol / m^2 / s
+        "Tleaf",                 // degrees C
+        "temp",                  // degrees C
+        "rh",                    // dimensionless
+        "vmax",                  // micromol / m^2 / s
+        "alpha",                 // mol / mol
+        "kparm",                 // mol / mol
+        "theta",                 // dimensionless
+        "beta",                  // dimensionless
+        "Rd",                    // micromol / m^2 / s
+        "b0",                    // mol / m^2 / s
+        "b1",                    // dimensionless
+        "Gs_min",                // mol / m^2 / s
+        "StomataWS",             // dimensionless
+        "Catm",                  // micromol / mol
+        "atmospheric_pressure",  // Pa
+        "upperT",                // degrees C
+        "lowerT",                // degrees C
+        "gbw"                    // mol / m^2 / s
     };
 }
 
@@ -184,6 +188,7 @@ void c4_assimilation::do_operation() const
     photosynthesis_outputs c4_results = c4photoC(
         Qp,
         Tleaf,
+        Tambient,
         rh,
         vmax,
         alpha,

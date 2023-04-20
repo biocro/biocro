@@ -5,8 +5,9 @@
 
 photosynthesis_outputs c4photoC(
     double const Qp,
-    double const Tl,
-    double const RH,
+    double const leaf_temperature,
+    double const ambient_temperature,
+    double const relative_humidity,
     double const vmax,
     double const alpha,
     double const kparm,

@@ -22,7 +22,7 @@ class c3_leaf_photosynthesis : public direct_module
 
           // Get references to input quantities
           absorbed_ppfd{get_input(input_quantities, "absorbed_ppfd")},
-          temp{get_input(input_quantities, "temp")},
+          ambient_temperature{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           vmax1{get_input(input_quantities, "vmax1")},
           jmax{get_input(input_quantities, "jmax")},
@@ -66,7 +66,7 @@ class c3_leaf_photosynthesis : public direct_module
    private:
     // References to input quantities
     double const& absorbed_ppfd;
-    double const& temp;
+    double const& ambient_temperature;
     double const& rh;
     double const& vmax1;
     double const& jmax;

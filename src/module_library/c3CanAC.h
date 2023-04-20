@@ -7,7 +7,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double LAI,
     double cosine_zenith_angle,
     double solarR,
-    double air_temperature,
+    double ambient_temperature,
     double RH,
     double WindSpeed,
     int nlayers,

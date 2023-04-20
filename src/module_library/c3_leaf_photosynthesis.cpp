@@ -59,7 +59,8 @@ void c3_leaf_photosynthesis::do_operation() const
     // air temperature
     double const initial_stomatal_conductance =
         c3photoC(
-            absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
+            absorbed_ppfd, ambient_temperature, ambient_temperature,
+            rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             electrons_per_carboxylation,
             electrons_per_oxygenation, beta_PSII, gbw_guess)
@@ -69,17 +70,18 @@ void c3_leaf_photosynthesis::do_operation() const
     // stomatal conductance
     const ET_Str et =
         c3EvapoTrans(
-            average_absorbed_shortwave, temp, rh, windspeed, height,
+            average_absorbed_shortwave, ambient_temperature, rh, windspeed, height,
             specific_heat_of_air, initial_stomatal_conductance, minimum_gbw,
             windspeed_height);
 
-    double const leaf_temperature = temp + et.Deltat;  // deg. C
+    double const leaf_temperature = ambient_temperature + et.Deltat;  // deg. C
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
     const photosynthesis_outputs photo =
         c3photoC(
-            absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
+            absorbed_ppfd, leaf_temperature, ambient_temperature,
+            rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS,
             electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,

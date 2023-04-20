@@ -11,6 +11,7 @@ using physical_constants::dr_stomata;
 photosynthesis_outputs c4photoC(
     double const Qp,                    // micromol / m^2 / s
     double const leaf_temperature,      // degrees C
+    double const ambient_temperature,   // degrees C
     double const relative_humidity,     // dimensionless from Pa / Pa
     double const vmax,                  // micromol / m^2 / s
     double const alpha,                 // mol / mol
@@ -95,7 +96,6 @@ photosynthesis_outputs c4photoC(
             Assim,
             an_conductance);  // micromol / m^2 / s
 
-        // Use Ball-Berry model, equating the leaf and air temperatures
         BB_res = ball_berry_gs(
             Assim * 1e-6,
             Ca * 1e-6,
@@ -104,7 +104,7 @@ photosynthesis_outputs c4photoC(
             bb1_adj,
             gbw,
             leaf_temperature,
-            leaf_temperature);
+            ambient_temperature);
 
         Gs = BB_res.gsw;  // mmol / m^2 / s
 

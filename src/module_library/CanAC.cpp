@@ -8,7 +8,7 @@ canopy_photosynthesis_outputs CanAC(
     double LAI,                  // dimensionless from m^2 / m^2
     double cosine_zenith_angle,  // dimensionless
     double solarR,               // micromol / m^2 / s
-    double temperature,          // degrees C
+    double ambient_temperature,  // degrees C
     double RH,                   // dimensionless from Pa / Pa
     double WindSpeed,            // m / s
     int nlayers,                 // dimensionless
@@ -114,7 +114,8 @@ canopy_photosynthesis_outputs CanAC(
 
         double direct_gsw_estimate =
             c4photoC(
-                i_dir, temperature, relative_humidity, vmax1, Alpha, Kparm,
+                i_dir, ambient_temperature, ambient_temperature,
+                relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
@@ -122,16 +123,17 @@ canopy_photosynthesis_outputs CanAC(
 
         ET_Str et_direct =
             EvapoTrans2(
-                j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
+                j_dir, j_avg, ambient_temperature, relative_humidity, layer_wind_speed,
                 direct_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
-        double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
+        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
 
         photosynthesis_outputs direct_photo =
             c4photoC(
-                i_dir, leaf_temperature_dir, relative_humidity, vmax1, Alpha,
-                Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
+                i_dir, leaf_temperature_dir, ambient_temperature,
+                relative_humidity, vmax1, Alpha, Kparm,
+                theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 et_direct.boundary_layer_conductance);
 
@@ -147,7 +149,8 @@ canopy_photosynthesis_outputs CanAC(
 
         double diffuse_gsw_estimate =
             c4photoC(
-                i_diff, temperature, relative_humidity, vmax1, Alpha, Kparm,
+                i_diff, ambient_temperature, ambient_temperature,
+                relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
@@ -155,16 +158,17 @@ canopy_photosynthesis_outputs CanAC(
 
         ET_Str et_diffuse =
             EvapoTrans2(
-                j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
+                j_diff, j_avg, ambient_temperature, relative_humidity, layer_wind_speed,
                 diffuse_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
-        double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
+        double leaf_temperature_diff = ambient_temperature + et_diffuse.Deltat;  // degrees C
 
         photosynthesis_outputs diffuse_photo =
             c4photoC(
-                i_diff, leaf_temperature_diff, relative_humidity, vmax1, Alpha,
-                Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
+                i_diff, leaf_temperature_diff, ambient_temperature,
+                relative_humidity, vmax1, Alpha, Kparm,
+                theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 et_diffuse.boundary_layer_conductance);
 

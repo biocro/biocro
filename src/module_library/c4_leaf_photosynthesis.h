@@ -22,7 +22,7 @@ class c4_leaf_photosynthesis : public direct_module
 
           // Get references to input quantities
           incident_ppfd{get_input(input_quantities, "incident_ppfd")},
-          temp{get_input(input_quantities, "temp")},
+          ambient_temperature{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           vmax1{get_input(input_quantities, "vmax1")},
           alpha1{get_input(input_quantities, "alpha1")},
@@ -66,7 +66,7 @@ class c4_leaf_photosynthesis : public direct_module
    private:
     // References to input quantities
     double const& incident_ppfd;
-    double const& temp;
+    double const& ambient_temperature;
     double const& rh;
     double const& vmax1;
     double const& alpha1;

@@ -8,7 +8,7 @@ canopy_photosynthesis_outputs CanAC(
     double LAI,
     double cosine_zenith_angle,
     double solarR,
-    double temperature,
+    double ambient_temperature,
     double RH,
     double WindSpeed,
     int nlayers,

@@ -55,10 +55,12 @@ void c4_leaf_photosynthesis::do_operation() const
     // Make an initial guess for boundary layer conductance
     double const gbw_guess{1.2};  // mol / m^2 / s
 
-    // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
+    // Get an initial estimate of stomatal conductance, assuming the leaf is at
+    // air temperature
     const double initial_stomatal_conductance =
         c4photoC(
-            incident_ppfd, temp, rh, vmax1, alpha1, kparm, theta, beta,
+            incident_ppfd, ambient_temperature, ambient_temperature,
+            rh, vmax1, alpha1, kparm, theta, beta,
             Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
             upperT, lowerT, gbw_guess)
             .Gs;  // mmol / m^2 / s
@@ -66,16 +68,18 @@ void c4_leaf_photosynthesis::do_operation() const
     // Calculate a new value for leaf temperature
     const ET_Str et =
         EvapoTrans2(
-            absorbed_shortwave, average_absorbed_shortwave, temp, rh, windspeed,
+            absorbed_shortwave, average_absorbed_shortwave, ambient_temperature, rh, windspeed,
             initial_stomatal_conductance, leafwidth, specific_heat_of_air,
             minimum_gbw, et_equation);
 
-    const double leaf_temperature = temp + et.Deltat;  // deg. C
+    const double leaf_temperature = ambient_temperature + et.Deltat;  // deg. C
 
-    // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
+    // Calculate final values for assimilation, stomatal conductance, and Ci
+    // using the new leaf temperature
     const photosynthesis_outputs photo =
         c4photoC(
-            incident_ppfd, leaf_temperature, rh, vmax1, alpha1, kparm,
+            incident_ppfd, leaf_temperature, ambient_temperature,
+            rh, vmax1, alpha1, kparm,
             theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
             atmospheric_pressure, upperT, lowerT,
             et.boundary_layer_conductance);

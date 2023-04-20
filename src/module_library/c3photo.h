@@ -6,6 +6,7 @@
 photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,
     double const Tleaf,
+    double const Tambient,
     double const RH,
     double const Vcmax0,
     double const Jmax0,

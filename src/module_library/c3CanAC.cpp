@@ -8,7 +8,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double LAI,                  // dimensionless
     double cosine_zenith_angle,  // hr
     double solarR,               // micromol / m^2 / s
-    double air_temperature,      // degrees C
+    double ambient_temperature,  // degrees C
     double RH,                   // Pa / Pa
     double WindSpeed,            // m / s
     int nlayers,                 // dimensionless
@@ -107,7 +107,8 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         double direct_gsw_estimate =
             c3photoC(
-                iabs_dir, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_dir, ambient_temperature, ambient_temperature,
+                relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -116,15 +117,16 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         struct ET_Str et_direct =
             c3EvapoTrans(
-                j_avg, air_temperature, relative_humidity, layer_wind_speed,
+                j_avg, ambient_temperature, relative_humidity, layer_wind_speed,
                 CanHeight, specific_heat_of_air, direct_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
-        double leaf_temperature_dir = air_temperature + et_direct.Deltat;  // degrees C
+        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
 
         photosynthesis_outputs direct_photo =
             c3photoC(
-                iabs_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
+                iabs_dir, leaf_temperature_dir, ambient_temperature,
+                relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -141,7 +143,8 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         double diffuse_gsw_estimate =
             c3photoC(
-                iabs_diff, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_diff, ambient_temperature, ambient_temperature,
+                relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
@@ -150,15 +153,16 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         struct ET_Str et_diffuse =
             c3EvapoTrans(
-                j_avg, air_temperature, relative_humidity, layer_wind_speed,
+                j_avg, ambient_temperature, relative_humidity, layer_wind_speed,
                 CanHeight, specific_heat_of_air, diffuse_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
-        double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;  // degrees C
+        double leaf_temperature_Idiffuse = ambient_temperature + et_diffuse.Deltat;  // degrees C
 
         photosynthesis_outputs diffuse_photo =
             c3photoC(
-                iabs_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
+                iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
+                relative_humidity, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, o2, theta, StomataWS,
                 electrons_per_carboxylation,

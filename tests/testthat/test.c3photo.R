@@ -8,6 +8,7 @@ test_that("c3photo is sensitive to changes in vcmax", {
     inputs <- list(
         Qabs = 1500,
         Tleaf = 10,
+        temp = 10,
         rh = 0.7,
         jmax = 180,
         tpu_rate_max = 23,
