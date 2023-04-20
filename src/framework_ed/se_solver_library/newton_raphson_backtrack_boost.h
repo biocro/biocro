@@ -375,7 +375,7 @@ bool newton_raphson_backtrack_boost::get_next_guess(
 {
     // Evaluate the Jacobian matrix of the function at input_guess
     boost::numeric::ublas::matrix<double> jacobian(input_guess.size(), input_guess.size());
-    calculate_jacobian_nt(se, input_guess, difference_vector_at_input_guess, jacobian);  // modifies Jacobian
+    calculate_jacobian(se, input_guess, difference_vector_at_input_guess, jacobian);  // modifies Jacobian
 
     // Convert difference_vector_at_input_guess to a boost vector
     // (required for get_newton_raphson_step_boost)
