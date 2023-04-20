@@ -45,7 +45,6 @@ namespace standardBML
  * - ``'O2'`` for the atmospheric O2 concentration
  * - ``'theta'`` for the ???
  * - ``'StomataWS'`` for the water stress factor
- * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
  * - ``'gbw'`` for the boundary layer conductance to water vapor
@@ -85,7 +84,6 @@ class c3_assimilation : public direct_module
           O2{get_input(input_quantities, "O2")},
           theta{get_input(input_quantities, "theta")},
           StomataWS{get_input(input_quantities, "StomataWS")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
@@ -124,7 +122,6 @@ class c3_assimilation : public direct_module
     double const& O2;
     double const& theta;
     double const& StomataWS;
-    double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& beta_PSII;
@@ -163,7 +160,6 @@ string_vector c3_assimilation::get_inputs()
         "O2",                           // millimol / mol
         "theta",                        // dimensionless
         "StomataWS",                    // dimensionless
-        "water_stress_approach",        // dimensionless
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
         "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -204,7 +200,6 @@ void c3_assimilation::do_operation() const
         O2,
         theta,
         StomataWS,
-        water_stress_approach,
         electrons_per_carboxylation,
         electrons_per_oxygenation,
         beta_PSII,

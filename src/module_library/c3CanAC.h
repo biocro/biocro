@@ -33,7 +33,6 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double specific_heat_of_air,
     double atmospheric_pressure,
     double growth_respiration_fraction,
-    int water_stress_approach,
     double electrons_per_carboxylation,
     double electrons_per_oxygenation,
     double absorptivity_par,

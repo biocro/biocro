@@ -36,7 +36,6 @@ class c3_leaf_photosynthesis : public direct_module
           O2{get_input(input_quantities, "O2")},
           theta{get_input(input_quantities, "theta")},
           StomataWS{get_input(input_quantities, "StomataWS")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
@@ -81,7 +80,6 @@ class c3_leaf_photosynthesis : public direct_module
     double const& O2;
     double const& theta;
     double const& StomataWS;
-    double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& average_absorbed_shortwave;

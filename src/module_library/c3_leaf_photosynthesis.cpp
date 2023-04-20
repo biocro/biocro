@@ -22,7 +22,6 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "O2",                           // mmol / mol
         "theta",                        // dimensionless
         "StomataWS",                    // dimensionless
-        "water_stress_approach",        // a dimensionless switch
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
         "average_absorbed_shortwave",   // J / (m^2 leaf) / s
@@ -62,7 +61,7 @@ void c3_leaf_photosynthesis::do_operation() const
         c3photoC(
             absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
-            water_stress_approach, electrons_per_carboxylation,
+            electrons_per_carboxylation,
             electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mmol / m^2 / s
 
@@ -82,7 +81,7 @@ void c3_leaf_photosynthesis::do_operation() const
         c3photoC(
             absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-            theta, StomataWS, water_stress_approach,
+            theta, StomataWS,
             electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
             et.boundary_layer_conductance);
 

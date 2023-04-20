@@ -19,7 +19,6 @@ photosynthesis_outputs c4photoC(
     double const StomaWS,
     double const Ca,
     double const atmospheric_pressure,
-    int const water_stress_approach,
     double const upperT,
     double const lowerT,
     double const gbw);

@@ -45,7 +45,6 @@ namespace standardBML
  * - ``'StomataWS'`` for the water stress factor
  * - ``'Catm'`` for the atmospheric CO2 concentration
  * - ``'atmospheric_pressure'`` for the local atmospheric pressure
- * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'upperT'`` for the high temperature cutoff for rubisco activity
  * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
  * - ``'gbw'`` for the boundary layer conductance to water vapor
@@ -85,7 +84,6 @@ class c4_assimilation : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           Catm{get_input(input_quantities, "Catm")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           upperT{get_input(input_quantities, "upperT")},
           lowerT{get_input(input_quantities, "lowerT")},
           gbw{get_input(input_quantities, "gbw")},
@@ -123,7 +121,6 @@ class c4_assimilation : public direct_module
     double const& StomataWS;
     double const& Catm;
     double const& atmospheric_pressure;
-    double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
     double const& gbw;
@@ -161,7 +158,6 @@ string_vector c4_assimilation::get_inputs()
         "StomataWS",              // dimensionless
         "Catm",                   // micromol / mol
         "atmospheric_pressure",   // Pa
-        "water_stress_approach",  // dimensionless
         "upperT",                 // degrees C
         "lowerT",                 // degrees C
         "gbw"                     // mol / m^2 / s
@@ -201,7 +197,6 @@ void c4_assimilation::do_operation() const
         StomataWS,
         Catm,
         atmospheric_pressure,
-        water_stress_approach,
         upperT,
         lowerT,
         gbw);

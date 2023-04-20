@@ -36,7 +36,6 @@ string_vector c3_canopy::get_inputs()
         "specific_heat_of_air",  // J / kg / K
         "atmospheric_pressure",  // Pa
         "growth_respiration_fraction",
-        "water_stress_approach",
         "electrons_per_carboxylation",
         "electrons_per_oxygenation",
         "absorptivity_par",     // dimensionless
@@ -68,7 +67,7 @@ void c3_canopy::do_operation() const
         tpu_rate_max, Rd, Catm, O2, b0, b1, Gs_min, theta, kd, heightf, LeafN,
         kpLN, lnb0, lnb1, lnfun, chil, StomataWS, specific_heat_of_air,
         atmospheric_pressure, growth_respiration_fraction,
-        water_stress_approach, electrons_per_carboxylation,
+        electrons_per_carboxylation,
         electrons_per_oxygenation, absorptivity_par, par_energy_content,
         par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw,
         windspeed_height, beta_PSII);

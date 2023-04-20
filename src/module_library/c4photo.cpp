@@ -24,7 +24,6 @@ photosynthesis_outputs c4photoC(
     double const StomaWS,               // dimensionless
     double const Ca,                    // micromol / mol
     double const atmospheric_pressure,  // Pa
-    int const water_stress_approach,    // unitless switch
     double const upperT,                // degrees C
     double const lowerT,                // degrees C
     double const gbw                    // mol / m^2 / s
@@ -92,10 +91,6 @@ photosynthesis_outputs c4photoC(
             Assim,
             an_conductance);  // micromol / m^2 / s
 
-        if (water_stress_approach == 0) {
-            Assim *= StomaWS;
-        }
-
         // Use Ball-Berry model, equating the leaf and air temperatures
         BB_res = ball_berry_gs(
             Assim * 1e-6,
@@ -109,9 +104,8 @@ photosynthesis_outputs c4photoC(
 
         Gs = BB_res.gsw;  // mmol / m^2 / s
 
-        if (water_stress_approach == 1) {
-            Gs = Gs_min * 1e3 + StomaWS * (Gs - Gs_min * 1e3);
-        }
+        // Apply water stress
+        Gs = Gs_min * 1e3 + StomaWS * (Gs - Gs_min * 1e3);
 
         // If it has gone through this many iterations, the convergence is not
         // stable. This convergence is inapproriate for high water stress

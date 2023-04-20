@@ -22,7 +22,6 @@ string_vector c4_leaf_photosynthesis::get_inputs()
         "StomataWS",                   // dimensionless
         "Catm",                        // micromol / mol
         "atmospheric_pressure",        // Pa
-        "water_stress_approach",       // a dimensionless switch
         "upperT",                      // deg. C
         "lowerT",                      // deg. C
         "average_absorbed_shortwave",  // J / (m^2 leaf) / s
@@ -61,7 +60,7 @@ void c4_leaf_photosynthesis::do_operation() const
         c4photoC(
             incident_ppfd, temp, rh, vmax1, alpha1, kparm, theta, beta,
             Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
-            water_stress_approach, upperT, lowerT, gbw_guess)
+            upperT, lowerT, gbw_guess)
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
@@ -78,7 +77,7 @@ void c4_leaf_photosynthesis::do_operation() const
         c4photoC(
             incident_ppfd, leaf_temperature, rh, vmax1, alpha1, kparm,
             theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-            atmospheric_pressure, water_stress_approach, upperT, lowerT,
+            atmospheric_pressure, upperT, lowerT,
             et.boundary_layer_conductance);
 
     // Update the outputs

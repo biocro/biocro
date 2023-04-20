@@ -30,7 +30,6 @@ photosynthesis_outputs c3photoC(
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const thet,                         // dimensionless
     double const StomWS,                       // dimensionless
-    int const water_stress_approach,           // (flag)
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -148,10 +147,6 @@ photosynthesis_outputs c3photoC(
 
         co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
 
-        if (water_stress_approach == 0) {
-            co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
-        }
-
         // Use Ball-Berry model, equating the leaf and air temperatures
         BB_res = ball_berry_gs(
             co2_assimilation_rate * 1e-6,
@@ -165,9 +160,8 @@ photosynthesis_outputs c3photoC(
 
         Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
 
-        if (water_stress_approach == 1) {
-            Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
-        }
+        // Apply water stress
+        Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
 
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata

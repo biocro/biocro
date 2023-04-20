@@ -35,7 +35,6 @@ canopy_photosynthesis_outputs CanAC(
     double StomataWS,             // dimensionless
     double specific_heat_of_air,  // J / kg / K
     double atmospheric_pressure,  // Pa
-    int water_stress_approach,    // dimensionless switch
     double absorptivity_par,      // dimensionless
     double par_energy_content,    // J / micromol
     double par_energy_fraction,   // dimensionless
@@ -117,7 +116,7 @@ canopy_photosynthesis_outputs CanAC(
             c4photoC(
                 i_dir, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
@@ -133,7 +132,7 @@ canopy_photosynthesis_outputs CanAC(
             c4photoC(
                 i_dir, leaf_temperature_dir, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                atmospheric_pressure, upperT, lowerT,
                 et_direct.boundary_layer_conductance);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
@@ -150,7 +149,7 @@ canopy_photosynthesis_outputs CanAC(
             c4photoC(
                 i_diff, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
@@ -166,7 +165,7 @@ canopy_photosynthesis_outputs CanAC(
             c4photoC(
                 i_diff, leaf_temperature_diff, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                atmospheric_pressure, upperT, lowerT,
                 et_diffuse.boundary_layer_conductance);
 
         // Combine sunlit and shaded leaves

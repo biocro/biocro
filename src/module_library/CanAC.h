@@ -35,7 +35,6 @@ canopy_photosynthesis_outputs CanAC(
     double StomataWS,
     double specific_heat_of_air,
     double atmospheric_pressure,
-    int water_stress_approach,
     double absorptivity_par,
     double par_energy_content,
     double par_energy_fraction,

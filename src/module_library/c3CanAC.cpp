@@ -34,7 +34,6 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double specific_heat_of_air,         // J / kg / K
     double atmospheric_pressure,         // Pa
     double growth_respiration_fraction,  // dimensionless
-    int water_stress_approach,           // dimensionless switch
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
     double absorptivity_par,             // dimensionless
@@ -110,7 +109,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
             c3photoC(
                 iabs_dir, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mmol / m^2 / s
@@ -127,7 +126,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
             c3photoC(
                 iabs_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, et_direct.boundary_layer_conductance);
 
@@ -144,7 +143,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
             c3photoC(
                 iabs_diff, air_temperature, relative_humidity, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mmol / m^2 / s
@@ -162,7 +161,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
                 iabs_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, o2, theta, StomataWS,
-                water_stress_approach, electrons_per_carboxylation,
+                electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII,
                 et_diffuse.boundary_layer_conductance);
 
