@@ -54,6 +54,10 @@ photosynthesis_outputs c4photoC(
     // Equation 3B in Collatz 1992.
     double M = quadratic_root_min(b2, b1, b0);  // micromol / m^2 / s
 
+    // Adjust Ball-Berry parameters in response to water stress
+    double const bb0_adj = StomaWS * bb0 + Gs_min * (1.0 - StomaWS);
+    double const bb1_adj = StomaWS * bb1;
+
     // Initialize loop variables. Here we make an initial guess that
     // Ci = 0.4 * Ca.
     stomata_outputs BB_res;
@@ -96,16 +100,13 @@ photosynthesis_outputs c4photoC(
             Assim * 1e-6,
             Ca * 1e-6,
             relative_humidity,
-            bb0,
-            bb1,
+            bb0_adj,
+            bb1_adj,
             gbw,
             leaf_temperature,
             leaf_temperature);
 
         Gs = BB_res.gsw;  // mmol / m^2 / s
-
-        // Apply water stress
-        Gs = Gs_min * 1e3 + StomaWS * (Gs - Gs_min * 1e3);
 
         // If it has gone through this many iterations, the convergence is not
         // stable. This convergence is inapproriate for high water stress

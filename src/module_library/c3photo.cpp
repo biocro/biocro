@@ -106,6 +106,10 @@ photosynthesis_outputs c3photoC(
     // Biochemical models of leaf photosynthesis.
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
+    // Adjust Ball-Berry parameters in response to water stress
+    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
+    double const b1_adj = StomWS * b1;
+
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
     stomata_outputs BB_res;
@@ -152,16 +156,13 @@ photosynthesis_outputs c3photoC(
             co2_assimilation_rate * 1e-6,
             Ca * 1e-6,
             RH,
-            b0,
-            b1,
+            b0_adj,
+            b1_adj,
             gbw,
             Tleaf,
             Tleaf);
 
         Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
-
-        // Apply water stress
-        Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
 
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
