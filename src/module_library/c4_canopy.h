@@ -219,7 +219,7 @@ void c4_canopy::do_operation() const
 
     struct canopy_photosynthesis_outputs can_result = CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
-        kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, LeafN,
+        kparm, beta, Rd, Catm, b0, b1, Gs_min, theta, kd, chil, LeafN,
         kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
         specific_heat_of_air, atmospheric_pressure, water_stress_approach,
         absorptivity_par, par_energy_content, par_energy_fraction,

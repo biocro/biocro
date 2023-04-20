@@ -20,7 +20,7 @@ canopy_photosynthesis_outputs CanAC(
     double Catm,  // ppm
     double b0,
     double b1,
-    double Gs_min,  // mmol / m^2 / s
+    double Gs_min,  // mol / m^2 / s
     double theta,   // dimensionless
     double kd,
     double chil,

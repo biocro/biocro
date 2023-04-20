@@ -215,7 +215,7 @@ using physical_constants::dr_boundary;
  *  @return Stomatal conductance to water vapor diffusion \f$ g_{sw} \f$ in
  *          units of mmol / m^2 / s
  */
-double ball_berry_gs(
+stomata_outputs ball_berry_gs(
     double assimilation,            // mol / m^2 / s
     double ambient_c,               // mol / mol
     double ambient_rh,              // Pa / Pa
@@ -261,5 +261,9 @@ double ball_berry_gs(
     // Calculate stomatal conductance using Equation (1) above
     double const gswmol = a * hs + bb_offset;  // mol / m^2 / s
 
-    return gswmol * 1000;  // mmol / m^2 / s
+    return stomata_outputs{
+        .cs = Cs * 1e6,      // micromol / mol
+        .hs = hs,            // dimensionless
+        .gsw = gswmol * 1e3  // mmol / m^2 / s
+    };
 }

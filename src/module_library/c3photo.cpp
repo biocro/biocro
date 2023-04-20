@@ -109,6 +109,7 @@ photosynthesis_outputs c3photoC(
 
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
+    stomata_outputs BB_res;
     double Ci{};                        // micromol / mol
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
@@ -152,15 +153,17 @@ photosynthesis_outputs c3photoC(
         }
 
         // Use Ball-Berry model, equating the leaf and air temperatures
-        Gs = 1e-3 * ball_berry_gs(
-                        co2_assimilation_rate * 1e-6,
-                        Ca * 1e-6,
-                        RH,
-                        b0,
-                        b1,
-                        gbw,
-                        Tleaf,
-                        Tleaf);  // mol / m^2 / s
+        BB_res = ball_berry_gs(
+            co2_assimilation_rate * 1e-6,
+            Ca * 1e-6,
+            RH,
+            b0,
+            b1,
+            gbw,
+            Tleaf,
+            Tleaf);
+
+        Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
 
         if (water_stress_approach == 1) {
             Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
@@ -178,15 +181,17 @@ photosynthesis_outputs c3photoC(
         ++iterCounter;
     }
 
-    photosynthesis_outputs result;
-    result.Assim = co2_assimilation_rate;       // micromol / m^2 / s
-    result.Assim_conductance = an_conductance;  // micromol / m^2 / s
-    result.Ci = (Ci_pa / AP) * 1e6;             // micromol / mol
-    result.GrossAssim = FvCB_res.Vc;            // micromol / m^2 / s
-    result.Gs = Gs * 1e3;                       // mmol / m^2 / s
-    result.Rp = FvCB_res.Vc * Gstar / Ci;       // micromol / m^2 / s
-    result.iterations = iterCounter;            // not a physical quantity
-    return result;
+    return photosynthesis_outputs{
+        .Assim = co2_assimilation_rate,       // micromol / m^2 / s
+        .Assim_conductance = an_conductance,  // micromol / m^2 / s
+        .Ci = (Ci_pa / AP) * 1e6,             // micromol / mol
+        .GrossAssim = FvCB_res.Vc,            // micromol / m^2 / s
+        .Gs = Gs * 1e3,                       // mmol / m^2 / s
+        .Cs = BB_res.cs,                      // micromol / m^2 / s
+        .RHs = BB_res.hs,                     // dimensionless from Pa / Pa
+        .Rp = FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        .iterations = iterCounter             // not a physical quantity
+    };
 }
 
 // This function returns the solubility of O2 in H2O relative to its value at

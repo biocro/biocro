@@ -7,6 +7,12 @@
 
 namespace standardBML
 {
+/**
+ * @class ball_berry
+ *
+ * @brief Uses `ball_berry_gs()` to evaluate the Ball-Berry model for stomatal
+ * conductance.
+ */
 class ball_berry : public direct_module
 {
    public:
@@ -24,6 +30,8 @@ class ball_berry : public direct_module
           ambient_air_temperature{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
+          cs_op{get_op(output_quantities, "cs")},
+          hs_op{get_op(output_quantities, "hs")},
           leaf_stomatal_conductance_op{get_op(output_quantities, "leaf_stomatal_conductance")}
     {
     }
@@ -43,6 +51,8 @@ class ball_berry : public direct_module
     double const& ambient_air_temperature;
 
     // Pointers to output quantities
+    double* cs_op;
+    double* hs_op;
     double* leaf_stomatal_conductance_op;
 
     // Main operation
@@ -52,8 +62,8 @@ class ball_berry : public direct_module
 string_vector ball_berry::get_inputs()
 {
     return {
-        "net_assimilation_rate",  // mol / m^2 / s
-        "Catm",                   // mol / mol
+        "net_assimilation_rate",  // micromol / m^2 / s
+        "Catm",                   // micromol / mol
         "rh",                     // Pa / Pa
         "b0",                     // mol / m^2 / s
         "b1",                     // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
@@ -66,23 +76,27 @@ string_vector ball_berry::get_inputs()
 string_vector ball_berry::get_outputs()
 {
     return {
+        "cs", // micromol / mol
+        "hs", // dimensionless from Pa / Pa
         "leaf_stomatal_conductance"  // mmol / m^2 / s
     };
 }
 
 void ball_berry::do_operation() const
 {
-    update(
-        leaf_stomatal_conductance_op,
-        ball_berry_gs(
-            net_assimilation_rate,
-            ambient_c,
-            ambient_rh,
-            b0,
-            b1,
-            gbw,
-            leaf_temperature,
-            ambient_air_temperature));
+    stomata_outputs result = ball_berry_gs(
+        net_assimilation_rate * 1e-6,
+        ambient_c * 1e-6,
+        ambient_rh,
+        b0,
+        b1,
+        gbw,
+        leaf_temperature,
+        ambient_air_temperature);
+
+    update(cs_op, result.cs);
+    update(hs_op, result.hs);
+    update(leaf_stomatal_conductance_op, result.gsw);
 }
 
 }  // namespace standardBML

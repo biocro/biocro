@@ -1,7 +1,9 @@
 #ifndef BALL_BERRY_GS_H
 #define BALL_BERRY_GS_H
 
-double ball_berry_gs(
+#include "stomata_outputs.h"
+
+stomata_outputs ball_berry_gs(
     double assimilation,
     double ambient_c,
     double ambient_rh,

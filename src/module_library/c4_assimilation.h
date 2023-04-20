@@ -53,6 +53,8 @@ namespace standardBML
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
+ * - ``'Cs'`` for the CO2 concentration at the leaf surface
+ * - ``'RHs'`` for the relative humidity at the leaf surface
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
@@ -91,6 +93,8 @@ class c4_assimilation : public direct_module
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
           Gs_op{get_op(output_quantities, "Gs")},
+          Cs_op{get_op(output_quantities, "Cs")},
+          RHs_op{get_op(output_quantities, "RHs")},
           Ci_op{get_op(output_quantities, "Ci")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
@@ -127,6 +131,8 @@ class c4_assimilation : public direct_module
     // Pointers to output quantities
     double* Assim_op;
     double* Gs_op;
+    double* Cs_op;
+    double* RHs_op;
     double* Ci_op;
     double* GrossAssim_op;
     double* Assim_conductance_op;
@@ -167,6 +173,8 @@ string_vector c4_assimilation::get_outputs()
     return {
         "Assim",              // micromol / m^2 / s
         "Gs",                 // millimol / m^2 / s
+        "Cs",                 // micromol / m^2 / s
+        "RHs",                // dimensionless from Pa / Pa
         "Ci",                 // micromol / mol
         "GrossAssim",         // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
@@ -201,6 +209,8 @@ void c4_assimilation::do_operation() const
     // Update the output quantity list
     update(Assim_op, c4_results.Assim);
     update(Gs_op, c4_results.Gs);
+    update(Cs_op, c4_results.Cs);
+    update(RHs_op, c4_results.RHs);
     update(Ci_op, c4_results.Ci);
     update(GrossAssim_op, c4_results.GrossAssim);
     update(Assim_conductance_op, c4_results.Assim_conductance);
