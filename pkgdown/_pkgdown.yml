@@ -45,3 +45,5 @@ navbar:
         href: articles/avoiding_pitfalls_fvcb.html
       - text: Light Absorption by a Thick Layer (HTML)
         href: articles/thick_layer_absorption.html
+      - text: Using the Ball-Berry Model (HTML)
+        href: articles/ball_berry_model.html

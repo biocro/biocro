@@ -10,7 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{bookdown}
-bibliography: fvcb_references.bib
+bibliography: references/fvcb_references.bib
 csl: chicago-author-date.csl
 link-citations: yes
 pkgdown:
