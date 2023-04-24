@@ -296,7 +296,7 @@ template <typename time_type>
 void dynamical_system::update_drivers(time_type time_index)
 {
     for (auto x : driver_quantity_ptr_pairs) {
-        *(x.first) = (*(x.second))[time_index];
+        *(x.first) = (*(x.second)).at(time_index);
     }
 }
 

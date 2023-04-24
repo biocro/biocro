@@ -127,14 +127,22 @@ void dynamical_system::update_drivers(double time_index)
     // restrict it to a maximum value.
     int t1 = std::floor(time_index);
     int t2 = std::min(std::ceil(time_index), this->get_ntimes() - 1.0);
-    for (const auto& x : driver_quantity_ptr_pairs) {
-        // Use linear interpolation to find value at time_index
-        auto value_at_t1 = (*(x.second)).at(t1);
-        auto value_at_t2 = (*(x.second)).at(t2);
-        auto value_at_time_index =
-            value_at_t1 + (time_index - t1) * (value_at_t2 - value_at_t1);
 
-        *(x.first) = value_at_time_index;
+    if (t1 == t2) {
+        // No need to interpolate in this case; we can just use the method for
+        // discrete times.
+        this->update_drivers(t1);
+    } else {
+        // Use linear interpolation to find the value of each driver at
+        // time_index.
+        for (const auto& x : driver_quantity_ptr_pairs) {
+            auto value_at_t1 = (*(x.second)).at(t1);
+            auto value_at_t2 = (*(x.second)).at(t2);
+            auto value_at_time_index =
+                value_at_t1 + (time_index - t1) * (value_at_t2 - value_at_t1);
+
+            *(x.first) = value_at_time_index;
+        }
     }
 }
 
