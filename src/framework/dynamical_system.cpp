@@ -124,8 +124,8 @@ void dynamical_system::update_drivers(double time_indx)
     int t2 = t1 + 1;  // note t2 - t1 = 1
     for (const auto& x : driver_quantity_ptr_pairs) {
         // Use linear interpolation to find value at time_indx:
-        auto value_at_t1 = (*(x.second))[t1];
-        auto value_at_t2 = (*(x.second))[t2];
+        auto value_at_t1 = (*(x.second)).at(t1);
+        auto value_at_t2 = (*(x.second)).at(t2);
         auto value_at_time_indx =
             value_at_t1 + (time_indx - t1) * (value_at_t2 - value_at_t1);
 
