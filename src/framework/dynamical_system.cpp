@@ -1,3 +1,6 @@
+#include <algorithm>  // for std::min
+#include <stdexcept>  // for std::logic_error, std::runtime_error
+#include <cmath>      // for std::floor, std::ceil
 #include "dynamical_system.h"
 #include "validate_dynamical_system.h"
 #include "utils/module_dependency_utilities.h"  // for get_evaluation_order
@@ -117,19 +120,21 @@ void dynamical_system::reset()
  *         `time_index`; values of the drivers at non-integer values of
  *         `time_index` are determined using linear interpolation.
  */
-void dynamical_system::update_drivers(double time_indx)
+void dynamical_system::update_drivers(double time_index)
 {
-    // Find two closest surrounding integers:
-    int t1 = std::floor(time_indx);
-    int t2 = t1 + 1;  // note t2 - t1 = 1
+    // Find two closest surrounding integers within the time bounds. Sometimes
+    // roundoff errors may cause `ceil(time_index)` to be out-of-bounds, so we
+    // restrict it to a maximum value.
+    int t1 = std::floor(time_index);
+    int t2 = std::min(std::ceil(time_index), this->get_ntimes() - 1.0);
     for (const auto& x : driver_quantity_ptr_pairs) {
-        // Use linear interpolation to find value at time_indx:
+        // Use linear interpolation to find value at time_index
         auto value_at_t1 = (*(x.second)).at(t1);
         auto value_at_t2 = (*(x.second)).at(t2);
-        auto value_at_time_indx =
-            value_at_t1 + (time_indx - t1) * (value_at_t2 - value_at_t1);
+        auto value_at_time_index =
+            value_at_t1 + (time_index - t1) * (value_at_t2 - value_at_t1);
 
-        *(x.first) = value_at_time_indx;
+        *(x.first) = value_at_time_index;
     }
 }
 

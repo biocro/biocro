@@ -212,10 +212,10 @@ class dynamical_system
     vector<pair<double*, const vector<double>*>> driver_quantity_ptr_pairs;
 
     // For calculating derivatives
-    void update_drivers(double time_indx);
+    void update_drivers(double time_index);
 
     template <typename time_type>
-    void update_drivers(time_type time_indx);
+    void update_drivers(time_type time_index);
 
     template <class vector_type>
     void update_differential_quantities(vector_type const& new_values);
@@ -293,10 +293,10 @@ void dynamical_system::calculate_derivative(const vector_type& x, vector_type& d
  *         `size_t`.
  */
 template <typename time_type>
-void dynamical_system::update_drivers(time_type time_indx)
+void dynamical_system::update_drivers(time_type time_index)
 {
     for (auto x : driver_quantity_ptr_pairs) {
-        *(x.first) = (*(x.second))[time_indx];
+        *(x.first) = (*(x.second))[time_index];
     }
 }
 
