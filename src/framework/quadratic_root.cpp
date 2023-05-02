@@ -38,17 +38,17 @@ using std::range_error;
  *  If \f$ a = 0 \f$, this function returns \f$ x_{single} \f$. Otherwise, it
  *  returns either \f$ x_{plus} \f$ or \f$ x_{minus} \f$ depending on the value
  *  of the `root_type` input argument:
- *  - When `root_type` is 1, \f$ x_{plus} \f$ is returned.
- *  - When `root_type` is 2, \f$ x_{minus} \f$ is returned.
- *  - When `root_type` is 3, the larger root is returned.
- *  - When `root_type` is 4 (or any other value), the smaller root is returned.
+ *  - When `root_type` is `plus`, \f$ x_{plus} \f$ is returned.
+ *  - When `root_type` is `minus`, \f$ x_{minus} \f$ is returned.
+ *  - When `root_type` is `larger`, the larger root is returned.
+ *  - When `root_type` is `smaller`, the smaller root is returned.
  *
  *  Convenience functions are also provided that fix `root_type` to a particular
  *  value:
- *  - `quadratic_root_plus()` sets `root_type` to 1.
- *  - `quadratic_root_minus()` sets `root_type` to 2.
- *  - `quadratic_root_max()` sets `root_type` to 3.
- *  - `quadratic_root_min()` sets `root_type` to 4.
+ *  - `quadratic_root_plus()` sets `root_type` to `plus`.
+ *  - `quadratic_root_minus()` sets `root_type` to `minus`.
+ *  - `quadratic_root_max()` sets `root_type` to `larger`.
+ *  - `quadratic_root_min()` sets `root_type` to `smaller`.
  *
  *  @param [in] a The value of \f$ a \f$.
  *
@@ -60,7 +60,11 @@ using std::range_error;
  *
  *  @return One of the roots of \f$ a \cdot x^2 + b \cdot x + c = 0 \f$.
  */
-double quadratic_root(double a, double b, double c, unsigned int root_type)
+double quadratic_root(
+    double a,
+    double b,
+    double c,
+    quadratic_root_type root_type)
 {
     if (abs(a) < eps_zero) {
         return -c / b;
@@ -74,14 +78,17 @@ double quadratic_root(double a, double b, double c, unsigned int root_type)
         double const root_plus = (-b + sqrt(root_term)) / (2 * a);
         double const root_minus = (-b - sqrt(root_term)) / (2 * a);
 
-        if (root_type == 1) {
-            return root_plus;
-        } else if (root_type == 2) {
-            return root_minus;
-        } else if (root_type == 3) {
-            return max(root_plus, root_minus);
-        } else {
-            return min(root_plus, root_minus);
+        switch (root_type) {
+            case plus:
+                return root_plus;
+            case minus:
+                return root_minus;
+            case larger:
+                return max(root_plus, root_minus);
+            case smaller:
+                return min(root_plus, root_minus);
+            default:
+                assert(false);
         }
     }
 }
