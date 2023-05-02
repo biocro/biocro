@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>         // for std::logic_error
 #include <memory>            // For std::shared_ptr
 #include <utility>           // For std::pair
 #include "state_map.h"       // For state_map, state_vector_map, string_vector
@@ -289,14 +290,28 @@ void dynamical_system::calculate_derivative(const vector_type& x, vector_type& d
 /**
  *  @brief Updates values of the drivers in the internally stored quantity map
  *         to match their values in the internally stored drivers table at time
- *         `time_index`, which should be a discrete index such as an `int` or
+ *         `time_index`, which should be an integral index such as an `int` or
  *         `size_t`.
  */
 template <typename time_type>
 void dynamical_system::update_drivers(time_type time_index)
 {
-    for (auto x : driver_quantity_ptr_pairs) {
-        *(x.first) = (*(x.second)).at(time_index);
+    size_t const max_index{this->get_ntimes() - 1};
+
+    if (time_index > static_cast<time_type>(max_index)) {
+        throw std::logic_error(
+            "The value of time_index (" + std::to_string(time_index) +
+            ")\nviolates the preconditions for\n" +
+            "'void update_drivers(time_type time_index)',\n" +
+            "which require time_index to be less than or equal to\n" +
+            "the maximum index for a \ndriver variable (" +
+            std::to_string(max_index) + ").");
+    } else {
+        // Because of the checks above, we can safely use
+        // std::vector::operator[] rather than std::vector::at
+        for (auto x : driver_quantity_ptr_pairs) {
+            *(x.first) = (*(x.second))[time_index];
+        }
     }
 }
 

@@ -122,22 +122,35 @@ void dynamical_system::reset()
  */
 void dynamical_system::update_drivers(double time_index)
 {
+    size_t const max_index{this->get_ntimes() - 1};
+
     // Find two closest surrounding integers within the time bounds. Sometimes
     // roundoff errors may cause `ceil(time_index)` to be out-of-bounds, so we
     // restrict it to a maximum value.
-    int t1 = std::floor(time_index);
-    int t2 = std::min(std::ceil(time_index), this->get_ntimes() - 1.0);
+    size_t const t1{static_cast<size_t>(std::floor(time_index))};
 
-    if (t1 == t2) {
+    size_t const t2{std::min(
+        static_cast<size_t>(std::ceil(time_index)), max_index)};
+
+    if (t1 > max_index) {
+        throw std::logic_error(
+            "The value of time_index (" + std::to_string(time_index) +
+            ")\nviolates the preconditions for\n" +
+            "'void update_drivers(double time_index)',\n" +
+            "which require floor(time_index) to be less than or equal to\n" +
+            "the maximum index for a \ndriver variable (" +
+            std::to_string(max_index) + ").");
+    } else if (t1 == t2) {
         // No need to interpolate in this case; we can just use the method for
-        // discrete times.
+        // integral times.
         this->update_drivers(t1);
     } else {
         // Use linear interpolation to find the value of each driver at
-        // time_index.
+        // time_index. Because of the checks above, we can use
+        // std::vector::operator[] rather than std::vector::at.
         for (const auto& x : driver_quantity_ptr_pairs) {
-            auto value_at_t1 = (*(x.second)).at(t1);
-            auto value_at_t2 = (*(x.second)).at(t2);
+            auto value_at_t1 = (*(x.second))[t1];
+            auto value_at_t2 = (*(x.second))[t2];
             auto value_at_time_index =
                 value_at_t1 + (time_index - t1) * (value_at_t2 - value_at_t1);
 
