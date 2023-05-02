@@ -89,7 +89,7 @@ double quadratic_root(
             case smaller:
                 return min(root_plus, root_minus);
             default:
-                throw logic_error('Undefined root_type passed to quadratic_root');
+                throw logic_error("Undefined root_type passed to quadratic_root");
         }
     }
 }
