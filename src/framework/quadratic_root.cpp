@@ -1,11 +1,12 @@
 #include <cmath>        // for std::abs, sqrt
 #include <algorithm>    // for std::max, std::min
-#include <stdexcept>    // for std::range_error
+#include <stdexcept>    // for std::range_error, std::logic_error
 #include "constants.h"  // for eps_zero
 #include "quadratic_root.h"
 
 using calculation_constants::eps_zero;
 using std::abs;
+using std::logic_error;
 using std::max;
 using std::min;
 using std::range_error;
@@ -88,7 +89,7 @@ double quadratic_root(
             case smaller:
                 return min(root_plus, root_minus);
             default:
-                assert(false);
+                throw logic_error('Undefined root_type passed to quadratic_root');
         }
     }
 }
