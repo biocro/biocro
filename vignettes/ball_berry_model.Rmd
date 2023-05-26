@@ -489,6 +489,154 @@ xyplot(
 )
 ```
 
+## Gas Concentrations Within a C3 Canopy
+
+Here we can see how several quantities change throughout a soybean canopy under
+a fixed set of environmental conditions when using the fully-coupled Ball-Berry
++ FvCB + Penman-Monteith model for leaf level photosynthesis.
+
+```{r}
+# Run canopy modules
+RH_a <- 0.8     # dimensionless; ambient relative humidity
+T_ambient <- 30 # degrees C; ambient air temperature
+StomataWS <- 1  # no water stress
+
+canres <- run_biocro(
+    direct_module_names = c(
+        'BioCro:solar_position_michalsky',
+        'BioCro:shortwave_atmospheric_scattering',
+        'BioCro:incident_shortwave_from_ground_par',
+        'BioCro:ten_layer_canopy_properties',
+        'BioCro:ten_layer_c3_canopy'
+    ),
+    parameters = within(soybean$parameters, {
+        year = 2022
+        time_zone_offset = -6 # CDT
+        solar = 1500          # micromol / m^2 / s
+        lai = 3               # dimensionless
+        rh = RH_a             # dimensionless
+        windspeed = 2         # m / s
+        temp = T_ambient      # degrees C
+        StomataWS = StomataWS # dimensionless
+    }),
+    drivers = data.frame(time = 210.5) # noon on day 210 (July 29 for 2022)
+)
+
+# Extract canopy profiles
+canopy_profiles_list <- lapply(
+    c('sunlit', 'shaded'),
+    function(leaf_class) {
+        cs_column_names <- grep(
+            paste0(leaf_class, '_Cs_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        rhs_column_names <- grep(
+            paste0(leaf_class, '_RHs_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        gsw_column_names <- grep(
+            paste0(leaf_class, '_Gs_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        tl_column_names <- grep(
+            paste0(leaf_class, '_leaf_temperature_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        a_column_names <- grep(
+            paste0(leaf_class, '_Assim_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        data.frame(
+            type = leaf_class,
+            layer = seq(0, 9),
+            Cs = as.numeric(canres[cs_column_names]),
+            RHs = as.numeric(canres[rhs_column_names]),
+            gsw = as.numeric(canres[gsw_column_names]),
+            tl = as.numeric(canres[tl_column_names]),
+            A = as.numeric(canres[a_column_names])
+        )
+    }
+)
+
+canopy_profiles <- do.call(rbind, canopy_profiles_list)
+
+# Plot the Cs profiles
+xyplot(
+    Cs ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'CO2 concentration at leaf surface (micromol / mol)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+
+# Plot the RHs profiles
+xyplot(
+    RHs ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Relative humidity at leaf surface (micromol / mol)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+
+# Plot the gsw profiles
+xyplot(
+    gsw ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+
+# Plot the leaf temperature profiles
+xyplot(
+    tl ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Leaf temperature (degrees C)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+
+# Plot the assimilation profiles
+xyplot(
+    A ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+
+```
+
 ## Soybean Modeling
 
 Here we can see how the Ball-Berry slope can affect soybean yield. The slope
