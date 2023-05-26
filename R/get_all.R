@@ -87,8 +87,3 @@ get_all_ode_solvers <- function()
 {
 	.Call(R_get_all_ode_solvers)
 }
-
-get_all_se_solvers <- function()
-{
-	.Call(R_get_all_se_solvers)
-}

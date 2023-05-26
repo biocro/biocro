@@ -1,3 +1,0 @@
-input,input,input,input,input,input,input,output,output,output,output,output,"description"
-atmospheric_pressure,conductance_stomatal_h2o,leafwidth,mole_fraction_h2o_atmosphere,nikolov_ce,temp,temperature_leaf,conductance_boundary_h2o_free,ed_nikolov_conductance_free_solve_ncalls,ed_nikolov_conductance_free_solve_nsteps,ed_nikolov_conductance_free_solve_success,nikolov_virtual_temperature_difference,NA
-1,1,1,1,1,1,1,0.926524900017713,4,1,1,-442.895614639428,"automatically-generated test case"
