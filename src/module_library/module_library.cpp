@@ -27,10 +27,6 @@
 #include "thermal_time_bilinear.h"
 #include "thermal_time_trilinear.h"
 #include "thermal_time_beta.h"
-#include "utilization_growth.hpp"
-#include "utilization_growth_calculator.hpp"
-#include "utilization_senescence.hpp"
-#include "utilization_senescence_calculator.hpp"
 #include "leaf_water_stress_exponential.hpp"
 #include "biomass_leaf_n_limitation.hpp"
 #include "pokhilko_circadian_clock.hpp"
@@ -71,30 +67,6 @@
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
-#include "ed_water_vapor_properties.h"
-#include "ed_rh_to_mole_fraction.h"
-#include "ed_nikolov_conductance.h"
-#include "ed_boundary_conductance.h"
-#include "ed_ball_berry.h"
-#include "ed_collatz_c4_assimilation.h"
-#include "ed_gas_concentrations.h"
-#include "ed_long_wave_energy_loss.h"
-#include "ed_penman_monteith_leaf_temperature.h"
-#include "ed_leaf_temperature.h"
-#include "ed_penman_monteith_transpiration.h"
-#include "ed_stomata_water_stress_linear.h"
-#include "ed_apply_water_stress.h"
-#include "ed_c4_leaf_photosynthesis.h"
-#include "ed_c4_leaf_photosynthesis2.h"
-#include "ed_c4_leaf_photosynthesis3.h"
-#include "ed_c4_leaf_photosynthesis4.h"
-#include "ed_c4photo.h"
-#include "ed_evapotrans2.h"
-#include "ed_canac_leaf.h"
-#include "ed_abc_blc.h"
-#include "ed_multilayer_canopy_properties.h"
-#include "ed_multilayer_c4_canopy.h"
-#include "ed_multilayer_canopy_integrator.h"
 #include "hyperbolas.h"
 #include "partitioning_coefficient_logistic.h"
 #include "senescence_coefficient_logistic.h"
@@ -139,10 +111,6 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_bilinear",                                 &create_mc<thermal_time_bilinear>},
      {"thermal_time_trilinear",                                &create_mc<thermal_time_trilinear>},
      {"thermal_time_beta",                                     &create_mc<thermal_time_beta>},
-     {"utilization_growth",                                    &create_mc<utilization_growth>},
-     {"utilization_growth_calculator",                         &create_mc<utilization_growth_calculator>},
-     {"utilization_senescence",                                &create_mc<utilization_senescence>},
-     {"utilization_senescence_calculator",                     &create_mc<utilization_senescence_calculator>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
      {"pokhilko_circadian_clock",                              &create_mc<pokhilko_circadian_clock>},
@@ -185,41 +153,12 @@ creator_map standardBML::module_library::library_entries =
      {"oscillator_clock_calculator",                           &create_mc<oscillator_clock_calculator>},
      {"night_and_day_trackers",                                &create_mc<night_and_day_trackers>},
      {"light_from_solar",                                      &create_mc<light_from_solar>},
-     {"ed_water_vapor_properties",                             &create_mc<ed_water_vapor_properties>},
-     {"ed_rh_to_mole_fraction",                                &create_mc<ed_rh_to_mole_fraction>},
-     {"ed_nikolov_conductance_forced",                         &create_mc<ed_nikolov_conductance_forced>},
-     {"ed_nikolov_conductance_free",                           &create_mc<ed_nikolov_conductance_free>},
-     {"ed_nikolov_conductance_free_solve",                     &create_mc<ed_nikolov_conductance_free_solve>},
-     {"ed_boundary_conductance_max",                           &create_mc<ed_boundary_conductance_max>},
-     {"ed_boundary_conductance_quadrature",                    &create_mc<ed_boundary_conductance_quadrature>},
-     {"ed_ball_berry",                                         &create_mc<ed_ball_berry>},
-     {"ed_collatz_c4_assimilation",                            &create_mc<ed_collatz_c4_assimilation>},
-     {"ed_gas_concentrations",                                 &create_mc<ed_gas_concentrations>},
-     {"ed_long_wave_energy_loss",                              &create_mc<ed_long_wave_energy_loss>},
-     {"ed_penman_monteith_leaf_temperature",                   &create_mc<ed_penman_monteith_leaf_temperature>},
      {"partitioning_coefficient_logistic",                     &create_mc<partitioning_coefficient_logistic>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
      {"development_index",                                     &create_mc<development_index>},
      {"soybean_development_rate_calculator",                   &create_mc<soybean_development_rate_calculator>},
      {"thermal_time_development_rate_calculator",              &create_mc<thermal_time_development_rate_calculator>},
-     {"ed_p_m_temperature_solve",                              &create_mc<ed_p_m_temperature_solve>},
-     {"ed_leaf_temperature",                                   &create_mc<ed_leaf_temperature>},
-     {"ed_penman_monteith_transpiration",                      &create_mc<ed_penman_monteith_transpiration>},
-     {"ed_stomata_water_stress_linear",                        &create_mc<ed_stomata_water_stress_linear>},
-     {"ed_apply_stomatal_water_stress_via_conductance",        &create_mc<ed_apply_stomatal_water_stress_via_conductance>},
-     {"ed_apply_stomatal_water_stress_via_assimilation",       &create_mc<ed_apply_stomatal_water_stress_via_assimilation>},
-     {"ed_c4_leaf_photosynthesis",                             &create_mc<ed_c4_leaf_photosynthesis>},
-     {"ed_c4_leaf_photosynthesis2",                            &create_mc<ed_c4_leaf_photosynthesis2>},
-     {"ed_c4_leaf_photosynthesis3",                            &create_mc<ed_c4_leaf_photosynthesis3>},
-     {"ed_c4_leaf_photosynthesis4",                            &create_mc<ed_c4_leaf_photosynthesis4>},
-     {"ed_c4photo",                                            &create_mc<ed_c4photo>},
-     {"ed_evapotrans2",                                        &create_mc<ed_evapotrans2>},
-     {"ed_canac_leaf",                                         &create_mc<ed_canac_leaf>},
-     {"ed_abc_blc",                                            &create_mc<ed_abc_blc>},
-     {"ed_ten_layer_canopy_properties",                        &create_mc<ed_ten_layer_canopy_properties>},
-     {"ed_ten_layer_c4_canopy",                                &create_mc<ed_ten_layer_c4_canopy>},
-     {"ed_ten_layer_canopy_integrator",                        &create_mc<ed_ten_layer_canopy_integrator>},
      {"golden_ratio_hyperbola",                                &create_mc<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                          &create_mc<hyperbola_2d>},
      {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_mc<no_leaf_resp_neg_assim_partitioning_growth_calculator>},

@@ -10,7 +10,7 @@
 
 PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
 
-SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework_ed/*.cpp framework/ode_solver_library/*.cpp framework_ed/se_solver_library/*.cpp framework/utils/*.cpp)
+SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 
@@ -43,7 +43,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all:
 
 DEPDIR := .deps
-DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/framework $(DEPDIR)/framework_ed $(DEPDIR)/framework/ode_solver_library $(DEPDIR)/framework_ed/se_solver_library $(DEPDIR)/framework/utils
+DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/framework $(DEPDIR)/framework/ode_solver_library $(DEPDIR)/framework/utils
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 

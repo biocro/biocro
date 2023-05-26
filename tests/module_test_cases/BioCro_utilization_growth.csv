@@ -1,3 +1,0 @@
-input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,"description"
-canopy_assimilation_rate,transport_leaf_to_stem,transport_stem_to_grain,transport_stem_to_rhizome,transport_stem_to_root,utilization_grain,utilization_leaf,utilization_rhizome,utilization_root,utilization_stem,Grain,Leaf,Rhizome,Root,Stem,substrate_pool_grain,substrate_pool_leaf,substrate_pool_rhizome,substrate_pool_root,substrate_pool_stem,NA
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,-1,0,0,-3,"automatically-generated test case"

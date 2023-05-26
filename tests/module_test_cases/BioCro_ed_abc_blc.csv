@@ -1,3 +1,0 @@
-input,input,input,input,input,input,input,input,output,"description"
-atmospheric_pressure,conductance_stomatal_h2o,leafwidth,minimum_gbw,mole_fraction_h2o_atmosphere,temp,temperature_leaf,windspeed,conductance_boundary_h2o,NA
-1,1,1,1,1,1,1,1,41.0004100041,"automatically-generated test case"
