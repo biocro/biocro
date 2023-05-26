@@ -437,7 +437,7 @@ state_vector_map get_results_from_system(
 /**
  * @brief Define `evaluation` behavior for a set of equations defined by a
  * `dynamical_system` object. This is required to use `calculate_jacobian()`
- * with a `simultaneous_equations` object.
+ * with a `dynamical_system` object.
  *
  * @param[in] sys a shared pointer to a dynamical_system object.
  *

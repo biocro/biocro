@@ -1,4 +1,4 @@
-PKG_CPPFLAGS+=-I../boost_1_71_0 -DR_NO_REMAP
+PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
