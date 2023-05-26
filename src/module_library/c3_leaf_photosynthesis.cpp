@@ -42,6 +42,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "Rp",                // micromol / m^2 / s
         "Ci",                // micromole / mol
         "Gs",                // mmol / m^2 / s
+        "Cs",                // micromol / m^2 / s
+        "RHs",               // dimensionless from Pa / Pa
         "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
@@ -93,6 +95,8 @@ void c3_leaf_photosynthesis::do_operation() const
     update(Rp_op, photo.Rp);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
+    update(Cs_op, photo.Cs);
+    update(RHs_op, photo.RHs);
     update(TransR_op, et.TransR);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);

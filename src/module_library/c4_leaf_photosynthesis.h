@@ -52,6 +52,8 @@ class c4_leaf_photosynthesis : public direct_module
           Rp_op{get_op(output_quantities, "Rp")},
           Ci_op{get_op(output_quantities, "Ci")},
           Gs_op{get_op(output_quantities, "Gs")},
+          Cs_op{get_op(output_quantities, "Cs")},
+          RHs_op{get_op(output_quantities, "RHs")},
           TransR_op{get_op(output_quantities, "TransR")},
           EPenman_op{get_op(output_quantities, "EPenman")},
           EPriestly_op{get_op(output_quantities, "EPriestly")},
@@ -96,6 +98,8 @@ class c4_leaf_photosynthesis : public direct_module
     double* Rp_op;
     double* Ci_op;
     double* Gs_op;
+    double* Cs_op;
+    double* RHs_op;
     double* TransR_op;
     double* EPenman_op;
     double* EPriestly_op;
