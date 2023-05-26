@@ -38,8 +38,9 @@ string_vector c3_leaf_photosynthesis::get_inputs()
 string_vector c3_leaf_photosynthesis::get_outputs()
 {
     return {
-        "Assim",             // micromole / m^2 /s
-        "GrossAssim",        // micromole / m^2 /s
+        "Assim",             // micromol / m^2 /s
+        "GrossAssim",        // micromol / m^2 /s
+        "Rp",                // micromol / m^2 / s
         "Ci",                // micromole / mol
         "Gs",                // mmol / m^2 / s
         "TransR",            // mmol / m^2 / s
@@ -52,6 +53,9 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 
 void c3_leaf_photosynthesis::do_operation() const
 {
+    // Make an initial guess for boundary layer conductance
+    double const gbw_guess{1.2};  // mol / m^2 / s
+
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
     double const initial_stomatal_conductance =
@@ -59,12 +63,12 @@ void c3_leaf_photosynthesis::do_operation() const
             absorbed_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
-            electrons_per_oxygenation, beta_PSII)
+            electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
     // stomatal conductance
-    const struct ET_Str et =
+    const ET_Str et =
         c3EvapoTrans(
             average_absorbed_shortwave, temp, rh, windspeed, height,
             specific_heat_of_air, initial_stomatal_conductance, minimum_gbw,
@@ -74,16 +78,18 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
-    const struct c3_str photo =
+    const photosynthesis_outputs photo =
         c3photoC(
             absorbed_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
-            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII);
+            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
+            et.boundary_layer_conductance);
 
     // Update the outputs
     update(Assim_op, photo.Assim);
     update(GrossAssim_op, photo.GrossAssim);
+    update(Rp_op, photo.Rp);
     update(Ci_op, photo.Ci);
     update(Gs_op, photo.Gs);
     update(TransR_op, et.TransR);

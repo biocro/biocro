@@ -1,14 +1,9 @@
 #ifndef C3PHOTO_H
 #define C3PHOTO_H
 
-struct c3_str {
-    double Assim;
-    double Gs;
-    double Ci;
-    double GrossAssim;
-};
+#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
 
-struct c3_str c3photoC(
+photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,
     double const Tleaf,
     double const RH,
@@ -27,7 +22,8 @@ struct c3_str c3photoC(
     int const water_stress_approach,
     double const electrons_per_carboxylation,
     double const electrons_per_oxygenation,
-    double const beta_PSII);
+    double const beta_PSII,
+    double const gbw);
 
 double solc(double LeafT);
 double solo(double LeafT);

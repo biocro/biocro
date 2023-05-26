@@ -1,9 +1,10 @@
 #ifndef C4CANAC_H
 #define C4CANAC_H
 
-#include "AuxBioCro.h"  // for Can_Str and nitroParms
+#include "AuxBioCro.h"                      // for nitroParms
+#include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 
-struct Can_Str CanAC(
+canopy_photosynthesis_outputs CanAC(
     double LAI,
     double cosine_zenith_angle,
     double solarR,
@@ -28,7 +29,7 @@ struct Can_Str CanAC(
     int lnfun,
     double upperT,
     double lowerT,
-    const struct nitroParms& nitroP,
+    const nitroParms& nitroP,
     double leafwidth,
     int eteq,
     double StomataWS,

@@ -53,15 +53,17 @@ string_vector c3_canopy::get_inputs()
 string_vector c3_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",   // Mg / ha / hr
-        "canopy_transpiration_rate",  // Mg / ha / hr
-        "GrossAssim"                  // Mg / ha / hr
+        "canopy_assimilation_rate",     // Mg / ha / hr
+        "canopy_transpiration_rate",    // Mg / ha / hr
+        "canopy_conductance",           // Mg / ha / hr
+        "GrossAssim",                   // Mg / ha / hr
+        "canopy_photorespiration_rate"  // Mg / ha / hr
     };
 }
 
 void c3_canopy::do_operation() const
 {
-    struct Can_Str can_result = c3CanAC(
+    canopy_photosynthesis_outputs can_result = c3CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax, jmax,
         tpu_rate_max, Rd, Catm, O2, b0, b1, Gs_min, theta, kd, heightf, LeafN,
         kpLN, lnb0, lnb1, lnfun, chil, StomataWS, specific_heat_of_air,
@@ -72,7 +74,9 @@ void c3_canopy::do_operation() const
         windspeed_height, beta_PSII);
 
     // Update the output quantity list
-    update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.
-    update(canopy_transpiration_rate_op, can_result.Trans);  // Mg / ha / hr.
-    update(GrossAssim_op, can_result.GrossAssim);
+    update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr
+    update(canopy_transpiration_rate_op, can_result.Trans);  // Mg / ha / hr
+    update(canopy_conductance_op, can_result.canopy_conductance);  // mmol / m^2 / s
+    update(GrossAssim_op, can_result.GrossAssim);            // Mg / ha / hr
+    update(canopy_photorespiration_rate_op, can_result.Rp);  // Mg / ha / hr
 }

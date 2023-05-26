@@ -48,12 +48,16 @@ namespace standardBML
  * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
+ * - ``'gbw'`` for the boundary layer conductance to water vapor
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
+ * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
+ * - ``'Rp'`` for the rate of photorespiration
+ * - ``'iterations'`` for the number of iterations required for the convergence loop
  */
 class c3_assimilation : public direct_module
 {
@@ -83,12 +87,16 @@ class c3_assimilation : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
+          gbw{get_input(input_quantities, "gbw")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
           Gs_op{get_op(output_quantities, "Gs")},
           Ci_op{get_op(output_quantities, "Ci")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
+          Rp_op{get_op(output_quantities, "Rp")},
+          iterations_op{get_op(output_quantities, "iterations")}
     {
     }
     static string_vector get_inputs();
@@ -116,12 +124,16 @@ class c3_assimilation : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& beta_PSII;
+    double const& gbw;
 
     // Pointers to output quantities
     double* Assim_op;
     double* Gs_op;
     double* Ci_op;
     double* GrossAssim_op;
+    double* Assim_conductance_op;
+    double* Rp_op;
+    double* iterations_op;
 
     // Main operation
     void do_operation() const;
@@ -148,23 +160,27 @@ string_vector c3_assimilation::get_inputs()
         "water_stress_approach",        // dimensionless
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
-        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "gbw"                           // mol / m^2 / s
     };
 }
 
 string_vector c3_assimilation::get_outputs()
 {
     return {
-        "Assim",      // micromol / m^2 / s
-        "Gs",         // millimol / m^2 / s
-        "Ci",         // micromol / mol
-        "GrossAssim"  // micromol / m^2 / s
+        "Assim",              // micromol / m^2 / s
+        "Gs",                 // millimol / m^2 / s
+        "Ci",                 // micromol / mol
+        "GrossAssim",         // micromol / m^2 / s
+        "Assim_conductance",  // micromol / m^2 / s
+        "Rp",                 // micromol / m^2 / s
+        "iterations"          // not a physical quantity
     };
 }
 
 void c3_assimilation::do_operation() const
 {
-    c3_str c3_results = c3photoC(
+    photosynthesis_outputs c3_results = c3photoC(
         Qabs,
         Tleaf,
         rh,
@@ -183,13 +199,17 @@ void c3_assimilation::do_operation() const
         water_stress_approach,
         electrons_per_carboxylation,
         electrons_per_oxygenation,
-        beta_PSII);
+        beta_PSII,
+        gbw);
 
     // Update the output quantity list
     update(Assim_op, c3_results.Assim);
     update(Gs_op, c3_results.Gs);
     update(Ci_op, c3_results.Ci);
     update(GrossAssim_op, c3_results.GrossAssim);
+    update(Assim_conductance_op, c3_results.Assim_conductance);
+    update(Rp_op, c3_results.Rp);
+    update(iterations_op, c3_results.iterations);
 }
 
 }  // namespace standardBML

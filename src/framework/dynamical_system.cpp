@@ -1,3 +1,6 @@
+#include <algorithm>  // for std::min
+#include <stdexcept>  // for std::logic_error, std::runtime_error
+#include <cmath>      // for std::floor, std::ceil
 #include "dynamical_system.h"
 #include "validate_dynamical_system.h"
 #include "utils/module_dependency_utilities.h"  // for get_evaluation_order
@@ -117,19 +120,42 @@ void dynamical_system::reset()
  *         `time_index`; values of the drivers at non-integer values of
  *         `time_index` are determined using linear interpolation.
  */
-void dynamical_system::update_drivers(double time_indx)
+void dynamical_system::update_drivers(double time_index)
 {
-    // Find two closest surrounding integers:
-    int t1 = std::floor(time_indx);
-    int t2 = t1 + 1;  // note t2 - t1 = 1
-    for (const auto& x : driver_quantity_ptr_pairs) {
-        // Use linear interpolation to find value at time_indx:
-        auto value_at_t1 = (*(x.second))[t1];
-        auto value_at_t2 = (*(x.second))[t2];
-        auto value_at_time_indx =
-            value_at_t1 + (time_indx - t1) * (value_at_t2 - value_at_t1);
+    size_t const max_index{this->get_ntimes() - 1};
 
-        *(x.first) = value_at_time_indx;
+    // Find two closest surrounding integers within the time bounds. Sometimes
+    // roundoff errors may cause `ceil(time_index)` to be out-of-bounds, so we
+    // restrict it to a maximum value.
+    size_t const t1{static_cast<size_t>(std::floor(time_index))};
+
+    size_t const t2{std::min(
+        static_cast<size_t>(std::ceil(time_index)), max_index)};
+
+    if (t1 > max_index) {
+        throw std::logic_error(
+            "The value of time_index (" + std::to_string(time_index) +
+            ")\nviolates the preconditions for\n" +
+            "'void update_drivers(double time_index)',\n" +
+            "which require floor(time_index) to be less than or equal to\n" +
+            "the maximum index for a \ndriver variable (" +
+            std::to_string(max_index) + ").");
+    } else if (t1 == t2) {
+        // No need to interpolate in this case; we can just use the method for
+        // integral times.
+        this->update_drivers(t1);
+    } else {
+        // Use linear interpolation to find the value of each driver at
+        // time_index. Because of the checks above, we can use
+        // std::vector::operator[] rather than std::vector::at.
+        for (const auto& x : driver_quantity_ptr_pairs) {
+            auto value_at_t1 = (*(x.second))[t1];
+            auto value_at_t2 = (*(x.second))[t2];
+            auto value_at_time_index =
+                value_at_t1 + (time_index - t1) * (value_at_t2 - value_at_t1);
+
+            *(x.first) = value_at_time_index;
+        }
     }
 }
 

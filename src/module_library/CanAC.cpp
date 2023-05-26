@@ -4,7 +4,7 @@
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
-struct Can_Str CanAC(
+canopy_photosynthesis_outputs CanAC(
     double LAI,                  // dimensionless from m^2 / m^2
     double cosine_zenith_angle,  // dimensionless
     double solarR,               // micromol / m^2 / s
@@ -29,7 +29,7 @@ struct Can_Str CanAC(
     int lnfun,      // dimensionless switch
     double upperT,  // degrees C
     double lowerT,  // degrees C
-    const struct nitroParms& nitroP,
+    const nitroParms& nitroP,
     double leafwidth,             // m
     int eteq,                     // dimensionless switch
     double StomataWS,             // dimensionless
@@ -44,7 +44,7 @@ struct Can_Str CanAC(
     double minimum_gbw            // mol / m^2 / s
 )
 {
-    struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
+    Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
@@ -53,7 +53,7 @@ struct Can_Str CanAC(
 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
-    struct Light_profile light_profile =
+    Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
               1, par_energy_content, par_energy_fraction,
               leaf_transmittance, leaf_reflectance);
@@ -69,12 +69,15 @@ struct Can_Str CanAC(
     double leafN_profile[nlayers];
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
 
-    double CanopyA = 0.0;             // micromol / m^2 / s
-    double GCanopyA = 0.0;            // micromol / m^2 / s
-    double CanopyT = 0.0;             // mmol / m^2 / s
-    double CanopyPe = 0.0;            // mmol / m^2 / s
-    double CanopyPr = 0.0;            // mmol / m^2 / s
-    double canopy_conductance = 0.0;  // mmol / m^2 / s
+    double CanopyA{0.0};             // micromol / m^2 / s
+    double GCanopyA{0.0};            // micromol / m^2 / s
+    double canopy_rp{0.0};           // micromol / m^2 / s
+    double CanopyT{0.0};             // mmol / m^2 / s
+    double CanopyPe{0.0};            // mmol / m^2 / s
+    double CanopyPr{0.0};            // mmol / m^2 / s
+    double canopy_conductance{0.0};  // mmol / m^2 / s
+
+    double gbw_guess{1.2};  // mol / m^2 / s
 
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
@@ -110,26 +113,28 @@ struct Can_Str CanAC(
         double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless. Fraction of LAI that is sunlit.
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
-        double direct_stomatal_conductance =
+        double direct_gsw_estimate =
             c4photoC(
                 i_dir, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT)
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
-        struct ET_Str et_direct =
+        ET_Str et_direct =
             EvapoTrans2(
                 j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
-                direct_stomatal_conductance, leafwidth, specific_heat_of_air,
+                direct_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
         double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
 
-        struct c4_str direct_photo =
+        photosynthesis_outputs direct_photo =
             c4photoC(
                 i_dir, leaf_temperature_dir, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT);
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                et_direct.boundary_layer_conductance);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -141,31 +146,34 @@ struct Can_Str CanAC(
         double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless. Fraction of LAI that is shaded.
         double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
-        double diffuse_stomatal_conductance =
+        double diffuse_gsw_estimate =
             c4photoC(
                 i_diff, temperature, relative_humidity, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT)
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
-        struct ET_Str et_diffuse =
+        ET_Str et_diffuse =
             EvapoTrans2(
                 j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
-                diffuse_stomatal_conductance, leafwidth, specific_heat_of_air,
+                diffuse_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
         double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
 
-        struct c4_str diffuse_photo =
+        photosynthesis_outputs diffuse_photo =
             c4photoC(
                 i_diff, leaf_temperature_diff, relative_humidity, vmax1, Alpha,
                 Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, water_stress_approach, upperT, lowerT);
+                atmospheric_pressure, water_stress_approach, upperT, lowerT,
+                et_diffuse.boundary_layer_conductance);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
         GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
+        canopy_rp += Leafsun * direct_photo.Rp + Leafshade * diffuse_photo.Rp;                 // micromol / m^2 / s
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
@@ -189,9 +197,10 @@ struct Can_Str CanAC(
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    struct Can_Str ans;
+    canopy_photosynthesis_outputs ans;
     ans.Assim = CanopyA * cf;                      // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
+    ans.Rp = canopy_rp * cf;                       // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;  // mmol / m^2 / s

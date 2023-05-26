@@ -68,7 +68,8 @@ class c4_canopy : public direct_module
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
     {
     }
     static string_vector get_inputs();
@@ -130,6 +131,7 @@ class c4_canopy : public direct_module
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
     double* GrossAssim_op;
+    double* canopy_photorespiration_rate_op;
 
     // Main operation
     void do_operation() const;
@@ -191,10 +193,11 @@ string_vector c4_canopy::get_inputs()
 string_vector c4_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",   // Mg / ha / hr
-        "canopy_transpiration_rate",  // Mg / ha / hr
-        "canopy_conductance",         // Mg / ha / hr
-        "GrossAssim"                  // Mg / ha / hr
+        "canopy_assimilation_rate",     // Mg / ha / hr
+        "canopy_transpiration_rate",    // Mg / ha / hr
+        "canopy_conductance",           // Mg / ha / hr
+        "GrossAssim",                   // Mg / ha / hr
+        "canopy_photorespiration_rate"  // Mg / ha / hr
     };
 }
 
@@ -214,7 +217,7 @@ void c4_canopy::do_operation() const
     nitroP.lnb0 = nlnb0;
     nitroP.lnb1 = nlnb1;
 
-    struct Can_Str can_result = CanAC(
+    struct canopy_photosynthesis_outputs can_result = CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
         kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, LeafN,
         kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
@@ -223,10 +226,11 @@ void c4_canopy::do_operation() const
         leaf_transmittance, leaf_reflectance, minimum_gbw);
 
     // Update the parameter list
-    update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.
-    update(canopy_transpiration_rate_op, can_result.Trans);  // Mg / ha / hr.
-    update(canopy_conductance_op, can_result.canopy_conductance);
-    update(GrossAssim_op, can_result.GrossAssim);
+    update(canopy_assimilation_rate_op, can_result.Assim);         // Mg / ha / hr
+    update(canopy_transpiration_rate_op, can_result.Trans);        // Mg / ha / hr
+    update(canopy_conductance_op, can_result.canopy_conductance);  // mmol / m^2 / s
+    update(GrossAssim_op, can_result.GrossAssim);                  // Mg / ha / hr
+    update(canopy_photorespiration_rate_op, can_result.Rp);        // Mg / ha / hr
 }
 
 }  // namespace standardBML

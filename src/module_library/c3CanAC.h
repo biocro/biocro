@@ -1,9 +1,9 @@
 #ifndef C3CANAC_H
 #define C3CANAC_H
 
-#include "AuxBioCro.h"  // for Can_Str
+#include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 
-struct Can_Str c3CanAC(
+struct canopy_photosynthesis_outputs c3CanAC(
     double LAI,
     double cosine_zenith_angle,
     double solarR,
