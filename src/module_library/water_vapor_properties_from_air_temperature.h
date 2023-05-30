@@ -16,7 +16,7 @@ class water_vapor_properties_from_air_temperature : public direct_module
     water_vapor_properties_from_air_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

@@ -20,7 +20,7 @@ class buck_swvp : public direct_module
     buck_swvp(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

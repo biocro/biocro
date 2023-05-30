@@ -35,7 +35,7 @@ class leaf_gbw_nikolov : public direct_module
     leaf_gbw_nikolov(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           windspeed{get_input(input_quantities, "windspeed")},
