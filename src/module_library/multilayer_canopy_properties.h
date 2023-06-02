@@ -71,7 +71,6 @@ class multilayer_canopy_properties : public direct_module
           kd{get_input(input_quantities, "kd")},
           chil{get_input(input_quantities, "chil")},
           heightf{get_input(input_quantities, "heightf")},
-          rh{get_input(input_quantities, "rh")},
           windspeed{get_input(input_quantities, "windspeed")},
           LeafN{get_input(input_quantities, "LeafN")},
           kpLN{get_input(input_quantities, "kpLN")},
@@ -94,7 +93,6 @@ class multilayer_canopy_properties : public direct_module
           average_absorbed_shortwave_ops{get_multilayer_op(output_quantities, nlayers, "average_absorbed_shortwave")},
           incident_ppfd_scattered_ops{get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")},
           height_ops{get_multilayer_op(output_quantities, nlayers, "height")},
-          rh_ops{get_multilayer_op(output_quantities, nlayers, "rh")},
           windspeed_ops{get_multilayer_op(output_quantities, nlayers, "windspeed")},
           LeafN_ops{get_multilayer_op(output_quantities, nlayers, "LeafN")},
           canopy_direct_transmission_fraction_op{get_op(output_quantities, "canopy_direct_transmission_fraction")}
@@ -114,7 +112,6 @@ class multilayer_canopy_properties : public direct_module
     double const& kd;
     double const& chil;
     double const& heightf;
-    double const& rh;
     double const& windspeed;
     double const& LeafN;
     double const& kpLN;
@@ -137,7 +134,6 @@ class multilayer_canopy_properties : public direct_module
     std::vector<double*> const average_absorbed_shortwave_ops;
     std::vector<double*> const incident_ppfd_scattered_ops;
     std::vector<double*> const height_ops;
-    std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;
     std::vector<double*> const LeafN_ops;
     double* canopy_direct_transmission_fraction_op;
