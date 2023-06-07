@@ -43,7 +43,7 @@ where $g_{sw}$ is the stomatal conductance to water vapor diffusion, $A_n$ is
 the net CO$_2$ assimilation rate, $b_0$ and $b_1$ are the Ball-Berry intercept
 and slope, $h_s$ is the relative humidity at the leaf surface, and $C_s$ is the
 CO$_2$ concentration at the leaf surface. When $A_n < 0$, $g_{sw} = b_0$. Here,
-the net assimilation is a proxy for for the incident light intensity and
+the net assimilation is a proxy for the incident light intensity and
 captures the nonlinear response of $g_{sw}$ to light. The quantity
 $A_n \cdot h_s / C_s$ is often called the Ball-Berry index; thus, the model
 states that stomatal conductance is a linear function of the Ball-Berry index,
@@ -257,7 +257,7 @@ library(lattice)
 ## Ball-Berry
 
 Here we will visualize the Ball-Berry model's output for soybean leaves with
-several different values of $A_n$ and $T_a$. We can see that $g_{sw}$ change
+several different values of $A_n$ and $T_a$. We can see that $g_{sw}$ changes
 with ambient temperature while $C_s$ does not.
 
 ```{r}
@@ -331,8 +331,8 @@ xyplot(
 
 Here we will calculate the response of $g_{sw}$ and $A_n$ to light and humidity
 in a coupled model incorporating the Ball-Berry and Farquhar-von-Caemmerer-Berry
-models. This coupled model also gives us the option to reduce a crop's
-"inherent" Ball-Berry parameters in response to water stress; for this
+models. Although this coupled model also gives us the option to reduce a crop's
+"inherent" Ball-Berry parameters in response to water stress, for this
 simulation we will ignore water stress by setting `StomataWS = 1`. From these
 calculations, we can see that the stomatal conductance increases for higher
 humidities, and that both $A_n$ and $g_{sw}$ reach plateaus at high light
@@ -643,7 +643,7 @@ Here we can see how the Ball-Berry slope can affect soybean yield. The slope
 encapsulates the "willingness" of a crop to open its stomata. When resources are
 plentiful, higher stomatal conductance may allow for more carbon assimilation
 and hence growth. On the other hand, higher stomatal conductance increases water
-losses due to transpiration, and can exascerbate drought stress. Thus, the exact
+losses due to transpiration, and can exacerbate drought stress. Thus, the exact
 impact of a change in $b_1$ will therefore strongly depend on the particular
 location and weather.
 
