@@ -4,6 +4,7 @@ output:
   bookdown::html_vignette2:
     toc: true
     number_sections: true
+    fig_caption: yes
 vignette: >
   %\VignetteIndexEntry{Using the Ball-Berry Model in Crop Growth Simulations}
   %\VignetteEngine{knitr::rmarkdown}
@@ -257,8 +258,9 @@ library(lattice)
 ## Ball-Berry
 
 Here we will visualize the Ball-Berry model's output for soybean leaves with
-several different values of $A_n$ and $T_a$. We can see that $g_{sw}$ changes
-with ambient temperature while $C_s$ does not.
+several different values of $A_n$ and $T_a$. We can see that $g_{sw}$ and $h_s$
+change with ambient temperature (Figures \@ref(fig:gsw-an) and \@ref(fig:hs-an))
+while $C_s$ does not (Figure \@ref(fig:cs-an)).
 
 ```{r}
 # Choose a leaf temperature
@@ -277,6 +279,11 @@ bb_rc <- module_response_curve(
     temp = seq(Tleaf - 6, Tleaf + 6, by = 2)               # degrees C
   )
 )
+```
+
+```{r gsw-an}
+#| fig.cap = "$g_{sw}$ vs $A_n$ for several different $T_a$ as predicted by the
+#|   Ball-Berry model with soybean parameter values."
 
 # Plot gsw
 xyplot(
@@ -293,6 +300,11 @@ xyplot(
         "\nand different T_ambient"
     )
 )
+```
+
+```{r hs-an}
+#| fig.cap = "$h_s$ vs $A_n$ for several different $T_a$ as predicted by the
+#|   Ball-Berry model with soybean parameter values."
 
 # Plot hs
 xyplot(
@@ -309,6 +321,11 @@ xyplot(
         "\nand different T_ambient"
     )
 )
+```
+
+```{r cs-an}
+#| fig.cap = "$C_s$ vs $A_n$ for several different $T_a$ as predicted by the
+#|   Ball-Berry model with soybean parameter values."
 
 # Plot cs
 xyplot(
@@ -329,17 +346,19 @@ xyplot(
 
 ## Ball-Berry and C3 Photosynthesis
 
-Here we will calculate the response of $g_{sw}$ and $A_n$ to light and humidity
-in a coupled model incorporating the Ball-Berry and Farquhar-von-Caemmerer-Berry
-models. Although this coupled model also gives us the option to reduce a crop's
+Here we will calculate the response of $g_{sw}$ and $A_n$ to the absorbed
+quantum photon flux ($Q_{abs}$) and ambient humidity in a coupled model
+incorporating the Ball-Berry and Farquhar-von-Caemmerer-Berry (FvCB) models.
+Although this coupled model also gives us the option to reduce a crop's
 "inherent" Ball-Berry parameters in response to water stress, for this
 simulation we will ignore water stress by setting `StomataWS = 1`. From these
 calculations, we can see that the stomatal conductance increases for higher
-humidities, and that both $A_n$ and $g_{sw}$ reach plateaus at high light
-levels.
+humidities (Figure \@ref(fig:gsw-qabs)), and that both $A_n$ and $g_{sw}$ reach
+plateaus at high light levels (Figures \@ref(fig:gsw-qabs) and
+\@ref(fig:an-qabs)).
 
 ```{r}
-# Run the model for different An and Tambient
+# Run the model for different Qabs and rh
 lrc <- module_response_curve(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
@@ -353,6 +372,11 @@ lrc <- module_response_curve(
     rh = c(0.2, 0.4, 0.6, 0.8)   # dimensionless
   )
 )
+```
+
+```{r gsw-qabs}
+#| fig.cap = "$g_{sw}$ vs $Q_{abs}$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB model with soybean parameter values."
 
 # Plot gsw
 xyplot(
@@ -366,6 +390,11 @@ xyplot(
     ylab = "Stomatal conductance to H2O (mmol / m^2 / s)",
     main = "Ball-Berry + FvCB models for\ndifferent humidities"
 )
+```
+
+```{r an-qabs}
+#| fig.cap = "$A_n$ vs $Q_{abs}$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB model with soybean parameter values."
 
 # Plot An
 xyplot(
@@ -388,28 +417,32 @@ coupling the Ball-Berry and Farquhar-von-Caemmerer-Berry models to an energy
 balance equation. Here we will keep the ambient temperature fixed while
 increasing the ambient CO$_2$ concentration, as can be done in a gas exchange
 measurement system like the Licor LI-6800. The environmental conditions will
-determine $g_{sw}$, $A_n$, and $C_i$ for each value of $C_a$, and plots can be
-generated from these values. In this module, height and windspeed will determine
-the boundary layer conductance; we choose a large wind speed to ensure high
-conductance, as would occur in a measurement chamber.
+determine $g_{sw}$, $A_n$, $T_l$, and $C_i$ for each value of $C_a$, and plots
+can be generated from these values. In this model, height and windspeed will
+determine the boundary layer conductance; we choose a large wind speed to ensure
+high conductance, as would occur in a measurement chamber.
 
 From these calculations:
 
-- We can see that $g_{sw}$ changes with $C_i$ and $h_a$, but $A_n$ plotted
-  against $C_i$ is the same for all humidities. This demonstrates that an A-Ci
-  curve reveals the response of photosynthesis to CO$_2$ without any influence
-  from the stomata. (Sometimes this idea is expressed by saying that an A-Ci
-  curve "peels away the epidermis.")
+- We can see that $g_{sw}$ changes with $C_i$ and $h_a$ (Figure
+  \@ref(fig:gsw-ci)), but $A_n$ plotted against $C_i$ is the same for all
+  humidities (Figure \@ref(fig:an-ci)). This demonstrates that an A-Ci curve
+  reveals the response of photosynthesis to CO$_2$ without any influence from
+  the stomata. (Sometimes this idea is expressed by saying that an A-Ci curve
+  "peels away the epidermis.")
 
 - We can also see that the value of $C_i$ corresponding to each $C_a$ does
-  depend on the humidity, with higher humidity corresponding to higher $C_i$.
-  This relationship is mediated by the stomata, which open more in response to
-  higher humidity. Thus, although humidity does not impact the shape of an A-Ci
-  curve, it can have an effect on the range of achievable $C_i$ values.
+  depend on the humidity, with higher humidity corresponding to higher $C_i$
+  (Figure \@ref(fig:ci-ca)). This relationship is mediated by the stomata, which
+  open more in response to higher humidity. Thus, although humidity does not
+  impact the shape of an A-Ci curve, it can have an effect on the range of
+  achievable $C_i$ values.
 
 - The stomatal conductance is largest when $C_i$ is near 250 ppm, and the leaf
-  temperature is lowest in this range because the open stomata facilitate
-  evaporative cooling. The cooling effect is stronger at lower humidities.
+  temperature is lowest in this range (Figures \@ref(fig:gsw-ci) and
+  \@ref(fig:tl-ci)). This occurs because the open stomata facilitate evaporative
+  cooling; the cooling effect is stronger at lower humidities where the
+  transpiration rate is higher.
 
 ```{r}
 # Set the absorbed photosynthetically active light (in micromol / m^2 / s)
@@ -435,6 +468,12 @@ aci <- module_response_curve(
         rh = c(0.4, 0.6, 0.8)          # dimensionless
     )
 )
+```
+
+```{r gsw-ci}
+#| fig.cap = "$g_{sw}$ vs $C_i$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the gsw-Ci curves
 xyplot(
@@ -448,6 +487,12 @@ xyplot(
     ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
 )
+```
+
+```{r an-ci}
+#| fig.cap = "$A_n$ vs $C_i$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the A-Ci curves
 xyplot(
@@ -461,6 +506,12 @@ xyplot(
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
 )
+```
+
+```{r tl-ci}
+#| fig.cap = "$T_l$ vs $C_i$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the Tl-Ci curves
 xyplot(
@@ -474,6 +525,12 @@ xyplot(
     ylab = 'Leaf temperature (degrees C)',
     main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
 )
+```
+
+```{r ci-ca}
+#| fig.cap = "$C_i$ vs $C_a$ for several different $h_a$ as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the Ci-Ca curves
 xyplot(
@@ -493,7 +550,23 @@ xyplot(
 
 Here we can see how several quantities change throughout a soybean canopy under
 a fixed set of environmental conditions when using the fully-coupled Ball-Berry
-+ FvCB + Penman-Monteith model for leaf level photosynthesis.
++ FvCB + energy balance model for leaf level photosynthesis. For sunlit leaves,
+we observe the following trends:
+
+- The CO$_2$ concentration at the leaf surface ($C_s$) decreases with canopy
+  depth (Figure \@ref(fig:cs-layer)).
+
+- The relative humidity at the leaf surface ($C_s$) increases with canopy depth
+  (Figure \@ref(fig:hs-layer)).
+
+- The stomatal conductance ($g_{sw}$) increases with canopy depth
+  (Figure \@ref(fig:gsw-layer)).
+
+- The leaf temperature ($T_l$) generally increases with canopy depth, although
+  the trend is not monotonic (Figure \@ref(fig:tl-layer)).
+
+- The net assimilation rate ($A_n$) decreases with canopy depth (Figure
+  \@ref(fig:an-layer)).
 
 ```{r}
 # Run canopy modules
@@ -569,6 +642,12 @@ canopy_profiles_list <- lapply(
 )
 
 canopy_profiles <- do.call(rbind, canopy_profiles_list)
+```
+
+```{r cs-layer}
+#| fig.cap = "$C_s$ vs canopy layer for sunlit and shaded leaves as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the Cs profiles
 xyplot(
@@ -582,6 +661,12 @@ xyplot(
     ylab = 'CO2 concentration at leaf surface (micromol / mol)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
+```
+
+```{r hs-layer}
+#| fig.cap = "$h_s$ vs canopy layer for sunlit and shaded leaves as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the RHs profiles
 xyplot(
@@ -595,6 +680,12 @@ xyplot(
     ylab = 'Relative humidity at leaf surface (micromol / mol)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
+```
+
+```{r gsw-layer}
+#| fig.cap = "$g_{sw}$ vs canopy layer for sunlit and shaded leaves as predicted
+#|   by the coupled Ball-Berry + FvCB + energy balance model with soybean
+#|   parameter values."
 
 # Plot the gsw profiles
 xyplot(
@@ -608,6 +699,12 @@ xyplot(
     ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
+```
+
+```{r tl-layer}
+#| fig.cap = "$T_l$ vs canopy layer for sunlit and shaded leaves as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the leaf temperature profiles
 xyplot(
@@ -621,6 +718,12 @@ xyplot(
     ylab = 'Leaf temperature (degrees C)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
+```
+
+```{r an-layer}
+#| fig.cap = "$A_n$ vs canopy layer for sunlit and shaded leaves as predicted by
+#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
+#|   values."
 
 # Plot the assimilation profiles
 xyplot(
@@ -634,7 +737,6 @@ xyplot(
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
-
 ```
 
 ## Soybean Modeling
@@ -653,7 +755,8 @@ availability. At the same time, canopy transpiration influences the soil water
 content, with higher transpiration rates causing a faster depletion of soil
 water. In this example, we will just use weather data from 2002 in Champaign,
 Illinois; under these conditions, increasing the Ball-Berry slope causes the
-final seed mass (called `Grain` here) to increase.
+final seed mass (called `Grain` here) to increase (Figure
+\@ref(fig:biomass-slope)).
 
 ```{r}
 # Use partial application to create a function that runs a soybean simulation
@@ -678,6 +781,11 @@ bb1_result_list <- lapply(
 
 # Collect the results into a single data frame
 bb1_result <- do.call(rbind, bb1_result_list)
+```
+
+```{r biomass-slope}
+#| fig.cap = "Soybean biomass values predicted for Champaign, Illinois during
+#|   2002 using different values of the Ball-Berry slope $b_1$."
 
 # Plot soybean biomass values for different values of the Ball-Berry slope
 xyplot(
