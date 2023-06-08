@@ -48,7 +48,10 @@ namespace standardBML
  * - ``'atmospheric_pressure'`` for the local atmospheric pressure
  * - ``'upperT'`` for the high temperature cutoff for rubisco activity
  * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
- * - ``'gbw'`` for the boundary layer conductance to water vapor
+ * - ``'gbw'`` for the boundary layer conductance to water vapor. For an
+ *   isolated leaf, this should be the leaf boundary layer conductance; for a
+ *   leaf within a canopy, this should be the total conductance including the
+ *   leaf and canopy boundary layer conductances.
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate

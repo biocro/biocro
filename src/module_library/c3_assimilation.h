@@ -36,7 +36,7 @@ namespace standardBML
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax1'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'jmax'`` for the electron transport rate
- * - ``'tpu_rate_max'`` for the maximum triphosphate utilization rate
+ * - ``'tpu_rate_max'`` for the maximum triose phosphate utilization rate
  * - ``'Rd'`` for the respiration rate at 25 degrees C
  * - ``'b0'`` for the Ball-Berry intercept
  * - ``'b1'`` for the Ball-Berry slope
@@ -48,7 +48,10 @@ namespace standardBML
  * - ``'StomataWS'`` for the water stress factor
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
- * - ``'gbw'`` for the boundary layer conductance to water vapor
+ * - ``'gbw'`` for the boundary layer conductance to water vapor. For an
+ *   isolated leaf, this should be the leaf boundary layer conductance; for a
+ *   leaf within a canopy, this should be the total conductance including the
+ *   leaf and canopy boundary layer conductances.
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate

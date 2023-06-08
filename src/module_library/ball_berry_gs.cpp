@@ -82,7 +82,10 @@ using physical_constants::dr_boundary;
  *              [mol / m^2 / s] / [mol / m^2 / s]).
  *
  *  @param [in] gbw Boundary layer conductance to water vapor diffusion
- *              \f$ g_{bw} \f$ in units of mol / m^2 / s.
+ *              \f$ g_{bw} \f$ in units of mol / m^2 / s. For an isolated leaf,
+ *              this should be the leaf boundary layer conductance; for a leaf
+ *              within a canopy, this should be the total conductance including
+ *              the leaf and canopy boundary layer conductances.
  *
  *  @param [in] leaf_temperature \f$ T_l \f$ in units of degrees C.
  *

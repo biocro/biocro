@@ -371,9 +371,15 @@ struct ET_Str EvapoTrans2(
 }
 
 /**
- *  @brief Caluclates the conductance for water vapor flow between the leaf
- *  surface and the atmosphere (AKA, the boundary layer conductance) using a
- *  model described in Nikolov, Massman, and Schoettle (1995).
+ *  @brief Calculates the conductance for water vapor flow from the leaf across
+ *  its boundary layer using a model described in Nikolov, Massman, and
+ *  Schoettle (1995).
+ *
+ *  Note that for an isolated leaf, this conductance characterizes the entire
+ *  path from the leaf surface to the ambient air. For a leaf within a canopy,
+ *  there is an additional boundary layer separating the canopy from the
+ *  atmosphere; this canopy boundary layer conductance must be calculated using
+ *  a separate model.
  *
  *  In this model, two types of gas flow are considered: "forced" flow driven
  *  by wind-created eddy currents and "free" flow driven by temperature-related
@@ -463,9 +469,14 @@ double leaf_boundary_layer_conductance_nikolov(
 }
 
 /**
- *  @brief Caluclates the conductance for water vapor flow between the leaf
- *  surface and the atmosphere (AKA, the boundary layer conductance) using a
- *  model described in Thornley and Johnson (1990).
+ *  @brief Calculates the conductance for water vapor flow from the leaf across
+ *  its boundary layer using a model described in Thornley and Johnson (1990).
+ *
+ *  Note that for an isolated leaf, this conductance characterizes the entire
+ *  path from the leaf surface to the ambient air. For a leaf within a canopy,
+ *  there is an additional boundary layer separating the canopy from the
+ *  atmosphere; this canopy boundary layer conductance must be calculated using
+ *  a separate model.
  *
  *  This model considers gas flow due to wind-driven eddy currents. Here, the
  *  conductance is calculated using Equation 14.9 from pages 414 - 416 of the
