@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - master
+      - issue_485
 
     tags:
       - '*'
@@ -23,3 +24,4 @@ jobs:
     uses: ./.github/workflows/document.yml
     with:
       publish: ${{ github.event_name != 'pull_request' }}
+    secrets: inherit
