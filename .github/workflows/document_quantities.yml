@@ -1,0 +1,113 @@
+name: Document quantities
+
+on:
+  workflow_dispatch:
+    # [no inputs]
+
+env:
+  publish-to: "ebimodeling/biocro-documentation"
+
+jobs:
+  build:
+    name: Document quantities
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # Checks out this repository under $GITHUB_WORKSPACE/source:
+
+    - name: 1. Check out master
+      uses: actions/checkout@v2
+      with:
+        path: source
+
+    - name: 2. Set up R
+      uses: r-lib/actions/setup-r@v1
+
+    - name: 3. Query dependencies
+      run: |
+        install.packages('remotes')
+        saveRDS(remotes::dev_package_deps(dependencies = "Depends"), ".github/depends.Rds", version = 2)
+        writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+      shell: Rscript {0}
+      working-directory: source
+
+    - name: 4. Cache R packages
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.R_LIBS_USER }}
+        key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+        restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+    - name: 5. Install system dependencies
+      run: |
+        while read -r cmd
+        do
+          eval sudo $cmd
+        done < <(Rscript -e 'writeLines(unlist(sapply(c("xslt", "xml2", "stringi"), function(p) { remotes::system_requirements("ubuntu", "20.04", package = p) })))')
+
+    # Currently, this should be a no-op since BioCro doesn't have any
+    # dependencies.
+    - name: 6. Install dependencies
+      run: |
+        remotes::install_deps(dependencies = "Depends")
+      shell: Rscript {0}
+      working-directory: source
+
+    - name: 7. Install BioCro
+      run: |
+        R CMD INSTALL --no-docs source
+
+    - name: 8. Install packages for script
+      run: |
+        install.packages(
+            c(
+                "argparser",
+                "memoise",
+                "readr",
+                "stringi",
+                "xml2",
+                "xslt"
+            )
+        )
+      shell: Rscript {0}
+
+    - name: 9. Run script
+      run: |
+        Rscript --vanilla create_quantity_table.R -v
+      working-directory: source/script
+
+    # The "publish-to" repository is where the documentation will be
+    # copied to and then checked in (to the default branch).
+    # Providing ssh-key to this checkout action gives us permission to
+    # check in our changes later, in the Push step:
+
+    - name: 10. Check out master of the "publish-to" repository
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.publish-to }}
+        path: target
+        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
+
+    - name: 11. Copy files into working copy of the target repository
+      run: |
+        cd target
+
+        # Make quantity_docs directory if it doesn't exist:
+        mkdir -p quantity_docs
+
+        # Copy the respective documentation into it, overwriting any
+        # existing files of the same name:
+        cd ../source/script/
+        cp quantity_units.csv parameters.xml parameters.html jquery-3.6.0.js  ../../target/quantity_docs
+
+    - name: 12. Commit updates and push to target (documentation) repository
+      run: |
+        cd target
+
+        # user.name is somewhat arbitrary but must be provided:
+        git config user.name biocro-dev-action
+        git add .
+        git commit -m "updated quantities documentation"
+        git push
