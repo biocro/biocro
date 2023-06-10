@@ -3,6 +3,8 @@
 library(argparser)
 library(memoise)
 
+module_library_name <- 'BioCro'
+
 ## If we ever relocate this script, this path may change:
 module_library_directory <- file.path('..', 'src', 'module_library')
 
@@ -131,7 +133,7 @@ get_or_create_units_table <- function() {
     ## global variable, since currently, no computation is involved.
     get_ed_modules <- function() {
         ## Decided we don't need all of them:
-        ##all_modules <- get_all_modules()
+        ##all_modules <- get_all_modules(module_library_name)
         ##all_modules[stri_detect_regex(all_modules, "^ed_")]
 
         ## Just the ones from
@@ -189,9 +191,10 @@ get_or_create_units_table <- function() {
         )
 
         # Only search files that define modules that use the quantity:
-        q <- get_all_quantities()
+        q <- get_all_quantities(module_library_name)
         module_names <- q[q[['quantity_name']] == quantity_name,][['module_name']]
-
+        # Strip off library name prefix, e.g., "BioCro:total_biomass" --> "total_biomass":
+        module_names <- substring(module_names, stri_length(module_library_name) + 2)
 
         ## For certain special cases, also look at associated modules:
         associated_modules <- list(
@@ -249,7 +252,7 @@ get_or_create_units_table <- function() {
             ##     "base_name (possibly with prefix)"(possible comma)    //  units
             ##
 
-            pattern <- paste0('"', base_name_matcher, '",? *// *(?<units>.*) *$')
+            pattern <- paste0('"', base_name_matcher, '",? *// *(?<units>.+) *$')
 
             matches <- stri_match_first_regex(codelines, pattern)
 
@@ -273,7 +276,7 @@ get_or_create_units_table <- function() {
     get_all_units <- function() {
 
         all_quantity_names <-
-            unique(get_all_quantities()[['quantity_name']])
+            unique(get_all_quantities(module_library_name)[['quantity_name']])
 
         unit_dictionary <-
             data.frame(quantity_name = character(0), units = character(0))
@@ -363,7 +366,7 @@ get_or_create_xml <- function() {
     ## its type and whether it requires a fixed-step Euler integrator.
     make_module_info_table <- function() {
         ## Maybe truncate module list for testing:
-        modules <- head(get_all_modules(),
+        modules <- head(get_all_modules(module_library_name),
                         ifelse(arg_info[['test']],
                                test_list_size,
                                .Machine$integer.max))
@@ -404,7 +407,7 @@ get_or_create_xml <- function() {
         ## that use it and whether it is used as input or output.  If a
         ## quantity is used in multiple contexts, a row for each context
         ## is shown:
-        all_quantities <- get_all_quantities()
+        all_quantities <- get_all_quantities(module_library_name)
 
         ## Maybe truncate quantity list for testing:
         quantities <- head(all_quantities,
