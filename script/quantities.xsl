@@ -66,7 +66,7 @@
         });
     </script>
 
-    <h1>BioCro Quantity List</h1>
+    <h1>Quantity List for the <xsl:value-of select="quantity_info/module_library/@name"/> Module Library</h1>
     <div id="head">
       <div id="filter_control">Show only quantities with names matching <input type="text" id="quantity_filter"/> (case insensitive)</div>
       &#xA0;

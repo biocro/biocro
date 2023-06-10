@@ -375,7 +375,13 @@ get_or_create_xml <- function() {
             lapply(modules, function(m) {
                 BioCro::module_info(m, verbose = FALSE)
             })
+
+        ## Unlike "modules", these are the names without the
+        ## library-name prefix:
+        names <- sapply(module_table, function(x) x$module_name)
+
         types <- sapply(module_table, function(x) x$type)
+
         euler_required <-
             sapply(
                 module_table,
@@ -385,7 +391,7 @@ get_or_create_xml <- function() {
             )
 
         return(data.frame(
-            module_name = modules,
+            module_name = names,
             type = types,
             euler_required = euler_required
         ))
@@ -425,6 +431,10 @@ get_or_create_xml <- function() {
 
         doc <- xml_new_root("quantity_info")
 
+        ## Add the module library element
+
+        module_library_element <- xml_add_child(doc, "module_library")
+        xml_set_attr(module_library_element, "name", module_library_name)
 
         ## Construct the modules element
 
