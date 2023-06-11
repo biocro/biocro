@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
     # [no inputs]
 
+  push:
+    branches:
+      - collect_quantity_infor-revised
+
 env:
   publish-to: "ebimodeling/biocro-documentation"
 
