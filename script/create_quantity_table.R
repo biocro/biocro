@@ -129,34 +129,6 @@ get_or_create_units_table <- function() {
         library(stringi)
     }
 
-    ## Not sure if this is really any better than just setting a
-    ## global variable, since currently, no computation is involved.
-    get_ed_modules <- function() {
-        ## Decided we don't need all of them:
-        ##all_modules <- get_all_modules(module_library_name)
-        ##all_modules[stri_detect_regex(all_modules, "^ed_")]
-
-        ## Just the ones from
-        ## ed_c4_leaf_photosynthesis4_stuff::sub_module_names are
-        ## probably sufficient:
-
-        c("ed_rh_to_mole_fraction",
-          "ed_nikolov_conductance_forced",
-          "ed_nikolov_conductance_free_solve",
-          "ed_boundary_conductance_max",
-          "ed_gas_concentrations",
-          "ed_apply_stomatal_water_stress_via_conductance",
-          "ed_ball_berry",
-          "ed_collatz_c4_assimilation",
-          "ed_long_wave_energy_loss",
-          "ed_water_vapor_properties",
-          "ed_leaf_temperature")
-    }
-    ## Make a memoized version so we don't have to generate this list
-    ## more than once:
-    mem_get_ed_modules <- memoise(get_ed_modules)
-
-
     ## Function to return the units if found in a comment in a source code file
     get_units <- function(quantity_name) {
 
@@ -206,12 +178,6 @@ get_or_create_units_table <- function() {
         for (module_name in module_names) {
             if (!is.null(associated_modules[[module_name]])) {
                 additional_names <- append(additional_names, associated_modules[[module_name]])
-            }
-            ## If the quantity is for an "ed_" module, look a bunch
-            ## more places for its units.  This isn't a very refined
-            ## selection, but it's too much trouble to make it better:
-            if (stri_detect_regex(module_name, "^ed_")) {
-                additional_names <- append(additional_names, mem_get_ed_modules())
             }
         }
         ## "unique" may not be necessary here:
