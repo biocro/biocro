@@ -6,7 +6,7 @@ on:
 
   push:
     branches:
-      - collect_quantity_infor-revised
+      - collect_quantity_info-revised
 
 env:
   publish-to: "ebimodeling/biocro-documentation"
