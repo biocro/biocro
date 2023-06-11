@@ -9,7 +9,7 @@ on:
       - collect_quantity_info-revised
 
 env:
-  publish-to: "ebimodeling/biocro-documentation"
+  publish-to: "ebimodeling/biocro-dev-documentation"
 
 jobs:
   build:
