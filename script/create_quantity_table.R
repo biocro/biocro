@@ -297,19 +297,6 @@ get_or_create_units_table <- function() {
 ##############################################################################
 
 get_or_create_xml <- function() {
-    if (!requireNamespace("xml2", quietly = TRUE)) {
-        stop("Package xml2 must be installed to construct the XML document.")
-    } else {
-        library(xml2)
-    }
-
-    ## stringi is needed for stri detect, match, and replace functions.
-    if (!requireNamespace("stringi", quietly = TRUE)) {
-        stop("Package stringi must be installed to produce the units table.")
-    } else {
-        library(stringi)
-    }
-
 
     ## See if we can use an existing XML file:
     xml_file <- arg_info[['xml_filename']]
@@ -373,6 +360,19 @@ get_or_create_xml <- function() {
 
     ## Create the XML document in memory.
     create_xml <- function() {
+
+        if (!requireNamespace("xml2", quietly = TRUE)) {
+            stop("Package xml2 must be installed to construct the XML document.")
+        } else {
+            library(xml2)
+        }
+
+        ## stringi is needed for stri detect, match, and replace functions.
+        if (!requireNamespace("stringi", quietly = TRUE)) {
+            stop("Package stringi must be installed to produce the units table.")
+        } else {
+            library(stringi)
+        }
 
         ##
         ## Get info as data frames.
