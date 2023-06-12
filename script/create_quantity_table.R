@@ -303,6 +303,13 @@ get_or_create_xml <- function() {
         library(xml2)
     }
 
+    ## stringi is needed for stri detect, match, and replace functions.
+    if (!requireNamespace("stringi", quietly = TRUE)) {
+        stop("Package stringi must be installed to produce the units table.")
+    } else {
+        library(stringi)
+    }
+
 
     ## See if we can use an existing XML file:
     xml_file <- arg_info[['xml_filename']]
@@ -459,7 +466,10 @@ get_or_create_xml <- function() {
 
         progress("Adding attributes to quantity usage nodes ... ", FALSE)
 
-        xml_set_attr(quantity_usage_nodes, "module_name", quantities$module_name)
+        ## Strip off library name prefix, e.g., "BioCro:total_biomass" --> "total_biomass":
+        simple_module_names <- substring(quantities$module_name, stri_length(module_library_name) + 2)
+
+        xml_set_attr(quantity_usage_nodes, "module_name", simple_module_names)
         xml_set_attr(quantity_usage_nodes, "quantity_name",
                      quantities$quantity_name)
         xml_set_attr(quantity_usage_nodes, "quantity_type",
