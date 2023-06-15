@@ -35,21 +35,29 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
 - On MacOS, Xcode.
 
 #### Installation steps
-Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands.
-
-Do one of the sets of instruction below. These assume that the source files are in a directory named "biocro".
-
-- From the command line
-```
-cd path_to_unzipped_directory
-R CMD INSTALL biocro
-```
-
-- Or from within R
-```
-setwd('path_to_unzipped_directory')
-install.packages('biocro', repos=NULL, type='SOURCE')
-```
+1. Obtain a local copy of this repository, making sure to include the Git
+   submodule code. This can be accomplished using either of two methods:
+   1. If you are new to Git, the easiest way to get a local copy is to install
+      GitHub Desktop and use the "Open with GitHub Desktop" option in the "Code"
+      dropdown on the GitHub page for this repository.
+   2. Alternatively, clone the repository using Git on the command
+      line in the usual fashion by running
+      `git clone <https://github.com/ebimodeling/biocro-dev>` The repository
+      contains a Git submodule, so you will need to take the additional step of
+      running `git submodule update --init` to obtain it.
+2. Install the BioCro R package using one of the following sets of comands.
+   These assume that the source files are in a directory named "biocro" residing
+   in a parent directory located at "path_to_source_code_parent_directory".
+   1. To install from the command line:
+      ```
+      cd path_to_source_code_parent_directory
+      R CMD INSTALL biocro
+      ```
+   2. To install from within R:
+      ```
+      setwd('path_to_source_code_parent_directory')
+      install.packages('biocro', repos=NULL, type='SOURCE')
+      ```
 
 ### Making contributions
 
