@@ -1,0 +1,3 @@
+[submodule "src/framework"]
+	path = src/framework
+	url = https://github.com/biocro/framework
