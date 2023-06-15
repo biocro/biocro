@@ -1,23 +1,13 @@
-The BioCro package as a whole is distributed under version 2 or greater of the
-GNU General Public License (GPL).
+The BioCro R package as a whole is distributed under the MIT license. A copy of
+this license is included with this package in the file LICENSE.md.
 
-Any distributors that combine and distribute commercially licensed software with
-BioCro software and do not wish to distribute the source code for the
-commercially licensed software under version 2 or greater of the GNU GPL must
-enter into a commercial license agreement with the authors.
+The BioCro R package includes the BioCro C++ framework, which is licensed under
+version 3 or greater of the GNU Lesser General Public License (LGPL). A copy of
+this license is included with this package in the file src/framework/LICENSE.md.
 
-Parts of some BioCro modules are based on code from WIMOVAC. WIMOVAC is
-copyrighted by Stephen Long and Stephen Humphries. More information about
-WIMOVAC is available at http://www.life.illinois.edu/plantbio/wimovac/. This
-website is no longer maintained but can be accessed using the Internet Archive's
-Wayback Machine (https://archive.org/web/).
-
-The `ball_berry()` function is based on Fortran code provided by Joe Berry to
-Fernando Miguez via email.
-
-The functions declared in `R_helper_functions.h` use a portion of the Rinternals
-software library, which is licensed under version 2.1 or greater of the GNU
-Lesser General Public License.
+The BioCro R packages uses a portion of the Rinternals software library, which
+is licensed under version 2.1 or greater of the GNU Lesser General Public
+License.
 
 The BioCro package includes a portion of the Boost software library, which has
 its own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the

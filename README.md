@@ -66,6 +66,11 @@ documentation of the C++ code, including notes on the biological
 models used in BioCro and their implementation.  Also included is
 documentation for BioCro package developers and maintainers.
 
+### License
+
+The `BioCro` R package is licensed under the MIT license, but includes or uses
+other software packages that have different licenses. See `LICENSE.note` for
+more details.
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
