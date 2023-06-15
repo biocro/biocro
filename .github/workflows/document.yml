@@ -70,6 +70,8 @@ jobs:
 
     - name: 1. Check out repository
       uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - name: 2. Set up R
       if: inputs.bookdown-build || inputs.pkgdown-build
