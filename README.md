@@ -66,6 +66,10 @@ documentation of the C++ code, including notes on the biological
 models used in BioCro and their implementation.  Also included is
 documentation for BioCro package developers and maintainers.
 
+There is also a separate [page that documents all of the quantities
+used by the Standard BioCro Module
+Library](https://ebimodeling.github.io/biocro-dev-documentation/quantity_docs/quantities.html).
+
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.

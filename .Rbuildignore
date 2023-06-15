@@ -64,3 +64,6 @@
 
 ^LICENSE\.md$
 # Required by the GNU GPL license but not allowed on CRAN
+
+^script$
+# Developer script directory
