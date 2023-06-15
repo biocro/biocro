@@ -7,6 +7,12 @@
 
 namespace standardBML
 {
+/**
+ * @class FvCB
+ *
+ * @brief Uses `FvCB_assim()` to evaluate the Farquhar-von-Caemmerer-Berry model
+ * for C3 photosynthesis.
+ */
 class FvCB : public direct_module
 {
    public:

@@ -55,7 +55,10 @@
  *              fraction with units of micromol / mol.
  *
  *  @param [in] gbw The conductance to H2O diffusion in the boundary layer with
- *              units of mol / m^2 / s.
+ *              units of mol / m^2 / s. For an isolated leaf, this should be the
+ *              leaf boundary layer conductance; for a leaf within a canopy,
+ *              this should be the total conductance including the leaf and
+ *              canopy boundary layer conductances.
  *
  *  @param [in] gsw The conductance to H2O diffusion in the stomata with units
  *              of mol / m^2 / s.

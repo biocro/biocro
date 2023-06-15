@@ -142,7 +142,6 @@ soybean <- list(
         b1                          = 10.6,        # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
         Gs_min                      = 1e-3,
         theta                       = 0.76,        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
-        water_stress_approach       = 1,
         minimum_gbw                 = 0.08,
         windspeed_height            = 5,
         beta_PSII                   = 0.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)

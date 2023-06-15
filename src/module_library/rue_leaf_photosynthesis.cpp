@@ -61,21 +61,26 @@ photosynthesis_outputs rue_photo(
 
     an = std::min(an_conductance, an);  // mol / m^2 / s
 
-    // Determine stomatal conductance (mol / m^2 / s)
-    double const gs = ball_berry_gs(an, Ca, RH, bb0, bb1, gbw) * 1e-3;
+    // Determine stomatal conductance using the Ball-Berry model, equating the
+    // leaf and air temperatures (mol / m^2 / s)
+    stomata_outputs const BB_res =
+        ball_berry_gs(an, Ca, RH, bb0, bb1, gbw, Tleaf, Tleaf);
+
+    double const gs = BB_res.gsw * 1e-3;
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
 
-    // Return the results
-    photosynthesis_outputs result;
-    result.Assim = an * 1e6;                          // micromol / m^2 / s
-    result.Gs = gs * 1e3;                             // mmol / m^2 / s
-    result.Ci = ci * 1e6;                             // micromol / mol
-    result.GrossAssim = ag * 1e6;                     // micromol / m^2 / s
-    result.Rp = 0.0;                                  // micromol / m^2 / s
-    result.Assim_conductance = an_conductance * 1e6;  // micromol / m^2 / s
-    return result;
+    return photosynthesis_outputs{
+        .Assim = an * 1e6,                          // micromol / m^2 / s
+        .Assim_conductance = an_conductance * 1e6,  // micromol / m^2 / s
+        .Ci = ci * 1e6,                             // micromol / mol
+        .GrossAssim = ag * 1e6,                     // micromol / m^2 / s
+        .Gs = gs * 1e3,                             // mmol / m^2 / s
+        .Cs = BB_res.cs,                            // micromol / m^2 / s
+        .RHs = BB_res.hs,                           // dimensionless from Pa / Pa
+        .Rp = 0.0                                   // micromol / m^2 / s
+    };
 }
 
 string_vector rue_leaf_photosynthesis::get_inputs()

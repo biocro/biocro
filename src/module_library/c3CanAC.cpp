@@ -1,5 +1,5 @@
 #include "c3CanAC.h"
-#include "BioCro.h"                  // for lightME, RHprof, WINDprof, c3EvapoTrans
+#include "BioCro.h"                  // for lightME, WINDprof, c3EvapoTrans
 #include "c3photo.h"                 // for c3photoC
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
@@ -8,7 +8,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double LAI,                  // dimensionless
     double cosine_zenith_angle,  // hr
     double solarR,               // micromol / m^2 / s
-    double air_temperature,      // degrees C
+    double ambient_temperature,  // degrees C
     double RH,                   // Pa / Pa
     double WindSpeed,            // m / s
     int nlayers,                 // dimensionless
@@ -34,7 +34,6 @@ struct canopy_photosynthesis_outputs c3CanAC(
     double specific_heat_of_air,         // J / kg / K
     double atmospheric_pressure,         // Pa
     double growth_respiration_fraction,  // dimensionless
-    int water_stress_approach,           // dimensionless switch
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
     double absorptivity_par,             // dimensionless
@@ -60,9 +59,6 @@ struct canopy_photosynthesis_outputs c3CanAC(
               leaf_transmittance, leaf_reflectance);
 
     double LAIc = LAI / nlayers;  // dimensionless
-
-    double relative_humidity_profile[nlayers];
-    RHprof(RH, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile
 
     double wind_speed_profile[nlayers];
     WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);  // Modifies wind_speed_profile
@@ -92,7 +88,6 @@ struct canopy_photosynthesis_outputs c3CanAC(
             vmax1 = leafN_lay * lnb1 + lnb0;
         }
 
-        double relative_humidity = relative_humidity_profile[current_layer];     // dimensionless
         double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
         double CanHeight = light_profile.height[current_layer];                  // m
         double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // J / m^2 / s
@@ -108,26 +103,28 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         double direct_gsw_estimate =
             c3photoC(
-                iabs_dir, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_dir, ambient_temperature, ambient_temperature,
+                RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_direct =
             c3EvapoTrans(
-                j_avg, air_temperature, relative_humidity, layer_wind_speed,
+                j_avg, ambient_temperature, RH, layer_wind_speed,
                 CanHeight, specific_heat_of_air, direct_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
-        double leaf_temperature_dir = air_temperature + et_direct.Deltat;  // degrees C
+        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
 
         photosynthesis_outputs direct_photo =
             c3photoC(
-                iabs_dir, leaf_temperature_dir, relative_humidity, vmax1, Jmax,
+                iabs_dir, leaf_temperature_dir, ambient_temperature,
+                RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, et_direct.boundary_layer_conductance);
 
@@ -142,27 +139,29 @@ struct canopy_photosynthesis_outputs c3CanAC(
 
         double diffuse_gsw_estimate =
             c3photoC(
-                iabs_diff, air_temperature, relative_humidity, vmax1, Jmax,
+                iabs_diff, ambient_temperature, ambient_temperature,
+                RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS, water_stress_approach,
+                o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mmol / m^2 / s
 
         struct ET_Str et_diffuse =
             c3EvapoTrans(
-                j_avg, air_temperature, relative_humidity, layer_wind_speed,
+                j_avg, ambient_temperature, RH, layer_wind_speed,
                 CanHeight, specific_heat_of_air, diffuse_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
-        double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;  // degrees C
+        double leaf_temperature_Idiffuse = ambient_temperature + et_diffuse.Deltat;  // degrees C
 
         photosynthesis_outputs diffuse_photo =
             c3photoC(
-                iabs_diff, leaf_temperature_Idiffuse, relative_humidity, vmax1,
+                iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
+                RH, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, o2, theta, StomataWS,
-                water_stress_approach, electrons_per_carboxylation,
+                electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII,
                 et_diffuse.boundary_layer_conductance);
 

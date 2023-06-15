@@ -155,7 +155,6 @@ willow <- list(
         tpu_rate_max                 = 23,
         vmax1                        = 100,
         vmax_n_intercept             = 0,
-        water_stress_approach        = 0,
         windspeed_height             = 5,
         wsFun                        = 2
     )

@@ -6,6 +6,7 @@
 photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,
     double const Tleaf,
+    double const Tambient,
     double const RH,
     double const Vcmax0,
     double const Jmax0,
@@ -19,7 +20,6 @@ photosynthesis_outputs c3photoC(
     double const O2,
     double const thet,
     double const StomWS,
-    int const water_stress_approach,
     double const electrons_per_carboxylation,
     double const electrons_per_oxygenation,
     double const beta_PSII,

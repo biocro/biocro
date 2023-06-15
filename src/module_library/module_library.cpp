@@ -40,7 +40,7 @@
 #include "thermal_time_and_frost_senescence.hpp"
 #include "aba_decay.hpp"
 #include "ball_berry.h"
-#include "water_vapor_properties_from_air_temperature.hpp"
+#include "water_vapor_properties_from_air_temperature.h"
 #include "penman_monteith_transpiration.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 #include "priestley_transpiration.hpp"

@@ -161,7 +161,6 @@ sorghum <- list(
         upperT                      = 37.5,
         vmax1                       = 39,
         vmax_n_intercept            = 0,
-        water_stress_approach       = 1,
         wsFun                       = 2
     )
 )

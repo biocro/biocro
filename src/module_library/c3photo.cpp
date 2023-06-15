@@ -17,6 +17,7 @@ using physical_constants::ideal_gas_constant;
 photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
+    double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
     double const Vcmax0,                       // micromol / m^2 / s
     double const Jmax0,                        // micromol / m^2 / s
@@ -30,7 +31,6 @@ photosynthesis_outputs c3photoC(
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const thet,                         // dimensionless
     double const StomWS,                       // dimensionless
-    int const water_stress_approach,           // (flag)
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -107,8 +107,13 @@ photosynthesis_outputs c3photoC(
     // Biochemical models of leaf photosynthesis.
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
+    // Adjust Ball-Berry parameters in response to water stress
+    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
+    double const b1_adj = StomWS * b1;
+
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
+    stomata_outputs BB_res;
     double Ci{};                        // micromol / mol
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
@@ -147,21 +152,17 @@ photosynthesis_outputs c3photoC(
 
         co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
 
-        if (water_stress_approach == 0) {
-            co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
-        }
+        BB_res = ball_berry_gs(
+            co2_assimilation_rate * 1e-6,
+            Ca * 1e-6,
+            RH,
+            b0_adj,
+            b1_adj,
+            gbw,
+            Tleaf,
+            Tambient);
 
-        Gs = 1e-3 * ball_berry_gs(
-                        co2_assimilation_rate * 1e-6,
-                        Ca * 1e-6,
-                        RH,
-                        b0,
-                        b1,
-                        gbw);  // mol / m^2 / s
-
-        if (water_stress_approach == 1) {
-            Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
-        }
+        Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
 
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
@@ -175,15 +176,17 @@ photosynthesis_outputs c3photoC(
         ++iterCounter;
     }
 
-    photosynthesis_outputs result;
-    result.Assim = co2_assimilation_rate;       // micromol / m^2 / s
-    result.Assim_conductance = an_conductance;  // micromol / m^2 / s
-    result.Ci = (Ci_pa / AP) * 1e6;             // micromol / mol
-    result.GrossAssim = FvCB_res.Vc;            // micromol / m^2 / s
-    result.Gs = Gs * 1e3;                       // mmol / m^2 / s
-    result.Rp = FvCB_res.Vc * Gstar / Ci;       // micromol / m^2 / s
-    result.iterations = iterCounter;            // not a physical quantity
-    return result;
+    return photosynthesis_outputs{
+        .Assim = co2_assimilation_rate,       // micromol / m^2 / s
+        .Assim_conductance = an_conductance,  // micromol / m^2 / s
+        .Ci = (Ci_pa / AP) * 1e6,             // micromol / mol
+        .GrossAssim = FvCB_res.Vc,            // micromol / m^2 / s
+        .Gs = Gs * 1e3,                       // mmol / m^2 / s
+        .Cs = BB_res.cs,                      // micromol / m^2 / s
+        .RHs = BB_res.hs,                     // dimensionless from Pa / Pa
+        .Rp = FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        .iterations = iterCounter             // not a physical quantity
+    };
 }
 
 // This function returns the solubility of O2 in H2O relative to its value at

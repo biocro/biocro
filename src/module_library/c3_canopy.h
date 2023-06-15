@@ -44,7 +44,6 @@ class c3_canopy : public direct_module
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
@@ -99,7 +98,6 @@ class c3_canopy : public direct_module
     double const& specific_heat_of_air;
     double const& atmospheric_pressure;
     double const& growth_respiration_fraction;
-    double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& absorptivity_par;

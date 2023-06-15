@@ -92,7 +92,13 @@ SOYBEAN_IGNORE <- c(
     "sunlit_Gs_layer_9",
     "sunlit_Rp_layer_7",
     "sunlit_Rp_layer_8",
-    "sunlit_Rp_layer_9"
+    "sunlit_Rp_layer_9",
+    "sunlit_Cs_layer_7",
+    "sunlit_Cs_layer_8",
+    "sunlit_Cs_layer_9",
+    "sunlit_RHs_layer_7",
+    "sunlit_RHs_layer_8",
+    "sunlit_RHs_layer_9"
 )
 
 # Define the plants to test

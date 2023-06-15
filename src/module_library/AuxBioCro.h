@@ -160,10 +160,5 @@ inline double arrhenius_exponential(
     return exp(c - activation_energy / (ideal_gas_constant * temperature));
 }
 
-double saturation_vapor_pressure(double air_temperature);
-double TempToSFS(double Temp);
-double TempToLHV(double Temp);
-double TempToDdryA(double Temp);
-
 #endif
 

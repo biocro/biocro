@@ -9,25 +9,25 @@ using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 
 photosynthesis_outputs c4photoC(
-    double Qp,                    // micromol / m^2 / s
-    double leaf_temperature,      // degrees C
-    double relative_humidity,     // dimensionless from Pa / Pa
-    double vmax,                  // micromol / m^2 / s
-    double alpha,                 // mol / mol
-    double kparm,                 // mol / m^2 / s
-    double theta,                 // dimensionless
-    double beta,                  // dimensionless
-    double Rd,                    // micromol / m^2 / s
-    double bb0,                   // mol / m^2 / s
-    double bb1,                   // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
-    double Gs_min,                // mmol / m^2 / s
-    double StomaWS,               // dimensionless
-    double Ca,                    // micromol / mol
-    double atmospheric_pressure,  // Pa
-    int water_stress_approach,    // unitless switch
-    double upperT,                // degrees C
-    double lowerT,                // degrees C
-    double gbw                    // mol / m^2 / s
+    double const Qp,                    // micromol / m^2 / s
+    double const leaf_temperature,      // degrees C
+    double const ambient_temperature,   // degrees C
+    double const relative_humidity,     // dimensionless from Pa / Pa
+    double const vmax,                  // micromol / m^2 / s
+    double const alpha,                 // mol / mol
+    double const kparm,                 // mol / m^2 / s
+    double const theta,                 // dimensionless
+    double const beta,                  // dimensionless
+    double const Rd,                    // micromol / m^2 / s
+    double const bb0,                   // mol / m^2 / s
+    double const bb1,                   // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+    double const Gs_min,                // mol / m^2 / s
+    double const StomaWS,               // dimensionless
+    double const Ca,                    // micromol / mol
+    double const atmospheric_pressure,  // Pa
+    double const upperT,                // degrees C
+    double const lowerT,                // degrees C
+    double const gbw                    // mol / m^2 / s
 )
 {
     constexpr double k_Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
@@ -55,8 +55,13 @@ photosynthesis_outputs c4photoC(
     // Equation 3B in Collatz 1992.
     double M = quadratic_root_min(b2, b1, b0);  // micromol / m^2 / s
 
+    // Adjust Ball-Berry parameters in response to water stress
+    double const bb0_adj = StomaWS * bb0 + Gs_min * (1.0 - StomaWS);
+    double const bb1_adj = StomaWS * bb1;
+
     // Initialize loop variables. Here we make an initial guess that
     // Ci = 0.4 * Ca.
+    stomata_outputs BB_res;
     double InterCellularCO2{0.4 * Ca_pa};  // Pa
     double Assim{};                        // micromol / m^2 / s
     double Gs{1e6};                        // mmol / m^2 / s
@@ -91,21 +96,17 @@ photosynthesis_outputs c4photoC(
             Assim,
             an_conductance);  // micromol / m^2 / s
 
-        if (water_stress_approach == 0) {
-            Assim *= StomaWS;
-        }
-
-        Gs = ball_berry_gs(
+        BB_res = ball_berry_gs(
             Assim * 1e-6,
             Ca * 1e-6,
             relative_humidity,
-            bb0,
-            bb1,
-            gbw);  // mmol / m^2 / s
+            bb0_adj,
+            bb1_adj,
+            gbw,
+            leaf_temperature,
+            ambient_temperature);
 
-        if (water_stress_approach == 1) {
-            Gs = Gs_min + StomaWS * (Gs - Gs_min);
-        }
+        Gs = BB_res.gsw;  // mmol / m^2 / s
 
         // If it has gone through this many iterations, the convergence is not
         // stable. This convergence is inapproriate for high water stress
@@ -130,15 +131,15 @@ photosynthesis_outputs c4photoC(
 
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
-    photosynthesis_outputs result{
+    return photosynthesis_outputs{
         .Assim = Assim,                       // micromol / m^2 /s
         .Assim_conductance = an_conductance,  // micromol / m^2 / s
         .Ci = Ci,                             // micromol / mol
         .GrossAssim = Assim + RT,             // micromol / m^2 / s
         .Gs = Gs,                             // mmol / m^2 / s
+        .Cs = BB_res.cs,                      // micromol / m^2 / s
+        .RHs = BB_res.hs,                     // dimensionless from Pa / Pa
         .Rp = 0,                              // micromol / m^2 / s
         .iterations = iterCounter             // not a physical quantity
     };
-
-    return result;
 }

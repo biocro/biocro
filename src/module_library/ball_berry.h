@@ -7,6 +7,12 @@
 
 namespace standardBML
 {
+/**
+ * @class ball_berry
+ *
+ * @brief Uses `ball_berry_gs()` to evaluate the Ball-Berry model for stomatal
+ * conductance.
+ */
 class ball_berry : public direct_module
 {
    public:
@@ -15,13 +21,17 @@ class ball_berry : public direct_module
 
           // Get pointers to input quantities
           net_assimilation_rate{get_input(input_quantities, "net_assimilation_rate")},
-          atmospheric_co2_concentration{get_input(input_quantities, "atmospheric_co2_concentration")},
-          rh{get_input(input_quantities, "rh")},
+          ambient_c{get_input(input_quantities, "Catm")},
+          ambient_rh{get_input(input_quantities, "rh")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           gbw{get_input(input_quantities, "gbw")},
+          leaf_temperature{get_input(input_quantities, "leaf_temperature")},
+          ambient_air_temperature{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
+          cs_op{get_op(output_quantities, "cs")},
+          hs_op{get_op(output_quantities, "hs")},
           leaf_stomatal_conductance_op{get_op(output_quantities, "leaf_stomatal_conductance")}
     {
     }
@@ -32,13 +42,17 @@ class ball_berry : public direct_module
    private:
     // Pointers to input quantities
     double const& net_assimilation_rate;
-    double const& atmospheric_co2_concentration;
-    double const& rh;
+    double const& ambient_c;
+    double const& ambient_rh;
     double const& b0;
     double const& b1;
     double const& gbw;
+    double const& leaf_temperature;
+    double const& ambient_air_temperature;
 
     // Pointers to output quantities
+    double* cs_op;
+    double* hs_op;
     double* leaf_stomatal_conductance_op;
 
     // Main operation
@@ -48,33 +62,41 @@ class ball_berry : public direct_module
 string_vector ball_berry::get_inputs()
 {
     return {
-        "net_assimilation_rate",          // mol / m^2 / s
-        "atmospheric_co2_concentration",  // mol / mol
-        "rh",                             // Pa / Pa
-        "b0",                             // mol / m^2 / s
-        "b1",                             // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
-        "gbw"                             // mol / m^2 / s
+        "net_assimilation_rate",  // micromol / m^2 / s
+        "Catm",                   // micromol / mol
+        "rh",                     // Pa / Pa
+        "b0",                     // mol / m^2 / s
+        "b1",                     // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+        "gbw",                    // mol / m^2 / s
+        "leaf_temperature",       // degrees C
+        "temp"                    // degrees C
     };
 }
 
 string_vector ball_berry::get_outputs()
 {
     return {
+        "cs", // micromol / mol
+        "hs", // dimensionless from Pa / Pa
         "leaf_stomatal_conductance"  // mmol / m^2 / s
     };
 }
 
 void ball_berry::do_operation() const
 {
-    update(
-        leaf_stomatal_conductance_op,
-        ball_berry_gs(
-            net_assimilation_rate,
-            atmospheric_co2_concentration,
-            rh,
-            b0,
-            b1,
-            gbw));
+    stomata_outputs result = ball_berry_gs(
+        net_assimilation_rate * 1e-6,
+        ambient_c * 1e-6,
+        ambient_rh,
+        b0,
+        b1,
+        gbw,
+        leaf_temperature,
+        ambient_air_temperature);
+
+    update(cs_op, result.cs);
+    update(hs_op, result.hs);
+    update(leaf_stomatal_conductance_op, result.gsw);
 }
 
 }  // namespace standardBML

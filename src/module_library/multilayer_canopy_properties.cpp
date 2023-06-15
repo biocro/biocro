@@ -1,5 +1,5 @@
 #include "multilayer_canopy_properties.h"
-#include "BioCro.h"     // for RHprof, WINDprof
+#include "BioCro.h"     // for WINDprof
 #include "AuxBioCro.h"  // for LNprof
 #include "sunML.h"      // for sunML
 
@@ -20,7 +20,6 @@ string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
         "kd",                    // (m^2 ground) / (m^2 leaf)
         "chil",                  // dimensionless from m^2 / m^2
         "heightf",               // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
-        "rh",                    // dimensionless from Pa / Pa
         "windspeed",             // m / s
         "LeafN",                 // mmol / m^2 (?)
         "kpLN",                  // dimensionless
@@ -68,7 +67,6 @@ string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
         "average_incident_ppfd",       // J / (m^2 leaf) / s
         "average_absorbed_shortwave",  // J / (m^2 leaf) / s
         "height",                      // m
-        "rh",                          // dimensionless from Pa / Pa
         "windspeed",                   // m / s
         "LeafN",                       // mmol / m^2 (?)
     };
@@ -123,10 +121,6 @@ void multilayer_canopy_properties::run() const
         leaf_transmittance,
         leaf_reflectance);
 
-    // Calculate relative humidity levels throughout the canopy
-    double relative_humidity_profile[nlayers];
-    RHprof(rh, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile
-
     // Calculate windspeed throughout the canopy
     double wind_speed_profile[nlayers];
     WINDprof(windspeed, lai, nlayers, wind_speed_profile);  // Modifies wind_speed_profile
@@ -157,7 +151,6 @@ void multilayer_canopy_properties::run() const
 
         update(incident_ppfd_scattered_ops[i], light_profile.incident_ppfd_scattered[i]);
         update(height_ops[i], light_profile.height[i]);
-        update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);
     }

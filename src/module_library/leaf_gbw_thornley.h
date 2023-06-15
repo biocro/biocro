@@ -26,7 +26,7 @@ namespace standardBML
  * In BioCro, we use the following names for this model's inputs and outputs:
  * - ``'height'`` for the canopy height above the ground
  * - ``'windspeed'`` for the wind speed
- * - ``'gbw'`` for the boundary layer conductance to water
+ * - ``'gbw'`` for the leaf boundary layer conductance to water
  */
 class leaf_gbw_thornley : public direct_module
 {

@@ -32,6 +32,7 @@ namespace standardBML
  * In BioCro, we use the following names for this model's input quantities:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
+ * - ``'temp'`` for the ambient temperature
  * - ``'rh'`` for the atmospheric relative humidity
  * - ``'vmax'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'alpha'`` for the initial slope of the photosynthetic light response
@@ -45,14 +46,18 @@ namespace standardBML
  * - ``'StomataWS'`` for the water stress factor
  * - ``'Catm'`` for the atmospheric CO2 concentration
  * - ``'atmospheric_pressure'`` for the local atmospheric pressure
- * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'upperT'`` for the high temperature cutoff for rubisco activity
  * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
- * - ``'gbw'`` for the boundary layer conductance to water vapor
+ * - ``'gbw'`` for the boundary layer conductance to water vapor. For an
+ *   isolated leaf, this should be the leaf boundary layer conductance; for a
+ *   leaf within a canopy, this should be the total conductance including the
+ *   leaf and canopy boundary layer conductances.
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
+ * - ``'Cs'`` for the CO2 concentration at the leaf surface
+ * - ``'RHs'`` for the relative humidity at the leaf surface
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
@@ -70,6 +75,7 @@ class c4_assimilation : public direct_module
           // Get pointers to input quantities
           Qp{get_input(input_quantities, "Qp")},
           Tleaf{get_input(input_quantities, "Tleaf")},
+          Tambient{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           vmax{get_input(input_quantities, "vmax")},
           alpha{get_input(input_quantities, "alpha")},
@@ -83,7 +89,6 @@ class c4_assimilation : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           Catm{get_input(input_quantities, "Catm")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           upperT{get_input(input_quantities, "upperT")},
           lowerT{get_input(input_quantities, "lowerT")},
           gbw{get_input(input_quantities, "gbw")},
@@ -91,6 +96,8 @@ class c4_assimilation : public direct_module
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
           Gs_op{get_op(output_quantities, "Gs")},
+          Cs_op{get_op(output_quantities, "Cs")},
+          RHs_op{get_op(output_quantities, "RHs")},
           Ci_op{get_op(output_quantities, "Ci")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
@@ -106,6 +113,7 @@ class c4_assimilation : public direct_module
     // References to input quantities
     double const& Qp;
     double const& Tleaf;
+    double const& Tambient;
     double const& rh;
     double const& vmax;
     double const& alpha;
@@ -119,7 +127,6 @@ class c4_assimilation : public direct_module
     double const& StomataWS;
     double const& Catm;
     double const& atmospheric_pressure;
-    double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
     double const& gbw;
@@ -127,6 +134,8 @@ class c4_assimilation : public direct_module
     // Pointers to output quantities
     double* Assim_op;
     double* Gs_op;
+    double* Cs_op;
+    double* RHs_op;
     double* Ci_op;
     double* GrossAssim_op;
     double* Assim_conductance_op;
@@ -140,25 +149,25 @@ class c4_assimilation : public direct_module
 string_vector c4_assimilation::get_inputs()
 {
     return {
-        "Qp",                     // micromol / m^2 / s
-        "Tleaf",                  // degrees C
-        "rh",                     // dimensionless
-        "vmax",                   // micromol / m^2 / s
-        "alpha",                  // mol / mol
-        "kparm",                  // mol / mol
-        "theta",                  // dimensionless
-        "beta",                   // dimensionless
-        "Rd",                     // micromol / m^2 / s
-        "b0",                     // mol / m^2 / s
-        "b1",                     // dimensionless
-        "Gs_min",                 // mol / m^2 / s
-        "StomataWS",              // dimensionless
-        "Catm",                   // micromol / mol
-        "atmospheric_pressure",   // Pa
-        "water_stress_approach",  // dimensionless
-        "upperT",                 // degrees C
-        "lowerT",                 // degrees C
-        "gbw"                     // mol / m^2 / s
+        "Qp",                    // micromol / m^2 / s
+        "Tleaf",                 // degrees C
+        "temp",                  // degrees C
+        "rh",                    // dimensionless
+        "vmax",                  // micromol / m^2 / s
+        "alpha",                 // mol / mol
+        "kparm",                 // mol / mol
+        "theta",                 // dimensionless
+        "beta",                  // dimensionless
+        "Rd",                    // micromol / m^2 / s
+        "b0",                    // mol / m^2 / s
+        "b1",                    // dimensionless
+        "Gs_min",                // mol / m^2 / s
+        "StomataWS",             // dimensionless
+        "Catm",                  // micromol / mol
+        "atmospheric_pressure",  // Pa
+        "upperT",                // degrees C
+        "lowerT",                // degrees C
+        "gbw"                    // mol / m^2 / s
     };
 }
 
@@ -167,6 +176,8 @@ string_vector c4_assimilation::get_outputs()
     return {
         "Assim",              // micromol / m^2 / s
         "Gs",                 // millimol / m^2 / s
+        "Cs",                 // micromol / m^2 / s
+        "RHs",                // dimensionless from Pa / Pa
         "Ci",                 // micromol / mol
         "GrossAssim",         // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
@@ -180,6 +191,7 @@ void c4_assimilation::do_operation() const
     photosynthesis_outputs c4_results = c4photoC(
         Qp,
         Tleaf,
+        Tambient,
         rh,
         vmax,
         alpha,
@@ -193,7 +205,6 @@ void c4_assimilation::do_operation() const
         StomataWS,
         Catm,
         atmospheric_pressure,
-        water_stress_approach,
         upperT,
         lowerT,
         gbw);
@@ -201,6 +212,8 @@ void c4_assimilation::do_operation() const
     // Update the output quantity list
     update(Assim_op, c4_results.Assim);
     update(Gs_op, c4_results.Gs);
+    update(Cs_op, c4_results.Cs);
+    update(RHs_op, c4_results.RHs);
     update(Ci_op, c4_results.Ci);
     update(GrossAssim_op, c4_results.GrossAssim);
     update(Assim_conductance_op, c4_results.Assim_conductance);

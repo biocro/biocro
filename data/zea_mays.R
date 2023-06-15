@@ -98,7 +98,6 @@ zea_mays <- list(
         upperT                      = 44,
         vmax1                       = 36,       # Yendrek et al. 2017. Fig 5E, Average of Amb 03 Inbred maize 2014 and 2015 (https://doi.org/10.1104/pp.16.01447)
         vmax_n_intercept            = 0,
-        water_stress_approach       = 1,
 
         # partitioning_growth module
         retrans                     = 0.9,
