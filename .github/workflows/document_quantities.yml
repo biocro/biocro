@@ -110,8 +110,9 @@ jobs:
       run: |
         cd target
 
-        # user.name is somewhat arbitrary but must be provided:
+        # user.name and user.email are somewhat arbitrary but must be provided:
         git config user.name biocro-dev-action
+        git config user.email bogus@url.com
         git add .
         git commit -m "updated quantities documentation"
         git push
