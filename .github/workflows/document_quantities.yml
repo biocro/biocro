@@ -104,7 +104,7 @@ jobs:
         # Copy the respective documentation into it, overwriting any
         # existing files of the same name:
         cd ../source/script/
-        cp quantity_units.csv quantities.xml quantities.html jquery-3.6.0.js  ../../target/quantity_docs
+        cp quantity_units.csv quantities.xml quantities.html  ../../target/quantity_docs
 
     - name: 12. Commit updates and push to target (documentation) repository
       run: |
