@@ -29,7 +29,6 @@
 #include "thermal_time_beta.h"
 #include "leaf_water_stress_exponential.hpp"
 #include "biomass_leaf_n_limitation.hpp"
-#include "pokhilko_circadian_clock.hpp"
 #include "song_flowering.hpp"
 #include "fake_solar.hpp"
 #include "partitioning_coefficient_selector.hpp"
@@ -113,7 +112,6 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_beta",                                     &create_mc<thermal_time_beta>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
-     {"pokhilko_circadian_clock",                              &create_mc<pokhilko_circadian_clock>},
      {"song_flowering",                                        &create_mc<song_flowering>},
      {"fake_solar",                                            &create_mc<fake_solar>},
      {"partitioning_coefficient_selector",                     &create_mc<partitioning_coefficient_selector>},
