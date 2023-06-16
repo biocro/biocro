@@ -74,6 +74,10 @@ documentation of the C++ code, including notes on the biological
 models used in BioCro and their implementation.  Also included is
 documentation for BioCro package developers and maintainers.
 
+There is also a separate [page that documents all of the quantities
+used by the Standard BioCro Module
+Library](https://ebimodeling.github.io/biocro-dev-documentation/quantity_docs/quantities.html).
+
 ### License
 
 The `BioCro` R package is licensed under the MIT license, but includes or uses
