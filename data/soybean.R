@@ -111,7 +111,7 @@ soybean <- list(
 
         # shortwave_atmospheric_scattering module
         atmospheric_pressure        = 101325,
-        atmospheric_transmittance   = 0.6,        #Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
+        atmospheric_transmittance   = 0.6,         # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
         atmospheric_scattering      = 0.3,
 
         # incident_shortwave_from_ground_par module
