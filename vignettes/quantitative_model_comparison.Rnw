@@ -113,8 +113,9 @@ cat(
 
 <<plotting_tools,echo=FALSE>>=
 time_range <- c(142, 298)
-ppfd_range <- c(-100, 1100)
-assim_range <- c(-2, 30)
+biomass_range <- c(-0.5, 6.5)
+ppfd_range <- c(-100, 1200)
+assim_range <- c(-2, 32)
 biomass_columns <- c('time', 'Grain', 'Leaf', 'Root', 'Stem')
 @
 
@@ -347,12 +348,14 @@ which are included in the \texttt{par} list element). Here we pass the
 find the best value for \ar.
 
 <<alpha_rue_optimization>>=
+min_alpha <- 0.021
+max_alpha <- 0.031
 opt_par = optim(
-    0.035,
+    0.03,
     rue_fvcb_square_difference,
     method='Brent',
-    lower=0.02,
-    upper=0.03
+    lower=min_alpha,
+    upper=max_alpha
 )
 
 best_alpha_rue = opt_par$par
@@ -381,7 +384,7 @@ GUI-driven programs, which offer a limited and nonextendable number of choices
 for these algorithms.
 
 <<figure_s1,echo=FALSE,results=FALSE>>=
-alpha_rue_sequence = seq(0.02, 0.03, length=31)
+alpha_rue_sequence = seq(min_alpha, max_alpha, by = 2.5e-4)
 differences = sapply(alpha_rue_sequence, rue_fvcb_square_difference)
 
 alpha_rue_optimization_plot <- xyplot(
@@ -451,7 +454,7 @@ biomass_comparison_2002_plot <- xyplot(
     auto = TRUE,
     grid = TRUE,
     xlim = time_range,
-    ylim = c(-0.7, 8.7),
+    ylim = biomass_range,
     xlab = 'Day of year (2002)',
     ylab = 'Biomass (Mg / ha)',
 )
@@ -980,7 +983,7 @@ biomass_catm_sensitivity_plot <- xyplot(
   auto = TRUE,
   grid = TRUE,
   xlim = time_range,
-  ylim = c(-50, 300),
+  ylim = c(-60, 60),
   xlab = 'Day of year (2002)',
   ylab = 'dM / dCa / (M / Ca)'
 )
@@ -1049,7 +1052,7 @@ biomass_comparison_2006_plot <- xyplot(
     auto = TRUE,
     grid = TRUE,
     xlim = time_range,
-    ylim = c(-0.7, 8.7),
+    ylim = biomass_range,
     xlab = 'Day of year (2006)',
     ylab = 'Biomass (Mg / ha)',
 )
@@ -1141,7 +1144,7 @@ multiyear_biomass_plot <- xyplot(
   type = 'l',
   auto = TRUE,
   grid = TRUE,
-  ylim = c(5, 10),
+  ylim = c(7, 12),
   xlab = 'Year',
   ylab = 'Final biomass (Mg / ha)'
 )
@@ -1155,7 +1158,7 @@ multiyear_biomass_difference_plot <- xyplot(
   type = 'l',
   auto = TRUE,
   grid = TRUE,
-  ylim = c(-11, 5),
+  ylim = c(-10, 10),
   xlab = 'Atmospheric CO2 concentration (ppm)',
   ylab = '(M_RUE - M_FvCB) / M_FvCB (%)'
 )
