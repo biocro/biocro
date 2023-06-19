@@ -55,7 +55,21 @@
     \code{betaSeneStem}. It was also necessary to add a new direct module to the
     model definition: \code{BioCro:leaf_water_stress_exponential}. This module
     calculates the fractional reduction in leaf growth rate due to water stress.
+
+    \item \emph{2023-06-18}: Several modules have been updated, and the value of
+    the atmospheric transmittance has been changed from 0.85 to 0.6 based on
+    Campbell and Norman, An Introduction to Environmental Biophysics,
+    2nd Edition, Pg 173. Due to these changes, reparameterization of the
+    following was required: \code{alphaLeaf}, \code{alphaRoot},
+    \code{alphaStem}, \code{alphaShell}, \code{betaLeaf}, \code{betaRoot},
+    \code{betaStem}, \code{betaShell}, \code{rateSeneLeaf}, \code{rateSeneStem},
+    \code{alphaSeneLeaf}, \code{betaSeneLeaf}, \code{alphaSeneStem}, and
+    \code{betaSeneStem}.
   }
+
+  (Whenever a reparameterization is made, this list should be updated, and any
+  vignettes using the soybean model should be checked to see if any axis limits,
+  etc., need to change.)
 }
 
 \usage{soybean}
