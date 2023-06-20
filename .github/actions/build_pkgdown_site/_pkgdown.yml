@@ -41,6 +41,9 @@ navbar:
       - text: ---
       - text: An Introduction to BioCro for Those Who Want to Add Models (PDF)
         href: articles/an_introduction_to_biocro.pdf
+      - text: ---
+      - text: Avoiding Pitfalls When Using the FvCB Model
+        href: articles/avoiding_pitfalls_fvcb.html
     doxygen_docs:
       text: C++ Library
       menu:
