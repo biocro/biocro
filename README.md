@@ -60,7 +60,7 @@ before submitting changes.
 ### Software Documentation
 
 See the [BioCro Documentation Web
-Site](https://ebimodeling.github.io/biocro-documentation/).  There
+Site](https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html).  There
 will be found not only the standard package documentation, but also
 documentation of the C++ code, including notes on the biological
 models used in BioCro and their implementation.  Also included is
