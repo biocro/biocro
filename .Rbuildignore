@@ -63,7 +63,7 @@
 # Files created by pkgdown::build_site()
 
 ^LICENSE\.md$
-# Required by the GNU GPL license but not allowed on CRAN
+# Required by the license but not allowed on CRAN
 
 ^script$
 # Developer script directory
