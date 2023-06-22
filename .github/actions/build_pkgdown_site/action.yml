@@ -29,7 +29,10 @@ runs:
     - name: Add the appropriate URL setting to the configuration file
       working-directory: ${{ inputs.package_root }}/pkgdown
       run: |
-        echo "url: ${{ inputs.base_url }}" >> _pkgdown.yml
+        if [[ '${{ inputs.base_url }}' != '' ]]
+        then
+            echo "url: ${{ inputs.base_url }}" >> _pkgdown.yml
+        fi
       shell: bash
 
     - name: Run pkgdown
