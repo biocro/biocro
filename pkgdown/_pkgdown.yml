@@ -1,7 +1,3 @@
-# IMPORTANT: Be sure to keep this file and
-# .github/actions/build_pkgdown_site/_pkgdown.yml in sync (while
-# maintaining essential differences).
-
 template:
   bootstrap: 5
   bootswatch: flatly
@@ -21,6 +17,9 @@ navbar:
     about:
       text: About
       href: about_pkgdown_documentation.html
+    dev_manual:
+      text: Developer's Manual
+      href: ../bookdown/index.html
     articles:
       text: Articles
       menu:
@@ -42,3 +41,14 @@ navbar:
       - text: ---
       - text: Avoiding Pitfalls When Using the FvCB Model
         href: articles/avoiding_pitfalls_fvcb.html
+    doxygen_docs:
+      text: C++ Library
+      menu:
+      - text: Complete Doxygen Documentation
+        href: ../doxygen/doxygen_docs_complete/index.html
+      - text: Framework Documentation
+        href: ../doxygen/doxygen_docs_framework/index.html
+      - text: BioCro Module Documentation
+        href: ../doxygen/doxygen_docs_modules/index.html
+      - text: BioCro Module Documentation (public members only)
+        href: ../doxygen/doxygen_docs_modules_public_members_only/index.html
