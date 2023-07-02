@@ -80,9 +80,12 @@ Library](https://ebimodeling.github.io/biocro-dev-documentation/quantity_docs/qu
 
 ### License
 
-The `BioCro` R package is licensed under the MIT license, but includes or uses
-other software packages that have different licenses. See `LICENSE.note` for
-more details.
+The `BioCro` R package is licensed under the MIT license, while the BioCro C++
+framework is licensed under version 3 or greater of the GNU Lesser General
+Public License (LGPL). This scheme allows people to freely develop models for
+any use (public or private) under the MIT license, but any changes to the
+framework that assembles and solves models must make source code changes
+available to all users under the LGPL. See `LICENSE.note` for more details.
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
