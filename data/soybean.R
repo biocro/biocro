@@ -179,9 +179,9 @@ soybean <- list(
         soil_depth2                 = 2.5,         # meters
         soil_depth3                 = 10.0,        # meters
         wsFun                       = 2,           # not used, but must be defined
-        hydrDist                    = 0,           # same as in sorghum parameter file
-        rfl                         = 0.2,         # same as in sorghum parameter file
-        rsdf                        = 0.44,        # same as in sorghum parameter file
+        hydrDist                    = 0,           # same as in miscanthus parameter file
+        rfl                         = 0.2,         # same as in miscanthus parameter file
+        rsdf                        = 0.44,        # same as in miscanthus parameter file
         phi1                        = 0.01,
         phi2                        = 1.5,         # from Sugarcane-BioCro, Jaiswal et al. 2017 (https://doi.org/10.1038/nclimate3410)
 

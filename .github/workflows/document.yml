@@ -92,8 +92,7 @@ jobs:
     - name: 5a. Compute base URL for pkgdown book
       if: inputs.pkgdown-build
       run: |
-        if [[ inputs.publish == true ||             # Use the computed default if we are publishing the site ...
-              '${{ inputs.custom-url }}' == '' ]]   # ... or if no URL value was set.
+        if [[ inputs.publish == true ]]             # Use the computed default if we are publishing the site.
         then
           echo "BASE_URL=https://${PUBLISH_TO/\//.github.io\/}/$VERSION/pkgdown/" >> $GITHUB_ENV
         else
