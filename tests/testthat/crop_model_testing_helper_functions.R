@@ -59,21 +59,15 @@ specify_crop <- function(
 
 MISCANTHUS_X_GIGANTEUS_IGNORE <- character(0)
 
-SORGHUM_IGNORE <- character(0)
-
 WILLOW_IGNORE <- character(0)
-
-ZEA_MAYS_IGNORE <- character(0)
 
 SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
     specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
-    specify_crop("sorghum",                TRUE,  sorghum,                WEATHER,                SORGHUM_IGNORE),                # INDEX = 2
-    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 3
-    specify_crop("zea_mays",               FALSE, zea_mays,               WEATHER,                ZEA_MAYS_IGNORE),               # INDEX = 4
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 5
+    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
+    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop
