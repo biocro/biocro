@@ -35,7 +35,7 @@ vignette: >
 \newcommand{\Out}{\operatorname{\mathbf{Out}}}
 \numberwithin{equation}{section}
 
-# Dynamical Systems: Real and Mathematical
+# Dynamical systems, real and mathematical
 
 In his book _Computation, Dynamics, and Cognition_
 [@Giunti1997-GIUCDS], Giunti distinguishes between real dynamical
@@ -127,11 +127,11 @@ attributes to retain in our abstract model, there are two main
 considerations: First, which attributes of the system are of most
 interest to us? For a model of plant growth, this might include, for
 example, the rate of growth (mass accumulation) of a plant; the
-nutrient or energy content of the growing plant; the impact of a group
-of plants on the surrounding environment, including the temperature
-and $\text{CO}_\text{2}$ content of the surrounding air, or the rate
-of erosion of the soil substrate; or the resilience of the plant in
-drought conditions.
+nutrient or energy content of the growing plant; the effects of a
+group of plants on the surrounding environment, including the
+temperature and $\text{CO}_\text{2}$ content of the surrounding air,
+or the rate of erosion of the soil substrate; or the resilience of the
+plant in drought conditions.
 
 Second, there are attributes that may not be of particular intrinsic
 interest but may help in predicting the behavior of those attributes
@@ -157,7 +157,7 @@ object are (to give a very few examples)
 \noindent <!-- Pandoc seemingly doesn't allow lists in the middle of a
                paragraph, so we fake it.  -->
 But as the Italian experimenters of the 16th century demonstrated, the
-weight of a compact and relatively dense object has little impact upon
+weight of a compact and relatively dense object has little effect upon
 the rate at which it falls. It turns out, as a matter of fact, that
 the predictive accuracy of our model, in which we look only at the
 height and downward velocity of the object (and the ambient
@@ -166,19 +166,19 @@ rather good in the case of compact, relatively-dense objects.
 
 Of course, if we consider a non-compact object with relatively low
 density, such as a feather, this model may not do a good job of
-predicting its path as it falls through the air. We may find that
-in order to accurately model the free-fall of a feather, we _do_
-need to include attributes in our system that represent the impact
-of air resistance. This process, where a model is compared against
-observations and then updated when it fails to predict the behavior
-of the real system it is meant to represent, is a key part of the
-scientific process and has been responsible for a great deal of
-progress and understanding. Thus, it is never a problem when the
-process of abstraction has left out too many details; instead this
-is an opportunity to learn more about the real world and the model.
-A central goal for BioCro is to make it relatively easy to add new
-components to an existing model, allowing this type of model
-development to occur more rapidly.
+predicting its path as it falls through the air. We may find that in
+order to accurately model the free-fall of a feather, we _do_ need to
+include additional attributes in our system, such as those that help
+us take into account the effects of air resistance. This process,
+whereby a model is compared against observations and then updated when
+it fails to predict the behavior of the real system it is meant to
+represent, is a key part of the scientific process and has been
+responsible for a great deal of progress and understanding. Thus, it
+is never a problem when the process of abstraction has left out too
+many details; instead this is an opportunity to learn more about the
+real world and the model.  A central goal for BioCro is to make it
+relatively easy to add new components to an existing model, allowing
+this type of model development to occur more rapidly.
 
 # Continuous time versus discrete time \label{sec:discrete_time}
 
@@ -297,12 +297,12 @@ names and without using the projection operators:
                          v(t_i) - \Delta t \cdot g)\quad\text{for i$\geq$0}.
 \end{align*}
                               <!-- (no par break) -->
-Thus, Equation \eqref{eq:falling_body_recursion} may seem like a complicated way
-to write a relatively simple rule relating height, velocity, and acceleration.
-However, this notation will become useful later when we begin to consider
-general systems where we do not wish to specify a particular number of state
-variables, a particular rule for determining a future state, or even the
-independent variable (which may not be time).
+Thus, Equation \eqref{eq:falling_body_recursion} may seem like a
+complicated way to write a relatively simple rule relating height,
+velocity, and acceleration.  This notation will, however, become
+useful later when we consider systems less in terms a named state
+variables and instead think of these variables as coordinates of a
+point in a Euclidean space comprising the system state space.
 
 ## Note about abstraction and recursive systems
 
@@ -320,14 +320,15 @@ function of time:
   \end{array}
 \end{equation*}
                               <!-- (no par break) -->
-One important point is that the process of developing a recursive
+One important point here is that the process of developing a recursive
 equation (or a discrete-time approximation) depends on the algorithm
 chosen for solving the continuous ODE system. For example, if we had
 chosen to use the fourth-order Runge-Kutta method rather than Euler's
-method, we would arrive at a recursive definition different from
-Equation \eqref{eq:falling_body_recursion}. Nevertheless, it would
-represent the same continuous system, and should (usually) produce
-a similar sequence of states.
+method to solve the falling-body problem, we would have arrived at a
+recursive definition different from Equation
+\eqref{eq:falling_body_recursion}. Nevertheless, it would represent
+the same continuous system, and should (usually) produce a similar
+sequence of states.
 
 It should also be pointed out that not all discrete-time abstract
 dynamical systems arise as abstractions of real systems or even as
@@ -401,15 +402,15 @@ example, if $\vs{U}$ is a proper subspace of $\R^n$ such that $\vs{U}
 = \R^U$ for some proper subset $U$ of $n = \{0,1,\dots,n-1\}$, then we
 may regard $u_i$ as the value taken by the $i$th member of $U$ in some
 arbitrary but fixed ordering of the members of $U$. We even allow the
-case where the function domain $U$ isn't a set of intergers at all but
+case where the function domain $U$ isn't a set of integers at all but
 just some finite collection of objects. In this case, in the context
 of considering vectors (_qua_ mappings) $\vec{v}\in \R^U$, $v_i$ may
-denote alternately the i'th member of $U$ in some fixed enumeration;
-the name of a variable associated with that member; or the value of
-the i'th coordinate of some particular vector $\vec{v}$. In the later
-case, $v_i$ doesn't abbreviate $v(i)$ for some function $v\in \R^U$.
-Rather, it stands for $v(u_i)$, where $u_i$ denotes "the i'th member
-of $U$."
+denote alternately the $i^\text{th}$ member of $U$ in some fixed
+enumeration; the name of a variable associated with that member; or
+the value of the $i^\text{th}$ coordinate of some particular vector
+$\vec{v}$. In the later case, $v_i$ doesn't abbreviate $v(i)$ for some
+function $v\in \R^U$.  Rather, it stands for $v(u_i)$, where $u_i$
+denotes "the $i^\text{th}$ member of $U$."
 
 Any function $f: C \to B$ may be identified with the set $\{(c,
 f(c))\,:\,c\in C\}$. Thus, the target set $B$ is not an intrinsic
@@ -432,12 +433,12 @@ We shall be particularly interested in restrictions of functions
 specifying points in Euclidean space. Suppose $\vec{x}\in \R^n$, and
 let $W$ be an arbitrary subset of $n=\{0,1,2,\dots,n-1\}$. Then
 $\vec{x}|W$ will be a member of $\R^W$, the set of functions that
-assign a real number to each member of $W$. We regard $R^W$ as a
-subspace of $R^n$. Moreover, if $W$ has $k$ members, $R^W$ will be
+assign a real number to each member of $W$. We regard $\R^W$ as a
+subspace of $\R^n$. Moreover, if $W$ has $k$ members, $\R^W$ will be
 isomorphic to, but not necessarily equal to, the Euclidean space
-$R^k$. ($R^W$ and $R^k$ are equal iff $W=k$ (that is, iff $W = \{0,
+$\R^k$. ($\R^W$ and $\R^k$ are equal iff $W=k$ (that is, iff $W = \{0,
 1, \dots, k-1\})$.) We define the projection mapping $\pi^{n\to W}:
-R^n\to R^W$ by the rule
+\R^n\to \R^W$ by the rule
                               <!-- (no par break) -->
 \begin{equation*}
     v \mapsto v|W.
@@ -445,10 +446,10 @@ R^n\to R^W$ by the rule
 
 More generally, given any two finite sets $W\subseteq U$ (not
 necessarily sets of integers), we may define a projection mapping
-$\pi^{U\to W}: R^U\to R^W$ by the rule
+$\pi^{U\to W}: \R^U\to \R^W$ by the rule
                               <!-- (no par break) -->
 \begin{equation*}
-   v \in R^U \mapsto v|W.
+   v \in \R^U \mapsto v|W.
 \end{equation*}
 
 Just as we can restrict the domain of a function, we can expand it as
@@ -481,18 +482,18 @@ product_ of $A$ and $B$ to be a set of ordered couples:
     A\times B = \{(a, b): a\in A \text{ and } b\in B\}
 \end{equation*}
                               <!-- (no par break) -->
-If $A=\R^X$ and $B=\R^U$ with $X\cap U=\emptyset$, then there is a
-natural isomorphism between $\R^X\times\R^U$ and $\R^{X\cup U}$ given
+If $A=\R^X$ and $B=\R^Y$ with $X\cap Y=\emptyset$, then there is a
+natural isomorphism between $\R^X\times\R^Y$ and $\R^{X\cup Y}$ given
 by
                               <!-- (no par break) -->
 \begin{equation*}
-    (\vec{x}, \vec{u}) \mapsto \vec{x}\cup\vec{u}.
+    (\vec{x}, \vec{y}) \mapsto \vec{x}\cup\vec{y}.
 \end{equation*}
 (The inverse mapping is given by $\vec{v} \mapsto (\vec{v}|X,
-\vec{v}|U)$ for $\vec{v}\in \R^{X\cup U}$.)
+\vec{v}|Y)$ for $\vec{v}\in \R^{X\cup Y}$.)
                               <!-- (no par break) -->
-Where convenient and warranted, we will consider $\R^X\times\R^U$ and
-$\R^{X\cup U}$ identical.
+Where convenient and warranted, we will consider $\R^X\times\R^Y$ and
+$\R^{X\cup Y}$ identical.
 
 The notion of Cartisean product can be extended to three or more sets.
 For example, since there is a natural isomophism between $(A\times
@@ -617,7 +618,7 @@ by introducing a time-related variable into the state.)
 
 The falling body system considered above was autonomous: the motion of the body
 will follow the same pattern independent of when it is released. On the other
-hand, more realistic biological models tend to be non-autonomous or
+hand, most realistic biological models tend to be non-autonomous or
 time-varying. This is largely due to the influence of weather and other
 environmental factors; for example, it matters whether seeds are sown in March
 or in May.
@@ -633,7 +634,7 @@ considerably more general.
 
 We highlight this model for two reasons: First, it is mentioned in the
 supplementary materials to @10.1093/insilicoplants/diac003. Second,
-it generalizes the concept of time used for dynamical system from the
+it generalizes the concept of time used for dynamical systems from the
 real numbers (which the Khalil model assumes) to any monoid. In
 particular, we may consider time domains consisting of the
 non-negative integers, or some fixed multiple of the same, such as the
@@ -976,7 +977,7 @@ other words, an additional case is added to the above rule:
                        \quad\text{if $t_j < t < t_{j+1}$}
 \end{equation}
                               <!-- (no par break) -->
-This makes $\gamma^\vs{D}_i(t)$ into a continuous piece-wise linear
+This makes $\gamma^\vs{D}_i(t)$ into a piecewise-linear continuous
 function.)
 
 Now to the modules. As we will show later (Section \ref{sec:modularization}),
@@ -1012,14 +1013,15 @@ case, each module $\M_i$ corresponds to a function of the form
   \gamma^{\vs{W}_i}: \vs{X}\times\vs{K}\times\vs{D}\times\vs{\overline{W}}_i \to \vs{W}_i,
 \end{equation}
                               <!-- (no par break) -->
-where $\vs{W}_i$ is the subspace of $\vs{W}$ generated by the variables in the
-output of module $\M_i$ and $\vs{\overline{W}}_i$ is the subspace of $\vs{W}$
-generated by those inputs to module $\M_i$ that are not in $X$, $K$, or $D$.
-(When constructing a dynamical system from BioCro modules, it is required that a
-direct module's inputs and outputs are always disjoint. In this case,
-$\vs{\overline{W}}_i$ is complementary to $\vs{W}_i$, with $\vs{W}_i \times
-\vs{\overline{W}}_i$ a subspace of $\vs{W}$.)  We will discuss this further in
-the section on modularization (Section \ref{sec:modularization}).
+where $\vs{W}_i$ is the subspace of $\vs{W}$ generated by the
+variables in the output of module $\M_i$ and $\vs{\overline{W}}_i$ is
+the subspace of $\vs{W}$ generated by those inputs to module $\M_i$
+that are not in $X$, $K$, or $D$.  (A direct module's inputs and
+outputs are required to be disjoint. Thus $\vs{\overline{W}}_i$ is
+complementary to $\vs{W}_i$, with $\vs{W}_i \times
+\vs{\overline{W}}_i$ a subspace of $\vs{W}$.)  We will discuss this
+further in the section on modularization (Section
+\ref{sec:modularization}).
 
 Second, it should be mentioned that the Khalil model allows for the
 inclusion of an output function
@@ -1049,7 +1051,8 @@ existing modules that use these as inputs.
   $\vec{d}$, and $\vec{w}$.  The primary constraint on the
   differential module is that its output variables must all be
   differential quantities (or, equivalently, state variables), which
-  are determined by the initial values as discussed above.
+  are determined by the initial values specification as discussed
+  above.
 
   (BioCro doesn't require that all state variables be included in the
   differential module outputs: if some state variable $x_i$ is not, it
@@ -1146,13 +1149,13 @@ reference to its usual definition as employed in the Khalil, Giuli-Mazzola,
 and Barreira-Valls models; we intentionally avoid using BioCro's idea of
 state, preferring to write _differential quantities_ instead to prevent
 confusion. In this section, we must necessarily use _state_ to refer to
-both conceptions, and try to clarify which definition is meant whenever
-it is unclear from context.
+both conceptions, and we will try to clarify which definition is meant
+whenever it is unclear from context.
 
 ### BioCro state and the Khalil model
 
 Khalil remarks that the state variables "represent the memory that the
-dynamical systems has of its past."  As Laplace
+dynamical system has of its past."  As Laplace
 [@alma99954908866305899] remarks, "We ought then to consider the
 present state of the universe as the effect of its previous state and
 as the cause of that which is to follow."  The inputs in the model, on
@@ -1187,10 +1190,10 @@ than as a part that is to be derived from some general rules governing
 the evolution of natural systems.
 
 None of this is to say, of course, that BioCro can't also be used to
-model controlled experiments, such as those carried out in a green
-house; or to model "thought experiments" or "what if" scenarios: _What
-would happen if we used the weather data from 2005 but assumed a much
-higher $\text{CO}_\text{2}$ concentration?_
+model controlled experiments, such as those carried out in a
+greenhouse; or to model "thought experiments" or "what if" scenarios:
+_What would happen if we used the weather data from 2005 but assumed a
+much higher $\text{CO}_\text{2}$ concentration?_
 
 ### BioCro state and the Giunti model
 
@@ -1207,9 +1210,9 @@ interpret the stipulation, given in the supplement, that "the term
 state is used to refer to all quantities involved in the system,
 except time."
 
-As we demonstrate here, a BioCro system having drivers but not
-including a time-like variable among its differential quantities
-does not, in general, conform to the Giunti model.
+As we demonstrate here, a BioCro system having drivers but that does
+not include a time-like variable amongst those drivers does not, in
+general, conform to the Giunti model.
 
 To see this, let us consider a typical BioCro system in which the
 driver component consists of the values of a number of weather-related
@@ -1305,15 +1308,15 @@ least easily defined: if $\gamma$ is the $\vs{D}$ component of some
 state $\vec{s}$, then $g^u(\gamma)$ will be the function defined by
 the rule $t \mapsto \gamma(u + t)$.)
 
-The upshot is that the Giunti model does not naturally describe
-BioCro systems unless some proxy for time is allowed to be a
-component of the differential quantities. It should also be noted
-that BioCro does not make use of two important generalizations in
-the Giunti model: in BioCro, the state space always _will_ be a
-subset (in fact, a _connected_ subset) of a Euclidean space, and
-state transitions (using _state_ in Khalil's sense) will always be
-differential equation based. Thus, we find that Khalil's model
-provides a better description of BioCro systems.
+The upshot is that the Giunti model does not naturally describe a
+BioCro system having drivers unless some proxy for time is allowed to
+be a component of those drivers. It should also be noted that BioCro
+does not make use of two important generalizations in the Giunti
+model: in BioCro, the state space always _will_ be a subset (in fact,
+a _connected_ subset) of a Euclidean space, and state transitions
+(using _state_ in Khalil's sense) will always be differential equation
+based. Thus, we find that Khalil's model provides a better description
+of BioCro systems.
 
 ### The state space as a manifold \label{sec:manifold}
 
@@ -1540,7 +1543,7 @@ as terms that must be added together to form the full derivative. For each
 module, the system-complete derivative function as defined above calculates the
 values of some elements of $X$, setting the rest to 0. Then, the output from
 each system-complete derivative function can be added together to form the full
-derivatives. This operation is performed by the combined derivative function.
+derivative. This is the operation performed by the combined derivative function.
 
 We could always write a single differential module $\M$ that has
 $\vec{f}$ as its system-complete derivative function and then use it
@@ -1572,9 +1575,10 @@ $\vs{X}\times\vs{K}\times\vs{D}$.  Thus we may write
 \end{equation*}
 
 In general, however, the direct module component of a system will be
-subdivided into two or more submodules. In this section, we will show that the
-ordered sum of two modules is itself a module, which is the key to understanding
-how to modularize the direct module function.
+subdivided into two or more submodules. In this section, we will show
+that the _ordered sum_ of two modules (a notion defined below) is
+itself a module; this is the key to understanding how to modularize
+the direct module function.
 
 As mentioned in Section \ref{sec:BioCro_systems}, when a system has more than
 one direct module, each constituent module $\M_i$ corresponds to a function
@@ -1655,20 +1659,20 @@ so that
                               <!-- (no par break) -->
 with $A\cap B=C\cap D=A\cap D=B\cap D=\emptyset$.
 
-At this point, it is possible to see how the ordered sum of
-two modules is itself a module; the key is to think in terms of
-module inputs and outputs: Given mappings for all values in $A$ and
-all values in $C$ that aren't in $B$, we can obtain mappings for all
-values in $B$ and $D$ as follows: Since we know all the inputs $A$ to
-module $\M_i$, we can use the module to obtain all the outputs $B$.
-Now we know all the inputs $C$ to module $\M_j$---both those that
-_aren't_ in $B$ (which were given at the outset), and those that _are_
-in $B$ (which were obtained by applying module $\M_i$). This yields
-all the outputs $D$ of module $\M_j$. We can also describe this more
-formally, as will be shown in the remainder of this section.
+At this point, it is possible to see how we might combine these two
+direct modules to come up with something that is itself a module; the
+key is to think in terms of module inputs and outputs: Given mappings
+for all values in $A$ and all values in $C$ that aren't in $B$, we can
+obtain mappings for all values in $B$ and $D$ as follows: Since we
+know all the inputs $A$ to module $\M_i$, we can use the module to
+obtain all the outputs $B$.  Now we know all the inputs $C$ to module
+$\M_j$---both those that _aren't_ in $B$ (which were given at the
+outset), and those that _are_ in $B$ (which were obtained by applying
+module $\M_i$). This yields all the outputs $D$ of module $\M_j$. We
+can also describe this more formally, as we now proceed to do.
 
-Then we define $\M_i + \M_j$, the _ordered sum of $\M_i$ and $\M_j$_,
-to be the direct module whose corresponding function
+We define $\M_i + \M_j$, the _ordered sum of $\M_i$ and $\M_j$_, to be
+the direct module whose corresponding function
                               <!-- (no par break) -->
 \begin{equation}
     f\ast g: \R^{ A\cup (C\smallsetminus B)}\to\R^{ B\cup D} \label{eq:ordered_sum_function}
@@ -1713,11 +1717,11 @@ $\M_i$ and $\M_j$,
                               <!-- (no par break) -->
 (The fact that the set of inputs for the ordered sum is $\In\M_i \cup
 (\In M_j\smallsetminus \Out\M_i)$ is readily apparent from
-\ref{eq:ordered_sum_function} and \ref{eq:ordered_sum}: the domain of
-$f\ast g$ being $\R^{ A\cup (C\smallsetminus B)}$ corresponds to the
-inputs for the corresponding module being $A\cup (C\smallsetminus B)$,
-which is just $\In\M_i \cup (\In M_j\smallsetminus \Out\M_i)$.
-Similarly for the outputs.)
+\ref{eq:ordered_sum_function}: the domain of $f\ast g$ being $\R^{
+A\cup (C\smallsetminus B)}$ corresponds to the inputs for the
+corresponding module being $A\cup (C\smallsetminus B)$, which is just
+$\In\M_i \cup (\In M_j\smallsetminus \Out\M_i)$.  Similarly for the
+outputs.)
 
 Using this, we then have that
                               <!-- (no par break) -->
@@ -1751,19 +1755,19 @@ a stipulation made when defining the ordered sum of $\M_i$ and $\M_j$.
 Equation \ref{eq:ordered_sum} perhaps requires a little explication in
 order to be comprehended.
 
-Suppose we are given some value $x$ in $\R^{ A\cup (C\smallsetminus
-B)}$, the domain of $f\ast g$.  We can describe $(f\ast g)(x)\in\R^{
-B\cup D}$ by describing the way to compute how $(f\ast g)(x)$ maps
-each $y\in B\cup D$ into $\R$.
+Suppose we are given some value $\vec{x}$ in $\R^{ A\cup
+(C\smallsetminus B)}$, the domain of $f\ast g$.  We can describe
+$(f\ast g)(\vec{x})\in\R^{ B\cup D}$ by describing the way to compute
+how $(f\ast g)(\vec{x})$ maps each $y\in B\cup D$ into $\R$.
 
 First suppose $y\in B$.  Then we need only look at the first component
 in the union on the right-hand side of \ref{eq:ordered_sum}---namely,
 $f\circ\pi^{ A\cup (C\smallsetminus B)\to A}$.  The projection $\pi^{
-A\cup (C\smallsetminus B)\to A}(x)$ of $x$ to $\R^A$ tells us that we
-need consider only the coordinates of $x$ that correspond to members
-of $A$.  Once we have a vector in $\R^A$, we can apply the function
-$f$ to obtain a value in $\R^B$.  This is all we need, since $y$ is in
-$B$.
+A\cup (C\smallsetminus B)\to A}(\vec{x}) = \vec{x}|A$ of $\vec{x}$ to
+$\R^A$ tells us that we need consider only the coordinates of
+$\vec{x}$ that correspond to members of $A$.  Once we have a vector in
+$\R^A$, we can apply the function $f$ to obtain a value in $\R^B$.
+This is all we need, since $y$ is in $B$.
 
 Now suppose $y\in D$.  Here we need to look at the somewhat more
 complicated second component of the right-hand side of
@@ -1771,19 +1775,20 @@ complicated second component of the right-hand side of
 \to C\smallsetminus B} \cup (\pi^{ B\to C\cap B}\circ f\circ \pi^{
 A\cup (C\smallsetminus B)\to A}))$.  Since $g: \R^C\to\R^D$, we need
 to feed $g$ some value in $\R^C$ to obtain a mapping to $\R$ of values
-(such as $y$) in $D$.  But $x$ is in $\R^{A\cup(C\smallsetminus B)}$,
-so $x$ only tells how values in $C$ that aren't also in $B$ are
-mapped.  The mapping for these values corresponds to the projection
-$\pi^{ A\cup (C\smallsetminus B) \to C\smallsetminus B}(x)$, a value
-in $\R^{C\smallsetminus B}$.  To find the portion of the mapping we
-need that belongs to $\R^{C\cap B}$, we look at $\pi^{ B\to C\cap
-B}\circ f\circ \pi^{ A\cup (C\smallsetminus B)\to A}$.  As we have
-just seen, $f\circ \pi^{ A\cup (C\smallsetminus B)\to A}$ maps $x$ to
-a member of $\R^B$.  Then we can apply the projection $\pi^{ B\to
-C\cap B}$ to obtain a member of $\R^{C\cap B}$.  Taking the union of
-the components in $\R^{C\smallsetminus B}$ and $\R^{C\cap B}$ gives us
-a value in $\R^C$, to which we can apply function $g$.  The result is
-a function in $\R^D$ telling how all values (such as $y$) in $D$ are
+(such as $y$) in $D$.  But $\vec{x}$ is in $\R^{A\cup(C\smallsetminus
+B)}$, so $\vec{x}$ only tells how values in $C$ that aren't also in
+$B$ are mapped.  The mapping for these values corresponds to the
+projection $\pi^{ A\cup (C\smallsetminus B) \to C\smallsetminus
+B}(\vec{x}) = \vec{x}|(C\smallsetminus B)$, a value in
+$\R^{C\smallsetminus B}$.  To find the portion of the mapping we need
+that belongs to $\R^{C\cap B}$, we look at $\pi^{ B\to C\cap B}\circ
+f\circ \pi^{ A\cup (C\smallsetminus B)\to A}$.  As we have just seen,
+$f\circ \pi^{ A\cup (C\smallsetminus B)\to A}$ maps $\vec{x}$ to a
+member of $\R^B$.  Then we can apply the projection $\pi^{ B\to C\cap
+B}$ to obtain a member of $\R^{C\cap B}$.  Taking the union of the
+components in $\R^{C\smallsetminus B}$ and $\R^{C\cap B}$ gives us a
+value in $\R^C$, to which we can apply function $g$.  The result is a
+function in $\R^D$ telling how all values (such as $y$) in $D$ are
 mapped.
 
 #### General ordered sum {-}
@@ -1999,12 +2004,12 @@ automatically described by the unforced state equation
 \eqref{eq:unforced_state_equation}.)
 
 [^timestep_parameter]: The timestep parameter is different in
-character from the other parameters the make up part of the
+character from the other parameters that make up part of the
 specification of a BioCro system. It does not correspond to a
 physical attribute of the real dynamical system being modeled.
 Rather, it is an artifact of the way in which the real system is
 modeled mathematically. In fact, it should not be included in the
-parameters at all, and is only there due to a "historical
+parameters at all and is only there due to a "historical
 accident." Eventually, it is intended that `timestep` will be
 removed from the BioCro parameters. As such, we don't consider it
 as one of the variables in the set $K$ that we introduced in
