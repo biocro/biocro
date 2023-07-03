@@ -29,7 +29,17 @@
   would need to change when simulating crop growth in different locations. Care
   must be taken to understand each input quantity before attempting to run
   simulations in other places or for other cultivars.
+}
 
+\usage{soybean}
+
+\format{
+  A list of 5 named elements that are suitable for passing to
+  \code{\link{run_biocro}}, as described in the help page for
+  \code{\link{crop_model_definitions}}.
+}
+
+\details{
   As improvements are made to the BioCro modules, their behavior changes, and
   the soybean model parameters must be updated. Following significant module
   updates, reparameterization is performed using the same method and data as
@@ -67,17 +77,9 @@
     \code{betaSeneStem}.
   }
 
-  (Whenever a reparameterization is made, this list should be updated, and any
+  Whenever a reparameterization is made, this list should be updated, and any
   vignettes using the soybean model should be checked to see if any axis limits,
-  etc., need to change.)
-}
-
-\usage{soybean}
-
-\format{
-  A list of 5 named elements that are suitable for passing to
-  \code{\link{run_biocro}}, as described in the help page for
-  \code{\link{crop_model_definitions}}.
+  etc., need to change.
 }
 
 \source{
