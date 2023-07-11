@@ -47,6 +47,16 @@
   reparameterizations that have occurred since the original publication of the
   Soybean-BioCro model:
   \itemize{
+    \item \emph{2023-06-18}: Several modules have been updated, and the value of
+    the atmospheric transmittance has been changed from 0.85 to 0.6 based on
+    Campbell and Norman, An Introduction to Environmental Biophysics,
+    2nd Edition, Pg 173. Due to these changes, reparameterization of the
+    following was required: \code{alphaLeaf}, \code{alphaRoot},
+    \code{alphaStem}, \code{alphaShell}, \code{betaLeaf}, \code{betaRoot},
+    \code{betaStem}, \code{betaShell}, \code{rateSeneLeaf}, \code{rateSeneStem},
+    \code{alphaSeneLeaf}, \code{betaSeneLeaf}, \code{alphaSeneStem}, and
+    \code{betaSeneStem}.
+
     \item \emph{2023-03-15}: Several modules have been updated. The most
     significant changes are that (1) the
     \code{BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator} now
@@ -65,16 +75,6 @@
     \code{betaSeneStem}. It was also necessary to add a new direct module to the
     model definition: \code{BioCro:leaf_water_stress_exponential}. This module
     calculates the fractional reduction in leaf growth rate due to water stress.
-
-    \item \emph{2023-06-18}: Several modules have been updated, and the value of
-    the atmospheric transmittance has been changed from 0.85 to 0.6 based on
-    Campbell and Norman, An Introduction to Environmental Biophysics,
-    2nd Edition, Pg 173. Due to these changes, reparameterization of the
-    following was required: \code{alphaLeaf}, \code{alphaRoot},
-    \code{alphaStem}, \code{alphaShell}, \code{betaLeaf}, \code{betaRoot},
-    \code{betaStem}, \code{betaShell}, \code{rateSeneLeaf}, \code{rateSeneStem},
-    \code{alphaSeneLeaf}, \code{betaSeneLeaf}, \code{alphaSeneStem}, and
-    \code{betaSeneStem}.
   }
 
   Whenever a reparameterization is made, this list should be updated, and any
