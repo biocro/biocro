@@ -4,7 +4,7 @@
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
-struct canopy_photosynthesis_outputs c3CanAC(
+canopy_photosynthesis_outputs c3CanAC(
     double LAI,                  // dimensionless
     double cosine_zenith_angle,  // hr
     double solarR,               // micromol / m^2 / s
@@ -193,7 +193,7 @@ struct canopy_photosynthesis_outputs c3CanAC(
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    struct canopy_photosynthesis_outputs ans;
+    canopy_photosynthesis_outputs ans;
     ans.Assim = CanopyA * (1.0 - growth_respiration_fraction) * cf;  // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                                  // Mg / ha / hr
     ans.Rp = canopy_rp * cf;                                         // Mg / ha / hr

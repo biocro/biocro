@@ -3,7 +3,7 @@
 
 #include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 
-struct canopy_photosynthesis_outputs c3CanAC(
+canopy_photosynthesis_outputs c3CanAC(
     double LAI,
     double cosine_zenith_angle,
     double solarR,

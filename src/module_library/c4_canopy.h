@@ -214,7 +214,7 @@ void c4_canopy::do_operation() const
     nitroP.lnb0 = nlnb0;
     nitroP.lnb1 = nlnb1;
 
-    struct canopy_photosynthesis_outputs can_result = CanAC(
+    canopy_photosynthesis_outputs can_result = CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
         kparm, beta, Rd, Catm, b0, b1, Gs_min, theta, kd, chil, LeafN,
         kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
