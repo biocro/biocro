@@ -32,6 +32,8 @@ canopy_photosynthesis_outputs c3CanAC(
     double StomataWS,
     double specific_heat_of_air,
     double atmospheric_pressure,
+    double atmospheric_transmittance,
+    double atmospheric_scattering,
     double growth_respiration_fraction,
     double electrons_per_carboxylation,
     double electrons_per_oxygenation,

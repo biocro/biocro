@@ -47,6 +47,8 @@ miscanthus_x_giganteus <- list(
         alpha1                      = 0.04,
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
+        atmospheric_scattering      = 0.3,
+        atmospheric_transmittance   = 0.85,
         b0                          = 0.08,
         b1                          = 3,
         beta                        = 0.93,

@@ -1,6 +1,7 @@
 #include "CanAC.h"
-#include "BioCro.h"                  // for lightME, WINDprof, EvapoTrans2
+#include "BioCro.h"                  // for WINDprof, EvapoTrans2
 #include "c4photo.h"                 // for c4photoC
+#include "lightME.h"                 // for lightME
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
@@ -30,25 +31,31 @@ canopy_photosynthesis_outputs CanAC(
     double upperT,  // degrees C
     double lowerT,  // degrees C
     const nitroParms& nitroP,
-    double leafwidth,             // m
-    int eteq,                     // dimensionless switch
-    double StomataWS,             // dimensionless
-    double specific_heat_of_air,  // J / kg / K
-    double atmospheric_pressure,  // Pa
-    double absorptivity_par,      // dimensionless
-    double par_energy_content,    // J / micromol
-    double par_energy_fraction,   // dimensionless
-    double leaf_transmittance,    // dimensionless
-    double leaf_reflectance,      // dimensionless
-    double minimum_gbw            // mol / m^2 / s
+    double leafwidth,                  // m
+    int eteq,                          // dimensionless switch
+    double StomataWS,                  // dimensionless
+    double specific_heat_of_air,       // J / kg / K
+    double atmospheric_pressure,       // Pa
+    double atmospheric_transmittance,  // dimensionless
+    double atmospheric_scattering,     // dimensionless
+    double absorptivity_par,           // dimensionless
+    double par_energy_content,         // J / micromol
+    double par_energy_fraction,        // dimensionless
+    double leaf_transmittance,         // dimensionless
+    double leaf_reflectance,           // dimensionless
+    double minimum_gbw                 // mol / m^2 / s
 )
 {
-    Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
+    Light_model light_model = lightME(
+        cosine_zenith_angle,
+        atmospheric_pressure,
+        atmospheric_transmittance,
+        atmospheric_scattering);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
-    double q_dir = light_model.direct_irradiance_fraction * solarR;    // micromole / m^2 / s
-    double q_diff = light_model.diffuse_irradiance_fraction * solarR;  // micromole / m^2 / s
+    double q_dir = light_model.direct_fraction * solarR;    // micromole / m^2 / s
+    double q_diff = light_model.diffuse_fraction * solarR;  // micromole / m^2 / s
 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.

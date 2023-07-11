@@ -37,65 +37,6 @@ double poisson_density(int x, double lambda)
     return exp(log_result);
 }
 
-/**
- *  @brief Calculates some properties of the "light macro environment," i.e.,
- *  the light just above the top of the canopy.
- *
- *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle; when
- *      the Sun is directly overhead, the angle is 0 and its cosine is 1; when
- *      the Sun is at the horizon, the angle is 90 and its cosine is 0
- *
- *  @param [in] atmospheric_pressure Local atmospheric pressure (in Pa)
- *
- *  The return value from this function is a customized structure
- *  (`light_model`) with the following members:
- *  - `light_model.direct_irradiance_fraction`: The fraction of irradiance that
- *    is direct radiation (dimensionless)
- *  - `light_model.diffuse_irradiance_fraction`: The fraction of irradiance
- *    that is diffuse radiation (dimensionless)
- *
- *  The basis for this function is given in chapter 11 of Norman and Campbell,
- *  _An Introduction to Environmental Biophysics_, 2nd edition.
- */
-Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
-{
-    double direct_irradiance_transmittance;
-    double diffuse_irradiance_transmittance;
-
-    if (cosine_zenith_angle <= 0) {
-        // Check if the Sun is at or below the horizon. If it is, directly set
-        // direct_irradiance_transmittance and diffuse_irradiance_transmittance
-        // because the equations below would otherwise produce erroneous
-        // results. The Sun is at or below the horizon when cosine_zenith_angle
-        // is less than or equal to 0.
-        direct_irradiance_transmittance = 0;
-        diffuse_irradiance_transmittance = 1;
-    } else {
-        // If the Sun is above the horizon, calculate diffuse and direct
-        // irradiance from the Sun's angle to the ground and the path through
-        // the atmosphere.
-        constexpr double atmospheric_transmittance = 0.85;                                                           // dimensionless.
-        const double pressure_ratio = atmospheric_pressure / physical_constants::atmospheric_pressure_at_sea_level;  // dimensionless.
-        constexpr double proportion_of_irradiance_scattered = 0.3;                                                   // dimensionless.
-
-        // Modified from equation 11.11 of Norman and Campbell.
-        direct_irradiance_transmittance =
-            pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
-
-        // Modified from equation 11.13 of Norman and Campbell.
-        diffuse_irradiance_transmittance =
-            proportion_of_irradiance_scattered *
-            (1 - direct_irradiance_transmittance) *
-            cosine_zenith_angle;
-    }
-
-    Light_model light_model;
-    light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance);    // dimensionless.
-    light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance);  // dimensionless.
-
-    return light_model;
-}
-
 /* Additional Functions needed for EvapoTrans */
 
 /**
