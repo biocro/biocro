@@ -35,21 +35,29 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
 - On MacOS, Xcode.
 
 #### Installation steps
-Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands.
-
-Do one of the sets of instruction below. These assume that the source files are in a directory named "biocro".
-
-- From the command line
-```
-cd path_to_unzipped_directory
-R CMD INSTALL biocro
-```
-
-- Or from within R
-```
-setwd('path_to_unzipped_directory')
-install.packages('biocro', repos=NULL, type='SOURCE')
-```
+1. Obtain a local copy of this repository, making sure to include the Git
+   submodule code. This can be accomplished using either of two methods:
+   1. If you are new to Git, the easiest way to get a local copy is to install
+      GitHub Desktop and use the "Open with GitHub Desktop" option in the "Code"
+      dropdown on the GitHub page for this repository.
+   2. Alternatively, clone the repository using Git on the command
+      line in the usual fashion by running
+      `git clone <https://github.com/ebimodeling/biocro-dev>` The repository
+      contains a Git submodule, so you will need to take the additional step of
+      running `git submodule update --init` to obtain it.
+2. Install the BioCro R package using one of the following sets of comands.
+   These assume that the source files are in a directory named "biocro" residing
+   in a parent directory located at "path_to_source_code_parent_directory".
+   1. To install from the command line:
+      ```
+      cd path_to_source_code_parent_directory
+      R CMD INSTALL biocro
+      ```
+   2. To install from within R:
+      ```
+      setwd('path_to_source_code_parent_directory')
+      install.packages('biocro', repos=NULL, type='SOURCE')
+      ```
 
 ### Making contributions
 
@@ -70,6 +78,14 @@ There is also a separate [page that documents all of the quantities
 used by the Standard BioCro Module
 Library](https://ebimodeling.github.io/biocro-dev-documentation/quantity_docs/quantities.html).
 
+### License
+
+The `BioCro` R package is licensed under the MIT license, while the BioCro C++
+framework is licensed under version 3 or greater of the GNU Lesser General
+Public License (LGPL). This scheme allows people to freely develop models for
+any use (public or private) under the MIT license, but any changes to the
+framework that assembles and solves models must make source code changes
+available to all users under the LGPL. See `LICENSE.note` for more details.
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
