@@ -144,6 +144,8 @@ jobs:
       - name: Check out repository
         if: ${{ !inputs.debug }}
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
       # For debugging
       - name: "DEBUG: Print environment variables"

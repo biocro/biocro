@@ -20,6 +20,7 @@
 #include "R_modules.h"
 #include "R_run_biocro.h"
 #include "R_system_derivatives.h"
+#include "R_framework_version.h"
 
 extern "C" {
 static const R_CallMethodDef callMethods[] = {
@@ -32,6 +33,7 @@ static const R_CallMethodDef callMethods[] = {
     {"R_run_biocro",                       (DL_FUNC) &R_run_biocro,                       11},
     {"R_system_derivatives",               (DL_FUNC) &R_system_derivatives,               6},
     {"R_validate_dynamical_system_inputs", (DL_FUNC) &R_validate_dynamical_system_inputs, 6},
+    {"R_framework_version",                (DL_FUNC) &R_framework_version,                0},
     {NULL,                                 NULL,                                          0}
 };
 

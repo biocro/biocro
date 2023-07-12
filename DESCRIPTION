@@ -40,7 +40,7 @@ Suggests:
     lattice
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make
-License: GPL (>= 2)
+License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
 URL: https://github.com/ebimodeling/biocro
