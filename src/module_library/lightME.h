@@ -5,7 +5,7 @@ struct Light_model {
     double diffuse_fraction;       //!< Fraction of diffuse irradiance at the Earth's surface (dimensionless)
 };
 
-struct Light_model lightME(
+Light_model lightME(
     double cosine_zenith_angle,
     double atmospheric_pressure,
     double atmospheric_transmittance,
