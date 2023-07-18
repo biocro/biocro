@@ -52,29 +52,35 @@ Light_model lightME(
     double const pressure_ratio =
         atmospheric_pressure / atmospheric_pressure_at_sea_level;
 
-    // If the sun is below the horizon, there is no direct transmittance.
-    // Otherwise, use Equation 11.1 from Campbell & Norman, solving for
-    // direct_transmittance = S_p / S_p0 (dimensionless)
+    // Equation 11.1 from Campbell & Norman, solving for
+    // direct_transmittance = S_p / S_p0 (dimensionless).
+    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // approaches 0 (which is 0).
     double const direct_transmittance =
         cosine_zenith_angle <= 0 ? 0
                                  : pow(atmospheric_transmittance,
                                        (pressure_ratio / cosine_zenith_angle));
 
-    // If the sun is below the horizon, all transmittance is diffuse. Otherwise,
-    // use Equation 11.13 from Campbell & Norman, solving for
-    // diffuse_transmittance = S_p / S_p0 (dimensionless)
+    // Equation 11.13 from Campbell & Norman, solving for
+    // diffuse_transmittance = S_p / S_p0 (dimensionless).
+    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // approaches 0 (which is 0).
     double const diffuse_transmittance =
-        cosine_zenith_angle <= 0 ? 1
+        cosine_zenith_angle <= 0 ? 0
                                  : atmospheric_scattering *
                                        (1 - direct_transmittance) *
                                        cosine_zenith_angle;
 
     // The fraction of direct irradiance just above the canopy is the ratio of
-    // the direct transmittance to the total transmittance. (dimensionless)
+    // the direct transmittance to the total transmittance (dimensionless).
+    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // approaches 0 (which is 0).
     double const direct_fraction =
-        direct_transmittance / (direct_transmittance + diffuse_transmittance);
+        cosine_zenith_angle <= 0 ? 0
+                                 : direct_transmittance /
+                                       (direct_transmittance + diffuse_transmittance);
 
-    // The remaining irradiance is diffuse. (dimensionless)
+    // The remaining irradiance is diffuse (dimensionless).
     double const diffuse_fraction = 1.0 - direct_fraction;
 
     return Light_model{
