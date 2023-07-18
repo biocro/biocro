@@ -23,12 +23,24 @@ using physical_constants::atmospheric_pressure_at_sea_level;
  *    surface.
  *
  * The basis for this function is given in chapter 11 of Norman and Campbell,
- *  _An Introduction to Environmental Biophysics_, 2nd edition.
+ *  _An Introduction to Environmental Biophysics_, 2nd edition. The book states
+ *  that this model is technically only applicable for solar zenith angles less
+ *  than 80 degrees (which approximately corresponds to `cosine_zenith_angle`
+ *  greater than 0.173). When the Sun is closer to the horizon (or even below
+ *  it), atmospheric refraction plays a large role in determining the relative
+ *  amounts of direct and diffuse light at the Earth's surface. The effect of
+ *  refraction depends strongly on dust, air temperature, and clouds, making it
+ *  difficult or impossible to accurately model. Here, we choose to use the
+ *  model outside this range, extending it to `cosine_zenith_angle = 0`. For
+ *  even smaller values, we simply use the limits as `cosine_zenith_angle`
+ *  approaches zero. The resulting inaccuracies are expected to play a small
+ *  role in a biological simulation, because light intensities at the surface
+ *  tend to be low when the Sun is near the horizon.
  *
  * @param [in] cosine_zenith_angle The cosine of the solar zenith angle; when
  *             the Sun is directly overhead, the angle is 0 and its cosine is 1;
- *             when the Sun is at the horizon, the angle is 90 and its cosine is
- *             0.
+ *             when the Sun's center is at the horizon, the angle is 90 and its
+ *             cosine is 0.
  *
  * @param [in] atmospheric_pressure Local atmospheric pressure in Pa
  *
@@ -54,7 +66,7 @@ Light_model lightME(
 
     // Equation 11.1 from Campbell & Norman, solving for
     // direct_transmittance = S_p / S_p0 (dimensionless).
-    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // If the sun is near the horizon, take the limit as cosine_zenith_angle
     // approaches 0 (which is 0).
     double const direct_transmittance =
         cosine_zenith_angle <= 0 ? 0
@@ -63,7 +75,7 @@ Light_model lightME(
 
     // Equation 11.13 from Campbell & Norman, solving for
     // diffuse_transmittance = S_p / S_p0 (dimensionless).
-    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // If the sun is near the horizon, take the limit as cosine_zenith_angle
     // approaches 0 (which is 0).
     double const diffuse_transmittance =
         cosine_zenith_angle <= 0 ? 0
@@ -73,7 +85,7 @@ Light_model lightME(
 
     // The fraction of direct irradiance just above the canopy is the ratio of
     // the direct transmittance to the total transmittance (dimensionless).
-    // If the sun is below the horizon, take the limit as cosine_zenith_angle
+    // If the sun is near the horizon, take the limit as cosine_zenith_angle
     // approaches 0 (which is 0).
     double const direct_fraction =
         cosine_zenith_angle <= 0 ? 0
