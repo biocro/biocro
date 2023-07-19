@@ -16,15 +16,15 @@ class nr_ex : public differential_module
 {
    public:
     nr_ex(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get input pointers
-          u_ip(get_ip(input_quantities, "u")),
-          v_ip(get_ip(input_quantities, "v")),
+          u_ip{get_ip(input_quantities, "u")},
+          v_ip{get_ip(input_quantities, "v")},
 
           // Get output pointers for time derivatives
-          u_op(get_op(output_quantities, "u")),
-          v_op(get_op(output_quantities, "v"))
+          u_op{get_op(output_quantities, "u")},
+          v_op{get_op(output_quantities, "v")}
     {
     }
     static string_vector get_inputs();

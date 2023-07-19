@@ -11,15 +11,15 @@ class stomata_water_stress_exponential : public direct_module
 {
    public:
     stomata_water_stress_exponential(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
-          soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-          soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
+          soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
+          soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
+          soil_water_content_ip{get_ip(input_quantities, "soil_water_content")},
 
           // Get pointers to output quantities
-          StomataWS_op(get_op(output_quantities, "StomataWS"))
+          StomataWS_op{get_op(output_quantities, "StomataWS")}
     {
     }
     static string_vector get_inputs();

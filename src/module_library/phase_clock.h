@@ -12,19 +12,19 @@ class phase_clock : public differential_module
 {
    public:
     phase_clock(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          phi_ip(get_ip(input_quantities, "phi")),
-          light_ip(get_ip(input_quantities, "light")),
-          clock_dead_width_ip(get_ip(input_quantities, "clock_dead_width")),
-          clock_width_asymm_ip(get_ip(input_quantities, "clock_width_asymm")),
-          clock_area_asymm_ip(get_ip(input_quantities, "clock_area_asymm")),
-          clock_r_scale_ip(get_ip(input_quantities, "clock_r_scale")),
-          clock_period_ip(get_ip(input_quantities, "clock_period")),
+          phi_ip{get_ip(input_quantities, "phi")},
+          light_ip{get_ip(input_quantities, "light")},
+          clock_dead_width_ip{get_ip(input_quantities, "clock_dead_width")},
+          clock_width_asymm_ip{get_ip(input_quantities, "clock_width_asymm")},
+          clock_area_asymm_ip{get_ip(input_quantities, "clock_area_asymm")},
+          clock_r_scale_ip{get_ip(input_quantities, "clock_r_scale")},
+          clock_period_ip{get_ip(input_quantities, "clock_period")},
 
           // Get pointers to output quantities
-          phi_op(get_op(output_quantities, "phi"))
+          phi_op{get_op(output_quantities, "phi")}
     {
     }
     static string_vector get_inputs();

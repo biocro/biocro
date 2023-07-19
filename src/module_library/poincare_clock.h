@@ -12,28 +12,28 @@ class poincare_clock : public differential_module
 {
    public:
     poincare_clock(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),
-          dusk_kick_ip(get_ip(input_quantities, "dusk_kick")),
-          dawn_b_ip(get_ip(input_quantities, "dawn_b")),
-          dawn_a_ip(get_ip(input_quantities, "dawn_a")),
-          dusk_b_ip(get_ip(input_quantities, "dusk_b")),
-          dusk_a_ip(get_ip(input_quantities, "dusk_a")),
-          ref_b_ip(get_ip(input_quantities, "ref_b")),
-          ref_a_ip(get_ip(input_quantities, "ref_a")),
-          clock_gamma_ip(get_ip(input_quantities, "clock_gamma")),
-          clock_r0_ip(get_ip(input_quantities, "clock_r0")),
-          clock_period_ip(get_ip(input_quantities, "clock_period")),
+          dawn_kick_ip{get_ip(input_quantities, "dawn_kick")},
+          dusk_kick_ip{get_ip(input_quantities, "dusk_kick")},
+          dawn_b_ip{get_ip(input_quantities, "dawn_b")},
+          dawn_a_ip{get_ip(input_quantities, "dawn_a")},
+          dusk_b_ip{get_ip(input_quantities, "dusk_b")},
+          dusk_a_ip{get_ip(input_quantities, "dusk_a")},
+          ref_b_ip{get_ip(input_quantities, "ref_b")},
+          ref_a_ip{get_ip(input_quantities, "ref_a")},
+          clock_gamma_ip{get_ip(input_quantities, "clock_gamma")},
+          clock_r0_ip{get_ip(input_quantities, "clock_r0")},
+          clock_period_ip{get_ip(input_quantities, "clock_period")},
 
           // Get pointers to output quantities
-          dawn_b_op(get_op(output_quantities, "dawn_b")),
-          dawn_a_op(get_op(output_quantities, "dawn_a")),
-          dusk_b_op(get_op(output_quantities, "dusk_b")),
-          dusk_a_op(get_op(output_quantities, "dusk_a")),
-          ref_b_op(get_op(output_quantities, "ref_b")),
-          ref_a_op(get_op(output_quantities, "ref_a"))
+          dawn_b_op{get_op(output_quantities, "dawn_b")},
+          dawn_a_op{get_op(output_quantities, "dawn_a")},
+          dusk_b_op{get_op(output_quantities, "dusk_b")},
+          dusk_a_op{get_op(output_quantities, "dusk_a")},
+          ref_b_op{get_op(output_quantities, "ref_b")},
+          ref_a_op{get_op(output_quantities, "ref_a")}
     {
     }
     static string_vector get_inputs();

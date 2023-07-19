@@ -10,25 +10,25 @@ class parameter_calculator : public direct_module
 {
    public:
     parameter_calculator(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          iSp_ip(get_ip(input_quantities, "iSp")),
-          TTc_ip(get_ip(input_quantities, "TTc")),
-          Sp_thermal_time_decay_ip(get_ip(input_quantities, "Sp_thermal_time_decay")),
-          Leaf_ip(get_ip(input_quantities, "Leaf")),
-          LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
-          LeafN_ip(get_ip(input_quantities, "LeafN")),
-          vmax_n_intercept_ip(get_ip(input_quantities, "vmax_n_intercept")),
-          vmax1_ip(get_ip(input_quantities, "vmax1")),
-          alphab1_ip(get_ip(input_quantities, "alphab1")),
-          alpha1_ip(get_ip(input_quantities, "alpha1")),
+          iSp_ip{get_ip(input_quantities, "iSp")},
+          TTc_ip{get_ip(input_quantities, "TTc")},
+          Sp_thermal_time_decay_ip{get_ip(input_quantities, "Sp_thermal_time_decay")},
+          Leaf_ip{get_ip(input_quantities, "Leaf")},
+          LeafN_0_ip{get_ip(input_quantities, "LeafN_0")},
+          LeafN_ip{get_ip(input_quantities, "LeafN")},
+          vmax_n_intercept_ip{get_ip(input_quantities, "vmax_n_intercept")},
+          vmax1_ip{get_ip(input_quantities, "vmax1")},
+          alphab1_ip{get_ip(input_quantities, "alphab1")},
+          alpha1_ip{get_ip(input_quantities, "alpha1")},
 
           // Get pointers to output quantities
-          Sp_op(get_op(output_quantities, "Sp")),
-          lai_op(get_op(output_quantities, "lai")),
-          vmax_op(get_op(output_quantities, "vmax")),
-          alpha_op(get_op(output_quantities, "alpha"))
+          Sp_op{get_op(output_quantities, "Sp")},
+          lai_op{get_op(output_quantities, "lai")},
+          vmax_op{get_op(output_quantities, "vmax")},
+          alpha_op{get_op(output_quantities, "alpha")}
     {
     }
     static string_vector get_inputs();

@@ -192,7 +192,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     const int& nlayers,
     state_map const& input_quantities,
     state_map* output_quantities)
-    : direct_module(),
+    : direct_module{},
       nlayers(nlayers)
 {
     // Define a lambda for making quantity maps from vectors of inputs and outputs

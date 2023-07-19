@@ -10,14 +10,14 @@ class aba_decay : public differential_module
 {
    public:
     aba_decay(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          soil_aba_concentration_ip(get_ip(input_quantities, "soil_aba_concentration")),
-          aba_decay_constant_ip(get_ip(input_quantities, "aba_decay_constant")),
+          soil_aba_concentration_ip{get_ip(input_quantities, "soil_aba_concentration")},
+          aba_decay_constant_ip{get_ip(input_quantities, "aba_decay_constant")},
 
           // Get pointers to output quantities
-          soil_aba_concentration_op(get_op(output_quantities, "soil_aba_concentration"))
+          soil_aba_concentration_op{get_op(output_quantities, "soil_aba_concentration")}
     {
     }
     static string_vector get_inputs();

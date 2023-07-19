@@ -13,17 +13,17 @@ class harmonic_oscillator : public differential_module
     harmonic_oscillator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
-          mass(get_input(input_quantities, "mass")),
-          spring_constant(get_input(input_quantities, "spring_constant")),
-          position(get_input(input_quantities, "position")),
-          velocity(get_input(input_quantities, "velocity")),
+          mass{get_input(input_quantities, "mass")},
+          spring_constant{get_input(input_quantities, "spring_constant")},
+          position{get_input(input_quantities, "position")},
+          velocity{get_input(input_quantities, "velocity")},
 
           // Get pointers to output quantities
-          position_op(get_op(output_quantities, "position")),
-          velocity_op(get_op(output_quantities, "velocity"))
+          position_op{get_op(output_quantities, "position")},
+          velocity_op{get_op(output_quantities, "velocity")}
     {
     }
     static string_vector get_inputs();
@@ -75,18 +75,18 @@ class harmonic_energy : public direct_module
     harmonic_energy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          mass(get_input(input_quantities, "mass")),
-          spring_constant(get_input(input_quantities, "spring_constant")),
-          position(get_input(input_quantities, "position")),
-          velocity(get_input(input_quantities, "velocity")),
+          mass{get_input(input_quantities, "mass")},
+          spring_constant{get_input(input_quantities, "spring_constant")},
+          position{get_input(input_quantities, "position")},
+          velocity{get_input(input_quantities, "velocity")},
 
           // Get pointers to output quantities
-          kinetic_energy_op(get_op(output_quantities, "kinetic_energy")),
-          spring_energy_op(get_op(output_quantities, "spring_energy")),
-          total_energy_op(get_op(output_quantities, "total_energy"))
+          kinetic_energy_op{get_op(output_quantities, "kinetic_energy")},
+          spring_energy_op{get_op(output_quantities, "spring_energy")},
+          total_energy_op{get_op(output_quantities, "total_energy")}
     {
     }
     static string_vector get_inputs();

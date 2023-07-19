@@ -10,17 +10,17 @@ class night_and_day_trackers : public differential_module
 {
    public:
     night_and_day_trackers(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),
-          light_ip(get_ip(input_quantities, "light")),
-          night_tracker_ip(get_ip(input_quantities, "night_tracker")),
-          day_tracker_ip(get_ip(input_quantities, "day_tracker")),
+          tracker_rate_ip{get_ip(input_quantities, "tracker_rate")},
+          light_ip{get_ip(input_quantities, "light")},
+          night_tracker_ip{get_ip(input_quantities, "night_tracker")},
+          day_tracker_ip{get_ip(input_quantities, "day_tracker")},
 
           // Get pointers to output quantities
-          night_tracker_op(get_op(output_quantities, "night_tracker")),
-          day_tracker_op(get_op(output_quantities, "day_tracker"))
+          night_tracker_op{get_op(output_quantities, "night_tracker")},
+          day_tracker_op{get_op(output_quantities, "day_tracker")}
     {
     }
     static string_vector get_inputs();

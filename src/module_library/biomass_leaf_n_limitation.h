@@ -11,16 +11,16 @@ class biomass_leaf_n_limitation : public direct_module
 {
    public:
     biomass_leaf_n_limitation(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
-          Leaf_ip(get_ip(input_quantities, "Leaf")),
-          Stem_ip(get_ip(input_quantities, "Stem")),
-          kln_ip(get_ip(input_quantities, "kln")),
+          LeafN_0_ip{get_ip(input_quantities, "LeafN_0")},
+          Leaf_ip{get_ip(input_quantities, "Leaf")},
+          Stem_ip{get_ip(input_quantities, "Stem")},
+          kln_ip{get_ip(input_quantities, "kln")},
 
           // Get pointers to output quantities
-          LeafN_op(get_op(output_quantities, "LeafN"))
+          LeafN_op{get_op(output_quantities, "LeafN")}
     {
     }
     static string_vector get_inputs();

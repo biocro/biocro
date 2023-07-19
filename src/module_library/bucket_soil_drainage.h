@@ -10,23 +10,23 @@ class bucket_soil_drainage : public differential_module
 {
    public:
     bucket_soil_drainage(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
-          soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-          soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
-          soil_saturation_capacity_ip(get_ip(input_quantities, "soil_saturation_capacity")),
-          soil_depth_ip(get_ip(input_quantities, "soil_depth")),
-          precipitation_rate_ip(get_ip(input_quantities, "precipitation_rate")),
-          soil_saturated_conductivity_ip(get_ip(input_quantities, "soil_saturated_conductivity")),
-          soil_air_entry_ip(get_ip(input_quantities, "soil_air_entry")),
-          soil_b_coefficient_ip(get_ip(input_quantities, "soil_b_coefficient")),
-          canopy_transpiration_rate_ip(get_ip(input_quantities, "canopy_transpiration_rate")),
-          soil_evaporation_rate_ip(get_ip(input_quantities, "soil_evaporation_rate")),
+          soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
+          soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
+          soil_water_content_ip{get_ip(input_quantities, "soil_water_content")},
+          soil_saturation_capacity_ip{get_ip(input_quantities, "soil_saturation_capacity")},
+          soil_depth_ip{get_ip(input_quantities, "soil_depth")},
+          precipitation_rate_ip{get_ip(input_quantities, "precipitation_rate")},
+          soil_saturated_conductivity_ip{get_ip(input_quantities, "soil_saturated_conductivity")},
+          soil_air_entry_ip{get_ip(input_quantities, "soil_air_entry")},
+          soil_b_coefficient_ip{get_ip(input_quantities, "soil_b_coefficient")},
+          canopy_transpiration_rate_ip{get_ip(input_quantities, "canopy_transpiration_rate")},
+          soil_evaporation_rate_ip{get_ip(input_quantities, "soil_evaporation_rate")},
 
           // Get pointers to output quantities
-          soil_water_content_op(get_op(output_quantities, "soil_water_content"))
+          soil_water_content_op{get_op(output_quantities, "soil_water_content")}
     {
     }
     static string_vector get_inputs();

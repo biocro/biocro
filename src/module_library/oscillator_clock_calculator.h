@@ -12,34 +12,34 @@ class oscillator_clock_calculator : public direct_module
 {
    public:
     oscillator_clock_calculator(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          time_ip(get_ip(input_quantities, "time")),
-          kick_strength_ip(get_ip(input_quantities, "kick_strength")),
-          night_tracker_ip(get_ip(input_quantities, "night_tracker")),
-          day_tracker_ip(get_ip(input_quantities, "day_tracker")),
-          light_ip(get_ip(input_quantities, "light")),
-          dawn_b_ip(get_ip(input_quantities, "dawn_b")),
-          dawn_a_ip(get_ip(input_quantities, "dawn_a")),
-          dusk_b_ip(get_ip(input_quantities, "dusk_b")),
-          dusk_a_ip(get_ip(input_quantities, "dusk_a")),
-          ref_b_ip(get_ip(input_quantities, "ref_b")),
-          ref_a_ip(get_ip(input_quantities, "ref_a")),
+          time_ip{get_ip(input_quantities, "time")},
+          kick_strength_ip{get_ip(input_quantities, "kick_strength")},
+          night_tracker_ip{get_ip(input_quantities, "night_tracker")},
+          day_tracker_ip{get_ip(input_quantities, "day_tracker")},
+          light_ip{get_ip(input_quantities, "light")},
+          dawn_b_ip{get_ip(input_quantities, "dawn_b")},
+          dawn_a_ip{get_ip(input_quantities, "dawn_a")},
+          dusk_b_ip{get_ip(input_quantities, "dusk_b")},
+          dusk_a_ip{get_ip(input_quantities, "dusk_a")},
+          ref_b_ip{get_ip(input_quantities, "ref_b")},
+          ref_a_ip{get_ip(input_quantities, "ref_a")},
 
           // Get pointers to output quantities
-          dawn_kick_op(get_op(output_quantities, "dawn_kick")),
-          dusk_kick_op(get_op(output_quantities, "dusk_kick")),
-          dawn_phase_op(get_op(output_quantities, "dawn_phase")),
-          dusk_phase_op(get_op(output_quantities, "dusk_phase")),
-          ref_phase_op(get_op(output_quantities, "ref_phase")),
-          dawn_radius_op(get_op(output_quantities, "dawn_radius")),
-          dusk_radius_op(get_op(output_quantities, "dusk_radius")),
-          ref_radius_op(get_op(output_quantities, "ref_radius")),
-          day_length_op(get_op(output_quantities, "day_length")),
-          night_length_op(get_op(output_quantities, "night_length")),
-          sunrise_op(get_op(output_quantities, "sunrise")),
-          sunset_op(get_op(output_quantities, "sunset"))
+          dawn_kick_op{get_op(output_quantities, "dawn_kick")},
+          dusk_kick_op{get_op(output_quantities, "dusk_kick")},
+          dawn_phase_op{get_op(output_quantities, "dawn_phase")},
+          dusk_phase_op{get_op(output_quantities, "dusk_phase")},
+          ref_phase_op{get_op(output_quantities, "ref_phase")},
+          dawn_radius_op{get_op(output_quantities, "dawn_radius")},
+          dusk_radius_op{get_op(output_quantities, "dusk_radius")},
+          ref_radius_op{get_op(output_quantities, "ref_radius")},
+          day_length_op{get_op(output_quantities, "day_length")},
+          night_length_op{get_op(output_quantities, "night_length")},
+          sunrise_op{get_op(output_quantities, "sunrise")},
+          sunset_op{get_op(output_quantities, "sunset")}
     {
     }
     static string_vector get_inputs();

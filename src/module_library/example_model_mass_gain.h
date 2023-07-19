@@ -45,17 +45,17 @@ class example_model_mass_gain : public direct_module
     example_model_mass_gain(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          Q(get_input(input_quantities, "Q")),
-          alpha_rue(get_input(input_quantities, "alpha_rue")),
-          SLA(get_input(input_quantities, "SLA")),
-          C_conv(get_input(input_quantities, "C_conv")),
-          Leaf(get_input(input_quantities, "Leaf")),
+          Q{get_input(input_quantities, "Q")},
+          alpha_rue{get_input(input_quantities, "alpha_rue")},
+          SLA{get_input(input_quantities, "SLA")},
+          C_conv{get_input(input_quantities, "C_conv")},
+          Leaf{get_input(input_quantities, "Leaf")},
 
           // Get pointers to output quantities
-          mass_gain_op(get_op(output_quantities, "mass_gain"))
+          mass_gain_op{get_op(output_quantities, "mass_gain")}
     {
     }
     static string_vector get_inputs();

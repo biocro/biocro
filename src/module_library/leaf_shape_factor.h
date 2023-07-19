@@ -39,7 +39,7 @@ class leaf_shape_factor : public direct_module
     leaf_shape_factor(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},

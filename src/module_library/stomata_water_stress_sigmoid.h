@@ -11,16 +11,16 @@ class stomata_water_stress_sigmoid : public direct_module
 {
    public:
     stomata_water_stress_sigmoid(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
-          soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-          soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
-          phi1_ip(get_ip(input_quantities, "phi1")),
+          soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
+          soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
+          soil_water_content_ip{get_ip(input_quantities, "soil_water_content")},
+          phi1_ip{get_ip(input_quantities, "phi1")},
 
           // Get pointers to output quantities
-          StomataWS_op(get_op(output_quantities, "StomataWS"))
+          StomataWS_op{get_op(output_quantities, "StomataWS")}
     {
     }
     static string_vector get_inputs();

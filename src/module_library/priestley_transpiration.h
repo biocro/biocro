@@ -10,16 +10,16 @@ class priestley_transpiration : public direct_module
 {
    public:
     priestley_transpiration(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          slope_water_vapor_ip(get_ip(input_quantities, "slope_water_vapor")),
-          psychrometric_parameter_ip(get_ip(input_quantities, "psychrometric_parameter")),
-          latent_heat_vaporization_of_water_ip(get_ip(input_quantities, "latent_heat_vaporization_of_water")),
-          PhiN_ip(get_ip(input_quantities, "PhiN")),
+          slope_water_vapor_ip{get_ip(input_quantities, "slope_water_vapor")},
+          psychrometric_parameter_ip{get_ip(input_quantities, "psychrometric_parameter")},
+          latent_heat_vaporization_of_water_ip{get_ip(input_quantities, "latent_heat_vaporization_of_water")},
+          PhiN_ip{get_ip(input_quantities, "PhiN")},
 
           // Get pointers to output quantities
-          transpiration_rate_op(get_op(output_quantities, "transpiration_rate"))
+          transpiration_rate_op{get_op(output_quantities, "transpiration_rate")}
     {
     }
     static string_vector get_inputs();

@@ -10,14 +10,14 @@ class Module_1 : public direct_module
 {
    public:
     Module_1(state_map const& /*input_quantities*/, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
           // None
 
           // Get pointers to output quantities
-          A_op(get_op(output_quantities, "A")),
-          B_op(get_op(output_quantities, "B"))
+          A_op{get_op(output_quantities, "A")},
+          B_op{get_op(output_quantities, "B")}
     {
     }
     static string_vector get_inputs();
@@ -65,14 +65,14 @@ class Module_2 : public direct_module
 {
    public:
     Module_2(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          B_ip(get_ip(input_quantities, "B")),
+          B_ip{get_ip(input_quantities, "B")},
 
           // Get pointers to output quantities
-          C_op(get_op(output_quantities, "C")),
-          D_op(get_op(output_quantities, "D"))
+          C_op{get_op(output_quantities, "C")},
+          D_op{get_op(output_quantities, "D")}
     {
     }
     static string_vector get_inputs();
@@ -120,14 +120,14 @@ class Module_3 : public direct_module
 {
    public:
     Module_3(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          A_ip(get_ip(input_quantities, "A")),
-          C_ip(get_ip(input_quantities, "C")),
+          A_ip{get_ip(input_quantities, "A")},
+          C_ip{get_ip(input_quantities, "C")},
 
           // Get pointers to output quantities
-          E_op(get_op(output_quantities, "E"))
+          E_op{get_op(output_quantities, "E")}
     {
     }
     static string_vector get_inputs();

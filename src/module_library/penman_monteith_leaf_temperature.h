@@ -12,7 +12,7 @@ class penman_monteith_leaf_temperature : public direct_module
     penman_monteith_leaf_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           slope_water_vapor{get_input(input_quantities, "slope_water_vapor")},

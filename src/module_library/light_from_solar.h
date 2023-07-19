@@ -10,15 +10,15 @@ class light_from_solar : public direct_module
 {
    public:
     light_from_solar(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          solar_ip(get_ip(input_quantities, "solar")),
-          light_threshold_ip(get_ip(input_quantities, "light_threshold")),
-          light_exp_at_zero_ip(get_ip(input_quantities, "light_exp_at_zero")),
+          solar_ip{get_ip(input_quantities, "solar")},
+          light_threshold_ip{get_ip(input_quantities, "light_threshold")},
+          light_exp_at_zero_ip{get_ip(input_quantities, "light_exp_at_zero")},
 
           // Get pointers to output quantities
-          light_op(get_op(output_quantities, "light"))
+          light_op{get_op(output_quantities, "light")}
     {
     }
     static string_vector get_inputs();

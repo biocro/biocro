@@ -109,20 +109,20 @@ class thermal_time_beta : public differential_module
     thermal_time_beta(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
           sowing_time{get_input(input_quantities, "sowing_time")},
-          temp(get_input(input_quantities, "temp")),
-          tbase(get_input(input_quantities, "tbase")),
-          tmax(get_input(input_quantities, "tmax")),
-          talpha(get_input(input_quantities, "talpha")),
-          tbeta(get_input(input_quantities, "tbeta")),
-          ttc_scale(get_input(input_quantities, "ttc_scale")),
+          temp{get_input(input_quantities, "temp")},
+          tbase{get_input(input_quantities, "tbase")},
+          tmax{get_input(input_quantities, "tmax")},
+          talpha{get_input(input_quantities, "talpha")},
+          tbeta{get_input(input_quantities, "tbeta")},
+          ttc_scale{get_input(input_quantities, "ttc_scale")},
 
           // Get pointers to output quantities
-          TTc_op(get_op(output_quantities, "TTc"))
+          TTc_op{get_op(output_quantities, "TTc")}
     {
     }
     static string_vector get_inputs();

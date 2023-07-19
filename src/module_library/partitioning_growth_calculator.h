@@ -68,7 +68,7 @@ class partitioning_growth_calculator : public direct_module
     partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},

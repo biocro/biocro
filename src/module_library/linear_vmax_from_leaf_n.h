@@ -10,16 +10,16 @@ class linear_vmax_from_leaf_n : public direct_module
 {
    public:
     linear_vmax_from_leaf_n(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
-          LeafN_ip(get_ip(input_quantities, "LeafN")),
-          vmax_n_intercept_ip(get_ip(input_quantities, "vmax_n_intercept")),
-          vmax1_ip(get_ip(input_quantities, "vmax1")),
+          LeafN_0_ip{get_ip(input_quantities, "LeafN_0")},
+          LeafN_ip{get_ip(input_quantities, "LeafN")},
+          vmax_n_intercept_ip{get_ip(input_quantities, "vmax_n_intercept")},
+          vmax1_ip{get_ip(input_quantities, "vmax1")},
 
           // Get pointers to output quantities
-          vmax_op(get_op(output_quantities, "vmax"))
+          vmax_op{get_op(output_quantities, "vmax")}
     {
     }
     static string_vector get_inputs();
