@@ -47,6 +47,8 @@ miscanthus_x_giganteus <- list(
         alpha1                      = 0.04,
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
+        atmospheric_scattering      = 0.3,
+        atmospheric_transmittance   = 0.6, # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
         b0                          = 0.08,
         b1                          = 3,
         beta                        = 0.93,
@@ -161,7 +163,6 @@ miscanthus_x_giganteus <- list(
         upperT                      = 37.5,
         vmax1                       = 39,
         vmax_n_intercept            = 0,
-        water_stress_approach       = 1,
         wsFun                       = 2
     )
 )

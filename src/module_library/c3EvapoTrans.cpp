@@ -1,10 +1,11 @@
 #include <cmath>
 #include <stdexcept>
-#include "c3photo.hpp"
-#include "AuxBioCro.h"
+#include "c3photo.h"
 #include "BioCro.h"
-#include "../framework/constants.h"  // for ideal_gas_constant, molar_mass_of_water,
-                                     // stefan_boltzmann, celsius_to_kelvin
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure,
+                                       // TempToDdryA, TempToLHV, SlopeFS
+#include "../framework/constants.h"    // for ideal_gas_constant, molar_mass_of_water,
+                                       // stefan_boltzmann, celsius_to_kelvin
 /**
  * Many of the equations used in this function come from Chapter 14 of Thornley
  * and Johnson (1990).

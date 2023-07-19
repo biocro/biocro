@@ -828,7 +828,7 @@ To understand how a module works, it can be helpful to visualize how one of its
 output quantities depends on one of its input quantities across a reasonable
 range---a plot typically called a \emph{response curve}. As an example, here we
 will calculate the response of the soybean net CO$_2$ assimilation rate ($A_n$)
-to the incident photosynthetically active photon flux density (PPFD; $Q$)
+to the absorbed photosynthetically active photon flux density (PPFD; $Q_{abs}$)
 according to the Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis,
 which is available in the standard BioCro module library as the
 \texttt{c3\_assimilation} module. (This module also uses the Ball-Berry model
@@ -843,9 +843,9 @@ as discussed in Section \ref{sec:module_info}:
 module_info('BioCro:c3_assimilation')
 @
 
-Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
+Here, the \texttt{Qabs} input represents the absorbed PPFD $Q_{abs}$, while the
 \texttt{Assim} output represents the net assimilation rate $A_n$. So we will be
-varying \texttt{Qp} while keeping the other input quantities fixed. The values
+varying \texttt{Qabs} while keeping the other input quantities fixed. The values
 of several other input quantities are specified in \texttt{soybean\$parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
@@ -869,9 +869,11 @@ outputs <- evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
     rh = 0.7      # dimensionless
-    Qp = 1800     # micromol / m^2 / s
+    Qabs = 1800   # micromol / m^2 / s
     Tleaf = 27    # degrees C
+    gbw = 1.2     # mol / m^2 / s
     StomataWS = 1 # dimensionless; 1 indicates no water stress
+    temp = 25     # degrees C
   })
 )
 @
@@ -905,9 +907,11 @@ rc <- module_response_curve(
   within(soybean$parameters, {
     rh = 0.7
     Tleaf = 27
+    gbw = 1.2
     StomataWS = 1
+    temp = 25
   }),
-  data.frame(Qp = seq(from = 0, to = 2000, length.out = 501))
+  data.frame(Qabs = seq(from = 0, to = 2000, length.out = 501))
 )
 
 caption <- paste0(
@@ -917,10 +921,10 @@ caption <- paste0(
 )
 
 xyplot(
-  Assim ~ Qp,
+  Assim ~ Qabs,
   data = rc,
   type = 'l',
-  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  xlab = 'Absorbed PPFD (micromol / m^2 / s)',
   ylab = 'Net CO2 assimilation rate\n(micromol / m^2 / s)',
   main = caption,
   grid = TRUE

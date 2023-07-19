@@ -1,38 +1,44 @@
-#include <cmath>      // for pow, sqrt
-#include <algorithm>  // for std::min, std::max
-#include <limits>     // fot std::numeric_limits
-#include "c3photo.hpp"
-#include "ball_berry.hpp"
-#include "AuxBioCro.h"               // for arrhenius_exponential
-#include "../framework/constants.h"  // for ideal_gas_constant, celsius_to_kelvin
+#include <cmath>                        // for pow, sqrt
+#include <algorithm>                    // for std::min
+#include "ball_berry_gs.h"              // for ball_berry_gs
+#include "FvCB_assim.h"                 // for FvCB_assim
+#include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "AuxBioCro.h"                  // for arrhenius_exponential
+#include "../framework/constants.h"     // for ideal_gas_constant,
+                                        //     celsius_to_kelvin, dr_stomata,
+                                        //     dr_boundary
+#include "c3photo.h"
 
-struct c3_str c3photoC(
-    double const Qp,                           // micromol / m^2 / s
+using conversion_constants::celsius_to_kelvin;
+using physical_constants::dr_boundary;
+using physical_constants::dr_stomata;
+using physical_constants::ideal_gas_constant;
+
+photosynthesis_outputs c3photoC(
+    double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
+    double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
     double const Vcmax0,                       // micromol / m^2 / s
     double const Jmax0,                        // micromol / m^2 / s
     double const TPU_rate_max,                 // micromol / m^2 / s
     double const Rd0,                          // micromol / m^2 / s
-    double const bb0,                          // mol / m^2 / s
-    double const bb1,                          // dimensionless
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double Ca,                                 // micromol / mol
     double const AP,                           // Pa
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const thet,                         // dimensionless
     double const StomWS,                       // dimensionless
-    int const water_stress_approach,           // (flag)
     double const electrons_per_carboxylation,  // self-explanatory units
-    double const electrons_per_oxygenation     // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+    double const gbw                           // mol / m^2 / s
 )
 {
     // Get leaf temperature in Kelvin
-    double const Tleaf_K =
-        Tleaf + conversion_constants::celsius_to_kelvin;  // K
-
-    // Define the leaf reflectance
-    double const leaf_reflectance = 0.2;  // dimensionless
+    double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
 
     // Temperature corrections are from the following sources:
     // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
@@ -53,8 +59,18 @@ struct c3_str c3photoC(
     double const dark_adapted_phi_PSII =
         0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 1e4;  // dimensionless (Bernacchi et al. (2003))
 
+    // The variable that we call `I2` here has been described as "the useful
+    // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
+    // maximum fraction of incident quanta that could be utilized in electron
+    // transport" (Bernacchi et al. (2003)). Here we calculate its value using
+    // Equation 3 from Bernacchi et al. (2003), except that we have replaced the
+    // factor `Q * alpha_leaf` (the product of the incident PPFD `Q` and the
+    // leaf absorptance) with the absorbed PPFD, as this is clearly the intended
+    // meaning of the `Q * alpha_leaf` factor. See also Equation 8 from the
+    // original FvCB paper, where `J` (equivalent to our `I2`) is proportional
+    // to the absorbed PPFD rather than the incident PPFD.
     double const I2 =
-        Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;  // micromol / m^2 / s
+        absorbed_ppfd * dark_adapted_phi_PSII * beta_PSII;  // micromol / m^2 / s
 
     double const J =
         (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4.0 * theta * I2 * Jmax)) /
@@ -80,7 +96,7 @@ struct c3_str c3photoC(
     double const Ha = 62.99e3;                                               // J / mol (enthalpy of activation)
     double const S = 0.588e3;                                                // J / K / mol (entropy)
     double const Hd = 182.14e3;                                              // J / mol (enthalpy of deactivation)
-    double const R = physical_constants::ideal_gas_constant;                 // J / K / mol (ideal gas constant)
+    double const R = ideal_gas_constant;                                     // J / K / mol (ideal gas constant)
     double const top = Tleaf_K * arrhenius_exponential(TPU_c, Ha, Tleaf_K);  // dimensionless
     double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
     double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
@@ -91,76 +107,67 @@ struct c3_str c3photoC(
     // Biochemical models of leaf photosynthesis.
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
+    // Adjust Ball-Berry parameters in response to water stress
+    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
+    double const b1_adj = StomWS * b1;
+
     // Initialize variables before running fixed point iteration in a loop
-    double Gs{};                         // mol / m^2 / s
-    double Ci{};                         // micromol / mol
-    double Ci_pa = 0.0;                  // Pa                 (initial guess)
-    double co2_assimilation_rate = 0.0;  // micromol / m^2 / s (initial guess)
-    double const Tol = 0.01;             // micromol / m^2 / s
-    int iterCounter = 0;
-    int max_iter = 1000;
+    FvCB_outputs FvCB_res;
+    stomata_outputs BB_res;
+    double Ci{};                        // micromol / mol
+    double an_conductance{};            // micromol / m^2 / s
+    double Gs{1e3};                     // mol / m^2 / s      (initial guess)
+    double Ci_pa{0.0};                  // Pa                 (initial guess)
+    double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
+    double const Tol{0.01};             // micromol / m^2 / s
+    int iterCounter{0};
+    int max_iter{1000};
 
     // Run iteration loop
     while (iterCounter < max_iter) {
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
         Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
-        // Calculate the net CO2 assimilation rate using the method described in
-        // "Avoiding Pitfalls When Using the FvCB Model"
-        if (Ci == 0.0) {
-            // RuBP-saturated net assimilation rate when Ci is 0
-            double Ac0 = -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - Rd;  // micromol / m^2 / s
+        // The net CO2 assimilation is the smaller of the biochemistry-limited
+        // and conductance-limited rates. This will prevent the calculated Ci
+        // value from ever being < 0. This seems to be an important restriction
+        // to prevent numerical errors during the convergence loop, but does not
+        // actually limit the net assimilation rate if the loop converges.
+        an_conductance =
+            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
-            // RuBP-regeneration-limited net assimilation when C is 0
-            double Aj0 =
-                -J / (2.0 * electrons_per_oxygenation) - Rd;  // micromol / m^2 / s
+        FvCB_res = FvCB_assim(
+            Ci,
+            Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation);
 
-            co2_assimilation_rate = std::max(Ac0, Aj0);  // micromol / m^2 / s
-        } else {
-            // RuBP-saturated carboxylation rate
-            double Wc = Vcmax * Ci /
-                        (Ci + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
+        co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
 
-            // RuBP-regeneration-limited carboxylation rate
-            double Wj = J * Ci /
-                        (electrons_per_carboxylation * Ci +
-                         2.0 * electrons_per_oxygenation * Gstar);  // micromol / m^2 / s
+        BB_res = ball_berry_gs(
+            co2_assimilation_rate * 1e-6,
+            Ca * 1e-6,
+            RH,
+            b0_adj,
+            b1_adj,
+            gbw,
+            Tleaf,
+            Tambient);
 
-            // Triose-phosphate-utilization-limited carboxylation rate. There is
-            // an asymptote at Ci = Gstar * (1 + 3 * alpha_TPU), and TPU cannot
-            // limit the carboxylation rate for values of Ci below this
-            // asymptote. A simple way to handle this is to make Wp infinite for
-            // Ci <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting
-            // in this case.
-            double Wp = Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
-                            ? 3.0 * TPU * Ci / (Ci - Gstar * (1.0 + 3.0 * alpha_TPU))
-                            : std::numeric_limits<double>::infinity();  // micromol / m^2 / s
+        Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
 
-            // Limiting carboxylation rate
-            double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s
-
-            co2_assimilation_rate = (1.0 - Gstar / Ci) * Vc - Rd;  // micromol / m^2 / s
-        }
-
-        if (water_stress_approach == 0) {
-            co2_assimilation_rate *= StomWS;  // micromol / m^2 / s
-        }
-
-        Gs = ball_berry(co2_assimilation_rate * 1e-6, Ca * 1e-6, RH, bb0, bb1) * 1e-3;  // mol / m^2 / s
-
-        if (water_stress_approach == 1) {
-            Gs = Gs_min + StomWS * (Gs - Gs_min);  // mol / m^2 / s
-        }
-
-        if (Gs <= 0) {
-            Gs = 1e-8;  // mol / m^2 / s
-        }
-
-        Ci_pa = Ca_pa - (co2_assimilation_rate * 1e-6) * 1.6 * AP / Gs;  // Pa
-
-        if (Ci_pa < 0) {
-            Ci_pa = 1e-5;  // Pa
-        }
+        // Calculate Ci using the total conductance across the boundary layer
+        // and stomata
+        Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
+                            (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
         if (abs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
@@ -169,12 +176,17 @@ struct c3_str c3photoC(
         ++iterCounter;
     }
 
-    struct c3_str result;
-    result.Assim = co2_assimilation_rate;            // micromol / m^2 / s
-    result.Gs = Gs * 1e3;                            // mmol / m^2 / s
-    result.Ci = Ci;                                  // micromol / mol
-    result.GrossAssim = co2_assimilation_rate + Rd;  // micromol / m^2 / s
-    return result;
+    return photosynthesis_outputs{
+        .Assim = co2_assimilation_rate,       // micromol / m^2 / s
+        .Assim_conductance = an_conductance,  // micromol / m^2 / s
+        .Ci = (Ci_pa / AP) * 1e6,             // micromol / mol
+        .GrossAssim = FvCB_res.Vc,            // micromol / m^2 / s
+        .Gs = Gs * 1e3,                       // mmol / m^2 / s
+        .Cs = BB_res.cs,                      // micromol / m^2 / s
+        .RHs = BB_res.hs,                     // dimensionless from Pa / Pa
+        .Rp = FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        .iterations = iterCounter             // not a physical quantity
+    };
 }
 
 // This function returns the solubility of O2 in H2O relative to its value at

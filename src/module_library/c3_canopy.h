@@ -12,7 +12,7 @@ class c3_canopy : public direct_module
     c3_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},
@@ -43,8 +43,9 @@ class c3_canopy : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
+          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
-          water_stress_approach{get_input(input_quantities, "water_stress_approach")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
@@ -54,11 +55,14 @@ class c3_canopy : public direct_module
           leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
+          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
     {
     }
     static string_vector get_inputs();
@@ -95,8 +99,9 @@ class c3_canopy : public direct_module
     double const& StomataWS;
     double const& specific_heat_of_air;
     double const& atmospheric_pressure;
+    double const& atmospheric_transmittance;
+    double const& atmospheric_scattering;
     double const& growth_respiration_fraction;
-    double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& absorptivity_par;
@@ -106,11 +111,14 @@ class c3_canopy : public direct_module
     double const& leaf_reflectance;
     double const& minimum_gbw;
     double const& windspeed_height;
+    double const& beta_PSII;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
+    double* canopy_conductance_op;
     double* GrossAssim_op;
+    double* canopy_photorespiration_rate_op;
 
     // Main operation
     void do_operation() const;

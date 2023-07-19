@@ -154,15 +154,20 @@ outputs <- evaluate_module('BioCro:thermal_time_linear', inputs)
 # stress using the 'BioCro' module library's 'c3_assimilation' module and
 # the default soybean parameters. Here, the leaf temperature and humidity values
 # are independent of each other, so we use the `expand.grid` function to form a
-# data frame of all possible combinations of their values.
+# data frame of all possible combinations of their values. Then we set the
+# ambient temperature equal to the leaf temperature.
 rc <- module_response_curve(
   'BioCro:c3_assimilation',
-  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
-  expand.grid(
-    Tleaf = seq(from = 0, to = 40, length.out = 201),
-    rh = c(0.2, 0.5, 0.8)
+  within(soybean$parameters, {Qabs = 2000; StomataWS = 1; gbw = 1.2}),
+  within(
+    expand.grid(
+      Tleaf = seq(from = 0, to = 40, length.out = 201),
+      rh = c(0.2, 0.5, 0.8)
+    ),
+    {temp = Tleaf}
   )
 )
+
 caption <- paste(
   "Response curves calculated with several RH\nvalues and Q =",
   unique(rc$Qp),
@@ -170,6 +175,7 @@ caption <- paste(
   unique(rc$module_name),
   "module"
 )
+
 lattice::xyplot(
   Assim ~ Tleaf,
   group = rh,

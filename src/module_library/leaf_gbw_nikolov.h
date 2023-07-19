@@ -3,7 +3,8 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
+#include "AuxBioCro.h"                 // for leaf_boundary_layer_conductance_nikolov
 
 namespace standardBML
 {
@@ -26,7 +27,7 @@ namespace standardBML
  * In BioCro, we use the following names for this model's inputs and outputs:
  * - ``'height'`` for the canopy height above the ground
  * - ``'windspeed'`` for the wind speed
- * - ``'gbw'`` for the boundary layer conductance to water
+ * - ``'gbw'`` for the leaf boundary layer conductance to water
  */
 class leaf_gbw_nikolov : public direct_module
 {
@@ -34,7 +35,7 @@ class leaf_gbw_nikolov : public direct_module
     leaf_gbw_nikolov(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           windspeed{get_input(input_quantities, "windspeed")},

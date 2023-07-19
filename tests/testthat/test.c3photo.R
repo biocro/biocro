@@ -6,8 +6,9 @@ test_that("c3photo is sensitive to changes in vcmax", {
     # Set up basic inputs for the "c3_assimilation" module, which is
     # just a wrapper for the `c3photoC` function
     inputs <- list(
-        Qp = 1500,
+        Qabs = 1500,
         Tleaf = 10,
+        temp = 10,
         rh = 0.7,
         jmax = 180,
         tpu_rate_max = 23,
@@ -20,9 +21,10 @@ test_that("c3photo is sensitive to changes in vcmax", {
         O2 = 210,
         theta = 0.7,
         StomataWS = 1,
-        water_stress_approach = 1,
         electrons_per_carboxylation = 4.5,
-        electrons_per_oxygenation = 5.25
+        electrons_per_oxygenation = 5.25,
+        beta_PSII = 0.5,
+        gbw = 1.2
     )
 
     # Get net assimilation for vmax = 100 micromol / m^2 / s

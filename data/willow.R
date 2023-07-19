@@ -47,8 +47,11 @@ willow <- list(
         alpha1                       = 0,
         alphab1                      = 0,
         atmospheric_pressure         = 101325,
+        atmospheric_scattering       = 0.3,
+        atmospheric_transmittance    = 0.6, # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
         b0                           = 0.08,
         b1                           = 5,
+        beta_PSII                    = 0.5,
         Catm                         = 400,
         chil                         = 1,
         electrons_per_carboxylation  = 4.5,
@@ -154,7 +157,6 @@ willow <- list(
         tpu_rate_max                 = 23,
         vmax1                        = 100,
         vmax_n_intercept             = 0,
-        water_stress_approach        = 0,
         windspeed_height             = 5,
         wsFun                        = 2
     )
