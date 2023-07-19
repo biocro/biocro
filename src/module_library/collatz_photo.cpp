@@ -1,5 +1,5 @@
 #include <cmath>
-#include "collatz_photo.hpp"
+#include "collatz_photo.h"
 
 struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s. Incident photon flux density.
                                     double leaf_temperature,  // degrees C
