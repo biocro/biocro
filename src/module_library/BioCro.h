@@ -3,11 +3,6 @@
 
 #include "AuxBioCro.h"
 
-struct Light_model {
-	double direct_irradiance_fraction;
-	double diffuse_irradiance_fraction;
-};
-
 double resp(double comp, double mrc, double temp);
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
@@ -32,8 +27,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
-
-struct Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure);
 
 struct FL_str FmLcFun(double Lig, double Nit);
 

@@ -1,6 +1,7 @@
 #include "c3CanAC.h"
-#include "BioCro.h"                  // for lightME, WINDprof, c3EvapoTrans
+#include "BioCro.h"                  // for WINDprof, c3EvapoTrans
 #include "c3photo.h"                 // for c3photoC
+#include "lightME.h"                 // for lightME
 #include "sunML.h"                   // for sunML
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
@@ -33,6 +34,8 @@ canopy_photosynthesis_outputs c3CanAC(
     double StomataWS,                    // dimensionless
     double specific_heat_of_air,         // J / kg / K
     double atmospheric_pressure,         // Pa
+    double atmospheric_transmittance,    // dimensionless
+    double atmospheric_scattering,       // dimensionless
     double growth_respiration_fraction,  // dimensionless
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
@@ -46,12 +49,16 @@ canopy_photosynthesis_outputs c3CanAC(
     double beta_PSII                     // dimensionless (fraction of absorbed light that reaches photosystem II)
 )
 {
-    struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
+    struct Light_model light_model = lightME(
+        cosine_zenith_angle,
+        atmospheric_pressure,
+        atmospheric_transmittance,
+        atmospheric_scattering);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
-    double q_dir = light_model.direct_irradiance_fraction * solarR;    // micromol / m^2 / s
-    double q_diff = light_model.diffuse_irradiance_fraction * solarR;  // micromol / m^2 / s
+    double q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
+    double q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
     struct Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,

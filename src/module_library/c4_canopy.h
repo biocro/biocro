@@ -56,6 +56,8 @@ class c4_canopy : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
+          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
@@ -117,6 +119,8 @@ class c4_canopy : public direct_module
     double const& StomataWS;
     double const& specific_heat_of_air;
     double const& atmospheric_pressure;
+    double const& atmospheric_transmittance;
+    double const& atmospheric_scattering;
     double const& absorptivity_par;
     double const& par_energy_content;
     double const& par_energy_fraction;
@@ -176,14 +180,16 @@ string_vector c4_canopy::get_inputs()
         "leafwidth",
         "et_equation",
         "StomataWS",
-        "specific_heat_of_air",   // J / kg / K
-        "atmospheric_pressure",   // Pa
-        "absorptivity_par",       // dimensionless
-        "par_energy_content",     // J / micromol
-        "par_energy_fraction",    // dimensionless
-        "leaf_transmittance",     // dimensionless
-        "leaf_reflectance",       // dimensionless
-        "minimum_gbw"             // mol / m^2 / s
+        "specific_heat_of_air",       // J / kg / K
+        "atmospheric_pressure",       // Pa
+        "atmospheric_transmittance",  // dimensionless
+        "atmospheric_scattering",     // dimensionless
+        "absorptivity_par",           // dimensionless
+        "par_energy_content",         // J / micromol
+        "par_energy_fraction",        // dimensionless
+        "leaf_transmittance",         // dimensionless
+        "leaf_reflectance",           // dimensionless
+        "minimum_gbw"                 // mol / m^2 / s
     };
 }
 
@@ -215,12 +221,12 @@ void c4_canopy::do_operation() const
     nitroP.lnb1 = nlnb1;
 
     canopy_photosynthesis_outputs can_result = CanAC(
-        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
-        kparm, beta, Rd, Catm, b0, b1, Gs_min, theta, kd, chil, LeafN,
+        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1,
+        alpha1, kparm, beta, Rd, Catm, b0, b1, Gs_min, theta, kd, chil, LeafN,
         kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
-        specific_heat_of_air, atmospheric_pressure,
-        absorptivity_par, par_energy_content, par_energy_fraction,
-        leaf_transmittance, leaf_reflectance, minimum_gbw);
+        specific_heat_of_air, atmospheric_pressure, atmospheric_transmittance,
+        atmospheric_scattering, absorptivity_par, par_energy_content,
+        par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);         // Mg / ha / hr

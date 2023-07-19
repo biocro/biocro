@@ -43,6 +43,8 @@ class c3_canopy : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
+          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
@@ -97,6 +99,8 @@ class c3_canopy : public direct_module
     double const& StomataWS;
     double const& specific_heat_of_air;
     double const& atmospheric_pressure;
+    double const& atmospheric_transmittance;
+    double const& atmospheric_scattering;
     double const& growth_respiration_fraction;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
