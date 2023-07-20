@@ -332,7 +332,8 @@ sequence of states.
 
 It should also be pointed out that not all discrete-time abstract
 dynamical systems arise as abstractions of real systems or even as
-abstractions of continuous-time abstract systems.
+abstractions of continuous-time abstract
+systems.[^direct_discretization]
 
 Consider, for example, a system with a state space $\vs{Z}^2$
 consisting of all ordered pairs $\vec{v} = (v_0, v_1)$ of integers,
@@ -731,7 +732,7 @@ the same way as Giunti and Mazzola (for the case where the time model is
 $\R$ or $\R_{\geq 0}$)---that is, as a family of mappings indexed by time
 satisfying the semi-group property.)
 
-# The BioCro model
+# The BioCro model \label{sec:biocro_model}
 
 A BioCro system is determined by the specification of five entities:
 
@@ -746,11 +747,13 @@ These five entities tell us everything about the dynamics of the
 system that we need in order to "solve" it. (How, precisely, it will
 be solved is determined by specifying a solver.)[^alternate_treatment]
 
-Aside from differences in the concept of _state_ (Section \ref{sec:state}), the
-Khalil model fits very well with an idealized version of the BioCro model in
-which time is considered to be continuous. We will see this in the section
-\ref{sec:BioCro_systems}, where we discuss the two models side-by-side. But
-first, we must elaborate a bit further on the Khalil model.
+Aside from differences in the concept of _state_ (Section
+\ref{sec:state}), the Khalil model fits very well with an idealized
+version of the BioCro model in which time is considered to be
+continuous.[^discrete_biocro] We will see this in the section
+\ref{sec:BioCro_systems}, where we discuss the two models
+side-by-side. But first, we must elaborate a bit further on the Khalil
+model.
 
 ## Elaboration on the Khalil model \label{sec:khalil_elaboration}
 
@@ -900,12 +903,12 @@ In what follows, when we need to make this distinction, we shall refer
 to a dynamical system together with a specified initial state as a
 _run_ of a system. It should also be noted, as discussed in Section
 \ref{sec:discrete_time}, that actually running the system (that is,
-allowing the state to evolve from its initial values) requires the
-use of numerical methods that effectively discretize the continous
-system of differential equations of a Khalil system. Whether this is
-considered as the development of a new discrete dynamical system from
-a continuous one, or just a matter of practical convenience, is mostly
-a philosophical issue.[^discrete_biocro]
+allowing the state to evolve from its initial values) requires the use
+of numerical methods that effectively discretize the continous system
+of differential equations of a Khalil system. Whether we consider this
+as the development of a new discrete dynamical system from a
+continuous one or just a matter of practical convenience is mostly
+matter of perspective.
 
 * The _parameters_ correspond to the sole value in the codomain of the
   constant function $\gamma^\vs{K}$.  This will be a $q$-tuple of
@@ -1142,15 +1145,15 @@ quantities, and direct quantities as a whole (equivalent to
 Khalil's state _and_ drivers).
 
 This section attempts to reconcile this conception of state with that
-commonly used in dynamical systems theory, and in particular, with
-the formulations presented in chapter \ref{sec:formulations}. Elsewhere
-in this document, we endeavor to use the term _state_ exclusively in
-reference to its usual definition as employed in the Khalil, Giuli-Mazzola,
-and Barreira-Valls models; we intentionally avoid using BioCro's idea of
-state, preferring to write _differential quantities_ instead to prevent
-confusion. In this section, we must necessarily use _state_ to refer to
-both conceptions, and we will try to clarify which definition is meant
-whenever it is unclear from context.
+commonly used in dynamical systems theory, and in particular, with the
+formulations presented in chapter \ref{sec:formulations}.  Elsewhere
+in this document, we use the term _state_ exclusively in reference to
+its usual definition as employed in the Khalil, Giuli-Mazzola, and
+Barreira-Valls models. When discussing BioCro, we refer to the state
+variables as the _differential quantities_ to avoid misrepresenting
+BioCro's idea of state. In this section, however, we must necessarily
+use _state_ to refer to both conceptions, and we will try to clarify
+which definition is meant whenever it is unclear from context.
 
 ### BioCro state and the Khalil model
 
@@ -1960,6 +1963,12 @@ weather$`2005`[1000:1010,
 
 <!-- footnotes -->
 
+[^direct_discretization]: There are also cases where it is convenient
+to abstract directly from a (presumably continuous) real-world system
+to a discrete mathematical model without passing through the
+intermediary stage of making an ODE-based model.  We shall say more
+about this in Section \ref{sec:biocro_model}.
+
 [^sets_of_functions]: This notation is meant to be suggestive of
 exponentiation.  In fact, if $B$ and $C$ are both finite sets having
 cardinalities $\|B\|$ and $\|C\|$ respecively, then the cardinality
@@ -1971,6 +1980,17 @@ $C=\{\text{apple}, \text{pepper}\}$ and $B=\{\text{red},
 [^alternate_treatment]: A less rigorous but much more succinct
 overview of the BioCro model is given in Appendix 2 of
 @10.1093/insilicoplants/diac003.
+
+[^discrete_biocro]: There are rare cases where a BioCro model uses a
+module corresponding to a difference equation rather than a
+differential equation. Such models assume discrete time steps and are
+not naturally viewed as simply discretizations of systems of ordinary
+differential equations. They correspond to a variant of the Khalil
+model in which the state equation (Equation
+\eqref{eq:Khalil_state_equation}) has been replaced with the
+difference equation $\Delta\vec{x} = \vec{f}(t, \vec{x},
+\vec{u})$. Since these modules are rare, and since we hope to
+eventually phase them out, we won't consider such models further.
 
 [^euclidean_space_isomorphism]: If $\|X\|=n$ and $\|U\|=p$, then
 $\R^X$ is isomorphic to the Euclidean space $\R^n$ and $\R^U$ is
@@ -2051,11 +2071,3 @@ to the case where there is only a single module of each type, we could
 instead make no stipulation about the number of modules and simply
 substitute the phrase "the direct (differential) module component" in
 every place where we speak of "the direct (differential) module".
-
-[^discrete_biocro]: There are rare exceptions to this rule because it
-is possible to write BioCro modules that assume discrete time steps; in
-other words, modules that require the use of an Euler solver. In this
-case, the discrete-time system is _not_ an abstraction of a continuous
-system. However, such modules are avoided in "modern" BioCro systems,
-and most BioCro systems can be considered as continuous-time models
-that are discretized as a practical necessity.
