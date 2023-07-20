@@ -45,7 +45,7 @@ class rasmussen_specific_heat : public direct_module
     rasmussen_specific_heat(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

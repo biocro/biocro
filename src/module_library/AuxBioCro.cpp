@@ -174,7 +174,7 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
     }
 }
 
-struct ET_Str EvapoTrans2(
+ET_Str EvapoTrans2(
     double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
     double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
     double airTemp,                          // degrees C
@@ -301,7 +301,7 @@ struct ET_Str EvapoTrans2(
     // molar mass of water (in kg / mol) and noting that 1e3 mmol = 1 mol
     double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
-    struct ET_Str et_results;
+    ET_Str et_results;
     et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
     et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
     et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
@@ -657,7 +657,7 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    according to the water stress of the plant. This is done
    for now, with a very simple empirical approach. */
 
-struct ws_str watstr(
+ws_str watstr(
     double precipit,
     double evapo,
     double cws,
@@ -724,7 +724,7 @@ struct ws_str watstr(
 /* Function to simulate the multilayer behavior of soil water. In the
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
-struct soilML_str soilML(
+soilML_str soilML(
     double precipit,
     double transp,
     double* cws,
@@ -1048,18 +1048,18 @@ double resp(double base_rate, double mrc, double temp)
     return ans;
 }
 
-struct seqRD_str seqRootDepth(double to, int lengthOut)
+seqRD_str seqRootDepth(double to, int lengthOut)
 {
     double by = to / lengthOut;
 
-    struct seqRD_str result;
+    seqRD_str result;
     for (int i = 0; i <= lengthOut; ++i) {
         result.rootDepths[i] = i * by;
     }
     return result;
 }
 
-struct rd_str rootDist(int n_layers, double rootDepth, double* depths, double rfl)
+rd_str rootDist(int n_layers, double rootDepth, double* depths, double rfl)
 {
     /*
      * Calculate the fraction of total root mass for each layer in `depths` assuming the mass
@@ -1100,7 +1100,7 @@ struct rd_str rootDist(int n_layers, double rootDepth, double* depths, double rf
         }
     }
 
-    struct rd_str result;
+    rd_str result;
     for (int k = 0; k < n_layers; ++k) {
         result.rootDist[k] = rootDist[k] / cumulative_a;
     }

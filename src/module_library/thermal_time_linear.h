@@ -73,16 +73,16 @@ class thermal_time_linear : public differential_module
     thermal_time_linear(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
           sowing_time{get_input(input_quantities, "sowing_time")},
-          temp(get_input(input_quantities, "temp")),
-          tbase(get_input(input_quantities, "tbase")),
+          temp{get_input(input_quantities, "temp")},
+          tbase{get_input(input_quantities, "tbase")},
 
           // Get pointers to output quantities
-          TTc_op(get_op(output_quantities, "TTc"))
+          TTc_op{get_op(output_quantities, "TTc")}
     {
     }
     static string_vector get_inputs();

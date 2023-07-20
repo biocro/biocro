@@ -30,20 +30,20 @@ class incident_shortwave_from_ground_par : public direct_module
     incident_shortwave_from_ground_par(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          solar(get_input(input_quantities, "solar")),
-          irradiance_direct_fraction(get_input(input_quantities, "irradiance_direct_fraction")),
-          irradiance_diffuse_fraction(get_input(input_quantities, "irradiance_diffuse_fraction")),
-          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
-          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          solar{get_input(input_quantities, "solar")},
+          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
+          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
+          par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
+          par_energy_content{get_input(input_quantities, "par_energy_content")},
 
           // Get pointers to output quantities
-          par_incident_direct_op(get_op(output_quantities, "par_incident_direct")),
-          par_incident_diffuse_op(get_op(output_quantities, "par_incident_diffuse")),
-          nir_incident_direct_op(get_op(output_quantities, "nir_incident_direct")),
-          nir_incident_diffuse_op(get_op(output_quantities, "nir_incident_diffuse"))
+          par_incident_direct_op{get_op(output_quantities, "par_incident_direct")},
+          par_incident_diffuse_op{get_op(output_quantities, "par_incident_diffuse")},
+          nir_incident_direct_op{get_op(output_quantities, "nir_incident_direct")},
+          nir_incident_diffuse_op{get_op(output_quantities, "nir_incident_diffuse")}
     {
     }
     static string_vector get_inputs();

@@ -99,29 +99,29 @@ class solar_position_michalsky : public direct_module
     solar_position_michalsky(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
-          lat(get_input(input_quantities, "lat")),
-          longitude(get_input(input_quantities, "longitude")),
-          time(get_input(input_quantities, "time")),
-          time_zone_offset(get_input(input_quantities, "time_zone_offset")),
-          year(get_input(input_quantities, "year")),
+          lat{get_input(input_quantities, "lat")},
+          longitude{get_input(input_quantities, "longitude")},
+          time{get_input(input_quantities, "time")},
+          time_zone_offset{get_input(input_quantities, "time_zone_offset")},
+          year{get_input(input_quantities, "year")},
 
           // Get pointers to output quantities
-          cosine_zenith_angle_op(get_op(output_quantities, "cosine_zenith_angle")),
-          julian_date_op(get_op(output_quantities, "julian_date")),
-          solar_L_op(get_op(output_quantities, "solar_L")),
-          solar_g_op(get_op(output_quantities, "solar_g")),
-          solar_ell_op(get_op(output_quantities, "solar_ell")),
-          solar_ep_op(get_op(output_quantities, "solar_ep")),
-          solar_ra_op(get_op(output_quantities, "solar_ra")),
-          solar_dec_op(get_op(output_quantities, "solar_dec")),
-          gmst_op(get_op(output_quantities, "gmst")),
-          lmst_op(get_op(output_quantities, "lmst")),
-          lha_op(get_op(output_quantities, "lha")),
-          solar_zenith_angle_op(get_op(output_quantities, "solar_zenith_angle")),
-          solar_azimuth_angle_op(get_op(output_quantities, "solar_azimuth_angle"))
+          cosine_zenith_angle_op{get_op(output_quantities, "cosine_zenith_angle")},
+          julian_date_op{get_op(output_quantities, "julian_date")},
+          solar_L_op{get_op(output_quantities, "solar_L")},
+          solar_g_op{get_op(output_quantities, "solar_g")},
+          solar_ell_op{get_op(output_quantities, "solar_ell")},
+          solar_ep_op{get_op(output_quantities, "solar_ep")},
+          solar_ra_op{get_op(output_quantities, "solar_ra")},
+          solar_dec_op{get_op(output_quantities, "solar_dec")},
+          gmst_op{get_op(output_quantities, "gmst")},
+          lmst_op{get_op(output_quantities, "lmst")},
+          lha_op{get_op(output_quantities, "lha")},
+          solar_zenith_angle_op{get_op(output_quantities, "solar_zenith_angle")},
+          solar_azimuth_angle_op{get_op(output_quantities, "solar_azimuth_angle")}
     {
     }
     static string_vector get_inputs();

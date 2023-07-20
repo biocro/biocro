@@ -11,19 +11,19 @@ class stomata_water_stress_linear_and_aba_response : public direct_module
 {
    public:
     stomata_water_stress_linear_and_aba_response(state_map const& input_quantities, state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
-          soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-          soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
-          soil_aba_concentration_ip(get_ip(input_quantities, "soil_aba_concentration")),
-          aba_influence_coefficient_ip(get_ip(input_quantities, "aba_influence_coefficient")),
-          max_b1_ip(get_ip(input_quantities, "max_b1")),
+          soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
+          soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
+          soil_water_content_ip{get_ip(input_quantities, "soil_water_content")},
+          soil_aba_concentration_ip{get_ip(input_quantities, "soil_aba_concentration")},
+          aba_influence_coefficient_ip{get_ip(input_quantities, "aba_influence_coefficient")},
+          max_b1_ip{get_ip(input_quantities, "max_b1")},
 
           // Get pointers to output quantities
-          StomataWS_op(get_op(output_quantities, "StomataWS")),
-          b1_op(get_op(output_quantities, "b1"))
+          StomataWS_op{get_op(output_quantities, "StomataWS")},
+          b1_op{get_op(output_quantities, "b1")}
     {
     }
     static string_vector get_inputs();

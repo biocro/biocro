@@ -1,5 +1,5 @@
-#ifndef NO_LEAF_RESP_PARTITIONING_GROWTH_CALCULATOR_H
-#define NO_LEAF_RESP_PARTITIONING_GROWTH_CALCULATOR_H
+#ifndef PARTITIONING_GROWTH_CALCULATOR_H
+#define PARTITIONING_GROWTH_CALCULATOR_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
@@ -8,7 +8,7 @@
 namespace standardBML
 {
 /**
- *  @class no_leaf_resp_partitioning_growth_calculator
+ *  @class partitioning_growth_calculator
  *
  *  @brief Uses a set of partitioning coefficients to determine net assimilation
  *  rates due to photosynthesis and respiration for several plant organs.
@@ -41,28 +41,34 @@ namespace standardBML
  *
  *  ### Specifics of this module
  *
- *  When the canopy assimilation rate is negative, this module ensures that all
- *  losses come from the leaf, and the growth rates for the other organs are set
- *  to zero since no carbon is flowing out of the leaf.
- *
- *  This module does not attempt to explicitly include any effect due to water
- *  stress.
+ *  In this module, no distinction is made between positive and negative canopy
+ *  assimilation rates. Thus, respiratory losses in the leaf that result in a
+ *  negative canopy assimilation rate are spread out to the other organs.
  *
  *  This module includes five organs:
- *  - `Leaf`: The leaf growth rate is *not* modified by respiration because the
- *     net canopy assimilation rate already includes it.
+ *  - `Leaf`: The leaf growth rate is modified by water stress and then
+ *     respiration. Note that this effectively double-counts leaf respiration
+ *     because the net canopy assimilation rate already includes it.
  *  - `Stem`: The stem growth rate is modified by respiration.
  *  - `Root`: The root growth rate is modified by respiration.
  *  - `Rhizome`: The rhizome growth rate is modified by respiration.
- *  - `Grain`: The grain growth rate is *not* modified by respiration.
+ *  - `Grain`: The grain growth rate is *not* modified by respiration and is not
+ *     allowed to become negative, even when the canopy assimilation rate is
+ *     negative.
+ *
+ *  Here it is assumed that the major effect of water stress on mass
+ *  accumulation is a reduction in the leaf growth rate, following
+ *  [Boyer, J. S. "Leaf Enlargement and Metabolic Rates in Corn, Soybean, and
+ *  Sunflower at Various Leaf Water Potentials" Plant Physiology 46, 233–235 (1970)]
+ *  (https://doi.org/10.1104/pp.46.2.233).
  */
-class no_leaf_resp_partitioning_growth_calculator : public direct_module
+class partitioning_growth_calculator : public direct_module
 {
    public:
-    no_leaf_resp_partitioning_growth_calculator(
+    partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},
@@ -71,6 +77,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
           canopy_assimilation_rate{get_input(input_quantities, "canopy_assimilation_rate")},
+          LeafWS{get_input(input_quantities, "LeafWS")},
           mrc1{get_input(input_quantities, "mrc1")},
           mrc2{get_input(input_quantities, "mrc2")},
           temp{get_input(input_quantities, "temp")},
@@ -85,7 +92,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    static std::string get_name() { return "no_leaf_resp_partitioning_growth_calculator"; }
+    static std::string get_name() { return "partitioning_growth_calculator"; }
 
    private:
     // Pointers to input quantities
@@ -95,6 +102,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     const double& kRhizome;
     const double& kGrain;
     const double& canopy_assimilation_rate;
+    const double& LeafWS;
     const double& mrc1;
     const double& mrc2;
     const double& temp;
@@ -110,7 +118,7 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     void do_operation() const;
 };
 
-string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
+string_vector partitioning_growth_calculator::get_inputs()
 {
     return {
         "kLeaf",                     // dimensionless
@@ -119,13 +127,14 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
         "kRhizome",                  // dimensionless
         "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
+        "LeafWS",                    // dimensionless
         "mrc1",                      // dimensionless
         "mrc2",                      // dimensionless
         "temp"                       // degrees C
     };
 }
 
-string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
+string_vector partitioning_growth_calculator::get_outputs()
 {
     return {
         "net_assimilation_rate_leaf",     // Mg / ha / hour
@@ -136,7 +145,7 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
     };
 }
 
-void no_leaf_resp_partitioning_growth_calculator::do_operation() const
+void partitioning_growth_calculator::do_operation() const
 {
     double net_assimilation_rate_leaf{0.0};
     double net_assimilation_rate_stem{0.0};
@@ -144,29 +153,17 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
     double net_assimilation_rate_rhizome{0.0};
     double net_assimilation_rate_grain{0.0};
 
-    // Determine the carbon flux to use for the non-leaf organs
-    double nonleaf_carbon_flux;
-    if (canopy_assimilation_rate < 0) {
-        nonleaf_carbon_flux = 0.0;
-    } else {
-        nonleaf_carbon_flux = canopy_assimilation_rate;
-    }
-
     // Calculate the rate of new leaf production
     if (kLeaf > 0) {
-        if (canopy_assimilation_rate < 0) {
-            // Assimilation is negative here, so this removes leaf mass
-            net_assimilation_rate_leaf = canopy_assimilation_rate;
-        } else {
-            net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf;
-        }
+        net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf * LeafWS;
+        net_assimilation_rate_leaf = resp(net_assimilation_rate_leaf, mrc1, temp);
     } else {
         net_assimilation_rate_leaf = 0.0;
     }
 
     // Calculate the rate of new stem production
     if (kStem >= 0) {
-        net_assimilation_rate_stem = nonleaf_carbon_flux * kStem;
+        net_assimilation_rate_stem = canopy_assimilation_rate * kStem;
         net_assimilation_rate_stem = resp(net_assimilation_rate_stem, mrc1, temp);
     } else {
         net_assimilation_rate_stem = 0.0;
@@ -174,7 +171,7 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 
     // Calculate the rate of new root production
     if (kRoot > 0) {
-        net_assimilation_rate_root = nonleaf_carbon_flux * kRoot;
+        net_assimilation_rate_root = canopy_assimilation_rate * kRoot;
         net_assimilation_rate_root = resp(net_assimilation_rate_root, mrc2, temp);
     } else {
         net_assimilation_rate_root = 0.0;
@@ -182,15 +179,15 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 
     // Calculate the rate of new rhizome production
     if (kRhizome > 0) {
-        net_assimilation_rate_rhizome = nonleaf_carbon_flux * kRhizome;
+        net_assimilation_rate_rhizome = canopy_assimilation_rate * kRhizome;
         net_assimilation_rate_rhizome = resp(net_assimilation_rate_rhizome, mrc2, temp);
     } else {
         net_assimilation_rate_rhizome = 0.0;
     }
 
     // Calculate the rate of grain production
-    if (kGrain > 0) {
-        net_assimilation_rate_grain = nonleaf_carbon_flux * kGrain;
+    if (kGrain > 0 && canopy_assimilation_rate > 0) {
+        net_assimilation_rate_grain = canopy_assimilation_rate * kGrain;
     } else {
         net_assimilation_rate_grain = 0.0;
     }

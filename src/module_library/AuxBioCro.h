@@ -50,13 +50,13 @@ struct seqRD_str{
   double rootDepths[MAXLAY+1];
 };
 
-struct seqRD_str seqRootDepth(double to, int lengthOut);
+seqRD_str seqRootDepth(double to, int lengthOut);
 
 struct rd_str{
   double rootDist[MAXLAY];
 };
 
-struct rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
+rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
 
 struct frostParms {
   double leafT0;
@@ -88,7 +88,7 @@ struct nitroParms {
 };
 
 struct crop_phenology {
-        struct dbp_str DBP;
+        dbp_str DBP;
         struct minerals1 {
         double CN;
         double CP;

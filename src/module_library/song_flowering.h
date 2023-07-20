@@ -22,38 +22,38 @@ class song_flowering : public differential_module
 {
    public:
     song_flowering(state_map const& input_quantities, state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get pointers to input quantities
-          solar_ip(get_ip(input_quantities, "solar")),
-          cLm_ip(get_ip(input_quantities, "cLm")),
-          cLc_ip(get_ip(input_quantities, "cLc")),
-          cLn_ip(get_ip(input_quantities, "cLn")),
-          cTm_ip(get_ip(input_quantities, "cTm")),
-          cTc_ip(get_ip(input_quantities, "cTc")),
-          cTn_ip(get_ip(input_quantities, "cTn")),
-          cXm_ip(get_ip(input_quantities, "cXm")),
-          cXc_ip(get_ip(input_quantities, "cXc")),
-          cXn_ip(get_ip(input_quantities, "cXn")),
-          cYm_ip(get_ip(input_quantities, "cYm")),
-          cYc_ip(get_ip(input_quantities, "cYc")),
-          cYn_ip(get_ip(input_quantities, "cYn")),
-          cPn_ip(get_ip(input_quantities, "cPn")),
+          solar_ip{get_ip(input_quantities, "solar")},
+          cLm_ip{get_ip(input_quantities, "cLm")},
+          cLc_ip{get_ip(input_quantities, "cLc")},
+          cLn_ip{get_ip(input_quantities, "cLn")},
+          cTm_ip{get_ip(input_quantities, "cTm")},
+          cTc_ip{get_ip(input_quantities, "cTc")},
+          cTn_ip{get_ip(input_quantities, "cTn")},
+          cXm_ip{get_ip(input_quantities, "cXm")},
+          cXc_ip{get_ip(input_quantities, "cXc")},
+          cXn_ip{get_ip(input_quantities, "cXn")},
+          cYm_ip{get_ip(input_quantities, "cYm")},
+          cYc_ip{get_ip(input_quantities, "cYc")},
+          cYn_ip{get_ip(input_quantities, "cYn")},
+          cPn_ip{get_ip(input_quantities, "cPn")},
 
           // Get pointers to output quantities
-          cLm_op(get_op(output_quantities, "cLm")),
-          cLc_op(get_op(output_quantities, "cLc")),
-          cLn_op(get_op(output_quantities, "cLn")),
-          cTm_op(get_op(output_quantities, "cTm")),
-          cTc_op(get_op(output_quantities, "cTc")),
-          cTn_op(get_op(output_quantities, "cTn")),
-          cXm_op(get_op(output_quantities, "cXm")),
-          cXc_op(get_op(output_quantities, "cXc")),
-          cXn_op(get_op(output_quantities, "cXn")),
-          cYm_op(get_op(output_quantities, "cYm")),
-          cYc_op(get_op(output_quantities, "cYc")),
-          cYn_op(get_op(output_quantities, "cYn")),
-          cPn_op(get_op(output_quantities, "cPn"))
+          cLm_op{get_op(output_quantities, "cLm")},
+          cLc_op{get_op(output_quantities, "cLc")},
+          cLn_op{get_op(output_quantities, "cLn")},
+          cTm_op{get_op(output_quantities, "cTm")},
+          cTc_op{get_op(output_quantities, "cTc")},
+          cTn_op{get_op(output_quantities, "cTn")},
+          cXm_op{get_op(output_quantities, "cXm")},
+          cXc_op{get_op(output_quantities, "cXc")},
+          cXn_op{get_op(output_quantities, "cXn")},
+          cYm_op{get_op(output_quantities, "cYm")},
+          cYc_op{get_op(output_quantities, "cYc")},
+          cYn_op{get_op(output_quantities, "cYn")},
+          cPn_op{get_op(output_quantities, "cPn")}
     {
     }
     static string_vector get_inputs();

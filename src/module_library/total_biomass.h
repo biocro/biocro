@@ -18,7 +18,7 @@ class total_biomass : public direct_module
     total_biomass(
         const state_map& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input parameters
           Leaf{get_input(input_quantities, "Leaf")},

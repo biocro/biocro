@@ -26,7 +26,7 @@ class multilayer_canopy_integrator : public direct_module
         int const& nlayers,
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Store the number of layers
           nlayers(nlayers),
