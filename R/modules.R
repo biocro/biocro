@@ -37,6 +37,50 @@ check_out_module <- function(module_name) {
     library_name <- parsed_string[1]
     local_module_name <- parsed_string[2]
 
+    # Try to find the module library's framework version function
+    library_framework_func <- tryCatch(
+        {
+            function_from_package(library_name, 'framework_version')
+        },
+        error = function(cond) {
+            stop(paste0(
+                "Encountered an issue with module `",
+                module_name,
+                "`: ",
+                cond
+            ))
+        }
+    )
+
+    # Compare the framework version here and in the module library
+    version_comp <-
+        compareVersion(framework_version(), library_framework_func())
+
+    # Send a warning if there is a version mismatch
+    if (version_comp < 0) {
+        # Here, the module library is using a newer version of the BioCro C++
+        # framework
+        warning(paste0(
+            "The `", library_name, "` module library R package uses a newer ",
+            "version of the BioCro C++ framework than the `BioCro` R package (",
+            library_framework_func(), " vs. ", framework_version(), ").\nTry ",
+            "updating the `BioCro` R package to the latest ",
+            "version; if that does not solve the problem, contact the ",
+            "`BioCro` R package maintainer."
+        ))
+    } else if (version_comp > 0) {
+        # Here, the module library is using an older version of the BioCro C++
+        # framework
+        warning(paste0(
+            "The `", library_name, "` module library R package uses an older ",
+            "version of the BioCro C++ framework than the `BioCro` R package (",
+            library_framework_func(), " vs. ", framework_version(), ").\nTry ",
+            "updating the `", library_name, "` R package to the latest ",
+            "version; if that does not solve the problem, contact the `",
+            library_name, "` R package maintainer."
+        ))
+    }
+
     # Try to find the module library function
     library_func <- tryCatch(
         {
