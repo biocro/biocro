@@ -1,5 +1,3 @@
-context("Run test cases for all modules")
-
 # Test all the modules in the library
 modules_to_skip <- c()
 

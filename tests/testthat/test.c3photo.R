@@ -1,5 +1,3 @@
-context("Make sure C3 assimilation calculations are sensitive to important input parameters.")
-
 test_that("c3photo is sensitive to changes in vcmax", {
     # redmine issue #1478
 

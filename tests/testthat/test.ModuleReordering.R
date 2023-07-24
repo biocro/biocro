@@ -2,9 +2,6 @@
 ## specified in the list passed to run_biocro does not affect the
 ## simulation result.
 
-context(paste("Check simulation result",
-              "is unaffected by direct module re-ordering"))
-
 CROP <- miscanthus_x_giganteus # crop to use for this test
 
 SAMPLE_SIZE <- 5     # Number of time points to test in each simulation result.

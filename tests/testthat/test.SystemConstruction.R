@@ -1,7 +1,5 @@
 # This tests some basic properties of system construction
 
-context("Test error conditions during system validation and construction")
-
 CROP <- miscanthus_x_giganteus
 WEATHER <- get_growing_season_climate(weather$'2005')
 MAX_INDEX <- 100

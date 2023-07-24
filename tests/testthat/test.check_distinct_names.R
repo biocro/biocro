@@ -1,5 +1,3 @@
-context("Test `check_distinct_names`")
-
 # Define some helpful objects
 list_with_duplicates <- list(a = 1, b = 2, a = 3, a = 4)
 vector_with_duplicates <- unlist(list_with_duplicates)

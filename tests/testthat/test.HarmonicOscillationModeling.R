@@ -1,9 +1,9 @@
+## Test basic system building and solving using the harmonic oscillator modules.
+##
 ## Bugs: The tests may fail for large values of ω (that is, when the spring
 ## constant is very large compared to the mass).  This might be remedied by
 ## screening out these cases as not suitable for the model or possibly by
 ## adjusting the error tolerance in such cases.
-
-context("Test basic system building and solving using the harmonic oscillator modules.")
 
 DEBUG_TEST <- FALSE    # Change this to TRUE to get useful output for debugging these tests.
 
@@ -148,6 +148,8 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
 
     test_that(overall_description, {
+        local_edition(2) # these tests don't pass using the third edition
+        
         expect_true(class(result) == "data.frame") # sanity check
 
         sample <- sample(1:MAX_INDEX, SAMPLE_SIZE) # randomly choose a number of points in the evolution of the system to test
