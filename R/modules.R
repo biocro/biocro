@@ -16,7 +16,7 @@ parse_module_name <- function(module_name) {
 # A helper function for comparing framework versions
 compare_framework_versions <- function(library_name, module_fv, biocro_fv) {
     # Compare the two version numbers
-    version_comp <- compareVersion(biocro_fv, module_fv)
+    version_comp <- utils::compareVersion(biocro_fv, module_fv)
 
     # Send a warning if there is a version mismatch
     if (version_comp < 0) {
