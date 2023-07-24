@@ -16,7 +16,7 @@ Subsequent commits will then include a new "Unreleased" section in preparation
 for the next release.
 -->
 
-# UNRELEASED
+# CHANGES IN BioCro VERSION 3.0.0
 
 ## MAJOR CHANGES
 
@@ -28,11 +28,11 @@ for the next release.
   was previously known as `thermal_time_linear` must now be referred to as
   `BioCro:thermal_time_linear`.
 
-- Any R package representing a BioCro module library must now have three
-  non-exported functions accessing its modules: `get_all_modules`,
-  `get_all_quantities`, and `module_creators`. When a fully-qualified module
-  name like `library_name:local_module_name` is passed to a function like
-  `module_info`, an internal call to
+- Any R package representing a BioCro module library must now have four
+  non-exported functions related to accessing its modules: `get_all_modules`,
+  `get_all_quantities`, `module_creators`, and `framework_version`. When a
+  fully-qualified module name like `library_name:local_module_name` is passed to
+  a function like `module_info`, an internal call to
   `library_name:::module_creators(module_name)` will be made to retrieve a
   pointer to a module. Hence, `library_name` must be the same as the module
   library package name. This is a required part of a method for passing C
@@ -44,6 +44,13 @@ for the next release.
   manuscript; now, `src/framework` contains the core C++ code,
   `src/module_library` contains the module code, and the "R-to-C" code can be
   found directly in `src`.
+
+- The C++ framework code in `src/framework` has been moved to a separate
+  repository and licensed under the GNU LGPL; it is included in the BioCro R
+  package repository as a Git submodule. This allows us to use a permissive
+  license for the BioCro R package while still protecting the code that
+  assembles and solves models. Associated with this change, the BioCro R package
+  is now licensed under the MIT license. See `LICENSE.note` for details.
 
 ## MINOR CHANGES
 
@@ -62,6 +69,9 @@ for the next release.
 
 - Module testing functions have been added to the package namespace.
 
+- Many small improvements have been made to the documentation and the module
+  code in `src/module_library`; these changes are too numerous to list here.
+
 ## BUG FIXES
 
 - The elements of the `arg_names` input to `partial_run_biocro` can now be in
@@ -71,6 +81,11 @@ for the next release.
   parameters. If the arguments were supplied in the wrong order, then the inputs
   to the function returned by `partial_run_biocro` would be interpreted in the
   wrong order.
+
+- A bug that sometimes caused the last time point of a simulation to contain NAN
+  for all quantities has been fixed; this was related to an out-of-bounds error
+  when accessing vector elements in the C++ function
+  `dynamical_system::update_drivers`.
 
 # CHANGES IN BioCro VERSION 2.0.0
 
