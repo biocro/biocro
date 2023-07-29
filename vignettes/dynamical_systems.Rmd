@@ -1990,7 +1990,8 @@ model in which the state equation (Equation
 \eqref{eq:Khalil_state_equation}) has been replaced with the
 difference equation $\Delta\vec{x} = \vec{f}(t, \vec{x},
 \vec{u})$. Since these modules are rare, and since we hope to
-eventually phase them out, we won't consider such models further.
+eventually phase them out of the standard BioCro module library, we
+won't consider such modules further.
 
 [^euclidean_space_isomorphism]: If $\|X\|=n$ and $\|U\|=p$, then
 $\R^X$ is isomorphic to the Euclidean space $\R^n$ and $\R^U$ is
