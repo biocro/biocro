@@ -1607,10 +1607,11 @@ and $\Out\M_i$ respectively, we can write
 \end{align*}
                               <!-- (no par break) -->
 where $\In\M_i$ and $\Out\M_i$ are disjoint, since direct modules
-never share inputs and outputs.  Note that it may be the case that
-$\In\M_i\subseteq H$; in this case $\vs{\overline{W}}_i$ is
-0-dimensional and \ref{eq:dir_mod_fn} reduces to
-                              <!-- (no par break) -->
+never share inputs and outputs.[^disjointness_requirement] Note that
+it may be the case that $\In\M_i\subseteq H$; in this case
+$\vs{\overline{W}}_i$ is 0-dimensional and \ref{eq:dir_mod_fn} reduces
+to
+<!-- (no par break) -->
 \begin{equation*}
     \gamma^{\vs{W}_i}: \vs{H} \to \vs{W}_i.
 \end{equation*}
@@ -2009,13 +2010,6 @@ $\vec{x}\in\vs{X'}$ and all $\vec{u}\in\vs{U'}$ where $\vs{X'}$ and
 $\vs{U'}$ are connected subsets of $\vs{X}$ and $\vs{U}$.  We will
 reconsider this issue in Section \ref{sec:manifold}.
 
-[^solar_function]: This particular function is, in fact, the function
-you would get if you expressed the total PAR flux density (in
-$\mu\text{mol}/m^2/s$) measured at the Earth's surface in Champaign,
-Illinois (per the _weather_ data set accompanying BioCro) as a
-function (taking $t_i = i$) of the number of hours elapsed since
-midnight on January 1, 2005.
-
 [^empty_component]: Note that any (or all!) of the sets $K$, $D$, or
 $W$ may be empty, in which case the corresponding vector space is zero
 dimensional and the corresponding vector argument can be eliminated
@@ -2023,6 +2017,23 @@ from equation \eqref{eq:BioCro_state_equation}.  (If all three sets
 are empty, then of course we have no inputs and the system is
 automatically described by the unforced state equation
 \eqref{eq:unforced_state_equation}.)
+
+[^solar_function]: This particular function is, in fact, the function
+you would get if you expressed the total PAR flux density (in
+$\mu\text{mol}/m^2/s$) measured at the Earth's surface in Champaign,
+Illinois (per the _weather_ data set accompanying BioCro) as a
+function (taking $t_i = i$) of the number of hours elapsed since
+midnight on January 1, 2005.
+
+[^comprehensive_module]: This isn't to say the requisite modules
+exist.  In order to realize this replacement, the user may have to
+write them!
+
+[^single_module]: As an alternative to confining the discussion here
+to the case where there is only a single module of each type, we could
+instead make no stipulation about the number of modules and simply
+substitute the phrase "the direct (differential) module component" in
+every place where we speak of "the direct (differential) module".
 
 [^timestep_parameter]: The timestep parameter is different in
 character from the other parameters that make up part of the
@@ -2063,12 +2074,13 @@ elapsed since the start of the simulation, in whatever time units
 level", or what is, for points on the earth's surface, usually called
 _elevation_.
 
-[^comprehensive_module]: This isn't to say the requisite modules
-exist.  In order to realize this replacement, the user may have to
-write them!
-
-[^single_module]: As an alternative to confining the discussion here
-to the case where there is only a single module of each type, we could
-instead make no stipulation about the number of modules and simply
-substitute the phrase "the direct (differential) module component" in
-every place where we speak of "the direct (differential) module".
+[^disjointness_requirement]: When we say that direct modules never
+share inputs and outputs, we are specifically referring to direct
+modules used in the construction of a dynamical system, that is,
+direct modules that are members of the _set of direct modules_
+mentioned at the outset in our discussion of the BioCro model. But
+there do, in fact, exist modules, also going by the name _direct
+module_, that _do_ have one or more input and output variables in
+common. We won't consider such modules here, and it what follows, we
+always consider only direct modules of the former type, where the
+input and output sets are disjoint.
