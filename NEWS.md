@@ -31,8 +31,8 @@ for the next release.
 - Any R package representing a BioCro module library must now have four
   non-exported functions related to accessing its modules: `get_all_modules`,
   `get_all_quantities`, `module_creators`, and `framework_version`. When a
-  fully-qualified module name like `library_name:local_module_name` is passed to
-  a function like `module_info`, an internal call to
+  fully-qualified module name such as `library_name:local_module_name` is passed
+  to a function such as `module_info`, an internal call to
   `library_name:::module_creators(module_name)` will be made to retrieve a
   pointer to a module. Hence, `library_name` must be the same as the module
   library package name. This is a required part of a method for passing C
@@ -82,7 +82,7 @@ for the next release.
   to the function returned by `partial_run_biocro` would be interpreted in the
   wrong order.
 
-- A bug that sometimes caused the last time point of a simulation to contain NAN
+- A bug that sometimes caused the last time point of a simulation to contain NaN
   for all quantities has been fixed; this was related to an out-of-bounds error
   when accessing vector elements in the C++ function
   `dynamical_system::update_drivers`.
