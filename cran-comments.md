@@ -11,17 +11,17 @@ There were 4 NOTEs:
   BioCro is a new submission.
 
 - > checking installed package size ... NOTE
-  > installed size is  8.3Mb
+  > installed size is  9.4Mb
   > sub-directories of 1Mb or more:
   >   data   3.5Mb
-  >   doc    2.3Mb
-  >   libs   2.2Mb
+  >   doc    3.7Mb
+  >   libs   1.9Mb
 
   No directories exceed 5 megabytes.
 
 - > checking top-level files ... NOTE
   > Non-standard file/directory found at top level:
-  >   'boost_1_71_0'
+  >   'inc'
 
   Having this directory at top level helps prevent overly long file paths in the
   tarball.
