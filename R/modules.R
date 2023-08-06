@@ -14,7 +14,10 @@ parse_module_name <- function(module_name) {
 }
 
 # A helper function for comparing framework versions
-compare_framework_versions <- function(library_name, module_fv, biocro_fv) {
+compare_framework_versions <- function(library_name, module_fv) {
+    # Get the BioCro framework version
+    biocro_fv <- framework_version()
+
     # Compare the two version numbers
     version_comp <- utils::compareVersion(biocro_fv, module_fv)
 
@@ -95,8 +98,7 @@ check_out_module <- function(module_name) {
     # Compare the framework versions used by the module library and BioCro
     compare_framework_versions(
         library_name,
-        module_library_funcs$framework_version(),
-        framework_version()
+        module_library_funcs$framework_version()
     )
 
     return(module_library_funcs$module_creators(local_module_name)[[1]])
