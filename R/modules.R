@@ -3,11 +3,11 @@ parse_module_name <- function(module_name) {
   parsed_string <- strsplit(module_name, ':', fixed = TRUE)[[1]]
 
   if (length(parsed_string) != 2) {
-    stop(paste0(
+    stop(
       "The module name string `",
       module_name,
       "` is not formatted as `module_library_name:module_name`"
-    ))
+    )
   }
 
   list(library_name = parsed_string[1], local_module_name = parsed_string[2])
@@ -25,25 +25,25 @@ compare_framework_versions <- function(library_name, module_fv) {
     if (version_comp < 0) {
         # Here, the module library is using a newer version of the BioCro C++
         # framework
-        warning(paste0(
+        warning(
             "The `", library_name, "` module library R package uses a newer ",
             "version of the BioCro C++ framework than the `BioCro` R package (",
             module_fv, " vs. ", biocro_fv, ").\nTry ",
             "updating the `BioCro` R package to the latest ",
             "version; if that does not solve the problem, contact the ",
             "`BioCro` R package maintainer."
-        ))
+        )
     } else if (version_comp > 0) {
         # Here, the module library is using an older version of the BioCro C++
         # framework
-        warning(paste0(
+        warning(
             "The `", library_name, "` module library R package uses an older ",
             "version of the BioCro C++ framework than the `BioCro` R package (",
             module_fv, " vs. ", biocro_fv, ").\nTry ",
             "updating the `", library_name, "` R package to the latest ",
             "version; if that does not solve the problem, contact the `",
             library_name, "` R package maintainer."
-        ))
+        )
     }
 }
 
