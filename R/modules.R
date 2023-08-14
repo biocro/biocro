@@ -15,14 +15,14 @@ parse_module_name <- function(module_name) {
 
 # A helper function for comparing framework versions
 compare_framework_versions <- function(library_name, module_fv) {
-    # Get the BioCro framework version
-    biocro_fv <- framework_version()
+    # Get the BioCro framework version as a numeric_version object
+    biocro_fv <- numeric_version(framework_version())
 
-    # Compare the two version numbers
-    version_comp <- utils::compareVersion(biocro_fv, module_fv)
+    # Convert the module library framework version to a numeric_version object
+    module_fv <- numeric_version(module_fv)
 
     # Send a warning if there is a version mismatch
-    if (version_comp < 0) {
+    if (module_fv > biocro_fv) {
         # Here, the module library is using a newer version of the BioCro C++
         # framework
         warning(
@@ -33,7 +33,7 @@ compare_framework_versions <- function(library_name, module_fv) {
             "version; if that does not solve the problem, contact the ",
             "`BioCro` R package maintainer."
         )
-    } else if (version_comp > 0) {
+    } else if (module_fv < biocro_fv) {
         # Here, the module library is using an older version of the BioCro C++
         # framework
         warning(

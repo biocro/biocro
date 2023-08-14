@@ -7,10 +7,8 @@ modify_vn <- function(vn, major_increment) {
 
 # Get a few version numbers. Note: this approach will not work if the major
 # version number is 0, since the `older_version` below will have a negative
-# major version number in that case. The utils::compareVersion function
-# (used in compare_framework_versions) does not work with negative negative
-# numbers. However, this situation is unlikely to occur since the BioCro
-# framework version number is already greater than 1.0.0.
+# major version number in that case. However, this situation is unlikely to
+# occur since the BioCro framework version number is already greater than 1.0.0.
 current_version <- BioCro:::framework_version()
 older_version <- modify_vn(current_version, -1)
 newer_version <- modify_vn(current_version, +1)
