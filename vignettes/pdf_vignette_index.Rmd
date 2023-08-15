@@ -47,6 +47,14 @@ compile_rnw_file <- function(rnw_filename) {
 compile_rnw_file('a_practical_guide_to_biocro.Rnw')
 compile_rnw_file('quantitative_model_comparison.Rnw')
 compile_rnw_file('an_introduction_to_biocro.Rnw')
+
+## Build the dynamical_systems.Rmd vignette using the output format
+## specified in its preamble (namely, PDF).  (pkgdown builds Rmd
+## vignettes automatically.  But it doesn't seem to respect the output
+## specification in their preambles and just builds an HTML version
+## instead of the PDF version that we want.  So we have to call the
+## builder manually to get the PDF version.)
+tools::buildVignette('dynamical_systems.Rmd')
 ```
 
 <!--
@@ -56,6 +64,7 @@ compile_rnw_file('an_introduction_to_biocro.Rnw')
 <iframe src="a_practical_guide_to_biocro.R"/>
 <iframe src="quantitative_model_comparison.R"/>
 <iframe src="an_introduction_to_biocro.pdf"/>
+<iframe src="dynamical_systems.pdf"/>
 
 (These lines fool pkgdown into copying the PDF and R files to the docs
 directory so that the links below work.)

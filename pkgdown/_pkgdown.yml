@@ -35,6 +35,8 @@ navbar:
         href: articles/quantitative_model_comparison.R
       - text: "BioCro II Paper: Section 1.1 Example (HTML)"
         href: articles/BioCro-II_Paper--Section-1.1-example.html
+      - text: BioCro as a Dynamical System
+        href: articles/dynamical_systems.pdf
       - text: An Introduction to BioCro for Those Who Want to Add Models (PDF)
         href: articles/an_introduction_to_biocro.pdf
       - text: ---
