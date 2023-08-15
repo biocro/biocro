@@ -187,8 +187,9 @@ jobs:
       working-directory: ${{ env.BIOCRO_DOCUMENTATION_ROOT }}
       run: |
 
-        # user.name is somewhat arbitrary but must be provided:
+        # user.name and user.email are somewhat arbitrary but must be provided:
         git config user.name biocro-action
+        git config user.email bogus@url.com
         git add .
         git commit -m "generated pkgdown and bookdown documentation"
         git push
