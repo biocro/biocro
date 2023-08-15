@@ -9,11 +9,6 @@
 
 source('crop_model_testing_helper_functions.R')
 
-context(paste(
-    "Test stored crop models to ensure they are well defined, and, if",
-    "necessary, that the output doesn't change."
-))
-
 # Run all the tests
 for(i in 1:length(PLANT_TESTING_INFO)) {
     test_plant_model(PLANT_TESTING_INFO[[i]])

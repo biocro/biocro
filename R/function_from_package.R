@@ -4,19 +4,23 @@
 # to locate unexported functions like `get_all_modules_internal` from R packages
 # that represent BioCro module libraries.
 function_from_package <- function(library_name, function_name) {
+    if (!requireNamespace(library_name, quietly = TRUE)) {
+        stop('There is no package called `', library_name, '`')
+    }
+
     tryCatch(
         {
             do.call(`:::`, list(library_name, function_name))
         },
         error = function(cond) {
-            stop(paste0(
+            stop(
                 "A `",
                 function_name,
                 "` function could not be found in the `",
                 library_name,
-                "` package: ",
-                cond
-            ))
+                "` package",
+                call. = FALSE
+            )
         }
     )
 }

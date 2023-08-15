@@ -1,58 +1,107 @@
+# A helper function for extracting the library name and local module name
+parse_module_name <- function(module_name) {
+  parsed_string <- strsplit(module_name, ':', fixed = TRUE)[[1]]
+
+  if (length(parsed_string) != 2) {
+    stop(
+      "The module name string `",
+      module_name,
+      "` is not formatted as `module_library_name:module_name`"
+    )
+  }
+
+  list(library_name = parsed_string[1], local_module_name = parsed_string[2])
+}
+
+# A helper function for comparing framework versions
+compare_framework_versions <- function(library_name, module_fv) {
+    # Get the BioCro framework version as a numeric_version object
+    biocro_fv <- numeric_version(framework_version())
+
+    # Convert the module library framework version to a numeric_version object
+    module_fv <- numeric_version(module_fv)
+
+    # Send a warning if there is a version mismatch
+    if (module_fv > biocro_fv) {
+        # Here, the module library is using a newer version of the BioCro C++
+        # framework
+        warning(
+            "The `", library_name, "` module library R package uses a newer ",
+            "version of the BioCro C++ framework than the `BioCro` R package (",
+            module_fv, " vs. ", biocro_fv, ").\nTry ",
+            "updating the `BioCro` R package to the latest ",
+            "version; if that does not solve the problem, contact the ",
+            "`BioCro` R package maintainer."
+        )
+    } else if (module_fv < biocro_fv) {
+        # Here, the module library is using an older version of the BioCro C++
+        # framework
+        warning(
+            "The `", library_name, "` module library R package uses an older ",
+            "version of the BioCro C++ framework than the `BioCro` R package (",
+            module_fv, " vs. ", biocro_fv, ").\nTry ",
+            "updating the `", library_name, "` R package to the latest ",
+            "version; if that does not solve the problem, contact the `",
+            library_name, "` R package maintainer."
+        )
+    }
+}
+
 # A helping function for "checking out" a module from a module library. Here,
 # `module_name` should be a fully-qualified module name string formatted like
 # "module_library_name:local_module_name". Example: "BioCro:c3_canopy".
 check_out_module <- function(module_name) {
-    error_messages <-
-        check_vector(list(module_name = module_name))
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(module_name = module_name))
+    module_name_check_funcs <- list(
+        check_vector,
+        check_length,
+        check_element_length,
+        check_strings
     )
 
-    error_messages <- append(
-        error_messages,
-        check_element_length(list(module_name = module_name))
-    )
+    error_messages <- character()
 
-    error_messages <- append(
-        error_messages,
-        check_strings(list(module_name = module_name))
-    )
+    for (func in module_name_check_funcs) {
+        error_messages <- append(
+            error_messages,
+            func(list(module_name = module_name))
+        )
+    }
 
     send_error_messages(error_messages)
 
-    # Try to extract the module library name and the local module name from the
+    # Extract the module library name and the local module name from the
     # fully-qualified module name string
-    parsed_string <- strsplit(module_name, ':', fixed = TRUE)[[1]]
+    module_props <- parse_module_name(module_name)
+    library_name <- module_props$library_name
+    local_module_name <- module_props$local_module_name
 
-    if (length(parsed_string) != 2) {
-        stop(paste0(
-            "The module name string `",
-            module_name,
-            "` is not formatted as `module_library_name:module_name`"
-        ))
-    }
-
-    library_name <- parsed_string[1]
-    local_module_name <- parsed_string[2]
-
-    # Try to find the module library function
-    library_func <- tryCatch(
-        {
-            function_from_package(library_name, 'module_creators')
-        },
-        error = function(cond) {
-            stop(paste0(
-                "Encountered an issue with module `",
-                module_name,
-                "`: ",
-                cond
-            ))
-        }
+    # Try to find important functions from the module library R package
+    module_library_function_names <- list(
+        framework_version = 'framework_version',
+        module_creators = 'module_creators'
     )
 
-    return(library_func(local_module_name)[[1]])
+    module_library_funcs <- lapply(module_library_function_names, function(fn) {
+        tryCatch(
+            {function_from_package(library_name, fn)},
+            error = function(cond) {
+                stop(paste0(
+                    "Encountered an issue with module `",
+                    module_name,
+                    "`: ",
+                    cond
+                ))
+            }
+        )
+    })
+
+    # Compare the framework versions used by the module library and BioCro
+    compare_framework_versions(
+        library_name,
+        module_library_funcs$framework_version()
+    )
+
+    return(module_library_funcs$module_creators(local_module_name)[[1]])
 }
 
 # TO-DO: should the reported module name be a fully-qualified module name instead?

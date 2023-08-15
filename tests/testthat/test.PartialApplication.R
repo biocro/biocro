@@ -1,8 +1,6 @@
 # Makes sure the convenience functions for partial application are functioning
 # properly
 
-context("Test partial application")
-
 # TESTING PARTIAL_RUN_BIOCRO
 
 # Get the baseline simulation result, which is based on the 2005 Miscanthus

@@ -33,7 +33,7 @@ Depends: R (>= 3.5.0)
 Imports:
     stats
 Suggests:
-    testthat,
+    testthat (>= 3.0.0),
     knitr,
     rmarkdown,
     bookdown,
@@ -44,3 +44,4 @@ License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
 URL: https://github.com/ebimodeling/biocro
+Config/testthat/edition: 3

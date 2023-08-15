@@ -1,5 +1,3 @@
-context("Test run_biocro's ode_solver settings.")
-
 MAX_INDEX <- 100    # changing this value is not recommended
 DEBUG_PRINT <- FALSE
 DEBUG_PRINT_EXTRA <- FALSE
