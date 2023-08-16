@@ -2,7 +2,7 @@
 
 pushd ../src &&
     rm -f TAGS &&
-    find . -name "*.cpp" -o -name "*.h" -exec etags --language=c++ --append {} \; &&
+    find . \( -name "*.cpp" -o -name "*.h" \) -exec etags --language=c++ --append {} \; &&
     popd
 
 
