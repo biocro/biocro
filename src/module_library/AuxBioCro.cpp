@@ -15,26 +15,44 @@
                                        // molar_mass_of_water, stefan_boltzmann
                                        // celsius_to_kelvin
 
+// The probability density for the Poisson distribution is
+// e^(-lambda) * lambda^x / x!
+//
+// Both the numerator lambda^x and denominator x! can become very
+// large, potentially causing numerical errors when calculating their
+// ratio.
+//
+// If x isn't TOO large, we can mitigate this by calculating
+// lambda^x/x! as
+//
+//   lambda/1 * lambda/2 * ... * lambda/x
+//
+// Otherwise, we take the log of the above expression to get
+//
+//   -lambda + (x * log(lambda)) - log(x!).
+//
+// We can obtain log(x!) using std::lgamma:
+//
+//   lgamma(x + 1) ~= log(x!)
+//
+// Then we return the result of applying exp to this.
+//
 double poisson_density(int x, double lambda)
 {
-    // The probability density for the Poisson distribution is
-    // e^-lambda * lambda^x / x!
-    //
-    // Both the numerator and denominator can become very large, potentially
-    // causing numerical errors when calculating their ratio. These errors can
-    // be mitigated by moving to the log domain.
-    //
-    // Also note that we use Stirling's approximation to calculate the
-    // factorial; this approximates n! by `sqrt(2 * pi * x) * (x / e)^x`.
-    using math_constants::e;
-    using math_constants::pi;
+    // Use lgamma to calculate the (log of) the factorial for large
+    // values of x:
+    if (x > 10) {
+        double log_result = -lambda + x * log(lambda) - lgamma(x + 1);
+        return exp(log_result);
+    }
 
-    // Stirling's approximation for n!:
-    double factorial_x = sqrt(2 * pi * x) * pow((x / e), x);
-
-    double log_result = -lambda + x * log(lambda) - log(factorial_x);
-
-    return exp(log_result);
+    // Do closer to exact calculation for smaller x:
+    double quotient {1};
+    for (int i = 1; i <= x; ++i) {
+        quotient *= lambda/i;
+    }
+    
+    return quotient * exp(-lambda);
 }
 
 /* Additional Functions needed for EvapoTrans */
