@@ -22,12 +22,7 @@
 // large, potentially causing numerical errors when calculating their
 // ratio.
 //
-// If x isn't TOO large, we can mitigate this by calculating
-// lambda^x/x! as
-//
-//   lambda/1 * lambda/2 * ... * lambda/x
-//
-// Otherwise, we take the log of the above expression to get
+// In such cases, we take the log of the above expression to get
 //
 //   -lambda + (x * log(lambda)) - log(x!).
 //
@@ -47,12 +42,12 @@ double poisson_density(int x, double lambda)
     }
 
     // Do closer to exact calculation for smaller x:
-    double quotient {1};
+    double factorial_x {1};
     for (int i = 1; i <= x; ++i) {
-        quotient *= lambda/i;
+         factorial_x *= i;
     }
     
-    return quotient * exp(-lambda);
+    return exp(-lambda) * pow(lambda, x) / factorial_x;
 }
 
 /* Additional Functions needed for EvapoTrans */
