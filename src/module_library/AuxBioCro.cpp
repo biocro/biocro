@@ -2,9 +2,10 @@
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */
 
-#include <stdexcept>
 #include <string>
-#include <cmath>
+#include <stdexcept>  // for std::out_of_range, std::range_error
+#include <algorithm>  // for std::max, std::min
+#include <cmath>      // for exp, log, pow, lgamma
 #include "c4photo.h"
 #include "BioCro.h"
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure,
@@ -46,7 +47,7 @@ double poisson_density(int x, double lambda)
     for (int i = 1; i <= x; ++i) {
          factorial_x *= i;
     }
-    
+
     return exp(-lambda) * pow(lambda, x) / factorial_x;
 }
 
