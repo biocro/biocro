@@ -4,10 +4,10 @@ This workflow, *Update Documentation*, runs Doxygen in various
 configurations on the BioCro C++ Library source code and copies and
 commits the result to the repository given as the value of the
 "PUBLISH_TO" environment variable, currently
-"ebimodeling/biocro-dev-documentation".  That repository is, in turn, set
+"ebimodeling/biocro-documentation".  That repository is, in turn, set
 up to publish to a _GitHub Pages_ Web site at the corresponding
 canonical location (currently,
-https://ebimodeling.github.io/biocro-dev-documentation/).
+https://ebimodeling.github.io/biocro-documentation/).
 
 The workflow runs whenever changes to the C++ source files or the
 files implementing this workflow are checked into the master branch.
@@ -24,7 +24,7 @@ files to a _different_ repository (namely,
 "ebimodeling/biocro-dev-documentation"); see steps 2 and 6 below.
 
 2. The private key was added as a _secret_ in the
-`ebimodeling/biocro-dev` repository (*this* repository) under the key
+`ebimodeling/biocro` repository (*this* repository) under the key
 `PRIVATE_SSH_KEY`.  (See
 https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository.
 The key name matches the reference `secrets.PRIVATE_SSH_KEY` used in
@@ -43,9 +43,9 @@ repository getting automatically published as a Web site to the URL
 https://ebimodeling.github.io/biocro-dev-documentation/.
 
 6. The *public* SSH key was added as a deploy key to the
-"ebimodeling/biocro-dev-documentation" repository under the name "Access
-from ebimodeling/biocro-dev documentation workflow".  (See
+"ebimodeling/biocro-documentation" repository under the name "Access
+from ebimodeling/biocro actions".  (See
 https://docs.github.com/en/developers/overview/managing-deploy-keys#setup-2.
-The name "Access from biocro-dev action" is for informational purposes
+The name "Access from biocro action" is for informational purposes
 only and has no programmatic significance.)
 

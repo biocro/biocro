@@ -1,4 +1,4 @@
-## BioCro [![Build Status](https://github.com/ebimodeling/biocro-dev/workflows/R-CMD-check/badge.svg)](https://github.com/ebimodeling/biocro-dev/actions?query=workflow%3AR-CMD-check)
+## BioCro [![Build Status](https://github.com/ebimodeling/biocro/workflows/R-CMD-check/badge.svg)](https://github.com/ebimodeling/biocro/actions?query=workflow%3AR-CMD-check)
 BioCro is a model that predicts plant growth over time given crop-specific parameters and environmental data as input.
 
 It uses models of key physiological and biophysical processes underlying plant growth ([Humphries and Long, 1995]), and has previously been used for predicting biomass yield and leaf area index of switchgrass and miscanthus ([Miguez et al., 2009]).
