@@ -42,7 +42,7 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
       dropdown on the GitHub page for this repository.
    2. Alternatively, clone the repository using Git on the command
       line in the usual fashion by running
-      `git clone <https://github.com/ebimodeling/biocro-dev>` The repository
+      `git clone <https://github.com/ebimodeling/biocro>` The repository
       contains a Git submodule, so you will need to take the additional step of
       running `git submodule update --init` to obtain it.
 2. Install the BioCro R package using one of the following sets of comands.
@@ -62,13 +62,13 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus (_Misca
 ### Making contributions
 
 Please see the [contribution
-guidelines](https://ebimodeling.github.io/biocro-dev-documentation/master/bookdown/contributing-to-biocro.html)
+guidelines](https://ebimodeling.github.io/biocro-documentation/master/bookdown/contributing-to-biocro.html)
 before submitting changes.
 
 ### Software Documentation
 
 See the [BioCro Documentation Web
-Site](https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html).  There
+Site](https://ebimodeling.github.io/biocro-documentation/master/pkgdown/index.html).  There
 will be found not only the standard package documentation, but also
 documentation of the C++ code, including notes on the biological
 models used in BioCro and their implementation.  Also included is
@@ -76,7 +76,7 @@ documentation for BioCro package developers and maintainers.
 
 There is also a separate [page that documents all of the quantities
 used by the Standard BioCro Module
-Library](https://ebimodeling.github.io/biocro-dev-documentation/quantity_docs/quantities.html).
+Library](https://ebimodeling.github.io/biocro-documentation/quantity_docs/quantities.html).
 
 ### License
 

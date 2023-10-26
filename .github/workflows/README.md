@@ -21,7 +21,7 @@ using the command `ssh-keygen -t rsa -b 4096`.  (Use the `-C` option
 to include a comment.  Use an empty pass-phrase) This key pair is used
 in order to allow a workflow defined in _this_ repository to push
 files to a _different_ repository (namely,
-"ebimodeling/biocro-dev-documentation"); see steps 2 and 6 below.
+"ebimodeling/biocro-documentation"); see steps 2 and 6 below.
 
 2. The private key was added as a _secret_ in the
 `ebimodeling/biocro` repository (*this* repository) under the key
@@ -30,17 +30,17 @@ https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypte
 The key name matches the reference `secrets.PRIVATE_SSH_KEY` used in
 the `document.yml` workflow file.)
 
-3. The "ebimodeling/biocro-dev-documentation" repository was created.
+3. The "ebimodeling/biocro-documentation" repository was created.
 
 4. A README.md file was added to the top-level directory of this new
 repository with (relative) links pointing to the (prospective)
 locations of various versions of the documentation.
 
 5. _GitHub Pages_ was enabled for the
-"ebimodeling/biocro-dev-documentation" repository (see
+"ebimodeling/biocro-documentation" repository (see
 https://pages.github.com/).  This results in the files in this
 repository getting automatically published as a Web site to the URL
-https://ebimodeling.github.io/biocro-dev-documentation/.
+https://ebimodeling.github.io/biocro-documentation/.
 
 6. The *public* SSH key was added as a deploy key to the
 "ebimodeling/biocro-documentation" repository under the name "Access
