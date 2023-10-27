@@ -44,7 +44,7 @@ of the _R-CMD-check_ workflow every time a BioCro developer pushes
 code to the GitHub _master_ branch.  (Users also have the option to
 trigger this workflow manually by clicking a button on GitHub.)
 Workflow results are viewable on GitHub under [the repository's
-_Actions_ tab](https://github.com/ebimodeling/biocro-dev/actions).
+_Actions_ tab](https://github.com/ebimodeling/biocro/actions).
 
 There are (at least) two scenarios, however, under which you may want
 to run tests manually:

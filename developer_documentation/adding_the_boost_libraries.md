@@ -54,8 +54,7 @@ operating systems without it. Hence the need for
 5. Run `R CMD check` and truncate any boost file paths that are flagged as
    exceeding 100 characters. Be sure to update any associated `#include`
    directives that reference these files; otherwise, compilation errors will
-   occur. See [commit 9620b2b994c4dbe0421354cd2c52a82eb170a96](https://github.com/ebimodeling/biocro-dev/pull/422/commits/9620b2b994c4dbe0421354cd2c52a82eb170a967)
-   for an example.
+   occur.
 
 ### Notes for using bcp in Windows
 First, follow the instructions in the "Getting Started on Windows"

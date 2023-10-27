@@ -1,9 +1,9 @@
 <!--  external references -->
 
-[online docs]: https://ebimodeling.github.io/biocro-dev-documentation/
+[online docs]: https://ebimodeling.github.io/biocro-documentation/
   "Online documentation for BioCro (dev version)" {target="_blank"}
 
-[master branch online docs]: https://ebimodeling.github.io/biocro-dev-documentation/master/pkgdown/index.html
+[master branch online docs]: https://ebimodeling.github.io/biocro-documentation/master/pkgdown/index.html
   "Online documentation for BioCro master branch (dev version)" {target="_blank"}
 
 <!-- main text -->
@@ -17,9 +17,9 @@ rarely need to.  That is because the documentation is automatically
 generated for you and made available online!
 
 The documentation landing page at
-[https://ebimodeling.github.io/biocro-dev-documentation/][online docs]
+[https://ebimodeling.github.io/biocro-documentation/][online docs]
 links to up-to-date documentation for the latest version of BioCro on
-the _master_ branch (of the `ebimodeling/biocro-dev` GitHub
+the _master_ branch (of the `ebimodeling/biocro` GitHub
 repository), plus select documentation for versions on other branches.
 
 ## When to generate documentation {#sec:when-to-generate-docs}

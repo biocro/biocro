@@ -39,14 +39,14 @@ on:
         description: 'Platform to check'
         type: choice
         options:
-          - R 3.5 on Ubuntu
+          - R 3.6 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
-          - R 3.5 on macOS
+          - R 3.6 on macOS
           - R release version on macOS
-          - R 3.5 on Windows
+          - R 3.6 on Windows
           - R release version on Windows
-        default: R 3.5 on Ubuntu
+        default: R 3.6 on Ubuntu
 
 jobs:
 
@@ -70,11 +70,11 @@ jobs:
           # This filter uses the JMESPath query language to modify the
           # strategy matrix (see https://jmespath.org/).  Note that if
           # the event is anything other than 'workflow_dispatch', the
-          # filter condition is true only when configName is 'R 3.5 on
+          # filter condition is true only when configName is 'R 3.6 on
           # Ubuntu'.
           #
           # For the public version of this repository, the "&&
-          # configName = 'R 3.5 on Ubuntu'" clause will be eliminated
+          # configName = 'R 3.6 on Ubuntu'" clause will be eliminated
           # so that when the event is anything other than
           # 'workflow_dispatch', the filter condition is always true
           # and nothing gets filtered out: all the configurations will
@@ -85,25 +85,25 @@ jobs:
           # matrix.  Thus, if the result of the filter is
           # [
           #   {
-          #     "configName": "R 3.5 on Ubuntu",
+          #     "configName": "R 3.6 on Ubuntu",
           #     "os": "ubuntu-20.04",
-          #     "r": "3.5"
+          #     "r": "3.6"
           #   }
           # ],
           # the actual output will be
           # { "include":
           #     [
           #       {
-          #         "configName": "R 3.5 on Ubuntu",
+          #         "configName": "R 3.6 on Ubuntu",
           #         "os": "ubuntu-20.04",
-          #         "r": "3.5"
+          #         "r": "3.6"
           #       }
           #     ]
           # }.       
           filter:
             '[?configName == `${{ github.event.inputs.platform-to-check }}`
                 || `${{ github.event_name }}` != ''workflow_dispatch''
-                    && configName == ''R 3.5 on Ubuntu'']'
+                    && configName == ''R 3.6 on Ubuntu'']'
 
   # For debugging:
   display_matrix:
