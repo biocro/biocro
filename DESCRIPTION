@@ -1,30 +1,47 @@
 Package: BioCro
-Version: 2.0.0
-Title: A Software Package for Modular Crop Growth Simulations
+Version: 3.0.0
+Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
     modern techniques for numerical integration and data visualization.
+    Documentation is provided by several vignettes included in this package;
+    also see Lochocki et al. (2022) <doi:10.1093/insilicoplants/diac003>.
 Authors@R: c(
-    person("McGrath", "Justin M.", email = "jmcgrath@illinois.edu", role =
-           c('cre', 'aut')),
-    person("Lochocki", "Edward B.", role = 'aut'),
-    person("Rohde", "Scott", role = 'aut'),
-    person("Jaiswal", "Deepak", role = 'aut'),
-    person("Matthews", "Megan L.", role = 'aut'),
-    person("Miguez", "Fernando E.", role = 'aut'),
-    person("Long", "Stephen P.", role = 'aut'),
-    person("Wang", "Dan", role = 'ctb'),
-    person("LeBauer", "David", role = 'ctb')
+    person("Justin M.", "McGrath", role = c('cre', 'aut'),
+           email = "jmcgrath@illinois.edu",
+           comment = c(ORCID = "0000-0002-7025-3906")),
+    person("Edward B.", "Lochocki", role = 'aut',
+           comment = c(ORCID = "0000-0002-4912-9783")),
+    person("Scott", "Rohde", role = 'aut',
+           comment = c(ORCID = "0000-0001-9030-0936")),
+    person("Deepak", "Jaiswal", role = 'aut',
+           comment = c(ORCID = "0000-0002-4077-3919")),
+    person("Megan L.", "Matthews", role = 'aut',
+           comment = c(ORCID = "0000-0002-5513-9320")),
+    person("Fernando E.", "Miguez", role = 'aut',
+           comment = c(ORCID = "0000-0002-4627-8329")),
+    person("Stephen P.", "Long", role = 'aut',
+           comment = c(ORCID = "0000-0002-8501-7164")),
+    person("Dan", "Wang", role = 'ctb'),
+    person("David", "LeBauer", role = 'ctb',
+           comment = c(ORCID = "0000-0001-7228-053X")),
+    person("BioCro authors", role = "cph"),
+    person("Boost Organization", role = "cph",
+           comment = "Author of included Boost library")
     )
+Depends: R (>= 3.6.0)
 Imports:
     stats
 Suggests:
-    testthat,
+    testthat (>= 3.2.0),
     knitr,
+    rmarkdown,
+    bookdown,
     lattice
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make
-License: FreeBSD + file LICENSE
+License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
 URL: https://github.com/ebimodeling/biocro
+Config/testthat/edition: 3

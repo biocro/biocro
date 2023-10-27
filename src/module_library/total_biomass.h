@@ -1,14 +1,16 @@
 #ifndef TOTAL_BIOMASS_H
 #define TOTAL_BIOMASS_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class total_biomass
  *
  *  @brief Calculates the total biomass by adding together the masses of the
- *  `Leaf`, `Stem`, `Root`, `Rhizome`, and `Grain` tissues.
+ *  `Leaf`, `Stem`, `Root`, `Rhizome`, `Shell`, and `Grain` tissues.
  */
 class total_biomass : public direct_module
 {
@@ -16,13 +18,14 @@ class total_biomass : public direct_module
     total_biomass(
         const state_map& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input parameters
           Leaf{get_input(input_quantities, "Leaf")},
           Stem{get_input(input_quantities, "Stem")},
           Root{get_input(input_quantities, "Root")},
           Rhizome{get_input(input_quantities, "Rhizome")},
+          Shell{get_input(input_quantities, "Shell")},
           Grain{get_input(input_quantities, "Grain")},
 
           // Get pointers to output parameters
@@ -39,6 +42,7 @@ class total_biomass : public direct_module
     const double& Stem;
     const double& Root;
     const double& Rhizome;
+    const double& Shell;
     const double& Grain;
 
     // Pointers to output parameters
@@ -55,6 +59,7 @@ string_vector total_biomass::get_inputs()
         "Stem",     // Mg / ha
         "Root",     // Mg / ha
         "Rhizome",  // Mg / ha
+        "Shell",    // Mg / ha
         "Grain"     // Mg / ha
     };
 }
@@ -68,7 +73,8 @@ string_vector total_biomass::get_outputs()
 
 void total_biomass::do_operation() const
 {
-    update(total_biomass_op, Leaf + Stem + Root + Rhizome + Grain);
+    update(total_biomass_op, Leaf + Stem + Root + Rhizome + Shell + Grain);
 }
 
+}  // namespace standardBML
 #endif

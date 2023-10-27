@@ -1,0 +1,3 @@
+input,input,input,output,"description"
+light_exp_at_zero,light_threshold,solar,light,NA
+1,1,1,0.731058578630005,"automatically-generated test case"

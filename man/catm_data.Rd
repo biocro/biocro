@@ -11,9 +11,10 @@
   their uncertainties.
 
   This data is included in the BioCro package so users can reproduce
-  calculations in the BioCro II paper (citation forthcoming) and for
-  exploratory purposes; it is likely that most BioCro studies will require
-  different data sets, and no attempt is made here to be exhaustive.
+  calculations in Lochocki \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diac003}] and for exploratory purposes; it is
+  likely that most BioCro studies will require different data sets, and no
+  attempt is made here to be exhaustive.
 }
 
 \usage{catm_data}

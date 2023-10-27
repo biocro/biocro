@@ -31,6 +31,71 @@ check_element_names <- function(args_to_check) {
     return(error_message)
 }
 
+# Checks whether the elements of the `args_to_check` list have distinct names
+# for each of their elements; any such elements without names will be ignored
+# during this check. If all elements meet this criterion, this function returns
+# an empty string. Otherwise, it returns an informative error message. Note: if
+# an element of `args_to_check` has no names, no duplicates will be detected,
+# and no error message will be produced.
+check_distinct_names <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+
+        # Find any duplicated names and their associated values
+        arg_names <- names(arg)
+        dup <- duplicated(arg_names, incomparables = '')
+        dup_names <- unique(arg_names[dup])
+        dup_values <- lapply(dup_names, function(n) {arg[arg_names == n]})
+
+        if (length(dup_values) > 0) {
+            # Indicate that some duplicated names were detected
+            error_message <- append(
+                error_message,
+                sprintf(
+                    '`%s` contains multiple instances of some quantities:\n',
+                    names(args_to_check)[i]
+                )
+            )
+
+            for (j in seq_along(dup_values)) {
+                # Report one of the duplicated names
+                error_message <- append(
+                    error_message,
+                    sprintf(
+                        '  `%s` takes the following values:\n',
+                        dup_names[j]
+                    )
+                )
+
+                vals <- dup_values[[j]]
+                for (k in seq_along(vals)) {
+                    # Report one of the values associated with this name
+                    val <- vals[[k]]
+
+                    max_n <- 5
+                    msg <- if (length(val) > max_n) {
+                        paste0(
+                            "    ",
+                            paste(val[seq_len(max_n)], collapse = ", "),
+                            ", ...\n"
+                        )
+                    } else {
+                        paste0(
+                            "    ",
+                            paste(val, collapse = ", "),
+                            "\n"
+                        )
+                    }
+                    error_message <- append(error_message, msg)
+                }
+            }
+        }
+    }
+    return(error_message)
+}
+
 # Checks whether the elements of the `args_to_check` list are lists. If all
 # elements meet this criterion, this functions returns an empty string.
 # Otherwise, it returns an informative error message.
@@ -57,7 +122,7 @@ check_vector <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        if (!is.vector(arg) || 'list' %in% class(arg)) {
+        if (length(arg) > 0 && (!is.vector(arg) || 'list' %in% class(arg))) {
             error_message <- append(
                 error_message,
                 sprintf('`%s` must be a vector.\n', names(args_to_check)[i])
@@ -159,6 +224,27 @@ check_strings <- function(args_to_check) {
                 "The following `%s` members are not strings, but all members must be strings: %s.\n",
                 names(args_to_check)[i],
                 paste(arg[which(!is_character)], collapse=', ')
+            )
+            error_message <- append(error_message, tmp_message)
+        }
+    }
+    return(error_message)
+}
+
+# Checks whether the elements of the `args_to_check` list are vectors or lists
+# of `externalptr` objects. If all elements meet this criterion, this function
+# returns an empty string. Otherwise, it returns an informative error message.
+check_pointers <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        is_pointer <- sapply(arg, class) == 'externalptr'
+        if (!all(is_pointer)) {
+            tmp_message <- sprintf(
+                "The following `%s` members are not externalptrs, but all members must be externalptrs: %s.\n",
+                names(args_to_check)[i],
+                paste(arg[which(!is_pointer)], collapse=', ')
             )
             error_message <- append(error_message, tmp_message)
         }

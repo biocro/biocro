@@ -2,8 +2,8 @@
 #define MULTILAYER_CANOPY_PHOTOSYNTHESIS_H
 
 #include <algorithm>  // for std::find
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 namespace MLCP  // helping functions for the MultiLayer Canopy Photosynthesis module
 {
@@ -94,6 +94,8 @@ string_vector get_other_leaf_inputs()
 }
 }  // namespace MLCP
 
+namespace standardBML
+{
 /**
  * @class multilayer_canopy_photosynthesis
  *
@@ -147,7 +149,7 @@ string_vector get_other_leaf_inputs()
  * `sunlit_`), and a suffix that indicates the layer number (e.g. `_layer_0`).
  *
  * Note that this module has a non-standard constructor, so it cannot be created
- * using the module_wrapper_factory. Rather, it is expected that directly-usable
+ * using the module_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
@@ -166,7 +168,7 @@ class multilayer_canopy_photosynthesis : public direct_module
     // Leaf photosynthesis module
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
-    std::unique_ptr<module_base> leaf_module;
+    std::unique_ptr<module> leaf_module;
 
     // Pointers to input parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
@@ -190,7 +192,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     const int& nlayers,
     state_map const& input_quantities,
     state_map* output_quantities)
-    : direct_module(),
+    : direct_module{},
       nlayers(nlayers)
 {
     // Define a lambda for making quantity maps from vectors of inputs and outputs
@@ -214,7 +216,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
     // Create the leaf photosynthesis module
     leaf_module =
-        std::unique_ptr<module_base>(new leaf_module_type(
+        std::unique_ptr<module>(new leaf_module_type(
             leaf_module_quantities,
             &leaf_module_output_map));
 
@@ -352,4 +354,5 @@ void multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::run
     }
 }
 
+}  // namespace standardBML
 #endif

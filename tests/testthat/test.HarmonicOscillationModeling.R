@@ -1,16 +1,19 @@
+## Test basic system building and solving using the harmonic oscillator modules.
+##
 ## Bugs: The tests may fail for large values of ω (that is, when the spring
 ## constant is very large compared to the mass).  This might be remedied by
 ## screening out these cases as not suitable for the model or possibly by
 ## adjusting the error tolerance in such cases.
-
-context("Test basic system building and solving using the harmonic oscillator modules.")
 
 DEBUG_TEST <- FALSE    # Change this to TRUE to get useful output for debugging these tests.
 
 NUMBER_OF_TRIALS <- 10 # number of different sets of parameters and initial conditions to test
 MAX_INDEX <- 100       # how long to run the simulation
 SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
-TOLERANCE_FACTOR <- 0.01
+
+# The default tolerance factor used in the third edition of testthat for
+# expect_equal is very tight, so we need to modify it here
+TOLERANCE <- testthat_tolerance() * 1e4
 
 
 ## Equations for the position x and velocity v of an undamped oscillating mass are
@@ -76,10 +79,10 @@ debug_view <- function(ob) {
 
 
 
-differential_modules <- c("harmonic_oscillator")
-direct_modules <- c("harmonic_energy")
+differential_modules <- "BioCro:harmonic_oscillator"
+direct_modules <- "BioCro:harmonic_energy"
 drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_ode_solver <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+default_ode_solver <- list(type='boost_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-7, adaptive_abs_error_tol=1e-7, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
@@ -122,8 +125,8 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
     expected_position_deriv <- initial_velocity
     expected_velocity_deriv <- -spring_constant * initial_position / mass
-    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
-    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = expected_velocity_deriv * TOLERANCE_FACTOR)
+    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = TOLERANCE)
+    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = TOLERANCE)
 
     ## try out the ode_solver
     result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
@@ -148,6 +151,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
 
     test_that(overall_description, {
+
         expect_true(class(result) == "data.frame") # sanity check
 
         sample <- sample(1:MAX_INDEX, SAMPLE_SIZE) # randomly choose a number of points in the evolution of the system to test
@@ -156,9 +160,9 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
             time <- result$time[index] # for convenience
 
             ## in these tests, we set the tolerance based on the maximum posible value for each quantity:
-            expect_equal(result$position[index], result$expected_position[index], tolerance = amplitude * TOLERANCE_FACTOR)
-            expect_equal(result$velocity[index], result$expected_velocity[index], tolerance = angular_frequency * amplitude * TOLERANCE_FACTOR)
-            expect_equal(result$total_energy[index], total_energy, tolerance = total_energy * TOLERANCE_FACTOR)
+            expect_equal(result$position[index], result$expected_position[index], tolerance = TOLERANCE)
+            expect_equal(result$velocity[index], result$expected_velocity[index], tolerance = TOLERANCE)
+            expect_equal(result$total_energy[index], total_energy, tolerance = TOLERANCE)
         }
     })
 }
@@ -192,5 +196,5 @@ for (ode_solver_type in all_ode_solver_types) {
 	ode_solver <- default_ode_solver
 	ode_solver$type <- ode_solver_type
 	description <- paste("using the ", ode_solver_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, ode_solver, description)
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 1e-6, ode_solver, description)
 }

@@ -1,11 +1,6 @@
-/*
- *  BioCro/src/eC4photo.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2009
- *
- */
-
 #include <cmath>
 #include "eC4photo.h"
-#include "../constants.h"  // for celsius_to_kelvin, ideal_gas_constant
+#include "../framework/constants.h"  // for celsius_to_kelvin, ideal_gas_constant
 
 double eC4photoC(
     double QP,

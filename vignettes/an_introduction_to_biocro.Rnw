@@ -2,18 +2,37 @@
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
-% Prior to version 1.39 of `knitr`, `knitr` automatically loaded the `color`
-% package, which introduced color definitions that were incompatible with those
-% defined by `xcolor`. Starting with version 1.39, `knitr` automatically loads
-% the `xcolor` package instead. See the following pages for more information:
+
+% See the following pages for more information about the LaTeX
+% problems addressed by the following chunk:
+%
 % - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
 % - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
-<<solve_latex_color_problems,include=FALSE,error=TRUE>>=
-if (packageVersion('knitr') < "1.39") {
-  knitr::knit_hooks$set(document = function(x) {
-    sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)
-  })
-}
+%
+%
+% This chunk must explicitly set eval=TRUE (the default) to ensure
+% that this chunk is evaluated, even when eval has been set to FALSE
+% at the global level, as in the R-CMD-check GitHub workflow.
+
+<<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
+
+## Versions of knitr before 1.39 used the color package, but we want
+## to use xcolor instead (together with the "dvipsnames" option), so
+## we use a hook to do a substitution.  (This hook is a no-op for
+## knitr version 1.39, assuming the color package is not explicitly
+## used by the Rnw file.)
+
+knitr::knit_hooks$set(document = function(x) {
+  sub('\\usepackage[]{color}', '\\usepackage[dvipsnames]{xcolor}', x, fixed = TRUE)
+})
+
+## Version 1.39 of knitr *does* use the xcolor package, but we still
+## have to set it to use the dvipsnames option.  (This option setting
+## is a no-op for knitr versions before 1.39, assuming the xcolor
+## package is not explicitly used by the Rnw file.)
+
+knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
+
 @
 
 \documentclass{article}
@@ -207,6 +226,11 @@ cat(
 @
 
 \tableofcontents
+
+\section{Disclaimer}
+
+This document uses some outdated terminology and needs to be updated to reflect
+some of the recent changes to BioCro.
 
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
@@ -534,7 +558,7 @@ argument.\footnote{The \code{Gro} function also uses an R \code{list}
   ``direct'' modules, the other names of ``differential'' modules.
   These are then passed to \code{Gro\_solver}.}
 
-Lists of parameters and modules are provided for sorghum, miscanthus,
+Lists of parameters and modules are provided for soybean, miscanthus,
 and willow and are named using names of the form
 \emph{cropname}\code{\_initial\_state},
 \emph{cropname}\code{\_parameters}, and
@@ -543,7 +567,7 @@ and willow and are named using names of the form
   footnote.} for example, \code{willow\_initial\_state}:
 
 <<willow_initial_values>>=
-str(head(willow_initial_values)) # head truncates the list to six items
+str(head(willow$initial_values)) # head truncates the list to six items
 @
 
 \code{varying\_parameters}, since it is made up of variables whose
@@ -607,7 +631,7 @@ provided as one means of subsetting climate data.\footnote{The
 2005 showing the first few rows of the growing season:
 
 <<weather2005>>=
-head(get_growing_season_climate(weather2005))
+head(get_growing_season_climate(weather$'2005'))
 @
 
 \subsubsection{Function output}
@@ -641,10 +665,14 @@ development of a crop as follows:
 
 % Run the code to validate it, but don't show the figure.
 <<Gro_example, fig.show='hide'>>=
-result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather2005),
-             sorghum_direct_modules, sorghum_differential_modules,
-             sorghum_ode_solver)
+result <- with(miscanthus_x_giganteus, {run_biocro(
+  initial_values,
+  parameters,
+  get_growing_season_climate(weather$'2005'),
+  direct_modules,
+  differential_modules,
+  ode_solver
+)})
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # `xyplot` requires the lattice package.
                                                # The output is not shown here.
 @
@@ -865,10 +893,10 @@ The steps are as follows.
   \end{example}
 
 \item Add \emph{include} directives to include the module base class
-  declarations from \code{modules.h} and the type aliases from
+  declarations from \code{module.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
-    #include "../modules.h"
+    #include "../module.h"
     #include "../state_map.h"
   \end{example}
 
@@ -1076,7 +1104,7 @@ A listing of the completed module code is shown in appendix \ref{sza
 
 Once the new module has been written, it must be integrated into the
 rest of the BioCro code.  This involves modifying the file
-\code{module_library/module_wrapper_factory.cpp} and requires two
+\code{module_library/module_library.cpp} and requires two
 steps:
 
 \begin{enumerate}
@@ -1087,7 +1115,7 @@ steps:
   \end{example}
 
 \item Add an entry to
-  \code{module_wrapper_factory::module_wrapper_creators}.  This
+  \code{module_library::module_wrapper_creators}.  This
   will be a bracketed pair of the form
   \begin{C++listing}[4]
     {|\stringplaceholder{module name}|, &create_wrapper<|\placeholder{module name}|>}
@@ -1140,10 +1168,10 @@ direct module, but with some significant differences.
   \end{example}
 
 \item Add include directives to include the module base class
-  declarations from \code{modules.h} and the type aliases from
+  declarations from \code{module.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
-    #include "../modules.h"
+    #include "../module.h"
     #include "../state_map.h"
   \end{example}
 
@@ -1288,7 +1316,7 @@ A listing of the completed module code is shown in appendix \ref{hdd
 The steps for integrating the module into the rest of the BioCro code
 are exactly the same as for direct modules, again only requiring
 a few modifications to
-\code{module_library/module_wrapper_factory.cpp}:
+\code{module_library/module_library.cpp}:
 
 \begin{enumerate}
 
@@ -1298,7 +1326,7 @@ a few modifications to
   \end{example}
 
 \item Add an entry to
-  \code{module_wrapper_factory::module_wrapper_creators}.  This
+  \code{module_library::module_wrapper_creators}.  This
   will be a bracketed pair of the form
   \begin{C++listing}[4]
     {|\stringplaceholder{module name}|, &create_wrapper<|\placeholder{module name}|>}

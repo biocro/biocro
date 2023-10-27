@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,"description"
+Catm,Rd,alpha_rue,average_absorbed_shortwave,b0,b1,height,incident_ppfd,minimum_gbw,rh,specific_heat_of_air,temp,windspeed,windspeed_height,Assim,Ci,EPenman,EPriestly,GrossAssim,Gs,Rp,TransR,gbw,leaf_temperature,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.80411702579089,0.0475371493738412,0.021146208937534,0.0266442232612929,1,2352.99260247134,0,0.0211384347650222,2.71557211522299,1.0204832397761,"automatically-generated test case"

@@ -1,21 +1,27 @@
 #ifndef C4PHOTO_H
 #define C4PHOTO_H
-/*
- *  /src/c4photo.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
- *
- */
 
-struct c4_str {
-    double Assim;
-    double Gs;
-    double Ci;
-    double GrossAssim;
-};
+#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
 
-struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha,
-        double kparm, double theta, double beta, double Rd, double bb0, double bb1,
-        double Gs_min, double StomaWS, double Ca, double atmospheric_pressure,
-        int water_stress_approach, double upperT, double lowerT);
+photosynthesis_outputs c4photoC(
+    double const Qp,
+    double const leaf_temperature,
+    double const ambient_temperature,
+    double const relative_humidity,
+    double const vmax,
+    double const alpha,
+    double const kparm,
+    double const theta,
+    double const beta,
+    double const Rd,
+    double const bb0,
+    double const bb1,
+    double const Gs_min,
+    double const StomaWS,
+    double const Ca,
+    double const atmospheric_pressure,
+    double const upperT,
+    double const lowerT,
+    double const gbw);
 
 #endif
-

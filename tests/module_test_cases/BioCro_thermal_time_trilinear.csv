@@ -1,0 +1,12 @@
+input,input,input,input,input,input,input,output,"description"
+sowing_time,tbase,temp,time,tmax,topt_lower,topt_upper,TTc,NA
+100,20,10,101,38,26,32,0,"temp below tbase"
+100,20,20,101,38,26,32,0,"temp equal to tbase"
+100,20,23,101,38,26,32,0.125,"temp between tbase and topt_lower"
+100,20,26,101,38,26,32,0.25,"temp equal to topt_lower"
+100,20,29,101,38,26,32,0.25,"temp between topt_lower and topt_upper"
+100,20,32,101,38,26,32,0.25,"temp equal to topt_upper"
+100,20,35,101,38,26,32,0.125,"temp between topt_upper and tmax"
+100,20,38,101,38,26,32,0,"temp equal to tmax"
+100,20,50,101,38,26,32,0,"temp above tmax"
+100,20,26,99,38,26,32,0,"before sowing"

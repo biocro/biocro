@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
+clock_gamma,clock_period,clock_r0,dawn_a,dawn_b,dawn_kick,dusk_a,dusk_b,dusk_kick,ref_a,ref_b,dawn_a,dawn_b,dusk_a,dusk_b,ref_a,ref_b,NA
+1,1,1,1,1,1,1,1,1,1,1,-5.69739886955268,5.86897174480649,-5.69739886955268,5.86897174480649,-6.69739886955268,5.86897174480649,"automatically-generated test case"

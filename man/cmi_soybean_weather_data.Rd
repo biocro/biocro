@@ -2,40 +2,34 @@
 
 \docType{data}
 
-\alias{soybean_weatherYYYY}
+\alias{soybean_weather}
 \alias{cmi_soybean_weather_data}
-\alias{soybean_weather2002}
-\alias{soybean_weather2004}
-\alias{soybean_weather2005}
-\alias{soybean_weather2006}
 
 \title{Champaign, IL weather data for Soybean-BioCro}
 
 \description{
   Champaign, IL weather data specified at hourly intervals in the CST time zone
-  for the years 2002, 2004, 2005, and 2006. The columns correspond to typical
-  inputs required for BioCro simulations, with the addition of
-  \code{day_length}, which is specifically required for soybean simulations.
-  Although this quantity can be calculated by modules during the course of a
-  simulation, it is included in this weather data to speed up the simulations.
-  The time range is restricted to the SoyFACE growing season that was used for
-  each year.
+  for the years 2002, 2004, 2005, and 2006. The data includes typical inputs
+  required for BioCro simulations, with the addition of \code{day_length}, which
+  is specifically required for soybean simulations. Although this quantity can
+  be calculated by modules during the course of a simulation, it is included in
+  this weather data to speed up the simulations. The time range is restricted to
+  the SoyFACE growing season that was used for each year.
 
   This weather data is included in the BioCro package so users can reproduce
-  calculations in the Soybean-BioCro paper (citation forthcoming) and for
-  exploratory purposes; it is likely that most BioCro studies will require
-  different data sets, and no attempt is made here to be exhaustive.
+  the calculations of Matthews \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diab032}] and for exploratory purposes; it is
+  likely that most BioCro studies will require different data sets, and no
+  attempt is made here to be exhaustive.
 }
 
-\usage{
-## YYYY should be replaced with a 4-digit year from the available set of years,
-## e.g. 2002
-soybean_weatherYYYY
-}
+\usage{soybean_weather}
 
 \format{
-  4 data frames corresponding to 4 years of weather data, where each data
-  frame has 2952 - 3384 rows and 14 columns:
+  A list of 4 named elements, where each element is a data frame corresponding
+  to one year of weather data and the name of each element is a year, for
+  example \code{'2004'}. Each data frame has 2952 - 3384 observations
+  (representing hourly time points) of 14 variables:
   \itemize{
     \item \code{year}: the year
     \item \code{doy}: the day of year
@@ -61,8 +55,8 @@ soybean_weatherYYYY
 
 \source{
   Weather data were obtained from the public SURFRAD and WARM databases and
-  processed according to the method described in the Soybean-BioCro paper
-  (accepted by \emph{in silico} Plants). See that paper for a full description
+  processed according to the method described in Matthews \emph{et al.} (2022)
+  [\doi{10.1093/insilicoplants/diab032}]. See that paper for a full description
   of the data processing.
 
   In brief, the columns in the data frames were determined from SURFRAD and WARM
@@ -102,7 +96,7 @@ soybean_weatherYYYY
   \code{day_length} are extracted from the WARM and SURFRAD data. Then, BioCro
   is used to run the circadian clock model that determines photoperiod length.
   (See this page for additional information about the clock model:
-  \code{\link{crop_specifications}}.) The result from this calculation is then
+  \code{\link{soybean_clock}}.) The result from this calculation is then
   appended to the weather data frame as a new column.
 
   The \code{time_zone_offset} is set to a constant value of -6 since this data

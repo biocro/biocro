@@ -1,26 +1,18 @@
+#include <cmath>
+#include <stdexcept>
+#include "c3photo.h"
+#include "BioCro.h"
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure,
+                                       // TempToDdryA, TempToLHV, SlopeFS
+#include "../framework/constants.h"    // for ideal_gas_constant, molar_mass_of_water,
+                                       // stefan_boltzmann, celsius_to_kelvin
 /**
- *  /src/c3EvapoTrans.c by Fernando Ezequiel Miguez  Copyright (C) 2010
- *
- *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
- *  the *prof functions) are based on code in WIMOVAC. WIMOVAC is
- *  copyright of Stephen Long and Stephen Humphries.
- *  Documentation for WIMOVAC can be found at
- *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
- *
- * Many of these functions come from Chapter 14 of Thornley and Johnson (1990).
+ * Many of the equations used in this function come from Chapter 14 of Thornley
+ * and Johnson (1990).
  *
  * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
  * Mathematical Approach to Plant and Crop Physiology.
  */
-
-#include <cmath>
-#include <stdexcept>
-#include "c3photo.hpp"
-#include "AuxBioCro.h"
-#include "BioCro.h"
-#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
-                           // stefan_boltzmann, celsius_to_kelvin
-
 struct ET_Str c3EvapoTrans(
     double absorbed_shortwave_radiation,  // J / m^2 / s
     double air_temperature,               // degrees C

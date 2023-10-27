@@ -1,14 +1,18 @@
 #ifndef GRIMM_SOYBEAN_FLOWERING_H
 #define GRIMM_SOYBEAN_FLOWERING_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
- * \brief Model for soybean development and flowering based on Grimm et al.
- * (1993).
+ *  @class grimm_soybean_flowering
  *
- * See `grimm_soybean_flowering_calculator` for details.
+ *  @brief Model for soybean development and flowering based on Grimm et al.
+ *  (1993).
+ *
+ *  See `grimm_soybean_flowering_calculator` for details.
  */
 class grimm_soybean_flowering : public differential_module
 {
@@ -16,7 +20,7 @@ class grimm_soybean_flowering : public differential_module
     grimm_soybean_flowering(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
           grimm_rate{get_input(input_quantities, "grimm_rate")},
@@ -60,4 +64,5 @@ void grimm_soybean_flowering::do_operation() const
     update(grimm_physiological_age_op, grimm_rate);
 }
 
+}  // namespace standardBML
 #endif

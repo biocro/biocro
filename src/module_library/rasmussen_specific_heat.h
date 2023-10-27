@@ -1,8 +1,8 @@
 #ifndef RASMUSSEN_SPECIFIC_HEAT_H
 #define RASMUSSEN_SPECIFIC_HEAT_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
 /**
  *  @brief Calculates the specific heat capacity of air at contant pressure from
@@ -31,6 +31,8 @@ double rasmussen_specific_heat_of_air(
     double mole_fraction_h2o  // dimensionless
 );
 
+namespace standardBML
+{
 /**
  * @class rasmussen_specific_heat
  *
@@ -43,7 +45,7 @@ class rasmussen_specific_heat : public direct_module
     rasmussen_specific_heat(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},
@@ -69,4 +71,5 @@ class rasmussen_specific_heat : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

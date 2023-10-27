@@ -1,9 +1,11 @@
 #ifndef RUE_LEAF_PHOTOSYNTHESIS_H
 #define RUE_LEAF_PHOTOSYNTHESIS_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class rue_leaf_photosynthesis
  *
@@ -94,7 +96,8 @@
  *  `A_g` and the lack of water stress, this module is the same as the
  *  `c3_leaf_photosynthesis` module:
  *
- *  - It uses the same equation to calculate respiration from leaf temperature.
+ *  - It uses the same equation to calculate day respiration from leaf
+ *    temperature.
  *
  *  - It uses the Ball-Berry model to calculate stomatal conductance from `A_n`.
  *
@@ -128,34 +131,35 @@ class rue_leaf_photosynthesis : public direct_module
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input parameters
-          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
-          alpha_rue(get_input(input_quantities, "alpha_rue")),
-          temp(get_input(input_quantities, "temp")),
-          rh(get_input(input_quantities, "rh")),
-          Rd(get_input(input_quantities, "Rd")),
-          b0(get_input(input_quantities, "b0")),
-          b1(get_input(input_quantities, "b1")),
-          Catm(get_input(input_quantities, "Catm")),
-          average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
-          windspeed(get_input(input_quantities, "windspeed")),
-          height(get_input(input_quantities, "height")),
-          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
-          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
+          alpha_rue{get_input(input_quantities, "alpha_rue")},
+          temp{get_input(input_quantities, "temp")},
+          rh{get_input(input_quantities, "rh")},
+          Rd{get_input(input_quantities, "Rd")},
+          b0{get_input(input_quantities, "b0")},
+          b1{get_input(input_quantities, "b1")},
+          Catm{get_input(input_quantities, "Catm")},
+          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
+          windspeed{get_input(input_quantities, "windspeed")},
+          height{get_input(input_quantities, "height")},
+          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
+          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
-          Assim_op(get_op(output_quantities, "Assim")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim")),
-          Ci_op(get_op(output_quantities, "Ci")),
-          Gs_op(get_op(output_quantities, "Gs")),
-          TransR_op(get_op(output_quantities, "TransR")),
-          EPenman_op(get_op(output_quantities, "EPenman")),
-          EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
-          gbw_op(get_op(output_quantities, "gbw"))
+          Assim_op{get_op(output_quantities, "Assim")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Rp_op{get_op(output_quantities, "Rp")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          TransR_op{get_op(output_quantities, "TransR")},
+          EPenman_op{get_op(output_quantities, "EPenman")},
+          EPriestly_op{get_op(output_quantities, "EPriestly")},
+          leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
+          gbw_op{get_op(output_quantities, "gbw")}
     {
     }
     static string_vector get_inputs();
@@ -182,6 +186,7 @@ class rue_leaf_photosynthesis : public direct_module
     // Pointers to output parameters
     double* Assim_op;
     double* GrossAssim_op;
+    double* Rp_op;
     double* Ci_op;
     double* Gs_op;
     double* TransR_op;
@@ -194,4 +199,5 @@ class rue_leaf_photosynthesis : public direct_module
     void do_operation() const;
 };
 
+}  // namespace standardBML
 #endif

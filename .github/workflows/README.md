@@ -3,7 +3,7 @@
 This workflow, *Update Documentation*, runs Doxygen in various
 configurations on the BioCro C++ Library source code and copies and
 commits the result to the repository given as the value of the
-"publish-to" environment variable, currently
+"PUBLISH_TO" environment variable, currently
 "ebimodeling/biocro-documentation".  That repository is, in turn, set
 up to publish to a _GitHub Pages_ Web site at the corresponding
 canonical location (currently,
@@ -34,7 +34,7 @@ the `document.yml` workflow file.)
 
 4. A README.md file was added to the top-level directory of this new
 repository with (relative) links pointing to the (prospective)
-locations of various versions of the Doxygen documentation.
+locations of various versions of the documentation.
 
 5. _GitHub Pages_ was enabled for the
 "ebimodeling/biocro-documentation" repository (see

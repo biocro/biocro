@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,"description"
+lai,par_energy_content,rh,rsec,soil_clod_size,soil_field_capacity,soil_reflectance,soil_transmission,soil_water_content,soil_wilting_point,solar,specific_heat_of_air,temp,windspeed,soil_evaporation_rate,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,NaN,"automatically-generated test case"

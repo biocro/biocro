@@ -1,9 +1,11 @@
 #ifndef THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
 #define THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_development_rate_calculator
  *
@@ -44,7 +46,7 @@ class thermal_time_development_rate_calculator : public direct_module
     thermal_time_development_rate_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
           time{get_input(input_quantities, "time")},
@@ -137,4 +139,5 @@ void thermal_time_development_rate_calculator::do_operation() const
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

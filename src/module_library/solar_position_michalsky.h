@@ -1,18 +1,22 @@
 #ifndef SOLAR_POSITION_MICHALSKY_H
 #define SOLAR_POSITION_MICHALSKY_H
 
-#include <cmath>                     // for floor, fmod
-#include "../degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
-#include "../modules.h"
-#include "../state_map.h"
+#include <cmath>                               // for floor, fmod
+#include "../framework/degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  *  @class solar_position_michalsky
  *
+ *  [michalsky]: https://doi.org/10.1016/0038-092X(88)90045-X "Michalsky article"
+
  *  @brief Calculates the solar position using the model described in
- *  [Michalsky, J. J. "The Astronomical Almanac's algorithm for approximate
- *  solar position (1950–2050)" Solar Energy 40, 227–235 (1988)]
- *  (https://doi.org/10.1016/0038-092X(88)90045-X).
+ *  Michalsky, J. J. ["The Astronomical Almanac's algorithm for
+ *  approximate solar position (1950–2050)"][michalsky] Solar Energy
+ *  40, 227–235 (1988)
  *
  *  As the paper's title indicates, this method is only recommended for years
  *  between 1950 - 2050.
@@ -95,29 +99,29 @@ class solar_position_michalsky : public direct_module
     solar_position_michalsky(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
-          lat(get_input(input_quantities, "lat")),
-          longitude(get_input(input_quantities, "longitude")),
-          time(get_input(input_quantities, "time")),
-          time_zone_offset(get_input(input_quantities, "time_zone_offset")),
-          year(get_input(input_quantities, "year")),
+          lat{get_input(input_quantities, "lat")},
+          longitude{get_input(input_quantities, "longitude")},
+          time{get_input(input_quantities, "time")},
+          time_zone_offset{get_input(input_quantities, "time_zone_offset")},
+          year{get_input(input_quantities, "year")},
 
           // Get pointers to output quantities
-          cosine_zenith_angle_op(get_op(output_quantities, "cosine_zenith_angle")),
-          julian_date_op(get_op(output_quantities, "julian_date")),
-          solar_L_op(get_op(output_quantities, "solar_L")),
-          solar_g_op(get_op(output_quantities, "solar_g")),
-          solar_ell_op(get_op(output_quantities, "solar_ell")),
-          solar_ep_op(get_op(output_quantities, "solar_ep")),
-          solar_ra_op(get_op(output_quantities, "solar_ra")),
-          solar_dec_op(get_op(output_quantities, "solar_dec")),
-          gmst_op(get_op(output_quantities, "gmst")),
-          lmst_op(get_op(output_quantities, "lmst")),
-          lha_op(get_op(output_quantities, "lha")),
-          solar_zenith_angle_op(get_op(output_quantities, "solar_zenith_angle")),
-          solar_azimuth_angle_op(get_op(output_quantities, "solar_azimuth_angle"))
+          cosine_zenith_angle_op{get_op(output_quantities, "cosine_zenith_angle")},
+          julian_date_op{get_op(output_quantities, "julian_date")},
+          solar_L_op{get_op(output_quantities, "solar_L")},
+          solar_g_op{get_op(output_quantities, "solar_g")},
+          solar_ell_op{get_op(output_quantities, "solar_ell")},
+          solar_ep_op{get_op(output_quantities, "solar_ep")},
+          solar_ra_op{get_op(output_quantities, "solar_ra")},
+          solar_dec_op{get_op(output_quantities, "solar_dec")},
+          gmst_op{get_op(output_quantities, "gmst")},
+          lmst_op{get_op(output_quantities, "lmst")},
+          lha_op{get_op(output_quantities, "lha")},
+          solar_zenith_angle_op{get_op(output_quantities, "solar_zenith_angle")},
+          solar_azimuth_angle_op{get_op(output_quantities, "solar_azimuth_angle")}
     {
     }
     static string_vector get_inputs();
@@ -256,4 +260,5 @@ void solar_position_michalsky::do_operation() const
     update(solar_azimuth_angle_op, az);
 }
 
+}  // namespace standardBML
 #endif

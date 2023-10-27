@@ -1,9 +1,11 @@
 #ifndef THERMAL_TIME_TRILINEAR_H
 #define THERMAL_TIME_TRILINEAR_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class thermal_time_trilinear
  *
@@ -87,19 +89,19 @@ class thermal_time_trilinear : public differential_module
     thermal_time_trilinear(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
           sowing_time{get_input(input_quantities, "sowing_time")},
-          temp(get_input(input_quantities, "temp")),
-          tbase(get_input(input_quantities, "tbase")),
-          topt_lower(get_input(input_quantities, "topt_lower")),
-          topt_upper(get_input(input_quantities, "topt_upper")),
-          tmax(get_input(input_quantities, "tmax")),
+          temp{get_input(input_quantities, "temp")},
+          tbase{get_input(input_quantities, "tbase")},
+          topt_lower{get_input(input_quantities, "topt_lower")},
+          topt_upper{get_input(input_quantities, "topt_upper")},
+          tmax{get_input(input_quantities, "tmax")},
 
           // Get pointers to output quantities
-          TTc_op(get_op(output_quantities, "TTc"))
+          TTc_op{get_op(output_quantities, "TTc")}
     {
     }
     static string_vector get_inputs();
@@ -160,4 +162,5 @@ void thermal_time_trilinear::do_operation() const
     update(TTc_op, rate_per_hour);
 }
 
+}  // namespace standardBML
 #endif

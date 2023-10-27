@@ -1,3 +1,0 @@
-minimum_gbw,leafwidth,leaf_temperature,windspeed,temp,rh,Gs,gbw,description
-input,input,input,input,input,input,input,output,NA
-1,1,1,1,1,1,1,1,automatically-generated test case

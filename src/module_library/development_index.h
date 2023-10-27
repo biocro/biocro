@@ -1,9 +1,11 @@
 #ifndef DEVELOPMENT_INDEX_H
 #define DEVELOPMENT_INDEX_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class development_index
  *
@@ -50,14 +52,13 @@
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  *
  */
-
 class development_index : public differential_module
 {
    public:
     development_index(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module{},
 
           // Get references to input quantities
           development_rate_per_hour{get_input(input_quantities, "development_rate_per_hour")},
@@ -103,4 +104,5 @@ void development_index::do_operation() const
     update(DVI_op, development_rate_per_hour);  // dimensionless
 }
 
+}  // namespace standardBML
 #endif

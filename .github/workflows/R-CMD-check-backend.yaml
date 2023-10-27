@@ -1,0 +1,227 @@
+# This code is based on https://github.com/r-lib/actions/blob/v2.2.2/examples/check-standard.yaml
+#
+# The main differences are:
+
+# 1. This is a "call-only" workflow.  Details of when and how to run
+#    it are left to the caller.
+
+# 2. A job has been added to compute what argument values to pass to
+#    the "check-r-package" action based on the inputs specified by
+#    this workflow's caller.
+
+# 3. The strategy matrix comes from a workflow input instead of being
+#    hard-coded in the workflow.
+
+# 4. All the steps in the R-CMD-check job have been given names.
+
+# 5. Steps have been added to (conditionally) install LaTeX and needed
+#    LaTeX packages.
+
+# 6. Jobs and steps to aid in debugging the workflow--in particular,
+#    the processing of inputs--have been added.
+
+name: R-CMD-check-backend
+
+on:
+  workflow_call:
+    inputs:
+      strategy-matrix:
+        type: string
+      check-manual:
+        type: boolean
+      run-tests:
+        type: boolean
+      check-examples:
+        type: boolean
+      check-vignettes:
+        type: boolean
+      debug:
+        type: boolean
+
+env:
+
+  # LaTeX is need for both the manual and the vignettes.  Only the
+  # vignettes need the extra LaTeX packages.
+
+  NEED_TEX: ${{ inputs.check-manual || inputs.check-vignettes }}
+  NEED_TEX_EXTRAS: ${{ inputs.check-vignettes }}
+
+jobs:
+
+  # For debugging
+  echo-inputs:
+    name: "DEBUG: Echo inputs"
+    if: inputs.debug
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show inputs
+        run: |
+          echo 'strategy-matrix: ${{ inputs.strategy-matrix }}'
+          echo 'check-manual: ${{ inputs.check-manual }}'
+          echo 'run-tests: ${{ inputs.run-tests }}'
+          echo 'check-examples: ${{ inputs.check-examples }}'
+          echo 'check-vignettes: ${{ inputs.check-vignettes }}'
+
+  compute-check-args:
+    name: 'Compute "R CMD check" args'
+    runs-on: ubuntu-latest
+    outputs:
+      build_args: ${{ steps.compute-args.outputs.build_args }}
+      args: ${{ steps.compute-args.outputs.args }}
+    steps:
+      - id: compute-args
+        name: Compute args
+        run: |
+          build_args_value <- c()
+          args_value <- c('--as-cran')
+          if ('${{ inputs.check-manual }}' == 'false') {
+            build_args_value <- append(build_args_value, '--no-manual')
+            args_value <- append(args_value, '--no-manual')
+          }
+          if ('${{ inputs.check-vignettes }}' == 'false') {
+            build_args_value <- append(build_args_value, '--no-build-vignettes')
+            args_value <- append(args_value, '--ignore-vignettes')
+          }
+          if ('${{ inputs.run-tests }}' == 'false') {
+            args_value <- append(args_value, '--no-tests')
+          }
+          if ('${{ inputs.check-examples }}' == 'false') {
+            args_value <- append(args_value, '--no-examples')
+          }
+
+          # serialize these vectors as strings (see note below):
+          build_args <- paste0('c(\\"', paste(build_args_value, collapse = '\\", \\"'), '\\")')
+          args <- paste0('c(\\"', paste(args_value, collapse = '\\", \\"'), '\\")')
+
+          # store these in the environment
+          system(sprintf('echo "::set-output name=build_args::%s"', build_args))
+          system(sprintf('echo "::set-output name=args::%s"', args))
+          #
+          # NOTE (quoting hell!): The result of the sprintf
+          # function--the string that will be passed to the system
+          # function--will be something like (e.g.) this:
+          #
+          #     'echo "::set-output name=args::c(\\"--no-manual\\", \\"--no-tests\\")"'
+          #
+          # Because in R strings a literal backslash must be written
+          # as "\\", no matter which kind of quotes are used for
+          # string delimiters, the command actually run by the shell
+          # will then be
+          #
+          #     echo "::set-output name=args::c(\"--no-manual\", \"--no-tests\")"
+          #
+          # and the value of the job output 'args' will then become
+          #
+          #     c("--no-manual", "--no-tests")
+
+        shell: Rscript {0}
+
+  R-CMD-check:
+    name: Check R package on ${{ matrix.os }} using R version ${{ matrix.r }}
+
+    runs-on: ${{ matrix.os }}
+
+    needs: compute-check-args
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(inputs.strategy-matrix) }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+
+      # For debugging
+      - name: "DEBUG: Show current values from the strategy matrix"
+        if: inputs.debug
+        run: |
+          echo 'os: ${{ matrix.os }}'
+          echo 'R version: ${{ matrix.r }}'
+          echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
+
+      - name: Check out repository
+        if: ${{ !inputs.debug }}
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      # For debugging
+      - name: "DEBUG: Print environment variables"
+        if: inputs.debug
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "NEED_TEX: ${{ env.NEED_TEX }}"
+          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
+
+      - name: Install Pandoc
+        if: ${{ !inputs.debug }}
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Set up R
+        if: ${{ !inputs.debug }}
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r }}
+          http-user-agent: ${{ matrix.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Set up R dependencies
+        if: ${{ !inputs.debug }}
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Install TinyTex
+        if: ${{ env.NEED_TEX == 'true' && !inputs.debug }}
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install extra LaTeX packages
+        if: ${{ env.NEED_TEX_EXTRAS == 'true' && !inputs.debug }}
+        run: |
+
+          # Install the tinytex R package to run tinytex::pdflatex.
+          install.packages('tinytex')
+
+          # Iterate through Rnw vignettes to find what LaTeX packages
+          # need to be installed and install them.
+
+          Rnw_files <- list.files('vignettes', pattern = '*.Rnw')
+          lapply(Rnw_files, function(Rnw_file) {
+            # Turn off evaluation of code chucks to avoid an error
+            # about BioCro not being installed:
+            knitr::opts_chunk$set(eval = FALSE)
+
+            # Build the LaTeX file but don't compile it yet:
+            xfun::in_dir('vignettes', tools::buildVignette(Rnw_file, latex = FALSE))
+
+            # Get the name of the LaTeX file just created:
+            LaTeX_file <- paste0(tools::file_path_sans_ext(Rnw_file), '.tex')
+
+            # Compile the LaTeX file using tinytex::pdflatex because
+            # this will automatically install any required LaTeX
+            # packages that may be missing from the default TinyTex
+            # installation.  These builds will likely fail (hence the
+            # "try()", but not before installing needed LaTeX
+            # packages:
+            try(xfun::in_dir('vignettes', tinytex::pdflatex(LaTeX_file)))
+          })
+
+        shell: Rscript {0}
+
+      # For debugging
+      - name: "DEBUG: Show check-r-package arg values"
+        if: inputs.debug
+        run: |
+          echo 'args = ${{ needs.compute-check-args.outputs.args }}'
+          echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
+
+      - name: Check package
+        if: ${{ !inputs.debug }}
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          args: ${{ needs.compute-check-args.outputs.args }}
+          build_args: ${{ needs.compute-check-args.outputs.build_args }}

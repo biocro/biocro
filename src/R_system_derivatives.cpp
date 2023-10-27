@@ -1,10 +1,10 @@
-#include <Rinternals.h>
 #include <vector>
 #include <string>
-#include <exception>    // for std::exception
-#include "state_map.h"  // for state_map, state_vector_map, string_vector
-#include "dynamical_system.h"
-#include "R_helper_functions.h"
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error
+#include "framework/R_helper_functions.h"  // for map_from_list, map_vector_from_list, mc_vector_from_list, list_from_map
+#include "framework/state_map.h"           // for state_map, state_vector_map, string_vector
+#include "framework/dynamical_system.h"
 
 using std::string;
 using std::vector;
@@ -29,11 +29,11 @@ extern "C" {
  *  @param [in] drivers An R data frame representing the time series of the
  *              drivers
  *
- *  @param [in] direct_module_names An R string vector of the names of the
- *              direct modules
+ *  @param [in] direct_mc_vec An R vector of pointers to module wrapper objects
+ *              representing the direct modules
  *
- *  @param [in] differential_module_names An R string vector of the names of the
- *              differential modules
+ *  @param [in] differential_module_names An R vector of pointers to module
+ *              wrapper objects representing the differential modules
  *
  *  @return An R list of named elements representing the derivatives of the
  *          differential quantities
@@ -43,8 +43,8 @@ SEXP R_system_derivatives(
     SEXP time,
     SEXP parameters,
     SEXP drivers,
-    SEXP direct_module_names,
-    SEXP differential_module_names)
+    SEXP direct_mc_vec,
+    SEXP differential_mc_vec)
 {
     try {
         // Convert the inputs into the proper format
@@ -56,14 +56,13 @@ SEXP R_system_derivatives(
             return R_NilValue;
         }
 
-        string_vector direct_names = make_vector(direct_module_names);
-        string_vector differential_names =
-            make_vector(differential_module_names);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
+        mc_vector differential_mcs = mc_vector_from_list(differential_mc_vec);
 
         double t = REAL(time)[0];
 
         // Create a dynamical system
-        dynamical_system sys(iv, p, d, direct_names, differential_names);
+        dynamical_system sys(iv, p, d, direct_mcs, differential_mcs);
 
         // Ask the system object for a vector of the current values of the
         // differential quantities. The system hasn't been modified since its

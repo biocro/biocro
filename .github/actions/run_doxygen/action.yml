@@ -1,0 +1,91 @@
+name: Create All Doxygen Versions
+description: 'Generates four versions of the Doxygen documentation for BioCro package.'
+inputs:
+  package_root:
+    description: 'The root directory of the source tree of an R package relative to the GitHub workspace directory'
+    default: '.'
+
+runs:
+  using: "composite"
+
+  steps:
+
+  - name: Check input value
+    shell: bash
+    run: |
+      if [[ ${{ inputs.package_root }} != "." ]]
+      then
+        echo "Input \"package_root\" must be set to '.'!"
+        exit 1
+      fi
+
+      # Note: The "package_root" input represents the path of the root
+      # directory of the source tree of the BioCro package relative to
+      # the GitHub workspace directory.  Unlike in the case of the
+      # "render_bookdown_book" and "build_pkgdown_site" actions, this
+      # value really cannot be anything other than the default '.'.
+      # This is because the
+      # "uses: ./.github/actions/doxygen-action" settings assume that the
+      # package root is identical to the GitHub workspace directory.
+      #
+      # (The "uses" value cannot, as of this writing, be set using a
+      # context expression such as
+      #     
+      #     "${{ inputs.package_root }}/.github/actions/doxygen-action".
+      #
+      # We use inputs.package_root in this workflow rather than a
+      # hard-coded value to serve as a form of documentation.  And if
+      # the GitHub actions syntax ever *does* change so as to allow
+      # variables in "uses" values, it will then be easier to modify
+      # this action to one that really does allow a range of
+      # "pacakge_root" input values.)
+
+  # These four steps use the doxygen-action action defined in this
+  # repository to build four different versions of the Doxygen
+  # documentation:
+
+  - name: Doxygen Action for default
+    uses: ./.github/actions/doxygen-action
+    with:
+      # Working directory
+      working-directory: "${{ inputs.package_root }}/doxygen"
+      # Not generating the tree-view index makes source code browsing easier.
+      generate-treeview: NO
+      # Makefile target
+      makefile-target: "all-html"
+
+  - name: Doxygen Action for modules only
+    uses: ./.github/actions/doxygen-action
+    with:
+      # Working directory
+      working-directory: "${{ inputs.package_root }}/doxygen"
+      # Color
+      color: 53
+      # Makefile target
+      makefile-target: "module-docs-html"
+
+  - name: Doxygen Action for public members of modules only
+    uses: ./.github/actions/doxygen-action
+    with:
+      # Working directory
+      working-directory: "${{ inputs.package_root }}/doxygen"
+      # Color
+      color: 323
+      # Document private members
+      document-private: "NO"
+      # Extra setting: override default output directory
+      extra-settings: "module_docs_directory=doxygen_docs_modules_public_members_only"
+      # Makefile target
+      makefile-target: "module-docs-html"
+
+  - name: Doxygen Action for framework
+    uses: ./.github/actions/doxygen-action
+    with:
+      # Working directory
+      working-directory: "${{ inputs.package_root }}/doxygen"
+      # Color
+      color: 233
+      # Not generating the tree-view index makes source code browsing easier.
+      generate-treeview: NO
+      # Makefile target
+      makefile-target: "framework-docs-html"

@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,output,"description"
+clock_area_asymm,clock_dead_width,clock_period,clock_r_scale,clock_width_asymm,light,phi,phi,NA
+1,1,1,1,1,1,1,10.1889819529257,"automatically-generated test case"

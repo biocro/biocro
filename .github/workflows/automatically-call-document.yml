@@ -1,0 +1,26 @@
+name: Automatically generate documentation
+
+# If you update these workflow triggers, be sure to update the
+# corresponding documentation in the "When online documentation is
+# generated" section of the Bookdown book.
+
+on:
+  push:
+    branches:
+      - master
+
+    tags:
+      - '*'
+
+  # This event creates an artifact for download but does not write to
+  # the BioCro documentation repository:
+  pull_request:
+
+
+jobs:
+
+  call-generate-documentation:
+    uses: ./.github/workflows/document.yml
+    with:
+      publish: ${{ github.event_name != 'pull_request' }}
+    secrets: inherit

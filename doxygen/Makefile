@@ -111,8 +111,8 @@ output_directory = $(complete_docs_directory)
 
 #### Fixed variables used in computing target-specific variables:
 
-framework_source =  ../src ../src/ode_solver_library ../src/utils markdown
-module_source = ../src/module_library markdown
+framework_source =  ../src ../src/framework ../src/framework/ode_solver_library ../src/framework/utils
+module_source = ../src/module_library
 all_source = $(framework_source) $(module_source)
 source_file_extensions = h hpp cpp md markdown dox
 complete_docs_directory = doxygen_docs_complete
@@ -155,6 +155,7 @@ define build-recipe
   echo "GENERATE_TREEVIEW = $(generate_treeview)"; \
   echo "GENERATE_LATEX = $(generate_latex)"; \
   echo "INPUT = $(source)"; \
+  echo "INPUT += markdown"; \
   echo "ALIASES += git_hash=$(git_hash)"; \
   echo "ALIASES += git_date=\"$(git_date)\""; \
   echo "ALIASES += git_status=\"$(git_status)\""; \

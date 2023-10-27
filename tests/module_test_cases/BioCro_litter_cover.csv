@@ -1,0 +1,5 @@
+input,input,output,"description"
+LeafLitter,km_leaf_litter,litter_cover_fraction,NA
+1,1,0.5,"LeafLitter = km_leaf_litter should produce half coverage"
+5,5,0.5,"rescaling LeafLitter and km_leaf_litter should not change the result"
+19,1,0.95,"LeafLitter = 19 * km_leaf_litter should produce 95% coverage"

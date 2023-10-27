@@ -2,10 +2,12 @@
 #define HYPERBOLAS_H
 
 #include <cmath>  // For pow
-#include "../modules.h"
-#include "../state_map.h"
-#include "../constants.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "../framework/constants.h"
 
+namespace standardBML
+{
 /**
  * @class golden_ratio_hyperbola
  *
@@ -19,13 +21,13 @@ class golden_ratio_hyperbola : public direct_module
     golden_ratio_hyperbola(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          x_ip(get_ip(input_quantities, "x")),
+          x_ip{get_ip(input_quantities, "x")},
 
           // Get pointers to output quantities
-          x_op(get_op(output_quantities, "x"))
+          x_op{get_op(output_quantities, "x")}
 
     {
     }
@@ -76,15 +78,15 @@ class hyperbola_2d : public direct_module
     hyperbola_2d(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get pointers to input quantities
-          x_ip(get_ip(input_quantities, "x")),
-          y_ip(get_ip(input_quantities, "y")),
+          x_ip{get_ip(input_quantities, "x")},
+          y_ip{get_ip(input_quantities, "y")},
 
           // Get pointers to output quantities
-          x_op(get_op(output_quantities, "x")),
-          y_op(get_op(output_quantities, "y"))
+          x_op{get_op(output_quantities, "x")},
+          y_op{get_op(output_quantities, "y")}
 
     {
     }
@@ -127,4 +129,5 @@ void hyperbola_2d::do_operation() const
     update(y_op, 1 + 1 / (2 * *x_ip - *y_ip));
 }
 
+}  // namespace standardBML
 #endif

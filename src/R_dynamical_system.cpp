@@ -1,10 +1,13 @@
-#include <Rinternals.h>  // for Rprintf
-#include <vector>
 #include <string>
-#include "R_helper_functions.h"
-#include "state_map.h"
-#include "validate_dynamical_system.h"
-#include "dynamical_system.h"
+#include <exception>                       // for std::exception
+#include <Rinternals.h>                    // for Rf_error and Rprintf
+#include "framework/R_helper_functions.h"  // for r_logical_from_boolean, map_from_list, map_vector_from_list, mc_vector_from_list
+#include "framework/state_map.h"           // for state_map, state_vector_map
+#include "framework/module_creator.h"      // for mc_vector
+#include "framework/validate_dynamical_system.h"
+#include "R_dynamical_system.h"
+
+using std::string;
 
 extern "C" {
 
@@ -12,8 +15,8 @@ SEXP R_validate_dynamical_system_inputs(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
-    SEXP direct_module_names,
-    SEXP differential_module_names,
+    SEXP direct_mc_vec,
+    SEXP differential_mc_vec,
     SEXP verbose)
 {
     try {
@@ -21,13 +24,13 @@ SEXP R_validate_dynamical_system_inputs(
         state_map s = map_from_list(initial_values);
         state_map ip = map_from_list(parameters);
         state_vector_map vp = map_vector_from_list(drivers);
-        std::vector<std::string> direct_names = make_vector(direct_module_names);
-        std::vector<std::string> differential_names = make_vector(differential_module_names);
+        mc_vector direct_mcs = mc_vector_from_list(direct_mc_vec);
+        mc_vector differential_mcs = mc_vector_from_list(differential_mc_vec);
         bool be_loud = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Check the validity
-        std::string msg;
-        bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_names, differential_names);
+        string msg;
+        bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_mcs, differential_mcs);
 
         // Print feedback and additional information if required
         if (be_loud) {
@@ -43,7 +46,7 @@ SEXP R_validate_dynamical_system_inputs(
 
             Rprintf("\nPrinting additional information about the system inputs:\n");
 
-            msg = analyze_system_inputs(s, ip, vp, direct_names, differential_names);
+            msg = analyze_system_inputs(s, ip, vp, direct_mcs, differential_mcs);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability
@@ -53,7 +56,7 @@ SEXP R_validate_dynamical_system_inputs(
         return r_logical_from_boolean(valid);
 
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
+        Rf_error((string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_validate_dynamical_system_inputs.");
     }

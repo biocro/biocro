@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,output,"description"
+canopy_transpiration_rate,precip,soil_air_entry,soil_b_coefficient,soil_depth,soil_evaporation_rate,soil_field_capacity,soil_sand_content,soil_saturated_conductivity,soil_saturation_capacity,soil_water_content,soil_wilting_point,soil_water_content,NA
+1,1,1,1,1,1,1,1,1,1,1,1,0,"automatically-generated test case"

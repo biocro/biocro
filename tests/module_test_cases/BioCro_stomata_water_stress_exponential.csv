@@ -1,0 +1,3 @@
+input,input,input,output,"description"
+soil_field_capacity,soil_water_content,soil_wilting_point,StomataWS,NA
+1,1,1,NaN,"automatically-generated test case"

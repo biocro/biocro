@@ -2,9 +2,11 @@
 #define LEAF_SHAPE_FACTOR_H
 
 #include <limits>
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 
+namespace standardBML
+{
 /**
  * @class leaf_shape_factor
  *
@@ -37,7 +39,7 @@ class leaf_shape_factor : public direct_module
     leaf_shape_factor(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
@@ -96,4 +98,5 @@ void leaf_shape_factor::do_operation() const
     update(leaf_shape_factor_op, LSF);
 }
 
+}  // namespace standardBML
 #endif

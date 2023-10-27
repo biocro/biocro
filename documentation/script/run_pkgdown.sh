@@ -1,4 +1,4 @@
-#!
+#! /usr/bin/env bash
 
 # Go to the package root directory:
 pushd ../..
@@ -20,8 +20,9 @@ if [[ `git diff | wc -c` -ne 0 ]]; then echo; printf "\n%s" "_Some files have be
 # badge image from README.md.
 sed 's/ \[!\[Build Status.*//' README.md > index.md
 
+popd
 
 # Now run pkgdown:
-Rscript -e "pkgdown::build_site()"
+Rscript run_pkgdown.R
 
 

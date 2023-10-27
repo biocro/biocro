@@ -1,0 +1,3 @@
+input,input,input,input,input,output,output,output,output,"description"
+irradiance_diffuse_fraction,irradiance_direct_fraction,par_energy_content,par_energy_fraction,solar,nir_incident_diffuse,nir_incident_direct,par_incident_diffuse,par_incident_direct,NA
+1,1,1,1,1,0,0,1,1,"automatically-generated test case"

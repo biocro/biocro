@@ -1,0 +1,437 @@
+<!-- This file is raw R Markdown code.  To see this as a
+correctly-rendered web page, visit the online documentation at
+https://ebimodeling.github.io/biocro-documentation/, go to the
+Developer's Manual, and find the chapter on generating documentation.
+-->
+
+## Documenting the C/C++ code.
+
+<!-- external references -->
+
+[Doxygen]: https://www.doxygen.nl/index.html "Doxygen home page" {target="_blank"}
+[Doxygen Downloads page]: https://www.doxygen.nl/download.html "Doxygen download page" {target="_blank"}
+[Doxygen Installation page]: https://www.doxygen.nl/manual/install.html "Doxygen installation page" {target="_blank"}
+[on-line version]: https://ebimodeling.github.io/biocro-documentation/master/doxygen/doxygen_docs_complete/index.html
+                   "Complete Doxygen documentation" {target="_blank"}
+[doxygen_faq]: https://doxygen.nl/manual/faq.html#faq_cmdline "Configuring Doxygen from the Command Line" {target="_blank"}
+[Configuration section]: https://doxygen.nl/manual/config.html "Configuring Doxygen" {target="_blank"}
+[Configuration options related to the dot tool]: https://www.doxygen.nl/manual/config.html#config_dot "Configuring Dot" {target="_blank"}
+[hue numbers]: https://en.wikipedia.org/wiki/Hue "Hue (Wikipedia)" {target="_blank"}
+
+<!-- footnotes -->
+
+[^note_ghostscript]: _Ghostscript_ is used to convert the PostScript
+files that are generated for formulas in the documentation into
+bitmaps.  But _MathJax_ provides an alternative method of rendering
+formulas in the HTML documentation, and so Ghostscript is unneeded as
+long as the Doxygen configuration variable `USE_MATHJAX` is set to
+`YES`.  This is the BioCro default setting.
+
+    If Ghostscript _is_ used, there may be some compatibility issues
+between Ghostscript and Doxygen.  If you encounter problems, see
+[Doxygen issue
+#7290](https://github.com/doxygen/doxygen/issues/7290){target="_blank"
+rel="noopener"} and [Doxygen issue
+#8107](https://github.com/doxygen/doxygen/issues/8107){target="_blank"
+rel="noopener"} for further information.
+
+    On the other hand, use of _MathJax_ requires a working internet
+connection, at least until your browser downloads and caches the
+_MathJax_ code file.  And it requires that JavaScript be enabled.
+
+[^note_make_version]: Although versions earlier than 4.3 will probably
+mostly work, you will get a warning when you use them.
+
+[^note_gmake]: Some users will have to type `gmake` in place of `make`
+to get the latest version of Gnu Make.  Type `make --version` or
+`gmake --version` to see exactly what version you are calling.
+
+[^always_make_option]: If you are compiling the documentation using
+_Make_ and haven't changed any source files since last running it, add
+the `-B` option to force recompilation.
+
+[^custom_input]: Alternatively, if you will be working extensively
+with one particular file, you could temporarily add
+
+    ```
+    INPUT=../src/module_library/partitioning_coefficient_logistic.h
+    ```
+
+    to the customization file (`doxygen/customizations/Doxyfile`).
+    Then you would simply run
+
+    ```
+    doxygen
+    ```
+
+    from the `doxygen` directory.
+
+    Note that even though the customization file is in the
+    `doxygen/customizations` directory, _the file paths listed in the
+    `INPUT` value should be relative to the `doxygen` directory!_
+
+[^color_settings]: Other settings that affect the color of the
+documentation are HTML_COLORSTYLE, HTML_COLORSTYLE_SAT, and
+HTML_COLORSTYLE_GAMMA.  The values for these options must be set
+in the customization file `doxygen/customizations/Doxyfile` if using
+_Make_; alternately, if calling `doxygen` directly, they may be set on
+the command line; for example
+
+        (cat Doxyfile; echo "HTML_COLORSTYLE_SAT=255") | doxygen -
+
+      See the [Configuration section] of the Doxygen documentation for
+      information about these settings.
+
+<!-- main text -->
+
+To generate documentation for the C/C++ code, we use
+[_Doxygen_][Doxygen].
+
+### Use cases for generating the Doxygen documentation {#sec:use-cases}
+
+As mentioned in Section \@ref(sec:when-to-generate-docs), developers
+should rarely need to generate documentation themselves since all of
+the documentation is regularly generated and published on-line.  But
+there are cases where it makes sense to "do it yourself."  For
+Doxygen, these include:
+
+#. You are altering the code or documentation of a particular C++
+   source file, and you want to check that changes you make show up
+   correctly in the generated documentation.
+
+#. You want a local copy of the Doxygen documentation because you
+   don't want to rely upon always having an internet connection.
+
+#. You are making large-scale changes to the code, and it would be
+   useful to have a version of the documentation that tracks with your
+   changes.
+
+#. You prefer a different presentation style for the documentation
+   than is used in the on-line version.
+
+Use Cases 2 and 3 are best addressed using the simple methods of
+Section \@ref(sec:running-doxygen).  Use Case 1 is greatly facilitated
+by speeding up Doxygen using the methods discussed in Section
+\@ref(sec:speeding-up-doxygen).  Lastly, Use Case 4, which requires a
+more extensive knowledge of Doxygen, is discussed in Section
+\@ref(sec:customizing-doxygen).
+
+**If none of these use cases apply to you, you most likely can simply
+use the [on-line documentation][on-line version] and skip the rest of
+this chapter.**
+
+### Required software
+
+- Doxygen (version 1.9.2 or higher)
+
+- The Graph visualization toolkit ("GraphViz"; version 2.38 or higher)
+
+  You can get by without this if you don't care about generating the
+  dependency and inheritance graphs.  _If you don't have GraphViz
+  installed, set "HAVE_DOT = NO" in the customization file (see
+  below)._
+
+- A LaTeX distribution
+
+  This is needed only if you set `USE_MATHJAX = NO`, or if you want
+  to generate the PDF version of the documentation.
+
+- Ghostscript
+
+  You may be able to get by without this.  You _will_ need it,
+  however, if you wish to generate HTML documentation that doesn't
+  rely on MathJAX.[^note_ghostscript]
+
+- Gnu Make (version 4.3 or higher)[^note_make_version]
+
+  This is needed only if you want to take advantage of the Makefile
+  recipes.
+
+### Installation
+
+Binary distributions of Doxygen for Linux x86-64, for Windows (Vista
+and later), and for macOS (10.14 and later) are available on the
+[Doxygen Downloads page].  To compile Doxygen from source, see the
+[Doxygen Installation page].
+
+If you use a package manager, installation is quite easy.  For
+example, running
+
+```
+sudo apt-get install doxygen graphviz ghostscript
+```
+
+on Ubuntu will get you not only Doxygen, but
+Ghostscript and the Graph visualization toolkit as
+well.  (To do something similar on a Mac with Homebrew, run `brew
+install doxygen graphviz ghostscript`.)
+
+Depending on your system setup and operating system, you may
+additionally need to take pains to ensure that all required
+tools---`gs`, `make`, `dot` (from Graphviz), and `doxygen`
+itself---are on your system path.
+
+### Generating the Documentation {#sec:running-doxygen}
+
+#### If you have _Make_ installed {-}
+
+By far the easiest way to generate the complete Doxygen documentation
+with more or less the same customizations as appear in the [on-line
+version] is to open a terminal to the `doxygen` directory and run
+
+```
+make all-html
+```
+
+(Since `all-html` is the default Make target, you can also simply type
+`make`.)  This will generate the most complete HTML version of the
+Doxygen documentation.[^note_gmake] To view it, open your browser to
+the landing page for the documentation, located at
+`doxygen/doxygen_docs_complete/html/index.html`.  (On many systems,
+typing
+
+```
+make view
+```
+
+will generate the documentation and open it in a browser in a single
+step.)
+
+
+There are other _Make_ targets available.  To see a list, run
+
+```
+make help
+```
+
+These other _Make_ targets may be useful if you want a PDF version of
+the documentation; or if you want to concentrate on the documentation
+of the BioCro modules only, or conversely, on only the C++ BioCro
+_framework_.
+
+#### If you don't have _Make_ installed {-}
+
+Doxygen can be run directly by simply opening a terminal to the
+`doxygen` directory and typing
+
+```
+doxygen
+```
+
+on the command line.  This produces _almost_ the same results as
+running `make`.  The differences are
+
+* The browser won't automatically open the documentation, as it does
+  when you run `make view`.
+
+* The _About_ page won't show information from Git about the state
+  your working copy of the BioCro repository was in at the time you
+  generated the documentation.
+
+* The location of the generated documentation's landing page will be
+  `doxygen/html/index.html` rather than
+  `doxygen/doxygen_docs_complete/html/index.html`.
+
+* The canned Doxygen customization sets provided by `Makefile` are not
+  available when you run `doxygen` directoy.
+
+### Speeding up Doxygen {#sec:speeding-up-doxygen}
+
+#### Method 1 {-}
+
+By far, the most time consuming part of generating the Doxygen
+documentation is creating the graphs showing relationships between
+program components.  You can speed up Doxygen tremendously by
+disabling the generation of these graphs.  **This is particularly
+recommended if you are tweaking the documentation of some source code
+and want to quickly see how your changes affect the rendered
+documentation** (see the first use case in Section
+\@ref(sec:use-cases)).
+
+To disable generation of graphs:
+
+#. Create a file called `Doxyfile` in the directory
+`doxygen/customizations`.
+
+#. Insert the single line `HAVE_DOT = NO` into this file.
+
+(If `doxygen/customizations/Doxyfile` already exists, simply add the
+line `HAVE_DOT = NO` to it.)
+
+Doing these two steps will override the setting `HAVE_DOT = YES`
+contained in `doxygen/Doxyfile`.
+
+(Bash shell users can disable graph generation for a single call of
+`doxygen` by running the command
+
+```
+(cat Doxyfile; echo "HAVE_DOT = NO") | doxygen -
+```
+
+in the `doxygen` directory.  If you use a different shell, see the
+question [_Can I configure doxygen from the command
+line?_][doxygen_faq] in the Doxygen FAQ.)
+
+Once you are satisfied with the way your Doxygen comments are
+rendered, you can, if you like, generate the documentation _with_ the
+graphs by removing the `HAVE_DOT = NO` line from
+`doxygen/customizations/Doxyfile`.[^always_make_option]
+
+#### Method 2 {-}
+
+Another way to speed up Doxygen is to run it only on the particular
+file whose documentation you are tweaking.  For example, if you are
+adding to or changing the documentation in the source file
+
+```
+src/module_library/partitioning_coefficient_logistic.h
+```
+
+you can simply run
+
+```
+(cat Doxyfile; echo "INPUT=../src/module_library/partitioning_coefficient_logistic.h") | doxygen -
+```
+
+in a Bash shell from the `doxygen` directory.[^custom_input] This will
+run almost instantaneously!
+
+(The down side is that you will only be able to view the documentation
+pertaining to that particular file.  You won't, for example, be able
+to click on links to parent classes or dependent files and see the
+related documentation of those program entities.)
+
+
+### Doxygen for power users: Customizing Doxygen builds {#sec:customizing-doxygen}
+
+This section addresses Use Case 4 of Section \@ref(sec:use-cases).
+
+As we saw in Section \@ref(sec:speeding-up-doxygen), we can customize
+Doxygen runs by adding settings to the file
+`doxygen/customizations/Doxyfile`.  For example, adding `HAVE_DOT =
+NO` to this file will override the setting `HAVE_DOT = YES` contained
+in `doxygen/Doxyfile`.
+
+Doxygen offers dozens of settings that allow one to customize the
+generated documentation according to one's preferences.  We will
+highlight just a few of these settings that may be of special
+interest.  For a complete list, see the [Configuration section] of the
+Doxygen documentation.
+
+INPUT
+
+: We saw this setting in Section \@ref(sec:speeding-up-doxygen), where
+  we used it to override the default setting (which looks at _all_ of
+  the C++ source files) in order to concentrate on a particular file.
+  This vastly reduced Doxygen's running time.
+
+    Note that multiple files (_or directories!_) may be listed here:
+    simply separate the names with a space.  Alternatively, list each on
+    a separate line, using `INPUT +=` on all but the first line.  For
+    example,
+
+    ```
+    INPUT  = ../src/module_library/partitioning_coefficient_logistic.h
+    INPUT += ../src/framework
+    ```
+
+    will yield documentation of the `partitioning_coefficient_logistic`
+    module plus documentation of all of the source files in the
+    `src/framework` directory.
+
+    **Note that the Make-file recipes ignore settings made to `INPUT`
+    in the Doxyfiles.** You will have to call `doxygen` directly for
+    these settings to have any effect.
+
+    Note also that Doxygen does not automatically recurse into
+    subdirectories.  For example, to also document the contents of
+    `src/framework/utils`, you would need to add a third line:
+
+    ```
+    INPUT += ../src/framework/utils
+    ```
+
+GENERATE_TREEVIEW
+
+: The setting in `doxygen/Doxyfile` is `YES`.  Since the Tree View
+    index takes up screen width, setting this value to `NO` may
+    facilitate easier browsing of source code.
+
+    As with `INPUT`, the Make-file recipes normally override any setting
+    made to this variable in the Doxyfiles.  For this variable however,
+    the value may be overridden on the command line using a call to
+    _Make_ of the form
+
+
+      ```
+      make generate_treeview=NO <make target>
+      ```
+
+      (see the note below).  Or, simply call `doxygen` directly as in
+      the `INPUT` case.
+
+HAVE_DOT
+
+: As we saw in the previous section, setting this to NO will vastly
+    reduce compilation time.  _(You should also set this to NO if you
+    don't have a copy of GraphViz, the package that contains the
+    **dot** tool!)_ Unlike with `INPUT` and `GENERATE_TREEVIEW`,
+    _Make_ **does** respect the value this is set to in the Doxyfiles.
+
+    For finer-grained control over which diagrams get generated, see
+    the Doxygen documentation section [Configuration options related
+    to the dot tool].
+
+The `doxygen/customizations` directory contains a sample customization
+file named `Doxyfile_customization_sample` containing some suggestions
+for customizing your own Doxygen builds.  To use this as a template,
+copy it to a file named `Doxyfile` (in the same directory) and modify
+it as you see fit.
+
+#### Note on customizing _Make_ builds {-}
+
+Certain customization variables are off limits when building the
+documentation using _Make_.  These include the following:
+`GENERATE_HTML`, `GENERATE_TREEVIEW`, `GENERATE_LATEX`, `INPUT`,
+`OUTPUT_DIRECTORY`, `EXTRACT_PRIVATE`, and `HTML_COLORSTYLE_HUE`.
+
+If any of these tags are set in the customization file
+`doxygen/customizations/Doxyfile`, those settings will be ignored when
+using _Make_.  This is because the _Make_ file itself sets values for
+these variables, overriding any settings in the Doxyfiles.
+
+Three of these variables, however, _can_ be set on the _command line_
+when running _Make_.  This is done as follows:
+
+GENERATE_TREEVIEW
+
+: To override the value YES that is set in `Makefile`, add a variable
+    setting to the `make` command:
+
+    ```
+    make generate_treeview=NO <make target>
+    ```
+
+HTML_COLORSTYLE_HUE
+
+: To override the value 143 that is set in `Makefile`, add a variable
+    setting to the `make` command.  For example
+
+    ```
+    make color=30 <make target>
+    ```
+
+    For the meaning of the _hue_ number, see the [Wikipedia article on
+    this subject][hue numbers].[^color_settings]
+
+EXTRACT_PRIVATE
+
+: To override the value YES that is set in `Makefile``, add a variable
+    setting to the `make` command:
+
+    ```
+    make extract_private=NO <make target>
+    ```
+
+    This will produce documentation that focuses on the public API for
+    classes, omitting documentation of private class members.

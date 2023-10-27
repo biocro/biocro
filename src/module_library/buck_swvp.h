@@ -1,10 +1,12 @@
 #ifndef BUCK_SWVP_H
 #define BUCK_SWVP_H
 
-#include "../modules.h"
-#include "../state_map.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include "../framework/module.h"
+#include "../framework/state_map.h"
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
 
+namespace standardBML
+{
 /**
  * @class buck_swvp
  *
@@ -18,7 +20,7 @@ class buck_swvp : public direct_module
     buck_swvp(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},
@@ -63,4 +65,5 @@ void buck_swvp::do_operation() const
            saturation_vapor_pressure(temp));  // Pa
 }
 
+}  // namespace standardBML
 #endif

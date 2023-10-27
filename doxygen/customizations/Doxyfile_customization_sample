@@ -12,14 +12,11 @@
 ## If you are working on Doxygen comments in one particular file, you
 ## may want to be able to generate the resulting documentation
 ## quickly.  One way to do this is to override the INPUT configuration
-## variable to point to the one file you are working on.  So as not to
-## overwrite previously-generated "complete" documentation, you may
-## want to set OUTPUT_DIRECTORY as well.  (Note: the Make-file recipes
-## currently ignore these overrides, so you must use doxygen or
-## doxywizard directly for them to take effect.)
+## variable to point to the one file you are working on.  (Note: the
+## Make-file recipes ignore these overrides, so you must use doxygen
+## directly for them to take effect.)
 
 INPUT            = "../src/module_library/thermal_time_senescence.hpp"
-OUTPUT_DIRECTORY = "customized_docs"
 
 
 ## To create the inheritance and dependency graphs in the Doxygen

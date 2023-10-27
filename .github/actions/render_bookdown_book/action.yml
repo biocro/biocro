@@ -1,0 +1,29 @@
+name: 'Render Bookdown Book'
+description: 'Builds the Bookdown developer documentation, installing any needed prerequisites'
+inputs:
+  package_root:
+    description: 'The root directory of the source tree of the BioCro package relative to the GitHub workspace directory'
+    default: '.'
+runs:
+  using: "composite"
+  steps:
+    - name: 1. Test for Pandoc
+      id: pandoc-test
+      run: pandoc --version
+      shell: bash
+      continue-on-error: true
+
+    - name: 2. Install Pandoc
+      if: steps.pandoc-test.outcome == 'failure'
+      uses: r-lib/actions/setup-pandoc@v2
+
+    - name: 3. Install bookdown
+      run: |
+        install.packages(c("bookdown"))
+      shell: Rscript {0}
+
+    - name: 4. Run bookdown
+      working-directory: ${{ inputs.package_root }}/documentation/script
+      run: |
+        Rscript run_bookdown.R
+      shell: bash

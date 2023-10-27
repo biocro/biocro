@@ -2,8 +2,7 @@
 ## specified in the list passed to run_biocro does not affect the
 ## simulation result.
 
-context(paste("Check simulation result",
-              "is unaffected by direct module re-ordering"))
+CROP <- miscanthus_x_giganteus # crop to use for this test
 
 SAMPLE_SIZE <- 5     # Number of time points to test in each simulation result.
 
@@ -13,12 +12,14 @@ NUMBER_OF_PERMUTATIONS <- 4
 
 
 ## Run the simulation:
-baseline_result  <- run_biocro(miscanthus_x_giganteus_initial_values,
-                               miscanthus_x_giganteus_parameters,
-                               get_growing_season_climate(weather2005),
-                               miscanthus_x_giganteus_direct_modules,
-                               miscanthus_x_giganteus_differential_modules)
-
+baseline_result <- with(CROP, {run_biocro(
+    initial_values,
+    parameters,
+    get_growing_season_climate(weather$'2005'),
+    direct_modules,
+    differential_modules,
+    ode_solver
+)})
 
 ## Variables to define the scope of the survey:
 column_names <- names(baseline_result)
@@ -43,13 +44,16 @@ compare_simulation_trial <- function(result, index) {
 
 for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
-    permuted_direct_module_list <- sample(miscanthus_x_giganteus_direct_modules)
+    permuted_direct_module_list <- sample(CROP$direct_modules)
 
-    result <- run_biocro(miscanthus_x_giganteus_initial_values,
-                         miscanthus_x_giganteus_parameters,
-                         get_growing_season_climate(weather2005),
-                         permuted_direct_module_list,
-                         miscanthus_x_giganteus_differential_modules)
+    result <- with(CROP, {run_biocro(
+        initial_values,
+        parameters,
+        get_growing_season_climate(weather$'2005'),
+        permuted_direct_module_list,
+        differential_modules,
+        ode_solver
+    )})
 
     # Randomly choose a number of indices and compare result against
     # baseline at each index:

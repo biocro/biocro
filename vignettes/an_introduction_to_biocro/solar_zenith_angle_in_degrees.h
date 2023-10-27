@@ -3,7 +3,7 @@
 
 #include <cmath> // for acos
 #include "../constants.h" // for pi
-#include "../modules.h"
+#include "../module.h"
 #include "../state_map.h"
 
 /**

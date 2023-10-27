@@ -1,17 +1,5 @@
-
-/*
- *  /src/c4photo.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
- *
- *
- *  Part of this code (see function c4photoC) is based on the C4 photo of
- *  WIMOVAC. WIMOVAC is copyright of Stephen P Long and Stephen Humphries.
- *  Documentation for WIMOVAC can be found at
- *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
- *
- */
-
 #include <cmath>
-#include "collatz_photo.hpp"
+#include "collatz_photo.h"
 
 struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s. Incident photon flux density.
                                     double leaf_temperature,  // degrees C

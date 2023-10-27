@@ -1,10 +1,12 @@
 #ifndef LEAF_GBW_THORNLEY_H
 #define LEAF_GBW_THORNLEY_H
 
-#include "../modules.h"
-#include "../state_map.h"
+#include "../framework/module.h"
+#include "../framework/state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_thornley
 
+namespace standardBML
+{
 /**
  * @class leaf_gbw_thornley
  *
@@ -24,7 +26,7 @@
  * In BioCro, we use the following names for this model's inputs and outputs:
  * - ``'height'`` for the canopy height above the ground
  * - ``'windspeed'`` for the wind speed
- * - ``'gbw'`` for the boundary layer conductance to water
+ * - ``'gbw'`` for the leaf boundary layer conductance to water
  */
 class leaf_gbw_thornley : public direct_module
 {
@@ -32,7 +34,7 @@ class leaf_gbw_thornley : public direct_module
     leaf_gbw_thornley(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : direct_module(),
+        : direct_module{},
 
           // Get references to input quantities
           height{get_input(input_quantities, "height")},
@@ -95,4 +97,5 @@ void leaf_gbw_thornley::do_operation() const
     update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s
 }
 
+}  // namespace standardBML
 #endif

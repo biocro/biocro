@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,"description"
+Leaf,Rhizome,Root,Stem,kGrain,kLeaf,kRhizome,kRoot,kSeneLeaf,kSeneRhizome,kSeneRoot,kSeneStem,kShell,kStem,remobilization_fraction,Grain,Leaf,LeafLitter,Rhizome,RhizomeLitter,Root,RootLitter,Shell,Stem,StemLitter,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,1,"automatically-generated test case"

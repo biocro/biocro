@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,output,"description"
+Gs,leaf_temperature,leafwidth,minimum_gbw,rh,temp,windspeed,gbw,NA
+1,1,1,1,1,1,1,1,"automatically-generated test case"

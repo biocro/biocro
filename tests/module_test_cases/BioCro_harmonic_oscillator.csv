@@ -1,0 +1,3 @@
+input,input,input,input,output,output,"description"
+mass,position,spring_constant,velocity,position,velocity,NA
+1,1,1,1,1,-1,"automatically-generated test case"
