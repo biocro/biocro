@@ -102,6 +102,10 @@ any use (public or private) under the MIT license, but any changes to the
 framework that assembles and solves models must make source code changes
 available to all users under the LGPL. See `LICENSE.note` for more details.
 
+### Citing BioCro
+
+Appropriate references for BioCro are [Miguez et al. (2009)][Miguez et al., 2009] and [Lochocki et al. (2022)][Lochocki et al., 2022], with details given below. To cite the package itself, use `citation('BioCro')` in R to get details for the current installed version.
+
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4): 361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
