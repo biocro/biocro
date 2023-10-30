@@ -10,10 +10,10 @@ approach to modeling ([Lochocki et al., 2022]) and a new soybean model was
 developed ([Matthews et al., 2022]).
 
 BioCro has also been integrated into a suite of tools that link the model
-directly to crop trait and yield data ([LeBauer et al., 2014]). The Predictive
+directly to crop trait and yield data ([LeBauer et al., 2013]). The Predictive
 Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples
 BioCro to the [Biofuel Ecophysiological Traits and Yields
-database](https://www.betydb.org).
+database](https://github.com/PecanProject/bety).
 
 ### An example
 The `run_biocro()` function accepts initial values, parameters, climate
@@ -104,19 +104,23 @@ available to all users under the LGPL. See `LICENSE.note` for more details.
 
 ### Citing BioCro
 
-Appropriate references for BioCro are [Miguez et al. (2009)][Miguez et al., 2009] and [Lochocki et al. (2022)][Lochocki et al., 2022], with details given below. To cite the package itself, use `citation('BioCro')` in R to get details for the current installed version.
+Appropriate references for BioCro are
+[Miguez et al. (2009)][Miguez et al., 2009] and
+[Lochocki et al. (2022)][Lochocki et al., 2022], with details given below. To
+cite the package itself, use `citation('BioCro')` in R to get details for the
+current installed version.
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4): 361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
-- [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2014] (2014) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154.
+- [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2013] (2013) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154.
 - [Wang D, Jaiswal D, Lebauer DS, Wertin TM, Bollero GA, Leakey ADB, Long SP][Wang et al., 2015] (2015) A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, Cell & Environment 38(9): 1850-1865.
 - [Lochocki EB, Rohde S, Jaiswal D, Matthews ML, Miguez FE, Long SP, McGrath JM][Lochocki et al., 2022] (2022) BioCro II: a software package for modular crop growth simulations. _in silico_ Plants 4(1): diac003.
 - [Matthews ML, Marshall-Colón A, McGrath JM, Lochocki EB, Long SP][Matthews et al., 2022] (2022) Soybean-BioCro: a semi-mechanistic model of soybean growth. _in silico_ Plants 4(1): diab032.
 
 [Humphries and Long, 1995]:https://doi.org/10.1093/bioinformatics/11.4.361
 [Miguez et al., 2009]:https://doi.org/10.1111/j.1757-1707.2009.01019.x
-[LeBauer et al., 2014]:https://doi.org/10.1890/12-0137.1
+[LeBauer et al., 2013]:https://doi.org/10.1890/12-0137.1
 [Wang et al., 2015]:https://doi.org/10.1111/pce.12556
 [Lochocki et al., 2022]:https://doi.org/10.1093/insilicoplants/diac003
 [Matthews et al., 2022]:https://doi.org/10.1093/insilicoplants/diab032
