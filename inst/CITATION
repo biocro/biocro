@@ -1,0 +1,48 @@
+citHeader(
+    'When referencing the BioCro R package in a scientific publication, ',
+    'please cite the two journal articles below. Additionally, cite the ',
+    'package itself or otherwise specify its version number.\n\n',
+    'Citation for this version of the BioCro R package:'
+)
+
+c(
+    citation(auto = meta),
+    bibentry(
+        'Article',
+        header = 'Journal article describing the modular version of BioCro:',
+        author = c(
+            person('Edward B',    'Lochocki'),
+            person('Scott',       'Rohde'),
+            person('Deepak',      'Jaiswal'),
+            person('Megan L.',    'Matthews'),
+            person('Fernando E.', 'Miguez'),
+            person('Stephen P.',  'Long'),
+            person('Justin M.',   'McGrath')
+        ),
+        doi = '10.1093/insilicoplants/diac003',
+        journal = 'in silico Plants',
+        number = 1,
+        pages = 'diac003',
+        title = 'BioCro II: a software package for modular crop growth simulations',
+        volume = 4,
+        year = 2022
+    ),
+    bibentry(
+        'Article',
+        header = 'Journal article describing the first version of BioCro:',
+        author = c(
+            person('Fernando E.', 'Miguez'),
+            person('Xinguang',    'Zhu'),
+            person('Stephen',     'Humphries'),
+            person('German A.',   'Bollero'),
+            person('Stephen P.',  'Long')
+        ),
+        doi = '10.1111/j.1757-1707.2009.01019.x',
+        journal = 'GCB Bioenergy',
+        number = 4,
+        pages = c(282, 296),
+        title = 'A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus x giganteus: description, parameterization and validation',
+        volume = 1,
+        year = 2009
+    )
+)
