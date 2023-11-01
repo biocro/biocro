@@ -7,7 +7,7 @@ name: Automatically generate documentation
 on:
   push:
     branches:
-      - master
+      - main
 
     tags:
       - '*'

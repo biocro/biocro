@@ -50,7 +50,7 @@ on:
 
 env:
   # The documentation repository:
-  PUBLISH_TO: "ebimodeling/biocro-documentation"
+  PUBLISH_TO: "biocro/BioCro-documentation"
   # Relative path from the GitHub workspace directory to the directory
   # where the documentation repository will be checked out:
   BIOCRO_DOCUMENTATION_ROOT: biocro_documentation_root
