@@ -45,7 +45,7 @@ private key, and the public key will be in a file called
     This key pair is needed in order to allow a workflow defined in
 the BioCro repository to push files to the documentation repository.
 
-1. The private key must be added as an _Actions secret_ in the BioCro
+2. The private key must be added as an _Actions secret_ in the BioCro
 repository (*this* repository) under the name `PRIVATE_SSH_KEY`.  When
 doing this, paste the entire contents of the private key file into
 text area labeled **Secret**.  (See
@@ -53,13 +53,13 @@ https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypte
 The key name matches the reference `secrets.PRIVATE_SSH_KEY` used in
 the `document.yml` workflow file.)
 
-1. Create the documentation repository.  Even though the _Generate
+3. Create the documentation repository.  Even though the _Generate
 Documentation_ workflow will populate this repository, at least one
 file must be added to it to begin with in order for the workflow to
 run.  (Suggestion: Add a README.md file when creating the repository;
 it can be blank.)
 
-1. Add the *public* SSH key as a deploy key to the documentation
+4. Add the *public* SSH key as a deploy key to the documentation
 repository under a suitable title; for example, "Access from
 biocro/biocro documentation workflow" (assuming "biocro/biocro" is the
 name of _this_ repository).  When doing this, paste the entire
@@ -69,7 +69,7 @@ https://docs.github.com/en/developers/overview/managing-deploy-keys#setup-2.
 The title "Access from biocro/biocro documentation workflow" is for
 informational purposes only and has no programmatic significance.)
 
-1. Enable _GitHub Pages_ for the documentation repository (see
+5. Enable _GitHub Pages_ for the documentation repository (see
 https://pages.github.com/).  This results in the files in the
 documentation repository getting automatically published to the
 corresponding GitHub Pages web site.
