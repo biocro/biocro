@@ -16,6 +16,17 @@ Subsequent commits will then include a new "Unreleased" section in preparation
 for the next release.
 -->
 
+# CHANGES IN BioCro VERSION 3.0.1
+
+## MINOR CHANGES
+
+- This version pertains only to the GitHub documentation workflow.  It
+  changes the publication location to the
+  `biocro/BioCro-documentation` repository, and it changes the
+  triggers of the workflow so that automatic publication happens only
+  when a version tag matching the pattern 'v*.*' is pushed to the
+  repository.
+
 # CHANGES IN BioCro VERSION 3.0.0
 
 ## MAJOR CHANGES
