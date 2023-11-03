@@ -1,15 +1,13 @@
 <!-- This file is raw R Markdown code.  To see this as a
 correctly-rendered web page, visit the online documentation at
-https://ebimodeling.github.io/biocro-documentation/, go to the
-Developer's Manual, and find the chapter on contributing to BioCro.
--->
+https://biocro.github.io, go to the Developer's Manual, and find the
+chapter on contributing to BioCro.  -->
 
 # Contributing to BioCro
 
 <!-- external references -->
 
-<!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro TO ebimodeling/biocro!!! -->
-[GitHub issues]: https://github.com/ebimodeling/biocro/issues "Doxygen documentation" {target="_blank"}
+[GitHub issues]: https://github.com/biocro/biocro/issues "Doxygen documentation" {target="_blank"}
 
 [Code dependencies are the devil]: https://www.freecodecamp.org/news/code-dependencies-are-the-devil-35ed28b556d
         "Code dependencies are the devil" {target="_blank"}
@@ -28,15 +26,14 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 
 [Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
-<!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro TO ebimodeling/biocro!!! -->
-[Solar Position module rendering]: https://ebimodeling.github.io/biocro-documentation/master/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
+[Solar Position module rendering]: https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
 
-[dimensions]: https://en.wikipedia.org/wiki/International_System_of_Quantities#Base_quantities "Quantities and their dimensions (Wikipedia)" {target="_blank"}
+[dimensions]: https://en.wikipedia.org/wiki/International_System_of_Quantities#Dimensional_expression_of_derived_quantities "Dimensional expression of derived quantities (Wikipedia)" {target="_blank"}
 [Doxygen]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
 [physical quantity]: https://en.wikipedia.org/wiki/Physical_quantity "Wikipedia's entry on Physical Quantities" {target="_blank"}
 [coherent units]: https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29 "Wikipedia's entry on Coherent Units" {target="_blank"}
 [src/parameters.h]: `r params$biocro_root`/src/parameters.h "The BioCro parameters.h file" {target="_blank"}
-[unit tests for modules]: https://ebimodeling.github.io/biocro-documentation/master/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
+[unit tests for modules]: https://biocro.github.io/BioCro-documentation/latest/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
 [C++ guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
 [aspects of coding and design]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming "C++ Core Guidelines' naming and layout suggestions" {target="_blank"}
 [Google C++ style guide]: https://google.github.io/styleguide/cppguide.html#Formatting "Google's guidelines for formatting C++ code" {target="_blank"}
@@ -65,11 +62,12 @@ we think this is a task better left to the individual researcher.
 framework, the C++ compiler used in installing the BioCro package, the
 C++ Standard Library, the and the Boost C++ Library.
 
-    As for R package dependencies, the BioCro R package depends only upon
-packages in the R standard library (stats and utils) for its basic installation
-and functioning.  BioCro does use other, non-standard R packages for
-building the vignettes (knitr) and for testing (testthat), but these
-are not essential to a fully-functioning BioCro installation.
+    As for R package dependencies, the BioCro R package depends only
+upon packages in the R standard library (stats and utils) for its
+basic installation and functioning.  BioCro does use other,
+non-standard R packages for building the documentation and for
+testing, but these are not essential to a fully-functioning BioCro
+installation.
 
     For further reading on the benefits and pitfalls of using
 dependencies, see, for example, Russ Cox's article [Our Software
@@ -286,10 +284,10 @@ discuss the following questions:
 
 #### Document units in the code
 
-* After every physical quantity, include a comment with the units. The
-  idea is that every quantity will roughly be read as if it were
-  written in normal text: for example, `double yield = 10 // Mg / ha`
-  should be read as meaning "the yield was 10 Mg / ha". Using
+* After every [physical quantity][], include a comment with the
+  units. The idea is that every quantity will roughly be read as if it
+  were written in normal text: for example, `double yield = 10 // Mg /
+  ha` should be read as meaning "the yield was 10 Mg / ha". Using
   [dimensions][] instead of units is acceptable if the code is written
   with the expectation that [coherent units][] are used.
 
@@ -403,7 +401,7 @@ discuss the following questions:
     }
 
     if (!("BioCro" %in% installed.packages()[,"Package"])) {
-      devtools::install_github("ebimodeling/biocro")
+      devtools::install_github("biocro/biocro")
     }
 
     if (!("boot" %in% installed.packages()[,"Package"])) {
@@ -417,7 +415,7 @@ discuss the following questions:
     required_packages = list(
         # package name  # installation function   # function arguments
         list("lattice", install.packages,         list("lattice", repos="http://R-Forge.R-project.org", type="source")),
-        list("BioCro",  devtools::install_github, list("ebimodeling/biocro")),
+        list("BioCro",  devtools::install_github, list("biocro/biocro")),
         list("boot",    devtools::install_url,    list("http://cran.r-project.org/src/contrib/Archive/boot/boot_1.3-7.tar.gz"))
     )
 

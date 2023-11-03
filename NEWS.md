@@ -151,8 +151,8 @@ be directly added to this file to describe the related changes.
   - _An Introduction to BioCro for Those Who Want to Add Models_
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
-  can be obtained online at the
-  [BioCro vignette PDF website](https://ebimodeling.github.io/biocro-documentation/docs/articles/pdf_vignette_index.html).
+  can be obtained online from the _Articles_ menu at the
+  [BioCro documentation website](https://biocro.github.io).
 
 # BioCro VERSION 0.951
 

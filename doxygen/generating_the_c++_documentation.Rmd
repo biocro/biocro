@@ -1,8 +1,7 @@
 <!-- This file is raw R Markdown code.  To see this as a
 correctly-rendered web page, visit the online documentation at
-https://ebimodeling.github.io/biocro-documentation/, go to the
-Developer's Manual, and find the chapter on generating documentation.
--->
+https://biocro.github.io, go to the Developer's Manual, and find the
+chapter on generating documentation.  -->
 
 ## Documenting the C/C++ code.
 
@@ -11,8 +10,7 @@ Developer's Manual, and find the chapter on generating documentation.
 [Doxygen]: https://www.doxygen.nl/index.html "Doxygen home page" {target="_blank"}
 [Doxygen Downloads page]: https://www.doxygen.nl/download.html "Doxygen download page" {target="_blank"}
 [Doxygen Installation page]: https://www.doxygen.nl/manual/install.html "Doxygen installation page" {target="_blank"}
-[on-line version]: https://ebimodeling.github.io/biocro-documentation/master/doxygen/doxygen_docs_complete/index.html
-                   "Complete Doxygen documentation" {target="_blank"}
+[on-line version]: https://biocro.github.io "Complete Doxygen documentation" {target="_blank"}
 [doxygen_faq]: https://doxygen.nl/manual/faq.html#faq_cmdline "Configuring Doxygen from the Command Line" {target="_blank"}
 [Configuration section]: https://doxygen.nl/manual/config.html "Configuring Doxygen" {target="_blank"}
 [Configuration options related to the dot tool]: https://www.doxygen.nl/manual/config.html#config_dot "Configuring Dot" {target="_blank"}
@@ -117,8 +115,8 @@ more extensive knowledge of Doxygen, is discussed in Section
 \@ref(sec:customizing-doxygen).
 
 **If none of these use cases apply to you, you most likely can simply
-use the [on-line documentation][on-line version] and skip the rest of
-this chapter.**
+use the [on-line documentation][on-line version] (follow the _C++
+Library_ menu-bar link) and skip the rest of this chapter.**
 
 ### Required software
 
