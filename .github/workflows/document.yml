@@ -154,6 +154,10 @@ jobs:
         # (Re)create target documentation directory:
         mkdir -p $VERSION
 
+        # Symlink "latest" to the new version:
+        rm -f latest
+        ln -s $VERSION latest
+
         # Copy the respective documentation into them:
 
         if [[ ${{ inputs.pkgdown-build }} == true ]]
