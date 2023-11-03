@@ -5,12 +5,8 @@ name: Automatically generate documentation
 # generated" section of the Bookdown book.
 
 on:
-  push:
-    branches:
-      - master
-
-    tags:
-      - '*'
+  release:
+    types: [published]
 
   # This event creates an artifact for download but does not write to
   # the BioCro documentation repository:
