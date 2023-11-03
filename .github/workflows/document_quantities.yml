@@ -4,12 +4,8 @@ on:
   workflow_dispatch:
     # [no inputs]
 
-  push:
-    branches:
-      - collect_quantity_info-revised
-
 env:
-  publish-to: "ebimodeling/biocro-documentation"
+  publish-to: "biocro/BioCro-documentation"
 
 jobs:
   build:
@@ -24,6 +20,7 @@ jobs:
     - name: 1. Check out master
       uses: actions/checkout@v3
       with:
+        submodules: true
         path: source
 
     - name: 2. Set up R
