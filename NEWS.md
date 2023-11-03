@@ -23,9 +23,12 @@ for the next release.
 - This version pertains only to the GitHub documentation workflow.  It
   changes the publication location to the
   `biocro/BioCro-documentation` repository, and it changes the
-  triggers of the workflow so that automatic publication happens only
-  when a version tag matching the pattern 'v*.*' is pushed to the
-  repository.
+  triggers of the workflow so that automatic publication happens when
+  a new release is published.  Additionally, a symlink is created to
+  link the URL
+  https://biocro.github.io/BioCro-documentation/latest/pkgdown/ to
+  https://biocro.github.io/BioCro-documentation/<tag name>/pkgdown/,
+  where <tag name> is the tag name for the new release.
 
 # CHANGES IN BioCro VERSION 3.0.0
 
