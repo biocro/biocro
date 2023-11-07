@@ -16,6 +16,12 @@ Subsequent commits will then include a new "Unreleased" section in preparation
 for the next release.
 -->
 
+# CHANGES IN BioCro VERSION 3.0.2
+
+## MINOR CHANGES
+
+- This version adds several missing references to the main README.
+
 # CHANGES IN BioCro VERSION 3.0.1
 
 ## MINOR CHANGES
