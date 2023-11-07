@@ -114,7 +114,7 @@ cite the package itself, use `citation('BioCro')` in R to get details for the
 current installed version.
 
 ## References
-- [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4): 361-371.
+- [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC: a software package for modelling the dynamics of plant leaf and canopy photosynthesis. Computer Applications in the Biosciences 11(4): 361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
 - [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2013] (2013) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154.
 - [Wang D, Jaiswal D, Lebauer DS, Wertin TM, Bollero GA, Leakey ADB, Long SP][Wang et al., 2015] (2015) A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, Cell & Environment 38(9): 1850-1865.
