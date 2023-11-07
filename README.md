@@ -123,6 +123,9 @@ current installed version.
 - [Lochocki EB, Rohde S, Jaiswal D, Matthews ML, Miguez FE, Long SP, McGrath JM][Lochocki et al., 2022] (2022) BioCro II: a software package for modular crop growth simulations. _in silico_ Plants 4(1): diac003.
 - [Matthews ML, Marshall-Colón A, McGrath JM, Lochocki EB, Long SP][Matthews et al., 2022] (2022) Soybean-BioCro: a semi-mechanistic model of soybean growth. _in silico_ Plants 4(1): diab032.
 - [He Y, Jaiswal D, Liang XZ, Sun C, Long SP][He et al., 2022] (2022) Perennial biomass crops on marginal land improve both regional climate and agricultural productivity. GCB Bioenergy 14(5): 558-571.
+- [He Y, Matthews ML][He & Matthews, 2023] (2023) Seasonal climate conditions impact the effectiveness of improving photosynthesis to increase soybean yield. Field Crops Research 296: 108907.
+- [Holland B, Matthews ML, Bota P, Sweetlove LJ, Long SP, diCenzo GC][Holland et al., 2023] (2023) A genome-scale metabolic reconstruction of soybean and Bradyrhizobium diazoefficiens reveals the cost–benefit of nitrogen fixation. New Phytologist 240(2): 744-756.
+
 
 [Humphries and Long, 1995]:https://doi.org/10.1093/bioinformatics/11.4.361
 [Miguez et al., 2009]:https://doi.org/10.1111/j.1757-1707.2009.01019.x
@@ -133,3 +136,5 @@ current installed version.
 [Lochocki et al., 2022]:https://doi.org/10.1093/insilicoplants/diac003
 [Matthews et al., 2022]:https://doi.org/10.1093/insilicoplants/diab032
 [He et al., 2022]:https://doi.org/10.1111/gcbb.12937
+[He & Matthews, 2023]:https://doi.org/10.1016/j.fcr.2023.108907
+[Holland et al., 2023]:https://doi.org/10.1111/nph.19203
