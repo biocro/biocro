@@ -39,10 +39,6 @@ on:
         description: Build the Doxygen documentation
         type: boolean
         default: true
-      publish:
-        description: Publish the documentation
-        type: boolean
-        default: false
       custom-url:
         description: The base url for the pkgdown documentation
         type: string
