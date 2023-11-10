@@ -137,11 +137,12 @@ the devil].
   - Hotfix branches are for relatively small changes that are nevertheless
     important enough to warrant immediate incorporation into `main`. Examples
     include bug fixes and crucial changes to GitHub workflows. A hotfix branch
-    should be branched off `main` and first merged into `main` via an approved pull
-    request. Then, a second pull request should be made to merge into `develop`.
-    If there are no merge conflicts or test failures, this second request can
-    be merged without any additional approval. When both merges are complete,
-    the hotfix branch should be deleted.
+    should be branched off `main`. When ready, it should first merged into
+    `main` via an approved pull request. Then, a second pull request should be
+    made to merge into `develop`. If there are no merge conflicts or test
+    failures, this second request can be merged without any additional
+    approval. When both merges are complete, the hotfix branch should be
+    deleted.
 
   - Feature branches are for more complex changes that do not require immediate
     release; for example, the addition of a new R function to the package
@@ -154,11 +155,12 @@ the devil].
     `develop` to `main`. Release branches should not include substantive
     changes; rather, a release branch is primarily used to increment the package
     version and to ensure that the changelog in `NEWS.md` is up-to-date. A
-    release branch should be branched off `develop` and first merged into `main`
-    via an approved pull request. Then, a second pull request should be made to
-    merge into `develop`. If there are no merge conflicts or test failures,
-    this second request can be merged without any additional approval. When
-    both merges are complete, the release branch should be deleted.
+    release branch should be branched off `develop`. When it's ready, it should
+    first merged into `main` via an approved pull request. Then, a second pull
+    request should be made to merge into `develop`. If there are no merge
+    conflicts or test failures, this second request can be merged without any
+    additional approval. When both merges are complete, the release branch
+    should be deleted.
 
 ### Making large modifications to BioCro
 
