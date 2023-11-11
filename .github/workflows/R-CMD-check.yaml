@@ -102,8 +102,7 @@ jobs:
           # }.       
           filter:
             '[?configName == `${{ inputs.platform-to-check }}`
-                || `${{ github.event_name }}` != ''workflow_dispatch''
-                    && configName == ''R 3.6 on Ubuntu'']'
+                || `${{ github.event_name }}` != ''workflow_dispatch'']'
 
   # For debugging:
   display_matrix:
