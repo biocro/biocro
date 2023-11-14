@@ -98,7 +98,14 @@ the devil].
   there are two permanent branches (`main` and `develop`) and three types of
   temporary branches (hotfixes, features, and releases).
 
-* We have a few additional rules specific to BioCro development:
+* For most contributors, it is only necessary to know that most changes should
+  be accomplished through feature branches, which are branched off `develop` and
+  merged back into `develop` via a pull request that must be approved by one or
+  more other developers. The remainder of this section discusses our system in
+  more detail.
+
+* Beyond the basic description of git-flow, we have a few additional rules
+  and clarifications specific to BioCro development:
 
   - Any merge into `main` or `develop` must be done via a pull request. This
     requirement is enforced with GitHub branch protection rules and cannot be
@@ -111,18 +118,24 @@ the devil].
     hotfix and release branches, described below.)
 
   - The BioCro R package and repository follow semantic versioning of the form
-    `major.minor.bug`. Hotfix branches should typically only increment the third
-    (`bug`) number. Most release branches will increment the second (`minor`)
-    number, and very rarely the first (`major`) number. Feature branches do not
-    directly change the version number.
+    `major.minor.patch`. Hotfix branches should typically only increment the
+    third (`patch`) number. Most release branches will increment the second
+    (`minor`) number, and very rarely the first (`major`) number. Feature
+    branches do not directly change the version number.
 
-  - Branch names should be prefixed with the branch type: either `feature/`,
-    `hotfix/`, or `release/`. Hotfix and release branches should be named with
-    the new version number; for example, `hotfix/v3.0.3` or `release/v3.1.0`.
-    Feature branch names should reflect their purpose, such as
-    `feature/describe-branch-rules`.
+  - Hotfix and release branch names should be formatted like `type-version`,
+    where `type` is either `hotfix` or `release`, and version is the new version
+    number. For example, `hotfix-v3.0.3` would be a hotfix branch that
+    changes the version number to `3.0.3`. Feature branch names should reflect
+    their purpose, and can be anything other than `master`, `develop`,
+    `hotfix-*`, or `release-*`.
 
-  - `NEWS.md` should be updated whenever the package version changes.
+  - `NEWS.md` should be updated whenever the package version changes, and
+    whenever a feature branch is merged into `develop`. In the latter case, a
+    description of the changes should be collected under an `UNRELEASED` section
+    in `NEWS.md` so it is easier to keep track of new changes. If there is no
+    `UNRELEASED` section in `NEWS.md` on `develop` when a feature branch is
+    merged into `develop`, one should be added.
 
 * The following is a short description of this branching model:
 
@@ -131,36 +144,33 @@ the devil].
     are merged into `main`, and such changes should always be accompanied by an
     increment to the BioCro R package version number.
 
-  - The `develop` branch contains new BioCro features that are under development
-    but not yet ready for a new release.
+  - The `develop` branch contains bug fixes and new features that have been
+    completed but may not have been released yet.
 
-  - Hotfix branches are for relatively small changes that are nevertheless
-    important enough to warrant immediate incorporation into `main`. Examples
-    include bug fixes and crucial changes to GitHub workflows. A hotfix branch
-    should be branched off `main`. When ready, it should first merged into
-    `main` via an approved pull request. Then, a second pull request should be
-    made to merge into `develop`. If there are no merge conflicts or test
-    failures, this second request can be merged without any additional
-    approval. When both merges are complete, the hotfix branch should be
-    deleted.
+  - Hotfix branches are for urgent changes that warrant immediate incorporation
+    into `main`; typically these are bug fixes. A hotfix branch should be
+    branched off `main`. When ready, it should first merged into `main` via an
+    approved pull request. Then, a second pull request should be made to merge
+    into `develop`. If there are no merge conflicts or test failures, this
+    second request can be merged without any additional approval. When both
+    merges are complete, the hotfix branch should be deleted.
 
-  - Feature branches are for more complex changes that do not require immediate
+  - Feature branches are for less urgent changes that do not require immediate
     release; for example, the addition of a new R function to the package
     namespace. A feature branch should be branched off `develop` and merged
     back into `develop` via an approved pull request. When the merge into
     `develop` is complete, the feature branch should be deleted.
 
-  - When sufficient changes have accumulated in `develop` to justify a new
-    version of the package, a release branch is used to move the changes from
-    `develop` to `main`. Release branches should not include substantive
+  - When sufficiently many changes have accumulated in `develop` to justify a
+    new version of the package, a release branch is used to move the changes
+    from `develop` to `main`. Release branches should not include substantive
     changes; rather, a release branch is primarily used to increment the package
-    version and to ensure that the changelog in `NEWS.md` is up-to-date. A
-    release branch should be branched off `develop`. When it's ready, it should
-    first merged into `main` via an approved pull request. Then, a second pull
-    request should be made to merge into `develop`. If there are no merge
-    conflicts or test failures, this second request can be merged without any
-    additional approval. When both merges are complete, the release branch
-    should be deleted.
+    version and to ensure an up-to-date changelog. A release branch should be
+    branched off `develop`. When it's ready, it should first merged into `main`
+    via an approved pull request. Then, a second pull request should be made to
+    merge into `develop`. If there are no merge conflicts or test failures, this
+    second request can be merged without any additional approval. When both
+    merges are complete, the release branch should be deleted.
 
 ### Making large modifications to BioCro
 
