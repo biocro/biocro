@@ -57,13 +57,13 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
         with:
           submodules: true
 
       - id: set-matrix
         name: Construct the strategy matrix
-        uses: JoshuaTheMiller/conditional-build-matrix@38b0036b90a7f5f1461f446948d156a714e4fa1e # release 0.0.1
+        uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # release 2.0.1
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
 
