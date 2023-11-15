@@ -130,12 +130,15 @@ the devil].
     their purpose, and can be anything other than `master`, `develop`,
     `hotfix-*`, or `release-*`.
 
-  - `NEWS.md` should be updated whenever the package version changes, and
-    whenever a feature branch is merged into `develop`. In the latter case, a
-    description of the changes should be collected under an `UNRELEASED` section
-    in `NEWS.md` so it is easier to keep track of new changes. If there is no
-    `UNRELEASED` section in `NEWS.md` on `develop` when a feature branch is
-    merged into `develop`, one should be added.
+  - Whenever the package version changes, a description of the related changes
+    should be added to the changelog in `NEWS.md` as a new section titled with
+    the new version number. Such version changes will happen via release and
+    hotfix branches. Release branches will generally include changes made during
+    the course of several feature branches, so they may require a significant
+    amount of documentation in `NEWS.md`. To make it easier to prepare a list of
+    these changes, each feature branch should include a description of its own
+    changes in an `UNRELEASED` section of `NEWS.md`. For more information about
+    updating the changelog, please see the comment at the top of `NEWS.md`.
 
 * The following is a short description of this branching model:
 
@@ -165,12 +168,12 @@ the devil].
     new version of the package, a release branch is used to move the changes
     from `develop` to `main`. Release branches should not include substantive
     changes; rather, a release branch is primarily used to increment the package
-    version and to ensure an up-to-date changelog. A release branch should be
-    branched off `develop`. When it's ready, it should first merged into `main`
-    via an approved pull request. Then, a second pull request should be made to
-    merge into `develop`. If there are no merge conflicts or test failures, this
-    second request can be merged without any additional approval. When both
-    merges are complete, the release branch should be deleted.
+    version and to ensure an up-to-date changelog in `NEWS.md`. A release branch
+    should be branched off `develop`. When it's ready, it should first merged
+    into `main` via an approved pull request. Then, a second pull request should
+    be made to merge into `develop`. If there are no merge conflicts or test
+    failures, this second request can be merged without any additional approval.
+    When both merges are complete, the release branch should be deleted.
 
 ### Making large modifications to BioCro
 
