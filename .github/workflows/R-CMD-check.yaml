@@ -123,9 +123,12 @@ jobs:
       
       # Note: Non-manual dispatches automatically run the tests and
       # check the manual, examples, and vignettes!  Note that the
-      # github.event inputs will be strings (either 'true' or 'false')
-      # so we have to use the "== 'true'" clause to convert each value
-      # to a bona fide boolean!
+      # inputs.* values will have non-boolean values when the event is
+      # not 'workflow_dispatch'--namely, the non-truthy value '' (the
+      # empty string).  But the way the boolean operators (|| and &&)
+      # are used below ensure that the resulting expression always
+      # evaluates to a boolean value, as expected by the called
+      # workflow.
 
       check-manual:
         "${{ inputs.check-manual
