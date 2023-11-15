@@ -32,6 +32,11 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+- This version adds a description of the BioCro git branching model to
+  `contribution_guidelines.md` and clarifies the process of updating `NEWS.md`.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
