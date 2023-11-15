@@ -101,14 +101,13 @@ jobs:
           #     ]
           # }.       
           filter:
-            '[?configName == `${{ github.event.inputs.platform-to-check }}`
-                || `${{ github.event_name }}` != ''workflow_dispatch''
-                    && configName == ''R 3.6 on Ubuntu'']'
+            '[?configName == `${{ inputs.platform-to-check }}`
+                || `${{ github.event_name }}` != ''workflow_dispatch'']'
 
   # For debugging:
   display_matrix:
     name: "DEBUG: Display strategy matrix"
-    if: github.event.inputs.debug == 'true' || github.event_name != 'workflow_dispatch'
+    if: inputs.debug || github.event_name != 'workflow_dispatch'
     needs: matrix_prep
     runs-on: ubuntu-latest
     steps:
@@ -124,23 +123,26 @@ jobs:
       
       # Note: Non-manual dispatches automatically run the tests and
       # check the manual, examples, and vignettes!  Note that the
-      # github.event inputs will be strings (either 'true' or 'false')
-      # so we have to use the "== 'true'" clause to convert each value
-      # to a bona fide boolean!
+      # inputs.* values will have non-boolean values when the event is
+      # not 'workflow_dispatch'--namely, the non-truthy value '' (the
+      # empty string).  But the way the boolean operators (|| and &&)
+      # are used below ensure that the resulting expression always
+      # evaluates to a boolean value, as expected by the called
+      # workflow.
 
       check-manual:
-        "${{ github.event.inputs.check-manual == 'true'
+        "${{ inputs.check-manual
             || github.event_name != 'workflow_dispatch' }}"
       run-tests:
-        "${{ github.event.inputs.run-tests == 'true'
+        "${{ inputs.run-tests
             || github.event_name != 'workflow_dispatch' }}"
       check-examples:
-        "${{ github.event.inputs.check-examples == 'true'
+        "${{ inputs.check-examples
             || github.event_name != 'workflow_dispatch' }}"
       check-vignettes:
-        "${{ github.event.inputs.check-vignettes == 'true'
+        "${{ inputs.check-vignettes
             || github.event_name != 'workflow_dispatch' }}"
 
       debug:
-        "${{ github.event.inputs.debug == 'true' }}"
+        "${{ github.event_name == 'workflow_dispatch' && inputs.debug }}"
 

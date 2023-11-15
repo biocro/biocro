@@ -94,21 +94,21 @@ jobs:
           args <- paste0('c(\\"', paste(args_value, collapse = '\\", \\"'), '\\")')
 
           # store these in the environment
-          system(sprintf('echo "::set-output name=build_args::%s"', build_args))
-          system(sprintf('echo "::set-output name=args::%s"', args))
+          system(sprintf('echo "build_args=%s" >> $GITHUB_OUTPUT', build_args))
+          system(sprintf('echo "args=%s" >> $GITHUB_OUTPUT', args))
           #
           # NOTE (quoting hell!): The result of the sprintf
           # function--the string that will be passed to the system
           # function--will be something like (e.g.) this:
           #
-          #     'echo "::set-output name=args::c(\\"--no-manual\\", \\"--no-tests\\")"'
+          #     'echo "args=c(\\"--no-manual\\", \\"--no-tests\\")" >> $GITHUB_OUTPUT'
           #
           # Because in R strings a literal backslash must be written
           # as "\\", no matter which kind of quotes are used for
           # string delimiters, the command actually run by the shell
           # will then be
           #
-          #     echo "::set-output name=args::c(\"--no-manual\", \"--no-tests\")"
+          #     echo "args=c(\"--no-manual\", \"--no-tests\")" >> $GITHUB_OUTPUT
           #
           # and the value of the job output 'args' will then become
           #
