@@ -22,7 +22,8 @@
   \code{module_creators}.
 
   Although the description of \code{externalptr} objects is sparse, they are
-  briefly mentioned in the R documentation: \code{\link{externalptr-class}}.
+  briefly mentioned in the R documentation for basic classes, which can be
+  accessed by typing \code{?`externalptr-class`} from an R terminal.
 
   This function should not be used directly, and each module library package
   must have its own version. For these reasons, this function is not exported to
