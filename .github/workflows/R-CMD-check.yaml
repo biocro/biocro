@@ -25,6 +25,19 @@ on:
         description: 'Check the examples'
         type: boolean
         default: true
+      as-cran:
+        description: 'Use the --as-cran option when checking'
+        type: boolean
+        default: true
+      error-on:
+        description: 'When to trigger an error'
+        type: choice
+        options:
+          - never
+          - error
+          - warning
+          - info
+        default: warning
 
       # Should we show debug output?  (This will also skip doing the
       # actual package check and the lengthy steps involved in doing
@@ -142,6 +155,12 @@ jobs:
       check-vignettes:
         "${{ inputs.check-vignettes
             || github.event_name != 'workflow_dispatch' }}"
+      as-cran:
+        "${{ inputs.as-cran
+            || github.event_name != 'workflow_dispatch' }}"
+      error-on:
+        "${{ inputs.error-on
+            || github.event_name != 'workflow_dispatch' && 'warning' }}"
 
       debug:
         "${{ github.event_name == 'workflow_dispatch' && inputs.debug }}"

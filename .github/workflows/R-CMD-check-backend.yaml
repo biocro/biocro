@@ -37,6 +37,10 @@ on:
         type: boolean
       debug:
         type: boolean
+      as-cran:
+        type: boolean
+      error-on:
+        type: string
 
 env:
 
@@ -61,6 +65,8 @@ jobs:
           echo 'run-tests: ${{ inputs.run-tests }}'
           echo 'check-examples: ${{ inputs.check-examples }}'
           echo 'check-vignettes: ${{ inputs.check-vignettes }}'
+          echo 'as-cran: ${{ inputs.as-cran }}'
+          echo 'error-on: ${{ inputs.error-on }}'
 
   compute-check-args:
     name: 'Compute "R CMD check" args'
@@ -68,12 +74,14 @@ jobs:
     outputs:
       build_args: ${{ steps.compute-args.outputs.build_args }}
       args: ${{ steps.compute-args.outputs.args }}
+      error_on: ${{ steps.compute-args.outputs.error_on }}
     steps:
       - id: compute-args
         name: Compute args
         run: |
           build_args_value <- c()
-          args_value <- c('--as-cran')
+          args_value <- c()
+
           if ('${{ inputs.check-manual }}' == 'false') {
             build_args_value <- append(build_args_value, '--no-manual')
             args_value <- append(args_value, '--no-manual')
@@ -88,14 +96,19 @@ jobs:
           if ('${{ inputs.check-examples }}' == 'false') {
             args_value <- append(args_value, '--no-examples')
           }
+          if ('${{ inputs.as-cran }}' == 'true') {
+            args_value <- append(args_value, '--as-cran')
+          }
 
           # serialize these vectors as strings (see note below):
           build_args <- paste0('c(\\"', paste(build_args_value, collapse = '\\", \\"'), '\\")')
           args <- paste0('c(\\"', paste(args_value, collapse = '\\", \\"'), '\\")')
+          error_on <- '\\"${{ inputs.error-on }}\\"'
 
           # store these in the environment
           system(sprintf('echo "build_args=%s" >> $GITHUB_OUTPUT', build_args))
           system(sprintf('echo "args=%s" >> $GITHUB_OUTPUT', args))
+          system(sprintf('echo "error_on=%s" >> $GITHUB_OUTPUT', error_on))
           #
           # NOTE (quoting hell!): The result of the sprintf
           # function--the string that will be passed to the system
@@ -217,6 +230,7 @@ jobs:
         run: |
           echo 'args = ${{ needs.compute-check-args.outputs.args }}'
           echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
+          echo 'error-on = ${{ needs.compute-check-args.outputs.error_on }}'
 
       - name: Check package
         if: ${{ !inputs.debug }}
@@ -225,3 +239,4 @@ jobs:
           upload-snapshots: true
           args: ${{ needs.compute-check-args.outputs.args }}
           build_args: ${{ needs.compute-check-args.outputs.build_args }}
+          error-on: ${{ needs.compute-check-args.outputs.error_on }}
