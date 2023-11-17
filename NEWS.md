@@ -16,6 +16,11 @@ Subsequent commits will then include a new "Unreleased" section in preparation
 for the next release.
 -->
 
+# CHANGES IN BioCro VERSION 3.0.3
+
+- Replaced instances of `sprintf` in boost files with `snprintf` to avoid
+  `R CMD check` warnings
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
