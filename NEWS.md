@@ -40,6 +40,9 @@ be directly added to this file to describe the related changes.
 - Replaced instances of `sprintf` in boost files with `snprintf` to avoid
   `R CMD check` warnings
 
+- Modified the R-CMD-check workflow so that the manual is not checked
+  when the workflow runs automatically.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
