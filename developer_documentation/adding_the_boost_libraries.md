@@ -51,10 +51,16 @@ operating systems without it. Hence the need for
 
 4. Update the path to the Boost license in the package `LICENSE` file.
 
-5. Run `R CMD check` and truncate any boost file paths that are flagged as
-   exceeding 100 characters. Be sure to update any associated `#include`
-   directives that reference these files; otherwise, compilation errors will
-   occur.
+5. Run `R CMD check` and address any new warnings or errors related to the boost
+   library. It is likely that the following issues will occur:
+
+   - Some file paths will exceed the 100 character limit. Truncate any such file
+     names, and be sure to update any associated `#include` directives that
+     reference these files; otherwise, compilation errors will occur.
+
+   - As of boost version 1.83, some of the boost libraries included with BioCro
+     call `sprintf`, which is not allowed by CRAN. Replace any such instances of
+     `sprintf` with `snprintf`.
 
 ### Notes for using bcp in Windows
 First, follow the instructions in the "Getting Started on Windows"

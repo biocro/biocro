@@ -37,6 +37,9 @@ be directly added to this file to describe the related changes.
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
+- Replaced instances of `sprintf` in boost files with `snprintf` to avoid
+  `R CMD check` warnings
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
