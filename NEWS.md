@@ -41,7 +41,8 @@ be directly added to this file to describe the related changes.
   `R CMD check` warnings
 
 - Modified the R-CMD-check workflow so that the manual is not checked
-  when the workflow runs automatically.
+  when the workflow runs automatically.  This has also been made the
+  default when the workflow is run manually.
 
 # CHANGES IN BioCro VERSION 3.0.2
 
