@@ -54,7 +54,7 @@ jobs:
 
   # For debugging
   echo-inputs:
-    name: "DEBUG: Echo inputs"
+    name: "DEBUG: Echo inputs and environment variables"
     runs-on: ubuntu-latest
     steps:
       - name: Show inputs
@@ -66,6 +66,11 @@ jobs:
           echo 'check-vignettes: ${{ inputs.check-vignettes }}'
           echo 'as-cran: ${{ inputs.as-cran }}'
           echo 'error-on: ${{ inputs.error-on }}'
+      - name: Print environment variables
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "NEED_TEX: ${{ env.NEED_TEX }}"
+          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
 
   compute-check-args:
     name: 'Compute "R CMD check" args'
@@ -152,18 +157,18 @@ jobs:
           echo 'R version: ${{ matrix.r }}'
           echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
 
+      # For debugging
+      - name: "DEBUG: Show check-r-package arg values"
+        run: |
+          echo 'args = ${{ needs.compute-check-args.outputs.args }}'
+          echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
+          echo 'error-on = ${{ needs.compute-check-args.outputs.error_on }}'
+
       - name: Check out repository
         if: ${{ !inputs.dry-run }}
         uses: actions/checkout@v3
         with:
           submodules: true
-
-      # For debugging
-      - name: "DEBUG: Print environment variables"
-        run: |
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "NEED_TEX: ${{ env.NEED_TEX }}"
-          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
 
       - name: Install Pandoc
         if: ${{ !inputs.dry-run }}
@@ -220,13 +225,6 @@ jobs:
           })
 
         shell: Rscript {0}
-
-      # For debugging
-      - name: "DEBUG: Show check-r-package arg values"
-        run: |
-          echo 'args = ${{ needs.compute-check-args.outputs.args }}'
-          echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
-          echo 'error-on = ${{ needs.compute-check-args.outputs.error_on }}'
 
       - name: Check package
         if: ${{ !inputs.dry-run }}
