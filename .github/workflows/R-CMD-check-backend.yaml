@@ -35,7 +35,7 @@ on:
         type: boolean
       check-vignettes:
         type: boolean
-      debug:
+      dry-run:
         type: boolean
       as-cran:
         type: boolean
@@ -55,7 +55,6 @@ jobs:
   # For debugging
   echo-inputs:
     name: "DEBUG: Echo inputs"
-    if: inputs.debug
     runs-on: ubuntu-latest
     steps:
       - name: Show inputs
@@ -148,32 +147,30 @@ jobs:
 
       # For debugging
       - name: "DEBUG: Show current values from the strategy matrix"
-        if: inputs.debug
         run: |
           echo 'os: ${{ matrix.os }}'
           echo 'R version: ${{ matrix.r }}'
           echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
 
       - name: Check out repository
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: actions/checkout@v3
         with:
           submodules: true
 
       # For debugging
       - name: "DEBUG: Print environment variables"
-        if: inputs.debug
         run: |
           echo "github.event_name: ${{ github.event_name }}"
           echo "NEED_TEX: ${{ env.NEED_TEX }}"
           echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
 
       - name: Install Pandoc
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-pandoc@v2
 
       - name: Set up R
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r }}
@@ -181,18 +178,18 @@ jobs:
           use-public-rspm: true
 
       - name: Set up R dependencies
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
 
       - name: Install TinyTex
-        if: ${{ env.NEED_TEX == 'true' && !inputs.debug }}
+        if: ${{ env.NEED_TEX == 'true' && !inputs.dry-run }}
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install extra LaTeX packages
-        if: ${{ env.NEED_TEX_EXTRAS == 'true' && !inputs.debug }}
+        if: ${{ env.NEED_TEX_EXTRAS == 'true' && !inputs.dry-run }}
         run: |
 
           # Install the tinytex R package to run tinytex::pdflatex.
@@ -226,14 +223,13 @@ jobs:
 
       # For debugging
       - name: "DEBUG: Show check-r-package arg values"
-        if: inputs.debug
         run: |
           echo 'args = ${{ needs.compute-check-args.outputs.args }}'
           echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
           echo 'error-on = ${{ needs.compute-check-args.outputs.error_on }}'
 
       - name: Check package
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
