@@ -37,6 +37,27 @@ be directly added to this file to describe the related changes.
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
+- It also changes the R-CMD-check workflow in the following ways:
+
+  - When the check workflow is run manually, there are two new input
+    options:
+
+    - The user can now choose whether or not to run R CMD check with
+      the --as-cran option.  Formerly, this was always used.
+
+    - The user can choose whether and when to throw an error on R CMD
+      check failures.  Formerly, an error was thrown whenever the R
+      CMD check failure was either "warning" or "error".
+
+  - Output that was formerly shown only on manual runs when the
+    "debug" checkbox was selected is now always shown.  The "debug"
+    option has been changed to "dry-run", which results in the debug
+    output being shown but the actually check, and those set-up steps
+    needed only to carry out the check, are skipped.
+
+  - The debug output steps are grouped together when possible, and the
+    output is shown earlier on in the workflow.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
