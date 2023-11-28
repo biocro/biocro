@@ -29,7 +29,7 @@ chapter on contributing to BioCro.  -->
 [Solar Position module rendering]: https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
 
 [dimensions]: https://en.wikipedia.org/wiki/International_System_of_Quantities#Dimensional_expression_of_derived_quantities "Dimensional expression of derived quantities (Wikipedia)" {target="_blank"}
-[Doxygen]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
+[doxygen manual]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
 [physical quantity]: https://en.wikipedia.org/wiki/Physical_quantity "Wikipedia's entry on Physical Quantities" {target="_blank"}
 [coherent units]: https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29 "Wikipedia's entry on Coherent Units" {target="_blank"}
 [src/parameters.h]: `r params$biocro_root`/src/parameters.h "The BioCro parameters.h file" {target="_blank"}
@@ -270,13 +270,13 @@ discuss the following questions:
   and relevant information within it. Include a table or figure
   reference if appropriate.
 
-* Use [Doxygen][]-style comment syntax for high-level documentation of
-  functions and classes.  We use the Javadoc style of comment block in
-  our code.  (See the documentation of the Solar Position module
-  [`solar_position_michalsky`][Solar Position module] for an example
-  of a Doxygen-style comment, and then look at [the way this is
-  rendered in the generated documentation][Solar Position module
-  rendering].)
+* Use [Doxygen][doxygen manual]-style comment syntax for high-level
+  documentation of functions and classes.  We use the Javadoc style of
+  comment block in our code.  (See the documentation of the Solar
+  Position module [`solar_position_michalsky`][Solar Position module]
+  for an example of a Doxygen-style comment, and then look at [the way
+  this is rendered in the generated documentation][Solar Position
+  module rendering].)
 
 * Include reasoning and justification for the model, including
   assumptions that determine when use of the model is appropriate.

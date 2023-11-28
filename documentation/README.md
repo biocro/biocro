@@ -13,8 +13,6 @@
 
 [pkgdown]: https://pkgdown.r-lib.org/index.html "The pkgdown web site" {target="_blank"}
 
-[doxygen]: https://www.doxygen.nl/index.html "Doxygen web site" {target="_blank"}
-
 <!-- footnotes -->
 
 [^latest_version]: If there is more than one run for a given pull
