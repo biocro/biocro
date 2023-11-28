@@ -68,6 +68,8 @@ be directly added to this file to describe the related changes.
 - GitHub workflows and actions in the repository have been updated to
   use the latest versions of all GitHub and 3rd-party actions.
 
+- The C++ framework has been updated to v1.1.1
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
