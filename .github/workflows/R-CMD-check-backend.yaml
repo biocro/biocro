@@ -35,8 +35,12 @@ on:
         type: boolean
       check-vignettes:
         type: boolean
-      debug:
+      dry-run:
         type: boolean
+      as-cran:
+        type: boolean
+      error-on:
+        type: string
 
 env:
 
@@ -50,8 +54,7 @@ jobs:
 
   # For debugging
   echo-inputs:
-    name: "DEBUG: Echo inputs"
-    if: inputs.debug
+    name: "DEBUG: Echo inputs and environment variables"
     runs-on: ubuntu-latest
     steps:
       - name: Show inputs
@@ -61,6 +64,13 @@ jobs:
           echo 'run-tests: ${{ inputs.run-tests }}'
           echo 'check-examples: ${{ inputs.check-examples }}'
           echo 'check-vignettes: ${{ inputs.check-vignettes }}'
+          echo 'as-cran: ${{ inputs.as-cran }}'
+          echo 'error-on: ${{ inputs.error-on }}'
+      - name: Print environment variables
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "NEED_TEX: ${{ env.NEED_TEX }}"
+          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
 
   compute-check-args:
     name: 'Compute "R CMD check" args'
@@ -68,12 +78,14 @@ jobs:
     outputs:
       build_args: ${{ steps.compute-args.outputs.build_args }}
       args: ${{ steps.compute-args.outputs.args }}
+      error_on: ${{ steps.compute-args.outputs.error_on }}
     steps:
       - id: compute-args
         name: Compute args
         run: |
           build_args_value <- c()
-          args_value <- c('--as-cran')
+          args_value <- c()
+
           if ('${{ inputs.check-manual }}' == 'false') {
             build_args_value <- append(build_args_value, '--no-manual')
             args_value <- append(args_value, '--no-manual')
@@ -88,14 +100,19 @@ jobs:
           if ('${{ inputs.check-examples }}' == 'false') {
             args_value <- append(args_value, '--no-examples')
           }
+          if ('${{ inputs.as-cran }}' == 'true') {
+            args_value <- append(args_value, '--as-cran')
+          }
 
           # serialize these vectors as strings (see note below):
           build_args <- paste0('c(\\"', paste(build_args_value, collapse = '\\", \\"'), '\\")')
           args <- paste0('c(\\"', paste(args_value, collapse = '\\", \\"'), '\\")')
+          error_on <- '\\"${{ inputs.error-on }}\\"'
 
           # store these in the environment
           system(sprintf('echo "build_args=%s" >> $GITHUB_OUTPUT', build_args))
           system(sprintf('echo "args=%s" >> $GITHUB_OUTPUT', args))
+          system(sprintf('echo "error_on=%s" >> $GITHUB_OUTPUT', error_on))
           #
           # NOTE (quoting hell!): The result of the sprintf
           # function--the string that will be passed to the system
@@ -135,32 +152,30 @@ jobs:
 
       # For debugging
       - name: "DEBUG: Show current values from the strategy matrix"
-        if: inputs.debug
         run: |
           echo 'os: ${{ matrix.os }}'
           echo 'R version: ${{ matrix.r }}'
           echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
 
+      # For debugging
+      - name: "DEBUG: Show check-r-package arg values"
+        run: |
+          echo 'args = ${{ needs.compute-check-args.outputs.args }}'
+          echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
+          echo 'error-on = ${{ needs.compute-check-args.outputs.error_on }}'
+
       - name: Check out repository
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: actions/checkout@v3
         with:
           submodules: true
 
-      # For debugging
-      - name: "DEBUG: Print environment variables"
-        if: inputs.debug
-        run: |
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "NEED_TEX: ${{ env.NEED_TEX }}"
-          echo "NEED_TEX_EXTRAS: ${{ env.NEED_TEX_EXTRAS }}"
-
       - name: Install Pandoc
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-pandoc@v2
 
       - name: Set up R
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r }}
@@ -168,18 +183,18 @@ jobs:
           use-public-rspm: true
 
       - name: Set up R dependencies
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
 
       - name: Install TinyTex
-        if: ${{ env.NEED_TEX == 'true' && !inputs.debug }}
+        if: ${{ env.NEED_TEX == 'true' && !inputs.dry-run }}
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install extra LaTeX packages
-        if: ${{ env.NEED_TEX_EXTRAS == 'true' && !inputs.debug }}
+        if: ${{ env.NEED_TEX_EXTRAS == 'true' && !inputs.dry-run }}
         run: |
 
           # Install the tinytex R package to run tinytex::pdflatex.
@@ -211,17 +226,11 @@ jobs:
 
         shell: Rscript {0}
 
-      # For debugging
-      - name: "DEBUG: Show check-r-package arg values"
-        if: inputs.debug
-        run: |
-          echo 'args = ${{ needs.compute-check-args.outputs.args }}'
-          echo 'build_args = ${{ needs.compute-check-args.outputs.build_args }}'
-
       - name: Check package
-        if: ${{ !inputs.debug }}
+        if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           args: ${{ needs.compute-check-args.outputs.args }}
           build_args: ${{ needs.compute-check-args.outputs.build_args }}
+          error-on: ${{ needs.compute-check-args.outputs.error_on }}

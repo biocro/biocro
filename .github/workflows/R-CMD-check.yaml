@@ -25,12 +25,25 @@ on:
         description: 'Check the examples'
         type: boolean
         default: true
+      as-cran:
+        description: 'Use the --as-cran option when checking'
+        type: boolean
+        default: true
+      error-on:
+        description: 'When to trigger an error'
+        type: choice
+        options:
+          - never
+          - error
+          - warning
+          - info
+        default: warning
 
-      # Should we show debug output?  (This will also skip doing the
-      # actual package check and the lengthy steps involved in doing
-      # such a check.)
-      debug:
-        description: 'Show output for debugging'
+      # This will show some configuration variables but will skip
+      # doing the actual package check and the lengthy steps involved
+      # in doing such a check.
+      dry-run:
+        description: Don't actually run the check; show output for debugging
         type: boolean
         default: false
 
@@ -107,7 +120,6 @@ jobs:
   # For debugging:
   display_matrix:
     name: "DEBUG: Display strategy matrix"
-    if: inputs.debug || github.event_name != 'workflow_dispatch'
     needs: matrix_prep
     runs-on: ubuntu-latest
     steps:
@@ -142,7 +154,13 @@ jobs:
       check-vignettes:
         "${{ inputs.check-vignettes
             || github.event_name != 'workflow_dispatch' }}"
+      as-cran:
+        "${{ inputs.as-cran
+            || github.event_name != 'workflow_dispatch' }}"
+      error-on:
+        "${{ inputs.error-on
+            || github.event_name != 'workflow_dispatch' && 'warning' }}"
 
-      debug:
-        "${{ github.event_name == 'workflow_dispatch' && inputs.debug }}"
+      dry-run:
+        "${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}"
 
