@@ -61,6 +61,10 @@ be directly added to this file to describe the related changes.
   - The debug output steps are grouped together when possible, and the
     output is shown earlier on in the workflow.
 
+- Modified the R-CMD-check workflow so that the manual is not checked
+  when the workflow runs automatically.  This has also been made the
+  default when the workflow is run manually.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES

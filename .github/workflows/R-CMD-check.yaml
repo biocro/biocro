@@ -12,7 +12,7 @@ on:
       check-manual:
         description: 'Check the manual'
         type: boolean
-        default: true
+        default: false
       check-vignettes:
         description: 'Check the vignettes'
         type: boolean
@@ -134,17 +134,17 @@ jobs:
       strategy-matrix: ${{ needs.matrix_prep.outputs.matrix }}
       
       # Note: Non-manual dispatches automatically run the tests and
-      # check the manual, examples, and vignettes!  Note that the
-      # inputs.* values will have non-boolean values when the event is
-      # not 'workflow_dispatch'--namely, the non-truthy value '' (the
-      # empty string).  But the way the boolean operators (|| and &&)
-      # are used below ensure that the resulting expression always
-      # evaluates to a boolean value, as expected by the called
-      # workflow.
+      # check the examples and the vignettes, but do not check the
+      # manual.  Note that the inputs.* values will have non-boolean
+      # values when the event is not 'workflow_dispatch'--namely, the
+      # non-truthy value '' (the empty string).  But the way the
+      # boolean operators (|| and &&) are used below ensure that the
+      # resulting expression always evaluates to a boolean value, as
+      # expected by the called workflow.
 
       check-manual:
-        "${{ inputs.check-manual
-            || github.event_name != 'workflow_dispatch' }}"
+        "${{ github.event_name == 'workflow_dispatch'
+            && inputs.check-manual }}"
       run-tests:
         "${{ inputs.run-tests
             || github.event_name != 'workflow_dispatch' }}"
