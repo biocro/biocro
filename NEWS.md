@@ -37,6 +37,19 @@ be directly added to this file to describe the related changes.
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
+- Updates related to changing the GitHub hosting organization from
+  "ebimodeling" to "biocro":
+
+  Most references to the ebimodeling GitHub organization have been
+  removed; references to ebimodeling/biocro have been updated to point
+  to biocro/biocro instead.  Most of these occurred in various places
+  in the documentation.  Most links to the online documentation have
+  been replaced with links to https://biocro.github.io, with (in some
+  cases) instructions on how to navigate to the particular section of
+  the documentation of interest.  This decreases dependence on the
+  precise layout of the online documentation.  Some other changes and
+  clarifications to the documentation have been made as well.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
