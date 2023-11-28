@@ -65,6 +65,9 @@ be directly added to this file to describe the related changes.
   when the workflow runs automatically.  This has also been made the
   default when the workflow is run manually.
 
+- GitHub workflows and actions in the repository have been updated to
+  use the latest versions of all GitHub and 3rd-party actions.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES

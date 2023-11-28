@@ -166,7 +166,7 @@ jobs:
 
       - name: Check out repository
         if: ${{ !inputs.dry-run }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
         with:
           submodules: true
 
