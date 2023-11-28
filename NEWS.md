@@ -37,6 +37,9 @@ be directly added to this file to describe the related changes.
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
+- GitHub workflows and actions in the repository have been updated to
+  use the latest versions of all GitHub and 3rd-party actions.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
