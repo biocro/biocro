@@ -81,6 +81,11 @@ be directly added to this file to describe the related changes.
   precise layout of the online documentation.  Some other changes and
   clarifications to the documentation have been made as well.
 
+- Removed usage of deprecated C++ standard library functions
+  `std::unary_function` and `std::binary_function` to address `R CMD check`
+  warnings; this is a temporary manual fix should not be required after
+  version 1.84 of the boost libraries is released.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
