@@ -391,59 +391,7 @@ discuss the following questions:
   prefixes, except that kg is the coherent unit of mass, not g.
 
 * Do not copy and paste code, changing only small parts. Choose a
-  design that eliminates the duplication. Duplication is often the
-  result of not separating control flow from data. Consider the
-  following R code.
-
-    ```r
-    if (!("lattice" %in% installed.packages()[,"Package"])) {
-      install.packages("lattice", repos="http://R-Forge.R-project.org", type="source")
-    }
-
-    if (!("BioCro" %in% installed.packages()[,"Package"])) {
-      devtools::install_github("biocro/biocro")
-    }
-
-    if (!("boot" %in% installed.packages()[,"Package"])) {
-      devtools::install_url("http://cran.r-project.org/src/contrib/Archive/boot/boot_1.3-7.tar.gz")
-    }
-    ```
-
-    The data and behavior can be separated.
-
-    ```r
-    required_packages = list(
-        # package name  # installation function   # function arguments
-        list("lattice", install.packages,         list("lattice", repos="http://R-Forge.R-project.org", type="source")),
-        list("BioCro",  devtools::install_github, list("biocro/biocro")),
-        list("boot",    devtools::install_url,    list("http://cran.r-project.org/src/contrib/Archive/boot/boot_1.3-7.tar.gz"))
-    )
-
-    install_packages_if_missing = function(package_table) {
-        installed_packages = installed.packages()[,"Package"]
-        for (row in package_table) {
-            if (!(row[[1]] %in% installed_packages)) {
-                do.call(row[[2]], row[[3]])
-            }
-        }
-    }
-
-    install_packages_if_missing(required_packages)
-    ```
-
-    In the first example, the behavior is spread throughout all of the
-    code, and there is not an obvious indication of what is being
-    done. Once one understands what is being done, one must still read
-    all of the code to be sure some different behavior is not hidden
-    somewhere.
-
-    In the second example, it is clear that the same task is performed
-    repeatedly because control flow is in a single place, and the
-    place has a meaningful name: `install_packages_if_missing`. For a
-    long list, this is succinct, and easier to understand and
-    maintain. If one wanted, one could devise a way to use the
-    meaningful names of the columns of the `required_packages` table
-    within the function.
+  design that eliminates the duplication.
 
 * Make an effort to write unit tests.  (See the vignette [_An
   Introduction to BioCro for Those Who Want to Add Models_][unit tests
