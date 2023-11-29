@@ -16,7 +16,7 @@ SEXP R_get_all_ode_solvers()
         string_vector result = ode_solver_factory::get_ode_solvers();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_get_all_ode_solvers: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_get_all_ode_solvers: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_all_ode_solvers.");
     }

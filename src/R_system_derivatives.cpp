@@ -96,7 +96,7 @@ SEXP R_system_derivatives(
         return list_from_map(result);
 
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_system_derivatives: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_system_derivatives: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_system_derivatives.");
     }
