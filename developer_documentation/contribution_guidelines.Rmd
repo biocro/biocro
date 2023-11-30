@@ -34,7 +34,7 @@ chapter on contributing to BioCro.  -->
 [coherent units]: https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29 "Wikipedia's entry on Coherent Units" {target="_blank"}
 [src/parameters.h]: `r params$biocro_root`/src/parameters.h "The BioCro parameters.h file" {target="_blank"}
 [unit tests for modules]: https://biocro.github.io/BioCro-documentation/latest/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
-[C++ guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
+[C++ Core guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
 [aspects of coding and design]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming "C++ Core Guidelines' naming and layout suggestions" {target="_blank"}
 [Google C++ style guide]: https://google.github.io/styleguide/cppguide.html#Formatting "Google's guidelines for formatting C++ code" {target="_blank"}
 [Strategies to Speedup R Code]: https://datascienceplus.com/strategies-to-speedup-r-code/ "datascience+ article on speeding up R code" {target="_blank"}
