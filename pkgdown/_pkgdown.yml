@@ -9,6 +9,7 @@ template:
                              # JavaScript console (which is the value
                              # recommended at
                              # https://pkgdown.r-lib.org/articles/customise.html#theming).
+
 navbar:
   structure:
     left:  [about, reference, articles, dev_manual, news, doxygen_docs]
@@ -23,6 +24,9 @@ navbar:
     articles:
       text: Articles
       menu:
+      - text: Article Index
+        href: articles/pdf_vignette_index.html
+      - text: ---
       - text: GENERAL BIOCRO USAGE
       - text: ---
       - text: A Practical Guide to BioCro (PDF)
