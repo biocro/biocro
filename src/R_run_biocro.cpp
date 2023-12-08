@@ -50,12 +50,12 @@ SEXP R_run_biocro(
         state_vector_map result = gro.run_simulation();
 
         if (loquacious) {
-            Rprintf(gro.generate_report().c_str());
+            Rprintf("%s", gro.generate_report().c_str());
         }
 
         return list_from_map(result);
     } catch (std::exception const& e) {
-        Rf_error(string(string("Caught exception in R_run_biocro: ") + e.what()).c_str());
+        Rf_error("%s", string(string("Caught exception in R_run_biocro: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_run_biocro.");
     }

@@ -36,7 +36,7 @@ SEXP R_validate_dynamical_system_inputs(
         if (be_loud) {
             Rprintf("\nChecking the validity of the system inputs:\n");
 
-            Rprintf(msg.c_str());
+            Rprintf("%s", msg.c_str());
 
             if (valid) {
                 Rprintf("\nSystem inputs are valid\n");
@@ -47,7 +47,7 @@ SEXP R_validate_dynamical_system_inputs(
             Rprintf("\nPrinting additional information about the system inputs:\n");
 
             msg = analyze_system_inputs(s, ip, vp, direct_mcs, differential_mcs);
-            Rprintf(msg.c_str());
+            Rprintf("%s", msg.c_str());
 
             // Print a space to improve readability
             Rprintf("\n");
@@ -56,7 +56,7 @@ SEXP R_validate_dynamical_system_inputs(
         return r_logical_from_boolean(valid);
 
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_validate_dynamical_system_inputs.");
     }

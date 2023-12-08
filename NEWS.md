@@ -81,6 +81,10 @@ be directly added to this file to describe the related changes.
   precise layout of the online documentation.  Some other changes and
   clarifications to the documentation have been made as well.
 
+- Addressed some `format-security` compiler warnings related to calling
+  `Rf_error` and `Rprintf` without a format specifier; a format specifier of
+  `"%s"` should always be used when printing the value of a string variable.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
