@@ -1075,14 +1075,14 @@ There are several options for viewing BioCro's source code:
 
 \item BioCro is available as a public GitHub repository, so all of its source
 code can be viewed via a web browser at
-\url{https://github.com/ebimodeling/biocro/tree/soybean}.
+\url{https://github.com/biocro/biocro}.
 
 \item The source code can also be downloaded from the GitHub repository and
 viewed locally via a user's preferred methods.
 
 \item Doxygen documentation of all the code or various subsets of the code can
 be viewed at the BioCro documentation website
-\url{https://ebimodeling.github.io/biocro-documentation/}.
+\url{https://biocro.github.io}.
 
 \end{itemize}
 

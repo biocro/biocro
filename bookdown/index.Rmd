@@ -10,6 +10,26 @@ params:
                      # directory; this can be overridden in the call
                      # to bookdown::render_book()
 ---
+
+<!-- external references -->
+
+<!-- External references used by more than one bookdown source file
+     should be placed here rather than in each of the files where
+     used.  This will prevent "Duplicate link reference" warnings.
+
+     Background: Because the "Knit and Merge" (K-M) strategy (see
+     https://bookdown.org/yihui/bookdown/new-session.html) does not
+     allow Rmd files to be in subdirectories, we must use the "Merge
+     and Knit" (M-K) strategy when rendering the book.  This means
+     that all of the Markdown code will be merged into one file before
+     processing so that the files are not treated independently.  In
+     particular, if the same link reference name is used in multiple
+     files, this will trigger a warning.  -->
+
+[doxygen]: https://www.doxygen.nl/index.html "Doxygen web site" {target="_blank"}
+
+<!-- main text -->
+
 # Introduction {-}
 
 The documentation in this short book is aimed at developers—at those

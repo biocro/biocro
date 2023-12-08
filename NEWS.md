@@ -34,6 +34,11 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
+- The C++ framework has been updated to v1.1.1. Since the framework is included
+  as a git submodule, it will be necessary to use the `--recurse-submodule` flag
+  when using `git pull`, `git checkout`, or `git switch` to update a local copy
+  of the BioCro repository, or to move to or from this branch.
+
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
@@ -68,7 +73,18 @@ be directly added to this file to describe the related changes.
 - GitHub workflows and actions in the repository have been updated to
   use the latest versions of all GitHub and 3rd-party actions.
 
-- The C++ framework has been updated to v1.1.1
+- Updates related to changing the GitHub hosting organization from
+  "ebimodeling" to "biocro":
+
+  Most references to the ebimodeling GitHub organization have been
+  removed; references to ebimodeling/biocro have been updated to point
+  to biocro/biocro instead.  Most of these occurred in various places
+  in the documentation.  Most links to the online documentation have
+  been replaced with links to https://biocro.github.io, with (in some
+  cases) instructions on how to navigate to the particular section of
+  the documentation of interest.  This decreases dependence on the
+  precise layout of the online documentation.  Some other changes and
+  clarifications to the documentation have been made as well.
 
 # CHANGES IN BioCro VERSION 3.0.2
 
@@ -184,8 +200,8 @@ be directly added to this file to describe the related changes.
   - _An Introduction to BioCro for Those Who Want to Add Models_
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
-  can be obtained online at the
-  [BioCro vignette PDF website](https://ebimodeling.github.io/biocro-documentation/docs/articles/pdf_vignette_index.html).
+  can be obtained online from the _Articles_ menu at the
+  [BioCro documentation website](https://biocro.github.io).
 
 # BioCro VERSION 0.951
 
