@@ -118,17 +118,18 @@ namespace boost
 {
     namespace hash_detail
     {
-#if defined(_HAS_AUTO_PTR_ETC) && !_HAS_AUTO_PTR_ETC
+// Commenting out "else" code: don't rely on std::unary_function.
+// #if defined(_HAS_AUTO_PTR_ETC) && !_HAS_AUTO_PTR_ETC
         template <typename T>
         struct hash_base
         {
             typedef T argument_type;
             typedef std::size_t result_type;
         };
-#else
-        template <typename T>
-        struct hash_base : std::unary_function<T, std::size_t> {};
-#endif
+// #else
+//         template <typename T>
+//         struct hash_base : std::unary_function<T, std::size_t> {};
+// #endif
 
         struct enable_hash_value { typedef std::size_t type; };
 
