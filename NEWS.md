@@ -86,6 +86,11 @@ be directly added to this file to describe the related changes.
   precise layout of the online documentation.  Some other changes and
   clarifications to the documentation have been made as well.
 
+- Removed usage of deprecated C++ standard library functions
+  `std::unary_function` and `std::binary_function` to address `R CMD check`
+  warnings; this is a temporary manual fix that should not be required after
+  version 1.84 of the boost libraries is released.
+
 - Addressed some `format-security` compiler warnings related to calling
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
