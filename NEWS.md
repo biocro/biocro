@@ -34,6 +34,11 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
+- The C++ framework has been updated to v1.1.1. Since the framework is included
+  as a git submodule, it will be necessary to use the `--recurse-submodule` flag
+  when using `git pull`, `git checkout`, or `git switch` to update a local copy
+  of the BioCro repository, or to move to or from this branch.
+
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
@@ -85,6 +90,10 @@ be directly added to this file to describe the related changes.
   `std::unary_function` and `std::binary_function` to address `R CMD check`
   warnings; this is a temporary manual fix that should not be required after
   version 1.84 of the boost libraries is released.
+
+- Addressed some `format-security` compiler warnings related to calling
+  `Rf_error` and `Rprintf` without a format specifier; a format specifier of
+  `"%s"` should always be used when printing the value of a string variable.
 
 # CHANGES IN BioCro VERSION 3.0.2
 

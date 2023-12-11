@@ -78,7 +78,7 @@ SEXP R_module_creators(SEXP module_names)
         return mw_ptr_vec;
 
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_module_creators: ") + e.what()).c_str());
+        Rf_error("%s", (std::string("Caught exception in R_module_creators: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_module_creators.");
     }
@@ -95,7 +95,7 @@ SEXP R_get_all_modules()
             module_factory<library>::get_all_modules();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_all_modules.");
     }
@@ -112,7 +112,7 @@ SEXP R_get_all_quantities()
             module_factory<library>::get_all_quantities();
         return list_from_map(all_quantities);
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_get_all_quantities: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_get_all_quantities: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_all_quantities.");
     }
