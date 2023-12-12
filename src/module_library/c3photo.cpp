@@ -1,4 +1,4 @@
-#include <cmath>                        // for pow, sqrt
+#include <cmath>                        // for pow, sqrt, fabs
 #include <algorithm>                    // for std::min
 #include "ball_berry_gs.h"              // for ball_berry_gs
 #include "FvCB_assim.h"                 // for FvCB_assim
@@ -26,8 +26,8 @@ photosynthesis_outputs c3photoC(
     double const b0,                           // mol / m^2 / s
     double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
-    double Ca,                                 // micromol / mol
-    double const AP,                           // Pa
+    double const Ca,                           // micromol / mol
+    double const AP,                           // Pa (TEMPORARILY UNUSED)
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const thet,                         // dimensionless
     double const StomWS,                       // dimensionless
@@ -78,12 +78,6 @@ photosynthesis_outputs c3photoC(
 
     double const Oi = O2 * solo(Tleaf);  // mmol / mol
 
-    if (Ca <= 0) {
-        Ca = 1e-4;  // micromol / mol
-    }
-
-    double const Ca_pa = Ca * 1e-6 * AP;  // Pa.
-
     // TPU rate temperature dependence from Figure 7, Yang et al. (2016) Planta,
     // 243, 687-698. https://doi.org/10.1007/s00425-015-2436-8
     //
@@ -114,10 +108,9 @@ photosynthesis_outputs c3photoC(
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
     stomata_outputs BB_res;
-    double Ci{};                        // micromol / mol
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
-    double Ci_pa{0.0};                  // Pa                 (initial guess)
+    double Ci{0.0};                     // micromol / mol     (initial guess)
     double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
     double const Tol{0.01};             // micromol / m^2 / s
     int iterCounter{0};
@@ -126,7 +119,6 @@ photosynthesis_outputs c3photoC(
     // Run iteration loop
     while (iterCounter < max_iter) {
         double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
-        Ci = (Ci_pa / AP) * 1e6;                  // micromol / mol
 
         // The net CO2 assimilation is the smaller of the biochemistry-limited
         // and conductance-limited rates. This will prevent the calculated Ci
@@ -166,10 +158,10 @@ photosynthesis_outputs c3photoC(
 
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
-        Ci_pa = Ca_pa - AP * (co2_assimilation_rate * 1e-6) *
-                            (dr_boundary / gbw + dr_stomata / Gs);  // Pa
+        Ci = Ca - co2_assimilation_rate *
+                      (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
 
-        if (abs(OldAssim - co2_assimilation_rate) < Tol) {
+        if (fabs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
         }
 
@@ -179,7 +171,7 @@ photosynthesis_outputs c3photoC(
     return photosynthesis_outputs{
         .Assim = co2_assimilation_rate,       // micromol / m^2 / s
         .Assim_conductance = an_conductance,  // micromol / m^2 / s
-        .Ci = (Ci_pa / AP) * 1e6,             // micromol / mol
+        .Ci = Ci,                             // micromol / mol
         .GrossAssim = FvCB_res.Vc,            // micromol / m^2 / s
         .Gs = Gs * 1e3,                       // mmol / m^2 / s
         .Cs = BB_res.cs,                      // micromol / m^2 / s

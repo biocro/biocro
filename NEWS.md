@@ -39,6 +39,12 @@ be directly added to this file to describe the related changes.
   when using `git pull`, `git checkout`, or `git switch` to update a local copy
   of the BioCro repository, or to move to or from this branch.
 
+- Two bugs were corrected in `src/module_library/c3photoC.cpp`:
+  - Convergence is now tested using `fabs` rather than `abs`, since we need the
+    absolute value of a floating point number, not an integer.
+  - The photorespiration value `Rp` is now calculated using the value of `Ci`
+    from the current loop iteration (rather than the previous loop iteration).
+
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
