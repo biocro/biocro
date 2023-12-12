@@ -234,9 +234,7 @@ jobs:
 
       - name: Check package
         if: ${{ !inputs.dry-run }}
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          args: ${{ needs.compute-check-args.outputs.args }}
-          build_args: ${{ needs.compute-check-args.outputs.build_args }}
-          error-on: ${{ needs.compute-check-args.outputs.error_on }}
+        run: |
+          ls -l
+          R CMD check biocro
+
