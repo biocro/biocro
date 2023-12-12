@@ -228,7 +228,9 @@ jobs:
 
       - name: Modify winshlib.mk
         run: |
-          dos2unix "C:/R/share/make/winshlib.mk"
+          file "C:/R/share/make/winshlib.mk"
+          cat "C:/R/share/make/winshlib.mk"
+          unix2dos "C:/R/share/make/winshlib.mk"
 
       - name: Check package
         if: ${{ !inputs.dry-run }}
