@@ -9,6 +9,58 @@ template:
                              # JavaScript console (which is the value
                              # recommended at
                              # https://pkgdown.r-lib.org/articles/customise.html#theming).
+reference:
+- title: "Data"
+- subtitle: "Environmental Data"
+  desc: Atomospheric and Weather Data items available from BioCro
+  contents:
+  - weather
+  - cmi_soybean_weather_data
+  - catm_data
+- subtitle: "Crop Model Definitions"
+  contents:
+  - crop_model_definitions
+  - miscanthus_x_giganteus
+  - soybean
+  - soybean_clock
+  - willow
+- subtitle: "Field Data"
+  contents:
+  - annualDB
+  - obsBea
+  - obsBeaC
+  - obsNaid
+- subtitle: Miscellaneous Data
+  contents:
+  - soil_parameters
+- title: "Functions"
+- subtitle: "Simulation Functions"
+  desc: >
+    Functions for running simulations or simulation steps and related
+    helper functions
+  contents:
+  - run_biocro
+  - partial_application
+  - add_time_to_weather_data
+  - get_growing_season_climate
+  - dynamical_system
+  - module_paste
+  - system_derivatives
+- subtitle: "Informational Functions"
+  desc: "Get information about modules, quantities, and solvers"
+  contents:
+  - get_all
+  - modules
+- subtitle: Module test-related functions
+  contents:
+  - module_testing
+  - test_module
+  - test_module_library
+  - module_case_files
+- title: internal # These items will be ignored:
+  contents:
+  - lightME
+  - module_creators
 navbar:
   structure:
     left:  [about, reference, articles, dev_manual, news, doxygen_docs]
