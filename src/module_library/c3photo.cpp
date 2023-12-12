@@ -26,7 +26,7 @@ photosynthesis_outputs c3photoC(
     double const b0,                           // mol / m^2 / s
     double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
-    double Ca,                                 // micromol / mol
+    double const Ca,                           // micromol / mol
     double const AP,                           // Pa (TEMPORARILY UNUSED)
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const thet,                         // dimensionless
@@ -77,10 +77,6 @@ photosynthesis_outputs c3photoC(
         (2.0 * theta);  // micromol / m^2 / s
 
     double const Oi = O2 * solo(Tleaf);  // mmol / mol
-
-    if (Ca <= 0) {
-        Ca = 1e-4;  // micromol / mol
-    }
 
     // TPU rate temperature dependence from Figure 7, Yang et al. (2016) Planta,
     // 243, 687-698. https://doi.org/10.1007/s00425-015-2436-8
