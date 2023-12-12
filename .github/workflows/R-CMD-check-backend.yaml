@@ -226,6 +226,10 @@ jobs:
 
         shell: Rscript {0}
 
+      - name: Modify winshlib.mk
+        run: |
+          dos2unix "C:/R/share/make/winshlib.mk"
+
       - name: Check package
         if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/check-r-package@v2
