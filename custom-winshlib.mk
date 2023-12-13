@@ -30,6 +30,8 @@ $(SHLIB): $(OBJECTS)
 \
 	    echo $(SHLIB_LD) $(SHLIB_LDFLAGS) $(DLLFLAGS) -o $@ tmp.def OBJECTS $(ALL_LIBS); \
 \
+        echo $(OBJECTS); \
+\
 	    $(SHLIB_LD) $(SHLIB_LDFLAGS) $(DLLFLAGS) -o $@ tmp.def $(OBJECTS) $(ALL_LIBS); \
 \
 	    $(RM) tmp.def; \
