@@ -1,18 +1,18 @@
 [
     {
-        "configName": "R 3.6 on Windows",
+        "configName": "R 4.0.0 on Windows",
         "os": "windows-latest",
-        "r": "3.6"
+        "r": "4.0.0"
     },
     {
-        "configName": "R 3.6 on macOS",
+        "configName": "R 4.0.0 on macOS",
         "os": "macOS-latest",
-        "r": "3.6"
+        "r": "4.0.0"
     },
     {
-        "configName": "R 3.6 on Ubuntu",
+        "configName": "R 4.0.0 on Ubuntu",
         "os": "ubuntu-20.04",
-        "r": "3.6"
+        "r": "4.0.0"
     },
     {
         "configName": "R release version on Ubuntu",
