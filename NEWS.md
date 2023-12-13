@@ -101,6 +101,9 @@ be directly added to this file to describe the related changes.
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
 
+- The minimum supported R version is now 4.0.0.  The R-CMD-check
+  workflow has been updated accordingly.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
