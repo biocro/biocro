@@ -28,7 +28,7 @@ $(SHLIB): $(OBJECTS)
 \
 	    $(NM) $^ | $(SED) -n $(SYMPAT) $(NM_FILTER) | $(SED) $(ADDQU)  >> tmp.def; \
 \
-\
+	    echo $(SHLIB_LD) $(SHLIB_LDFLAGS) $(DLLFLAGS) -o $@ tmp.def OBJECTS $(ALL_LIBS); \
 \
 	    $(SHLIB_LD) $(SHLIB_LDFLAGS) $(DLLFLAGS) -o $@ tmp.def $(OBJECTS) $(ALL_LIBS); \
 \
