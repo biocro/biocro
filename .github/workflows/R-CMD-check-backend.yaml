@@ -230,7 +230,7 @@ jobs:
         run: |
           file "C:/R/share/make/winshlib.mk"
           cat "C:/R/share/make/winshlib.mk"
-          mv custom-winshlib.mk "C:/R/share/make/winshlib.mk"
+          mv -f custom-winshlib.mk "C:/R/share/make/winshlib.mk"
           cat "C:/R/share/make/winshlib.mk"
 
       - name: Check package
