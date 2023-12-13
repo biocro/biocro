@@ -1,8 +1,8 @@
 [
     {
-        "configName": "R 3.6 on Windows",
+        "configName": "R 3.6.0 on Windows",
         "os": "windows-latest",
-        "r": "3.6"
+        "r": "3.6.0"
     },
     {
         "configName": "R 3.6 on macOS",
