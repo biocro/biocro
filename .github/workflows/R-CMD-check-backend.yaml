@@ -235,6 +235,6 @@ jobs:
         if: ${{ !inputs.dry-run }}
         run: |
           ls -l
-          R CMD build --no-manual --no-build-vignettes biocro
+          R CMD build --no-manual --no-build-vignettes .
           R CMD check --no-manual --ignore-vignettes --no-tests --no-examples BioCro_3.0.?.tar.gz
         shell: bash
