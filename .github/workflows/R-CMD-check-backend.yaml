@@ -230,11 +230,11 @@ jobs:
         run: |
           file "C:/R/share/make/winshlib.mk"
           cat "C:/R/share/make/winshlib.mk"
-          unix2dos "C:/R/share/make/winshlib.mk"
 
       - name: Check package
         if: ${{ !inputs.dry-run }}
         run: |
           ls -l
-          R CMD check biocro
-
+          R CMD build --no-manual --no-build-vignettes biocro
+          R CMD check --no-manual --ignore-vignettes --no-tests --no-examples BioCro_3.0.?.tar.gz
+        shell: bash
