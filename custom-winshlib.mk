@@ -37,11 +37,15 @@ $(SHLIB): $(OBJECTS)
 	  fi \
 \
 	fi
-	echo $(SHLIB_LD)
-	echo $(SHLIB_LDFLAGS)
-	echo $(DLLFLAGS)
-	echo $(ALL_LIBS)
-	echo $(OBJECTS)
+	echo $(SHLIB_LD) > debug_vars
+	echo >> debug_vars
+	echo $(SHLIB_LDFLAGS) >> debug_vars
+	echo >> debug_vars
+	echo $(DLLFLAGS) >> debug_vars
+	echo >> debug_vars
+	echo $(ALL_LIBS) >> debug_vars
+	echo >> debug_vars
+	echo $(OBJECTS) >> debug_vars
 
 .PHONY: all shlib-clean
 shlib-clean:
