@@ -57,7 +57,7 @@ on:
           - R devel version on Ubuntu
           - R 3.6 on macOS
           - R release version on macOS
-          - R 3.6 on Windows
+          - R 3.6.0 on Windows
           - R release version on Windows
         default: R 3.6 on Ubuntu
 
