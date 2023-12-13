@@ -37,6 +37,11 @@ $(SHLIB): $(OBJECTS)
 	  fi \
 \
 	fi
+	echo $(SHLIB_LD)
+	echo $(SHLIB_LDFLAGS)
+	echo $(DLLFLAGS)
+	echo $(ALL_LIBS)
+	echo $(OBJECTS)
 
 .PHONY: all shlib-clean
 shlib-clean:
