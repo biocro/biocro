@@ -232,6 +232,7 @@ jobs:
           cat "C:/R/share/make/winshlib.mk"
           mv -f custom-winshlib.mk "C:/R/share/make/winshlib.mk"
           cat "C:/R/share/make/winshlib.mk"
+        shell: bash
 
       - name: Check package
         if: ${{ !inputs.dry-run }}
