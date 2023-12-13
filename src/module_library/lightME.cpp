@@ -96,9 +96,9 @@ Light_model lightME(
     double const diffuse_fraction = 1.0 - direct_fraction;
 
     return Light_model{
-        .direct_transmittance = direct_transmittance,    // dimensionless
-        .diffuse_transmittance = diffuse_transmittance,  // dimensionless
-        .direct_fraction = direct_fraction,              // dimensionless
-        .diffuse_fraction = diffuse_fraction             // dimensionless
+        /* .direct_transmittance = */ direct_transmittance,    // dimensionless
+        /* .diffuse_transmittance = */ diffuse_transmittance,  // dimensionless
+        /* .direct_fraction = */ direct_fraction,              // dimensionless
+        /* .diffuse_fraction = */ diffuse_fraction             // dimensionless
     };
 }

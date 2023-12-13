@@ -143,8 +143,8 @@ stomata_outputs ball_berry_gs(
     double const gswmol = a * hs + bb_offset;  // mol / m^2 / s
 
     return stomata_outputs{
-        .cs = Cs * 1e6,      // micromol / mol
-        .hs = hs,            // dimensionless
-        .gsw = gswmol * 1e3  // mmol / m^2 / s
+        /* .cs = */ Cs * 1e6,      // micromol / mol
+        /* .hs = */ hs,            // dimensionless
+        /* .gsw = */ gswmol * 1e3  // mmol / m^2 / s
     };
 }
