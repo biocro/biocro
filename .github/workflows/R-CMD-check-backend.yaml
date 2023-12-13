@@ -239,7 +239,7 @@ jobs:
         run: |
           ls -l
           R CMD build --no-manual --no-build-vignettes .
-          R CMD check --no-manual --ignore-vignettes --no-tests --no-examples BioCro_3.0.?.tar.gz
+          R CMD check --no-manual --ignore-vignettes --no-examples BioCro_3.0.?.tar.gz
           find . -name debug_vars -type f
           find . -name debug_vars -type f -exec cat {} \;
         shell: bash
