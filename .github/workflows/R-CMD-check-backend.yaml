@@ -226,6 +226,17 @@ jobs:
 
         shell: Rscript {0}
 
+      - name: Modify winshlib.mk
+        if: ${{ matrix.os == 'windows-latest' && matrix.r == '3.6.0' }}
+        run: |
+          # Remove echoing of the OBJECTS variable, which seems to
+          # cause problems when using R 3.6 on Windows
+          sed '/echo.*\$(OBJECTS) /s/ \$(OBJECTS) / /' \
+              "C:/R/share/make/winshlib.mk" > "C:/R/share/make/winshlib.mk-tmp"
+          mv -f "C:/R/share/make/winshlib.mk-tmp" "C:/R/share/make/winshlib.mk"
+          cat "C:/R/share/make/winshlib.mk"
+        shell: bash
+
       - name: Check package
         if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/check-r-package@v2
