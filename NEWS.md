@@ -72,6 +72,14 @@ be directly added to this file to describe the related changes.
   - The debug output steps are grouped together when possible, and the
     output is shown earlier on in the workflow.
 
+  - The R-CMD-check workflow has been modified to work around a
+    problem with testing R version 3.6.0 on Windows.  And for all
+    platforms, we now specify the tested minimum R version as 3.6.0
+    rather than simply 3.6 in order to ensure that we are actually
+    testing the minimum required R version specified in the
+    DESCRIPTION file, rather than some later 3.6.x version such as
+    version 3.6.3.
+
 - Modified the R-CMD-check workflow so that the manual is not checked
   when the workflow runs automatically.  This has also been made the
   default when the workflow is run manually.
