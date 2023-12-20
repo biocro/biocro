@@ -234,7 +234,6 @@ jobs:
           sed '/echo.*\$(OBJECTS) /s/ \$(OBJECTS) / /' \
               "C:/R/share/make/winshlib.mk" > "C:/R/share/make/winshlib.mk-tmp"
           mv -f "C:/R/share/make/winshlib.mk-tmp" "C:/R/share/make/winshlib.mk"
-          cat "C:/R/share/make/winshlib.mk"
         shell: bash
 
       - name: Check package
