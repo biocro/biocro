@@ -1,4 +1,4 @@
-#include <cmath>                        // for pow, sqrt, fabs
+#include <cmath>                        // for pow, sqrt, std::abs
 #include <algorithm>                    // for std::min
 #include "ball_berry_gs.h"              // for ball_berry_gs
 #include "FvCB_assim.h"                 // for FvCB_assim
@@ -161,7 +161,7 @@ photosynthesis_outputs c3photoC(
         Ci = Ca - co2_assimilation_rate *
                       (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
 
-        if (fabs(OldAssim - co2_assimilation_rate) < Tol) {
+        if (std::abs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
         }
 

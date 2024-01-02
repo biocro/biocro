@@ -1,4 +1,4 @@
-#include <cmath>                          // for pow, exp
+#include <cmath>                          // for pow, exp, std::abs
 #include "ball_berry_gs.h"                // for ball_berry_gs
 #include "conductance_limited_assim.h"    // for conductance_limited_assim
 #include "../framework/constants.h"       // for dr_stomata, dr_boundary
@@ -121,7 +121,7 @@ photosynthesis_outputs c4photoC(
             Ca_pa - atmospheric_pressure * (Assim * 1e-6) *
                         (dr_boundary / gbw + dr_stomata / (Gs * 1e-3));  // Pa
 
-        diff = fabs(OldAssim - Assim);  // micromole / m^2 / s
+        diff = std::abs(OldAssim - Assim);  // micromole / m^2 / s
 
         OldAssim = Assim;  // micromole / m^2 / s
 

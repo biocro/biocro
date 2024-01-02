@@ -1,4 +1,4 @@
-#include <cmath>
+#include <cmath>  // For std::abs
 #include <stdexcept>
 #include "c3photo.h"
 #include "BioCro.h"
@@ -102,7 +102,7 @@ struct ET_Str c3EvapoTrans(
             Deltat = TopValue / BottomValue;  // Kelvin. It is also degrees C, because it is a temperature difference.
             Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // Kelvin. It is also degrees C, because it is a temperature difference.
+            ChangeInLeafTemp = std::abs(OldDeltaT - Deltat);  // Kelvin. It is also degrees C, because it is a temperature difference.
         }
     }
 

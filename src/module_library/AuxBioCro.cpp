@@ -5,7 +5,7 @@
 #include <string>
 #include <stdexcept>  // for std::out_of_range, std::range_error
 #include <algorithm>  // for std::max, std::min
-#include <cmath>      // for exp, log, pow, lgamma
+#include <cmath>      // for exp, log, pow, lgamma, std::abs
 #include "c4photo.h"
 #include "BioCro.h"
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure,
@@ -278,7 +278,7 @@ ET_Str EvapoTrans2(
             const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));           // J / m^3 / K
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);                                                 // kelvin. Confine Deltat to the interval [-10, 10]:
 
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
+            ChangeInLeafTemp = std::abs(OldDeltaT - Deltat);  // kelvin
         } while ((++Counter <= 10) && (ChangeInLeafTemp > 0.5));
     }
 
