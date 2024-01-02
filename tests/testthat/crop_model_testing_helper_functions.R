@@ -194,7 +194,7 @@ test_plant_model <- function(test_info) {
         # Run the simulation
         new_result <- 0
         test_that(description_run, {
-            expect_silent(
+            expect_no_error(
                 new_result <<- run_biocro(
                     test_info[['initial_values']],
                     test_info[['parameters']],
