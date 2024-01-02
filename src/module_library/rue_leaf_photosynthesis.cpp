@@ -72,14 +72,14 @@ photosynthesis_outputs rue_photo(
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
 
     return photosynthesis_outputs{
-        .Assim = an * 1e6,                          // micromol / m^2 / s
-        .Assim_conductance = an_conductance * 1e6,  // micromol / m^2 / s
-        .Ci = ci * 1e6,                             // micromol / mol
-        .GrossAssim = ag * 1e6,                     // micromol / m^2 / s
-        .Gs = gs * 1e3,                             // mmol / m^2 / s
-        .Cs = BB_res.cs,                            // micromol / m^2 / s
-        .RHs = BB_res.hs,                           // dimensionless from Pa / Pa
-        .Rp = 0.0                                   // micromol / m^2 / s
+        /* .Assim = */ an * 1e6,                          // micromol / m^2 / s
+        /* .Assim_conductance = */ an_conductance * 1e6,  // micromol / m^2 / s
+        /* .Ci = */ ci * 1e6,                             // micromol / mol
+        /* .GrossAssim = */ ag * 1e6,                     // micromol / m^2 / s
+        /* .Gs = */ gs * 1e3,                             // mmol / m^2 / s
+        /* .Cs = */ BB_res.cs,                            // micromol / m^2 / s
+        /* .RHs = */ BB_res.hs,                           // dimensionless from Pa / Pa
+        /* .Rp = */ 0.0                                   // micromol / m^2 / s
     };
 }
 

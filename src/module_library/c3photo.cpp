@@ -169,15 +169,15 @@ photosynthesis_outputs c3photoC(
     }
 
     return photosynthesis_outputs{
-        .Assim = co2_assimilation_rate,       // micromol / m^2 / s
-        .Assim_conductance = an_conductance,  // micromol / m^2 / s
-        .Ci = Ci,                             // micromol / mol
-        .GrossAssim = FvCB_res.Vc,            // micromol / m^2 / s
-        .Gs = Gs * 1e3,                       // mmol / m^2 / s
-        .Cs = BB_res.cs,                      // micromol / m^2 / s
-        .RHs = BB_res.hs,                     // dimensionless from Pa / Pa
-        .Rp = FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
-        .iterations = iterCounter             // not a physical quantity
+        /* .Assim = */ co2_assimilation_rate,       // micromol / m^2 / s
+        /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
+        /* .Ci = */ Ci,                             // micromol / mol
+        /* .GrossAssim = */ FvCB_res.Vc,            // micromol / m^2 / s
+        /* .Gs = */ Gs * 1e3,                       // mmol / m^2 / s
+        /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
+        /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
+        /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        /* .iterations = */ iterCounter             // not a physical quantity
     };
 }
 

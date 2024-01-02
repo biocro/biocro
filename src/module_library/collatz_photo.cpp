@@ -52,8 +52,8 @@ struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s. Incident
     double Assim = gross_assim - RT;  // micromole / m^2 / s.
 
     struct collatz_result result {
-            .assimilation = Assim,           // micromole / m^2 / s. Leaf area basis.
-            .gross_assimilation = Assim + RT  // micromole / m^2 / s. Leaf area basis.
+        /* .assimilation = */ Assim,           // micromole / m^2 / s. Leaf area basis.
+        /* .gross_assimilation = */ Assim + RT // micromole / m^2 / s. Leaf area basis.
     };
 
     return result;
