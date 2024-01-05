@@ -111,6 +111,12 @@ be directly added to this file to describe the related changes.
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
 
+- Modified some testing-related functions so that warnings due to mismatched
+  framework versions do not trigger test failures: the `tryCatch` call in
+  `test_module` now only catches errors (not warnings) when evaluating the
+  module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
+  now uses `expect_no_error` instead of `expect_silent`.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES

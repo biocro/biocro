@@ -7,7 +7,7 @@ test_module <- function(module_name, case_to_test)
     msg <- character()
     actual_outputs <- tryCatch(
         evaluate_module(module_name, case_to_test[['inputs']]),
-        condition = function(cond) {
+        error = function(cond) {
             msg <<- paste0(
                 "Module `",
                 module_name,
