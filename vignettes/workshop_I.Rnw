@@ -183,15 +183,10 @@ cat(
   \end{itemize}
 
   \item BioCro is free and open-source, with the full source code available via
-  a public GitHub repository: \url{https://github.com/ebimodeling/biocro}.
+  a public GitHub repository: \url{https://github.com/biocro/biocro}.
 
-  \begin{itemize}
-    \item Automated tests ensure that the code does not break following any
-    changes.
-
-    \item The public version on GitHub is BioCro \texttt{2.0.0}, but today we
-    will be using BioCro \texttt{3.0.0}.
-  \end{itemize}
+  \item Automated tests ensure that the code does not break following any
+  changes.
 
 \end{itemize}
 
@@ -451,20 +446,20 @@ View(get_all_modules('BioCro'))
 
   \item This information can be found in the source code for each module, which
   is available online at the BioCro
-  \href{https://github.com/ebimodeling/biocro}{GitHub repository} or via
+  \href{https://github.com/biocro/biocro}{GitHub repository} or via
   the annotated
-  \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/annotated.html}{Doxygen documentation}.
+  \href{https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules/namespacestandard_b_m_l.html}{Doxygen documentation}.
   For example:
 
   \begin{itemize}
     \item A short description of the \texttt{c3\_assimilation} module can be
     found on its associated
-    \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/classc3__assimilation.html#details}{class overview page}
+    \href{https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules/classstandard_b_m_l_1_1c3__assimilation.html#details}{class overview page}
     in the Doxygen documentation.
 
     \item The units for its inputs and outputs can be found as comments in its
     source code, available on its associated
-    \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/c3__assimilation_8h_source.html}{source code page}
+    \href{https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules/c3__assimilation_8h_source.html}{source code page}
     in the Doxygen documentation (see the comments near \texttt{get\_inputs()}
     and \texttt{get\_outputs()}).
 
@@ -511,10 +506,12 @@ default soybean values:
 evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
-    Qp = 1800      # incident PPFD in micromol / m^2 / s
+    Qabs = 1800    # absorbed PPFD in micromol / m^2 / s
     StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    temp = 25      # air temperature in degrees C
     Tleaf = 27     # leaf temperature in degrees C
     rh = 0.7       # relative humidity (dimensionless)
+    gbw = 2.0      # boundary layer conductance to H2O in mol / m^2 / s
   })
 )
 @
@@ -554,24 +551,26 @@ light_response_curve <- module_response_curve(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
     StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    temp = 25      # air temperature in degrees C
     Tleaf = 27     # leaf temperature in degrees C
     rh = 0.7       # relative humidity (dimensionless)
+    gbw = 2.0      # boundary layer conductance to H2O in mol / m^2 / s
   }),
-  data.frame(Qp = seq(0, 2000, length.out = 101))
+  data.frame(Qabs = seq(0, 2000, length.out = 101))
 )
 @
 
 \noindent The return value is a data frame (an R structure equivalent to a
-table), and the response of net assimilation to incident light intensity can be
+table), and the response of net assimilation to absorbed light intensity can be
 plotted from it as follows:
 
 <<light_response_curve_plot>>=
 light_response_curve_plot <- xyplot(
-  Assim ~ Qp,
+  Assim ~ Qabs,
   data = light_response_curve,
   type = 'l',
   grid = TRUE,
-  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  xlab = 'Absorbed PPFD (micromol / m^2 / s)',
   ylab = 'Net assimilation rate\n(micromol / m^2 / s)'
 )
 print(light_response_curve_plot)
@@ -721,7 +720,7 @@ examined using the methods described previously (Section \ref{sec_modules}).
   \item As the main driver of plant growth, photosynthesis plays a prominent
   role in any BioCro model, and many of the soybean modules are related to
   photosynthesis. Mechanistic models of photosynthesis calculate a carbon
-  assimilation rate from inputs like the incident light intensity and
+  assimilation rate from inputs like the absorbed light intensity and
   intercellular CO$_2$ concentration, so they can only be applied at scales
   where these inputs are relatively constant---this is typically the leaf scale
   or smaller. So, in a crop growth model, leaf-level photosynthesis equations
@@ -896,9 +895,11 @@ temperature as an independent input and fix the other module input values:
 c3_tleaf <- partial_evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
-    Qp = 1800      # incident PPFD in micromol / m^2 / s
+    Qabs = 1800    # absorbed PPFD in micromol / m^2 / s
     StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    temp = 25      # air temperature in degrees C
     rh = 0.7       # relative humidity (dimensionless)
+    gbw = 2.0      # boundary layer conductance to H2O in mol / m^2 / s
   }),
   'Tleaf'          # specify the inputs that should not be fixed
 )
@@ -980,6 +981,8 @@ multiple conditions to calculate an optimal temperature curve, see Section
   In this example:
 
   \begin{itemize}
+    \item We have a basic model for sorghum growth.
+
     \item We have sorghum leaf area index (LAI) observed at multiple times
     during the season and above-ground dry yield at the end of the season.
 
@@ -998,10 +1001,12 @@ multiple conditions to calculate an optimal temperature curve, see Section
   \end{itemize}
 \end{itemize}
 
-\noindent The data is stored in \texttt{csv} files and can be loaded into the R
-workspace as follows:
+\noindent The sorghum model is stored in a \texttt{.dat} file and the data is
+stored in \texttt{.csv} files; these can all be loaded into the R workspace as
+follows:
 
 <<load_sorghum_data>>=
+source('sorghum.dat')
 climate <- read.csv('sorghum_climate.csv')
 yield <- read.csv('sorghum_yield.csv')
 @
@@ -1010,6 +1015,7 @@ yield <- read.csv('sorghum_yield.csv')
 easier to use these commands, which will open up interactive file browsers:
 
 <<load_sorghum_flexible,eval=FALSE>>=
+source(file.choose())              # Navigate to 'sorghum.dat'
 climate <- read.csv(file.choose()) # Navigate to 'sorghum_climate.csv'
 yield <- read.csv(file.choose())   # Navigate to 'sorghum_yield.csv'
 @
@@ -1248,7 +1254,7 @@ from the information contained in the response curve data frame.
 <<multiple_response_curves>>=
 temperature_response_curve <- module_response_curve(
   'BioCro:c3_assimilation',
-  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
+  within(soybean$parameters, {Qabs = 2000; StomataWS = 1; temp = 25; gbw = 2.0}),
   expand.grid(
     Tleaf = seq(from = 0, to = 40, length.out = 101),
     rh = c(0.2, 0.5, 0.8)
@@ -1257,7 +1263,7 @@ temperature_response_curve <- module_response_curve(
 
 caption <- paste(
   'Response curves calculated with several RH\nvalues and Q =',
-  unique(temperature_response_curve$Qp),
+  unique(temperature_response_curve$Qabs),
   'micromol / m^2 / s\nusing the',
   unique(temperature_response_curve$module_name),
   'module'
@@ -1276,8 +1282,8 @@ temperature_response_curve_plot <- xyplot(
 print(temperature_response_curve_plot)
 @
 
-\noindent \textbf{Exercise}: Try changing the value of the incident
-photosynthetically active photon flux density \texttt{Qp} and notice how the
+\noindent \textbf{Exercise}: Try changing the value of the absorbed
+photosynthetically active photon flux density \texttt{Qabs} and notice how the
 plot caption is automatically updated to reflect the new value.
 
 
@@ -1301,7 +1307,7 @@ ambient humidity, according to this model.
 <<more_advanced_module_optimization>>=
 c3_tleaf_rh <- partial_evaluate_module(
   'BioCro:c3_assimilation',
-  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
+  within(soybean$parameters, {Qabs = 2000; StomataWS = 1; temp = 25; gbw = 2.0}),
   c('Tleaf', 'rh')
 )
 
@@ -1324,7 +1330,7 @@ optim_temp_plot <- xyplot(
   pch = 20,
   xlab = 'Relative humidity (dimensionless)',
   ylab = 'Optimal leaf temperature for\nmaximum C3 assimilation\n(degrees C)',
-  main = 'Optimizing C3 photosynthesis when\nQp = 2000 in the absence of water stress'
+  main = 'Optimizing C3 photosynthesis when\nQabs = 2000 in the absence of water stress'
 )
 print(optim_temp_plot)
 @
@@ -1485,7 +1491,7 @@ sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
 Now, let's calculate sensitivity coefficients for the \texttt{c3\_assimilation}
 module, treating the ambient CO$_2$ concentration $C_a$ as the independent
 variable and the net assimilation as the dependent variable. We'll also provide
-an option to specify the incident light level. First, we'll need to create a
+an option to specify the absorbed light level. First, we'll need to create a
 function $f$ such that $f$(CO$_2$, Q) = net assimilation. We can specify the
 independent variables using \texttt{partial\_evaluate\_module}, and then create
 another function wrapper later that selects just the net assimilation output.
@@ -1495,49 +1501,51 @@ co2_func <- partial_evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
     StomataWS = 1
+    temp = 25
     Tleaf = 27
     rh = 0.7
+    gbw = 2.0
   }),
-  c('Catm', 'Qp')
+  c('Catm', 'Qabs')
 )
 @
 
-Now we will define a range of incident light values to use and calculate the
+Now we will define a range of absorbed light values to use and calculate the
 sensitivity coefficients for each one using a base level of $C_a$ = 400 ppm.
 
 <<sensitivity_calculations>>=
-qp_seq <- seq(0, 2000, length.out = 101)
+qabs_seq <- seq(0, 2000, length.out = 101)
 
-sens_result <- do.call(rbind, lapply(qp_seq, function(Qp) {
+sens_result <- do.call(rbind, lapply(qabs_seq, function(Qabs) {
   sens <- sensitivity(
-    function(catm) {co2_func(c(catm, Qp))$outputs$Assim},
+    function(catm) {co2_func(c(catm, Qabs))$outputs$Assim},
     400
   )
-  sens$Qp <- Qp  # Also include the incident light level in the result
+  sens$Qabs <- Qabs  # Also include the absorbed light level in the result
   return(sens)
 }))
 @
 
 Now we can see the sensitivity of net assimilation to ambient CO$_2$
-concentration at different levels of incident light intensity.
+concentration at different levels of absorbed light intensity.
 
 <<sensitivity_plot>>=
 sensitivity_plot <- xyplot(
-  s2 ~ Qp,
+  s2 ~ Qabs,
   data = sens_result,
   type = 'l',
   grid = TRUE,
-  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  xlab = 'absorbed PPFD (micromol / m^2 / s)',
   ylab = 'dA / dCa (dimensionless)'
 )
 print(sensitivity_plot)
 @
 
 From this plot, we can learn several things. One observation is that the
-sensitivity coefficient is non-negative for all values of incident light; this
+sensitivity coefficient is non-negative for all values of absorbed light; this
 indicates additional CO$_2$ never causes a decrease soybean assimilation.
 Another observation is that that soybean assimilation is most sensitive to
-increases in ambient CO$_2$ levels when the incident light levels are high. This
+increases in ambient CO$_2$ levels when the absorbed light levels are high. This
 agrees with our intuition; CO$_2$ assimilation is limited by light availability
 at low light levels, so additional CO$_2$ cannot be used for assimilation.
 
@@ -1619,7 +1627,7 @@ in Figure \ref{fig_conceptual_model}, where the model is shown as a collection
 of major components (boxes) and the connections between them (arrows). This
 particular diagram shows that the model can be divided into two conceptually
 distinct parts: leaf photosynthesis and carbon partitioning. The
-photosynthesis component uses the incident sunlight level and the leaf mass to
+photosynthesis component uses the absorbed sunlight level and the leaf mass to
 determine the overall rate of mass gain due to carbon assimilation, and the
 partitioning component determines the separate rates of root and leaf mass gain
 from the overall rate. This type of diagram is essential when building a model
@@ -1633,7 +1641,7 @@ predictions.
     \includegraphics[width=0.4\textwidth]{workshop_I/conceptual_model.pdf}
     \caption{
       A conceptual flow diagram of a simple plant growth model where the
-      incident sunlight and total leaf mass are used to determine the rate of
+      absorbed sunlight and total leaf mass are used to determine the rate of
       carbon assimilation, and then the assimilated carbon is partitioned into
       leaf and root compartments where it determines the rates of mass gain.
       This is an informal style of diagram, but more specialized ones called
@@ -1654,7 +1662,7 @@ the model. Here we will use some simple equations to represent the model.
 
 For photosynthesis, we will calculate the rate of carbon assimilation per unit
 leaf area ($A$; mol m$^{-2}$ s$^{-1}$) and the overall rate of mass gain ($MG$;
-kg s$^{-1}$) from the incident photosynthetically-active photon flux density
+kg s$^{-1}$) from the absorbed photosynthetically-active photon flux density
 ($Q$; mol m$^{-2}$ s$^{-1}$) as follows:
 %
 \begin{subequations}
@@ -1711,7 +1719,7 @@ initial values using simple equations as follows:
   \end{align}
 \end{subequations}
 %
-We would like to consider the incident sunlight $Q$ as varying with time, so we
+We would like to consider the absorbed sunlight $Q$ as varying with time, so we
 have specified its value at 1-second intervals throughout the course of one day
 (Table \ref{tab_drivers}). The values follow a half-period sinusoidal light
 profile throughout the day; this is not realistic, but it is sufficient for this
@@ -1744,7 +1752,7 @@ Q(t) = \sin \left( \frac{t}{3600 \cdot 12} \cdot \pi \right) \cdot 2000 \times 1
 
 Comparing Equations \ref{eq:photo} and \ref{eq:partitioning} with Figure
 \ref{fig_conceptual_model}, we can recognize the essential features of the
-conceptual diagram within the equations. For example, the incident sunlight $Q$
+conceptual diagram within the equations. For example, the absorbed sunlight $Q$
 and the leaf mass $M_{leaf}$ are both inputs to the photosynthesis equations
 (Equation \ref{eq:photo}), while the total rate of mass gain ($MG$) is an input
 to the partitioning equations (Equation \ref{eq:partitioning}). So, taken
@@ -2060,7 +2068,7 @@ method for modifying parameter lists.
 \medskip
 
 \emph{Additional information}: In this example, we have specified 101 evenly
-spaced values of incident light (\texttt{Qp}) between 0 and 2000 $\mu$mol
+spaced values of absorbed light (\texttt{Qabs}) between 0 and 2000 $\mu$mol
 m$^{-2}$ s$^{-1}$, keeping all other inputs constant. The return value
 \texttt{light\_response\_curve} is a data frame. There are several ways to view
 it, such as the following:
