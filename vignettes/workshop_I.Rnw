@@ -1,0 +1,2120 @@
+%\VignetteIndexEntry{BioCro Workshop I: Using BioCro with the Standard Module Library}
+%\VignettePackage{BioCro}
+%\VignetteEngine{knitr::knitr}
+
+
+% See the following pages for more information about the LaTeX
+% problems addressed by the following chunk:
+%
+% - https://tex.stackexchange.com/questions/148188/knitr-xcolor-incompatible-color-definition
+% - https://github.com/yihui/knitr/commit/b31228012419e0365ff33e18ef53fd7be7148e38
+%
+%
+% This chunk must explicitly set eval=TRUE (the default) to ensure
+% that this chunk is evaluated, even when eval has been set to FALSE
+% at the global level, as in the R-CMD-check GitHub workflow.
+
+<<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
+
+## Versions of knitr before 1.39 used the color package, but we want
+## to use xcolor instead (together with the "dvipsnames" option), so
+## we use a hook to do a substitution.  (This hook is a no-op for
+## knitr version 1.39, assuming the color package is not explicitly
+## used by the Rnw file.)
+
+knitr::knit_hooks$set(document = function(x) {
+  sub('\\usepackage[]{color}', '\\usepackage[dvipsnames]{xcolor}', x, fixed = TRUE)
+})
+
+## Version 1.39 of knitr *does* use the xcolor package, but we still
+## have to set it to use the dvipsnames option.  (This option setting
+## is a no-op for knitr versions before 1.39, assuming the xcolor
+## package is not explicitly used by the Rnw file.)
+
+knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
+
+@
+
+\documentclass[10pt,letterpaper,oneside]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[scaled]{helvet}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[margin=1.0in]{geometry}
+
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+
+\usepackage{amsfonts}
+
+\usepackage{listings}
+
+\usepackage{booktabs}
+
+\usepackage[colorlinks=true]{hyperref}
+\hypersetup{
+	pdftitle={BioCro Workshop I: Using BioCro with the Standard Module Library},
+	pdfauthor={BioCro Development Team},
+	colorlinks=true,
+	linkcolor=Blue,
+	citecolor=Blue,
+	filecolor=Blue,
+	urlcolor=Maroon
+}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,
+  doi=true,
+	url=false,
+	isbn=false,
+	eprint=false,
+	date=year,
+	texencoding=utf8,
+	bibencoding=utf8,
+  backref=true
+]{biblatex}
+
+\bibliography{common_sources}
+
+\title{BioCro Workshop I: Using BioCro with the Standard Module Library}
+
+\author{BioCro Development Team}
+
+% Use circles instead of dashes in the second level of an `itemize` environment
+\renewcommand{\labelitemii}{$\circ$}
+
+% Make sure Helvetica is used throughout the document
+% (see https://www.sascha-frank.com/Fonts/Helvetica.html)
+\renewcommand\familydefault{\sfdefault}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{workshop_I/biocro_logo.pdf}
+\end{center}
+
+% Set things up for R evaluation:
+<<preliminaries,echo=FALSE,error=TRUE>>=
+knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
+                                  # in results; this is the default;
+                                  # we override this below when
+                                  # loading needed packages
+knitr::opts_chunk$set(fig.width=5, fig.height=3)
+@
+
+<<loading_packages,echo=FALSE,error=FALSE>>=
+# Load required packages
+library(BioCro)
+library(lattice)
+library(nloptr)
+
+# Check BioCro version
+if (packageVersion('BioCro') < '3.0.0') {
+  stop('This code requires BioCro version 3.0.0 or higher')
+}
+@
+
+<<version_info,echo=FALSE,comment=''>>=
+# Show the current commit hash and the date of that commit.
+cat(
+  paste0(
+    system2('git',
+            args = c('show',
+                     '-s',
+                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD"'
+                    ),
+            stdout = TRUE
+    ),
+    sep = '',
+    collapse = '\n'
+  ),
+  "\nBranch:",
+  system2('git',
+          args = c('branch',
+                   '--show-current'),
+          stdout = TRUE
+  ),
+  "\n"
+)
+@
+
+
+
+\newpage
+
+\tableofcontents
+
+
+
+\newpage
+
+\section{Introduction}
+
+\subsection{Essential information about BioCro}
+
+\begin{itemize}
+  \item BioCro is a software package for modular crop growth simulations.
+
+  \item It can also be thought of as a general-purpose tool for defining and
+  solving sets of ordinary differential equations.
+
+  \item We recently published a paper describing it in \textit{in silico
+  Plants} (\cite{lochocki_biocro_2022}), and there is also a
+  \href{https://ripe.illinois.edu/press/press-releases/illinois-team-significantly-improves-biocro-software-growing-virtual-crops}{press release about the paper}
+  with some additional information.
+
+  \item BioCro is written in \texttt{C++} but has a convenient \texttt{R}
+  interface that we will be using today.
+
+  \begin{itemize}
+    \item R provides many possible avenues for inputting data and analyzing
+    results.
+
+    \item The BioCro R package is not yet on
+    \href{https://cran.r-project.org/}{CRAN}, but we will be submitting it
+    sometime in the next few months.
+  \end{itemize}
+
+  \item BioCro is free and open-source, with the full source code available via
+  a public GitHub repository: \url{https://github.com/ebimodeling/biocro}.
+
+  \begin{itemize}
+    \item Automated tests ensure that the code does not break following any
+    changes.
+
+    \item The public version on GitHub is BioCro \texttt{2.0.0}, but today we
+    will be using BioCro \texttt{3.0.0}.
+  \end{itemize}
+
+\end{itemize}
+
+
+
+\newpage
+
+\subsection{What do we mean by modular modeling?}
+
+\begin{itemize}
+  \item Writing differential equation models is straightforward in itself, but
+  for modeling crops, a couple of problems commonly appear:
+
+  \begin{itemize}
+    \item Many crops share components, so code is duplicated in many places.
+
+    \item There are different ways to model the same process, but there isn't a
+    way to easily choose between them.
+  \end{itemize}
+
+  \item Named sets of equations provide a way to easily select and reuse pieces
+  of models, and they are a central feature of BioCro that allows us to avoid
+  these issues.
+\end{itemize}
+
+\begin{center}
+  \includegraphics[width=\textwidth]{workshop_I/biocro_framework.pdf}
+\end{center}
+
+\subsection{How did we get here?}
+
+\begin{itemize}
+  \item BioCro began its life in the early 1990s as a program called WIMOVAC
+  (\cite{humphries_wimovac_1995}). Crops were added over the years and the
+  software was rewritten in C, eventually becoming BioCro
+  (\cite{miguez_modeling_2012}).
+
+  \item Several years ago, Justin McGrath began modifying BioCro to reduce
+  duplicated code and make it more flexible, resulting in the new version of
+  BioCro we will be using today (\cite{lochocki_biocro_2022}).
+
+  \item The primary developers in recent years include Ed Lochocki, Scott Rohde,
+  Deepak Jaiswal, Megan L. Matthews, Fernando Miguez, Stephen P. Long, and
+  Justin M. McGrath.
+\end{itemize}
+
+
+
+\newpage
+
+\subsection{What does BioCro enable us to do?}
+
+\begin{itemize}
+  \item The latest versions of BioCro were created with a few important
+  philosophical tenets in mind:
+
+  \begin{itemize}
+    \item Models are sets of equations.
+
+    \item No equation is special.
+  \end{itemize}
+
+  \item This mindset has produced a flexible structure where model components
+  can be added, removed, swapped, or redefined in a straightforward way. This
+  makes BioCro particularly well-suited for operations like the following:
+
+  \begin{itemize}
+    \item \textbf{Sensitivity analysis}: Identify parameters that are most
+    important for determining certain outputs.
+
+    \item \textbf{Parameterization}: Find parameter values best reproduce the
+    available experimental data.
+
+    \item \textbf{Quanatitative comparisons between alternate versions of model
+    components}: For example, by quantifying which carbon allocation model best
+    reproduces the available experimental data.
+
+    \item \textbf{Sensor integration}: Replace calculation of a variable with
+    measurements from a sensors.
+
+    \item \textbf{Predictive power}: Quantify changes in accuracy as model
+    components are updated or replaced.
+
+    \item \textbf{Learning and teaching}: Examine model components on their
+    own or in the context of a larger model.
+
+  \end{itemize}
+\end{itemize}
+
+\begin{center}
+  \includegraphics[width=\textwidth]{workshop_I/biocro_cartoon.pdf}
+\end{center}
+
+
+
+\newpage
+
+\subsection{What we'll be covering today}
+
+\begin{itemize}
+  \item The main focus today will be to go through several examples showing how
+  to use the most important BioCro functions, culminating with an example of
+  parameterizing a model using measured data.
+
+  \item Our goal is to give you an idea of what can be done with the existing
+  models available in BioCro, and especially to exhibit tools that can be used
+  to gain more understanding.
+
+  \item There are a few things we will not be covering today; these will be
+  addressed in future workshops:
+
+  \begin{itemize}
+    \item We will not cover the process of adding new model components to
+    BioCro. This is not complicated, but some additional software tools are
+    required.
+
+    \item Although will briefly discuss the important processes included in a
+    typical BioCro simulation, we will not take detailed look into the rationale
+    for these model components, the assumptions underlying them, or the exact
+    equations that they use.
+  \end{itemize}
+
+  \item Many workshop examples will be based on the Soybean-BioCro model, which
+  was also recently published (\cite{matthews_soybean_2022}).
+\end{itemize}
+
+
+
+
+\newpage
+
+\section{Installing and loading R packages}
+
+For this workshop, we will install the package from precompiled files that are
+available in a shared Google Drive folder. Using these files simplifies the
+installation process, which can be accomplished using the following command:
+
+<<installing_the_biocro_r_package,eval=FALSE>>=
+install.packages(file.choose(), repos = NULL, type = 'source')
+@
+
+\noindent Here, the \texttt{file.choose()} command will open an interactive
+window where you can select the source file, which should have a filename like
+\texttt{BioCro\_3.0.0.tgz}, with a possibly different extension depending on
+your operating system.
+
+For this workshop, we will be using the BioCro R package, the \texttt{lattice}
+package (which provides tools for creating plots), and the \texttt{nloptr}
+package (which provides tools for optimization). They can be loaded as follows:
+
+<<eval=FALSE>>=
+# Make sure packages are installed. `lattice` and `nloptr` are available from
+# CRAN, so they can be installed from the remote package repository.
+install.packages('lattice')
+install.packages('nloptr')
+
+<<loading_packages>>
+@
+
+
+
+\newpage
+
+\section{Examining a single module \label{sec_modules}}
+
+\subsection{Getting basic module properties}
+
+\begin{itemize}
+  \item In BioCro, equations are grouped into \emph{libraries} of
+  \emph{modules}.
+
+  \begin{itemize}
+    \item A module represents a set of related equations, while a module library
+    contains a set of related modules.
+
+    \item Modules come in two types: \emph{differential} modules calculate time
+    derivatives of their outputs, while \emph{direct} modules calculate their
+    outputs directly.
+  \end{itemize}
+
+  \item For each module, the variables associated with its equations
+  can be thought of as its inputs and outputs.
+
+  \begin{itemize}
+    \item Example: The C$_3$ assimilation module from the standard module
+    library represents the Farquhar-von-Caemmerer-Berry model for C$_3$
+    photosynthesis coupled with the Ball-Berry equation for stomatal
+    conductance. It needs values of light intensity, leaf temperature, Rubisco
+    kinetic parameters, and several other variables. It uses several equations
+    to calculates the CO$_2$ assimilation rate, stomatal conductance to H$_2$O,
+    and internal CO$_2$ concentration from those inputs.
+  \end{itemize}
+
+  \item We can obtain basic information about a module from using the
+  \texttt{module\_info} function, which requires a module name as an input.
+
+  \begin{itemize}
+    \item In BioCro, modules are identified by \emph{fully-qualified} names that
+    include the library name and the local name of the module within the library
+    formatted like \texttt{library\_name:local\_name}.
+
+    \item Currently, there is only one BioCro module library---the standard
+    module library---whose name is \texttt{BioCro}.
+  \end{itemize}
+\end{itemize}
+
+\noindent Here we use \texttt{module\_info} to obtain basic information about a
+very simple module from the standard module library:
+
+<<module_info>>=
+module_info('BioCro:total_biomass')
+@
+
+
+
+\newpage
+
+\subsection{Getting a list of all modules}
+
+\begin{itemize}
+  \item The standard module library contains many modules.
+
+  \item To see them all, we can use the \texttt{get\_all\_modules} function,
+  which requires the name of a module library.
+
+  \item Then, the \texttt{module\_info} function can be used to get basic
+  information about any of them.
+\end{itemize}
+
+\noindent Here we use \texttt{get\_all\_modules} to view a list of all modules
+in the standard module library:
+
+<<viewing_all_modules,eval=FALSE>>=
+View(get_all_modules('BioCro'))
+@
+
+\noindent \textbf{Exercise}: Pick another module from the list, such as
+\texttt{BioCro:c3\_assimilation}, and get its basic information.
+
+
+
+\newpage
+
+\subsection{Getting more information about a module}
+
+\begin{itemize}
+  \item The module information available from within R is missing some important
+  parts:
+
+  \begin{itemize}
+    \item The units for a module's inputs and outputs.
+
+    \item A description of the module's purpose.
+
+    \item The equations it actually uses.
+  \end{itemize}
+
+  \item This information can be found in the source code for each module, which
+  is available online at the BioCro
+  \href{https://github.com/ebimodeling/biocro}{GitHub repository} or via
+  the annotated
+  \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/annotated.html}{Doxygen documentation}.
+  For example:
+
+  \begin{itemize}
+    \item A short description of the \texttt{c3\_assimilation} module can be
+    found on its associated
+    \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/classc3__assimilation.html#details}{class overview page}
+    in the Doxygen documentation.
+
+    \item The units for its inputs and outputs can be found as comments in its
+    source code, available on its associated
+    \href{https://ebimodeling.github.io/biocro-documentation/doxygen_docs_modules/c3__assimilation_8h_source.html}{source code page}
+    in the Doxygen documentation (see the comments near \texttt{get\_inputs()}
+    and \texttt{get\_outputs()}).
+
+    % The c3_assimilation code is a bit complicated to go through, but we could
+    % take a direct look at the total_biomass module.
+    \item The code implementation of its equations can also be found in the
+    source code (see \texttt{do\_operation()}).
+  \end{itemize}
+
+  \item \textbf{Caveat}: Fully documenting the modules is a long and time
+  consuming process, so some modules have incomplete or nonexistent
+  documentation at the moment.
+\end{itemize}
+
+
+
+\newpage
+
+\subsection{Evaluating modules \label{sec_run_module}}
+
+\subsubsection{Evaluating a module once}
+
+\begin{itemize}
+  \item Analogous to evaluating an expression of code, we can evaluate a model's
+  equations given a set of inputs.
+
+  \item This can be accomplished from \texttt{R} using the
+  \texttt{evaluate\_module} function, which requires the name of a module and a
+  set of input values. It returns a list of the module's output values.
+\end{itemize}
+
+\noindent For example, we can run the \texttt{c3\_assimilation} module using
+default soybean values for most of its inputs using the following command, which
+also specifies the values of a few module inputs that are not included in the
+default soybean values:
+
+% For the next several function examples, we should explicitly describe
+% the arguments. Here, module_name and input_quantities. Also, since this is the
+% first substantial example, switch to R GUI and show how the documentation for
+% evaluate_module can be accessed. Also show how additional info can be found in
+% the Practical Guide.
+
+<<running_a_module>>=
+evaluate_module(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {
+    Qp = 1800      # incident PPFD in micromol / m^2 / s
+    StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    Tleaf = 27     # leaf temperature in degrees C
+    rh = 0.7       # relative humidity (dimensionless)
+  })
+)
+@
+
+\noindent \textbf{Exercise}: Try changing some of the input values or running a
+different module.
+
+
+
+\newpage
+
+\subsubsection{Calculating and viewing a module response curve \label{sec_response_curve}}
+
+\begin{itemize}
+  \item In the previous example, the module inputs each had a single value, so
+  the each output also had a single value.
+
+  \item It is also possible to provide a sequence of input values and run the
+  module for each of them.
+
+  \item This can be a useful way to see how one of a module's outputs depends on
+  one of its inputs; the result from this type of calculation is typically
+  called a \emph{response curve}.
+
+  \item This can be done using the \texttt{module\_response\_curve} function,
+  which requires us to specify inputs that should remain constant and inputs
+  that should be varied.
+\end{itemize}
+
+\noindent For example, we can calculate a light response curve using the
+\texttt{c3\_assimilation} module:
+
+% Here explain module_name, fixed_quantities, varying_quantities.
+
+<<c3_light_response_curve>>=
+light_response_curve <- module_response_curve(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {
+    StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    Tleaf = 27     # leaf temperature in degrees C
+    rh = 0.7       # relative humidity (dimensionless)
+  }),
+  data.frame(Qp = seq(0, 2000, length.out = 101))
+)
+@
+
+\noindent The return value is a data frame (an R structure equivalent to a
+table), and the response of net assimilation to incident light intensity can be
+plotted from it as follows:
+
+<<light_response_curve_plot>>=
+light_response_curve_plot <- xyplot(
+  Assim ~ Qp,
+  data = light_response_curve,
+  type = 'l',
+  grid = TRUE,
+  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  ylab = 'Net assimilation rate\n(micromol / m^2 / s)'
+)
+print(light_response_curve_plot)
+@
+
+\noindent The output from \texttt{module\_response\_curve} includes \emph{all}
+of the module's outputs, so we could also plot the response of another output
+using the same data frame.
+
+\bigskip
+
+\noindent \textbf{Exercise}: Try plotting the response of stomatal conductance
+(\texttt{Gs}) to light.
+
+\bigskip
+
+\noindent For another example demonstrating how to calculate multiple response
+curves at once, see Section \ref{sec_multi_response}.
+
+
+
+\newpage
+
+\section{Combining modules to form a larger model \label{sec_simulations}}
+
+\subsection{Running a soybean growth model for one season \label{sec_simulate_one_year}}
+
+\begin{itemize}
+  \item A key part of BioCro is the ability to link modules together in chains
+  where the output from one module can be used as the input to another.
+
+  \begin{itemize}
+    \item Example: the value of the \texttt{StomataWS} input to the
+    \texttt{BioCro:c3\_canopy} module could be calculated using the
+    \texttt{BioCro:stomata\_water\_stress\_linear} module since
+    \texttt{StomataWS} is an output of that module.
+  \end{itemize}
+
+  \item This is the main way we can construct complex BioCro models from simpler
+  model components.
+
+  \item If a model includes derivative modules, we can solve the resulting set
+  of coupled ordinary differential equations to find the model's state at
+  specific time points.
+
+  \item The main BioCro function, \texttt{run\_biocro}, does the work of
+  combining the modules and integrating the rates of change for us.
+\end{itemize}
+
+\noindent For example, we can run a soybean growth model using weather data from
+Champaign, Illinois during 2002 with the following command:
+
+% Here explain the various "equation" parameters and ode_solver, and mention
+% that much more information can be found in the Practical Guide.
+
+<<soybean_simulation>>=
+soybean_result <- run_biocro(
+  soybean$initial_values,
+  soybean$parameters,
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver
+)
+@
+
+\noindent As with \texttt{module\_response\_curve}, the return value from
+\texttt{run\_biocro} is a data frame. We can view it directly as a table, or
+plot some of its columns against each other. Here we plot the calculated biomass
+values against time:
+
+<<soybean_simulation_plot>>=
+soybean_biomass_2002_plot <- xyplot(
+  Leaf + Stem + Root + Grain ~ time,
+  data = soybean_result,
+  type = 'l',
+  grid = TRUE,
+  auto.key = list(space = 'right'),
+  xlab = 'Day of year (2002)',
+  ylab = 'Biomass (Mg / ha)'
+)
+print(soybean_biomass_2002_plot)
+@
+
+\noindent \textbf{Exercise}: Try plotting the soybean biomass against its
+developmental index (the \texttt{DVI} column) instead of time, or try plotting
+some other outputs like LAI (the \texttt{lai} column), canopy assimilation rate
+(the \texttt{canopy\_assimilation\_rate} column), or the degree of water stress
+(the \texttt{StomataWS} column).
+
+
+
+\newpage
+
+\subsection{Components of a typical BioCro crop growth model}
+
+\begin{itemize}
+  \item Although the BioCro framework is a general-purpose tool for building and
+  solving models, the standard module library is specialized for crop growth
+  models that follow a similar organizational structure and contain many similar
+  components.
+
+  \item In fact, it is possible to represent most BioCro crop models at a high
+  level using a single diagram (subject to some necessary crop-specific
+  modifications).
+\end{itemize}
+
+\begin{center}
+  \includegraphics[width=\textwidth]{workshop_I/generic_model.pdf}
+\end{center}
+
+\begin{itemize}
+  \item At the code level, each of these important processes is implemented via
+  one or more modules.
+
+  \item The particulars may differ from crop to crop; see below for a list of
+  all modules in Soybean-BioCro.
+\end{itemize}
+
+<<soybean_modules>>=
+cat(as.character(soybean$direct_modules), sep = '\n')
+cat(as.character(soybean$differential_modules), sep = '\n')
+@
+
+
+
+\newpage
+
+\subsection{Brief overview of the Soybean-BioCro modules}
+
+A full description of Soybean-BioCro, including the assumptions underlying each
+component and the rationale for using them, would require at least one textbook
+and at least one workshop.
+
+Some of this information can be found in the publication describing the model
+(\cite{matthews_soybean_2022}). There are also several textbooks that can be
+helpful resources for understanding the many components involved in BioCro's
+crop growth simulations
+(\cite{campbell_introduction_1998,monteith_principles_2013,thornley_plant_1990}).
+
+Here, we will give a short overview of the major components of Soybean-BioCro,
+explaining how the modules relate to the conceptual diagram. Many details about
+the module equations have been omitted, but the module code and behavior can be
+examined using the methods described previously (Section \ref{sec_modules}).
+
+\begin{itemize}
+  \item As the main driver of plant growth, photosynthesis plays a prominent
+  role in any BioCro model, and many of the soybean modules are related to
+  photosynthesis. Mechanistic models of photosynthesis calculate a carbon
+  assimilation rate from inputs like the incident light intensity and
+  intercellular CO$_2$ concentration, so they can only be applied at scales
+  where these inputs are relatively constant---this is typically the leaf scale
+  or smaller. So, in a crop growth model, leaf-level photosynthesis equations
+  must be embedded in a canopy photosynthesis model where conditions like
+  temperature, humidity, and light are allowed to vary within the canopy. In the
+  soybean model, conditions in individual layers of the canopy are calculated
+  using the \texttt{ten\_layer\_canopy\_properties} module, leaf-level
+  assimilation and transpiration rates are calculated for each layer using the
+  \texttt{ten\_layer\_c3\_canopy} module, and then the leaf-level rates are
+  added across layers by the \texttt{ten\_layer\_canopy\_integrator} module to
+  find the canopy-level rates.
+
+  \item Mechanistic photosynthesis models respond to conditions specific to the
+  leaf, such as its temperature and intercellular CO$_2$ concentration; however,
+  these conditions are generally unknown beforehand since sensor data usually
+  only includes properties of the ambient air surrounding the canopy. For this
+  reason, it is necessary to include the the processes of heat and gas exchange
+  between the leaf and its environment. Gas exchange is regulated by stomatal
+  opening, which is typically modeled using empirical relationships; in BioCro,
+  we use the Ball-Berry model. Heat exchange (and, ultimately, leaf
+  temperature), is determined by conservation of energy; in BioCro, we use
+  ``the Penman-Monteith equation'' to calculate leaf temperature, which
+  implements energy conservation in an approximate way. These processes are
+  included in the \texttt{ten\_layer\_c3\_canopy} module along with
+  photosynthesis.
+
+  \item Light levels within the canopy strongly depend on environmental
+  conditions outside the canopy, which are supplied via the weather data
+  when running a simulation. The soybean model is designed to work with
+  weather data sets where the incident sunlight is specified simply as the
+  total intensity incident per unit of ground area just above the canopy.
+  However, this is not enough information to determine light levels inside
+  the canopy---it is critical to know how much of the light is direct vs.
+  diffuse radiation, and for the direct light, it is critical to know the
+  angle at which it hits the canopy. The
+  \texttt{solar\_position\_michalsky} module calculates the angular
+  position of the Sun given the latitude, longitude, and time, the \newline
+  \texttt{shortwave\_atmospheric\_scattering} module calculates the
+  expected fractions of direct vs. diffuse light from the Sun's position,
+  and the \texttt{incident\_shortwave\_from\_ground\_par} module calculates
+  the actual intensities of direct and diffuse light just above the canopy.
+
+  \item Once a canopy assimilation rate has been calculated, other modules
+  decide how the assimilated carbon should be allocated for growth and
+  maintenance respiration among the crop's tissues. Currently, BioCro crop
+  models all use \emph{partitioning} models, where fractions of the assimilated
+  carbon are assigned to each tissue to be used for growth and respiration; this
+  is accomplished by pairing the \texttt{partitioning\_growth} module with one
+  of the available ``partitioning growth calculator'' modules, which each
+  implement slightly different rules for taking respiration and other factors
+  into account. The soybean model uses the \newline
+  \texttt{no\_leaf\_resp\_neg\_assim\_partitioning\_growth\_calculator}
+  module as its partitioning growth calculator.
+
+  \item There are also several possible strategies for choosing the
+  ``partitioning coefficients,'' dimensionless fractions that determine the
+  relative amounts of carbon devoted to each tissue in a partitioning growth
+  model. In general, these coefficients depend on the developmental stage of the
+  plant; as an extreme example, soybeans do not devote any carbon towards pod
+  production until the flowering stage has been reached. The soybean model uses
+  the \texttt{partitioning\_coefficient\_logistic} module to vary these
+  coefficients continuously as the crop ages. The developmental stage of the
+  crop is expressed as a dimensionless \emph{development index} (DVI), which is
+  determined from the temperature and photoperiod using the \newline
+  \texttt{soybean\_development\_rate\_calculator} module. Most BioCro modules
+  are intended to be applicable to multiple crops, but the developmental
+  response to temperature and photoperiod is very specific to soybean.
+
+  \item As a crop continues to age, it eventually begins to senesce. The soybean
+  model uses the \newline \texttt{senescence\_logistic} module to accomplish
+  this, which decreases the mass of each tissue at a rate proportional to its
+  mass; in other words, it implements an exponential decay. Some of the lost
+  mass is converted to litter, and some is remobilized for use by other organs
+  such as the pod. The rate constants for senescence are calculated from soybean
+  DVI by the \texttt{senescence\_coefficient\_logistic} module.
+
+  \item Water availability plays a major role in crop growth. When water is
+  scarce, plants respond by closing their stomata to reduce transpiration, which
+  also reduces carbon assimilation. In the soybean model, this relationship is
+  implemented by the \texttt{stomata\_water\_stress\_linear} module, which
+  determines a reduction factor for stomatal conductance from the soil water
+  content. In turn, the soil water content is influenced by several factors:
+  rainfall is the only source of soil water, while water available to the plant
+  is lost due to canopy transpiration, evaporation from the soil surface,
+  runoff, and the flow of water away from the surface to deeper soil layers.
+  These processes are included in the soybean model via the
+  \texttt{soil\_evaporation} and \texttt{two\_layer\_soil\_profile} modules.
+
+  \item Of the remaining two modules used in the soybean model, the
+  \texttt{parameter\_calculator} module is more important. Although it has
+  several possible uses, here it is only used to determine the canopy's leaf
+  area index from the total leaf mass. The remaining module---
+  \texttt{thermal\_time\_linear}---is included for historical reasons and its
+  output is not actually used by any other component of the model; it could be
+  removed without any effect on the simulated values of biomass.
+\end{itemize}
+
+
+
+\newpage
+
+\section{More analysis techniques}
+
+\subsection{Optimization problems}
+
+\begin{itemize}
+  \item We've now seen the essential BioCro functions, but have only just
+  scratched the surface of what we can do with them.
+
+  \item R offers many possibilities in addition to the plotting tools that we
+  have already used.
+
+  \item For example, we can solve optimization problems with functions like
+  \texttt{optim}.
+
+  \begin{itemize}
+    \item The \texttt{optim} function is a general-purpose optimizer that
+    minimizes the return value of another function (\texttt{fn}).
+
+    \item Most optimizers, including \texttt{optim}, require that \texttt{fn}
+    takes a numeric vector as an input and returns a single numeric value as its
+    output.
+  \end{itemize}
+
+  \item We could use this to maximize an output like assimilation or to fit
+  simulated biomass to measured data.
+
+  \item But, first we need to create a suitable \texttt{fn} from the other
+  BioCro functions like \texttt{evaluate\_module} and \texttt{run\_biocro}.
+  These functions have too many inputs and outputs, so they need to be modified.
+
+  \item As a general strategy, we can take the following two steps to create a
+  suitable \texttt{fn}:
+
+  \begin{itemize}
+    \item Identify inputs that we want to vary, and fix the values of all other
+    inputs; this technique is known in computer programming as \emph{partial
+    application}.
+
+    \item Choose a method for extracting one important value to be optimized;
+    this step is more open-ended and will depend on the particular situation.
+  \end{itemize}
+
+  \item The BioCro package provides functions to help with partial application
+  (\texttt{partial\_evaluate\_module} and \texttt{partial\_run\_biocro}), and
+  the following examples will demonstrate how they can be used in the context of
+  optimization.
+\end{itemize}
+
+
+
+\newpage
+
+\subsection{Maximizing soybean assimilation \label{sec_optimize_module}}
+
+\begin{itemize}
+  \item Let's say we want to maximize soybean assimilation rate by varying the
+  leaf temperature; in other words, we want to find the temperature that
+  produces the highest soybean assimilation rate for a set of otherwise fixed
+  conditions.
+
+  \item In this case, we could use \texttt{optim} to maximize the value of a
+  function \texttt{fn} that takes a value of leaf temperature as an input and
+  returns a value of the net assimilation rate.
+\end{itemize}
+
+\noindent Here we show how to generate a suitable function from the
+\texttt{BioCro:c3\_assimilation} module. The first step is to indentify leaf
+temperature as an independent input and fix the other module input values:
+
+<<partial_evaluate_module_p1>>=
+c3_tleaf <- partial_evaluate_module(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {
+    Qp = 1800      # incident PPFD in micromol / m^2 / s
+    StomataWS = 1  # 1 indicates no water stress, 0 indicates maximum water stress
+    rh = 0.7       # relative humidity (dimensionless)
+  }),
+  'Tleaf'          # specify the inputs that should not be fixed
+)
+
+# We can run the module using a leaf temperature of 27 degrees C
+str(c3_tleaf(27))
+@
+
+\noindent The new \texttt{c3\_tleaf} function accepts the required input, but it
+returns much more information than we need. Here we create a simple ``wrapper''
+for this function that extracts only the net assimilation output:
+
+<<partial_evaluate_module_p2>>=
+c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
+
+# We can run the module using a leaf temperature of 27 degrees C, only returning
+# the assim output
+c3_assim_from_tleaf(27)
+@
+
+\noindent Now we can pass this function to \texttt{optim}, with one small
+modification: \texttt{optim} actually \emph{minimizes} the value of the function
+passed to it, so if we want to \emph{maximize} net assimilation, we need to
+rephrase the problem as minimizing the negative of the value of net
+assimilation:
+
+<<finding_optimal_temperature>>=
+optim_result <- optim(
+  25,                                    # initial guess for optimal temperature
+  function(x) {-c3_assim_from_tleaf(x)}, # rephrase to a minimization
+  method = 'Brent',                      # this method is great for 1D optimization
+  lower = 0,                             # lower limit of temperatures to try
+  upper = 50                             # upper limit of temperatures to try
+)
+
+# Print the optimal Tleaf value
+optim_result$par
+@
+
+\noindent For a more advanced example where net assimilation is maximized under
+multiple conditions to calculate an optimal temperature curve, see Section
+\ref{sec_advanced_maximization}.
+
+
+
+\newpage
+
+\subsection{Parameterizing a model using measured data \label{sec_optimize_simulation}}
+
+\begin{itemize}
+  \item One of the most important parts of developing a model is parameterizing
+  it by comparing its predictions against measured data.
+
+  \item An optimizer can be used to accomplish this goal by finding the optimal
+  values of parameters that produce the best agreement with the measurements.
+
+  \item In order to do this, the main tasks are to:
+
+  \begin{itemize}
+    \item Obtain measurements of quantities that can be predicted by the model.
+
+    \item Identify which of the model parameters should be varied to create the
+    best match with the measured data.
+
+    \item Define an \emph{error metric} that quantifies the degree of agreement
+    between the predictions and the observations; typically this will be
+    something like the $\chi^2$ statistic. Smaller values of the error metric
+    should indicate a closer agreement.
+
+    \item Create a function that accepts a single vector (the values of the
+    selected parameters) and returns a single number (the resulting value of the
+    error metric).
+  \end{itemize}
+
+  \item Once these tasks have been performed, the resulting function can then be
+  passed to an optimizer, which will find the values that minimize the error.
+
+  \item Here we show how this parameterization can be accomplished using BioCro.
+  In this example:
+
+  \begin{itemize}
+    \item We have sorghum leaf area index (LAI) observed at multiple times
+    during the season and above-ground dry yield at the end of the season.
+
+    \item Many parameters affect both of these values, but we will fit only the
+    initial specific leaf area (\texttt{iSp}) and the ``specific leaf area
+    thermal time decay'' (\texttt{Sp\_thermal\_time\_decay}), which reduces the
+    specific leaf area as the crop ages.
+
+    \item We will use $\chi^2$ for the error metric; this is a useful statistic
+    when fitting observations of quantities that may have very different
+    magnitudes due to differences in units.
+
+    \item We will use one of the derivative-free optimization algorithms
+    available from the \texttt{nloptr} package, since it tends to converge
+    quickly in these applications.
+  \end{itemize}
+\end{itemize}
+
+\noindent The data is stored in \texttt{csv} files and can be loaded into the R
+workspace as follows:
+
+<<load_sorghum_data>>=
+climate <- read.csv('sorghum_climate.csv')
+yield <- read.csv('sorghum_yield.csv')
+@
+
+\noindent If the data files are not in your current working directory, it may be
+easier to use these commands, which will open up interactive file browsers:
+
+<<load_sorghum_flexible,eval=FALSE>>=
+climate <- read.csv(file.choose()) # Navigate to 'sorghum_climate.csv'
+yield <- read.csv(file.choose())   # Navigate to 'sorghum_yield.csv'
+@
+
+\newpage % try to avoid splitting any code blocks across page breaks
+
+\noindent Next, we'll create a function that runs a sorghum growth simulation
+using the weather data but accepts only \texttt{iSp} and
+\texttt{Sp\_thermal\_time\_decay} as inputs; this can be accomplished using
+\texttt{partial\_run\_biocro}. When comparing to the measured data, we'll need
+the above-ground dry yield; this isn't included in the typical simulation
+output, but can be calculated afterwards:
+
+<<sorghum_partial_function>>=
+partial_function = function(x) {
+  f = with(sorghum, {partial_run_biocro(
+    initial_values,
+    parameters,
+    climate,
+    direct_modules,
+    differential_modules,
+    ode_solver,
+    c('iSp', 'Sp_thermal_time_decay')
+  )})
+  r = f(x)
+  r = within(r, {above_ground_dry_yield = Leaf + Stem})
+  r
+}
+@
+
+\noindent Now \texttt{partial\_function} accepts a vector of the two values, but
+it still returns all of the model output rather than a single value to minimize.
+We can use it to calculate $\chi^2$ by wrapping another function around it:
+
+<<sorghum_minimization_function>>=
+to_minimize = function(x) {
+  # Get results from the model and then pull out times at which there are
+  # observed data
+  r = partial_function(x)
+  r_at_obs = r[r$doy_time %in% yield$doy_time, ]
+
+  # We'll used the chi-squared statistic. It is the sum of squared differences
+  # divided by predicted values. Using this gives more equal weight to each
+  # variable you're predicting. Otherwise, values that are big because of unit
+  # differences will have more weight.
+  obs_lai = yield$lai
+  pred_lai = r_at_obs$lai
+  ss1 = sum(((obs_lai - pred_lai)^2 / pred_lai), na.rm=TRUE)
+
+  obs_yield = yield$above_ground_dry_yield
+  pred_yield = r_at_obs$above_ground_dry_yield
+  ss2 = sum(((obs_yield - pred_yield)^2 / pred_yield), na.rm=TRUE)
+  ss = ss1 + ss2
+
+  # Some parameters cause the model to fail completely. Thus, add a large
+  # penalty for each failed predicted value. This will make the optimizer
+  # move away from unrealistic input values. Here, `!is.finite` will find Inf,
+  # NaN, and NA values.
+  n_na = sum(!is.finite(c(pred_yield, pred_lai)))
+  ss = ss + 100 * n_na
+  ss
+}
+@
+
+\newpage % try to avoid splitting any code blocks across page breaks
+
+\noindent Now we can perform the optimization; we'll also wrap the call to the
+optimizer in \texttt{system.time} so we can see how long it takes to run:
+
+<<sorghum_optimization>>=
+opts = list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
+system.time({
+  nlresult = nloptr(
+    x0=unlist(sorghum$parameters[c('iSp', 'Sp_thermal_time_decay')]),
+    eval_f=to_minimize, opts=opts,
+    lb=c(0.0001, 0),
+    ub=c(100, 100)
+  )
+})
+setNames(nlresult$solution, c('iSp', 'Sp_thermal_time_decay'))
+@
+
+\noindent Now we can check the result. In this plot, LAI values are shown in
+blue while above-ground biomass is shown in black. Measured values are shown as
+circles, while simulated output is shown as smooth lines.
+
+<<sorghum_optimizer_check>>=
+r = partial_function(nlresult$solution)
+plot(above_ground_dry_yield ~ doy_time, yield, xlim=c(4000, 7000), ylim=c(0, 25))
+lines(above_ground_dry_yield ~ doy_time, r)
+points(lai ~ doy_time, yield, col='blue')
+lines(lai ~ doy_time, r, col='blue')
+@
+
+\noindent For a simpler (but less realistic) example of parameterization, see
+Section \ref{sec_simple_parameterization}.
+
+\bigskip
+
+\noindent \textbf{That's the end of the structured part of the workshop!} With
+any remaining time that might be left, you can participate in the soybean
+challenge (Section \ref{sec_challenge}), try out some of the examples in
+Section \ref{sec_additional_topics}, try something on your own, or ask any
+other questions you might have.
+
+
+
+\newpage
+
+\subsection{The soybean challenge \label{sec_challenge}}
+
+One way to test your BioCro knowledge is to try to maximize soybean yield. As in
+Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002:
+
+<<eval=FALSE>>=
+<<soybean_simulation>>
+@
+
+\noindent Then, the final pod biomass can be extracted as follows:
+
+<<>>=
+soybean_result$Grain[nrow(soybean_result)]
+@
+
+\noindent Your task is to increase that value! For example, you could try
+increasing a photosynthesis parameter like $V_{c,max}$, which is represented in
+the soybean model as \texttt{vmax1}:
+
+<<soybean_vmax>>=
+soybean_result_new <- run_biocro(
+  soybean$initial_values,
+  within(soybean$parameters, {vmax1 = 200}),
+  soybean_weather$'2002',
+  soybean$direct_modules,
+  soybean$differential_modules,
+  soybean$ode_solver
+)
+
+soybean_result_new$Grain[nrow(soybean_result)]
+@
+
+\noindent Any approach is allowed! If you think you have a way to get a super
+high yield, email your code to
+\href{mailto:eloch@illinois.edu}{eloch@illinois.edu}.
+
+
+
+\newpage
+
+\section{Additional topics \label{sec_additional_topics}}
+
+\subsection{Swapping a model component}
+
+In Section \ref{sec_simulate_one_year}, we ran a default Soybean-BioCro
+simulation for weather data from 2002:
+
+<<eval=FALSE>>=
+<<soybean_simulation>>
+@
+
+In this simulation, photosynthesis was included via the mechanistic
+Farquhar-von-Caemmerer-Berry (FvCB) model. Alternatively, it would be possible
+to use a simpler photosynthesis model based on radiation use efficiency (RUE).
+In the RUE model, the gross assimilation rate is directly proportional to the
+incident light intensity. The standard BioCro module library contains a RUE
+canopy photosynthesis module, so it is simple to run an alternate soybean
+simulation using RUE photosynthesis in place of the FvCB model. In addition to
+switching a module, we will also need to provide a value for the efficiency,
+which is called \texttt{alpha\_rue}. This can be done as follows:
+
+<<soybean_simulation_rue>>=
+soybean_result_rue <- run_biocro(
+  soybean$initial_values,
+  within(soybean$parameters, {alpha_rue = 0.05}),
+  soybean_weather$'2002',
+  within(soybean$direct_modules, {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}),
+  soybean$differential_modules,
+  soybean$ode_solver
+)
+@
+
+\noindent Predicted biomass values from the two versions can be compared
+visually:
+
+<<soybean_simulation_comparison>>=
+biomass_col <- c('time', 'Leaf', 'Stem', 'Root', 'Grain')
+soybean_comp <- rbind(
+  within(soybean_result[biomass_col], {photo_method = 'FvCB'}),
+  within(soybean_result_rue[biomass_col], {photo_method = 'RUE'})
+)
+
+xyplot(
+  Leaf + Stem + Root + Grain ~ time,
+  group = photo_method,
+  data = soybean_comp,
+  type = 'l',
+  auto.key = list(space = 'right'),
+  grid = TRUE,
+  xlab = 'Day of year (2002)',
+  ylab = 'Biomass (Mg / ha)'
+)
+@
+
+\noindent With this value of \texttt{alpha\_rue}, the agreement between the
+model predictions is not so great. However, an optimization procedure similar to
+the ones in Section \ref{sec_optimize_simulation} and
+\ref{sec_simple_parameterization} could be used to find the value of
+\texttt{alpha\_rue} that produces the best agreement. Afterwards, the response
+of the two different soybean models to important factors like temperature and
+CO$_2$ can be compared using response curves (as in Section
+\ref{sec_response_curve}) and sensitivity analysis (as in Sections
+\ref{sec_module_sensitivity} and \ref{sec_module_sensitivity}). This type of
+analysis can reveal scenarios where the model behavior is expected to differ.
+For an example of how this could be done, see \cite{lochocki_biocro_2022} and
+the \emph{Quantitative Comparison Between Two Photosynthesis Models} vignette.
+
+
+
+\newpage
+
+\subsection{Simultaneously calculating and plotting multiple response curves \label{sec_multi_response}}
+
+When calling \texttt{module\_response\_curve}, it is possible to vary multiple
+inputs at one time, which allows us to calculate multiple response curves with
+one command.
+
+For example, we can calculate the temperature response of light-saturated net
+assimilation at several values of relative humidity (RH). Here, the leaf
+temperature and humidity values are independent of each other, so we use the
+\texttt{expand.grid} function to form a data frame of all possible combinations
+of their values. Then, we use the \texttt{group} option in \texttt{xyplot} to
+separately plot the light response curves for each value of relative humidity.
+We also use the \texttt{paste} function to generate an informative plot title
+from the information contained in the response curve data frame.
+
+<<multiple_response_curves>>=
+temperature_response_curve <- module_response_curve(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
+  expand.grid(
+    Tleaf = seq(from = 0, to = 40, length.out = 101),
+    rh = c(0.2, 0.5, 0.8)
+  )
+)
+
+caption <- paste(
+  'Response curves calculated with several RH\nvalues and Q =',
+  unique(temperature_response_curve$Qp),
+  'micromol / m^2 / s\nusing the',
+  unique(temperature_response_curve$module_name),
+  'module'
+)
+
+temperature_response_curve_plot <- xyplot(
+  Assim ~ Tleaf,
+  group = rh,
+  data = temperature_response_curve,
+  auto.key = list(space = 'right'),
+  type = 'l',
+  xlab = 'Leaf temperature (degrees C)',
+  ylab = 'Net assimilation rate\n(micromol / m^2 / s)',
+  main = caption
+)
+print(temperature_response_curve_plot)
+@
+
+\noindent \textbf{Exercise}: Try changing the value of the incident
+photosynthetically active photon flux density \texttt{Qp} and notice how the
+plot caption is automatically updated to reflect the new value.
+
+
+
+\newpage
+
+\subsection{Maximizing net assimilation under multiple conditions \label{sec_advanced_maximization}}
+
+An interesting feature of the response curves in Section
+\ref{sec_multi_response} is that for each value of RH, there is an optimal value
+of leaf temperature that maximizes the net assimilation rate. We can use a
+combination of BioCro tools and built-in R tools to determine the optimal
+temperature for a given RH value. In this example, we use the
+\texttt{partial\_evaluate\_module} BioCro function to hold all module inputs
+except \texttt{Tleaf} and \texttt{RH} constant. Then we ask an optimizer to find
+the value of \texttt{Tleaf} that maximizes the module's net assimilation output
+for a sequence of humidities. Using this process, we generate a curve we can use
+to visualize how the optimal temperature for C$_3$ photosynthesis depends on
+ambient humidity, according to this model.
+
+<<more_advanced_module_optimization>>=
+c3_tleaf_rh <- partial_evaluate_module(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {Qp = 2000; StomataWS = 1}),
+  c('Tleaf', 'rh')
+)
+
+rh_seq <- seq(0.2, 1, length.out = 21)
+
+optim_temp <- sapply(rh_seq, function(rh) {
+  optim_result_rh <- optim(
+    25,
+    function(tl) {-c3_tleaf_rh(c(tl, rh))$outputs$Assim},
+    method = 'Brent',
+    lower = 0,
+    upper = 50
+  )
+  optim_result_rh$par
+})
+
+optim_temp_plot <- xyplot(
+  optim_temp ~ rh_seq,
+  type = 'b',
+  pch = 20,
+  xlab = 'Relative humidity (dimensionless)',
+  ylab = 'Optimal leaf temperature for\nmaximum C3 assimilation\n(degrees C)',
+  main = 'Optimizing C3 photosynthesis when\nQp = 2000 in the absence of water stress'
+)
+print(optim_temp_plot)
+@
+
+\noindent It is well-known that the optimal temperature for photosynthesis
+depends on the ambient CO$_2$ concentration (\cite{long_modification_1991}).
+This example shows that the optimal temperature also changes with humidity
+levels, shifting to lower temperatures in drier conditions.
+
+\bigskip
+
+\noindent \textbf{Exercise}: Try finding the optimal LAI that maximizes net
+soybean canopy assimilation for fixed environmental conditions. For this, the
+\texttt{BioCro:c3\_canopy} module would be required instead of the
+\texttt{BioCro:c3\_assimilation} module.
+
+
+
+\newpage
+
+\subsection{A simple example of model parameterization \label{sec_simple_parameterization}}
+
+When developing a model, it is typically necessary to determine parameter values
+by comparing the simulation's output against experimentally measured data. For
+BioCro, the measured data would typically consist of leaf mass, stem mass, root
+mass, leaf area index, and possibly other physical observations made at multiple
+time points during one or more growing seasons. There may also be several
+parameters whose values must be determined.
+
+As a simpler example, here we will consider a contrived scenario where we have
+one measurement (final pod biomass) from soybeans during one year, and we have
+one unknown parameter value (\texttt{alphaLeaf}) to determine. First, we will
+use partial application to fix all the simulation inputs except
+\texttt{alphaLeaf}. Then we will define a function that compares the final pod
+biomass with the measured value, producing an error metric that can be minimized
+by an optimizer. This analysis begins with a similar strategy to the one
+outlined for modules in Section \ref{sec_optimize_module}.
+
+<<simple_soybean_optimization>>=
+sim_func <- with(soybean, {partial_run_biocro(
+  initial_values,
+  parameters,
+  soybean_weather$'2002',
+  direct_modules,
+  differential_modules,
+  ode_solver,
+  'alphaLeaf'
+)})
+
+final_pod_func <- function(alphaLeaf) {
+  sim_result <- sim_func(alphaLeaf)
+  sim_result$Grain[nrow(sim_result)]
+}
+
+observed_biomass <- 6 # Mg / ha
+
+optim_result <- optim(
+  soybean$parameters$alphaLeaf,  # initial guess for alphaLeaf
+  function(x) {(observed_biomass - final_pod_func(x))^2},
+  method='Brent',
+  lower = 20,  # lower limit for alphaLeaf
+  upper = 25   # upper limit for alphaLeaf
+)
+
+print(paste(
+  'alphaLeaf =',
+  optim_result$par,
+  'produces a final pod biomass of',
+  observed_biomass,
+  'Mg / ha'
+))
+@
+
+\noindent \textbf{Exercise}: Try varying a different parameter instead of
+\texttt{alphaLeaf}.
+
+
+\newpage
+
+\subsection{Calculating module sensitivity coefficients \label{sec_module_sensitivity}}
+
+\emph{Sensitivity analysis} can be a powerful way to understand and demonstrate
+the behavior of a model component or a model as a whole. Essentially, we choose
+a particular output that we're interested in (such as net assimilation rate) and
+calculate changes in that variable that occur in response to small changes in
+an input. This technique can reveal which model inputs have the biggest impact
+on its important outputs; in turn, this knowledge can be used to guide future
+investigations.
+
+There are several ways to calculate sensitivity coefficients during
+sensitivity analysis. Let's say we have a function $f(x)$ that calculates a
+value of $y$ from a value of $x$, and we want to calculate the sensitivity of
+$y$ to $x$ at a value of $x_0$. The simplest option would be to choose a small
+$x$ step size ($\delta x$) and compute the sensitivity as
+\begin{equation}
+s_1 = f(x_0 + \delta x) - f(x_0).
+\end{equation}
+In other words, $s_1$ is the change in $y$ caused by an increase in $x$ from
+$x_0$ to $x_0 + \delta x$. A disadvantage of this approach is that $s_1$
+strongly depends on the value of $\delta x$. So we could also try
+\begin{equation}
+s_2 = s_1 / \delta x.
+\end{equation}
+Now we can interpret $s_2$ as the change in $y$ per change in $x$. Note that as
+$\delta x$ approaches 0, $s_2$ approaches the derivative $df / dx$ evaluated at
+$x_0$. In other words, for values of $\delta x$ that are sufficiently small,
+$s_2$ is independent of $\delta x$. Another option is to calculate fractional
+changes rather than absolute changes, i.e.,
+\begin{equation}
+s_3 = \frac{s_1 / f(x_0)}{\delta x / x_0}
+    = \frac{s_2}{f(x_0) / x_0}
+    = s_2 \frac{x_0}{f(x_0)}.
+\end{equation}
+We can interpret $s_3$ as the relative change in $y$ per relative change in $x$.
+As $\delta x$ approaches 0, $s_3$ approaches $(df / dx) (x_0 / f(x_0))$, where
+the derivative is evaluated at $x_0$. Again, for values of $\delta x$ that are
+sufficiently small, $s_3$ is independent of $\delta x$. Note that this approach
+is not viable if $x_0$ is zero because $s_3$ is undefined in that case. (If $df
+/ dx$ approaches infinity as $x_0$ approaches 0, then $s_3$ may have a finite
+value that could be calculated using L'H\^{o}pital's rule; however, this
+situation is difficult to deal with using numerical methods.)
+
+Also note that there are two strategies commonly employed for choosing
+$\delta x$. One is to simply specify an absolute value. The other is to specify
+a relative step size where $\delta x = \epsilon x_0$ for a small value of
+$\epsilon$.
+
+Here we define a sensitivity helping function that requires $f(x)$, $x_0$, and
+either $\delta x$ or $\epsilon$ as input arguments, and returns the values of
+$s_1$, $s_2$, and $s_3$ as a data frame. If \texttt{delta\_x} is \texttt{NULL},
+then a relative step based on $\epsilon$ will be used for the calculations.
+
+<<sensitivity_function>>=
+sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
+  if (is.null(delta_x)) {
+    delta_x <- x0 * ep
+  }
+
+  x1 <- x0 + delta_x
+  y0 <- FUN(x0)
+  y1 <- FUN(x1)
+  s1 <- y1 - y0
+  s2 <- s1 / delta_x
+  s3 <- s2 / (y0 / x0)
+
+  return(data.frame(
+    x0 = x0,
+    x1 = x1,
+    y0 = y0,
+    y1 = y1,
+    s1 = s1,
+    s2 = s2,
+    s3 = s3
+  ))
+}
+@
+
+Now, let's calculate sensitivity coefficients for the \texttt{c3\_assimilation}
+module, treating the ambient CO$_2$ concentration $C_a$ as the independent
+variable and the net assimilation as the dependent variable. We'll also provide
+an option to specify the incident light level. First, we'll need to create a
+function $f$ such that $f$(CO$_2$, Q) = net assimilation. We can specify the
+independent variables using \texttt{partial\_evaluate\_module}, and then create
+another function wrapper later that selects just the net assimilation output.
+
+<<sensitivity_co2_function>>=
+co2_func <- partial_evaluate_module(
+  'BioCro:c3_assimilation',
+  within(soybean$parameters, {
+    StomataWS = 1
+    Tleaf = 27
+    rh = 0.7
+  }),
+  c('Catm', 'Qp')
+)
+@
+
+Now we will define a range of incident light values to use and calculate the
+sensitivity coefficients for each one using a base level of $C_a$ = 400 ppm.
+
+<<sensitivity_calculations>>=
+qp_seq <- seq(0, 2000, length.out = 101)
+
+sens_result <- do.call(rbind, lapply(qp_seq, function(Qp) {
+  sens <- sensitivity(
+    function(catm) {co2_func(c(catm, Qp))$outputs$Assim},
+    400
+  )
+  sens$Qp <- Qp  # Also include the incident light level in the result
+  return(sens)
+}))
+@
+
+Now we can see the sensitivity of net assimilation to ambient CO$_2$
+concentration at different levels of incident light intensity.
+
+<<sensitivity_plot>>=
+sensitivity_plot <- xyplot(
+  s2 ~ Qp,
+  data = sens_result,
+  type = 'l',
+  grid = TRUE,
+  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  ylab = 'dA / dCa (dimensionless)'
+)
+print(sensitivity_plot)
+@
+
+From this plot, we can learn several things. One observation is that the
+sensitivity coefficient is non-negative for all values of incident light; this
+indicates additional CO$_2$ never causes a decrease soybean assimilation.
+Another observation is that that soybean assimilation is most sensitive to
+increases in ambient CO$_2$ levels when the incident light levels are high. This
+agrees with our intuition; CO$_2$ assimilation is limited by light availability
+at low light levels, so additional CO$_2$ cannot be used for assimilation.
+
+\bigskip
+
+\noindent \textbf{Exercise}: The \texttt{BioCro:c4\_assimilation} module could
+be used to calculate a similar sensitivity curve for miscanthus (using default
+values from \texttt{miscanthus\_x\_giganteus\_parameters}), revealing some
+differences between the response of C$_3$ and C$_4$ photosynthesis to changes in
+atmospheric CO$_2$ levels.
+
+
+
+\newpage
+
+\subsection{Calculating simulation sensitivity coefficients \label{sec_sim_sensitivity}}
+
+It is possible to calculate the sensitivity of simulation outputs like final
+pod biomass to input parameters like $C_a$ following the same approach used in
+Section \ref{sec_module_sensitivity}. The only difference would be that
+\texttt{partial\_run\_biocro} will be used to construct $f(x)$, rather than
+\texttt{partial\_evaluate\_module}.
+
+As a simple example, we will calculate the sensitivity of final pod biomass in
+2002 to the value of \texttt{alphaLeaf}. To do it, we can reuse a few functions
+that were previously defined:
+
+<<simulation_sensitivity>>=
+sensitivity(final_pod_func, soybean$parameters$alphaLeaf)
+@
+
+An interesting observation here is that the sensitivity coefficients are
+negative, indicating that increases in \texttt{alphaLeaf} create decreases in
+yield. \texttt{alphaLeaf} controls the crop's level of leaf investment, so we
+have learned that additional leaf investment is detrimental to soybean yield;
+this agrees with previous results indicating that soybean canopies are larger
+than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
+
+\bigskip
+
+\noindent \textbf{Exercise}: Try calculating the sensitivity coefficient for the
+response of soybean yield to changes in atmospheric CO$_2$ concentration. Also,
+see \cite{lochocki_biocro_2022} for a more detailed example of calculating and
+using simulation sensitivity coefficients.
+
+
+
+\newpage
+
+\setlength\bibitemsep{2.0\itemsep}
+\printbibliography[heading=bibintoc]
+
+\end{document}
+
+%%                                                                            %%
+%% Here I have collected some sections of the document that I ultimately      %%
+%% decided to remove... I'm keeping them around in case they're useful later  %%
+%% (EBL)                                                                      %%
+%%                                                                            %%
+
+\section{Introduction to modular modeling and BioCro}
+
+\subsection{Three levels of computational modeling}
+
+In general, there are several different ways to think about a computational
+model as we move from abstract to concrete representations. Defining a model
+using computer code---the most concrete representation---is necessary for
+numerically solving it, but there are several complications associated with
+modeling at the code level. BioCro is designed to help mitigate these issues.
+So, before we begin to discuss BioCro, it is helpful to understand the three
+essential ways to think about a model: at the conceptual level, at the equation
+level, and at the code level. In this section, we will illustrate these levels
+using a very simple plant growth model.
+
+\subsubsection{The concept level \label{sec_concept_level}}
+
+At the conceptual level, we often represent models using diagrams like the one
+in Figure \ref{fig_conceptual_model}, where the model is shown as a collection
+of major components (boxes) and the connections between them (arrows). This
+particular diagram shows that the model can be divided into two conceptually
+distinct parts: leaf photosynthesis and carbon partitioning. The
+photosynthesis component uses the incident sunlight level and the leaf mass to
+determine the overall rate of mass gain due to carbon assimilation, and the
+partitioning component determines the separate rates of root and leaf mass gain
+from the overall rate. This type of diagram is essential when building a model
+because it allows us to identify the important processes, inputs, and outputs
+that we want to include in the model, as well as the relationships between them.
+However, it doesn't let us actually make quantitative calculations or
+predictions.
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{workshop_I/conceptual_model.pdf}
+    \caption{
+      A conceptual flow diagram of a simple plant growth model where the
+      incident sunlight and total leaf mass are used to determine the rate of
+      carbon assimilation, and then the assimilated carbon is partitioned into
+      leaf and root compartments where it determines the rates of mass gain.
+      This is an informal style of diagram, but more specialized ones called
+      \emph{Forrester diagrams} more clearly specify different types of model
+      components.
+    }
+    \label{fig_conceptual_model}
+  \end{center}
+\end{figure}
+
+\subsubsection{The equation level \label{sec_equation_level}}
+
+In order to make calculations, we first need to associate equations with the
+boxes and lines in the conceptual diagram. Typically there are multiple
+possibilities for the equations to use; our choices will depend on the
+information we have available to us, as well as our goals for how we want to use
+the model. Here we will use some simple equations to represent the model.
+
+For photosynthesis, we will calculate the rate of carbon assimilation per unit
+leaf area ($A$; mol m$^{-2}$ s$^{-1}$) and the overall rate of mass gain ($MG$;
+kg s$^{-1}$) from the incident photosynthetically-active photon flux density
+($Q$; mol m$^{-2}$ s$^{-1}$) as follows:
+%
+\begin{subequations}
+  \label{eq:photo}
+  \begin{align}
+    A  & = Q \cdot \alpha_{RUE} \\[5pt]
+    MG & = A \cdot M_{leaf} \cdot SLA \cdot C_{conversion}
+  \end{align}
+\end{subequations}
+%
+Here, $\alpha_{RUE}$ (mol CO$_2$ (mol photon)$^{-1}$) is the radiation use
+efficiency, $M_{leaf}$ is the leaf mass (kg), $SLA$ (m$^2$ kg$^{-1}$) is the
+specific leaf area, and $C_{conversion}$ (kg mol$^{-1}$) is the amount of mass
+gained by the plant per mol of assimilated carbon.
+
+For carbon partitioning, we will calculate the rates of leaf and root mass
+gain ($dM_{leaf} / dt$ and $dM_{root} / dt$, respectively, where $M_{root}$
+is the root mass) as follows:
+%
+\begin{subequations}
+ \label{eq:partitioning}
+ \begin{align}
+  \frac{dM_{leaf}}{dt} & = MG \cdot f_{leaf} \\[5pt]
+  \frac{dM_{root}}{dt} & = MG \cdot f_{root}
+ \end{align}
+\end{subequations}
+%
+Here $f_{leaf}$ and $f_{root}$ are the fractions of carbon allocated to the
+leaf and root, respectively. (To ensure that mass is conserved, the sum of
+$f_{leaf}$ and $f_{root}$ should be 1.)
+
+These equations represent the essential processes included in the model, but
+they don't specify values for the parameters (like $SLA$ and $\alpha_{RUE}$) or
+the initial values of the leaf and root masses. So, there are a few additional
+equations required to fully describe the model. We can define the parameters and
+initial values using simple equations as follows:
+%
+\begin{subequations}
+  \label{eq:parameters}
+  \begin{align}
+    \alpha_{RUE}   & = 0.07 \\[5pt]
+    SLA            & = 25   \\[5pt]
+    f_{leaf}       & = 0.2  \\[5pt]
+    f_{root}       & = 0.8  \\[5pt]
+    C_{conversion} & = 0.03
+  \end{align}
+\end{subequations}
+%
+\begin{subequations}
+  \label{eq:initial_values}
+  \begin{align}
+    M_{leaf}(0) & = 1 \\[5pt]
+    M_{root}(0) & = 1
+  \end{align}
+\end{subequations}
+%
+We would like to consider the incident sunlight $Q$ as varying with time, so we
+have specified its value at 1-second intervals throughout the course of one day
+(Table \ref{tab_drivers}). The values follow a half-period sinusoidal light
+profile throughout the day; this is not realistic, but it is sufficient for this
+simple model. They are calculated according to the following equation, where the
+time $t$ is expressed in seconds:
+%
+\begin{equation}
+\label{eq:q}
+Q(t) = \sin \left( \frac{t}{3600 \cdot 12} \cdot \pi \right) \cdot 2000 \times 10^{-6}.
+\end{equation}
+
+\begin{table}[ht]
+  \begin{center}
+    \begin{tabular}{@{}cc@{}}
+      \toprule
+      t        & Q                    \\ \midrule
+      0        & 0                    \\
+      1        & $7.2 \times 10^{-8}$ \\
+      2        & $1.5 \times 10^{-7}$ \\
+      \vdots   & \vdots               \\
+      86400    & 0                    \\ \bottomrule
+    \end{tabular}
+  \end{center}
+  \caption{
+    Values of $Q(t)$ specified at 1-second intervals over the course of one day,
+    as calculated using Equation \ref{eq:q}.
+    \label{tab_drivers}
+  }
+\end{table}
+
+Comparing Equations \ref{eq:photo} and \ref{eq:partitioning} with Figure
+\ref{fig_conceptual_model}, we can recognize the essential features of the
+conceptual diagram within the equations. For example, the incident sunlight $Q$
+and the leaf mass $M_{leaf}$ are both inputs to the photosynthesis equations
+(Equation \ref{eq:photo}), while the total rate of mass gain ($MG$) is an input
+to the partitioning equations (Equation \ref{eq:partitioning}). So, taken
+together, Equations \ref{eq:photo}, \ref{eq:partitioning}, \ref{eq:parameters},
+and \ref{eq:initial_values}, along with Table \ref{tab_drivers}, define the
+model in a more concrete way than the conceptual diagram. However, we are still
+not able to readily solve the model or use it to make predictions.
+
+\subsubsection{The code level \label{sec_code_level}}
+
+To finally make calculations, we need to translate these equations into a format
+that can be understood by a computer. We can think of this as the most concrete
+and specialized way to represent a model: the code level. For example, we can
+define and solve the model in the \texttt{R} environment with the help of the
+\texttt{deSolve} library (Figure \ref{fig_code_model}).
+
+\begin{figure}[htbp]
+<<code_level_example>>=
+library(deSolve)
+
+f = function(t, y, p) {
+  with(p, with(as.list(y), {
+    A = Q(t) * alpha_rue          # mol / m^2 / s
+    MG = A * Leaf * SLA * C_conv  # kg
+    dLeaf = MG * f_leaf           # kg / s
+    dRoot = MG * f_root           # kg / s
+    return(list(c(dLeaf, dRoot)))
+  }))
+}
+
+initial_values <- c(
+  Leaf = 1,  # kg
+  Root = 1   # kg
+)
+
+params <- list(
+  alpha_rue = 0.07,     # mol / mol
+  SLA = 25,             # m^2 / kg
+  f_leaf = 0.2,         # kg / ks
+  f_root = 0.8,         # kg / kg
+  C_conv = 0.03,        # kg / mol
+  Q = function(time) {  # mol / m^2 / s
+    sin(time / 3600 / 12 * pi * 2000e-6)
+  }
+)
+
+time <- seq(0, 3600 * 12)  # s
+solution <- lsodes(initial_values, time, f, params)
+@
+\caption{
+  \texttt{R} code capable of solving the model defined in Sections
+  \ref{sec_concept_level} and \ref{sec_equation_level}.
+  \label{fig_code_model}
+}
+\end{figure}
+
+It is clear that all the equations have made an appearance in this code, but
+there are also several associated commands related to computer operations. The
+requirement to add these commands can be a barrier to using a computational
+model, since writing them requires specialized knowledge beyond just the
+mathematical form of the equations.
+
+Another important thing to notice is that in this code, we have lost most of the
+flexibility that existed at the conceptual level. For example, at the conceptual
+level (Figure \ref{fig_conceptual_model}, we specify that there is a
+photosynthesis component, but we don't specify which one, and we are free to
+mentally replace one model with another. In the code, however, we have clearly
+specified that our photosynthesis model has a linear response to light, and it
+is much more difficult to switch to a different model. (Perhaps in this case it
+wouldn't be too much work, but more realistic models are typically much more
+complicated, and the existing code is not always organized in a way that clearly
+indicates which lines are related to which model component.)
+
+\subsection{Making computer code more modular and flexible}
+
+The main purpose of BioCro is to mitigate both issues with the code
+representation of a model that were discussed in Section \ref{sec_code_level}---
+the requirement for specialized computer programming knowledge and the lack of
+flexibility---by (1) reducing the amount of ``extra stuff'' that must be written
+when translating equations to the code level and (2) retaining the flexibility
+of the concept level. In BioCro, this is accomplished by breaking up a model's
+equations into reusable groups that we call \emph{modules}; this terminology was
+chosen to emphasize that BioCro takes a \emph{modular} approach to modeling. (In
+typical computer science terms, one might say that BioCro takes a highly
+\emph{encapsulated} approach to modeling.) To understand what this means, let's
+look at another short example showing how a typical piece of computer code can
+be made more modular. This time, we will consider two hypothetical pieces of
+code that represent models of soybean and miscanthus growth (Figure
+\ref{fig_modular_code}).
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=\textwidth]{workshop_I/modular_code.pdf}
+    \caption{
+      Diagram showing how models of soybean and miscanthus
+      growth can be made more modular. \emph{Left}: In the original versions,
+      both pieces of code contain identical sections for modeling carbon
+      allocation. \emph{Center}: To reduce duplication, the code has been
+      modified so that both crop models now use a separate function to implement
+      the carbon allocation component. \emph{Right}: To make the code even more
+      flexible, the crop models now allow the user to specify a carbon
+      allocation function, which could be selected from multiple options.
+    }
+    \label{fig_modular_code}
+  \end{center}
+\end{figure}
+
+\subsubsection{Identifying distinct concepts}
+
+The key to making code more modular and flexible is to identify and separate
+logically distinct concepts whenever possible. For example, let's say we notice
+that the two growth models are using the same equations for allocating carbon
+to the leaf and stem---perhaps both models use Equation \ref{eq:partitioning}
+but with different parameters (see the left part of Figure
+\ref{fig_modular_code}). Noticing overlaps like this one are not always easy
+because the code may not be written in exactly the same way. For example, the
+\texttt{R} code for soybean might look like this:
+
+<<soybean_overlap_example,eval=FALSE>>=
+leaf_mass_gain_rate <- total_mass_gain_rate * 0.2
+root_mass_gain_rate <- total_mass_gain_rate * 0.8
+@
+
+\noindent while the \texttt{R} code used in the miscanthus version
+might look like this:
+
+<<miscanthus_overlap_example,eval=FALSE>>=
+leaf_factor <- 0.3
+dleaf_dt <- mass_gain * leaf_factor
+droot_dt <- mass_gain * (1 - leaf_factor)
+@
+
+\noindent Thus, it can be time-consuming and difficult to identify cases of
+overlap.
+
+\subsubsection{Separating disctinct components}
+
+Nevertheless, once an area of overlap has been detected, we can now recognize
+that this carbon allocation concept is logically distinct from the rest of the
+code and could be separated out. One way to do this would be to write a
+dedicated function for carbon allocation, and have each crop model use this
+function (see the center part of Figure \ref{fig_modular_code}). For example,
+that function could look something like this:
+
+<<allocation_overlap_example>>=
+# This function partitions the crop's total rate of mass gain into its leaf and
+# root compartments.
+leaf_root_partitioning <- function(
+  total_mass_gain_rate, # kg / s
+  leaf_factor           # dimensionless
+)
+{
+  return(list(
+    leaf_mass_gain_rate = total_mass_gain_rate * leaf_factor,      # kg / s
+    root_mass_gain_rate = total_mass_gain_rate * (1 - leaf_factor) # kg / s
+  ))
+}
+@
+
+\noindent There are two main advantages to this approach. One is that if the
+allocation model needs to be updated (for example, to add another component such
+as the stem), it only needs to be modified in one place. The other is that the
+model is now easier to understand because the allocation component can easily be
+examined on its own.
+
+\subsubsection{Becoming even more flexible \label{sec_flexible_code}}
+
+This level of modularity is common in modeling, but it is possible to go
+further by recognizing that the carbon allocation code used in these models is
+just one of many possible ways to model carbon allocation. In a more flexible
+design, the code for the crop growth models could have an input argument that
+specifies the particular allocation function to use. Then a modeler using the
+code would be free to choose between multiple options if they are available (see
+the right part of Figure \ref{fig_modular_code}).
+
+By repeating this process, it would be possible to develop a very flexible type
+of crop growth model, where a user is able to specify which photosynthesis
+equations to use, which carbon allocation equations to use, or any other model
+components that might have existed in the original versions of the models. But
+why stop there? We could also separate out the parameters, initial values, and
+drivers from the code that's used to combine the equations and run the model. We
+could even stop requiring specific model components (e.g. photosynthesis or
+carbon allocation) and allow the user to include any equations they would like
+to use. The end result is an extremely flexible framework for defining and
+running models of nearly any type. It could be used for simulating soybean or
+miscanthus growth, or even something completely different like a gene
+network.
+
+It's important to realize that although there are numerous benefits to writing
+modular code this way, it also makes other aspects of the code more difficult.
+For example, if the user can specify \emph{any} allocation model, it's now
+unclear which parameters would need to be specified by the user, since different
+models might require different parameters. Thus, the parameter specification
+needs to be very flexible, and the allocation model must be able to communicate
+which inputs it requires. These kinds of issues prevent code like this from
+being written very often.
+
+\subsection{The BioCro framework}
+
+In Section \ref{sec_flexible_code}, we discussed the benefits of using fully
+modular code, but recognized out that writing it can be difficult. However, a
+key feature of modular and flexible code is that it only needs to be written
+once, and then it can be used for many different modeling purposes. This is
+exactly what has been done with BioCro---beginning with several crop models that
+had been written separately, all distinct components were identified and
+separated, greatly reducing duplicated code and resulting in an extremely
+flexible modeling framework.
+
+In BioCro, a user can choose which model components they wish to use and supply
+any other required specifications. Then, the BioCro framework takes care of
+combining the equations and running the simulation (Figure
+\ref{fig_biocro_framework}). The framework is now quite complex, but most users
+will never need to look at its code directly.
+
+Returning to the simple model we discussed before, we can see how it looks in
+BioCro (Figure \ref{fig_biocro_model}) and compare this version to the earlier
+one (Figure \ref{fig_code_model}). The most important thing to notice is that
+instead of directly specifying the equations for photosynthesis and carbon
+partitioning, we can now refer to pre-defined sets of equations by their names -
+in this case, \texttt{BioCro:example\_model\_mass\_gain} and
+\texttt{BioCro:example\_model\_partitioning}. For this simple model, BioCro
+doesn't actually save a lot of typing, but for more realistic models with
+hundreds of equations, it is vastly faster and easier to define the model using
+BioCro modules instead of doing it manually. (Of course, this requires that the
+modules exist; writing them requires a bit of extra work, but the effort pays
+off because they can be reused for many purposes.)
+
+\begin{figure}[htbp]
+<<biocro_example>>=
+library(BioCro)
+
+time <- seq(0, 3600 * 12)                  # s
+Q <- sin(time / 3600 / 12 * pi * 2000e-6)  # mol / m^2 / s
+
+solution_biocro <- run_biocro(
+    parameters = list(
+        alpha_rue = 0.07,  # mol / mol
+        SLA = 25,          # m^2 / kg
+        f_leaf = 0.2,      # kg / ks
+        f_root = 0.8,      # kg / kg
+        C_conv = 0.03,     # kg / mol
+        timestep = 1
+    ),
+    initial_values = list(
+        Leaf = 1,  # kg
+        Root = 1   # kg
+    ),
+    drivers = data.frame(time = time, Q = Q),
+    direct_module_names = 'BioCro:example_model_mass_gain',
+    differential_module_names = 'BioCro:example_model_partitioning'
+)
+@
+\caption{
+  \texttt{R} code using the BioCro package to solve the model defined in
+  Sections \ref{sec_concept_level} and \ref{sec_equation_level}.
+  \label{fig_biocro_model}
+}
+\end{figure}
+
+Besides shortening the code, BioCro allows us to think of the model at the
+conceptual level---where model components are combined to form a larger model---
+even though we are working at the coding level required to actually run a
+simulation. This ability provides several important benefits to BioCro users,
+such as the following:
+\begin{itemize}
+\item Defining a model is completely separate from solving it, allowing users to
+      focus on biology instead of computer science.
+\item Model components can easily be swapped for alternative versions to better
+      match the available experimental inputs, to take advantage of new
+      developments, or to compare alternative components.
+\item BioCro modules can be developed privately so users can withhold access to
+      model components until after publication.
+\end{itemize}
+In the following sections of this document, we will illustrate these and other
+benefits of BioCro through several examples. For additional discussion of
+BioCro's features and how they can be useful to researchers, please see
+\cite{lochocki_biocro_2022} and the University of Illinois / RIPE
+\href{\https://ripe.illinois.edu/press/press-releases/illinois-team-significantly-improves-biocro-software-growing-virtual-crops}{press release about the paper}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Although we don't show it here, it would also be possible to allow
+photosynthetic parameters like \texttt{vcmax} to vary in order to optimize the
+agreement with an experimentally measured response curve. In this case, instead
+of maximizing a module output, the goal would be to minimize the difference
+between the measured and calculated values. This would require a more
+complicated definition for the function whose value is to be minimized, but it
+would still be based on fixing some module inputs and lettings others vary using
+the \texttt{partial\_evaluate\_module} function.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\medskip
+
+\emph{Additional information}: Soybean parameter values can be found in the list
+called \texttt{soybean\$parameters}, which is included as part of the BioCro
+package:
+
+<<soybean_parameters,eval=FALSE>>=
+str(soybean$parameters)
+@
+
+\noindent The values in this list are part of the validated Soybean-BioCro model
+(\cite{matthews_soybean_2022}).
+
+In the call to \texttt{evaluate\_module} above, we use the \texttt{within}
+function to add the required input values to the \texttt{soybean\$parameters}
+list. See the \emph{Practical Guide to BioCro} for more information about this
+method for modifying parameter lists.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\medskip
+
+\emph{Additional information}: In this example, we have specified 101 evenly
+spaced values of incident light (\texttt{Qp}) between 0 and 2000 $\mu$mol
+m$^{-2}$ s$^{-1}$, keeping all other inputs constant. The return value
+\texttt{light\_response\_curve} is a data frame. There are several ways to view
+it, such as the following:
+
+<<viewing_data_frame,eval=FALSE>>=
+str(light_response_curve)   # prints each column name and the first few values
+                            # from each column
+
+View(light_response_curve)  # displays the data frame as a table in a window
+@
+
+\noindent However, looking at the values directly is rarely useful, and it is
+usually better to plot the results graphically. To do this, we created a
+``plot object'' with the \texttt{xyplot} function from the \texttt{lattice}
+package, and then displayed the plot using the \texttt{print} command. For more
+information about interacting with data frames, see the \emph{Practical Guide to
+BioCro}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\medskip
+
+\emph{Additional information}: This example made use of pre-set collections of
+soybean modules and parameters, which are available as elements of the
+\texttt{soybean} list; these collections fully specify the validated
+Soybean-BioCro model (\cite{matthews_soybean_2022}). To learn more, try typing
+\texttt{?soybean} in R.
+
+The inputs, outputs, and calculation methods of the \texttt{run\_biocro}
+function are discussed in more detail in \cite{lochocki_biocro_2022} and
+the \emph{Practical Guide to BioCro}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\medskip
+
+\emph{Additional information}: The above-ground biomass could be calculated
+using a module like the \texttt{BioCro:total\_biomass} module, but such
+a module for just the above-ground biomass doesn't exist. Since the above-ground
+biomass output isn't needed by any of the other modules in the simulation, we
+can just calculate it after the simulation runs.
+
+In principle, it's not necessary to have separate functions for using partial
+application and calculating the error metric. However, it's nice to be able to
+use the partially-applied function later, for example, to make a plot showing
+the parameterization result. For this reason, it was kept separate rather than
+putting all the code into a single large function.
+
+The output of a typical BioCro sorghum simulation is not mathematically smooth,
+so derivative-based optimizers usually do poorly. Thus, it is better to use
+derivative-free optimizers. In the \texttt{nloptr} package, these are the ones
+with \texttt{N} in the algorithm name. Other packages that may be helpful are
+\texttt{GenSA} and \texttt{dfoptim}. The algorithms in those work well, but
+unfortunately the interfaces don't give good choices for stopping conditions.
+\texttt{nloptr} is nice for its uniform and complete interface, but our personal
+experience is that the algorithms aren't great. However, we want this example to
+complete quickly, so we're using \texttt{nloptr}.
