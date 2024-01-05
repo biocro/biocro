@@ -34,7 +34,7 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
-- The C++ framework has been updated to v1.1.2. Since the framework is included
+- The C++ framework has been updated to v1.1.3. Since the framework is included
   as a git submodule, it will be necessary to use the `--recurse-submodule` flag
   when using `git pull`, `git checkout`, or `git switch` to update a local copy
   of the BioCro repository, or to move to or from this branch.
