@@ -303,7 +303,7 @@ cat(
     BioCro. This is not complicated, but some additional software tools are
     required.
 
-    \item Although will briefly discuss the important processes included in a
+    \item Although we will briefly discuss the important processes included in a
     typical BioCro simulation, we will not take detailed look into the rationale
     for these model components, the assumptions underlying them, or the exact
     equations that they use.
@@ -526,8 +526,8 @@ different module.
 \subsubsection{Calculating and viewing a module response curve \label{sec_response_curve}}
 
 \begin{itemize}
-  \item In the previous example, the module inputs each had a single value, so
-  the each output also had a single value.
+  \item In the previous example, a single value was provided for each of the
+  module inputs, so each output also had a single value.
 
   \item It is also possible to provide a sequence of input values and run the
   module for each of them.
@@ -583,7 +583,7 @@ using the same data frame.
 \bigskip
 
 \noindent \textbf{Exercise}: Try plotting the response of stomatal conductance
-(\texttt{Gs}) to light.
+(\texttt{Gs}) to light intensity.
 
 \bigskip
 
@@ -916,7 +916,7 @@ for this function that extracts only the net assimilation output:
 c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
 
 # We can run the module using a leaf temperature of 27 degrees C, only returning
-# the assim output
+# the Assim output
 c3_assim_from_tleaf(27)
 @
 
@@ -1543,7 +1543,7 @@ print(sensitivity_plot)
 
 From this plot, we can learn several things. One observation is that the
 sensitivity coefficient is non-negative for all values of absorbed light; this
-indicates additional CO$_2$ never causes a decrease soybean assimilation.
+indicates additional CO$_2$ never causes a decrease in soybean assimilation.
 Another observation is that that soybean assimilation is most sensitive to
 increases in ambient CO$_2$ levels when the absorbed light levels are high. This
 agrees with our intuition; CO$_2$ assimilation is limited by light availability
@@ -1578,7 +1578,7 @@ sensitivity(final_pod_func, soybean$parameters$alphaLeaf)
 @
 
 An interesting observation here is that the sensitivity coefficients are
-negative, indicating that increases in \texttt{alphaLeaf} create decreases in
+negative, indicating that increases in \texttt{alphaLeaf} cause decreases in
 yield. \texttt{alphaLeaf} controls the crop's level of leaf investment, so we
 have learned that additional leaf investment is detrimental to soybean yield;
 this agrees with previous results indicating that soybean canopies are larger
