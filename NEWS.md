@@ -31,6 +31,8 @@ notes for all features that have been added since the previous release.
 In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
+# Unreleased
+- Change the energy_par_content constant to 0.219. This is a conversion rate from photons to W/m2, which equals 1/4.57. 4.57 is a commonly used constant to convert PAR in W/m2 to micromol m-2 s-1. Users should be cautious when performing this conversion outside of BioCro to make sure the two are the same, for example, pre-processing the radiation data. See more details in Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf) 
 
 # UNRELEASED
 
