@@ -45,7 +45,7 @@ sorghum <- list(
     ),
     parameters = list(
         absorptivity_par            = 0.8,
-        alpha1                      = 0.04,
+        alpha1                      = 0.0256,  # From parameter optimization for a fit to sorghum LAI and yield data
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
         atmospheric_scattering      = 0.3,
