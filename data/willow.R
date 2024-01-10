@@ -110,7 +110,7 @@ willow <- list(
         net_assimilation_rate_shell  = 0.0,
         nlayers                      = 10,
         O2                           = 210,
-        par_energy_content           = 0.235,
+        par_energy_content           = 0.219, # Conversion from photons to W/m2. Equals 1/4.57. Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
         par_energy_fraction          = 0.5,
         phi1                         = 0.01,
         phi2                         = 2,
