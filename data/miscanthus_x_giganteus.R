@@ -118,7 +118,7 @@ miscanthus_x_giganteus <- list(
         nRdb1                       = 0.1247,
         nvmaxb0                     = -16.25,
         nvmaxb1                     = 0.6938,
-        par_energy_content          = 0.219, # Conversion from photons to W/m2. Equals 1/4.57. Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
+        par_energy_content          = 0.219,  # W * s / micromole. Also J / micromole. Conversion from photon flux density to to irradiance for PAR. Equals 1/4.57. Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
         par_energy_fraction         = 0.5,
         phi1                        = 0.01,
         phi2                        = 10,
