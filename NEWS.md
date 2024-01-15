@@ -117,7 +117,7 @@ be directly added to this file to describe the related changes.
   module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
   now uses `expect_no_error` instead of `expect_silent`.
 
-- Change the energy_par_content constant to 0.219. This is a conversion rate 
+- Changed the energy_par_content constant to 0.219. This is a conversion rate 
   from photons to W/m2, which equals 1/4.57. 4.57 is a commonly used constant 
   to convert PAR in W/m2 to micromol m-2 s-1. Users should be cautious when 
   performing this conversion outside of BioCro to make sure the two are the same,
