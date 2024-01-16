@@ -1,3 +1,5 @@
+source('soil_parameters.R')
+
 soybean <- list(
     direct_modules = list(
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
@@ -48,19 +50,8 @@ soybean <- list(
         Rhizome                = 0.0000001,     # Mg / ha
         RhizomeLitter          = 0              # Mg / ha
     ),
-    parameters = list(
-        # soil parameters (clay loam)
-        soil_air_entry              = -2.6,
-        soil_b_coefficient          = 5.2,
-        soil_bulk_density           = 1.35,
-        soil_clay_content           = 0.34,
-        soil_field_capacity         = 0.32,
-        soil_sand_content           = 0.32,
-        soil_saturated_conductivity = 6.4e-05,
-        soil_saturation_capacity    = 0.52,
-        soil_silt_content           = 0.34,
-        soil_wilting_point          = 0.2,
-
+    parameters = utils::modifyList(soil_parameters$clay_loam,
+      list(
         # parameter_calculator module
         iSp                         = 3.5,         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
         Sp_thermal_time_decay       = 0,           # not used in Soybean-BioCro, but must be defined
@@ -203,5 +194,6 @@ soybean <- list(
 
         # system parameters
         timestep                    = 1
+      )
     )
 )
