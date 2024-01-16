@@ -1,3 +1,5 @@
+source("common_parameters.R")
+ 
 miscanthus_x_giganteus <- list(
     direct_modules = list(
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
@@ -42,13 +44,12 @@ miscanthus_x_giganteus <- list(
         stem_senescence_index       = 0,
         TTc                         = 0
     ),
-    parameters = list(
-        absorptivity_par            = 0.8,
+    parameters = utils::modifyList(common_parameters,
+      list(
         alpha1                      = 0.04,
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
         atmospheric_scattering      = 0.3,
-        atmospheric_transmittance   = 0.6, # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
         b0                          = 0.08,
         b1                          = 3,
         beta                        = 0.93,
@@ -118,8 +119,6 @@ miscanthus_x_giganteus <- list(
         nRdb1                       = 0.1247,
         nvmaxb0                     = -16.25,
         nvmaxb1                     = 0.6938,
-        par_energy_content          = 0.219,
-        par_energy_fraction         = 0.5,
         phi1                        = 0.01,
         phi2                        = 10,
         Rd                          = 0.8,
@@ -164,5 +163,6 @@ miscanthus_x_giganteus <- list(
         vmax1                       = 39,
         vmax_n_intercept            = 0,
         wsFun                       = 2
+      )
     )
 )
