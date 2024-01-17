@@ -118,7 +118,7 @@ miscanthus_x_giganteus <- list(
         nRdb1                       = 0.1247,
         nvmaxb0                     = -16.25,
         nvmaxb1                     = 0.6938,
-        par_energy_content          = 0.235,
+        par_energy_content          = 0.219,
         par_energy_fraction         = 0.5,
         phi1                        = 0.01,
         phi2                        = 10,

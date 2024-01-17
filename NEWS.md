@@ -117,6 +117,16 @@ be directly added to this file to describe the related changes.
   module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
   now uses `expect_no_error` instead of `expect_silent`.
 
+- Changed the energy_par_content constant to 0.219. This is a conversion rate from
+  photon flux density (in micromoles per square meter per second) to
+  energy flux density (in joules per square meter per second or watts per square meter) for
+  photosynthetically active radiation (PAR). It equals 1/4.57, 4.57 being a commonly used constant
+  to convert PAR in W m^-2 to micromole m^-2 s^-1. Users should take care to ensure that if
+  processing of radiation data is required to prepare it for use with BioCro,
+  the same conversion factor is used. See more details in Plant Growth Chamber Handbook.
+  CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 
+  (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf) 
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
