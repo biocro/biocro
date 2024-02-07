@@ -9,7 +9,7 @@
 
 \description{
   Champaign, IL weather data specified at hourly intervals in the CST time zone
-  for the years 1995--2020. The data includes typical inputs required for BioCro
+  for the years 1995--2023. The data includes typical inputs required for BioCro
   imulations. Note: some values are missing near the start of 1995 since those
   time points are not available from SURFRAD.
 
@@ -23,7 +23,7 @@
 \usage{weather}
 
 \format{
-  A list of 26 named elements, where each element is a data frame corresponding
+  A list of 29 named elements, where each element is a data frame corresponding
   to one year of weather data and the name of each element is a year, for
   example \code{'2004'}. Each data frame has 8760 or 8784 observations
   (representing hourly time points) of 9 variables:
@@ -47,8 +47,10 @@
 \source{
   Weather data were obtained from the public SURFRAD and WARM databases and
   processed according to the method described in Lochocki \emph{et al.} (2022)
-  [\doi{10.1093/insilicoplants/diac003}]. See that paper for a full description
-  of the data processing.
+  [\doi{10.1093/insilicoplants/diac003}]. See version 1.2.0 of the
+  \code{eloch216/oscillator-based-circadian-clock-analysis}
+  \href{https://github.com/eloch216/oscillator-based-circadian-clock-analysis}{GitHub repository}
+  for a full description of the data processing.
 
   In brief, the columns in the data frames were determined from SURFRAD and WARM
   variables as follows:
