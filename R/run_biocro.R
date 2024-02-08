@@ -1,11 +1,3 @@
-default_ode_solver <- list(
-    type = 'homemade_euler',
-    output_step_size = NA,
-    adaptive_rel_error_tol = NA,
-    adaptive_abs_error_tol = NA,
-    adaptive_max_steps = NA
-)
-
 # Checks whether a set of inputs to the `run_biocro` function are properly
 # defined. If the inputs are properly defined, this function returns an empty
 # string. Otherwise, it returns an informative error message.
@@ -15,7 +7,7 @@ check_run_biocro_inputs <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver,
+    ode_solver = default_ode_solver(),
     verbose = FALSE
 )
 {
@@ -139,7 +131,7 @@ run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = BioCro:::default_ode_solver,
+    ode_solver = default_ode_solver(),
     verbose = FALSE
 )
 {
@@ -222,7 +214,7 @@ partial_run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = BioCro:::default_ode_solver,
+    ode_solver = default_ode_solver(),
     arg_names,
     verbose = FALSE
 )
