@@ -147,7 +147,8 @@ FvCB models.
 variables.
 
 \item Determine the level of disagreement between the two models when simulating
-soybean growth in other years.
+soybean growth in other years. (The analysis here includes more years than were
+included in the original paper.)
 
 \end{enumerate}
 For more information about this analysis, including the motivation for each step
@@ -180,7 +181,7 @@ This code creates two named lists to help with retrieving processed weather
 data:
 \begin{itemize}
 
-\item \texttt{catm}: A list of the atmospheric [\cotwo] levels for 1980 - 2020.
+\item \texttt{catm}: A list of the atmospheric [\cotwo] levels for 1980 - 2023.
 Essentially, this list contains globally averaged annual atmospheric [\cotwo]
 levels from \texttt{catm\_data}, a dataset obtained from NOAA and included as
 part of the BioCro package.
@@ -1085,7 +1086,7 @@ can be observed (Figure \ref{fig_multiyear_biomass_difference}; this is Figure
 
 <<multiyear_comparison>>=
 # Decide which years to use
-years <- as.character(seq(1995, 2020))
+years <- as.character(seq(1995, 2023))
 
 # Initialize vectors to store final biomass and atmospheric CO2 values
 final_biomass_seq_rue <- numeric(length(years))
@@ -1142,7 +1143,7 @@ multiyear_biomass_plot <- xyplot(
   final_biomass_rue + final_biomass_fvcb ~ year,
   data = multiyear_comparison,
   type = 'l',
-  auto = TRUE,
+  auto.key = list(space = 'top'),
   grid = TRUE,
   ylim = c(7, 12),
   xlab = 'Year',
@@ -1155,7 +1156,8 @@ pdf_print(multiyear_biomass_plot, 'multiyear_biomass_plot.pdf')
 multiyear_biomass_difference_plot <- xyplot(
   final_mass_diff_percent ~ catm,
   data = multiyear_comparison,
-  type = 'l',
+  type = 'b',
+  pch = 16,
   auto = TRUE,
   grid = TRUE,
   ylim = c(-10, 10),
@@ -1172,7 +1174,7 @@ pdf_print(multiyear_biomass_difference_plot, 'multiyear_biomass_difference_plot.
     \caption{
       End-of-season soybean biomass values calculated for Champaign, IL using
       either the FvCB or RUE photosynthesis equations for each year from
-      1995 - 2020.
+      1995 - 2023.
     }
     \label{fig_multiyear_biomass}
   \end{center}
@@ -1183,7 +1185,7 @@ pdf_print(multiyear_biomass_difference_plot, 'multiyear_biomass_difference_plot.
     \includegraphics[width=0.5\textwidth]{multiyear_biomass_difference_plot.pdf}
     \caption{
       End-of-season biomass differences between the FvCB and RUE soybean models
-      expressed as percentages for each year from 1995 - 2020, plotted against
+      expressed as percentages for each year from 1995 - 2023, plotted against
       yearly average [\cotwo] levels.
     }
     \label{fig_multiyear_biomass_difference}
