@@ -1,9 +1,36 @@
+# This file contains the code that Makevars.win and Makevars.ucrt
+# share.  As stated in section 1.1.5 of the Writing R Extensions
+# manual (see
+# https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Package-subdirectories),
+# since R 4.2.0, src/Makevars.ucrt takes precedence over
+# src/Makevars.win.  We use this fact to set the C++ standard C++14 on
+# systems that support it and to explicitly set the standard to C++11
+# on earlier systems to ensure that C++11, rather than C++99, is used.
+
+
+# The Need for Windows-Specific Makevars Files
+
+# Ideally, there would be one Makevars file for all systems. However, at the time
+# of writing, the version of GNU make included with Rtools does not support
+# order-only dependencies, which is needed to sensibly create the .deps and
+# .deps/module_library directories. Thus, this Makevars file creates those
+# directories every time the .d files are built, which on Windows has
+# no effect if the directories already exist.
+#
+# If the version of make included with Rtools is updated to version 3.80 or later,
+# then the file will likely be unnecessary.
+
 PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
 
-CXX_STD = CXX14
+# Adding "override" isn't necessary if OBJECTS is defined directly in
+# the Makevars files, but here it seems to be: otherwise, OBJECTS
+# retains its default value, and only the *.cpp files directly in the
+# src directory are linked.
+override OBJECTS = $(SOURCES:.cpp=.o)
+
+
 
 
 
@@ -50,12 +77,10 @@ POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
 OUTPUT_OPTION = -o $@
 COMPILE.cpp = $(CXX) $(DEPFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c
 
-$(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d | $(DEPSUBDIRS)
+$(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d
+	@mkdir -p $(DEPSUBDIRS)
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 	$(POSTCOMPILE)
-
-$(DEPSUBDIRS):
-	@mkdir -p $@
 
 DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
 $(DEPFILES):

@@ -127,6 +127,18 @@ be directly added to this file to describe the related changes.
   CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 
   (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf) 
 
+- The C++ standard to be used for building the BioCro C++ library is
+  now explicitly set in the Makevars files instead of relying on the
+  standards requirement setting (currently C++11) in the
+  SystemRequirements field of the DESCRIPTION file.  This is so that
+  the higher C++14 can be used for systems that support it.  Thus, the
+  standard set in the Makevars files is C++14 except for Windows
+  systems using older versions of R (vis., those that do not recognize
+  the Makevars.ucrt, which, for newer systems, takes precedence over
+  Makevars.win).  For these older systems, the standard is explicitly
+  set to C++11 so that older versions such as C++98 or C++03 are not
+  used.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
