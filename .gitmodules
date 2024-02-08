@@ -2,3 +2,7 @@
 	path = src/framework
 	url = https://github.com/biocro/framework
 	branch = main
+[submodule "inc/boost"]
+	path = inc/boost
+	url = https://github.com/biocro/boost
+	branch = main
