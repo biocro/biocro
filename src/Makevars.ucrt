@@ -14,7 +14,7 @@ SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_so
 OBJECTS = $(SOURCES:.cpp=.o)
 
 
-CXX_STD = CXX11
+CXX_STD = CXX14
 
 
 # The code below is a slightly modified version of the method for generating and
