@@ -2,7 +2,7 @@
     {
         "configName": "R 3.6.0 on Windows",
         "os": "windows-latest",
-        "r": "3.6.0"
+        "r": "3.6.0",
         "rtools-version": "40"
     },
     {
