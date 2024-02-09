@@ -7,7 +7,7 @@ check_run_biocro_inputs <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver(),
+    ode_solver = BioCro::default_ode_solvers$homemade_euler,
     verbose = FALSE
 )
 {
@@ -131,7 +131,7 @@ run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver(),
+    ode_solver = BioCro::default_ode_solvers$homemade_euler,
     verbose = FALSE
 )
 {
@@ -214,7 +214,7 @@ partial_run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver(),
+    ode_solver = BioCro::default_ode_solvers$homemade_euler,
     arg_names,
     verbose = FALSE
 )
