@@ -40,7 +40,7 @@ Suggests:
     bookdown,
     lattice
 VignetteBuilder: knitr
-SystemRequirements: GNU make
+SystemRequirements: C++14, GNU make
 License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
