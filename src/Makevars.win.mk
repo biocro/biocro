@@ -23,7 +23,12 @@
 PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
+
+# Adding "override" isn't necessary if OBJECTS is defined directly in
+# the Makevars files, but here it seems to be: otherwise, OBJECTS
+# retains its default value, and only the *.cpp files directly in the
+# src directory are linked.
+override OBJECTS = $(SOURCES:.cpp=.o)
 
 
 
