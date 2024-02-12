@@ -1,4 +1,4 @@
-PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
+PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP -D_HAS_AUTO_PTR_ETC=0
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)

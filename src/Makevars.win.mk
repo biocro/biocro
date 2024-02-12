@@ -20,7 +20,7 @@
 # If the version of make included with Rtools is updated to version 3.80 or later,
 # then the file will likely be unnecessary.
 
-PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP
+PKG_CPPFLAGS+=-I../inc -DR_NO_REMAP -D_HAS_AUTO_PTR_ETC=0
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
 
