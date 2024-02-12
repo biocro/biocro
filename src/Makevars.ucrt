@@ -1,4 +1,1 @@
-# Set the C++ standard to C++14 on systems that support it:
-CXX_STD = CXX14
-
 include Makevars.win.mk
