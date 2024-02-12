@@ -25,11 +25,11 @@
 \value{
     a \code{\link{list}} structure with components:
     \itemize{
-        \item{"I.dir"}{Direct radiation (micromoles m^-2 s-1)}
-        \item{"I.diff"}{Indirect (diffuse) radiation (micromoles m^-2 s-1)}
-        \item{"cos.th"}{cosine of \eqn{\theta}, solar zenith angle.}
-        \item{"propIdir"}{proportion of direct radiation.}
-        \item{"propIdiff"}{proportion of indirect (diffuse) radiation.}
+        \item \code{I.dir}: Direct radiation (micromoles m^-2 s-1)
+        \item \code{I.diff}: Indirect (diffuse) radiation (micromoles m^-2 s-1)
+        \item \code{cos.th}: cosine of \eqn{\theta}, solar zenith angle.
+        \item \code{propIdir}: proportion of direct radiation.
+        \item \code{propIdiff}: proportion of indirect (diffuse) radiation.
     }
 }
 
