@@ -50,9 +50,6 @@ be directly added to this file to describe the related changes.
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
 
-- Replaced instances of `sprintf` in boost files with `snprintf` to avoid
-  `R CMD check` warnings
-
 - The R-CMD-check workflow has been changed in the following ways:
 
   - When the check workflow is run manually, there are two new input
@@ -102,10 +99,8 @@ be directly added to this file to describe the related changes.
   precise layout of the online documentation.  Some other changes and
   clarifications to the documentation have been made as well.
 
-- Removed usage of deprecated C++ standard library functions
-  `std::unary_function` and `std::binary_function` to address `R CMD check`
-  warnings; this is a temporary manual fix that should not be required after
-  version 1.84 of the boost libraries is released.
+- Replaced the `inc/boost` directory with a submodule pointing to the new
+  `biocro/boost` repository
 
 - Addressed some `format-security` compiler warnings related to calling
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
@@ -124,8 +119,8 @@ be directly added to this file to describe the related changes.
   to convert PAR in W m^-2 to micromole m^-2 s^-1. Users should take care to ensure that if
   processing of radiation data is required to prepare it for use with BioCro,
   the same conversion factor is used. See more details in Plant Growth Chamber Handbook.
-  CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 
-  (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf) 
+  CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3
+  (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
 
 # CHANGES IN BioCro VERSION 3.0.2
 
