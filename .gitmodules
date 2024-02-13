@@ -1,4 +1,4 @@
 [submodule "src/framework"]
 	path = src/framework
 	url = https://github.com/biocro/framework
-	branch = main
+	branch = get_rid_of_deprecation_warnings

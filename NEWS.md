@@ -127,6 +127,27 @@ be directly added to this file to describe the related changes.
   CHAPTER 1 – RADIATION– John C. Sager and J. Craig McFarlane. Table 2, Pg 3 
   (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf) 
 
+- The C++ standard to be used for building the BioCro C++ library is
+  no longer implicitly set to C++11 in the SystemRequirements field of
+  the DESCRIPTION file since the only supported version of R that
+  doesn't default to C++11 or later is version R 3.6.0.  For this one
+  case, CXX_STD = CXX11 is now explicitly set in the `Makevars.win`
+  file instead.  This is so that systems using older version of R do
+  not default to using pre-CXX11 C++ standards for compilation.
+  (Windows platforms using versions of R will recognize and prefer the
+  alternate Windows Makevars file `Makevars.ucrt`, which does not set
+  CXX_STD.)
+
+  Since R 4.3 uses C++17 as the default C++ standard, and since this
+  version complains about some deprecated declaration in the Boost
+  library code, the framework submodule has been updated to include
+  pragma directives to turn off those warnings.
+
+  Code common to both `Makevars.win` and `Makevars.ucrt` (most all of
+  it) has been factored out into a new file, `Makevars.win.mk`.  If
+  and when support for R versions below R 4.0 is discontinued, using
+  separate Windows Makevars files should no longer be necessary.
+
 # CHANGES IN BioCro VERSION 3.0.2
 
 ## MINOR CHANGES
