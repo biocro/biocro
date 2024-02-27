@@ -29,7 +29,7 @@ namespace standardBML
  *
  * For more info, see [Campbell, G. S. & Norman, J. M. "Chapter 3: Water Vapor
  * and Other Gases" in "An Introduction to Environmental Biophysics" (1998)]
- * (http://dx.doi.org/10.1007/978-1-4612-1626-1_2).
+ * (https://dx.doi.org/10.1007/978-1-4612-1626-1_2).
  *
  * In BioCro and in the code below, these quantities are represented as follows:
  * - ``'rh'`` for the local atmospheric relative humidity `RH`

@@ -21,15 +21,15 @@ namespace standardBML
  *
  * - [Campbell, G. S. & Norman, J. M. "Chapter 2: Temperature" in "An Introduction to
  *   Environmental Biophysics" (1998)]
- *   (http://dx.doi.org/10.1007/978-1-4612-1626-1_2)
+ *   (https://dx.doi.org/10.1007/978-1-4612-1626-1_2)
  *
  * - [Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  *   of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999)]
- *   (http://dx.doi.org/10.1006/anbo.1999.0955)
+ *   (https://dx.doi.org/10.1006/anbo.1999.0955)
  *
  * - [McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
  *   Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)]
- *   (http://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
+ *   (https://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
  *
  * This module implements the most basic model, which is discussed in many places,
  * e.g. section 2.7 of Campbell & Norman (1998). In this model, `DR` is determined

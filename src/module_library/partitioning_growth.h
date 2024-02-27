@@ -57,7 +57,7 @@ namespace standardBML
  *
  *  Some discussion of similar models can also be found at several points in
  *  [Penning de Vries, F. W. T. & Laar, H. H. van. "Simulation of plant growth
- *  and crop production" (Pudoc, 1982)](http://edepot.wur.nl/167315)
+ *  and crop production" (Pudoc, 1982)](https://edepot.wur.nl/167315)
  */
 class partitioning_growth : public differential_module
 {
