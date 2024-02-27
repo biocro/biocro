@@ -65,6 +65,11 @@ be directly added to this file to describe the related changes.
 - Replaced the `inc/boost` directory with a submodule pointing to the new
   `biocro/boost` repository.
 
+- The (unexported) `lightME` function has been removed from the R package, since
+  its functionality can be reproduced using the
+  `BioCro:solar_position_michalsky` and
+  `BioCro:shortwave_atmospheric_scattering` modules.
+
 ## OTHER CHANGES
 
 - All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
