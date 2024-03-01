@@ -83,9 +83,7 @@ soybean_system <- system_derivatives(
 
 derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
-# Example 2: a simple oscillator with only one module (requires deSolve)
-
-\dontrun{
+# Example 2: a simple oscillator with only one module
 
 times = seq(0, 5, length=100)
 
@@ -112,13 +110,11 @@ lattice::xyplot(
   auto=TRUE,
   data=result
 )
-}
 
-# Example 3: solving 500 hours of a soybean simulation. This requires the
-# deSolve package and will run very slow compared to a regular call to
-# `run_biocro`.
+# Example 3: solving 500 hours of a soybean simulation. This will run very slow
+# compared to a regular call to `run_biocro`.
 
-\dontrun{
+\donttest{
 
 soybean_system <- system_derivatives(
   soybean$parameters,
