@@ -54,3 +54,34 @@
     \item \code{\link{test_module}}
   }
 }
+
+\examples{
+# Here we will initialize a module test case file in a temporary directory, and
+# then use `test_module_library` to test it. We will need to skip most of the
+# modules in the library, since we only have a test case for one of them.
+
+td <- tempdir()
+
+initialize_csv(
+  'BioCro:thermal_time_linear',
+  td,
+  nonstandard_inputs = list(temp = -1),
+  overwrite = TRUE
+)
+
+# Get a list of local module names, excluding the module that has a test case
+all_modules <- get_all_modules('BioCro')
+skip <- all_modules[all_modules != 'BioCro:thermal_time_linear']
+skip <- gsub('BioCro:', '', skip)
+
+test_module_library('BioCro', td, skip)
+
+# If we attempt to test the entire library, we will get errors since only one
+# module actually has an associated case file
+tryCatch(
+  {
+    test_module_library('BioCro', td)
+  },
+  error = function(e) {print(e)}
+)
+}
