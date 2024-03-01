@@ -26,9 +26,7 @@ Authors@R: c(
     person("Dan", "Wang", role = 'ctb'),
     person("David", "LeBauer", role = 'ctb',
            comment = c(ORCID = "0000-0001-7228-053X")),
-    person("BioCro authors", role = "cph"),
-    person("Boost Organization", role = "cph",
-           comment = "Author of included Boost library")
+    person("BioCro authors", role = "cph")
     )
 Depends: R (>= 3.6.0)
 Imports:
