@@ -12,7 +12,7 @@
 }
 
 \usage{
-test_module_library(library_name, directory, modules_to_skip = c())
+  test_module_library(library_name, directory, modules_to_skip = c())
 }
 
 \arguments{
@@ -40,6 +40,10 @@ test_module_library(library_name, directory, modules_to_skip = c())
   For an example of how this function can be used along with the
   \code{\link[testthat]{testthat}} package, see
   \code{tests/testthat/test.Modules.R}.
+}
+
+\value{
+  None
 }
 
 \seealso{

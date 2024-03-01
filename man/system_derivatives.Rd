@@ -10,12 +10,12 @@
 }
 
 \usage{
-system_derivatives(
-  parameters = list(),
-  drivers,
-  direct_module_names = list(),
-  differential_module_names = list()
-)
+  system_derivatives(
+    parameters = list(),
+    drivers,
+    direct_module_names = list(),
+    differential_module_names = list()
+  )
 }
 
 \arguments{

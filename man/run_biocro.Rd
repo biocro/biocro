@@ -7,15 +7,15 @@
 \description{Runs a full crop growth simulation using the BioCro framework}
 
 \usage{
-run_biocro(
-    initial_values = list(),
-    parameters = list(),
-    drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
-    ode_solver = BioCro::default_ode_solvers$homemade_euler,
-    verbose = FALSE
-)
+  run_biocro(
+      initial_values = list(),
+      parameters = list(),
+      drivers,
+      direct_module_names = list(),
+      differential_module_names = list(),
+      ode_solver = BioCro::default_ode_solvers$homemade_euler,
+      verbose = FALSE
+  )
 }
 
 \arguments{
