@@ -142,7 +142,7 @@ initialize_csv(
   overwrite = TRUE
 )
 
-file.show(file.path(td, 'BioCro_thermal_time_linear.csv'))
+writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
 
 add_csv_row(
   'BioCro:thermal_time_linear',
@@ -151,7 +151,7 @@ add_csv_row(
   'temp above tbase'
 )
 
-file.show(file.path(td, 'BioCro_thermal_time_linear.csv'))
+writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
 
 update_csv_cases('BioCro:thermal_time_linear', td)
 }
