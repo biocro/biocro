@@ -36,7 +36,7 @@
   }
 }
 
-\value{
+\details{
   \code{system_derivatives} accepts the same input arguments as
   \code{\link{run_biocro}} with the exceptions of \code{ode_solver} and
   \code{initial_values}; this function is intended to be passed to an ODE solver
@@ -44,6 +44,13 @@
   quantities evolve from their initial values, so \code{ode_solver} and
   \code{initial_values} are not required here.
 
+  When using one of the pre-defined crop growth models, it may be helpful to
+  use the \code{with} command to pass arguments to \code{system_derivatives};
+  see the documentation for \code{\link{crop_model_definitions}} for more
+  information.
+}
+
+\value{
   The return value of \code{system_derivatives} is a function with three inputs
   (\code{t}, \code{differential_quantities}, and \code{parms}) that returns
   derivatives for each of the differential quantities in the dynamical system
@@ -60,11 +67,6 @@
 
   This function can be passed to \code{LSODES} as an alternative integration
   method, rather than using one of BioCro's built-in solvers.
-
-  When using one of the pre-defined crop growth models, it may be helpful to
-  use the \code{with} command to pass arguments to \code{system_derivatives};
-  see the documentation for \code{\link{crop_model_definitions}} for more
-  information.
 }
 
 \seealso{
@@ -72,6 +74,8 @@
 }
 
 \examples{
+# Note: Example 3 below may take several minutes to run. Patience is required!
+
 # Example 1: calculating a single derivative using a soybean model
 
 soybean_system <- system_derivatives(
@@ -111,7 +115,7 @@ lattice::xyplot(
   data=result
 )
 
-# Example 3: solving 500 hours of a soybean simulation. This will run very slow
+# Example 3: solving 500 hours of a soybean simulation. This will run slowly
 # compared to a regular call to `run_biocro`.
 
 \donttest{
