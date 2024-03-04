@@ -6,7 +6,9 @@
 
 \description{Creates pointers to module wrapper objects}
 
-\usage{module_creators(module_names)}
+\usage{
+  module_creators(module_names)
+}
 
 \arguments{
   \item{module_names}{A vector of module names}

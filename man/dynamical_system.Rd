@@ -10,14 +10,14 @@
 }
 
 \usage{
-validate_dynamical_system_inputs(
-    initial_values = list(),
-    parameters = list(),
-    drivers,
-    direct_module_names = list(),
-    differential_module_names = list(),
-    verbose = TRUE
-)
+  validate_dynamical_system_inputs(
+      initial_values = list(),
+      parameters = list(),
+      drivers,
+      direct_module_names = list(),
+      differential_module_names = list(),
+      verbose = TRUE
+  )
 }
 
 \arguments{
