@@ -94,7 +94,7 @@ be directly added to this file to describe the related changes.
   - Output that was formerly shown only on manual runs when the
     "debug" checkbox was selected is now always shown.  The "debug"
     option has been changed to "dry-run", which results in the debug
-    output being shown but the actually check, and those set-up steps
+    output being shown but the actual check, and those set-up steps
     needed only to carry out the check, are skipped.
 
   - The debug output steps are grouped together when possible, and the
