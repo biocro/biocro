@@ -178,7 +178,10 @@ run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_consta
 run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass with no initial velocity and with initial negative displacement")
 
 
-## run a number of randomly-chosen cases
+## run a number of randomly-chosen cases. set a seed first to ensure
+## repeatability, since this test sometimes picks particularly nasty parameters
+set.seed(1234)
+
 for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
 
     ## randomly select parameter values and initial values:
