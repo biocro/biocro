@@ -1,20 +1,136 @@
 <!--
-This file should document all pull requests and all user-visible changes.
+This file should document all significant changes brought about by each new
+release.
 
-When a pull request is completed, changes made should be added to a section at
-the top of this file called "# Unreleased". All changes should be categorized
-under "## MAJOR CHANGES", "## MINOR CHANGES", or "## BUG FIXES" following the
-major.minor.patch structure of semantic versioning. When applicable, entries
-should include direct links to the relevant pull requests.
+All changes related to a particular release should be collected under a heading
+specifying the version number of that release, such as
+"# CHANGES IN BioCro VERSION 2.0.0". The individual changes should be listed as
+bullet points and categorized under "## MAJOR CHANGES", "## MINOR CHANGES",
+or "## BUG FIXES" following the major.minor.patch structure of semantic
+versioning. When applicable, entries should include direct links to the relevant
+pull requests.
 
-Then, when a new release is made, "# Unreleased" should be replaced by a heading
-with the new version number, such as "# CHANGES IN BioCro VERSION 2.0.0." This
-section will combine all of the release notes from all of the pull requests
-merged in since the previous release.
+To facilitate this, when a feature on a feature branch is completed and a pull
+request is being prepared, a new section should be added at the top of this file
+under the heading "# UNRELEASED"; it should list all the important changes made
+on the feature branch.
 
-Subsequent commits will then include a new "Unreleased" section in preparation
-for the next release.
+Then, when it comes time to merge the feature branch into `develop`, the new
+"# UNRELEASED" section is transferred into the `develop` branch's version of
+NEWS.md, or, if the `develop` branch already has an "# UNRELEASED" section in
+its version of NEWS.md, the feature branch's "# UNRELEASED" section will be
+integrated into the one on the `develop` branch. (This process of integrating
+the two "# UNRELEASED" sections will likely be part of resolving an inevitable
+merge conflict.)
+
+Finally, when a new release is made, "# UNRELEASED" should be replaced by a
+heading with the new version number, such as
+"# CHANGES IN BioCro VERSION 2.0.0". This section will combine the draft release
+notes for all features that have been added since the previous release.
+
+In the case of a hotfix, a short section headed by the new release number should
+be directly added to this file to describe the related changes.
 -->
+
+# CHANGES IN BioCro VERSION 3.1.0
+
+## MINOR USER-FACING CHANGES
+
+- Another bug was corrected in `src/module_library/c3photoC.cpp`: The
+  photorespiration value `Rp` is now calculated using the value of `Ci` from the
+  current loop iteration (rather than the previous loop iteration).
+
+- Modified some testing-related functions so that warnings due to mismatched
+  framework versions do not trigger test failures: the `tryCatch` call in
+  `test_module` now only catches errors (not warnings) when evaluating the
+  module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
+  now uses `expect_no_error` instead of `expect_silent`.
+
+- Changed the energy_par_content constant to 0.219. This is a conversion rate
+  from photon flux density (in micromoles per square meter per second) to energy
+  flux density (in joules per square meter per second or watts per square meter)
+  for photosynthetically active radiation (PAR). It equals 1/4.57, 4.57 being a
+  commonly used constant to convert PAR in W m^-2 to micromole m^-2 s^-1. Users
+  should take care to ensure that if processing of radiation data is required to
+  prepare it for use with BioCro, the same conversion factor is used. See more
+  details in Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager
+  and J. Craig McFarlane. Table 2, Pg 3
+  (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
+
+- The C++ framework has been updated to v1.1.3. Since the framework is included
+  as a git submodule, it will be necessary to use the `--recurse-submodule` flag
+  when using `git pull`, `git checkout`, or `git switch` to update a local copy
+  of the BioCro repository, or to move to or from this branch.
+
+- Replaced the `inc/boost` directory with a submodule pointing to the new
+  `biocro/boost` repository.
+
+- The (unexported) `lightME` function has been removed from the R package, since
+  its functionality can be reproduced using the
+  `BioCro:solar_position_michalsky` and
+  `BioCro:shortwave_atmospheric_scattering` modules.
+
+## OTHER CHANGES
+
+- All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
+  The use of unqualified `abs` in `src/module_library/c3photoC.cpp` had been
+  causing test failures when running BioCro on Windows using R version 3.6.0.
+
+- This version adds a description of the BioCro git branching model to
+  `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
+
+- The R-CMD-check workflow has been changed in the following ways:
+
+  - When the check workflow is run manually, there are two new input
+    options:
+
+    - The user can now choose whether or not to run R CMD check with
+      the --as-cran option.  Formerly, this was always used.
+
+    - The user can choose whether and when to throw an error on R CMD
+      check failures.  Formerly, an error was thrown whenever the R
+      CMD check failure was either "warning" or "error".
+
+  - Output that was formerly shown only on manual runs when the
+    "debug" checkbox was selected is now always shown.  The "debug"
+    option has been changed to "dry-run", which results in the debug
+    output being shown but the actual check, and those set-up steps
+    needed only to carry out the check, are skipped.
+
+  - The debug output steps are grouped together when possible, and the
+    output is shown earlier on in the workflow.
+
+  - The R-CMD-check workflow has been modified to work around a
+    problem with testing R version 3.6.0 on Windows.  And for all
+    platforms, we now specify the tested minimum R version as 3.6.0
+    rather than simply 3.6 in order to ensure that we are actually
+    testing the minimum required R version specified in the
+    DESCRIPTION file, rather than some later 3.6.x version such as
+    version 3.6.3.
+
+- Modified the R-CMD-check workflow so that the manual is not checked
+  when the workflow runs automatically.  This has also been made the
+  default when the workflow is run manually.
+
+- GitHub workflows and actions in the repository have been updated to
+  use the latest versions of all GitHub and 3rd-party actions.
+
+- Updates related to changing the GitHub hosting organization from
+  "ebimodeling" to "biocro":
+
+  Most references to the ebimodeling GitHub organization have been
+  removed; references to ebimodeling/biocro have been updated to point
+  to biocro/biocro instead.  Most of these occurred in various places
+  in the documentation.  Most links to the online documentation have
+  been replaced with links to https://biocro.github.io, with (in some
+  cases) instructions on how to navigate to the particular section of
+  the documentation of interest.  This decreases dependence on the
+  precise layout of the online documentation.  Some other changes and
+  clarifications to the documentation have been made as well.
+
+- Addressed some `format-security` compiler warnings related to calling
+  `Rf_error` and `Rprintf` without a format specifier; a format specifier of
+  `"%s"` should always be used when printing the value of a string variable.
 
 # CHANGES IN BioCro VERSION 3.0.2
 
@@ -130,8 +246,8 @@ for the next release.
   - _An Introduction to BioCro for Those Who Want to Add Models_
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
-  can be obtained online at the
-  [BioCro vignette PDF website](https://ebimodeling.github.io/biocro-documentation/docs/articles/pdf_vignette_index.html).
+  can be obtained online from the _Articles_ menu at the
+  [BioCro documentation website](https://biocro.github.io).
 
 # BioCro VERSION 0.951
 

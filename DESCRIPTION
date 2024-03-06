@@ -1,6 +1,6 @@
 Package: BioCro
-Version: 3.0.2
-Date: 2023-10-30
+Version: 3.1.0
+Date: 2024-02-27
 Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
@@ -26,9 +26,7 @@ Authors@R: c(
     person("Dan", "Wang", role = 'ctb'),
     person("David", "LeBauer", role = 'ctb',
            comment = c(ORCID = "0000-0001-7228-053X")),
-    person("BioCro authors", role = "cph"),
-    person("Boost Organization", role = "cph",
-           comment = "Author of included Boost library")
+    person("BioCro authors", role = "cph")
     )
 Depends: R (>= 3.6.0)
 Imports:
@@ -38,11 +36,12 @@ Suggests:
     knitr,
     rmarkdown,
     bookdown,
-    lattice
+    lattice,
+    deSolve
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make
 License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
-URL: https://github.com/ebimodeling/biocro
+URL: https://github.com/biocro/biocro, https://biocro.github.io
 Config/testthat/edition: 3

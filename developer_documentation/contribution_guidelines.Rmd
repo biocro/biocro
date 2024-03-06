@@ -1,15 +1,13 @@
 <!-- This file is raw R Markdown code.  To see this as a
 correctly-rendered web page, visit the online documentation at
-https://ebimodeling.github.io/biocro-documentation/, go to the
-Developer's Manual, and find the chapter on contributing to BioCro.
--->
+https://biocro.github.io, go to the Developer's Manual, and find the
+chapter on contributing to BioCro.  -->
 
 # Contributing to BioCro
 
 <!-- external references -->
 
-<!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro TO ebimodeling/biocro!!! -->
-[GitHub issues]: https://github.com/ebimodeling/biocro/issues "Doxygen documentation" {target="_blank"}
+[GitHub issues]: https://github.com/biocro/biocro/issues "Doxygen documentation" {target="_blank"}
 
 [Code dependencies are the devil]: https://www.freecodecamp.org/news/code-dependencies-are-the-devil-35ed28b556d
         "Code dependencies are the devil" {target="_blank"}
@@ -28,21 +26,21 @@ Developer's Manual, and find the chapter on contributing to BioCro.
 
 [Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
-<!-- CHANGE THIS URL WHEN MOVING FROM ebimodeling/biocro TO ebimodeling/biocro!!! -->
-[Solar Position module rendering]: https://ebimodeling.github.io/biocro-documentation/master/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
+[Solar Position module rendering]: https://biocro.github.io/BioCro-documentation/latest/doxygen/doxygen_docs_modules_public_members_only/classstandard_b_m_l_1_1solar__position__michalsky.html#details "Documentation of the Solar Position module" {target="_blank"}
 
-[dimensions]: https://en.wikipedia.org/wiki/International_System_of_Quantities#Base_quantities "Quantities and their dimensions (Wikipedia)" {target="_blank"}
-[Doxygen]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
+[dimensions]: https://en.wikipedia.org/wiki/International_System_of_Quantities#Dimensional_expression_of_derived_quantities "Dimensional expression of derived quantities (Wikipedia)" {target="_blank"}
+[doxygen manual]: https://www.doxygen.nl/manual/docblocks.html "Doxygen manual" {target="_blank"}
 [physical quantity]: https://en.wikipedia.org/wiki/Physical_quantity "Wikipedia's entry on Physical Quantities" {target="_blank"}
 [coherent units]: https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29 "Wikipedia's entry on Coherent Units" {target="_blank"}
 [src/parameters.h]: `r params$biocro_root`/src/parameters.h "The BioCro parameters.h file" {target="_blank"}
-[unit tests for modules]: https://ebimodeling.github.io/biocro-documentation/master/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
-[C++ guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
+[unit tests for modules]: https://biocro.github.io/BioCro-documentation/latest/pkgdown/articles/an_introduction_to_biocro.pdf "Intro to BioCro vignette" {target="_blank"}
+[C++ Core guidelines]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines "C++ Core Guidelines" {target="_blank"}
 [aspects of coding and design]: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming "C++ Core Guidelines' naming and layout suggestions" {target="_blank"}
 [Google C++ style guide]: https://google.github.io/styleguide/cppguide.html#Formatting "Google's guidelines for formatting C++ code" {target="_blank"}
 [Strategies to Speedup R Code]: https://datascienceplus.com/strategies-to-speedup-r-code/ "datascience+ article on speeding up R code" {target="_blank"}
 [Why loops are slow in R]: https://privefl.github.io/blog/why-loops-are-slow-in-r/ "Florian Privé's article on the pitfalls of R loops" {target="_blank"}
 [Lochocki et al. (2022)]: https://doi.org/10.1093/insilicoplants/diac003 "Lochocki et al. (2022)" {target="_blank"}
+[git-flow]: https://nvie.com/posts/a-successful-git-branching-model/ "git-flow" {target="_blank"}
 
 <!-- footnotes -->
 
@@ -64,11 +62,12 @@ we think this is a task better left to the individual researcher.
 framework, the C++ compiler used in installing the BioCro package, the
 C++ Standard Library, the and the Boost C++ Library.
 
-    As for R package dependencies, the BioCro R package depends only upon
-packages in the R standard library (stats and utils) for its basic installation
-and functioning.  BioCro does use other, non-standard R packages for
-building the vignettes (knitr) and for testing (testthat), but these
-are not essential to a fully-functioning BioCro installation.
+    As for R package dependencies, the BioCro R package depends only
+upon packages in the R standard library (stats and utils) for its
+basic installation and functioning.  BioCro does use other,
+non-standard R packages for building the documentation and for
+testing, but these are not essential to a fully-functioning BioCro
+installation.
 
     For further reading on the benefits and pitfalls of using
 dependencies, see, for example, Russ Cox's article [Our Software
@@ -90,6 +89,92 @@ the devil].
  spending time working on a solution that others may not accept. The
  members of the group also have diverse backgrounds and likely can
  give valuable design insights.
+
+### Follow BioCro's git branching structure
+
+* In general, BioCro development follows the [git-flow][] branching model, where
+  there are two permanent branches (`main` and `develop`) and three types of
+  temporary branches (hotfixes, features, and releases).
+
+* For most contributors, it is only necessary to know that most changes should
+  be accomplished through feature branches, which are branched off `develop` and
+  merged back into `develop` via a pull request that must be approved by one or
+  more other developers. The remainder of this section discusses our system in
+  more detail.
+
+* Beyond the basic description of git-flow, we have a few additional rules
+  and clarifications specific to BioCro development:
+
+  - Any merge into `main` or `develop` must be done via a pull request. This
+    requirement is enforced with GitHub branch protection rules and cannot be
+    bypassed.
+
+  - All pull requests into `main` and `develop` require approval before merging.
+    This requirement is not enforced using GitHub branch protection rules, but
+    please do not unilaterally merge a pull request without any form of approval
+    from another developer. (There are two exceptions to this rule related to
+    hotfix and release branches, described below.)
+
+  - The BioCro R package and repository follow semantic versioning of the form
+    `major.minor.patch`. Hotfix branches should typically only increment the
+    third (`patch`) number. Most release branches will increment the second
+    (`minor`) number, and very rarely the first (`major`) number. Feature
+    branches do not directly change the version number.
+
+  - Hotfix and release branch names should be formatted like `type-version`,
+    where `type` is either `hotfix` or `release`, and version is the new version
+    number. For example, `hotfix-v3.0.3` would be a hotfix branch that
+    changes the version number to `3.0.3`. Feature branch names should reflect
+    their purpose, and can be anything other than `master`, `develop`,
+    `hotfix-*`, or `release-*`.
+
+  - Whenever the package version changes, a description of the related changes
+    should be added to the changelog in `NEWS.md` as a new section titled with
+    the new version number. Such version changes will happen via release and
+    hotfix branches. Release branches will generally include changes made during
+    the course of several feature branches, so they may require a significant
+    amount of documentation in `NEWS.md`. To make it easier to prepare a list of
+    these changes, each feature branch should include a description of its own
+    changes in an `UNRELEASED` section of `NEWS.md`. For more information about
+    updating the changelog, please see the comment at the top of `NEWS.md`.
+
+* The following is a short description of BioCro's implementation of the
+  git-flow branching model:
+
+  - The `main` branch always contains the latest stable release of the BioCro
+    GitHub repository. In fact, a new tag and release is made any time changes
+    are merged into `main`, and such changes should always be accompanied by an
+    increment to the BioCro R package version number.
+
+  - The `develop` branch contains bug fixes and new features that have been
+    completed but may not have been released yet.
+
+  - Hotfix branches are for urgent changes that warrant immediate incorporation
+    into `main`; typically these are bug fixes. A hotfix branch should be
+    branched off `main`. When ready, it should first merged into `main` via an
+    approved pull request. Then, a second pull request should be made to merge
+    into `develop`. If there are no merge conflicts or test failures, this
+    second request can be merged without any additional approval. When both
+    merges are complete, the hotfix branch should be deleted.
+
+  - Feature branches are for less urgent changes that do not require immediate
+    release; for example, the addition of a new R function to the package
+    namespace. A feature branch should be branched off `develop` and merged
+    back into `develop` via an approved pull request. Before merging, `NEWS.md`
+    should be updated with a description of the changes under the `# UNRELEASED`
+    section (see `NEWS.md` for more details). When the merge into `develop` is
+    complete, the feature branch should be deleted.
+
+  - When sufficiently many changes have accumulated in `develop` to justify a
+    new version of the package, a release branch is used to move the changes
+    from `develop` to `main`. Release branches should not include substantive
+    changes; rather, a release branch is primarily used to increment the package
+    version and to ensure an up-to-date changelog in `NEWS.md`. A release branch
+    should be branched off `develop`. When it's ready, it should first merged
+    into `main` via an approved pull request. Then, a second pull request should
+    be made to merge into `develop`. If there are no merge conflicts or test
+    failures, this second request can be merged without any additional approval.
+    When both merges are complete, the release branch should be deleted.
 
 ### Making large modifications to BioCro
 
@@ -185,13 +270,13 @@ discuss the following questions:
   and relevant information within it. Include a table or figure
   reference if appropriate.
 
-* Use [Doxygen][]-style comment syntax for high-level documentation of
-  functions and classes.  We use the Javadoc style of comment block in
-  our code.  (See the documentation of the Solar Position module
-  [`solar_position_michalsky`][Solar Position module] for an example
-  of a Doxygen-style comment, and then look at [the way this is
-  rendered in the generated documentation][Solar Position module
-  rendering].)
+* Use [Doxygen][doxygen manual]-style comment syntax for high-level
+  documentation of functions and classes.  We use the Javadoc style of
+  comment block in our code.  (See the documentation of the Solar
+  Position module [`solar_position_michalsky`][Solar Position module]
+  for an example of a Doxygen-style comment, and then look at [the way
+  this is rendered in the generated documentation][Solar Position
+  module rendering].)
 
 * Include reasoning and justification for the model, including
   assumptions that determine when use of the model is appropriate.
@@ -199,10 +284,10 @@ discuss the following questions:
 
 #### Document units in the code
 
-* After every physical quantity, include a comment with the units. The
-  idea is that every quantity will roughly be read as if it were
-  written in normal text: for example, `double yield = 10 // Mg / ha`
-  should be read as meaning "the yield was 10 Mg / ha". Using
+* After every [physical quantity][], include a comment with the
+  units. The idea is that every quantity will roughly be read as if it
+  were written in normal text: for example, `double yield = 10 // Mg /
+  ha` should be read as meaning "the yield was 10 Mg / ha". Using
   [dimensions][] instead of units is acceptable if the code is written
   with the expectation that [coherent units][] are used.
 
@@ -306,59 +391,7 @@ discuss the following questions:
   prefixes, except that kg is the coherent unit of mass, not g.
 
 * Do not copy and paste code, changing only small parts. Choose a
-  design that eliminates the duplication. Duplication is often the
-  result of not separating control flow from data. Consider the
-  following R code.
-
-    ```r
-    if (!("lattice" %in% installed.packages()[,"Package"])) {
-      install.packages("lattice", repos="http://R-Forge.R-project.org", type="source")
-    }
-
-    if (!("BioCro" %in% installed.packages()[,"Package"])) {
-      devtools::install_github("ebimodeling/biocro")
-    }
-
-    if (!("boot" %in% installed.packages()[,"Package"])) {
-      devtools::install_url("http://cran.r-project.org/src/contrib/Archive/boot/boot_1.3-7.tar.gz")
-    }
-    ```
-
-    The data and behavior can be separated.
-
-    ```r
-    required_packages = list(
-        # package name  # installation function   # function arguments
-        list("lattice", install.packages,         list("lattice", repos="http://R-Forge.R-project.org", type="source")),
-        list("BioCro",  devtools::install_github, list("ebimodeling/biocro")),
-        list("boot",    devtools::install_url,    list("http://cran.r-project.org/src/contrib/Archive/boot/boot_1.3-7.tar.gz"))
-    )
-
-    install_packages_if_missing = function(package_table) {
-        installed_packages = installed.packages()[,"Package"]
-        for (row in package_table) {
-            if (!(row[[1]] %in% installed_packages)) {
-                do.call(row[[2]], row[[3]])
-            }
-        }
-    }
-
-    install_packages_if_missing(required_packages)
-    ```
-
-    In the first example, the behavior is spread throughout all of the
-    code, and there is not an obvious indication of what is being
-    done. Once one understands what is being done, one must still read
-    all of the code to be sure some different behavior is not hidden
-    somewhere.
-
-    In the second example, it is clear that the same task is performed
-    repeatedly because control flow is in a single place, and the
-    place has a meaningful name: `install_packages_if_missing`. For a
-    long list, this is succinct, and easier to understand and
-    maintain. If one wanted, one could devise a way to use the
-    meaningful names of the columns of the `required_packages` table
-    within the function.
+  design that eliminates the duplication.
 
 * Make an effort to write unit tests.  (See the vignette [_An
   Introduction to BioCro for Those Who Want to Add Models_][unit tests

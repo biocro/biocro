@@ -9,7 +9,7 @@ if (requireNamespace("bookdown", quietly = TRUE)) {
 
         ## This is automatically set to "true" when run by a GitHub action:
         if (Sys.getenv("GITHUB_ACTIONS") == "true") {
-            bookdown::render_book(params = list(biocro_root = "https://github.com/ebimodeling/biocro/tree/master"))
+            bookdown::render_book(params = list(biocro_root = "https://github.com/biocro/biocro/tree/main"))
         } else {
             bookdown::render_book()
         }

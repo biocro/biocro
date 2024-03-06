@@ -4,6 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // For calculation_constants::eps_zero
+#include <cmath>                     // For std::abs
 
 namespace standardBML
 {
@@ -62,7 +63,7 @@ void biomass_leaf_n_limitation::do_operation() const
 {
     // Collect inputs and make calculations
     double leaf_n;
-    if (fabs((*Leaf_ip) + (*Stem_ip)) < calculation_constants::eps_zero) {
+    if (std::abs((*Leaf_ip) + (*Stem_ip)) < calculation_constants::eps_zero) {
         leaf_n = *LeafN_0_ip;
     } else {
         leaf_n = (*LeafN_0_ip) * pow((*Leaf_ip) + (*Stem_ip), -1.0 * (*kln_ip));

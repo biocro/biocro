@@ -1075,14 +1075,14 @@ There are several options for viewing BioCro's source code:
 
 \item BioCro is available as a public GitHub repository, so all of its source
 code can be viewed via a web browser at
-\url{https://github.com/ebimodeling/biocro/tree/soybean}.
+\url{https://github.com/biocro/biocro}.
 
 \item The source code can also be downloaded from the GitHub repository and
 viewed locally via a user's preferred methods.
 
 \item Doxygen documentation of all the code or various subsets of the code can
 be viewed at the BioCro documentation website
-\url{https://ebimodeling.github.io/biocro-documentation/}.
+\url{https://biocro.github.io}.
 
 \end{itemize}
 
@@ -1244,17 +1244,17 @@ anyone using BioCro to run simulations or investigate module behavior:
 
 \item \textbf{Data structures}: This topic refers to basic object types like
 lists, vectors, and data frames. We recommend
-\url{http://adv-r.had.co.nz/Data-structures.html}.
+\url{https://adv-r.hadley.nz/vectors-chap.html}.
 
 \item \textbf{Subsetting}: This topic refers to selecting subsets of R data
 frames and matrices. We recommend
 \url{https://www.statmethods.net/management/subset.html} and
-\url{http://adv-r.had.co.nz/Subsetting.html}.
+\url{https://adv-r.hadley.nz/subsetting.html}.
 
 \item \textbf{Vector arithmetic}: This topic refers to performing arithmetic
 operations on each member of one vector, forming a new vector. We recommend
 \url{https://pubs.wsb.wisc.edu/academics/analytics-using-r/vector-math.html} and
-\url{http://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
+\url{https://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
 
 \item \textbf{Apply-type functions}: This topic refers to several options
 for applying a function to each member of a vector or list. We recommend

@@ -15,7 +15,7 @@
  *
  * In 1996, some of the fitting coefficients were updated. Here we use these
  * updated values, found in [a Buck hygrometer manual]
- * (http://www.hygrometers.com/wp-content/uploads/CR-1A-users-manual-2009-12.pdf),
+ * (https://www.hygrometers.com/wp-content/uploads/CR-1A-users-manual-2009-12.pdf),
  * and also displayed on the [Wikipedia page for the Arden Buck equation]
  * (https://en.wikipedia.org/wiki/Arden_Buck_equation).
  *

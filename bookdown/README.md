@@ -1,17 +1,24 @@
-## Compiling and viewing the _bookdown_ book
+<!-- external references -->
+
+[online docs]: https://biocro.github.io
+  "Online documentation for BioCro" {target="_blank"}
+
+
+## Compiling and viewing the __bookdown__ book
 
 ---
 
-_Note_: A copy of the _bookdown_ BioCro development manual is
+_Note_: A copy of the __bookdown__ BioCro developer's manual is
 automatically generated on BioCro's GitHub documentation site at
-https://ebimodeling.github.io/biocro-documentation/bookdown_book/index.html.
-So what follows is likely primarily of interest to developers wishing
-to revise this book who want to be able to easily view the result of
-their revisions before committing them.
+[https://biocro.github.io][online docs] and may be viewed by clicking
+on the _Developer's Manual_ menu-bar link found there.  What follows,
+therefore, will mostly be of interest to developers working on
+revising the documentation who want to check the results of their
+revisions.
 
 ---
 
-**To generate the *bookdown* BioCro development manual**, do as
+**To generate the _bookdown_ BioCro developer's manual**, do as
   follows:
 
 1. Install _Pandoc_, if it is not already on your system.  See
@@ -21,26 +28,26 @@ _RStudio_ users: As mentioned in the _R Markdown Cookbook_
 _RStudio_ comes with its own copy of _Pandoc_, so you may be able to
 get by without installing it separately.)
 
-1. Install the R _bookdown_ package, if it hasn't been installed
-already.  These instructions are written for bookdown version 0.22 or
+2. Install the R __bookdown__ package, if it hasn't been installed
+already.  These instructions are written for __bookdown__ version 0.22 or
 greater but may work for other versions.
 
-1. In the _bookdown_ directory of your BioCro source tree, run
+3. In the `bookdown` directory of your BioCro source tree, run
    ```sh
    Rscript -e "bookdown::render_book()"
    ```
 
    Note: If you wish to run `render_book` from other than the
-_bookdown_ directory, you may pass a _path_ argument:
+`bookdown` directory, you may pass a _path_ argument:
 
    ```
    Rscript -e "bookdown::render_book(<path>)
    ```
 
    Here, `<path>` denotes the path from the current directory to the
-_bookdown_ directory.
+`bookdown` directory.
 
-   _This only works in bookdown versions 0.22 and later!_ With earlier
+   _This only works in __bookdown__ versions 0.22 and later!_ With earlier
 versions, you can make use of the `xfun::in_dir` function:
 
    ```
@@ -48,7 +55,7 @@ versions, you can make use of the `xfun::in_dir` function:
    ```
 
    Again, `<path>` here denotes the path from the current directory to
-the _bookdown_ directory.
+the `bookdown` directory.
 
    Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete

@@ -1,3 +1,9 @@
+<!-- external references -->
+
+[BioCro check workflow runs]:
+    https://github.com/biocro/biocro/actions/workflows/R-CMD-check.yaml
+    "BioCro R-CMD-check workflow runs" {target="_blank"}
+
 # Running the _testthat_ Tests
 
 ## Requirements
@@ -40,11 +46,11 @@ details.
 ## Continuous integration workflow; why run tests manually?
 
 BioCro's _testthat_ test suite is automatically run on GitHub as part
-of the _R-CMD-check_ workflow every time a BioCro developer pushes
-code to the GitHub _master_ branch.  (Users also have the option to
-trigger this workflow manually by clicking a button on GitHub.)
-Workflow results are viewable on GitHub under [the repository's
-_Actions_ tab](https://github.com/ebimodeling/biocro/actions).
+of the _R-CMD-check_ workflow every time a BioCro developer makes or
+modifies a pull request.  Users also have the option to run this
+workflow manually by clicking a button on the [GitHub page for
+R-CMD-check workflow runs][BioCro check workflow runs].  All
+R-CMD-check workflow run results are viewable here as well.
 
 There are (at least) two scenarios, however, under which you may want
 to run tests manually:

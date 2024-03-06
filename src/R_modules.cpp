@@ -118,7 +118,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             } else {
                 Rprintf("Error: could not create the module\n");
                 Rprintf("Additional details:\n");
-                Rprintf(creation_error_message.c_str());
+                Rprintf("%s", creation_error_message.c_str());
                 Rprintf("\n\n");
             }
         }
@@ -133,9 +133,9 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {
-        Rf_error((string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
+        Rf_error("%s", (string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_module_info: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_module_info: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_module_info.");
     }
@@ -186,9 +186,9 @@ SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
         return list_from_map(module_output_map);
 
     } catch (quantity_access_error const& qae) {
-        Rf_error((string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
+        Rf_error("%s", (string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_evaluate_module.");
     }

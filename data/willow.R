@@ -110,7 +110,7 @@ willow <- list(
         net_assimilation_rate_shell  = 0.0,
         nlayers                      = 10,
         O2                           = 210,
-        par_energy_content           = 0.235,
+        par_energy_content           = 0.219,
         par_energy_fraction          = 0.5,
         phi1                         = 0.01,
         phi2                         = 2,

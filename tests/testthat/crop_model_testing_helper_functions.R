@@ -94,7 +94,10 @@ SOYBEAN_IGNORE <- c(
     "sunlit_Cs_layer_9",
     "sunlit_RHs_layer_7",
     "sunlit_RHs_layer_8",
-    "sunlit_RHs_layer_9"
+    "sunlit_RHs_layer_9",
+    "sunlit_EPriestly_layer_7",
+    "sunlit_EPriestly_layer_8",
+    "sunlit_EPriestly_layer_9"
 )
 
 # Define the plants to test
@@ -194,7 +197,7 @@ test_plant_model <- function(test_info) {
         # Run the simulation
         new_result <- 0
         test_that(description_run, {
-            expect_silent(
+            expect_no_error(
                 new_result <<- run_biocro(
                     test_info[['initial_values']],
                     test_info[['parameters']],

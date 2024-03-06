@@ -1,15 +1,13 @@
 name: Document quantities
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     # [no inputs]
 
-  push:
-    branches:
-      - collect_quantity_info-revised
-
 env:
-  publish-to: "ebimodeling/biocro-documentation"
+  publish-to: "biocro/BioCro-documentation"
 
 jobs:
   build:
@@ -22,8 +20,9 @@ jobs:
     # Checks out this repository under $GITHUB_WORKSPACE/source:
 
     - name: 1. Check out master
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4.1.1
       with:
+        submodules: true
         path: source
 
     - name: 2. Set up R
@@ -38,7 +37,7 @@ jobs:
       working-directory: source
 
     - name: 4. Cache R packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3.3.2
       with:
         path: ${{ env.R_LIBS_USER }}
         key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
@@ -88,7 +87,7 @@ jobs:
     # check in our changes later, in the Push step:
 
     - name: 10. Check out master of the "publish-to" repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.1.1
       with:
         repository: ${{ env.publish-to }}
         path: target

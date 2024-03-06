@@ -19,7 +19,7 @@ SEXP R_framework_version()
         string_vector result = {version};
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
-        Rf_error((string("Caught exception in R_framework_version: ") + e.what()).c_str());
+        Rf_error("%s", (string("Caught exception in R_framework_version: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_framework_version.");
     }

@@ -12,7 +12,7 @@ on:
       check-manual:
         description: 'Check the manual'
         type: boolean
-        default: true
+        default: false
       check-vignettes:
         description: 'Check the vignettes'
         type: boolean
@@ -25,12 +25,25 @@ on:
         description: 'Check the examples'
         type: boolean
         default: true
+      as-cran:
+        description: 'Use the --as-cran option when checking'
+        type: boolean
+        default: true
+      error-on:
+        description: 'When to trigger an error'
+        type: choice
+        options:
+          - never
+          - error
+          - warning
+          - info
+        default: warning
 
-      # Should we show debug output?  (This will also skip doing the
-      # actual package check and the lengthy steps involved in doing
-      # such a check.)
-      debug:
-        description: 'Show output for debugging'
+      # This will show some configuration variables but will skip
+      # doing the actual package check and the lengthy steps involved
+      # in doing such a check.
+      dry-run:
+        description: Don't actually run the check; show output for debugging
         type: boolean
         default: false
 
@@ -39,14 +52,14 @@ on:
         description: 'Platform to check'
         type: choice
         options:
-          - R 3.6 on Ubuntu
+          - R 3.6.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
-          - R 3.6 on macOS
+          - R 3.6.0 on macOS
           - R release version on macOS
-          - R 3.6 on Windows
+          - R 3.6.0 on Windows
           - R release version on Windows
-        default: R 3.6 on Ubuntu
+        default: R 3.6.0 on Ubuntu
 
 jobs:
 
@@ -57,25 +70,25 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
         with:
           submodules: true
 
       - id: set-matrix
         name: Construct the strategy matrix
-        uses: JoshuaTheMiller/conditional-build-matrix@38b0036b90a7f5f1461f446948d156a714e4fa1e # release 0.0.1
+        uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # release 2.0.1
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
 
           # This filter uses the JMESPath query language to modify the
           # strategy matrix (see https://jmespath.org/).  Note that if
           # the event is anything other than 'workflow_dispatch', the
-          # filter condition is true only when configName is 'R 3.6 on
-          # Ubuntu'.
+          # filter condition is true only when configName is 'R 3.6.0
+          # on Ubuntu'.
           #
           # For the public version of this repository, the "&&
-          # configName = 'R 3.6 on Ubuntu'" clause will be eliminated
-          # so that when the event is anything other than
+          # configName = 'R 3.6.0 on Ubuntu'" clause will be
+          # eliminated so that when the event is anything other than
           # 'workflow_dispatch', the filter condition is always true
           # and nothing gets filtered out: all the configurations will
           # be run.
@@ -85,30 +98,28 @@ jobs:
           # matrix.  Thus, if the result of the filter is
           # [
           #   {
-          #     "configName": "R 3.6 on Ubuntu",
+          #     "configName": "R 3.6.0 on Ubuntu",
           #     "os": "ubuntu-20.04",
-          #     "r": "3.6"
+          #     "r": "3.6.0"
           #   }
           # ],
           # the actual output will be
           # { "include":
           #     [
           #       {
-          #         "configName": "R 3.6 on Ubuntu",
+          #         "configName": "R 3.6.0 on Ubuntu",
           #         "os": "ubuntu-20.04",
-          #         "r": "3.6"
+          #         "r": "3.6.0"
           #       }
           #     ]
           # }.       
           filter:
-            '[?configName == `${{ github.event.inputs.platform-to-check }}`
-                || `${{ github.event_name }}` != ''workflow_dispatch''
-                    && configName == ''R 3.6 on Ubuntu'']'
+            '[?configName == `${{ inputs.platform-to-check }}`
+                || `${{ github.event_name }}` != ''workflow_dispatch'']'
 
   # For debugging:
   display_matrix:
     name: "DEBUG: Display strategy matrix"
-    if: github.event.inputs.debug == 'true' || github.event_name != 'workflow_dispatch'
     needs: matrix_prep
     runs-on: ubuntu-latest
     steps:
@@ -123,24 +134,33 @@ jobs:
       strategy-matrix: ${{ needs.matrix_prep.outputs.matrix }}
       
       # Note: Non-manual dispatches automatically run the tests and
-      # check the manual, examples, and vignettes!  Note that the
-      # github.event inputs will be strings (either 'true' or 'false')
-      # so we have to use the "== 'true'" clause to convert each value
-      # to a bona fide boolean!
+      # check the examples and the vignettes, but do not check the
+      # manual.  Note that the inputs.* values will have non-boolean
+      # values when the event is not 'workflow_dispatch'--namely, the
+      # non-truthy value '' (the empty string).  But the way the
+      # boolean operators (|| and &&) are used below ensure that the
+      # resulting expression always evaluates to a boolean value, as
+      # expected by the called workflow.
 
       check-manual:
-        "${{ github.event.inputs.check-manual == 'true'
-            || github.event_name != 'workflow_dispatch' }}"
+        "${{ github.event_name == 'workflow_dispatch'
+            && inputs.check-manual }}"
       run-tests:
-        "${{ github.event.inputs.run-tests == 'true'
+        "${{ inputs.run-tests
             || github.event_name != 'workflow_dispatch' }}"
       check-examples:
-        "${{ github.event.inputs.check-examples == 'true'
+        "${{ inputs.check-examples
             || github.event_name != 'workflow_dispatch' }}"
       check-vignettes:
-        "${{ github.event.inputs.check-vignettes == 'true'
+        "${{ inputs.check-vignettes
             || github.event_name != 'workflow_dispatch' }}"
+      as-cran:
+        "${{ inputs.as-cran
+            || github.event_name != 'workflow_dispatch' }}"
+      error-on:
+        "${{ inputs.error-on
+            || github.event_name != 'workflow_dispatch' && 'warning' }}"
 
-      debug:
-        "${{ github.event.inputs.debug == 'true' }}"
+      dry-run:
+        "${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}"
 

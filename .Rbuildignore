@@ -49,6 +49,8 @@
 ^src/framework/\.clang-format$
 ^src/framework/\.editorconfig$
 ^src/framework/\.git$
+^inc/\.editorconfig$
+^inc/\.git$
 # Other files related to package development.
 
 ^bookdown$
