@@ -25,7 +25,7 @@ namespace standardBML
  *
  * See the original WIMOVAC paper for a description of the assimilation model
  * and additional citations: [Humphries, S. W. & Long, S. P. Bioinformatics
- * 11, 361–371 (1995)](http://dx.doi.org/10.1093/bioinformatics/11.4.361)
+ * 11, 361–371 (1995)](https://dx.doi.org/10.1093/bioinformatics/11.4.361)
  *
  * ### BioCro module implementation
  *
