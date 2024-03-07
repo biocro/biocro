@@ -111,7 +111,6 @@ jobs:
         cd target
         echo "CDed to $(pwd)"
         echo "Running git diff"
-        git diff
         echo "About to branch"
         if git diff-index --quiet HEAD; then
           echo "no changes to commit"
