@@ -108,14 +108,17 @@ jobs:
     - name: 12. Commit updates and push to target (documentation) repository
       run: |
         cd target
-        if git diff --quiet HEAD; then
+
+        # stage any new or changed files:
+        git add .
+
+        if git diff --quiet --cached; then
           echo "no changes to commit"
         else
           echo "committing changes"
           # user.name and user.email are somewhat arbitrary but must be provided:
           git config user.name biocro-action
           git config user.email bogus@url.com
-          git add .
           git commit -m "updated quantities documentation"
           git push
         fi
