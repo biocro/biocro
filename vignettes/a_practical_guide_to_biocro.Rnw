@@ -1244,17 +1244,17 @@ anyone using BioCro to run simulations or investigate module behavior:
 
 \item \textbf{Data structures}: This topic refers to basic object types like
 lists, vectors, and data frames. We recommend
-\url{http://adv-r.had.co.nz/Data-structures.html}.
+\url{https://adv-r.hadley.nz/vectors-chap.html}.
 
 \item \textbf{Subsetting}: This topic refers to selecting subsets of R data
 frames and matrices. We recommend
 \url{https://www.statmethods.net/management/subset.html} and
-\url{http://adv-r.had.co.nz/Subsetting.html}.
+\url{https://adv-r.hadley.nz/subsetting.html}.
 
 \item \textbf{Vector arithmetic}: This topic refers to performing arithmetic
 operations on each member of one vector, forming a new vector. We recommend
 \url{https://pubs.wsb.wisc.edu/academics/analytics-using-r/vector-math.html} and
-\url{http://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
+\url{https://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
 
 \item \textbf{Apply-type functions}: This topic refers to several options
 for applying a function to each member of a vector or list. We recommend

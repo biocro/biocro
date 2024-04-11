@@ -127,28 +127,31 @@
 
 \examples{
 # First, we will initialize a test case file for the 'BioCro' library's
-# 'thermal_time_linear' module, which will be saved in the current directory as
+# 'thermal_time_linear' module, which will be saved in a temporary directory as
 # 'BioCro_thermal_time_linear.csv'. Then, we will add a new case to the file.
 # Finally, we will update the file. Note that the call to `update_csv_cases`
 # will not actually modify the file unless it is manually edited beforehand to
 # change an input or output value.
 
-\dontrun{
+td <- tempdir()
 
 initialize_csv(
   'BioCro:thermal_time_linear',
-  '.',
+  td,
   nonstandard_inputs = list(temp = -1),
   overwrite = TRUE
 )
 
+writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
+
 add_csv_row(
   'BioCro:thermal_time_linear',
-  '.',
+  td,
   list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
   'temp above tbase'
 )
 
-update_csv_cases('BioCro:thermal_time_linear', '.')
-}
+writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
+
+update_csv_cases('BioCro:thermal_time_linear', td)
 }

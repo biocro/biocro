@@ -10,7 +10,9 @@
   \code{\link{run_biocro}} or other BioCro functions.
 }
 
-\usage{module_paste(lib_name, local_module_names)}
+\usage{
+  module_paste(lib_name, local_module_names)
+}
 
 \arguments{
   \item{lib_name}{A string specifying a module library name.}

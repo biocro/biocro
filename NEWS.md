@@ -32,26 +32,52 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
-# UNRELEASED
+# CHANGES IN BioCro VERSION 3.1.0
 
-- The C++ framework has been updated to v1.1.1. Since the framework is included
-  as a git submodule, it will be necessary to use the `--recurse-submodule` flag
-  when using `git pull`, `git checkout`, or `git switch` to update a local copy
-  of the BioCro repository, or to move to or from this branch.
-
-- All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
-  The use of unqualified `abs` in `src/module_library/c3photoC.cpp` had been
-  causing test failures when running BioCro on Windows using R version 3.6.0.
+## MINOR USER-FACING CHANGES
 
 - Another bug was corrected in `src/module_library/c3photoC.cpp`: The
   photorespiration value `Rp` is now calculated using the value of `Ci` from the
   current loop iteration (rather than the previous loop iteration).
 
+- Modified some testing-related functions so that warnings due to mismatched
+  framework versions do not trigger test failures: the `tryCatch` call in
+  `test_module` now only catches errors (not warnings) when evaluating the
+  module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
+  now uses `expect_no_error` instead of `expect_silent`.
+
+- Changed the energy_par_content constant to 0.219. This is a conversion rate
+  from photon flux density (in micromoles per square meter per second) to energy
+  flux density (in joules per square meter per second or watts per square meter)
+  for photosynthetically active radiation (PAR). It equals 1/4.57, 4.57 being a
+  commonly used constant to convert PAR in W m^-2 to micromole m^-2 s^-1. Users
+  should take care to ensure that if processing of radiation data is required to
+  prepare it for use with BioCro, the same conversion factor is used. See more
+  details in Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager
+  and J. Craig McFarlane. Table 2, Pg 3
+  (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
+
+- The C++ framework has been updated to v1.1.3. Since the framework is included
+  as a git submodule, it will be necessary to use the `--recurse-submodule` flag
+  when using `git pull`, `git checkout`, or `git switch` to update a local copy
+  of the BioCro repository, or to move to or from this branch.
+
+- Replaced the `inc/boost` directory with a submodule pointing to the new
+  `biocro/boost` repository.
+
+- The (unexported) `lightME` function has been removed from the R package, since
+  its functionality can be reproduced using the
+  `BioCro:solar_position_michalsky` and
+  `BioCro:shortwave_atmospheric_scattering` modules.
+
+## OTHER CHANGES
+
+- All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
+  The use of unqualified `abs` in `src/module_library/c3photoC.cpp` had been
+  causing test failures when running BioCro on Windows using R version 3.6.0.
+
 - This version adds a description of the BioCro git branching model to
   `contribution_guidelines.Rmd` and clarifies the process of updating `NEWS.md`.
-
-- Replaced instances of `sprintf` in boost files with `snprintf` to avoid
-  `R CMD check` warnings
 
 - The R-CMD-check workflow has been changed in the following ways:
 
@@ -68,7 +94,7 @@ be directly added to this file to describe the related changes.
   - Output that was formerly shown only on manual runs when the
     "debug" checkbox was selected is now always shown.  The "debug"
     option has been changed to "dry-run", which results in the debug
-    output being shown but the actually check, and those set-up steps
+    output being shown but the actual check, and those set-up steps
     needed only to carry out the check, are skipped.
 
   - The debug output steps are grouped together when possible, and the
@@ -102,20 +128,9 @@ be directly added to this file to describe the related changes.
   precise layout of the online documentation.  Some other changes and
   clarifications to the documentation have been made as well.
 
-- Removed usage of deprecated C++ standard library functions
-  `std::unary_function` and `std::binary_function` to address `R CMD check`
-  warnings; this is a temporary manual fix that should not be required after
-  version 1.84 of the boost libraries is released.
-
 - Addressed some `format-security` compiler warnings related to calling
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
-
-- Modified some testing-related functions so that warnings due to mismatched
-  framework versions do not trigger test failures: the `tryCatch` call in
-  `test_module` now only catches errors (not warnings) when evaluating the
-  module, and `test_plant_model` (in `crop_model_testing_helper_functions.R`)
-  now uses `expect_no_error` instead of `expect_silent`.
 
 # CHANGES IN BioCro VERSION 3.0.2
 

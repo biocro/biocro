@@ -21,15 +21,15 @@ namespace standardBML
  *
  * - [Campbell, G. S. & Norman, J. M. "Chapter 2: Temperature" in "An Introduction to
  *   Environmental Biophysics" (1998)]
- *   (http://dx.doi.org/10.1007/978-1-4612-1626-1_2)
+ *   (https://dx.doi.org/10.1007/978-1-4612-1626-1_2)
  *
  * - [Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  *   of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999)]
- *   (http://dx.doi.org/10.1006/anbo.1999.0955)
+ *   (https://dx.doi.org/10.1006/anbo.1999.0955)
  *
  * - [McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
  *   Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)]
- *   (http://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
+ *   (https://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
  *
  * This module implements a piecewise linear model that includes optimal and maximum
  * temperatures. Due to its shape, this model is sometimes called "triangular."
@@ -37,7 +37,7 @@ namespace standardBML
  * or the paper that may have been the first to introduce it:
  * [Garcia-Huidobro, J., Monteith, J. L. & Squire, G. R. "Time, Temperature and Germination of
  * Pearl Millet (Pennisetum typhoides S. & H.) I. CONSTANT TEMPERATURE." J Exp Bot 33, 288–296 (1982)]
- * (http://dx.doi.org/10.1093/jxb/33.2.288).
+ * (https://dx.doi.org/10.1093/jxb/33.2.288).
  *
  * In this model, `DR` is determined from the air temperature `T` according to:
  *

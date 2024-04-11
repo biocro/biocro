@@ -11,7 +11,7 @@
 }
 
 \usage{
-get_growing_season_climate(climate, threshold_temperature = 0)
+  get_growing_season_climate(climate, threshold_temperature = 0)
 }
 
 \arguments{
@@ -83,5 +83,17 @@ get_growing_season_climate(climate, threshold_temperature = 0)
 }
 
 \value{
-A copy of the \code{climate} data frame truncated to the growing season.
+  A copy of the \code{climate} data frame truncated to the growing season.
+}
+
+\examples{
+  # Truncate the 2002 Champaign, Illinois weather data to an estimated growing
+  # season
+  truncated_weather <- get_growing_season_climate(weather[['2002']])
+
+  # We can see which days were included
+  list(
+    doy_start = min(truncated_weather$doy),
+    doy_end = max(truncated_weather$doy)
+  )
 }

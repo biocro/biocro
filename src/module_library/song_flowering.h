@@ -13,7 +13,7 @@
 //  Locke, J. C. W. et al. Extension of a genetic network model by iterative experimentation and mathematical analysis. Molecular Systems Biology 1, 2005.0013 (2005).
 // The Locke model is included here in this module
 // The models were implented in C++ by translating from the following files:
-//  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (http://sv.insysbio.com/online/)
+//  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (https://sv.insysbio.com/online/)
 //
 
 namespace standardBML

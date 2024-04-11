@@ -15,7 +15,7 @@ partial_run_biocro(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = BioCro:::default_ode_solver,
+    ode_solver = BioCro::default_ode_solvers$homemade_euler,
     arg_names,
     verbose = FALSE
 )

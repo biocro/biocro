@@ -1,7 +1,7 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs.
 
-There were 4 NOTEs:
+There were 5 NOTEs:
 
 - > checking CRAN incoming feasibility ... NOTE
   > Maintainer: 'McGrath Justin M. <jmcgrath@illinois.edu>'
@@ -10,11 +10,17 @@ There were 4 NOTEs:
 
   BioCro is a new submission.
 
+- > checking C++ specification ... NOTE
+  > Specified C++11: please drop specification unless essential
+
+  This specification is required in order to compile the included boost
+  libraries on our minimum supported version of R (3.6.0)
+
 - > checking installed package size ... NOTE
-  > installed size is  9.4Mb
+  > installed size is 10.0Mb
   > sub-directories of 1Mb or more:
-  >   data   3.5Mb
-  >   doc    3.7Mb
+  >   data   3.9Mb
+  >   doc    3.9Mb
   >   libs   1.9Mb
 
   No directories exceed 5 megabytes.

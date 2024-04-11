@@ -23,19 +23,19 @@ namespace standardBML
  *
  * - [Campbell, G. S. & Norman, J. M. "Chapter 2: Temperature" in "An Introduction to
  *   Environmental Biophysics" (1998)]
- *   (http://dx.doi.org/10.1007/978-1-4612-1626-1_2)
+ *   (https://dx.doi.org/10.1007/978-1-4612-1626-1_2)
  *
  * - [Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  *   of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999)]
- *   (http://dx.doi.org/10.1006/anbo.1999.0955)
+ *   (https://dx.doi.org/10.1006/anbo.1999.0955)
  *
  * - [McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
  *   Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)]
- *   (http://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
+ *   (https://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
  *
  * This particular module is based off [Yin et al. "A nonlinear model for crop development as
  * a function of temperature." Agricultural and Forest Meteorology 77, 1–16 (1995)]
- * (http://dx.doi.org/10.1016/0168-1923(95)02236-Q). In that paper, `DR` is determined from
+ * (https://dx.doi.org/10.1016/0168-1923(95)02236-Q). In that paper, `DR` is determined from
  * the air temperature `T` according to:
  *
  * | DR                                           | T range          |
