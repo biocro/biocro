@@ -2,6 +2,7 @@
 #define AUXBIOCRO_H
 
 #include <map>
+#include <vector>
 #include "../framework/constants.h" // for ideal_gas_constant
 
 /* This file will contain functions which are common to several */
@@ -114,7 +115,7 @@ double leaf_boundary_layer_conductance_thornley(
     double WindSpeedHeight
 );
 
-void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
+void LNprof(double LeafN, double LAI, double kpLN, std::vector<double> leafNla);
 
 /**
  *  @brief Calculates the exponential term of the Arrhenius equation.

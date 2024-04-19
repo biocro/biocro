@@ -6,6 +6,7 @@
 #include <stdexcept>  // for std::out_of_range, std::range_error
 #include <algorithm>  // for std::max, std::min
 #include <cmath>      // for exp, log, pow, lgamma, std::abs
+#include <vector>
 #include "c4photo.h"
 #include "BioCro.h"
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure,
@@ -15,6 +16,8 @@
                                        // atmospheric_pressure_at_sea_level,
                                        // molar_mass_of_water, stefan_boltzmann
                                        // celsius_to_kelvin
+
+using std::vector;
 
 // The probability density for the Poisson distribution is
 // e^(-lambda) * lambda^x / x!
@@ -59,11 +62,11 @@ double poisson_density(int x, double lambda)
  * Preconditions:
  *     `WindSpeed` is non-negative.
  *     `LAI` is non-negative
- *     `nlayers` is at least 1 and at most MAXLAY.
- *     `wind_speed_profile` is an array of at least size `nlayers`.
+ *     `wind_speed_profile` is an array of size at most MAXLAY.
  */
-void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile)
+void WINDprof(double WindSpeed, double LAI, vector<double> wind_speed_profile)
 {
+    auto nlayers { wind_speed_profile.size() };
     constexpr double k = 0.7;
     double LI = LAI / nlayers;
 
@@ -179,8 +182,9 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
     }
 }
 
-void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_profile)
+void LNprof(double LeafN, double LAI, double kpLN, vector<double> leafN_profile)
 {
+    auto nlayers { leafN_profile.size() };
     double LI = LAI / nlayers;
     for (int i = 0; i < nlayers; ++i) {
         double CumLAI = LI * (i + 1);
@@ -1087,7 +1091,7 @@ rd_str rootDist(int n_layers, double rootDepth, double* depths, double rfl)
     double layerDepth = 0.0;
     double CumLayerDepth = 0.0;
     int CumRootDist = 1;
-    double rootDist[n_layers];
+    vector<double> rootDist(n_layers);
     double cumulative_a = 0.0;
 
     for (int i = 0; i < n_layers; ++i) {
@@ -1106,7 +1110,7 @@ rd_str rootDist(int n_layers, double rootDepth, double* depths, double rfl)
 
     for (int j = 0; j < n_layers; ++j) {
         if (j < CumRootDist) {
-            double a = poisson_density(j + 1, (double)CumRootDist * rfl);
+            double a = poisson_density(j + 1, CumRootDist * rfl);
             rootDist[j] = a;
             cumulative_a += a;
         } else {
