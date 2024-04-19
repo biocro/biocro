@@ -66,11 +66,11 @@ double poisson_density(int x, double lambda)
  */
 void WINDprof(double WindSpeed, double LAI, vector<double>& wind_speed_profile)
 {
-    auto nlayers { wind_speed_profile.size() };
+    auto nlayers = wind_speed_profile.size();
     constexpr double k = 0.7;
     double LI = LAI / nlayers;
 
-    for (int i = 0; i < nlayers; ++i) {
+    for (vector<double>::size_type i = 0; i < nlayers; ++i) {
         double CumLAI = LI * (i + 1);
         wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
     }
@@ -184,9 +184,9 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 
 void LNprof(double LeafN, double LAI, double kpLN, vector<double>& leafN_profile)
 {
-    auto nlayers { leafN_profile.size() };
+    auto nlayers = leafN_profile.size();
     double LI = LAI / nlayers;
-    for (int i = 0; i < nlayers; ++i) {
+    for (vector<double>::size_type i = 0; i < nlayers; ++i) {
         double CumLAI = LI * (i + 1);
         leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI - LI));
     }
