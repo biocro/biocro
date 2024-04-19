@@ -62,9 +62,9 @@ double poisson_density(int x, double lambda)
  * Preconditions:
  *     `WindSpeed` is non-negative.
  *     `LAI` is non-negative
- *     `wind_speed_profile` is an array of size at most MAXLAY.
+ *     `wind_speed_profile` is a vector of size at most MAXLAY.
  */
-void WINDprof(double WindSpeed, double LAI, vector<double> wind_speed_profile)
+void WINDprof(double WindSpeed, double LAI, vector<double>& wind_speed_profile)
 {
     auto nlayers { wind_speed_profile.size() };
     constexpr double k = 0.7;
@@ -182,7 +182,7 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
     }
 }
 
-void LNprof(double LeafN, double LAI, double kpLN, vector<double> leafN_profile)
+void LNprof(double LeafN, double LAI, double kpLN, vector<double>& leafN_profile)
 {
     auto nlayers { leafN_profile.size() };
     double LI = LAI / nlayers;
