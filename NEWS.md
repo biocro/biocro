@@ -32,6 +32,11 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# CHANGES IN BioCro VERSION 3.1.1
+
+- The package date in its DESCRIPTION file was updated to meet CRAN submission
+  requirements (must be less than one month old)
+
 # CHANGES IN BioCro VERSION 3.1.0
 
 ## MINOR USER-FACING CHANGES
