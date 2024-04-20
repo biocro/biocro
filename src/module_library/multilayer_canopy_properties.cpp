@@ -1,8 +1,10 @@
+#include <vector>
 #include "multilayer_canopy_properties.h"
 #include "BioCro.h"     // for WINDprof
 #include "AuxBioCro.h"  // for LNprof
 #include "sunML.h"      // for sunML
 
+using std::vector;
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;
 
@@ -122,12 +124,12 @@ void multilayer_canopy_properties::run() const
         leaf_reflectance);
 
     // Calculate windspeed throughout the canopy
-    double wind_speed_profile[nlayers];
-    WINDprof(windspeed, lai, nlayers, wind_speed_profile);  // Modifies wind_speed_profile
+    vector<double> wind_speed_profile(nlayers);
+    WINDprof(windspeed, lai, wind_speed_profile);  // Modifies wind_speed_profile
 
     // Calculate leaf nitrogen throughout the canopy
-    double leafN_profile[nlayers];
-    LNprof(LeafN, lai, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
+    vector<double> leafN_profile(nlayers);
+    LNprof(LeafN, lai, kpLN, leafN_profile);  // Modifies leafN_profile
 
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {

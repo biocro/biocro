@@ -1,3 +1,4 @@
+#include <vector>
 #include "c3CanAC.h"
 #include "BioCro.h"                  // for WINDprof, c3EvapoTrans
 #include "c3photo.h"                 // for c3photoC
@@ -67,11 +68,11 @@ canopy_photosynthesis_outputs c3CanAC(
 
     double LAIc = LAI / nlayers;  // dimensionless
 
-    double wind_speed_profile[nlayers];
-    WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);  // Modifies wind_speed_profile
+    std::vector<double> wind_speed_profile(nlayers);
+    WINDprof(WindSpeed, LAI, wind_speed_profile);  // Modifies wind_speed_profile
 
-    double leafN_profile[nlayers];
-    LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
+    std::vector<double> leafN_profile(nlayers);
+    LNprof(leafN, LAI, kpLN, leafN_profile);  // Modifies leafN_profile
 
     double CanopyA{0.0};             // micromol / m^2 / s
     double GCanopyA{0.0};            // micromol / m^2 / s
