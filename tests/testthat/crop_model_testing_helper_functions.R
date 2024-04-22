@@ -120,7 +120,15 @@ run_crop_simulation <- function(test_info) {
     )
 
     res$nrow <- nrow(res)
-    res[seq(1, nrow(res), by = 24), ]
+    res <- res[seq(1, nrow(res), by = 24), ]
+
+    for (cn in colnames(res)) {
+        if (is.numeric(res[[cn]])) {
+            res[[cn]] <- signif(res[[cn]], digits = 5)
+        }
+    }
+
+    res
 }
 
 # Combine new and old results into one data frame for plotting purposes (this
