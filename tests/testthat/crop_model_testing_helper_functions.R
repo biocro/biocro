@@ -100,11 +100,15 @@ SOYBEAN_IGNORE <- c(
     "sunlit_EPriestly_layer_9"
 )
 
+# Change the output step size for the soybean simulation
+soybean_test <- soybean
+soybean_test$ode_solver$output_step_size <- 6
+
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
     specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
     specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
+    specify_crop("soybean",                TRUE,  soybean_test,           soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop
@@ -164,6 +168,8 @@ update_stored_results <- function(test_info) {
 # Make a helping function that checks the result of a new simulation against the
 # stored data for one crop
 test_plant_model <- function(test_info) {
+    # Read the stored result from the data file
+    stored_result <- read.csv(test_info[['stored_result_file']])
 
     # Describe the current test
     description_validity <- paste(
@@ -217,7 +223,7 @@ test_plant_model <- function(test_info) {
         )
 
         test_that(description, {
-            expect_equal(nrow(new_result), nrow(test_info[['drivers']]))
+            expect_equal(nrow(new_result), nrow(stored_result))
         })
 
         # If the simulation finished, make additional checks
@@ -243,9 +249,6 @@ test_plant_model <- function(test_info) {
                     warning(msg)
                 }
             }
-
-            # Read the stored result from the data file
-            stored_result <- read.csv(test_info[['stored_result_file']])
 
             # Make sure all columns contain numeric data
             stored_result <- as.data.frame(sapply(stored_result, as.numeric))
