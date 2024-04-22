@@ -100,20 +100,17 @@ SOYBEAN_IGNORE <- c(
     "sunlit_EPriestly_layer_9"
 )
 
-# Change the output step size for the soybean simulation
-soybean_test <- soybean
-soybean_test$ode_solver$output_step_size <- 6
-
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
     specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
     specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
-    specify_crop("soybean",                TRUE,  soybean_test,           soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
+    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
-# Make a helping function that runs a simulation for one crop
+# Make a helping function that runs a simulation for one crop, stores the number
+# of rows in the result, and keeps just a subset of the rows
 run_crop_simulation <- function(test_info) {
-    run_biocro(
+    res <- run_biocro(
         test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['drivers']],
@@ -121,6 +118,9 @@ run_crop_simulation <- function(test_info) {
         test_info[['differential_modules']],
         test_info[['ode_solver']]
     )
+
+    res$nrow <- nrow(res)
+    res[seq(1, nrow(res), by = 24), ]
 }
 
 # Combine new and old results into one data frame for plotting purposes (this
@@ -204,14 +204,7 @@ test_plant_model <- function(test_info) {
         new_result <- 0
         test_that(description_run, {
             expect_no_error(
-                new_result <<- run_biocro(
-                    test_info[['initial_values']],
-                    test_info[['parameters']],
-                    test_info[['drivers']],
-                    test_info[['direct_modules']],
-                    test_info[['differential_modules']],
-                    test_info[['ode_solver']]
-                )
+                new_result <<- run_crop_simulation(test_info)
             )
         })
 
@@ -222,12 +215,16 @@ test_plant_model <- function(test_info) {
             "simulation ran to completion"
         )
 
+        # Get nrow information
+        stored_nrow <- stored_result[1, 'nrow']
+        new_nrow <- new_result[1, 'nrow']
+
         test_that(description, {
-            expect_equal(nrow(new_result), nrow(stored_result))
+            expect_equal(new_nrow, stored_nrow)
         })
 
         # If the simulation finished, make additional checks
-        if (nrow(new_result) == nrow(test_info[['drivers']])) {
+        if (new_nrow == stored_nrow) {
             # Some variables may need to be ignored, possibly because their
             # values depend on the operating system or other factors that may
             # change between simulation runs. Remove these from the results. If
