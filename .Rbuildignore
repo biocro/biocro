@@ -27,7 +27,8 @@
 # subdirectories.
 
 ^vignettes/pdf_vignette_index.Rmd$
-# This vignette is only for pkgdown.
+^vignettes/web_only$
+# These vignettes are only for pkgdown.
 
 ^.*\.gz$
 # If these files occur only as by-products of building vignettes, this could be
