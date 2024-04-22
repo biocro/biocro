@@ -25,6 +25,8 @@ navbar:
       menu:
       - text: GENERAL BIOCRO USAGE
       - text: ---
+      - text: Getting Started with BioCro (HTML)
+        href: articles/BioCro.html
       - text: A Practical Guide to BioCro (PDF)
         href: articles/web_only/a_practical_guide_to_biocro.pdf
       - text: "    [R code]" # four non-breaking spaces (NO-BREAK SPACE, Unicode U+00A0) used for indentation here
