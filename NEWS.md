@@ -32,6 +32,21 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# CHANGES IN BioCro VERSION 3.1.3
+
+- Several changes have been made to reduce the package size from over 20 MB to
+  around 5 MB:
+  - Crop model regression tests only store 1 of every 24 rows (one time point
+    from each day)
+  - The stored weather data has been rounded to 3 significant digits
+  - The stored crop model regression test data has been rounded to 5 significant
+    digits
+  - All previously-existing vignettes were converted to "web only," meaning they
+    will be available through the pkgdown website but not included with the
+    package itself
+  - A new vignette has been added (`BioCro.Rmd`) that simply redirects readers
+    to the documentation website
+
 # CHANGES IN BioCro VERSION 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
