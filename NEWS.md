@@ -32,6 +32,14 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+## OTHER CHANGES
+
+- Addressed a `missing-field-initializers` warning from the compiler by
+  explicitly setting `iterations` to 0 in the output from
+  `rue_leaf_photosynthesis`
+
 # CHANGES IN BioCro VERSION 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
