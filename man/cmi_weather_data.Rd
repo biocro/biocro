@@ -86,7 +86,6 @@
   This was done using the commands in a script that is included with the BioCro
   package. This script can be located by typing
   \code{system.file('BioCro', 'extdata', 'rounding_weather_values.R')}.
-  }
 }
 
 \keyword{datasets}
