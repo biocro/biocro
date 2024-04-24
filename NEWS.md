@@ -32,6 +32,19 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+## OTHER CHANGES
+
+- Addressed a `missing-field-initializers` warning from the compiler by
+  explicitly setting `iterations` to 0 in the output from
+  `rue_leaf_photosynthesis`
+
+- Addressed a mistake in `thermal_time_and_frost_senescence.h` where the leaf
+  death rate due to frost had been unintentionally set to 0 in all conditions.
+  This mistake was caught by a compiler that reported a "ignoring return value
+  of function declared with 'nodiscard' attribute" warning.
+
 # CHANGES IN BioCro VERSION 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
