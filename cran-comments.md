@@ -16,13 +16,6 @@ There were 4 NOTEs:
   This specification is required in order to compile the included boost
   libraries on our minimum supported version of R (3.6.0)
 
-- > checking top-level files ... NOTE
-  > Non-standard file/directory found at top level:
-  >   'inc'
-
-  Having this directory at top level helps prevent overly long file paths in the
-  tarball.
-
 - > checking for GNU extensions in Makefiles ... NOTE
   > GNU make is a SystemRequirements.
 
