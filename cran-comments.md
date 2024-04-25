@@ -1,7 +1,7 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs.
 
-There were 4 NOTEs:
+There were 3 NOTEs:
 
 - > checking CRAN incoming feasibility ... NOTE
   > Maintainer: 'McGrath Justin M. <jmcgrath@illinois.edu>'
