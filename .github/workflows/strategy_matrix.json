@@ -5,9 +5,9 @@
         "r": "3.6.0"
     },
     {
-        "configName": "R 4.0.0 on macOS",
+        "configName": "R 4.1.0 on macOS",
         "os": "macOS-latest",
-        "r": "4.0.0"
+        "r": "4.1.0"
     },
     {
         "configName": "R 3.6.0 on Ubuntu",
