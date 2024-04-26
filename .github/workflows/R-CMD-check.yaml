@@ -55,7 +55,7 @@ on:
           - R 3.6.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
-          - R 4.1.0 on macOS
+          - R 4.1.3 on macOS
           - R release version on macOS
           - R 3.6.0 on Windows
           - R release version on Windows
