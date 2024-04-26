@@ -56,6 +56,9 @@ be directly added to this file to describe the related changes.
   This mistake was caught by a compiler that reported a "ignoring return value
   of function declared with 'nodiscard' attribute" warning.
 
+- Changed the minimum version of macOS checked by the R-CMD-check from
+  3.6.0 to 4.2.0.
+
 # CHANGES IN BioCro VERSION 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
