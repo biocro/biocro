@@ -44,13 +44,3 @@
     \item \code{\link{evaluate_module}}
   }
 }
-
-\examples{
-# Example: creating a vector of pointers to several module wrappers representing
-# three options for thermal time calculations
-module_pointers <- BioCro:::module_creators(c(
-  'thermal_time_linear',
-  'thermal_time_bilinear',
-  'thermal_time_trilinear'
-))
-}
