@@ -10,4 +10,4 @@ src/framework/LICENSE.md.
 
 The BioCro R package includes a portion of the Boost software library, which has
 its own separate license: https://www.boost.org/LICENSE_1_0.txt.  A copy of the
-license is included with this package in the file inc/LICENSE_1_0.txt.
+license is included with this package in the file src/inc/LICENSE_1_0.txt.

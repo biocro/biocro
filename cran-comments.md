@@ -1,7 +1,7 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs.
 
-There were 5 NOTEs:
+There were 3 NOTEs:
 
 - > checking CRAN incoming feasibility ... NOTE
   > Maintainer: 'McGrath Justin M. <jmcgrath@illinois.edu>'
@@ -15,22 +15,6 @@ There were 5 NOTEs:
 
   This specification is required in order to compile the included boost
   libraries on our minimum supported version of R (3.6.0)
-
-- > checking installed package size ... NOTE
-  > installed size is 10.0Mb
-  > sub-directories of 1Mb or more:
-  >   data   3.9Mb
-  >   doc    3.9Mb
-  >   libs   1.9Mb
-
-  No directories exceed 5 megabytes.
-
-- > checking top-level files ... NOTE
-  > Non-standard file/directory found at top level:
-  >   'inc'
-
-  Having this directory at top level helps prevent overly long file paths in the
-  tarball.
 
 - > checking for GNU extensions in Makefiles ... NOTE
   > GNU make is a SystemRequirements.

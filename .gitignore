@@ -37,6 +37,17 @@ vignettes/*.out
 vignettes/*.html
 vignettes/figure/
 vignettes/*synctex.gz
+vignettes/web_only/*.pdf
+vignettes/web_only/*.png
+vignettes/web_only/*.tex
+vignettes/web_only/*.log
+vignettes/web_only/*.R
+vignettes/web_only/*.toc
+vignettes/web_only/*.aux
+vignettes/web_only/*.out
+vignettes/web_only/*.html
+vignettes/web_only/figure/
+vignettes/web_only/*synctex.gz
 cache/
 figure/
 BioCro-II_Paper--Section-1.1-example_cache/

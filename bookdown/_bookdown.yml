@@ -23,7 +23,7 @@ rmd_files: [
     "../tests/README.md",
 
     # 4. Adding Boost
-    "../inc/adding_the_boost_libraries.md",
+    "../src/inc/adding_the_boost_libraries.md",
 
     # 5. The Update Documentation workflow
     "../.github/workflows/README.md",
