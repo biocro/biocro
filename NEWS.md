@@ -34,11 +34,17 @@ be directly added to this file to describe the related changes.
 
 # CHANGES IN BioCro VERSION 3.1.3
 
+- This is the first version of BioCro to be accepted by CRAN! Most of the
+  changes since version 3.1.0 were needed to comply with CRAN policies and
+  requirements.
+
 - Several changes have been made to reduce the package size from over 20 MB to
-  around 5 MB:
+  less than 5 MB:
   - Crop model regression tests only store 1 of every 24 rows (one time point
     from each day)
   - The stored weather data has been rounded to 3 significant digits
+    - The `solar` values have been rounded to the nearest integer
+    - The `rh` values have been rounded to 2 significant digits
   - The stored crop model regression test data has been rounded to 5 significant
     digits
   - All previously-existing vignettes were converted to "web only," meaning they
@@ -46,6 +52,13 @@ be directly added to this file to describe the related changes.
     package itself
   - A new vignette has been added (`BioCro.Rmd`) that simply redirects readers
     to the documentation website
+
+- Moved the included boost libraries from `inc` to `src/inc` since CRAN will not
+  allow a nonstandard top-level directory. Some paths were shortened during
+  this move.
+
+- Added the Boost organization to the authors as a copyright holder to comply
+  with CRAN policies
 
 - Addressed a `missing-field-initializers` warning from the compiler by
   explicitly setting `iterations` to 0 in the output from
@@ -57,7 +70,9 @@ be directly added to this file to describe the related changes.
   of function declared with 'nodiscard' attribute" warning.
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
-  3.6.0 to 4.2.0.
+  3.6.0 to 4.2.0
+  - CRAN now only provides R versions 4.1.0 and above for Mac
+  - The `deSolve` package cannot be built on Mac for R versions below 4.2.0
 
 # CHANGES IN BioCro VERSION 3.1.2
 
