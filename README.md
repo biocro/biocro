@@ -130,7 +130,7 @@ Appropriate references for BioCro are
 cite the package itself, use `citation('BioCro')` in R to get details for the
 current installed version.
 
-## References
+### References
 
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC: a software package for modelling the dynamics of plant leaf and canopy photosynthesis. Computer Applications in the Biosciences 11(4): 361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
