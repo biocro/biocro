@@ -81,6 +81,11 @@
   quantity does not change, it could in principle be considered a parameter
   rather than a driver; however, it is included with the weather data for
   convenience.
+
+  To reduce size the in the BioCro repository, the raw data values are rounded.
+  This was done using the commands in a script that is included with the BioCro
+  package. This script can be located by typing
+  \code{system.file('BioCro', 'extdata', 'rounding_weather_values.R')}.
 }
 
 \keyword{datasets}

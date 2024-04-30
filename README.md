@@ -1,4 +1,10 @@
-## BioCro [![Build Status](https://github.com/biocro/biocro/workflows/R-CMD-check/badge.svg)](https://github.com/biocro/biocro/actions?query=workflow%3AR-CMD-check)
+## BioCro
+
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/BioCro)](https://CRAN.R-project.org/package=BioCro)
+[![Build Status](https://github.com/biocro/biocro/workflows/R-CMD-check/badge.svg)](https://github.com/biocro/biocro/actions?query=workflow%3AR-CMD-check)
+<!-- badges: end -->
+
 BioCro is a model that predicts plant growth over time given crop-specific
 parameters and environmental data as input.
 
@@ -19,6 +25,7 @@ See [References](#references) below for a full list of scientific publications
 using the BioCro framework.
 
 ### An example
+
 The `run_biocro()` function accepts initial values, parameters, climate
 variables, and sets of modules to run. It returns the results in a data frame.
 
@@ -41,9 +48,18 @@ xyplot(Stem + Leaf ~ TTc, data = result, type='l', auto = TRUE)
 There are parameters and modules for soybean (_Glycine max_), miscanthus
 (_Miscanthus_ x _giganteus_), and willow (_Saliceae salix_).
 
+### Simple installation
 
-### Installation
+BioCro is available on CRAN, so it can be installed from R as follows:
+
+```r
+install.packages('BioCro')
+```
+
+### Installation from source
+
 #### Requirements
+
 - The [R environment](https://cran.r-project.org/) version 3.6.0 or greater.
 - On Windows, a version of
   [Rtools](https://cran.r-project.org/bin/windows/Rtools/) appropriate for your
@@ -53,6 +69,7 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus
 - On MacOS, Xcode.
 
 #### Installation steps
+
 1. Obtain a local copy of this repository, making sure to include the Git
    submodule code. This can be accomplished using either of two methods:
    1. If you are new to Git, the easiest way to get a local copy is to install
@@ -113,7 +130,8 @@ Appropriate references for BioCro are
 cite the package itself, use `citation('BioCro')` in R to get details for the
 current installed version.
 
-## References
+### References
+
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC: a software package for modelling the dynamics of plant leaf and canopy photosynthesis. Computer Applications in the Biosciences 11(4): 361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
 - [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2013] (2013) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154.

@@ -55,7 +55,7 @@ on:
           - R 3.6.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
-          - R 3.6.0 on macOS
+          - R 4.2.0 on macOS
           - R release version on macOS
           - R 3.6.0 on Windows
           - R release version on Windows
@@ -83,15 +83,8 @@ jobs:
           # This filter uses the JMESPath query language to modify the
           # strategy matrix (see https://jmespath.org/).  Note that if
           # the event is anything other than 'workflow_dispatch', the
-          # filter condition is true only when configName is 'R 3.6.0
-          # on Ubuntu'.
-          #
-          # For the public version of this repository, the "&&
-          # configName = 'R 3.6.0 on Ubuntu'" clause will be
-          # eliminated so that when the event is anything other than
-          # 'workflow_dispatch', the filter condition is always true
-          # and nothing gets filtered out: all the configurations will
-          # be run.
+          # filter condition is always true and nothing gets filtered
+          # out: all the configurations will be run.
           #
           # Note that the output matrix of this job is the includes
           # for a strategy matrix rather than the whole strategy

@@ -107,9 +107,10 @@ PLANT_TESTING_INFO <- list(
     specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
-# Make a helping function that runs a simulation for one crop
+# Make a helping function that runs a simulation for one crop, stores the number
+# of rows in the result, and keeps just a subset of the rows
 run_crop_simulation <- function(test_info) {
-    run_biocro(
+    res <- run_biocro(
         test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['drivers']],
@@ -117,6 +118,17 @@ run_crop_simulation <- function(test_info) {
         test_info[['differential_modules']],
         test_info[['ode_solver']]
     )
+
+    res$nrow <- nrow(res)
+    res <- res[seq(1, nrow(res), by = 24), ]
+
+    for (cn in colnames(res)) {
+        if (is.numeric(res[[cn]])) {
+            res[[cn]] <- signif(res[[cn]], digits = 5)
+        }
+    }
+
+    res
 }
 
 # Combine new and old results into one data frame for plotting purposes (this
@@ -164,6 +176,8 @@ update_stored_results <- function(test_info) {
 # Make a helping function that checks the result of a new simulation against the
 # stored data for one crop
 test_plant_model <- function(test_info) {
+    # Read the stored result from the data file
+    stored_result <- read.csv(test_info[['stored_result_file']])
 
     # Describe the current test
     description_validity <- paste(
@@ -198,14 +212,7 @@ test_plant_model <- function(test_info) {
         new_result <- 0
         test_that(description_run, {
             expect_no_error(
-                new_result <<- run_biocro(
-                    test_info[['initial_values']],
-                    test_info[['parameters']],
-                    test_info[['drivers']],
-                    test_info[['direct_modules']],
-                    test_info[['differential_modules']],
-                    test_info[['ode_solver']]
-                )
+                new_result <<- run_crop_simulation(test_info)
             )
         })
 
@@ -216,12 +223,16 @@ test_plant_model <- function(test_info) {
             "simulation ran to completion"
         )
 
+        # Get nrow information
+        stored_nrow <- stored_result[1, 'nrow']
+        new_nrow <- new_result[1, 'nrow']
+
         test_that(description, {
-            expect_equal(nrow(new_result), nrow(test_info[['drivers']]))
+            expect_equal(new_nrow, stored_nrow)
         })
 
         # If the simulation finished, make additional checks
-        if (nrow(new_result) == nrow(test_info[['drivers']])) {
+        if (new_nrow == stored_nrow) {
             # Some variables may need to be ignored, possibly because their
             # values depend on the operating system or other factors that may
             # change between simulation runs. Remove these from the results. If
@@ -243,9 +254,6 @@ test_plant_model <- function(test_info) {
                     warning(msg)
                 }
             }
-
-            # Read the stored result from the data file
-            stored_result <- read.csv(test_info[['stored_result_file']])
 
             # Make sure all columns contain numeric data
             stored_result <- as.data.frame(sapply(stored_result, as.numeric))

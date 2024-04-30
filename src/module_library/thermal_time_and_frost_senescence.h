@@ -271,18 +271,26 @@ void thermal_time_and_frost_senescence::do_operation() const
     double droot_senescence_index{0.0};
     double drhizome_senescence_index{0.0};
 
-    // Calculate the leaf death rate due to frost
-    double frost_leaf_death_rate{0.0};
-    if (TTc >= seneLeaf) {                 // Leaf senescence has started
-        bool A = lat >= 0.0;               // In Northern hemisphere
-        bool B = time >= 180.0;            // In second half of the year
-        if ((A && B) || ((!A) && (!B))) {  // Winter in either hemisphere
-            // frost_leaf_death_rate changes linearly from 100 to 0 as temp
-            // changes from Tfrostlow to Tfrosthigh and is limited to [0,100]
-            std::max(0.0, std::min(100.0, 100.0 * (Tfrosthigh - temp) /
-                                              (Tfrosthigh - Tfrostlow)));
-        }
-    }
+    // Calculate the leaf death rate due to frost. Leaf death should only occur
+    // due to frost when:
+    //   1. Leaf senescence has started (TTc >= seneLeaf)
+    //   2. We are in the winter months (definition depends on whether we are in
+    //      the Northern or Southern hemisphere)
+    // Under these conditions, if the temperature is at or above Tfrosthigh,
+    // there is no leaf death due to frost. If the temperature is at or below
+    // Tfrostlow, the leaf death rate reaches its maximum (100%). For
+    // temperatures between Tfrosthigh and Tfrostlow, the death rate changes
+    // linearly with temperature.
+    bool const sene_started = TTc >= seneLeaf;
+    bool const in_north = lat >= 0.0;
+    bool const late_year = time >= 180.0;
+    bool const in_winter = (in_north && late_year) || (!in_north && !late_year);
+
+    double const base_frost_death_rate =
+        100.0 * std::max(0.0, std::min(1.0, (Tfrosthigh - temp) / (Tfrosthigh - Tfrostlow)));
+
+    double const frost_leaf_death_rate =
+        sene_started && in_winter ? base_frost_death_rate : 0.0;
 
     // The current leaf death rate is the larger of the previously stored leaf
     // death rate and the new frost death rate. I.e., the leaf death rate

@@ -79,7 +79,8 @@ photosynthesis_outputs rue_photo(
         /* .Gs = */ gs * 1e3,                             // mmol / m^2 / s
         /* .Cs = */ BB_res.cs,                            // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                           // dimensionless from Pa / Pa
-        /* .Rp = */ 0.0                                   // micromol / m^2 / s
+        /* .Rp = */ 0.0,                                  // micromol / m^2 / s
+        /* .iterations = */ 0                             // not a physical quantity
     };
 }
 

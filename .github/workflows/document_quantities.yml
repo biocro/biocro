@@ -109,9 +109,16 @@ jobs:
       run: |
         cd target
 
-        # user.name and user.email are somewhat arbitrary but must be provided:
-        git config user.name biocro-action
-        git config user.email bogus@url.com
+        # stage any new or changed files:
         git add .
-        git commit -m "updated quantities documentation"
-        git push
+
+        if git diff --quiet --cached; then
+          echo "no changes to commit"
+        else
+          echo "committing changes"
+          # user.name and user.email are somewhat arbitrary but must be provided:
+          git config user.name biocro-action
+          git config user.email bogus@url.com
+          git commit -m "updated quantities documentation"
+          git push
+        fi
