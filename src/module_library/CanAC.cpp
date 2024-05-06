@@ -103,8 +103,7 @@ canopy_photosynthesis_outputs CanAC(
             Rd = nitroP.Rdb1 * leafN_lay + nitroP.Rdb0;
         }
 
-        double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
-        double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // J / m^2 / s
+        double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -127,7 +126,7 @@ canopy_photosynthesis_outputs CanAC(
 
         ET_Str et_direct =
             EvapoTrans2(
-                j_dir, j_avg, ambient_temperature, RH, layer_wind_speed,
+                j_dir, j_dir, ambient_temperature, RH, layer_wind_speed,
                 direct_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 
@@ -162,7 +161,7 @@ canopy_photosynthesis_outputs CanAC(
 
         ET_Str et_diffuse =
             EvapoTrans2(
-                j_diff, j_avg, ambient_temperature, RH, layer_wind_speed,
+                j_diff, j_diff, ambient_temperature, RH, layer_wind_speed,
                 diffuse_gsw_estimate, leafwidth, specific_heat_of_air,
                 minimum_gbw, eteq);
 

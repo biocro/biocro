@@ -38,7 +38,6 @@ class c4_leaf_photosynthesis : public direct_module
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           upperT{get_input(input_quantities, "upperT")},
           lowerT{get_input(input_quantities, "lowerT")},
-          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
           absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           windspeed{get_input(input_quantities, "windspeed")},
           leafwidth{get_input(input_quantities, "leafwidth")},
@@ -84,7 +83,6 @@ class c4_leaf_photosynthesis : public direct_module
     double const& atmospheric_pressure;
     double const& upperT;
     double const& lowerT;
-    double const& average_absorbed_shortwave;
     double const& absorbed_shortwave;
     double const& windspeed;
     double const& leafwidth;

@@ -38,7 +38,7 @@ class c3_leaf_photosynthesis : public direct_module
           StomataWS{get_input(input_quantities, "StomataWS")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
-          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           windspeed{get_input(input_quantities, "windspeed")},
           height{get_input(input_quantities, "height")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
@@ -84,7 +84,7 @@ class c3_leaf_photosynthesis : public direct_module
     double const& StomataWS;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& average_absorbed_shortwave;
+    double const& absorbed_shortwave;
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;

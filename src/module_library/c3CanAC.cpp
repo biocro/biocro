@@ -96,18 +96,18 @@ canopy_photosynthesis_outputs c3CanAC(
             vmax1 = leafN_lay * lnb1 + lnb0;
         }
 
-        double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
-        double CanHeight = light_profile.height[current_layer];                  // m
-        double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // J / m^2 / s
+        double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
+        double CanHeight = light_profile.height[current_layer];       // m
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];  // micromole / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];       // dimensionless
-        double Leafsun = LAIc * pLeafsun;                                     // dimensionless
+        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];    // micromole / m^2 / s
+        double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless
+        double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
         double direct_gsw_estimate =
             c3photoC(
@@ -121,7 +121,7 @@ canopy_photosynthesis_outputs c3CanAC(
 
         struct ET_Str et_direct =
             c3EvapoTrans(
-                j_avg, ambient_temperature, RH, layer_wind_speed,
+                j_dir, ambient_temperature, RH, layer_wind_speed,
                 CanHeight, specific_heat_of_air, direct_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
@@ -141,9 +141,10 @@ canopy_photosynthesis_outputs c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];  // micromole / m^2 /s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];      // dimensionless
-        double Leafshade = LAIc * pLeafshade;                                  // dimensionless
+        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];    // micromole / m^2 /s
+        double j_diff = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless
+        double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
         double diffuse_gsw_estimate =
             c3photoC(
@@ -157,7 +158,7 @@ canopy_photosynthesis_outputs c3CanAC(
 
         struct ET_Str et_diffuse =
             c3EvapoTrans(
-                j_avg, ambient_temperature, RH, layer_wind_speed,
+                j_diff, ambient_temperature, RH, layer_wind_speed,
                 CanHeight, specific_heat_of_air, diffuse_gsw_estimate,
                 minimum_gbw, WindSpeedHeight);
 
