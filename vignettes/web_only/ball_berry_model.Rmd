@@ -462,7 +462,7 @@ aci <- module_response_curve(
         windspeed = 3 # m / s
         height = 0.8  # m
         absorbed_ppfd = absorbed_ppfd
-        average_absorbed_shortwave = absorbed_energy
+        absorbed_shortwave = absorbed_energy
     }),
     expand.grid(
         Catm = seq(100, 1800, by = 5), # micromol / mol

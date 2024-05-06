@@ -633,7 +633,7 @@ a problem is detected. For example, if one or more of the differential
 quantities is missing an initial value, or if a parameter is missing, an error
 will occur:
 
-<<run_biocro_error_quantity>>=
+<<run_biocro_error_quantity, error=TRUE>>=
 soybean_result <- run_biocro(
   within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
   within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
@@ -648,7 +648,7 @@ soybean_result <- run_biocro(
 or the type of the \texttt{ode\_solver} cannot be found in the corresponding
 libraries:
 
-<<run_biocro_error_module>>=
+<<run_biocro_error_module, error=TRUE>>=
 soybean_result <- run_biocro(
   soybean$initial_values,
   soybean$parameters,
@@ -853,7 +853,7 @@ we can try passing the \texttt{soybean\$parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
-<<c3_assimilation_v1>>=
+<<c3_assimilation_v1, error=TRUE>>=
 outputs <- evaluate_module('BioCro:c3_assimilation', soybean$parameters)
 @
 
