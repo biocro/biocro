@@ -135,7 +135,7 @@ double absorbed_shortwave_from_incident_ppfd(
 
     double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
 
-    return thick_layer_absorption(
+    return thin_layer_absorption(
         leaf_reflectance,
         leaf_transmittance,
         incident_shortwave);  // J / m^2 / s
