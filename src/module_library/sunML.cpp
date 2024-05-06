@@ -275,10 +275,9 @@ Light_profile sunML(
             ambient_ppfd_diffuse * exp(-kd * cumulative_lai) + scattered_ppfd;  // micromol / m^2 / s
 
         // Calculate the fraction of sunlit and shaded leaves in this canopy
-        // layer using Equation 15.21.
-        const double Ls = (1 - exp(-k * lai_per_layer)) * exp(-k * cumulative_lai) / k;  // dimensionless
-        double sunlit_fraction = Ls / lai_per_layer;                                     // dimensionless
-        double shaded_fraction = 1 - sunlit_fraction;                                    // dimensionless
+        // layer using Equation 15.22.
+        double sunlit_fraction = exp(-k * cumulative_lai);  // dimensionless
+        double shaded_fraction = 1 - sunlit_fraction;       // dimensionless
 
         // Calculate an "average" incident PPFD for the sunlit and shaded leaves
         // that doesn't seem to be based on a formula from Campbell & Norman
