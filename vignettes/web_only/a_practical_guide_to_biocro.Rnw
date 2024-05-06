@@ -84,11 +84,9 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 \maketitle
 
 % Set things up for R evaluation:
-<<preliminaries,echo=FALSE,error=TRUE>>=
-knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
-                                  # in results; this is the default;
-                                  # we override this below when
-                                  # loading needed packages
+<<preliminaries,echo=FALSE>>=
+knitr::opts_chunk$set(error=FALSE) # do stop on errors so we can immediately
+                                   # identify problems with the vignette code
 knitr::opts_chunk$set(fig.width=5, fig.height=3)
 @
 
@@ -124,9 +122,7 @@ This vignette provides a demonstration of a few important BioCro functions and
 some R basics. We will be using functions from the \texttt{BioCro} and
 \texttt{lattice} packages, so we must make sure they are both loaded:
 
-% error=FALSE: If we can't load the needed libraries, we want to stop
-% compilation immediately.
-<<loading_libraries,error=FALSE>>=
+<<loading_libraries>>=
 library(BioCro)
 library(lattice)
 @
