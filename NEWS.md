@@ -32,6 +32,25 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+# MINOR USER-FACING CHANGES
+
+- Added a new vignette explaining key features of BioCro's multilayer canopy
+  model
+
+- Made several changes to `sunML` and related functions to ensure the code
+  matches the model description in the vignette:
+
+  - Stopped calculating and using the "average" incident PPFD and absorbed
+    shortwave radiation for leaves in the canopy
+
+  - Stopped using the "thick layer absorption" equation for determining the
+    absorbed shortwave radiation within the canopy, replacing it with the thin
+    layer absorption equation
+
+  - Used a simpler equation for calculating the fraction of sunlit leaves
+
 # CHANGES IN BioCro VERSION 3.1.3
 
 - This is the first version of BioCro to be accepted by CRAN! Most of the
