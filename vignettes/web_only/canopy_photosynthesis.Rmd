@@ -36,7 +36,7 @@ density (PPFD; $Q_{in}$), the absorbed shortwave energy ($I_{abs}$), the ambient
 CO$_2$ concentration outside the boundary layer ($C_a$), the air temperature
 ($T_a$), the relative humidity ($h_a$), and several other environmental factors.
 Mathematically, we can express this by writing $A_n$ as a function of these
-variables: $A_n = A_n(Q_{in}, I_{abs}, C_a, T_a, h_a)$.
+variables: $A_{n,leaf} = A_{n,leaf}(Q_{in}, I_{abs}, C_a, T_a, h_a)$.
 
 Each of these environmental variables may change throughout a crop canopy. A
 common way to treat this is to express each of them as a function of the
@@ -53,10 +53,14 @@ depth within the canopy using leaf area, since the amount of leaf area above a
 particular point is more important for determining $Q_{in}$ (and the other
 variables) than the physical distance below the canopy top.
 
-With this in mind, $A_{n,leaf}$ can also be expressed as function of $\ell$
-rather than each individual variable. This notation is convenient because it
-allows us to integrate $A_{n,leaf}$ across the entire canopy to define the net
-CO$_2$ assimilation rate per unit ground area ($A_{n,canopy}$) as
+With this in mind, we can write $A_{n,leaf} = A_{n,leaf}(Q_{in}(\ell),
+I_{abs}(\ell), C_a(\ell), T_a(\ell), h_a(\ell))$. This notation is a bit
+unweildy, and it can be made more compact by writing $A_{n,leaf} =
+A_{n,leaf}(\ell)$. In this form, it is implied that each of the inputs to the
+photosynthesis model used to calculate $A_{n,leaf}$ change with $\ell$. This
+notation is convenient because it allows us to define the net CO$_2$
+assimilation rate per unit ground area ($A_{n,canopy}$) using a one-dimensional
+integral over $\ell$:
 
 \begin{equation}
     A_{n,canopy} = \int_{\ell = 0}^{L} A_{n,leaf}(\ell) d \ell,
@@ -65,9 +69,9 @@ CO$_2$ assimilation rate per unit ground area ($A_{n,canopy}$) as
 
 where $d \ell$ is the LAI of an infinitesimally small piece of leaf and
 $A_{n,leaf}(\ell)$ is the net CO$_2$ assimilation rate per leaf area of that
-small piece, located at cLAI $\ell$. Thus, the inputs to the photosynthesis
-model used to calculate $A_{n,leaf}$, such as $Q_{in}$, should also be evaluated
-at $\ell$.
+small piece, located at cLAI $\ell$. In light of the comments above about this
+notation, the inputs to the photosynthesis model used to calculate $A_{n,leaf}$,
+such as $Q_{in}$, should also be evaluated at $\ell$.
 
 This is an oversimplified way to represent $A_{n,canopy}$ because it ignores
 several other key variables that influence $A_{n,leaf}$ besides $\ell$. A common
@@ -115,20 +119,46 @@ width. Here we have used the
 for the Riemann sum, but in principle the "left rule" or "right rule" could also
 be used.
 
+As discussed above, this notation implies that the inputs to the leaf-level
+photosynthesis model also change with $\ell$. For example,
+$A_{n,leaf}^{sunlit}(\ell_i)$ is a shorthand for
+$A_{n,leaf}(Q_{in}^{sunlit}(\ell_i), I_{abs}^{sunlit}(\ell_i),
+C_a^{sunlit}(\ell_i), T_a^{sunlit}(\ell_i), h_a^{sunlit}(\ell_i))$, where we
+have allowed for the possibility that all inputs may be different for sunlit and
+shaded leaves. It is also important to note that $A_{n,leaf}^{sunlit}(\ell)$ and
+$A_{n,leaf}^{shaded}(\ell)$ retain their original definitions after
+approximating the integral by a sum; they are still the leaf-level net CO$_2$
+assimilation rates of infinitesimally small areas of sunlit and shaded leaves at
+$\ell$.
+
 From a biological perspective, this approach to numerical integration can be
 understood as dividing the crop canopy into $N$ layers of equal amounts of leaf
 area. Thus, Equation \@ref(eq:AnCanopyMultilayer) is usually referred to as a
-"multilayer canopy model."
+"multilayer canopy model." In this model, we assume that $A_{n,leaf}^{sunlit}$
+for all sunlit leaves in a layer can be reasonably approximated by
+$A_{n,leaf}^{sunlit}$ at the midpoint of that layer, and likewise for shaded
+leaves.
 
-The multilayer canopy model expressed in Equation \@ref(eq:AnCanopyMultilayer)
-relies on an assumption that the environmental conditions of sunlit (or shaded)
-leaves in each layer are fairly constant across the layer. For example, once
-$A_{n,leaf}^{sunlit}(\ell_i)$ and $f_{sunlit}(\ell_i)$ have been calculated, the
-total contribution of sunlit leaves in layer $i$ is found by multiplying the
-leaf-level rate ($A_{n,leaf}^{sunlit}(\ell_i)$) by the total sunlit leaf area in
-the layer ($f_{sunlit}(\ell_i) \cdot L / N$). This only makes sense if $L / N$
-is relatively small, so that incident light or other variables do not change
-much across the layer.
+The accuracy of the multilayer canopy model expressed in Equation
+\@ref(eq:AnCanopyMultilayer) will depend on how reasonable this assumption is.
+Generally, the model will be more accurate when larger $N$ is used. As $N$
+becomes larger, the width of each layer becomes smaller, and so environmental
+conditions across each layer become more uniform. Of course, if $N \rightarrow
+\infty$, the Riemann sum in Equation \@ref(eq:AnCanopyMultilayer) converges back
+to the integral in Equation \@ref(eq:AnCanopyRefined).
+
+## Multilayer Canopy Model Examples
+
+Examples of multilayer canopy models can be found in the literature;
+@bonan_moving_2021 contains references to many of them. Despite their
+prevalence, descriptions of these models rarely contain an explicit equation
+describing exactly how to relate canopy-level assimilation to leaf-level
+assimilation, as we have done with Equation \@ref(eq:AnCanopyMultilayer).
+
+For example, instead of providing an equation, @pury_simple_1997 write "Canopy
+photosynthesis rate was calculated by the summation of the product of rate of
+leaf photosynthesis per unit leaf area by the leaf area in each class" (page
+541).
 
 ## Non-Multilayer Canopy Models
 
@@ -184,25 +214,25 @@ the sky or flux that has been scattered by leaves in the canopy). Beam flux is
 typically expressed as flux density through a horizontal plane, while diffuse
 flux densities apply to any surface orientation because they are not
 directional. Some of these fluxes are related to each other. In particular,
-$Q_bt = Q_{sc} + Q_b$ (Equation 15.20).
+$Q_{bt} = Q_{sc} + Q_b$ (Equation 15.20).
 
 Shaded leaves receive diffuse radiation and down-scattered radiation. Sunlit
 leaves receive these types of radiation with the addition of direct beam
 radiation. Expressed on a leaf area basis, the flux density incident on sunlit
-and shaded leaves ($Q_{sunlit}$ and $Q_{shaded}$) are
+and shaded leaves ($Q_{in}^{sunlit}$ and $Q_{in}^{shaded}$) are
 
 \begin{equation}
-    Q_{sunlit} = K_{direct} \cdot Q_{ob} + Q_d + Q_{sc}
+    Q_{in}^{sunlit} = K_{direct} \cdot Q_{ob} + Q_d + Q_{sc}
 \end{equation}
 
 and
 
 \begin{equation}
-    Q_{shaded} = Q_d + Q_{sc}
+    Q_{in}^{shaded} = Q_d + Q_{sc}
 \end{equation}
 
-(Equations 15.18 and 15.19). The term $K \cdot Q_{ob}$ is the average direct
-beam radiation accounting for the distribution of leaf angles.
+(Equations 15.18 and 15.19). The term $K_{direct} \cdot Q_{ob}$ is the average
+direct beam radiation accounting for the distribution of leaf angles.
 
 Solar diffuse radiation originates in the sky due to atmospheric scattering of
 the sun's light and changes within the canopy according to
@@ -264,7 +294,8 @@ incident radiation by the absorptivity:
 \end{equation}
 
 Note that since the incident PPFD $Q_{in}$ is different for sunlit and shaded
-leaves, $I_{abs}$ is similarly different.
+leaves, $I_{abs}$ is similarly different, and we can distinguish between
+$I_{abs}^{sunlit}$ and $I_{abs}^{shaded}$.
 
 In reality, PAR and NIR are scattered and absorbed at different rates by leaves
 in the canopy, so $f_{PAR}$ changes throughout the canopy. Currently BioCro
