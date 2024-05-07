@@ -618,18 +618,17 @@ incident_shortwave <- incident_par / cmi_soybean$parameters$par_energy_fraction
 
 # Determine the corresponding absorbed shortwave energy values using the
 # shortwave reflectance and transmittance of the leaf (J / m^2 / s)
-average_absorbed_shortwave <-
+absorbed_shortwave <-
     incident_shortwave *
     (1 - cmi_soybean$parameters$leaf_reflectance -
-        cmi_soybean$parameters$leaf_transmittance) /
-    (1 - cmi_soybean$parameters$leaf_transmittance)
+        cmi_soybean$parameters$leaf_transmittance)
 
 # Make a data frame with the incident PPFD and absorbed shortwave values, where
 # we also include values of a few other required parameters
 light_curve_inputs <- data.frame(
     incident_ppfd = incident_ppfd,
     absorbed_ppfd = absorbed_ppfd,
-    average_absorbed_shortwave = average_absorbed_shortwave,
+    absorbed_shortwave = absorbed_shortwave,
     rh = 0.75,
     temp = 25,
     windspeed = 3.28,
