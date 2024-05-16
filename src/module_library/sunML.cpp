@@ -513,11 +513,6 @@ Light_profile sunML(
             k_direct, k_diffuse,
             absorptivity_nir, cumulative_lai);  // J / m^2 / s
 
-        // Calculate the amount of PPFD scattered out of the direct beam. This
-        // is a diffuse flux density representing the flux through any surface.
-        const double scattered_ppfd = downscattered_radiation(
-            ambient_ppfd_beam_ground, k_direct, absorptivity_par, cumulative_lai);  // micromol / m^2 / s
-
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
         double sunlit_fraction = exp(-k_direct * cumulative_lai);  // dimensionless
@@ -536,12 +531,13 @@ Light_profile sunML(
         }
 
         // Store values of incident PPFD
-        light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + shaded_ppfd;  // micromol / (m^2 leaf) / s
-        light_profile.incident_ppfd_scattered[i] = scattered_ppfd;                     // micromol / m^2 / s
-        light_profile.shaded_incident_ppfd[i] = shaded_ppfd;                           // micromol / (m^2 leaf) / s
-        light_profile.sunlit_fraction[i] = sunlit_fraction;                            // dimensionless from m^2 / m^2
-        light_profile.shaded_fraction[i] = shaded_fraction;                            // dimensionless from m^2 / m^2
         light_profile.height[i] = (lai - cumulative_lai) / heightf;                    // m
+        light_profile.shaded_fraction[i] = shaded_fraction;                            // dimensionless from m^2 / m^2
+        light_profile.shaded_incident_ppfd[i] = shaded_ppfd;                           // micromol / (m^2 leaf) / s
+        light_profile.shaded_incident_nir[i] = shaded_nir;                             // J / (m^2 leaf) / s
+        light_profile.sunlit_fraction[i] = sunlit_fraction;                            // dimensionless from m^2 / m^2
+        light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + shaded_ppfd;  // micromol / (m^2 leaf) / s
+        light_profile.sunlit_incident_nir[i] = ambient_nir_beam_leaf + shaded_nir;     // J / (m^2 leaf) / s
 
         // Store values of absorbed PPFD
         light_profile.sunlit_absorbed_ppfd[i] =

@@ -4,17 +4,18 @@
 #include "AuxBioCro.h"  // for MAXLAY
 
 struct Light_profile {
-    double sunlit_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double incident_ppfd_scattered[MAXLAY];      // micromol / m^2 / s
+    double canopy_direct_transmission_fraction;  // dimensionless
+    double height[MAXLAY];                       // m
+    double shaded_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
+    double shaded_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
+    double shaded_fraction[MAXLAY];              // dimensionless
+    double shaded_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
     double shaded_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
     double sunlit_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double shaded_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
     double sunlit_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double shaded_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
     double sunlit_fraction[MAXLAY];              // dimensionless
-    double shaded_fraction[MAXLAY];              // dimensionless
-    double height[MAXLAY];                       // m
-    double canopy_direct_transmission_fraction;  // dimensionless
+    double sunlit_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
+    double sunlit_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
 };
 
 double thin_layer_absorption(
