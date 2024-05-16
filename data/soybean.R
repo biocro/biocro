@@ -124,8 +124,6 @@ soybean <- list(
                                                    # (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
 
         # ten_layer_canopy_properties module
-        absorptivity_nir            = 0.8,
-        absorptivity_par            = 0.8,         # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition
         chil                        = 0.81,        # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Table 15.1, pg 253
         k_diffuse                   = 0.7,         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
         heightf                     = 3,           # m^-1

@@ -65,8 +65,6 @@ class multilayer_canopy_properties : public direct_module
           // Get references to input quantities
           par_incident_direct{get_input(input_quantities, "par_incident_direct")},
           par_incident_diffuse{get_input(input_quantities, "par_incident_diffuse")},
-          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
-          absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           lai{get_input(input_quantities, "lai")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
@@ -108,8 +106,6 @@ class multilayer_canopy_properties : public direct_module
     // References to input parameters
     double const& par_incident_direct;
     double const& par_incident_diffuse;
-    double const& absorptivity_nir;
-    double const& absorptivity_par;
     double const& lai;
     double const& cosine_zenith_angle;
     double const& k_diffuse;

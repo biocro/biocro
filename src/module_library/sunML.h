@@ -72,8 +72,6 @@ double shaded_radiation(
 );
 
 struct Light_profile sunML(
-    double absorptivity_nir,        // dimensionless from mol / mol
-    double absorptivity_par,        // dimensionless from mol / mol
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2

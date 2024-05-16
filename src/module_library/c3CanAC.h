@@ -37,8 +37,6 @@ canopy_photosynthesis_outputs c3CanAC(
     double growth_respiration_fraction,  // dimensionless
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
-    double absorptivity_nir,             // dimensionless
-    double absorptivity_par,             // dimensionless
     double par_energy_content,           // J / micromol
     double par_energy_fraction,          // dimensionless
     double leaf_transmittance_nir,       // dimensionless

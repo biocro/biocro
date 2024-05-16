@@ -37,8 +37,6 @@ canopy_photosynthesis_outputs CanAC(
     double atmospheric_pressure,       // Pa
     double atmospheric_transmittance,  // dimensionless
     double atmospheric_scattering,     // dimensionless
-    double absorptivity_nir,           // dimensionless
-    double absorptivity_par,           // dimensionless
     double par_energy_content,         // J / micromol
     double par_energy_fraction,        // dimensionless
     double leaf_transmittance_nir,     // dimensionless

@@ -43,8 +43,6 @@ willow <- list(
         TTc                         = 0
     ),
     parameters = list(
-        absorptivity_nir             = 0.8,
-        absorptivity_par             = 0.8,
         alpha1                       = 0,
         alphab1                      = 0,
         atmospheric_pressure         = 101325,

@@ -40,8 +40,6 @@ string_vector c3_canopy::get_inputs()
         "growth_respiration_fraction",
         "electrons_per_carboxylation",
         "electrons_per_oxygenation",
-        "absorptivity_nir",        // dimensionless
-        "absorptivity_par",        // dimensionless
         "par_energy_content",      // J / micromol
         "par_energy_fraction",     // dimensionless
         "leaf_transmittance_nir",  // dimensionless
@@ -101,8 +99,6 @@ void c3_canopy::do_operation() const
         growth_respiration_fraction,
         electrons_per_carboxylation,
         electrons_per_oxygenation,
-        absorptivity_nir,
-        absorptivity_par,
         par_energy_content,
         par_energy_fraction,
         leaf_transmittance_nir,

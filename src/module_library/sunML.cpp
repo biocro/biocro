@@ -412,8 +412,6 @@ double shaded_radiation(
  *          the relative fractions of shaded and sunlit leaves
  */
 Light_profile sunML(
-    double absorptivity_nir,        // dimensionless from mol / mol
-    double absorptivity_par,        // dimensionless from mol / mol
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2
@@ -433,20 +431,33 @@ Light_profile sunML(
     if (nlayers < 1 || nlayers > MAXLAY) {
         throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
     }
+
     if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {
         throw std::out_of_range("cosine_zenith_angle must be between -1 and 1.");
     }
+
     if (k_diffuse > 1 || k_diffuse < 0) {
         throw std::out_of_range("k_diffuse must be between 0 and 1.");
     }
+
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
+
+    if (heightf <= 0) {
+        throw std::out_of_range("heightf must greater than zero.");
+    }
+
+    // Calculate absorptivity from leaf reflectance and transmission
+    double const absorptivity_nir = 1.0 - leaf_reflectance_nir - leaf_transmittance_nir; // dimensionless
+    double const absorptivity_par = 1.0 - leaf_reflectance_par - leaf_transmittance_par; // dimensionless
+
     if (absorptivity_par > 1 || absorptivity_par < 0) {
         throw std::out_of_range("absorptivity_par must be between 0 and 1.");
     }
-    if (heightf <= 0) {
-        throw std::out_of_range("heightf must greater than zero.");
+
+    if (absorptivity_nir > 1 || absorptivity_nir < 0) {
+        throw std::out_of_range("absorptivity_nir must be between 0 and 1.");
     }
 
     // Calculate the leaf shape factor for an ellipsoidal leaf angle

@@ -48,8 +48,6 @@ class c3_canopy : public direct_module
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
-          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
-          absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
@@ -107,8 +105,6 @@ class c3_canopy : public direct_module
     double const& growth_respiration_fraction;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& absorptivity_nir;
-    double const& absorptivity_par;
     double const& par_energy_content;
     double const& par_energy_fraction;
     double const& leaf_transmittance_nir;

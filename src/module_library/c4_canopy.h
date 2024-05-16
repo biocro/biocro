@@ -58,8 +58,6 @@ class c4_canopy : public direct_module
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
-          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
-          absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
@@ -124,8 +122,6 @@ class c4_canopy : public direct_module
     double const& atmospheric_pressure;
     double const& atmospheric_transmittance;
     double const& atmospheric_scattering;
-    double const& absorptivity_nir;
-    double const& absorptivity_par;
     double const& par_energy_content;
     double const& par_energy_fraction;
     double const& leaf_transmittance_nir;
@@ -190,8 +186,6 @@ string_vector c4_canopy::get_inputs()
         "atmospheric_pressure",       // Pa
         "atmospheric_transmittance",  // dimensionless
         "atmospheric_scattering",     // dimensionless
-        "absorptivity_nir",           // dimensionless
-        "absorptivity_par",           // dimensionless
         "par_energy_content",         // J / micromol
         "par_energy_fraction",        // dimensionless
         "leaf_transmittance_nir",     // dimensionless
@@ -262,8 +256,6 @@ void c4_canopy::do_operation() const
         atmospheric_pressure,
         atmospheric_transmittance,
         atmospheric_scattering,
-        absorptivity_nir,
-        absorptivity_par,
         par_energy_content,
         par_energy_fraction,
         leaf_transmittance_nir,

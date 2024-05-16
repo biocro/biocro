@@ -16,8 +16,6 @@ string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
     return {
         "par_incident_direct",     // J / (m^2 beam) / s [area perpendicular to beam]
         "par_incident_diffuse",    // J / m^2 / s        [through any plane]
-        "absorptivity_nir",        // dimensionless
-        "absorptivity_par",        // dimensionless
         "lai",                     // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
         "cosine_zenith_angle",     // dimensionless
         "k_diffuse",               // (m^2 ground) / (m^2 leaf)
@@ -110,8 +108,6 @@ void multilayer_canopy_properties::run() const
     // convert photosynthetically active radiation (PAR) to PPFD using the
     // energy content of light in the PAR band
     struct Light_profile light_profile = sunML(
-        absorptivity_nir,
-        absorptivity_par,
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
         chil,

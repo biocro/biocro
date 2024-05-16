@@ -39,8 +39,6 @@ canopy_photosynthesis_outputs CanAC(
     double atmospheric_pressure,       // Pa
     double atmospheric_transmittance,  // dimensionless
     double atmospheric_scattering,     // dimensionless
-    double absorptivity_nir,           // dimensionless
-    double absorptivity_par,           // dimensionless
     double par_energy_content,         // J / micromol
     double par_energy_fraction,        // dimensionless
     double leaf_transmittance_nir,     // dimensionless
@@ -64,8 +62,6 @@ canopy_photosynthesis_outputs CanAC(
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
     struct Light_profile light_profile = sunML(
-        absorptivity_nir,
-        absorptivity_par,
         q_dir,
         q_diff,
         chil,
