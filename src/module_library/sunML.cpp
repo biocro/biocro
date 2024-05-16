@@ -109,56 +109,65 @@ double nir_from_ppfd(
 }
 
 /**
- *  @brief Computes total absorbed shortwave radiation from the
- *  photosynthetically active photon flux density (PPFD) incident on a leaf.
+ *  @brief Computes total shortwave radiation absorbed by a leaf.
  *
- *  The total absorbed shortwave radiation is determined using the following
- *  steps:
- *  - determine the incident near-infrared radiation (NIR) from the incident
- *    PPFD using the PAR energy content and PAR energy fraction
- *  - determine the total incident radiation by adding the incident PAR and NIR
- *  - determine the total absorbed radiation using the leaf's reflection and
- *    transmission coefficients
+ *  The total shortwave radiation absorbed by a leaf is the sum of the absorbed
+ *  energy in the photosynthetically active radiation (PAR) and near-infrared
+ *  (NIR) bands: `total_absorbed = par_absorbed + nir_absorbed`.
+ *
+ *  In each band, the absorbed radiation can be calculated from the incident
+ *  radiation using the thin_layer_absorption() function with the appropriate
+ *  values of leaf reflectance and transmission for each band.
+ *
+ *  The incident PAR energy can be calculated from the incident
+ *  photosynthetically active photon flux density (PPFD) using the average
+ *  energy per photon in the PAR band.
+ *
+ *  @param [in] incident_nir Energy flux in the NIR band incident on a leaf
+ *              expressed in micromol / m^2 / s
  *
  *  @param [in] incident_ppfd Photosynthetically active photon flux density
  *              (PPFD) incident on a leaf expressed in micromol / m^2 / s
  *
- *  @param [in] par_energy_content The energy content of PPFD expressed in J /
- *              micromol
+ *  @param [in] par_energy_content The average energy per photon in the PAR band
+ *              expressed in J /  micromol
  *
- *  @param [in] par_energy_fraction The fraction of total shortwave energy
- *              contained in the PAR band expressed as a real number between 0
- *              and 1
+ *  @param [in] leaf_reflectance_par The fractional amount of PAR band radiation
+ *              reflected by the leaf
  *
- *  @param [in] leaf_reflectance The fractional amount of shortwave radiation
- *              reflected by the leaf (weighted across all shortwave radiation)
+ *  @param [in] leaf_transmittance_par The fractional amount of PAR band
+ *              radiation transmitted through the leaf
  *
- *  @param [in] leaf_transmittance The fractional amount of shortwave radiation
- *              transmitted through the leaf (weighted across all shortwave
- *              radiation)
+ *  @param [in] leaf_reflectance_nir The fractional amount of NIR band radiation
+ *              reflected by the leaf
+ *
+ *  @param [in] leaf_transmittance_nir The fractional amount of NIR band
+ *              radiation transmitted through the leaf
  *
  *  @return The total shortwave radiation absorbed by the leaf expressed in
  *          J / m^2 / s
  */
-double absorbed_shortwave_from_incident_ppfd(
-    double incident_ppfd,        // micromol / m^2 / s
-    double par_energy_content,   // J / micromol
-    double par_energy_fraction,  // dimensionless
-    double leaf_reflectance,     // dimensionless
-    double leaf_transmittance    // dimensionless
+double absorbed_shortwave(
+    double incident_nir,            // J / m^2 / s
+    double incident_ppfd,           // micromol / m^2 / s
+    double par_energy_content,      // J / micromol
+    double leaf_reflectance_par,    // dimensionless
+    double leaf_transmittance_par,  // dimensionless
+    double leaf_reflectance_nir,    // dimensionless
+    double leaf_transmittance_nir   // dimensionless
 )
 {
-    double incident_par = incident_ppfd * par_energy_content;  // J / m^2 / s
+    double const absorbed_par = thin_layer_absorption(
+        leaf_reflectance_par,
+        leaf_transmittance_par,
+        incident_ppfd * par_energy_content);  // J / m^2 / s
 
-    double incident_nir = nir_from_ppfd(
-        incident_ppfd, par_energy_content, par_energy_fraction);  // J / m^2 /s
+    double const absorbed_nir = thin_layer_absorption(
+        leaf_reflectance_nir,
+        leaf_transmittance_nir,
+        incident_nir);  // J / m^2 / s
 
-    double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
-
-    return thin_layer_absorption(
-        leaf_reflectance,
-        leaf_transmittance,
-        incident_shortwave);  // J / m^2 / s
+    return absorbed_par + absorbed_nir;  // J / m^2 / s
 }
 
 /**
@@ -376,7 +385,7 @@ double shaded_radiation(
  *              horizontal leaf distribution, `chil` approaches infinity
  *              (dimensionless from m^2 / m^2)
  *
- *  @param [in] absorptivity_direct The leaf absorptivity for direct radiation
+ *  @param [in] absorptivity_direct_par The leaf absorptivity for direct radiation
  *              on a quantum basis (dimensionless from mol / mol)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
@@ -387,19 +396,19 @@ double shaded_radiation(
  *          the relative fractions of shaded and sunlit leaves
  */
 Light_profile sunML(
-    double ambient_ppfd_beam,     // micromol / (m^2 beam) / s
-    double ambient_ppfd_diffuse,  // micromol / m^2 / s
-    double lai,                   // dimensionless from m^2 / m^2
-    int nlayers,                  // dimensionless
-    double cosine_zenith_angle,   // dimensionless
-    double k_diffuse,             // dimensionless
-    double chil,                  // dimensionless from m^2 / m^2
-    double absorptivity_direct,   // dimensionless from mol / mol
-    double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
-    double par_energy_content,    // J / micromol
-    double par_energy_fraction,   // dimensionless
-    double leaf_transmittance,    // dimensionless
-    double leaf_reflectance       // dimensionless
+    double ambient_ppfd_beam,        // micromol / (m^2 beam) / s
+    double ambient_ppfd_diffuse,     // micromol / m^2 / s
+    double lai,                      // dimensionless from m^2 / m^2
+    int nlayers,                     // dimensionless
+    double cosine_zenith_angle,      // dimensionless
+    double k_diffuse,                // dimensionless
+    double chil,                     // dimensionless from m^2 / m^2
+    double absorptivity_direct_par,  // dimensionless from mol / mol
+    double heightf,                  // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,       // J / micromol
+    double par_energy_fraction,      // dimensionless
+    double leaf_transmittance_par,   // dimensionless
+    double leaf_reflectance_par      // dimensionless
 )
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
@@ -414,15 +423,21 @@ Light_profile sunML(
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
-    if (absorptivity_direct > 1 || absorptivity_direct < 0) {
-        throw std::out_of_range("absorptivity_direct must be between 0 and 1.");
+    if (absorptivity_direct_par > 1 || absorptivity_direct_par < 0) {
+        throw std::out_of_range("absorptivity_direct_par must be between 0 and 1.");
     }
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-    // Set the absorptivity for diffuse radiation
-    double const absorptivity_diffuse = 1.0;  // dimensionless
+    // Set the absorptivities
+    double const absorptivitiy_diffuse_par = 1.0;                       // dimensionless
+    double const absorptivity_direct_nir = absorptivity_direct_par;     // dimensionless
+    double const absorptivity_diffuse_nir = absorptivitiy_diffuse_par;  // dimensionless
+
+    // Set other leaf optical properties
+    double const leaf_transmittance_nir = leaf_transmittance_par;  // dimensionless
+    double const leaf_reflectance_nir = leaf_reflectance_par;      // dimensionless
 
     // Calculate the leaf shape factor for an ellipsoidal leaf angle
     // distribution using the equation from page 251 of Campbell & Norman
@@ -453,6 +468,19 @@ Light_profile sunML(
     // Calculate the ambient direct PPFD through a unit area of leaf surface
     double ambient_ppfd_beam_leaf = ambient_ppfd_beam_ground * k_direct;  // micromol / (m^2 leaf) / s
 
+    // Calculate related NIR energy fluxes
+    const double ambient_nir_beam = nir_from_ppfd(
+        ambient_ppfd_beam, par_energy_content, par_energy_fraction);  // J / (m^2 beam) / s
+
+    const double ambient_nir_beam_ground = nir_from_ppfd(
+        ambient_ppfd_beam_ground, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
+
+    const double ambient_nir_diffuse = nir_from_ppfd(
+        ambient_ppfd_diffuse, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
+
+    double ambient_nir_beam_leaf = nir_from_ppfd(
+        ambient_ppfd_beam_leaf, par_energy_content, par_energy_fraction);  // J / (m^2 leaf) / s
+
     // Start to fill in the light profile values
     Light_profile light_profile;
     light_profile.canopy_direct_transmission_fraction = canopy_direct_transmission_fraction;
@@ -467,13 +495,20 @@ Light_profile sunML(
         double shaded_ppfd = shaded_radiation(
             ambient_ppfd_beam_ground, ambient_ppfd_diffuse,
             k_direct, k_diffuse,
-            absorptivity_direct, absorptivity_diffuse,
+            absorptivity_direct_par, absorptivitiy_diffuse_par,
             cumulative_lai);  // micromol / m^2 / s
+
+        // Calculate the NIR incident on shaded leaves
+        double shaded_nir = shaded_radiation(
+            ambient_nir_beam_ground, ambient_nir_diffuse,
+            k_direct, k_diffuse,
+            absorptivity_direct_nir, absorptivity_diffuse_nir,
+            cumulative_lai);  // J / m^2 / s
 
         // Calculate the amount of PPFD scattered out of the direct beam. This
         // is a diffuse flux density representing the flux through any surface.
         const double scattered_ppfd = downscattered_radiation(
-            ambient_ppfd_beam_ground, k_direct, absorptivity_direct, cumulative_lai);  // micromol / m^2 / s
+            ambient_ppfd_beam_ground, k_direct, absorptivity_direct_par, cumulative_lai);  // micromol / m^2 / s
 
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
@@ -485,7 +520,9 @@ Light_profile sunML(
         // expressions as cosine_zenith_angle approaches 0 from the right:
         if (cosine_zenith_angle <= 1E-10) {
             ambient_ppfd_beam_leaf = ambient_ppfd_beam / k1;
+            ambient_nir_beam_leaf = ambient_nir_beam / k1;
             shaded_ppfd = ambient_ppfd_diffuse * exp(-k_diffuse * cumulative_lai);
+            shaded_nir = ambient_nir_diffuse * exp(-k_diffuse * cumulative_lai);
             sunlit_fraction = 0;
             shaded_fraction = 1;
         }
@@ -501,32 +538,36 @@ Light_profile sunML(
         // Store values of absorbed PPFD
         light_profile.sunlit_absorbed_ppfd[i] =
             thin_layer_absorption(
-                leaf_reflectance,
-                leaf_transmittance,
+                leaf_reflectance_par,
+                leaf_transmittance_par,
                 ambient_ppfd_beam_leaf + shaded_ppfd);  // micromol / m^2 / s
 
         light_profile.shaded_absorbed_ppfd[i] =
             thin_layer_absorption(
-                leaf_reflectance,
-                leaf_transmittance,
+                leaf_reflectance_par,
+                leaf_transmittance_par,
                 shaded_ppfd);  // micromol / m^2 / s
 
         // Store values of absorbed solar energy (including PAR and NIR)
         light_profile.sunlit_absorbed_shortwave[i] =
-            absorbed_shortwave_from_incident_ppfd(
+            absorbed_shortwave(
+                ambient_nir_beam_leaf + shaded_nir,
                 ambient_ppfd_beam_leaf + shaded_ppfd,
                 par_energy_content,
-                par_energy_fraction,
-                leaf_reflectance,
-                leaf_transmittance);  // J / (m^2 leaf) / s
+                leaf_reflectance_par,
+                leaf_transmittance_par,
+                leaf_reflectance_nir,
+                leaf_transmittance_nir);  // J / (m^2 leaf) / s
 
         light_profile.shaded_absorbed_shortwave[i] =
-            absorbed_shortwave_from_incident_ppfd(
+            absorbed_shortwave(
+                shaded_nir,
                 shaded_ppfd,
                 par_energy_content,
-                par_energy_fraction,
-                leaf_reflectance,
-                leaf_transmittance);  // J / (m^2 leaf) / s
+                leaf_reflectance_par,
+                leaf_transmittance_par,
+                leaf_reflectance_nir,
+                leaf_transmittance_nir);  // J / (m^2 leaf) / s
     }
     return light_profile;
 }

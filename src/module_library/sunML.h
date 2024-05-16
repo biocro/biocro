@@ -37,12 +37,14 @@ double nir_from_ppfd(
     double par_energy_fraction  // dimensionless
 );
 
-double absorbed_shortwave_from_incident_ppfd(
-    double incident_ppfd,        // micromol / m^2 / s
-    double par_energy_content,   // J / micromol
-    double par_energy_fraction,  // dimensionless
-    double leaf_reflectance,     // dimensionless
-    double leaf_transmittance    // dimensionless
+double absorbed_shortwave(
+    double incident_nir,            // J / m^2 / s
+    double incident_ppfd,           // micromol / m^2 / s
+    double par_energy_content,      // J / micromol
+    double leaf_reflectance_par,    // dimensionless
+    double leaf_transmittance_par,  // dimensionless
+    double leaf_reflectance_nir,    // dimensionless
+    double leaf_transmittance_nir   // dimensionless
 );
 
 double total_radiation(
@@ -70,19 +72,19 @@ double shaded_radiation(
 );
 
 struct Light_profile sunML(
-    double ambient_ppfd_beam,     // micromol / (m^2 beam) / s
-    double ambient_ppfd_diffuse,  // micromol / m^2 / s
-    double lai,                   // dimensionless from m^2 / m^2
-    int nlayers,                  // dimensionless
-    double cosine_zenith_angle,   // dimensionless
-    double k_diffuse,             // dimensionless
-    double chil,                  // dimensionless from m^2 / m^2
-    double absorptivity_direct,   // dimensionless from mol / mol
-    double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
-    double par_energy_content,    // J / micromol
-    double par_energy_fraction,   // dimensionless
-    double leaf_transmittance,    // dimensionless
-    double leaf_reflectance       // dimensionless
+    double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
+    double ambient_ppfd_diffuse,    // micromol / m^2 / s
+    double lai,                     // dimensionless from m^2 / m^2
+    int nlayers,                    // dimensionless
+    double cosine_zenith_angle,     // dimensionless
+    double k_diffuse,               // dimensionless
+    double chil,                    // dimensionless from m^2 / m^2
+    double absorptivity_direct,     // dimensionless from mol / mol
+    double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,      // J / micromol
+    double par_energy_fraction,     // dimensionless
+    double leaf_transmittance_par,  // dimensionless
+    double leaf_reflectance_par     // dimensionless
 );
 
 #endif
