@@ -62,13 +62,12 @@ double downscattered_radiation(
 );
 
 double shaded_radiation(
-    double Q_ob,           // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
-    double Q_od,           // same units as `Q_ob`
-    double k_direct,       // dimensionless
-    double k_diffuse,      // dimensionless
-    double alpha_direct,   // dimensionless
-    double alpha_diffuse,  // dimensionless
-    double ell             // dimensionless from m^2 leaf / m^2 ground
+    double Q_ob,       // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double Q_od,       // same units as `Q_ob`
+    double k_direct,   // dimensionless
+    double k_diffuse,  // dimensionless
+    double alpha,      // dimensionless
+    double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
 struct Light_profile sunML(

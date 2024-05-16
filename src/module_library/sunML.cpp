@@ -324,11 +324,7 @@ double downscattered_radiation(
  *  @param [in] k_diffuse The (dimensionless) canopy extinction coefficient for
  *              diffuse radiation.
  *
- *  @param [in] alpha_direct The (dimensionless) leaf absorptivity for direct
- *              radiation.
- *
- *  @param [in] alpha_diffuse The (dimensionless) leaf absorptivity for diffuse
- *              radiation.
+ *  @param [in] alpha The (dimensionless) leaf absorptivity.
  *
  *  @param [in] ell The cumulative leaf area index, which is dimensionless from
  *              m^2 leaf / m^2 ground.
@@ -337,17 +333,16 @@ double downscattered_radiation(
  *          canopy, expressed in the same units as `Q_ob`.
  */
 double shaded_radiation(
-    double Q_ob,           // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
-    double Q_od,           // same units as `Q_ob`
-    double k_direct,       // dimensionless
-    double k_diffuse,      // dimensionless
-    double alpha_direct,   // dimensionless
-    double alpha_diffuse,  // dimensionless
-    double ell             // dimensionless from m^2 leaf / m^2 ground
+    double Q_ob,       // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double Q_od,       // same units as `Q_ob`
+    double k_direct,   // dimensionless
+    double k_diffuse,  // dimensionless
+    double alpha,      // dimensionless
+    double ell         // dimensionless from m^2 leaf / m^2 ground
 )
 {
-    return total_radiation(Q_od, k_diffuse, alpha_diffuse, ell) +
-           downscattered_radiation(Q_ob, k_direct, alpha_direct, ell);  // same units as `Q_ob`
+    return total_radiation(Q_od, k_diffuse, alpha, ell) +
+           downscattered_radiation(Q_ob, k_direct, alpha, ell);  // same units as `Q_ob`
 }
 
 /**
@@ -385,7 +380,7 @@ double shaded_radiation(
  *              horizontal leaf distribution, `chil` approaches infinity
  *              (dimensionless from m^2 / m^2)
  *
- *  @param [in] absorptivity_direct_par The leaf absorptivity for direct radiation
+ *  @param [in] absorptivity_par The leaf absorptivity for PAR radiation
  *              on a quantum basis (dimensionless from mol / mol)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
@@ -396,19 +391,19 @@ double shaded_radiation(
  *          the relative fractions of shaded and sunlit leaves
  */
 Light_profile sunML(
-    double ambient_ppfd_beam,        // micromol / (m^2 beam) / s
-    double ambient_ppfd_diffuse,     // micromol / m^2 / s
-    double lai,                      // dimensionless from m^2 / m^2
-    int nlayers,                     // dimensionless
-    double cosine_zenith_angle,      // dimensionless
-    double k_diffuse,                // dimensionless
-    double chil,                     // dimensionless from m^2 / m^2
-    double absorptivity_direct_par,  // dimensionless from mol / mol
-    double heightf,                  // m^-1 from m^2 leaf / m^2 ground / m height
-    double par_energy_content,       // J / micromol
-    double par_energy_fraction,      // dimensionless
-    double leaf_transmittance_par,   // dimensionless
-    double leaf_reflectance_par      // dimensionless
+    double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
+    double ambient_ppfd_diffuse,    // micromol / m^2 / s
+    double lai,                     // dimensionless from m^2 / m^2
+    int nlayers,                    // dimensionless
+    double cosine_zenith_angle,     // dimensionless
+    double k_diffuse,               // dimensionless
+    double chil,                    // dimensionless from m^2 / m^2
+    double absorptivity_par,        // dimensionless from mol / mol
+    double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,      // J / micromol
+    double par_energy_fraction,     // dimensionless
+    double leaf_transmittance_par,  // dimensionless
+    double leaf_reflectance_par     // dimensionless
 )
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
@@ -423,19 +418,15 @@ Light_profile sunML(
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
-    if (absorptivity_direct_par > 1 || absorptivity_direct_par < 0) {
-        throw std::out_of_range("absorptivity_direct_par must be between 0 and 1.");
+    if (absorptivity_par > 1 || absorptivity_par < 0) {
+        throw std::out_of_range("absorptivity_par must be between 0 and 1.");
     }
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-    // Set the absorptivities
-    double const absorptivitiy_diffuse_par = 1.0;                       // dimensionless
-    double const absorptivity_direct_nir = absorptivity_direct_par;     // dimensionless
-    double const absorptivity_diffuse_nir = absorptivitiy_diffuse_par;  // dimensionless
-
-    // Set other leaf optical properties
+    // Set NIR leaf optical properties
+    double const absorptivity_nir = absorptivity_par;              // dimensionless
     double const leaf_transmittance_nir = leaf_transmittance_par;  // dimensionless
     double const leaf_reflectance_nir = leaf_reflectance_par;      // dimensionless
 
@@ -495,20 +486,18 @@ Light_profile sunML(
         double shaded_ppfd = shaded_radiation(
             ambient_ppfd_beam_ground, ambient_ppfd_diffuse,
             k_direct, k_diffuse,
-            absorptivity_direct_par, absorptivitiy_diffuse_par,
-            cumulative_lai);  // micromol / m^2 / s
+            absorptivity_par, cumulative_lai);  // micromol / m^2 / s
 
         // Calculate the NIR incident on shaded leaves
         double shaded_nir = shaded_radiation(
             ambient_nir_beam_ground, ambient_nir_diffuse,
             k_direct, k_diffuse,
-            absorptivity_direct_nir, absorptivity_diffuse_nir,
-            cumulative_lai);  // J / m^2 / s
+            absorptivity_nir, cumulative_lai);  // J / m^2 / s
 
         // Calculate the amount of PPFD scattered out of the direct beam. This
         // is a diffuse flux density representing the flux through any surface.
         const double scattered_ppfd = downscattered_radiation(
-            ambient_ppfd_beam_ground, k_direct, absorptivity_direct_par, cumulative_lai);  // micromol / m^2 / s
+            ambient_ppfd_beam_ground, k_direct, absorptivity_par, cumulative_lai);  // micromol / m^2 / s
 
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
