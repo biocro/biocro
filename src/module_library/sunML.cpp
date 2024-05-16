@@ -367,7 +367,8 @@ double shaded_radiation(
  *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
  *              (dimensionless)
  *
- *  @param [in] kd Extinction coefficient for diffuse light (dimensionless)
+ *  @param [in] k_diffuse Extinction coefficient for diffuse light
+ *              (dimensionless)
  *
  *  @param [in] chil Ratio of average projected areas of canopy elements on
  *              horizontal surfaces; for a spherical leaf distribution,
@@ -375,8 +376,8 @@ double shaded_radiation(
  *              horizontal leaf distribution, `chil` approaches infinity
  *              (dimensionless from m^2 / m^2)
  *
- *  @param [in] absorptivity The leaf absorptivity on a quantum basis
- *              (dimensionless from mol / mol)
+ *  @param [in] absorptivity_direct The leaf absorptivity for direct radiation
+ *              on a quantum basis (dimensionless from mol / mol)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
  *              from m^2 leaf / m^2 ground / m height)
@@ -391,9 +392,9 @@ Light_profile sunML(
     double lai,                   // dimensionless from m^2 / m^2
     int nlayers,                  // dimensionless
     double cosine_zenith_angle,   // dimensionless
-    double kd,                    // dimensionless
+    double k_diffuse,             // dimensionless
     double chil,                  // dimensionless from m^2 / m^2
-    double absorptivity,          // dimensionless from mol / mol
+    double absorptivity_direct,   // dimensionless from mol / mol
     double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
     double par_energy_content,    // J / micromol
     double par_energy_fraction,   // dimensionless
@@ -407,30 +408,33 @@ Light_profile sunML(
     if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {
         throw std::out_of_range("cosine_zenith_angle must be between -1 and 1.");
     }
-    if (kd > 1 || kd < 0) {
-        throw std::out_of_range("kd must be between 0 and 1.");
+    if (k_diffuse > 1 || k_diffuse < 0) {
+        throw std::out_of_range("k_diffuse must be between 0 and 1.");
     }
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
-    if (absorptivity > 1 || absorptivity < 0) {
-        throw std::out_of_range("absorptivity must be between 0 and 1.");
+    if (absorptivity_direct > 1 || absorptivity_direct < 0) {
+        throw std::out_of_range("absorptivity_direct must be between 0 and 1.");
     }
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
 
+    // Set the absorptivity for diffuse radiation
+    double const absorptivity_diffuse = 1.0;  // dimensionless
+
     // Calculate the leaf shape factor for an ellipsoidal leaf angle
     // distribution using the equation from page 251 of Campbell & Norman
-    // (1998). We will use this value as `k`, the canopy extinction coefficient
-    // for photosynthetically active radiation throughout the canopy. This
-    // quantity represents the ratio of horizontal area to total area for leaves
-    // in the canopy and is therefore dimensionless from
+    // (1998). We will use this value as `k_direct`, the canopy extinction
+    // coefficient for direct photosynthetically active radiation throughout the
+    // canopy. This quantity represents the ratio of horizontal area to total
+    // area for leaves in the canopy and is therefore dimensionless from
     // (m^2 ground) / (m^2 leaf).
     double zenith_angle = acos(cosine_zenith_angle);  // radians
     double k0 = sqrt(pow(chil, 2) + pow(tan(zenith_angle), 2));
     double k1 = chil + 1.744 * pow((chil + 1.182), -0.733);
-    double k = k0 / k1;  // dimensionless
+    double k_direct = k0 / k1;  // dimensionless
 
     double lai_per_layer = lai / nlayers;
 
@@ -441,13 +445,13 @@ Light_profile sunML(
     // sunlit; this corresponds to the case where cosine_zenith_angle is close
     // to or below zero.
     double canopy_direct_transmission_fraction =
-        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k * lai);  // dimensionless
+        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k_direct * lai);  // dimensionless
 
     // Calculate the ambient direct PPFD through a surface parallel to the ground
     const double ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
 
     // Calculate the ambient direct PPFD through a unit area of leaf surface
-    double ambient_ppfd_beam_leaf = ambient_ppfd_beam_ground * k;  // micromol / (m^2 leaf) / s
+    double ambient_ppfd_beam_leaf = ambient_ppfd_beam_ground * k_direct;  // micromol / (m^2 leaf) / s
 
     // Start to fill in the light profile values
     Light_profile light_profile;
@@ -462,26 +466,26 @@ Light_profile sunML(
         // Calculate the PPFD incident on shaded leaves
         double shaded_ppfd = shaded_radiation(
             ambient_ppfd_beam_ground, ambient_ppfd_diffuse,
-            k, kd,
-            absorptivity, 1.0,
+            k_direct, k_diffuse,
+            absorptivity_direct, absorptivity_diffuse,
             cumulative_lai);  // micromol / m^2 / s
 
         // Calculate the amount of PPFD scattered out of the direct beam. This
         // is a diffuse flux density representing the flux through any surface.
         const double scattered_ppfd = downscattered_radiation(
-            ambient_ppfd_beam_ground, k, absorptivity, cumulative_lai);  // micromol / m^2 / s
+            ambient_ppfd_beam_ground, k_direct, absorptivity_direct, cumulative_lai);  // micromol / m^2 / s
 
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
-        double sunlit_fraction = exp(-k * cumulative_lai);  // dimensionless
-        double shaded_fraction = 1 - sunlit_fraction;       // dimensionless
+        double sunlit_fraction = exp(-k_direct * cumulative_lai);  // dimensionless
+        double shaded_fraction = 1 - sunlit_fraction;              // dimensionless
 
         // For values of cosine_zenith_angle close to or less than 0, in place
         // of the calculations above, we want to use the limits of the above
         // expressions as cosine_zenith_angle approaches 0 from the right:
         if (cosine_zenith_angle <= 1E-10) {
             ambient_ppfd_beam_leaf = ambient_ppfd_beam / k1;
-            shaded_ppfd = ambient_ppfd_diffuse * exp(-kd * cumulative_lai);
+            shaded_ppfd = ambient_ppfd_diffuse * exp(-k_diffuse * cumulative_lai);
             sunlit_fraction = 0;
             shaded_fraction = 1;
         }

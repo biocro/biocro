@@ -75,9 +75,9 @@ struct Light_profile sunML(
     double lai,                   // dimensionless from m^2 / m^2
     int nlayers,                  // dimensionless
     double cosine_zenith_angle,   // dimensionless
-    double kd,                    // dimensionless
+    double k_diffuse,             // dimensionless
     double chil,                  // dimensionless from m^2 / m^2
-    double absorptivity,          // dimensionless from mol / mol
+    double absorptivity_direct,   // dimensionless from mol / mol
     double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
     double par_energy_content,    // J / micromol
     double par_energy_fraction,   // dimensionless
