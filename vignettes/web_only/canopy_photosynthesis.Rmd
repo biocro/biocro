@@ -280,14 +280,13 @@ Solar diffuse radiation originates in the sky due to atmospheric scattering of
 the sun's light and changes within the canopy according to
 
 \begin{equation}
-    Q_d(\ell) = Q_{od} \cdot e^{- \sqrt{\alpha_{diffuse}} \cdot K_{diffuse} \cdot \ell},
+    Q_d(\ell) = Q_{od} \cdot e^{- \sqrt{\alpha} \cdot K_{diffuse} \cdot \ell},
 \end{equation}
 
-where $\alpha_{diffuse}$ is the diffuse-light absorptivity of the leaves in the
-canopy and $K_{diffuse}$ is the extinction coefficient for diffuse radiation
-(see Figure 15.4 and surrounding discussion). The factor $\sqrt{\alpha}$ models
-the effect of light scattering and transmission by the leaves. This is Equation
-15.17. In BioCro, we use $\alpha_{diffuse} = 1$.
+where $\alpha$ absorptivity of the leaves in the canopy and $K_{diffuse}$ is the
+extinction coefficient for diffuse radiation (see Figure 15.4 and surrounding
+discussion). The factor $\sqrt{\alpha}$ models the effect of light scattering
+and transmission by the leaves. This is Equation 15.17.
 
 Additional diffuse radiation is caused by scattering and transmission of the
 direct beam by the leaves. It can be calculated as the difference between the
@@ -300,7 +299,7 @@ total beam radiation and unintercepted beam radiation as follows:
 where
 
 \begin{equation}
-    Q_{bt}(\ell) = Q_{ob} \cdot e^{- \sqrt{\alpha_{direct}} \cdot K_{direct} \cdot \ell}
+    Q_{bt}(\ell) = Q_{ob} \cdot e^{- \sqrt{\alpha} \cdot K_{direct} \cdot \ell}
 \end{equation}
 
 and
@@ -309,8 +308,7 @@ and
     Q_b(\ell) = Q_{ob} \cdot e^{- K_{direct} \cdot \ell}.
 \end{equation}
 
-Here we use the absorptivity for direct radiation $\alpha_{direct}$. These are
-Equations 15.20, 15.15, and 15.16.
+These are Equations 15.20, 15.15, and 15.16.
 
 ## Absorbed Shortwave Energy
 
@@ -318,32 +316,44 @@ Each leaf receives light spanning a wide range of wavelengths. Most light energy
 is found in the photosynthetically active radiation (PAR) and near-infrared
 (NIR) bands (400 - 700 nm and 700 - 2500 nm, respectively).
 
-The total incident light energy can be estimated from the incident PPFD by
-assuming a value for the average energy per PAR photon and the fraction of light
-in the PAR band:
+The incident light energy in the PAR band can be estimated from the incident
+PPFD by assuming a value for the average energy per PAR photon:
 
 \begin{equation}
-    I_{in} = \frac{Q_{in}}{E \cdot f_{PAR}},
+    I_{in}^{PAR} = Q_{in} \cdot E
 \end{equation}
 
-where $E$ is the average energy per PAR photon and $f_{PAR}$ is the fraction of
-light energy in the PAR band. Then the absorbed shortwave energy can be found
-using the equation for absorption by a thin layer, which simply multiplies the
-incident radiation by the absorptivity:
+where $E$ is the average energy per PAR photon. Then the absorbed PAR energy can
+be found using the equation for absorption by a thin layer, which simply
+multiplies the incident radiation by the absorptivity:
 
 \begin{equation}
-    I_{abs} = \alpha \cdot \frac{Q_{in}}{E \cdot f_{PAR}}.
+    I_{abs}^{PAR} = \alpha_{PAR} \cdot I_{in}^{PAR}
 \end{equation}
 
-Note that since the incident PPFD $Q_{in}$ is different for sunlit and shaded
-leaves, $I_{abs}$ is similarly different, and we can distinguish between
-$I_{abs}^{sunlit}$ and $I_{abs}^{shaded}$.
+where $\alpha_{PAR} = 1 - T_{PAR} - R_{PAR}$ is the PAR absorptivity, and
+$T_{PAR}$ and $R_{PAR}$ are the leaf transmittance and reflectance in the PAR
+band, respectively.
 
-In reality, PAR and NIR are scattered and absorbed at different rates by leaves
-in the canopy, so $f_{PAR}$ changes throughout the canopy. Currently BioCro
-assumes a constant value for $f_{PAR}$. A better approach would be to separately
-treat PAR and NIR scattering, determining each of the absorbed PAR and NIR
-energy as functions of $\ell$ rather than using $f_{PAR}$.
+In direct sunlight, the amount of energy in the NIR band can be estimated from
+$I^{PAR}$ using a known fraction $f_{PAR}$:
+
+\begin{equation}
+    I^{NIR} = I^{PAR} \cdot (1 - f_{PAR}) / f_{PAR} (\#eq:NIRfromPAR)
+\end{equation}
+
+where $f_{PAR}$ is the fraction of shortwave energy in the PAR band. PAR and NIR
+light are reflected and transmitted differently by leaves in the canopy, so this
+fraction changes throughout the canopy. Rather than trying to predict
+$f_{PAR}(\ell)$, we simply calculate $I_{in}^{NIR}$ just above the canopy top
+using Equation \@ref(eq:NIRfromPAR), and then use the canopy light transmission
+functions described above to calculate $I_{in}^{NIR}(\ell)$. Then, at each point
+in the canopy, the total absorbed shortwave energy can be calculated as
+
+\begin{equation}
+    I_{abs}^{shortwave} = \alpha_{PAR} \cdot I_{in}^{PAR} +
+        \alpha_{NIR} \cdot I_{in}^{NIR}
+\end{equation}
 
 # BioCro Examples
 
@@ -410,8 +420,8 @@ xyplot(
 )
 ```
 
-Now we can plot incident light levels for leaves within the canopy. Here
-`Q_above` is the total incident PPFD just above the top of the canopy.
+Now we can plot incident PPFD for leaves within the canopy. Here `Q_above` is
+the total incident PPFD just above the top of the canopy.
 
 ```{r}
 # Plot incident light levels
@@ -450,6 +460,38 @@ xyplot(
 )
 ```
 
+We can also plot the fraction of absorbed shortwave energy in the PAR band
+through the canopy.
+
+```{r}
+# Calculate absorptivity in the PAR band
+absorptivity_par <- with(soybean$parameters, {1 - leaf_transmittance_par - leaf_reflectance_par})
+
+# Calculate absorbed PAR energy
+par_abs_sunlit <- Q_sunlit * soybean$parameters$par_energy_content * absorptivity_par
+par_abs_shaded <- Q_shaded * soybean$parameters$par_energy_content * absorptivity_par
+
+# Calculate the fraction of absorbed energy in the PAR band
+sunlit_par_fraction <- par_abs_sunlit / I_abs_sunlit
+shaded_par_fraction <- par_abs_shaded / I_abs_shaded
+
+# Plot the fractions
+xyplot(
+    sunlit_par_fraction + shaded_par_fraction ~ nlayer,
+    type = 'b',
+    pch = 16,
+    auto.key = list(space = 'top'),
+    xlab = 'Canopy layer',
+    ylab = 'Fraction of absorbed light energy from PAR photons',
+    ylim = c(0, 1)
+)
+```
+
+Here we can see that although about half of solar light energy lies in the PAR
+band, sunlit leaves absorb more PAR energy than NIR energy. Deeper within the
+canopy, the fraction of absorbed light energy from PAR photons decreases.
+Shaded leaves deep within the canopy may absorb more NIR than PAR energy.
+
 As light levels vary within the canopy, leaf-level assimilation rates will also
 vary. Here we can show this dependence by simulating light response curves at
 a few different temperatures.
@@ -466,14 +508,14 @@ aq_curve <- module_response_curve(
     within(
         expand.grid(
             Tleaf = seq(15, 40, by = 5),
-            Qabs = seq(0, total_ppfd * soybean$parameters$absorptivity_par, by = 5)
+            Qabs = seq(0, total_ppfd * absorptivity_par, by = 5)
         ),
         {temp = Tleaf}
     )
 )
 
 # Include incident Q
-aq_curve$Qin <- aq_curve$Qabs / soybean$parameters$absorptivity_par
+aq_curve$Qin <- aq_curve$Qabs / absorptivity_par
 
 # Plot it
 xyplot(
@@ -574,7 +616,7 @@ This can be done in R as follows:
 
 ```{r}
 Q_abs_canopy <-
-    soybean$parameters$absorptivity_par * (LAI / 10) *
+    absorptivity_par * (LAI / 10) *
         sum(Q_sunlit * f_sunlit + Q_shaded * f_shaded)
 
 Q_abs_canopy
