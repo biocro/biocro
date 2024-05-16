@@ -66,8 +66,6 @@ string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
         "incident_ppfd_scattered",     // micromol / (m^2 leaf) / s
-        "average_incident_ppfd",       // J / (m^2 leaf) / s
-        "average_absorbed_shortwave",  // J / (m^2 leaf) / s
         "height",                      // m
         "windspeed",                   // m / s
         "LeafN",                       // mmol / m^2 (?)
@@ -147,9 +145,6 @@ void multilayer_canopy_properties::run() const
         update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd[i]);
         update(shaded_absorbed_ppfd_ops[i], light_profile.shaded_absorbed_ppfd[i]);
         update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave[i]);
-
-        update(average_incident_ppfd_ops[i], light_profile.average_incident_ppfd[i]);
-        update(average_absorbed_shortwave_ops[i], light_profile.average_absorbed_shortwave[i]);
 
         update(incident_ppfd_scattered_ops[i], light_profile.incident_ppfd_scattered[i]);
         update(height_ops[i], light_profile.height[i]);

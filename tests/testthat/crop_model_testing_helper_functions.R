@@ -57,7 +57,9 @@ specify_crop <- function(
 
 # Define lists of species-specific variables to ignore.
 
-MISCANTHUS_X_GIGANTEUS_IGNORE <- character(0)
+MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
+    "soil_evaporation_rate"
+)
 
 WILLOW_IGNORE <- character(0)
 

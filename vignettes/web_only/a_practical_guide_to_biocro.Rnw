@@ -84,11 +84,9 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 \maketitle
 
 % Set things up for R evaluation:
-<<preliminaries,echo=FALSE,error=TRUE>>=
-knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
-                                  # in results; this is the default;
-                                  # we override this below when
-                                  # loading needed packages
+<<preliminaries,echo=FALSE>>=
+knitr::opts_chunk$set(error=FALSE) # do stop on errors so we can immediately
+                                   # identify problems with the vignette code
 knitr::opts_chunk$set(fig.width=5, fig.height=3)
 @
 
@@ -124,9 +122,7 @@ This vignette provides a demonstration of a few important BioCro functions and
 some R basics. We will be using functions from the \texttt{BioCro} and
 \texttt{lattice} packages, so we must make sure they are both loaded:
 
-% error=FALSE: If we can't load the needed libraries, we want to stop
-% compilation immediately.
-<<loading_libraries,error=FALSE>>=
+<<loading_libraries>>=
 library(BioCro)
 library(lattice)
 @
@@ -637,7 +633,7 @@ a problem is detected. For example, if one or more of the differential
 quantities is missing an initial value, or if a parameter is missing, an error
 will occur:
 
-<<run_biocro_error_quantity>>=
+<<run_biocro_error_quantity, error=TRUE>>=
 soybean_result <- run_biocro(
   within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
   within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
@@ -652,7 +648,7 @@ soybean_result <- run_biocro(
 or the type of the \texttt{ode\_solver} cannot be found in the corresponding
 libraries:
 
-<<run_biocro_error_module>>=
+<<run_biocro_error_module, error=TRUE>>=
 soybean_result <- run_biocro(
   soybean$initial_values,
   soybean$parameters,
@@ -857,7 +853,7 @@ we can try passing the \texttt{soybean\$parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
-<<c3_assimilation_v1>>=
+<<c3_assimilation_v1, error=TRUE>>=
 outputs <- evaluate_module('BioCro:c3_assimilation', soybean$parameters)
 @
 

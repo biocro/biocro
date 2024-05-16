@@ -135,7 +135,7 @@ double absorbed_shortwave_from_incident_ppfd(
 
     double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
 
-    return thick_layer_absorption(
+    return thin_layer_absorption(
         leaf_reflectance,
         leaf_transmittance,
         incident_shortwave);  // J / m^2 / s
@@ -275,18 +275,9 @@ Light_profile sunML(
             ambient_ppfd_diffuse * exp(-kd * cumulative_lai) + scattered_ppfd;  // micromol / m^2 / s
 
         // Calculate the fraction of sunlit and shaded leaves in this canopy
-        // layer using Equation 15.21.
-        const double Ls = (1 - exp(-k * lai_per_layer)) * exp(-k * cumulative_lai) / k;  // dimensionless
-        double sunlit_fraction = Ls / lai_per_layer;                                     // dimensionless
-        double shaded_fraction = 1 - sunlit_fraction;                                    // dimensionless
-
-        // Calculate an "average" incident PPFD for the sunlit and shaded leaves
-        // that doesn't seem to be based on a formula from Campbell & Norman
-        // (1998). It's interpreted as a flux density through a unit of leaf
-        // area, but that may not be correct.
-        double average_ppfd =
-            (sunlit_fraction * (ambient_ppfd_beam_leaf + diffuse_ppfd) + shaded_fraction * diffuse_ppfd) *
-            (1 - exp(-k * lai_per_layer)) / k;  // micromol / (m^2 leaf) / s
+        // layer using Equation 15.22.
+        double sunlit_fraction = exp(-k * cumulative_lai);  // dimensionless
+        double shaded_fraction = 1 - sunlit_fraction;       // dimensionless
 
         // For values of cosine_zenith_angle close to or less than 0, in place
         // of the calculations above, we want to use the limits of the above
@@ -296,14 +287,12 @@ Light_profile sunML(
             diffuse_ppfd = ambient_ppfd_diffuse * exp(-kd * cumulative_lai);
             sunlit_fraction = 0;
             shaded_fraction = 1;
-            average_ppfd = 0;
         }
 
         // Store values of incident PPFD
         light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + diffuse_ppfd;  // micromol / (m^2 leaf) / s
         light_profile.incident_ppfd_scattered[i] = scattered_ppfd;                      // micromol / m^2 / s
         light_profile.shaded_incident_ppfd[i] = diffuse_ppfd;                           // micromol / (m^2 leaf) / s
-        light_profile.average_incident_ppfd[i] = average_ppfd;                          // micromol / (m^2 leaf) / s
         light_profile.sunlit_fraction[i] = sunlit_fraction;                             // dimensionless from m^2 / m^2
         light_profile.shaded_fraction[i] = shaded_fraction;                             // dimensionless from m^2 / m^2
         light_profile.height[i] = (lai - cumulative_lai) / heightf;                     // m
@@ -333,14 +322,6 @@ Light_profile sunML(
         light_profile.shaded_absorbed_shortwave[i] =
             absorbed_shortwave_from_incident_ppfd(
                 diffuse_ppfd,
-                par_energy_content,
-                par_energy_fraction,
-                leaf_reflectance,
-                leaf_transmittance);  // J / (m^2 leaf) / s
-
-        light_profile.average_absorbed_shortwave[i] =
-            absorbed_shortwave_from_incident_ppfd(
-                average_ppfd,
                 par_energy_content,
                 par_energy_fraction,
                 leaf_reflectance,

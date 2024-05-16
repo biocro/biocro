@@ -87,20 +87,20 @@ photosynthesis_outputs rue_photo(
 string_vector rue_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_ppfd",               // micromol / (m^2 leaf) / s
-        "alpha_rue",                   // dimensionless
-        "temp",                        // deg. C
-        "rh",                          // dimensionless
-        "Rd",                          // micromol / m^2 / s
-        "b0",                          // mol / m^2 / s
-        "b1",                          // dimensionless
-        "Catm",                        // micromol / mol
-        "average_absorbed_shortwave",  // J / (m^2 leaf) / s
-        "windspeed",                   // m / s
-        "height",                      // m
-        "specific_heat_of_air",        // J / kg / K
-        "minimum_gbw",                 // mol / m^2 / s
-        "windspeed_height"             // m
+        "incident_ppfd",         // micromol / (m^2 leaf) / s
+        "alpha_rue",             // dimensionless
+        "temp",                  // deg. C
+        "rh",                    // dimensionless
+        "Rd",                    // micromol / m^2 / s
+        "b0",                    // mol / m^2 / s
+        "b1",                    // dimensionless
+        "Catm",                  // micromol / mol
+        "absorbed_shortwave",    // J / (m^2 leaf) / s
+        "windspeed",             // m / s
+        "height",                // m
+        "specific_heat_of_air",  // J / kg / K
+        "minimum_gbw",           // mol / m^2 / s
+        "windspeed_height"       // m
     };
 }
 
@@ -143,7 +143,7 @@ void rue_leaf_photosynthesis::do_operation() const
 
     // Calculate a new value for leaf temperature
     const struct ET_Str et = c3EvapoTrans(
-        average_absorbed_shortwave,
+        absorbed_shortwave,
         temp,
         rh,
         windspeed,

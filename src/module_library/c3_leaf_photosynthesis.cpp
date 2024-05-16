@@ -24,7 +24,7 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "StomataWS",                    // dimensionless
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
-        "average_absorbed_shortwave",   // J / (m^2 leaf) / s
+        "absorbed_shortwave",           // J / (m^2 leaf) / s
         "windspeed",                    // m / s
         "height",                       // m
         "specific_heat_of_air",         // J / kg / K
@@ -72,7 +72,7 @@ void c3_leaf_photosynthesis::do_operation() const
     // stomatal conductance
     const ET_Str et =
         c3EvapoTrans(
-            average_absorbed_shortwave, ambient_temperature, rh, windspeed, height,
+            absorbed_shortwave, ambient_temperature, rh, windspeed, height,
             specific_heat_of_air, initial_stomatal_conductance, minimum_gbw,
             windspeed_height);
 

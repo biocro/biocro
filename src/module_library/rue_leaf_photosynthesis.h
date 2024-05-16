@@ -142,7 +142,7 @@ class rue_leaf_photosynthesis : public direct_module
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           Catm{get_input(input_quantities, "Catm")},
-          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           windspeed{get_input(input_quantities, "windspeed")},
           height{get_input(input_quantities, "height")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
@@ -176,7 +176,7 @@ class rue_leaf_photosynthesis : public direct_module
     double const& b0;
     double const& b1;
     double const& Catm;
-    double const& average_absorbed_shortwave;
+    double const& absorbed_shortwave;
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
