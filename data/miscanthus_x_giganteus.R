@@ -96,10 +96,10 @@ miscanthus_x_giganteus <- list(
         LeafN                       = 2,
         LeafN_0                     = 2,
         leafwidth                   = 0.04,
-        leaf_reflectance_nir        = 0.2,
-        leaf_reflectance_par        = 0.2,
-        leaf_transmittance_nir      = 0.2,
-        leaf_transmittance_par      = 0.2,
+        leaf_reflectance_nir        = 0.38, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_par        = 0.09, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_nir      = 0.45, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_par      = 0.04, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         lnfun                       = 0,
         longitude                   = -88,
         lowerT                      = 3,
