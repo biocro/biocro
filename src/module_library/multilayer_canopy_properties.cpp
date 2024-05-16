@@ -4,9 +4,9 @@
 #include "AuxBioCro.h"  // for LNprof
 #include "sunML.h"      // for sunML
 
-using std::vector;
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;
+using std::vector;
 
 /**
  * @brief Define all inputs required by the module
@@ -14,22 +14,25 @@ using standardBML::ten_layer_canopy_properties;
 string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
-        "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
-        "par_incident_diffuse",  // J / m^2 / s        [through any plane]
-        "absorptivity_par",      // dimensionless
-        "lai",                   // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
-        "cosine_zenith_angle",   // dimensionless
-        "kd",                    // (m^2 ground) / (m^2 leaf)
-        "chil",                  // dimensionless from m^2 / m^2
-        "heightf",               // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
-        "windspeed",             // m / s
-        "LeafN",                 // mmol / m^2 (?)
-        "kpLN",                  // dimensionless
-        "lnfun",                 // a dimensionless switch
-        "par_energy_content",    // J / micromol
-        "par_energy_fraction",   // dimensionless
-        "leaf_transmittance",    // dimensionless
-        "leaf_reflectance"       // dimensionless
+        "par_incident_direct",     // J / (m^2 beam) / s [area perpendicular to beam]
+        "par_incident_diffuse",    // J / m^2 / s        [through any plane]
+        "absorptivity_nir",        // dimensionless
+        "absorptivity_par",        // dimensionless
+        "lai",                     // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
+        "cosine_zenith_angle",     // dimensionless
+        "k_diffuse",               // (m^2 ground) / (m^2 leaf)
+        "chil",                    // dimensionless from m^2 / m^2
+        "heightf",                 // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
+        "windspeed",               // m / s
+        "LeafN",                   // mmol / m^2 (?)
+        "kpLN",                    // dimensionless
+        "lnfun",                   // a dimensionless switch
+        "par_energy_content",      // J / micromol
+        "par_energy_fraction",     // dimensionless
+        "leaf_transmittance_nir",  // dimensionless
+        "leaf_transmittance_par",  // dimensionless
+        "leaf_reflectance_nir",    // dimensionless
+        "leaf_reflectance_par"     // dimensionless
     };
 }
 
@@ -65,10 +68,10 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
-        "incident_ppfd_scattered",     // micromol / (m^2 leaf) / s
-        "height",                      // m
-        "windspeed",                   // m / s
-        "LeafN",                       // mmol / m^2 (?)
+        "incident_ppfd_scattered",  // micromol / (m^2 leaf) / s
+        "height",                   // m
+        "windspeed",                // m / s
+        "LeafN",                    // mmol / m^2 (?)
     };
 }
 
@@ -107,19 +110,22 @@ void multilayer_canopy_properties::run() const
     // convert photosynthetically active radiation (PAR) to PPFD using the
     // energy content of light in the PAR band
     struct Light_profile light_profile = sunML(
+        absorptivity_nir,
+        absorptivity_par,
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
-        lai,
-        nlayers,
-        cosine_zenith_angle,
-        kd,
         chil,
-        absorptivity_par,
+        cosine_zenith_angle,
         heightf,
+        k_diffuse,
+        lai,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
         par_energy_content,
         par_energy_fraction,
-        leaf_transmittance,
-        leaf_reflectance);
+        nlayers);
 
     // Calculate windspeed throughout the canopy
     vector<double> wind_speed_profile(nlayers);

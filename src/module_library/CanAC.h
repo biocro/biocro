@@ -5,43 +5,47 @@
 #include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 
 canopy_photosynthesis_outputs CanAC(
-    double LAI,
-    double cosine_zenith_angle,
-    double solarR,
-    double ambient_temperature,
-    double RH,
-    double WindSpeed,
-    int nlayers,
+    double LAI,                  // dimensionless from m^2 / m^2
+    double cosine_zenith_angle,  // dimensionless
+    double solarR,               // micromol / m^2 / s
+    double ambient_temperature,  // degrees C
+    double RH,                   // dimensionless from Pa / Pa
+    double WindSpeed,            // m / s
+    int nlayers,                 // dimensionless
     double Vmax,
     double Alpha,
     double Kparm,
-    double beta,
+    double beta,  // dimensionless
     double Rd,
-    double Catm,
+    double Catm,  // ppm
     double b0,
     double b1,
-    double Gs_min,
-    double theta,
-    double kd,
+    double Gs_min,  // mol / m^2 / s
+    double theta,   // dimensionless
+    double k_diffuse,
     double chil,
     double leafN,
     double kpLN,
-    int lnfun,
-    double upperT,
-    double lowerT,
+    int lnfun,      // dimensionless switch
+    double upperT,  // degrees C
+    double lowerT,  // degrees C
     const nitroParms& nitroP,
-    double leafwidth,
-    int eteq,
-    double StomataWS,
-    double specific_heat_of_air,
-    double atmospheric_pressure,
-    double atmospheric_transmittance,
-    double atmospheric_scattering,
-    double absorptivity_par,
-    double par_energy_content,
-    double par_energy_fraction,
-    double leaf_transmittance,
-    double leaf_reflectance,
-    double minimum_gbw);
+    double leafwidth,                  // m
+    int eteq,                          // dimensionless switch
+    double StomataWS,                  // dimensionless
+    double specific_heat_of_air,       // J / kg / K
+    double atmospheric_pressure,       // Pa
+    double atmospheric_transmittance,  // dimensionless
+    double atmospheric_scattering,     // dimensionless
+    double absorptivity_nir,           // dimensionless
+    double absorptivity_par,           // dimensionless
+    double par_energy_content,         // J / micromol
+    double par_energy_fraction,        // dimensionless
+    double leaf_transmittance_nir,     // dimensionless
+    double leaf_transmittance_par,     // dimensionless
+    double leaf_reflectance_nir,       // dimensionless
+    double leaf_reflectance_par,       // dimensionless
+    double minimum_gbw                 // mol / m^2 / s
+);
 
 #endif

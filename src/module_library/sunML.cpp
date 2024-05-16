@@ -349,6 +349,12 @@ double shaded_radiation(
  *  @brief Computes an n-layered light profile from the direct light, diffuse
  *  light, leaf area index, solar zenith angle, and other parameters.
  *
+ *  @param [in] absorptivity_nir The leaf absorptivity for NIR radiation
+ *              on a quantum basis (dimensionless from mol / mol)
+ *
+ *  @param [in] absorptivity_par The leaf absorptivity for PAR radiation
+ *              on a quantum basis (dimensionless from mol / mol)
+ *
  *  @param [in] ambient_ppfd_beam Photosynthetically active photon flux density
  *              (PPFD) for beam light passing through a surface perpendicular
  *              to the beam direction at the top of the canopy; this represents
@@ -362,48 +368,66 @@ double shaded_radiation(
  *              density, this represents the flux through any surface
  *              (micromol / m^2 / s)
  *
- *  @param [in] lai Leaf area index (LAI) of the entire canopy, which represents
- *              the leaf area per unit of ground area (dimensionless from m^2
- *              leaf / m^2 ground)
- *
- *  @param [in] nlayers Integer number of layers in the canopy
- *
- *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
- *              (dimensionless)
- *
- *  @param [in] k_diffuse Extinction coefficient for diffuse light
- *              (dimensionless)
- *
  *  @param [in] chil Ratio of average projected areas of canopy elements on
  *              horizontal surfaces; for a spherical leaf distribution,
  *              `chil = 0`; for a vertical leaf distribution, `chil = 1`; for a
  *              horizontal leaf distribution, `chil` approaches infinity
  *              (dimensionless from m^2 / m^2)
  *
- *  @param [in] absorptivity_par The leaf absorptivity for PAR radiation
- *              on a quantum basis (dimensionless from mol / mol)
+ *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
+ *              (dimensionless)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
  *              from m^2 leaf / m^2 ground / m height)
+ *
+ *  @param [in] k_diffuse Extinction coefficient for diffuse light
+ *              (dimensionless)
+ *
+ *  @param [in] lai Leaf area index (LAI) of the entire canopy, which represents
+ *              the leaf area per unit of ground area (dimensionless from m^2
+ *              leaf / m^2 ground)
+ *
+ *  @param [in] leaf_reflectance_nir The fractional amount of NIR band radiation
+ *              reflected by the leaf
+ *
+ *  @param [in] leaf_reflectance_par The fractional amount of PAR band radiation
+ *              reflected by the leaf
+ *
+ *  @param [in] leaf_transmittance_nir The fractional amount of NIR band
+ *              radiation transmitted through the leaf
+ *
+ *  @param [in] leaf_transmittance_par The fractional amount of PAR band
+ *              radiation transmitted through the leaf
+ *
+ *  @param [in] par_energy_content The average energy per photon in the PAR band
+ *              expressed in J /  micromol
+ *
+ *  @param [in] par_energy_fraction The fraction of total shortwave energy in
+ *              the PAR band
+ *
+ *  @param [in] nlayers Integer number of layers in the canopy
  *
  *  @return An n-layered light profile representing quantities within
  *          the canopy, including several photon flux densities and
  *          the relative fractions of shaded and sunlit leaves
  */
 Light_profile sunML(
+    double absorptivity_nir,        // dimensionless from mol / mol
+    double absorptivity_par,        // dimensionless from mol / mol
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
-    double lai,                     // dimensionless from m^2 / m^2
-    int nlayers,                    // dimensionless
-    double cosine_zenith_angle,     // dimensionless
-    double k_diffuse,               // dimensionless
     double chil,                    // dimensionless from m^2 / m^2
-    double absorptivity_par,        // dimensionless from mol / mol
+    double cosine_zenith_angle,     // dimensionless
     double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+    double k_diffuse,               // dimensionless
+    double lai,                     // dimensionless from m^2 / m^2
+    double leaf_reflectance_nir,    // dimensionless
+    double leaf_reflectance_par,    // dimensionless
+    double leaf_transmittance_nir,  // dimensionless
+    double leaf_transmittance_par,  // dimensionless
     double par_energy_content,      // J / micromol
     double par_energy_fraction,     // dimensionless
-    double leaf_transmittance_par,  // dimensionless
-    double leaf_reflectance_par     // dimensionless
+    int nlayers                     // dimensionless
 )
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
@@ -424,11 +448,6 @@ Light_profile sunML(
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
-
-    // Set NIR leaf optical properties
-    double const absorptivity_nir = absorptivity_par;              // dimensionless
-    double const leaf_transmittance_nir = leaf_transmittance_par;  // dimensionless
-    double const leaf_reflectance_nir = leaf_reflectance_par;      // dimensionless
 
     // Calculate the leaf shape factor for an ellipsoidal leaf angle
     // distribution using the equation from page 251 of Campbell & Norman

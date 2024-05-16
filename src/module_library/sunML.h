@@ -71,19 +71,22 @@ double shaded_radiation(
 );
 
 struct Light_profile sunML(
+    double absorptivity_nir,        // dimensionless from mol / mol
+    double absorptivity_par,        // dimensionless from mol / mol
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
-    double lai,                     // dimensionless from m^2 / m^2
-    int nlayers,                    // dimensionless
-    double cosine_zenith_angle,     // dimensionless
-    double k_diffuse,               // dimensionless
     double chil,                    // dimensionless from m^2 / m^2
-    double absorptivity_direct,     // dimensionless from mol / mol
+    double cosine_zenith_angle,     // dimensionless
     double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+    double k_diffuse,               // dimensionless
+    double lai,                     // dimensionless from m^2 / m^2
+    double leaf_reflectance_nir,    // dimensionless
+    double leaf_reflectance_par,    // dimensionless
+    double leaf_transmittance_nir,  // dimensionless
+    double leaf_transmittance_par,  // dimensionless
     double par_energy_content,      // J / micromol
     double par_energy_fraction,     // dimensionless
-    double leaf_transmittance_par,  // dimensionless
-    double leaf_reflectance_par     // dimensionless
+    int nlayers                     // dimensionless
 );
 
 #endif

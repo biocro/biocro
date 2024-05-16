@@ -32,7 +32,7 @@ class c3_canopy : public direct_module
           b1{get_input(input_quantities, "b1")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           theta{get_input(input_quantities, "theta")},
-          kd{get_input(input_quantities, "kd")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
           heightf{get_input(input_quantities, "heightf")},
           LeafN{get_input(input_quantities, "LeafN")},
           kpLN{get_input(input_quantities, "kpLN")},
@@ -48,11 +48,14 @@ class c3_canopy : public direct_module
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
+          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
-          leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
+          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
+          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
+          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
@@ -88,7 +91,7 @@ class c3_canopy : public direct_module
     double const& b1;
     double const& Gs_min;
     double const& theta;
-    double const& kd;
+    double const& k_diffuse;
     double const& heightf;
     double const& LeafN;
     double const& kpLN;
@@ -104,11 +107,14 @@ class c3_canopy : public direct_module
     double const& growth_respiration_fraction;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
+    double const& absorptivity_nir;
     double const& absorptivity_par;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    double const& leaf_transmittance;
-    double const& leaf_reflectance;
+    double const& leaf_transmittance_nir;
+    double const& leaf_transmittance_par;
+    double const& leaf_reflectance_nir;
+    double const& leaf_reflectance_par;
     double const& minimum_gbw;
     double const& windspeed_height;
     double const& beta_PSII;

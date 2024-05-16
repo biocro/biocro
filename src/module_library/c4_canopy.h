@@ -44,7 +44,7 @@ class c4_canopy : public direct_module
           b1{get_input(input_quantities, "b1")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           theta{get_input(input_quantities, "theta")},
-          kd{get_input(input_quantities, "kd")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
           chil{get_input(input_quantities, "chil")},
           LeafN{get_input(input_quantities, "LeafN")},
           kpLN{get_input(input_quantities, "kpLN")},
@@ -58,11 +58,14 @@ class c4_canopy : public direct_module
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
+          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
-          leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
+          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
+          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
+          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
 
           // Get pointers to output quantities
@@ -107,7 +110,7 @@ class c4_canopy : public direct_module
     double const& b1;
     double const& Gs_min;
     double const& theta;
-    double const& kd;
+    double const& k_diffuse;
     double const& chil;
     double const& LeafN;
     double const& kpLN;
@@ -121,11 +124,14 @@ class c4_canopy : public direct_module
     double const& atmospheric_pressure;
     double const& atmospheric_transmittance;
     double const& atmospheric_scattering;
+    double const& absorptivity_nir;
     double const& absorptivity_par;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    double const& leaf_transmittance;
-    double const& leaf_reflectance;
+    double const& leaf_transmittance_nir;
+    double const& leaf_transmittance_par;
+    double const& leaf_reflectance_nir;
+    double const& leaf_reflectance_par;
     double const& minimum_gbw;
 
     // Pointers to output quantities
@@ -170,7 +176,7 @@ string_vector c4_canopy::get_inputs()
         "b1",
         "Gs_min",  // mol / m^2 / s
         "theta",
-        "kd",
+        "k_diffuse",
         "chil",
         "LeafN",
         "kpLN",
@@ -184,11 +190,14 @@ string_vector c4_canopy::get_inputs()
         "atmospheric_pressure",       // Pa
         "atmospheric_transmittance",  // dimensionless
         "atmospheric_scattering",     // dimensionless
+        "absorptivity_nir",           // dimensionless
         "absorptivity_par",           // dimensionless
         "par_energy_content",         // J / micromol
         "par_energy_fraction",        // dimensionless
-        "leaf_transmittance",         // dimensionless
-        "leaf_reflectance",           // dimensionless
+        "leaf_transmittance_nir",     // dimensionless
+        "leaf_transmittance_par",     // dimensionless
+        "leaf_reflectance_nir",       // dimensionless
+        "leaf_reflectance_par",       // dimensionless
         "minimum_gbw"                 // mol / m^2 / s
     };
 }
@@ -221,12 +230,47 @@ void c4_canopy::do_operation() const
     nitroP.lnb1 = nlnb1;
 
     canopy_photosynthesis_outputs can_result = CanAC(
-        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1,
-        alpha1, kparm, beta, Rd, Catm, b0, b1, Gs_min, theta, kd, chil, LeafN,
-        kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
-        specific_heat_of_air, atmospheric_pressure, atmospheric_transmittance,
-        atmospheric_scattering, absorptivity_par, par_energy_content,
-        par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw);
+        lai,
+        cosine_zenith_angle,
+        solar,
+        temp,
+        rh,
+        windspeed,
+        nlayers,
+        vmax1,
+        alpha1,
+        kparm,
+        beta,
+        Rd,
+        Catm,
+        b0,
+        b1,
+        Gs_min,
+        theta,
+        k_diffuse,
+        chil,
+        LeafN,
+        kpLN,
+        lnfun,
+        upperT,
+        lowerT,
+        nitroP,
+        leafwidth,
+        et_equation,
+        StomataWS,
+        specific_heat_of_air,
+        atmospheric_pressure,
+        atmospheric_transmittance,
+        atmospheric_scattering,
+        absorptivity_nir,
+        absorptivity_par,
+        par_energy_content,
+        par_energy_fraction,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        minimum_gbw);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);         // Mg / ha / hr

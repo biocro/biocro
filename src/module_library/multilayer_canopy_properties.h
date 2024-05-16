@@ -65,10 +65,11 @@ class multilayer_canopy_properties : public direct_module
           // Get references to input quantities
           par_incident_direct{get_input(input_quantities, "par_incident_direct")},
           par_incident_diffuse{get_input(input_quantities, "par_incident_diffuse")},
+          absorptivity_nir{get_input(input_quantities, "absorptivity_nir")},
           absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           lai{get_input(input_quantities, "lai")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
-          kd{get_input(input_quantities, "kd")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
           chil{get_input(input_quantities, "chil")},
           heightf{get_input(input_quantities, "heightf")},
           windspeed{get_input(input_quantities, "windspeed")},
@@ -77,8 +78,10 @@ class multilayer_canopy_properties : public direct_module
           lnfun{get_input(input_quantities, "lnfun")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
-          leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
+          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
+          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
+          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
 
           // Get pointers to output quantities
           sunlit_fraction_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")},
@@ -104,10 +107,11 @@ class multilayer_canopy_properties : public direct_module
     // References to input parameters
     double const& par_incident_direct;
     double const& par_incident_diffuse;
+    double const& absorptivity_nir;
     double const& absorptivity_par;
     double const& lai;
     double const& cosine_zenith_angle;
-    double const& kd;
+    double const& k_diffuse;
     double const& chil;
     double const& heightf;
     double const& windspeed;
@@ -116,8 +120,10 @@ class multilayer_canopy_properties : public direct_module
     double const& lnfun;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    double const& leaf_transmittance;
-    double const& leaf_reflectance;
+    double const& leaf_transmittance_nir;
+    double const& leaf_transmittance_par;
+    double const& leaf_reflectance_nir;
+    double const& leaf_reflectance_par;
 
     // Pointers to output parameters
     std::vector<double*> const sunlit_fraction_ops;
