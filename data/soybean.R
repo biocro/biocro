@@ -128,10 +128,10 @@ soybean <- list(
         k_diffuse                   = 0.7,         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
         heightf                     = 3,           # m^-1
         kpLN                        = 0,           # not used in Soybean-BioCro
-        leaf_reflectance_nir        = 0.42,        # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
-        leaf_reflectance_par        = 0.09,        # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
-        leaf_transmittance_nir      = 0.42,        # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
-        leaf_transmittance_par      = 0.04,        # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_nir        = 0.42,
+        leaf_reflectance_par        = 0.10,
+        leaf_transmittance_nir      = 0.42,
+        leaf_transmittance_par      = 0.05,
         lnfun                       = 0,           # not used in Soybean-BioCro
 
         # ten_layer_c3_canopy module

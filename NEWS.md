@@ -60,7 +60,7 @@ be directly added to this file to describe the related changes.
 
   - Started calculating absorptivity as `1 - R - T`, where `R` and `T` are the
     leaf reflectance and transmittance coefficients, respectively. This ensures
-    that the constraint `A + R + T` is always satisfied.
+    that the constraint `A + R + T = 1` is always satisfied.
 
 # CHANGES IN BioCro VERSION 3.1.3
 

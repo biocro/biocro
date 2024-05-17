@@ -127,6 +127,12 @@
     \code{soybean_development_rate_calculator} module is set to 0 because
     Soybean-BioCro uses the weather data to set the sowing time. In other words,
     the weather data is truncated so it begins at the sowing date.
+
+    \item Leaf reflectance and transmittance in the PAR band are estimated from
+    [\doi{10.2134/agronmonogr31.c7}],
+    [\doi{10.2134/agronj1971.00021962006300010038x}],
+    and [\doi{10.2134/agronj1991.00021962008300030026x}]. Reflectance and
+    transmittance in the NIR band are from [\doi{10.2134/agronmonogr31.c7}].
   }
 }
 
