@@ -186,13 +186,25 @@ energy_balance_outputs leaf_energy_balance(
     double const H = rho_ta * c_p * Delta_T * gbw;              // J / m^2 / s
     double const storage = Phi_N - H - lambda * E;              // J / m^2 / s
 
-    // The transpiration rate here has units of kg / m^2 / s. It can be
+    // Potential evapotranspiration can be calculated assuming infinite stomatal
+    // conductance; here we call this "Penman transpiration."
+    double const EPen = (s * Phi_N + lambda * gamma * gbw * Delta_rho) /
+                        (lambda * (s + gamma));  // kg / m^2 / s
+
+    // Evapotranspiration according to Priestly (?)
+    double constexpr dryness_coefficient = 1.26;  // dimensionless
+    double const EPries = dryness_coefficient * s * Phi_N /
+                          (lambda * (s + gamma));  // kg / m^2 / s
+
+    // The transpiration rates here have units of kg / m^2 / s. They can be
     // converted to mmol / m^2 / s using the molar mass of water (in kg / mol)
     // and noting that 1e3 mmol = 1 mol.
     double constexpr cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     return energy_balance_outputs{
         /* Deltat = */ Delta_T,         // degrees C
+        /* EPenman = */ EPen * cf,      // mmol / m^2 / s
+        /* EPriestly = */ EPries * cf,  // mmol / m^2 / s
         /* E_loss = */ lambda * E,      // J / m^2 / s
         /* gbw = */ gbw,                // m / s
         /* gbw_canopy = */ gbw_canopy,  // m / s

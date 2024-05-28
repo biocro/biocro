@@ -33,6 +33,8 @@ class leaf_evapotranspiration : public direct_module
           wind_speed_height{get_input(input_quantities, "wind_speed_height")},
 
           // Get pointers to output quantities
+          EPenman_op{get_op(output_quantities, "EPenman")},
+          EPriestly_op{get_op(output_quantities, "EPriestly")},
           E_loss_op{get_op(output_quantities, "E_loss")},
           gbw_canopy_op{get_op(output_quantities, "gbw_canopy")},
           gbw_leaf_op{get_op(output_quantities, "gbw_leaf")},
@@ -65,6 +67,8 @@ class leaf_evapotranspiration : public direct_module
     double const& wind_speed_height;
 
     // Pointers to output quantities
+    double* EPenman_op;
+    double* EPriestly_op;
     double* E_loss_op;
     double* gbw_canopy_op;
     double* gbw_leaf_op;
@@ -101,6 +105,8 @@ string_vector leaf_evapotranspiration::get_inputs()
 string_vector leaf_evapotranspiration::get_outputs()
 {
     return {
+        "EPenman",           // mmol / m^2 / s
+        "EPriestly",         // mmol / m^2 / s
         "E_loss",            // J / m^2 / s
         "gbw",               // m / s
         "gbw_canopy",        // m / s
@@ -140,17 +146,19 @@ void leaf_evapotranspiration::do_operation() const
         Gs,
         windspeed);
 
+    update(EPenman_op, result.EPenman);
+    update(EPriestly_op, result.EPriestly);
     update(E_loss_op, result.E_loss);
     update(gbw_canopy_op, result.gbw_canopy);
     update(gbw_leaf_op, result.gbw_leaf);
     update(gbw_op, result.gbw);
     update(gsw_op, result.gsw);
     update(H_op, result.H);
+    update(iterations_op, result.iterations);
     update(leaf_temperature_op, temp + result.Deltat);
     update(PhiN_op, result.PhiN);
     update(storage_op, result.storage);
     update(TransR_op, result.TransR);
-    update(iterations_op, result.iterations);
 }
 
 }  // namespace standardBML

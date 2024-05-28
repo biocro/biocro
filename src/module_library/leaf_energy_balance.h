@@ -3,6 +3,8 @@
 
 struct energy_balance_outputs {
     double Deltat;      //!< Temperature difference (leaf - air) (degrees C)
+    double EPenman;     //!< Potential transpiration rate (mmol / m^2 / s)
+    double EPriestly;   //!< Priestly transpiration rate (mmol / m^2 / s)
     double E_loss;      //!< Rate of energy loss due to transpiration (J / m^2 / s)
     double gbw;         //!< Boundary layer conductance to water vapor (m / s)
     double gbw_canopy;  //!< Canopy boundary layer conductance to water vapor (m / s)

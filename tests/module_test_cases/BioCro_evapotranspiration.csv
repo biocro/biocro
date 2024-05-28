@@ -1,3 +1,0 @@
-input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,output,"description"
-absorbed_shortwave_energy,air_pressure,air_temperature,canopy_height,leaf_width,min_gbw_canopy,min_gbw_leaf,relative_humidity,stomatal_conductance,wind_speed,wind_speed_height,Deltat,E_loss,H,PhiN,TransR,gbw,gbw_canopy,gbw_leaf,gsw,iterations,storage,NA
-250,101325,25,1,0.05,0.01,0.01,0.7,300,1,10,5.19863204390671,184.11027450972,33.0227369072381,217.133011416958,4.18419344247939,0.00533232546173272,0.01,0.0114239444460328,7.47066275412831,4,5.6843418860808e-14,"somewhat realistic"
