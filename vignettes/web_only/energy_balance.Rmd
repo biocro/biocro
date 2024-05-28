@@ -77,7 +77,7 @@ be ignored. Finally, we can combine $J_a$, $R_L$, and $G$ into a single term
 ($\phi_N$):
 
 \begin{equation}
-    \phi_N = J_a - R_L - G. (#eq:phiN)
+    \phi_N = J_a - R_L - G. (\#eq:phiN)
 \end{equation}
 
 With these changes, \@ref(eq:EB1) becomes
@@ -94,13 +94,13 @@ from the canopy to the ambient environment. In fact, they can be both be
 expressed using one-dimensional diffusion equations:
 
 \begin{equation}
-    H = \rho c_p \left( T_l - T_a \right) g_H (#eq:H)
+    H = \rho c_p \left( T_l - T_a \right) g_H (\#eq:H)
 \end{equation}
 
 and
 
 \begin{equation}
-    E = \left(\rho_{vl} - \rho_{va} \right) g_W, (#eq:E)
+    E = \left(\rho_{vl} - \rho_{va} \right) g_W, (\#eq:E)
 \end{equation}
 
 where $\rho$ is the density of dry air (kg m$^{-3}$), $c_p$ is the specific heat
@@ -123,7 +123,7 @@ $\rho_{sat}(T_l)$ is the saturation water vapor density at the leaf temperature.
 With this assumption, Equation \@ref(eq:E) can be expressed as
 
 \begin{equation}
-    E = \left[ \rho_{sat}(T_l) - \rho_{va} \right] g_W. (#eq:E2)
+    E = \left[ \rho_{sat}(T_l) - \rho_{va} \right] g_W. (\#eq:E2)
 \end{equation}
 
 Combining Equations \@ref(eq:EB2), \@ref(eq:H), and \@ref(eq:E2), we can now
@@ -131,7 +131,7 @@ express the energy balance requirement as
 
 \begin{equation}
     \phi_N - \rho c_p \left( T_l - T_a \right) g_H -
-        \lambda \left[ \rho_{sat}(T_l) - \rho_{va} \right] g_W = 0. (#eq:EB3)
+        \lambda \left[ \rho_{sat}(T_l) - \rho_{va} \right] g_W = 0. (\#eq:EB3)
 \end{equation}
 
 This is a powerful equation because all of its terms either (i) can be taken as
@@ -184,7 +184,7 @@ it and any higher-order terms to be negligable. In this case, we can keep just
 the first two terms of the Taylor series:
 
 \begin{equation}
-    \rho_{sat}(T_l) \approx \rho_{sat}(T_a) + s \Delta T (#eq:linearRho),
+    \rho_{sat}(T_l) \approx \rho_{sat}(T_a) + s \Delta T (\#eq:linearRho),
 \end{equation}
 
 where $s = \frac{d \rho_{sat}}{d T} \bigg\rvert_{T_a}$ is the slope of
@@ -193,7 +193,7 @@ becomes
 
 \begin{equation}
     E = \left[ \rho_{sat}(T_a) + s \left( \Delta T \right) - \rho_{va} \right] g_W =
-        \left( \Delta \rho_{va} + s \Delta T \right) g_W (#eq:E3)
+        \left( \Delta \rho_{va} + s \Delta T \right) g_W (\#eq:E3)
 \end{equation}
 
 where $\Delta \rho_{va} = \rho_{sat}(T_a) - \rho_{va}$ is the vapor density
@@ -203,7 +203,7 @@ Because the stomata and boundary layer are in series, the total conductance to
 water vapor ($g_W$) is related to $g_a$ and $g_c$ according to
 
 \begin{equation}
-    \frac{1}{g_W} = \frac{1}{g_a} + \frac{1}{g_c}, (#eq:gW)
+    \frac{1}{g_W} = \frac{1}{g_a} + \frac{1}{g_c}, (\#eq:gW)
 \end{equation}
 
 Additionally, because the same mechanisms of conduction and convection drive the
@@ -211,7 +211,7 @@ flow of both water vapor and heat in the boundary layer, these conductances are
 identical:
 
 \begin{equation}
-    g_H = g_a. (#eq:gH)
+    g_H = g_a. (\#eq:gH)
 \end{equation}
 
 Combining Equations \@ref(eq:EB3), \@ref(eq:linearRho), \@ref(eq:gW), and
@@ -220,14 +220,14 @@ crop canopy where only water vapor conductances are used:
 
 \begin{equation}
     \phi_N - \rho c_p \Delta T g_a -
-        \frac{\lambda \left( \Delta \rho_{va} + s \Delta T \right)}{1 / g_a + 1 / g_c} = 0. (#eq:EB4)
+        \frac{\lambda \left( \Delta \rho_{va} + s \Delta T \right)}{1 / g_a + 1 / g_c} = 0. (\#eq:EB4)
 \end{equation}
 
 These may not look simple. Nevertheless, with some algebra, Equation
 \@ref(eq:EB4) can be solved for the temperature difference $\Delta T$:
 
 \begin{equation}
-    \Delta T = \frac{\phi_N \left( 1 / g_a + 1 / g_c \right) - \lambda \Delta \rho_{va}}{\lambda \left[ s + \gamma \left( 1 + g_a / g_c \right) \right]} (#eq:DT1)
+    \Delta T = \frac{\phi_N \left( 1 / g_a + 1 / g_c \right) - \lambda \Delta \rho_{va}}{\lambda \left[ s + \gamma \left( 1 + g_a / g_c \right) \right]} (\#eq:DT1)
 \end{equation}
 
 where $\gamma = \frac{\rho c_p}{\lambda}$ is the "psychrometric parameter." This
@@ -239,7 +239,7 @@ used to calculate $\Delta T$ (and hence $T_l$). It can also be plugged in to
 Equation \@ref(eq:E3) to calculate the canopy transpiration rate $E$:
 
 \begin{equation}
-    E = \frac{s \phi_N + \lambda \gamma g_a \Delta \rho_{va}}{\lambda \left[ s + \gamma \left(1 + g_a / g_c \right) \right]}, (#eq:PM1)
+    E = \frac{s \phi_N + \lambda \gamma g_a \Delta \rho_{va}}{\lambda \left[ s + \gamma \left(1 + g_a / g_c \right) \right]}, (\#eq:PM1)
 \end{equation}
 
 This is Equation 14.4k from @thornley_plant_1990, where it is described as "the
@@ -289,7 +289,7 @@ We can again neglect terms with $\Delta T^2$ or higher powers, yielding
 
 \begin{equation}
     R_L \approx \epsilon_s \sigma \left( T_a^4 + 4 T_a^3 \Delta T \right) =
-        \epsilon_s \sigma T_a^4 - \rho c_p \Delta T g_r, (#eq:linearRL)
+        \epsilon_s \sigma T_a^4 - \rho c_p \Delta T g_r, (\#eq:linearRL)
 \end{equation}
 
 where $g_r = 4 \epsilon_s \sigma T_a^3 / ( \rho c_p)$ is a "radiative
@@ -297,7 +297,7 @@ conductance" with units m s$^{-1}$. Substituing this linearization into Equation
 \@ref(eq:phiN) yields
 
 \begin{equation}
-    \phi_N = J_a - \epsilon_s \sigma T_a^4 - \rho c_p \Delta T g_r  - G, (#eq:newphilinear)
+    \phi_N = J_a - \epsilon_s \sigma T_a^4 - \rho c_p \Delta T g_r  - G, (\#eq:newphilinear)
 \end{equation}
 
 Combining Equations \@ref(eq:EB3), \@ref(eq:linearRho), and
@@ -313,7 +313,7 @@ This can also be written as
 
 \begin{equation}
     J_a - \epsilon_s \sigma T_a^4 - G - \rho c_p g_{Hr} \Delta T -
-        \lambda \left( \Delta \rho_{va} + s \Delta T \right) g_W = 0, (#eq:EB5)
+        \lambda \left( \Delta \rho_{va} + s \Delta T \right) g_W = 0, (\#eq:EB5)
 \end{equation}
 
 where $g_{Hr} = g_r + g_H$ is a combined conductance for radiation and heat.
@@ -321,14 +321,14 @@ This expression of energy balance can now be solved for $\Delta T$ to produce an
 equation analgous to Equation \@ref(eq:DT1):
 
 \begin{equation}
-    \Delta T = \frac{\left( J_a - \epsilon_s \sigma T_a^4  - G \right) / g_W - \lambda \Delta \rho_{va}}{\lambda \left[ s + \gamma (g_{Hr} / g_W) \right]}. (#eq:DT2)
+    \Delta T = \frac{\left( J_a - \epsilon_s \sigma T_a^4  - G \right) / g_W - \lambda \Delta \rho_{va}}{\lambda \left[ s + \gamma (g_{Hr} / g_W) \right]}. (\#eq:DT2)
 \end{equation}
 
 Equation \@ref(eq:DT2) can be substituted into Equation \@ref(eq:E3) to
 calculate the canopy transpiration rate $E$:
 
 \begin{equation}
-    E = \frac{s \left( J_a - \epsilon_s \sigma T_a^4  - G \right) + \lambda \gamma g_{Hr} \Delta \rho_{va}}{\lambda \left[ s + \gamma (g_{Hr} / g_W) \right]}. (#eq:PM2)
+    E = \frac{s \left( J_a - \epsilon_s \sigma T_a^4  - G \right) + \lambda \gamma g_{Hr} \Delta \rho_{va}}{\lambda \left[ s + \gamma (g_{Hr} / g_W) \right]}. (\#eq:PM2)
 \end{equation}
 
 This equation is analagous to, but different from, Equation \@ref(eq:PM1).
@@ -383,7 +383,7 @@ canopy. In this framework, the total canopy transpiration rate is given by
 
 \begin{equation}
     E_{canopy} = \int_{\ell = 0}^{L} \left( E_{leaf}^{sunlit}(\ell) \cdot f_{sunlit}(\ell) +
-        E_{leaf}^{shaded}(\ell) \cdot f_{shaded}(\ell) \right) d \ell, (#eq:ECanopyInt)
+        E_{leaf}^{shaded}(\ell) \cdot f_{shaded}(\ell) \right) d \ell, (\#eq:ECanopyInt)
 \end{equation}
 
 where $E_{leaf}^{sunlit}(\ell)$ and $E_{leaf}^{shaded}(\ell)$ are the
@@ -412,7 +412,7 @@ obtain an analytical expression for $E_{canopy}$ using Equation
 
 \begin{equation}
     E_{canopy} = \sum_{i = 0}^{N-1} \left( E_{leaf}^{sunlit}(\ell_i) \cdot f_{sunlit}(\ell_i) +
-        E_{leaf}^{shaded}(\ell_i) \cdot f_{shaded}(\ell_i) \right) \cdot \frac{L}{N}. (#eq:ECanopyInt)
+        E_{leaf}^{shaded}(\ell_i) \cdot f_{shaded}(\ell_i) \right) \cdot \frac{L}{N}. (\#eq:ECanopySum)
 \end{equation}
 
 Here the cLAI interval $(0, L)$ has been divided into $N$ sub-intervals of

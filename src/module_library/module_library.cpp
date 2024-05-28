@@ -174,5 +174,5 @@ creator_map standardBML::module_library::library_entries =
      {"example_model_partitioning",                            &create_mc<example_model_partitioning>},
      {"litter_cover",                                          &create_mc<litter_cover>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
-     {"leaf_evapotranspiration",                                    &create_mc<leaf_evapotranspiration>}
+     {"leaf_evapotranspiration",                               &create_mc<leaf_evapotranspiration>}
 };
