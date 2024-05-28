@@ -1,19 +1,19 @@
-#ifndef LEAF_GBW_THORNLEY_H
-#define LEAF_GBW_THORNLEY_H
+#ifndef CANOPY_GBW_THORNLEY_H
+#define CANOPY_GBW_THORNLEY_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_thornley
+#include "boundary_layer_conductance.h"  // for canopy_boundary_layer_conductance_thornley
 
 namespace standardBML
 {
 /**
- * @class leaf_gbw_thornley
+ * @class canopy_gbw_thornley
  *
  * @brief Calculates the boundary layer conductance using the
- * `leaf_boundary_layer_conductance_thornley()` function.
+ * `canopy_boundary_layer_conductance_thornley()` function.
  *
- * The `leaf_boundary_layer_conductance_thornley()` function returns a
+ * The `canopy_boundary_layer_conductance_thornley()` function returns a
  * conductance with units of m / s. However, in BioCro, we prefer to use
  * molecular conductances, so we convert using an approximate conversion factor
  * that is only exact when both the leaf and air temperatures are 20 degrees C.
@@ -28,10 +28,10 @@ namespace standardBML
  * - ``'windspeed'`` for the wind speed
  * - ``'gbw'`` for the leaf boundary layer conductance to water
  */
-class leaf_gbw_thornley : public direct_module
+class canopy_gbw_thornley : public direct_module
 {
    public:
-    leaf_gbw_thornley(
+    canopy_gbw_thornley(
         state_map const& input_quantities,
         state_map* output_quantities)
         : direct_module{},
@@ -48,7 +48,7 @@ class leaf_gbw_thornley : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    static std::string get_name() { return "leaf_gbw_thornley"; }
+    static std::string get_name() { return "canopy_gbw_thornley"; }
 
    private:
     // References to input quantities
@@ -64,7 +64,7 @@ class leaf_gbw_thornley : public direct_module
     void do_operation() const;
 };
 
-string_vector leaf_gbw_thornley::get_inputs()
+string_vector canopy_gbw_thornley::get_inputs()
 {
     return {
         "height",           // m
@@ -74,20 +74,20 @@ string_vector leaf_gbw_thornley::get_inputs()
     };
 }
 
-string_vector leaf_gbw_thornley::get_outputs()
+string_vector canopy_gbw_thornley::get_outputs()
 {
     return {
         "gbw"  // mol / m^2 / s
     };
 }
 
-void leaf_gbw_thornley::do_operation() const
+void canopy_gbw_thornley::do_operation() const
 {
     // This is for about 20 degrees C at 100000 Pa
     constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
 
     // Calculate the boundary layer conductance
-    const double gbw = leaf_boundary_layer_conductance_thornley(
+    const double gbw = canopy_boundary_layer_conductance_thornley(
         height,
         windspeed,
         minimum_gbw * volume_of_one_mole_of_air,

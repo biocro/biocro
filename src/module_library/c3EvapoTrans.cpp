@@ -2,10 +2,11 @@
 #include <stdexcept>
 #include "c3photo.h"
 #include "BioCro.h"
-#include "water_and_air_properties.h"  // for saturation_vapor_pressure,
-                                       // TempToDdryA, TempToLHV, SlopeFS
-#include "../framework/constants.h"    // for ideal_gas_constant, molar_mass_of_water,
-                                       // stefan_boltzmann, celsius_to_kelvin
+#include "boundary_layer_conductance.h"  // for canopy_boundary_layer_conductance_thornley
+#include "water_and_air_properties.h"    // for saturation_vapor_pressure,
+                                         // TempToDdryA, TempToLHV, SlopeFS
+#include "../framework/constants.h"      // for ideal_gas_constant, molar_mass_of_water,
+                                         // stefan_boltzmann, celsius_to_kelvin
 /**
  * Many of the equations used in this function come from Chapter 14 of Thornley
  * and Johnson (1990).
@@ -66,7 +67,7 @@ struct ET_Str c3EvapoTrans(
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
     /* Calculation of ga */
-    const double ga = leaf_boundary_layer_conductance_thornley(
+    const double ga = canopy_boundary_layer_conductance_thornley(
         CanopyHeight,
         WindSpeed,
         minimum_gbw_in_m_per_s,

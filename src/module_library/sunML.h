@@ -71,7 +71,7 @@ double shaded_radiation(
     double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
-struct Light_profile sunML(
+Light_profile sunML(
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2

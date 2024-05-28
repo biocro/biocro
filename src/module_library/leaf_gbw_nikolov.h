@@ -3,8 +3,8 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "water_and_air_properties.h"  // for saturation_vapor_pressure
-#include "AuxBioCro.h"                 // for leaf_boundary_layer_conductance_nikolov
+#include "water_and_air_properties.h"    // for saturation_vapor_pressure
+#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
 
 namespace standardBML
 {

@@ -81,12 +81,13 @@
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
 #include "solar_position_michalsky.h"
-#include "leaf_gbw_thornley.h"
+#include "canopy_gbw_thornley.h"
 #include "leaf_gbw_nikolov.h"
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
 #include "litter_cover.h"
 #include "soil_sunlight.h"
+#include "leaf_evapotranspiration.h"
 
 creator_map standardBML::module_library::library_entries =
 {
@@ -167,10 +168,11 @@ creator_map standardBML::module_library::library_entries =
      {"grimm_soybean_flowering",                               &create_mc<grimm_soybean_flowering>},
      {"grimm_soybean_flowering_calculator",                    &create_mc<grimm_soybean_flowering_calculator>},
      {"solar_position_michalsky",                              &create_mc<solar_position_michalsky>},
-     {"leaf_gbw_thornley",                                     &create_mc<leaf_gbw_thornley>},
+     {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
      {"leaf_gbw_nikolov",                                      &create_mc<leaf_gbw_nikolov>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
      {"example_model_partitioning",                            &create_mc<example_model_partitioning>},
      {"litter_cover",                                          &create_mc<litter_cover>},
-     {"soil_sunlight",                                         &create_mc<soil_sunlight>}
+     {"soil_sunlight",                                         &create_mc<soil_sunlight>},
+     {"leaf_evapotranspiration",                                    &create_mc<leaf_evapotranspiration>}
 };
