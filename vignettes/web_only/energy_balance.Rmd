@@ -489,7 +489,7 @@ canopy_gbw_res <- module_response_curve(
 )
 
 xyplot(
-    gbw ~ windspeed,
+    canopy_gbw ~ windspeed,
     group = canopy_height,
     data = canopy_gbw_res,
     type = 'l',
@@ -519,7 +519,7 @@ leaf_gbw_res <- module_response_curve(
 )
 
 xyplot(
-    gbw ~ windspeed,
+    leaf_gbw ~ windspeed,
     group = Gs,
     data = leaf_gbw_res,
     type = 'l',

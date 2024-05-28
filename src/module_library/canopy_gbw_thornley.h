@@ -28,7 +28,7 @@ class canopy_gbw_thornley : public direct_module
           windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
-          gbw_op{get_op(output_quantities, "gbw")}
+          canopy_gbw_op{get_op(output_quantities, "canopy_gbw")}
     {
     }
     static string_vector get_inputs();
@@ -43,7 +43,7 @@ class canopy_gbw_thornley : public direct_module
     double const& windspeed_height;
 
     // Pointers to output quantities
-    double* gbw_op;
+    double* canopy_gbw_op;
 
     // Main operation
     void do_operation() const;
@@ -62,21 +62,21 @@ string_vector canopy_gbw_thornley::get_inputs()
 string_vector canopy_gbw_thornley::get_outputs()
 {
     return {
-        "gbw"  // mol / m^2 / s
+        "canopy_gbw"  // mol / m^2 / s
     };
 }
 
 void canopy_gbw_thornley::do_operation() const
 {
     // Calculate the boundary layer conductance
-    const double gbw = canopy_boundary_layer_conductance_thornley(
+    const double canopy_gbw = canopy_boundary_layer_conductance_thornley(
         canopy_height,
         windspeed,
         min_gbw_canopy,
         windspeed_height);  // m / s
 
     // Update the output quantity list
-    update(gbw_op, gbw);  // m / s
+    update(canopy_gbw_op, canopy_gbw);  // m / s
 }
 
 }  // namespace standardBML

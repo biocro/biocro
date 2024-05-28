@@ -32,7 +32,7 @@ class leaf_gbw_nikolov : public direct_module
           air_pressure{get_input(input_quantities, "air_pressure")},
 
           // Get pointers to output quantities
-          gbw_op{get_op(output_quantities, "gbw")}
+          leaf_gbw_op{get_op(output_quantities, "leaf_gbw")}
     {
     }
     static string_vector get_inputs();
@@ -50,7 +50,7 @@ class leaf_gbw_nikolov : public direct_module
     double const& air_pressure;
 
     // Pointers to output quantities
-    double* gbw_op;
+    double* leaf_gbw_op;
 
     // Main operation
     void do_operation() const;
@@ -72,7 +72,7 @@ string_vector leaf_gbw_nikolov::get_inputs()
 string_vector leaf_gbw_nikolov::get_outputs()
 {
     return {
-        "gbw"  // m / s
+        "leaf_gbw"  // m / s
     };
 }
 
@@ -91,7 +91,7 @@ void leaf_gbw_nikolov::do_operation() const
 
     // Calculate the boundary layer conductance. Here we need to convert
     // stomatal conductance from mol / m^2 / s to m / s.
-    const double gbw = leaf_boundary_layer_conductance_nikolov(
+    const double leaf_gbw = leaf_boundary_layer_conductance_nikolov(
         air_temperature,
         delta_t,
         water_vapor_pressure,
@@ -101,7 +101,7 @@ void leaf_gbw_nikolov::do_operation() const
         air_pressure);  // m / s
 
     // Update the output quantity list
-    update(gbw_op, gbw);  // m / s
+    update(leaf_gbw_op, leaf_gbw);  // m / s
 }
 
 }  // namespace standardBML
