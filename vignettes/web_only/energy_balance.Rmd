@@ -457,7 +457,7 @@ xyplot(
     auto = TRUE,
     xlab = 'Wind speed (m / s)',
     ylab = 'Transpiration rate (mmol / m^2 / s)',
-    ylim = c(-2, 15),
+    ylim = c(0, 5),
     main = 'Transpiration rate for different\nstomatal conductances (mol / m^2 / s)'
 )
 
@@ -510,8 +510,7 @@ leaf_gbw_res <- module_response_curve(
         leafwidth = 0.1,
         temp = 25,
         leaf_temperature = 26,
-        rh = 0.6,
-        minimum_gbw = 0.0
+        rh = 0.6
     ),
     expand.grid(
         windspeed = seq(0, 1, by = 0.005),

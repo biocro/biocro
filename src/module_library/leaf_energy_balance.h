@@ -20,14 +20,11 @@ energy_balance_outputs leaf_energy_balance(
     double absorbed_shortwave_energy,  // J / m^2 / s
     double air_pressure,               // Pa
     double air_temperature,            // degrees C
-    double canopy_height,              // m
+    double gbw_canopy,                 // m / s
     double leaf_width,                 // m
-    double min_gbw_canopy,             // m / s
-    double min_gbw_leaf,               // m / s
     double relative_humidity,          // dimensionless from Pa / Pa
     double stomatal_conductance,       // mol / m^2 / s
-    double wind_speed,                 // m / s
-    double wind_speed_height           // m
+    double wind_speed                  // m / s
 );
 
 #endif

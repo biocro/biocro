@@ -44,11 +44,12 @@
  *
  *  @param [in] lw The characteristic leaf dimension in m
  *
- *  @param [in] windspeed The wind speed in m / s
+ *  @param [in] windspeed The wind speed just outside the leaf boundary layer in
+ *              m / s
  *
  *  @param [in] p The atmospheric pressure in Pa
  *
- *  @return The boundary layer conductance in m / s
+ *  @return The leaf boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_nikolov(
     double air_temperature,  // degrees C
@@ -158,6 +159,7 @@ double leaf_boundary_layer_conductance_nikolov(
  *  @param [in] CanopyHeight The height of the canopy above the ground in m
  *
  *  @param [in] WindSpeed The wind speed in m / s as measured above the canopy
+ *              boundary layer
  *
  *  @param [in] minimum_gbw The lowest possible value for boundary layer
  *              conductance in m / s that should be returned
@@ -165,7 +167,7 @@ double leaf_boundary_layer_conductance_nikolov(
  *  @param [in] WindSpeedHeight The height in m at which the wind speed was
  *              measured
  *
- *  @return The boundary layer conductance in m / s
+ *  @return The canopy boundary layer conductance in m / s
  */
 double canopy_boundary_layer_conductance_thornley(
     double CanopyHeight,    // m

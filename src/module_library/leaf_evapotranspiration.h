@@ -117,23 +117,28 @@ string_vector leaf_evapotranspiration::get_outputs()
 
 void leaf_evapotranspiration::do_operation() const
 {
+    // Get absorbed longwave radiation
     double const absorbed_longwave =
         1.0 * physical_constants::stefan_boltzmann *
         pow(conversion_constants::celsius_to_kelvin + temp, 4);  // J / m^2 / s
+
+    // Get canopy boundary layer conductance to water vapor
+    double const gbw_canopy = canopy_boundary_layer_conductance_thornley(
+        canopy_height,
+        windspeed,
+        min_gbw_canopy,
+        wind_speed_height);  // m / s
 
     energy_balance_outputs result = leaf_energy_balance(
         absorbed_longwave,
         absorbed_shortwave,
         atmospheric_pressure,
         temp,
-        canopy_height,
+        gbw_canopy,
         leafwidth,
-        min_gbw_canopy,
-        min_gbw_leaf,
         rh,
         Gs,
-        windspeed,
-        wind_speed_height);
+        windspeed);
 
     update(E_loss_op, result.E_loss);
     update(gbw_canopy_op, result.gbw_canopy);

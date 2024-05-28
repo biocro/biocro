@@ -6,8 +6,8 @@
                                        // celsius_to_kelvin, molar_mass_of_water
 
 /**
- *  Use Equation 14.5a from Thornley & Johnson (1990) to calculate water vapor
- *  density from water vapor pressure.
+ *  @brief Use Equation 14.5a from Thornley & Johnson (1990) to calculate water
+ *  vapor density from water vapor pressure.
  *
  *  This equation is described as follows:
  *
@@ -42,19 +42,55 @@ double vapor_density_from_pressure(
            vapor_pressure / (total_pressure - vapor_pressure);  // kg / m^3
 }
 
+/**
+ *  @brief Calculates leaf-level temperature and transpiration rate for a leaf
+ *  within a canopy using a Penman-Monteith approach.
+ *
+ *  Here we consider the path of water vapor to pass through three sequential
+ *  barriers: the stomata, the leaf boundary layer, and finally the canopy
+ *  boundary layer. Conductance across the leaf boundary layer is calculated
+ *  using the `leaf_boundary_layer_conductance_nikolov()` function, while the
+ *  other conductances must be provided as inputs.
+ *
+ *  Leaf temperature and transpiration are calculated using Equations 14.11e
+ *  and 14.3i, respectively, from Thornley & Johnson (1990).
+ *
+ *  @param [in] pressure Gas pressure in Pa
+ *
+ *  @param [in] absorbed_longwave_energy Absorbed light energy in the longwave
+ *              (infrared) band (J / m^2 / s)
+ *
+ *  @param [in] absorbed_shortwave_energy Absorbed light energy in the shortwave (PAR
+ *              and near-infrared) band (J / m^2 / s)
+ *
+ *  @param [in] air_pressure Total air pressure (Pa)
+ *
+ *  @param [in] air_temperature Bulk air temperature (degrees C)
+ *
+ *  @param [in] gbw_canopy Conductance to H2O diffusion across the canopy boundary
+ *              layer (m / s)
+ *
+ *  @param [in] leaf_width Characteristic dimension of a typical leaf (m)
+ *
+ *  @param [in] relative_humidity Relative humidity in the bulk air (dimensionless
+ *              from Pa / Pa)
+ *
+ *  @param [in] stomatal_conductance Conductance to H2O diffusion across the stomata
+ *              (mol / m^2 / s)
+ *
+ *  @param [in] wind_speed Wind speed within the canopy just outside the leaf
+ *              boundary layer (m / s)
+ */
 energy_balance_outputs leaf_energy_balance(
     double absorbed_longwave_energy,   // J / m^2 / s
     double absorbed_shortwave_energy,  // J / m^2 / s
     double air_pressure,               // Pa
     double air_temperature,            // degrees C
-    double canopy_height,              // m
+    double gbw_canopy,                 // m / s
     double leaf_width,                 // m
-    double min_gbw_canopy,             // m / s
-    double min_gbw_leaf,               // m / s
     double relative_humidity,          // dimensionless from Pa / Pa
     double stomatal_conductance,       // mol / m^2 / s
-    double wind_speed,                 // m / s
-    double wind_speed_height           // m
+    double wind_speed                  // m / s
 )
 {
     // Set some constants
@@ -81,13 +117,6 @@ energy_balance_outputs leaf_energy_balance(
         vapor_density_from_pressure(rho_ta, air_pressure, p_w_sat_air);  // kg / m^3
 
     const double Delta_rho = rho_w_sat - rho_w_air;  // kg / m^3
-
-    // Get canopy boundary layer conductance to water vapor
-    const double gbw_canopy = canopy_boundary_layer_conductance_thornley(
-        canopy_height,
-        wind_speed,
-        min_gbw_canopy,
-        wind_speed_height);  // m / s
 
     // Get total absorbed light energy (longwave and shortwave)
     const double J_a = absorbed_shortwave_energy + absorbed_longwave_energy;  // J / m^2 / s
