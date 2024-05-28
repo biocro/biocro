@@ -20,26 +20,26 @@ class leaf_evapotranspiration : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          absorbed_shortwave_energy{get_input(input_quantities, "absorbed_shortwave_energy")},
-          air_pressure{get_input(input_quantities, "air_pressure")},
-          air_temperature{get_input(input_quantities, "air_temperature")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           canopy_height{get_input(input_quantities, "canopy_height")},
-          leaf_width{get_input(input_quantities, "leaf_width")},
+          Gs{get_input(input_quantities, "Gs")},
+          leafwidth{get_input(input_quantities, "leafwidth")},
           min_gbw_canopy{get_input(input_quantities, "min_gbw_canopy")},
           min_gbw_leaf{get_input(input_quantities, "min_gbw_leaf")},
-          relative_humidity{get_input(input_quantities, "relative_humidity")},
-          Gs{get_input(input_quantities, "Gs")},
+          rh{get_input(input_quantities, "rh")},
+          temp{get_input(input_quantities, "temp")},
           windspeed{get_input(input_quantities, "windspeed")},
           wind_speed_height{get_input(input_quantities, "wind_speed_height")},
 
           // Get pointers to output quantities
-          Deltat_op{get_op(output_quantities, "Deltat")},
           E_loss_op{get_op(output_quantities, "E_loss")},
-          gbw_op{get_op(output_quantities, "gbw")},
           gbw_canopy_op{get_op(output_quantities, "gbw_canopy")},
           gbw_leaf_op{get_op(output_quantities, "gbw_leaf")},
+          gbw_op{get_op(output_quantities, "gbw")},
           gsw_op{get_op(output_quantities, "gsw")},
           H_op{get_op(output_quantities, "H")},
+          leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
           PhiN_op{get_op(output_quantities, "PhiN")},
           storage_op{get_op(output_quantities, "storage")},
           TransR_op{get_op(output_quantities, "TransR")},
@@ -52,26 +52,26 @@ class leaf_evapotranspiration : public direct_module
 
    private:
     // Pointers to input quantities
-    double const& absorbed_shortwave_energy;
-    double const& air_pressure;
-    double const& air_temperature;
+    double const& absorbed_shortwave;
+    double const& atmospheric_pressure;
     double const& canopy_height;
-    double const& leaf_width;
+    double const& Gs;
+    double const& leafwidth;
     double const& min_gbw_canopy;
     double const& min_gbw_leaf;
-    double const& relative_humidity;
-    double const& Gs;
+    double const& rh;
+    double const& temp;
     double const& windspeed;
     double const& wind_speed_height;
 
     // Pointers to output quantities
-    double* Deltat_op;
     double* E_loss_op;
-    double* gbw_op;
     double* gbw_canopy_op;
     double* gbw_leaf_op;
+    double* gbw_op;
     double* gsw_op;
     double* H_op;
+    double* leaf_temperature_op;
     double* PhiN_op;
     double* storage_op;
     double* TransR_op;
@@ -84,64 +84,64 @@ class leaf_evapotranspiration : public direct_module
 string_vector leaf_evapotranspiration::get_inputs()
 {
     return {
-        "absorbed_shortwave_energy",  // J / m^2 / s
-        "air_pressure",               // Pa
-        "air_temperature",            // degrees C
-        "canopy_height",              // m
-        "leaf_width",                 // m
-        "min_gbw_canopy",             // m / s
-        "min_gbw_leaf",               // m / s
-        "relative_humidity",          // dimensionless from Pa / Pa
-        "Gs",                         // mol / m^2 / s
-        "windspeed",                  // m / s
-        "wind_speed_height"           // m
+        "absorbed_shortwave",    // J / m^2 / s
+        "atmospheric_pressure",  // Pa
+        "canopy_height",         // m
+        "Gs",                    // mol / m^2 / s
+        "leafwidth",             // m
+        "min_gbw_canopy",        // m / s
+        "min_gbw_leaf",          // m / s
+        "rh",                    // dimensionless from Pa / Pa
+        "temp",                  // degrees C
+        "windspeed",             // m / s
+        "wind_speed_height"      // m
     };
 }
 
 string_vector leaf_evapotranspiration::get_outputs()
 {
     return {
-        "Deltat",      // degrees C
-        "E_loss",      // J / m^2 / s
-        "gbw",         // m / s
-        "gbw_canopy",  // m / s
-        "gbw_leaf",    // m / s
-        "gsw",         // m / s
-        "H",           // J / m^2 / s
-        "PhiN",        // J / m^2 / s
-        "storage",     // J / m^2 / s
-        "TransR",      // mmol / m^2 / s
-        "iterations"   // not a physical quantity
+        "E_loss",            // J / m^2 / s
+        "gbw",               // m / s
+        "gbw_canopy",        // m / s
+        "gbw_leaf",          // m / s
+        "gsw",               // m / s
+        "H",                 // J / m^2 / s
+        "leaf_temperature",  // degrees C
+        "PhiN",              // J / m^2 / s
+        "storage",           // J / m^2 / s
+        "TransR",            // mmol / m^2 / s
+        "iterations"         // not a physical quantity
     };
 }
 
 void leaf_evapotranspiration::do_operation() const
 {
-    double const absorbed_longwave_energy =
+    double const absorbed_longwave =
         1.0 * physical_constants::stefan_boltzmann *
-        pow(conversion_constants::celsius_to_kelvin + air_temperature, 4);  // J / m^2 / s
+        pow(conversion_constants::celsius_to_kelvin + temp, 4);  // J / m^2 / s
 
     energy_balance_outputs result = leaf_energy_balance(
-        absorbed_longwave_energy,
-        absorbed_shortwave_energy,
-        air_pressure,
-        air_temperature,
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        temp,
         canopy_height,
-        leaf_width,
+        leafwidth,
         min_gbw_canopy,
         min_gbw_leaf,
-        relative_humidity,
+        rh,
         Gs,
         windspeed,
         wind_speed_height);
 
-    update(Deltat_op, result.Deltat);
     update(E_loss_op, result.E_loss);
-    update(gbw_op, result.gbw);
     update(gbw_canopy_op, result.gbw_canopy);
     update(gbw_leaf_op, result.gbw_leaf);
+    update(gbw_op, result.gbw);
     update(gsw_op, result.gsw);
     update(H_op, result.H);
+    update(leaf_temperature_op, temp + result.Deltat);
     update(PhiN_op, result.PhiN);
     update(storage_op, result.storage);
     update(TransR_op, result.TransR);

@@ -433,14 +433,14 @@ BioCro's leaf-level energy balance model:
 transpiration_res <- module_response_curve(
     'BioCro:leaf_evapotranspiration',
     list(
-        absorbed_shortwave_energy = 250,
-        air_pressure = 101325,
-        air_temperature = 25,
+        absorbed_shortwave = 250,
+        atmospheric_pressure = 101325,
+        temp = 25,
         canopy_height = 1,
         leaf_width = 0.1,
         min_gbw_canopy = 0.0,
         min_gbw_leaf = 0.0,
-        relative_humidity = 0.6,
+        rh = 0.6,
         wind_speed_height = 10
     ),
     expand.grid(
@@ -448,9 +448,6 @@ transpiration_res <- module_response_curve(
         Gs = c(0.05, 0.1, 0.2, 0.4, 0.8)
     )
 )
-
-transpiration_res$leaf_temperature <-
-    transpiration_res$air_temperature + transpiration_res$Deltat
 
 xyplot(
     TransR ~ windspeed,
