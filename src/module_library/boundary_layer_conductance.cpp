@@ -41,16 +41,16 @@
  *
  *  @param [in] windspeed The wind speed in m / s
  *
- *  @param [in] leafwidth The characteristic leaf dimension in m
+ *  @param [in] lw The characteristic leaf dimension in m
  *
  *  @param [in] air_temperature The air temperature in degrees C
  *
  *  @param [in] delta_t The temperature difference between the leaf and air in
  *              degrees C
  *
- *  @param [in] stomcond The stomatal conductance in m / s
+ *  @param [in] gsv The stomatal conductance in m / s
  *
- *  @param [in] water_vapor_pressure The partial pressure of water vapor in the
+ *  @param [in] ea The partial pressure of water vapor in the
  *              atmosphere in Pa
  *
  *  @param [in] minimum_gbw The lowest possible value for boundary layer
@@ -59,43 +59,66 @@
  *  @return The boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_nikolov(
-    double windspeed,             // m / s
-    double leafwidth,             // m
-    double air_temperature,       // degrees C
-    double delta_t,               // degrees C
-    double stomcond,              // m / s
-    double water_vapor_pressure,  // Pa
-    double minimum_gbw            // m / s
+    double windspeed,        // m / s
+    double lw,               // m
+    double air_temperature,  // degrees C
+    double delta_t,          // degrees C
+    double gsv,              // m / s
+    double ea,               // Pa
+    double minimum_gbw       // m / s
 )
 {
-    constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
+    double constexpr p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
 
-    double leaftemp = air_temperature + delta_t;                             // degrees C
-    double gsv = stomcond;                                                   // m / s
-    double Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
-    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;         // K
-    double ea = water_vapor_pressure;                                        // Pa
-    double lw = leafwidth;                                                   // m
+    double const leaftemp = air_temperature + delta_t;                             // degrees C
+    double const Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
+    double const Tlk = leaftemp + conversion_constants::celsius_to_kelvin;         // K
 
-    double esTl = saturation_vapor_pressure(leaftemp);  // Pa.
+    double const esTl = saturation_vapor_pressure(leaftemp);  // Pa
 
-    // Forced convection
-    constexpr double cf = 1.6361e-3;  // TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
+    // Set constants
+    double constexpr cf = 4.322e-3;   // for broad leaves
+    double constexpr ce = 1.6361e-3;  // for broad leaves
+    double constexpr ct = 0.378;
 
-    double gbv_forced = cf * pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
+    // Equation 29
+    double const gbv_forced = cf * pow(Tak, 0.56) *
+                              sqrt((Tak + 120) * windspeed / (lw * p));  // m / s
 
-    // Free convection
-    double gbv_free = gbv_forced;
-    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa. Eq 35
+    // The equations for free convection must be solved iteratively. First make
+    // a starting guess for gbv_free.
+    double gbv_free{gbv_forced};  // m / s
 
-    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p));  // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
+    // Initialize other loop variables; their values will be set during the loop
+    double eb{};      // Pa
+    double Tvdiff{};  // K
 
-    if (Tvdiff < 0) Tvdiff = -Tvdiff;
+    // Run loop to find gbv_free. See code on page 229.
+    double old_gbv_free{};   // m / s
+    double change_in_gbv{};  // m / s
+    int counter{0};
 
-    gbv_free = cf * pow(Tlk, 0.56) * pow((Tlk + 120) / p, 0.5) * pow(Tvdiff / lw, 0.25);  // m / s. Eq. 33
+    do {
+        // Store gbv_free from previous loop iteration
+        old_gbv_free = gbv_free;  // m / s
+
+        // Equation 35
+        eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa
+
+        // Equation 34
+        Tvdiff = (Tlk / (1.0 - ct * eb / p)) - (Tak / (1.0 - ct * ea / p));  // K
+
+        // Equation 33
+        gbv_free = ce * pow(Tlk, 0.56) * sqrt((Tlk + 120) / p) *
+                   pow(std::abs(Tvdiff) / lw, 0.25);  // m / s
+
+        // Get the change in gbv_free relative to the previous iteration
+        change_in_gbv = std::abs(gbv_free - old_gbv_free);  // m / s
+
+    } while ((++counter <= 12) && (change_in_gbv > 0.01));
 
     // Overall conductance
-    double gbv = std::max(gbv_forced, gbv_free);  // m / s
+    double const gbv = std::max(gbv_forced, gbv_free);  // m / s
 
     // Apply the minimum
     return std::max(gbv, minimum_gbw);  // m / s

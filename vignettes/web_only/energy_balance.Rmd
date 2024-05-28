@@ -437,8 +437,8 @@ transpiration_res <- module_response_curve(
         atmospheric_pressure = 101325,
         temp = 25,
         canopy_height = 1,
-        leaf_width = 0.1,
-        min_gbw_canopy = 0.0,
+        leafwidth = 0.1,
+        min_gbw_canopy = 0.05,
         min_gbw_leaf = 0.0,
         rh = 0.6,
         wind_speed_height = 10
@@ -513,7 +513,7 @@ leaf_gbw_res <- module_response_curve(
         minimum_gbw = 0.0
     ),
     expand.grid(
-        windspeed = seq(0, 2, by = 0.025),
+        windspeed = seq(0, 1, by = 0.005),
         Gs = c(0.05, 0.1, 0.2, 0.4, 0.8)
     )
 )
