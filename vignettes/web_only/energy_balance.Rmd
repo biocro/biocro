@@ -438,7 +438,7 @@ transpiration_res <- module_response_curve(
         temp = 25,
         canopy_height = 1,
         leafwidth = 0.1,
-        min_gbw_canopy = 0.05,
+        min_gbw_canopy = 0.005,
         min_gbw_leaf = 0.0,
         rh = 0.6,
         wind_speed_height = 10
@@ -479,24 +479,24 @@ BioCro's model for canopy boundary layer conductance:
 canopy_gbw_res <- module_response_curve(
     'BioCro:canopy_gbw_thornley',
     list(
-        minimum_gbw = 0,
+        min_gbw_canopy = 0,
         windspeed_height = 10
     ),
     expand.grid(
         windspeed = seq(0, 2, by = 0.025),
-        height = seq(0, 2, by = 0.5)
+        canopy_height = seq(0.5, 2, by = 0.5)
     )
 )
 
 xyplot(
     gbw ~ windspeed,
-    group = height,
+    group = canopy_height,
     data = canopy_gbw_res,
     type = 'l',
     auto = TRUE,
     xlab = 'Wind speed (m / s)',
     ylab = 'Canopy boundary layer conductance (m / s)',
-    ylim = c(0, 1),
+    ylim = c(0, 0.02),
     main = 'Canopy gbw for different canopy heights'
 )
 ```
@@ -506,6 +506,7 @@ BioCro's model for leaf boundary layer conductance:
 leaf_gbw_res <- module_response_curve(
     'BioCro:leaf_gbw_nikolov',
     list(
+        air_pressure = 101325,
         leafwidth = 0.1,
         temp = 25,
         leaf_temperature = 26,
@@ -526,7 +527,7 @@ xyplot(
     auto = TRUE,
     xlab = 'Wind speed (m / s)',
     ylab = 'Leaf boundary layer conductance (m / s)',
-    ylim = c(0, 0.5),
+    ylim = c(0, 0.02),
     main = 'Leaf gbw for different stomatal conductances\n(Gs; mol / m^2 / s)'
 )
 ```

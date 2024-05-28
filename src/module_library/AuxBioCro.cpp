@@ -202,7 +202,7 @@ ET_Str EvapoTrans2(
     double stomatal_conductance,             // mmol / m^2 / s
     double leaf_width,                       // meter
     double specific_heat_of_air,             // J / kg / K
-    double minimum_gbw,                      // mol / m^2 / s
+    double /*minimum_gbw*/,                  // mol / m^2 / s; temporarily unused
     int eteq                                 // unitless parameter
 )
 {
@@ -214,8 +214,6 @@ ET_Str EvapoTrans2(
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
     // model state. (1 * R * temperature) / pressure
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
-
-    double minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
 
     if (stomatal_conductance <= 0) {
         throw std::range_error("Thrown in EvapoTrans2: stomatal conductance is not positive.");
@@ -252,8 +250,13 @@ ET_Str EvapoTrans2(
         double Counter = 0;
         do {
             ga = leaf_boundary_layer_conductance_nikolov(
-                WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
-                ActualVaporPressure, minimum_gbw_in_m_per_s);  // m / s
+                airTemp,
+                Deltat,
+                ActualVaporPressure,
+                conductance_in_m_per_s,
+                leaf_width,
+                WindSpeed,
+                physical_constants::atmospheric_pressure_at_sea_level);  // m / s
 
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */

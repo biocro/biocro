@@ -23,12 +23,6 @@
  *  layer conductance. This is the same approach taken in the `MLcan` model of
  *  Drewry et al. (2010).
  *
- *  In this model, the minimum possible boundary layer conductance that could
- *  occur is zero. This would happen if wind speed is zero and the air and leaf
- *  temperatures are the same. In realistic field conditions, boundary layer
- *  conductance can never truly be zero. To accomodate this, an option is
- *  provided for setting a minimum value for the boundary layer counductance.
- *
  *  References:
  *
  *  - [Nikolov, N. T., Massman, W. J. & Schoettle, A. W. "Coupling biochemical and biophysical processes at the
@@ -39,37 +33,33 @@
  *    vertical structure and photosynthetic pathway" Journal of Geophysical Research: Biogeosciences 115, (2010)]
  *    (https://doi.org/10.1029/2010JG001340)
  *
- *  @param [in] windspeed The wind speed in m / s
- *
- *  @param [in] lw The characteristic leaf dimension in m
- *
  *  @param [in] air_temperature The air temperature in degrees C
  *
  *  @param [in] delta_t The temperature difference between the leaf and air in
  *              degrees C
  *
+ *  @param [in] ea The partial pressure of water vapor in the atmosphere in Pa
+ *
  *  @param [in] gsv The stomatal conductance in m / s
  *
- *  @param [in] ea The partial pressure of water vapor in the
- *              atmosphere in Pa
+ *  @param [in] lw The characteristic leaf dimension in m
  *
- *  @param [in] minimum_gbw The lowest possible value for boundary layer
- *              conductance in m / s that should be returned
+ *  @param [in] windspeed The wind speed in m / s
+ *
+ *  @param [in] p The atmospheric pressure in Pa
  *
  *  @return The boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_nikolov(
-    double windspeed,        // m / s
-    double lw,               // m
     double air_temperature,  // degrees C
     double delta_t,          // degrees C
-    double gsv,              // m / s
     double ea,               // Pa
-    double minimum_gbw       // m / s
+    double gsv,              // m / s
+    double lw,               // m
+    double windspeed,        // m / s
+    double p                 // Pa
 )
 {
-    double constexpr p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
-
     double const leaftemp = air_temperature + delta_t;                             // degrees C
     double const Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
     double const Tlk = leaftemp + conversion_constants::celsius_to_kelvin;         // K
@@ -117,11 +107,8 @@ double leaf_boundary_layer_conductance_nikolov(
 
     } while ((++counter <= 12) && (change_in_gbv > 0.01));
 
-    // Overall conductance
-    double const gbv = std::max(gbv_forced, gbv_free);  // m / s
-
-    // Apply the minimum
-    return std::max(gbv, minimum_gbw);  // m / s
+    // The overall conductance is the larger one
+    return std::max(gbv_forced, gbv_free);  // m / s
 }
 
 /**

@@ -2,13 +2,13 @@
 #define BOUNDARY_LAYER_CONDUCTANCE_H
 
 double leaf_boundary_layer_conductance_nikolov(
-    double windspeed,             // m / s
-    double leafwidth,             // m
-    double air_temperature,       // degrees C
-    double delta_t,               // degrees C
-    double stomcond,              // m / s
-    double water_vapor_pressure,  // Pa
-    double minimum_gbw            // m / s
+    double air_temperature,  // degrees C
+    double delta_t,          // degrees C
+    double ea,               // Pa
+    double gsv,              // m / s
+    double lw,               // m
+    double windspeed,        // m / s
+    double p                 // Pa
 );
 
 double canopy_boundary_layer_conductance_thornley(

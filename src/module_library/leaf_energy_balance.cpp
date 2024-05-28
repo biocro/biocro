@@ -128,13 +128,13 @@ energy_balance_outputs leaf_energy_balance(
 
         // Get leaf boundary layer conductance to water vapor
         gbw_leaf = leaf_boundary_layer_conductance_nikolov(
-            wind_speed,
-            leaf_width,
             air_temperature,
             leaf_temperature - air_temperature,
-            gsw,
             p_w_air,
-            min_gbw_leaf);  // m / s
+            gsw,
+            leaf_width,
+            wind_speed,
+            air_pressure);  // m / s
 
         // Get the boundary layer conductance and total conductance to water
         // vapor
