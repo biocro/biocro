@@ -43,7 +43,6 @@ miscanthus_x_giganteus <- list(
         TTc                         = 0
     ),
     parameters = list(
-        absorptivity_par            = 0.8,
         alpha1                      = 0.04,
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
@@ -59,7 +58,7 @@ miscanthus_x_giganteus <- list(
         heightf                     = 3,
         hydrDist                    = 0,
         iSp                         = 1.7,
-        kd                          = 0.1,
+        k_diffuse                   = 0.1,
         kGrain1                     = 0,
         kGrain2                     = 0,
         kGrain3                     = 0,
@@ -97,8 +96,10 @@ miscanthus_x_giganteus <- list(
         LeafN                       = 2,
         LeafN_0                     = 2,
         leafwidth                   = 0.04,
-        leaf_reflectance            = 0.2,
-        leaf_transmittance          = 0.2,
+        leaf_reflectance_nir        = 0.38, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_par        = 0.09, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_nir      = 0.45, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_par      = 0.04, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         lnfun                       = 0,
         longitude                   = -88,
         lowerT                      = 3,

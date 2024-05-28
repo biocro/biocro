@@ -24,7 +24,7 @@ string_vector c3_canopy::get_inputs()
         "b1",
         "Gs_min",  // mol / m^2 / s
         "theta",
-        "kd",
+        "k_diffuse",
         "heightf",
         "LeafN",
         "kpLN",
@@ -40,14 +40,15 @@ string_vector c3_canopy::get_inputs()
         "growth_respiration_fraction",
         "electrons_per_carboxylation",
         "electrons_per_oxygenation",
-        "absorptivity_par",     // dimensionless
-        "par_energy_content",   // J / micromol
-        "par_energy_fraction",  // dimensionless
-        "leaf_transmittance",   // dimensionless
-        "leaf_reflectance",     // dimensionless
-        "minimum_gbw",          // mol / m^2 / s
-        "windspeed_height",     // m
-        "beta_PSII"             // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "par_energy_content",      // J / micromol
+        "par_energy_fraction",     // dimensionless
+        "leaf_transmittance_nir",  // dimensionless
+        "leaf_transmittance_par",  // dimensionless
+        "leaf_reflectance_nir",    // dimensionless
+        "leaf_reflectance_par",    // dimensionless
+        "minimum_gbw",             // mol / m^2 / s
+        "windspeed_height",        // m
+        "beta_PSII"                // dimensionless (fraction of absorbed light that reaches photosystem II)
     };
 }
 
@@ -65,14 +66,48 @@ string_vector c3_canopy::get_outputs()
 void c3_canopy::do_operation() const
 {
     canopy_photosynthesis_outputs can_result = c3CanAC(
-        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax,
-        jmax, tpu_rate_max, Rd, Catm, O2, b0, b1, Gs_min, theta, kd, heightf,
-        LeafN, kpLN, lnb0, lnb1, lnfun, chil, StomataWS, specific_heat_of_air,
-        atmospheric_pressure, atmospheric_transmittance, atmospheric_scattering,
-        growth_respiration_fraction, electrons_per_carboxylation,
-        electrons_per_oxygenation, absorptivity_par, par_energy_content,
-        par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw,
-        windspeed_height, beta_PSII);
+        lai,
+        cosine_zenith_angle,
+        solar,
+        temp,
+        rh,
+        windspeed,
+        nlayers,
+        vmax,
+        jmax,
+        tpu_rate_max,
+        Rd,
+        Catm,
+        O2,
+        b0,
+        b1,
+        Gs_min,
+        theta,
+        k_diffuse,
+        heightf,
+        LeafN,
+        kpLN,
+        lnb0,
+        lnb1,
+        lnfun,
+        chil,
+        StomataWS,
+        specific_heat_of_air,
+        atmospheric_pressure,
+        atmospheric_transmittance,
+        atmospheric_scattering,
+        growth_respiration_fraction,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        par_energy_content,
+        par_energy_fraction,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        minimum_gbw,
+        windspeed_height,
+        beta_PSII);
 
     // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);         // Mg / ha / hr

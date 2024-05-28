@@ -24,7 +24,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double b1,
     double Gs_min,  // mol / m^2 / s
     double theta,   // dimensionless
-    double kd,
+    double k_diffuse,
     double heightf,
     double leafN,
     double kpLN,
@@ -40,11 +40,12 @@ canopy_photosynthesis_outputs c3CanAC(
     double growth_respiration_fraction,  // dimensionless
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
-    double absorptivity_par,             // dimensionless
     double par_energy_content,           // J / micromol
     double par_energy_fraction,          // dimensionless
-    double leaf_transmittance,           // dimensionless
-    double leaf_reflectance,             // dimensionless
+    double leaf_transmittance_nir,       // dimensionless
+    double leaf_transmittance_par,       // dimensionless
+    double leaf_reflectance_nir,         // dimensionless
+    double leaf_reflectance_par,         // dimensionless
     double minimum_gbw,                  // mol / m^2 / s
     double WindSpeedHeight,              // m
     double beta_PSII                     // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -61,10 +62,21 @@ canopy_photosynthesis_outputs c3CanAC(
     double q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    struct Light_profile light_profile =
-        sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
-              heightf, par_energy_content, par_energy_fraction,
-              leaf_transmittance, leaf_reflectance);
+    struct Light_profile light_profile = sunML(
+        q_dir,
+        q_diff,
+        chil,
+        cosine_zenith_angle,
+        heightf,
+        k_diffuse,
+        LAI,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
+        par_energy_content,
+        par_energy_fraction,
+        nlayers);
 
     double LAIc = LAI / nlayers;  // dimensionless
 

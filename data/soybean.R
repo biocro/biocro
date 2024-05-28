@@ -124,13 +124,14 @@ soybean <- list(
                                                    # (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
 
         # ten_layer_canopy_properties module
-        absorptivity_par            = 0.8,         # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition
         chil                        = 0.81,        # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Table 15.1, pg 253
-        kd                          = 0.7,         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
+        k_diffuse                   = 0.7,         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
         heightf                     = 3,           # m^-1
         kpLN                        = 0,           # not used in Soybean-BioCro
-        leaf_reflectance            = 0.2,
-        leaf_transmittance          = 0.2,
+        leaf_reflectance_nir        = 0.42,
+        leaf_reflectance_par        = 0.10,
+        leaf_transmittance_nir      = 0.42,
+        leaf_transmittance_par      = 0.05,
         lnfun                       = 0,           # not used in Soybean-BioCro
 
         # ten_layer_c3_canopy module

@@ -51,6 +51,17 @@ be directly added to this file to describe the related changes.
 
   - Used a simpler equation for calculating the fraction of sunlit leaves
 
+  - Used the same absorptivity value for direct and diffuse light
+
+  - Used separate leaf transmittance and reflectance values for PAR and NIR
+    radiation within the canopy, rather than always assuming that light in the
+    two bands are absorbed and scattered equally; in general, this caused a
+    reduction in the absorbed shortwave energy for all leaves
+
+  - Started calculating absorptivity as `1 - R - T`, where `R` and `T` are the
+    leaf reflectance and transmittance coefficients, respectively. This ensures
+    that the constraint `A + R + T = 1` is always satisfied.
+
 # CHANGES IN BioCro VERSION 3.1.3
 
 - This is the first version of BioCro to be accepted by CRAN! Most of the

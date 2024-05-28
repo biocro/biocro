@@ -24,7 +24,7 @@ canopy_photosynthesis_outputs CanAC(
     double b1,
     double Gs_min,  // mol / m^2 / s
     double theta,   // dimensionless
-    double kd,
+    double k_diffuse,
     double chil,
     double leafN,
     double kpLN,
@@ -39,11 +39,12 @@ canopy_photosynthesis_outputs CanAC(
     double atmospheric_pressure,       // Pa
     double atmospheric_transmittance,  // dimensionless
     double atmospheric_scattering,     // dimensionless
-    double absorptivity_par,           // dimensionless
     double par_energy_content,         // J / micromol
     double par_energy_fraction,        // dimensionless
-    double leaf_transmittance,         // dimensionless
-    double leaf_reflectance,           // dimensionless
+    double leaf_transmittance_nir,     // dimensionless
+    double leaf_transmittance_par,     // dimensionless
+    double leaf_reflectance_nir,       // dimensionless
+    double leaf_reflectance_par,       // dimensionless
     double minimum_gbw                 // mol / m^2 / s
 )
 {
@@ -60,10 +61,21 @@ canopy_photosynthesis_outputs CanAC(
 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
-    Light_profile light_profile =
-        sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
-              1, par_energy_content, par_energy_fraction,
-              leaf_transmittance, leaf_reflectance);
+    struct Light_profile light_profile = sunML(
+        q_dir,
+        q_diff,
+        chil,
+        cosine_zenith_angle,
+        1.0,
+        k_diffuse,
+        LAI,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
+        par_energy_content,
+        par_energy_fraction,
+        nlayers);
 
     double LAIc = LAI / nlayers;  // dimensionless
 

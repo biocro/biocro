@@ -43,7 +43,6 @@ willow <- list(
         TTc                         = 0
     ),
     parameters = list(
-        absorptivity_par             = 0.8,
         alpha1                       = 0,
         alphab1                      = 0,
         atmospheric_pressure         = 101325,
@@ -62,7 +61,7 @@ willow <- list(
         hydrDist                     = 0,
         iSp                          = 1.1,
         jmax                         = 180,
-        kd                           = 0.37,
+        k_diffuse                    = 0.37,
         kGrain1                      = 0,
         kGrain2                      = 0,
         kGrain3                      = 0,
@@ -98,8 +97,10 @@ willow <- list(
         lat                          = 40,
         LeafN                        = 2,
         LeafN_0                      = 2,
-        leaf_reflectance             = 0.2,
-        leaf_transmittance           = 0.2,
+        leaf_reflectance_nir         = 0.42, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_par         = 0.09, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_nir       = 0.42, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_par       = 0.04, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         lnb0                         = -5,
         lnb1                         = 18,
         lnfun                        = 0,
