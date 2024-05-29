@@ -136,8 +136,9 @@ energy_balance_outputs leaf_energy_balance(
     double R_l{};        // J / m^2 / s
 
     // Run loop to find the leaf temperature
-    double old_leaf_temperature{};  // degrees C
-    double change_in_tl{};          // degrees C
+    double constexpr max_delta{30};  // degrees C
+    double old_leaf_temperature{};   // degrees C
+    double change_in_tl{};           // degrees C
     int counter{0};
 
     do {
@@ -171,9 +172,11 @@ energy_balance_outputs leaf_energy_balance(
         gw = 1.0 / (1.0 / gsw + 1.0 / gbw);               // m / s
 
         // Get the new leaf temperature using the Penman-Monteith equation
-        pm_top = Phi_N / gw - lambda * Delta_rho;                 // J / m^3
-        pm_bottom = lambda * (s + gamma * (1.0 + gbw / gsw));     // j / m^3 / K
-        leaf_temperature = air_temperature + pm_top / pm_bottom;  // degrees C
+        pm_top = Phi_N / gw - lambda * Delta_rho;              // J / m^3
+        pm_bottom = lambda * (s + gamma * (1.0 + gbw / gsw));  // J / m^3 / K
+
+        leaf_temperature = air_temperature +
+                           std::min(std::max(pm_top / pm_bottom, -max_delta), max_delta);  // degrees C
 
         // Get the change in leaf temperature relative to the previous iteration
         change_in_tl = std::abs(leaf_temperature - old_leaf_temperature);  // degrees C

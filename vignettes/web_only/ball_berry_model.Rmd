@@ -295,7 +295,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = "An (micromol / m^2 / s)",
-    ylab = "Stomatal conductance (mmol / m^2 / s)",
+    ylab = "Stomatal conductance (mol / m^2 / s)",
     main = paste(
         "Ball-Berry model with T_leaf =", Tleaf,
         "\nand different T_ambient"
@@ -388,7 +388,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = "Absorbed PPFD (micromol / m^2 / s)",
-    ylab = "Stomatal conductance to H2O (mmol / m^2 / s)",
+    ylab = "Stomatal conductance to H2O (mol / m^2 / s)",
     main = "Ball-Berry + FvCB models for\ndifferent humidities"
 )
 ```
@@ -496,7 +496,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = 'Intercellular CO2 concentration (micromol / mol)',
-    ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
+    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
 )
 ```
@@ -644,6 +644,12 @@ canopy_profiles_list <- lapply(
             value = TRUE
         )
 
+        gbw_column_names <- grep(
+            paste0(leaf_class, '_gbw_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
         data.frame(
             type = leaf_class,
             layer = seq(0, 9),
@@ -651,7 +657,8 @@ canopy_profiles_list <- lapply(
             RHs = as.numeric(canres[rhs_column_names]),
             gsw = as.numeric(canres[gsw_column_names]),
             tl = as.numeric(canres[tl_column_names]),
-            A = as.numeric(canres[a_column_names])
+            A = as.numeric(canres[a_column_names]),
+            gbw = as.numeric(canres[gbw_column_names])
         )
     }
 )
@@ -711,7 +718,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
+    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```
@@ -750,6 +757,25 @@ xyplot(
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+```
+
+```{r gbw-layer}
+#| fig.cap = "$g_{bw}$ vs canopy layer for sunlit and shaded leaves as predicted
+#|   by the coupled Ball-Berry + FvCB + energy balance model with soybean
+#|   parameter values."
+
+# Plot the assimilation profiles
+xyplot(
+    gbw ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Boundary layer conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```

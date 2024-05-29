@@ -45,7 +45,6 @@ class c3_leaf_photosynthesis : public direct_module
           tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
           vmax1{get_input(input_quantities, "vmax1")},
           windspeed{get_input(input_quantities, "windspeed")},
-          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
@@ -92,7 +91,6 @@ class c3_leaf_photosynthesis : public direct_module
     double const& tpu_rate_max;
     double const& vmax1;
     double const& windspeed;
-    double const& windspeed_height;
 
     // Pointers to output quantities
     double* Assim_op;

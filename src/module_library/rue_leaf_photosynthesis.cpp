@@ -65,7 +65,7 @@ photosynthesis_outputs rue_photo(
     stomata_outputs const BB_res =
         ball_berry_gs(an, Ca, RH, bb0, bb1, gbw, Tleaf, Tleaf);
 
-    double const gs = BB_res.gsw * 1e-3;
+    double const gs = BB_res.gsw; // mol / m^2 / s
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless
@@ -75,7 +75,7 @@ photosynthesis_outputs rue_photo(
         /* .Assim_conductance = */ an_conductance * 1e6,  // micromol / m^2 / s
         /* .Ci = */ ci * 1e6,                             // micromol / mol
         /* .GrossAssim = */ ag * 1e6,                     // micromol / m^2 / s
-        /* .Gs = */ gs * 1e3,                             // mmol / m^2 / s
+        /* .Gs = */ gs,                                   // mol / m^2 / s
         /* .Cs = */ BB_res.cs,                            // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                           // dimensionless from Pa / Pa
         /* .Rp = */ 0.0,                                  // micromol / m^2 / s
@@ -112,7 +112,7 @@ string_vector rue_leaf_photosynthesis::get_outputs()
         "GrossAssim",        // micromol / m^2 /s
         "Rp",                // micromol / m^2 / s
         "Ci",                // micromol / mol
-        "Gs",                // mmol / m^2 / s
+        "Gs",                // mol / m^2 / s
         "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
@@ -140,7 +140,7 @@ void rue_leaf_photosynthesis::do_operation() const
             Catm * 1e-6,           // dimensionless from mol / mol
             gbw_guess              // mol / m^2 / s
             )
-            .Gs;  // mmol / m^2 / s
+            .Gs;  // mol / m^2 / s
 
     // Calculate a new value for leaf temperature
     const energy_balance_outputs et = leaf_energy_balance(

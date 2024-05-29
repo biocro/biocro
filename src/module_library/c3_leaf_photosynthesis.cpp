@@ -30,8 +30,7 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "theta",                        // dimensionless
         "tpu_rate_max",                 // micromol / m^2 / s
         "vmax1",                        // micromol / m^2 / s
-        "windspeed",                    // m / s
-        "windspeed_height"              // m
+        "windspeed"                     // m / s
     };
 }
 
@@ -42,7 +41,7 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "GrossAssim",        // micromol / m^2 /s
         "Rp",                // micromol / m^2 / s
         "Ci",                // micromol / mol
-        "Gs",                // mmol / m^2 / s
+        "Gs",                // mol / m^2 / s
         "Cs",                // micromol / m^2 / s
         "RHs",               // dimensionless from Pa / Pa
         "TransR",            // mmol / m^2 / s
@@ -67,7 +66,7 @@ void c3_leaf_photosynthesis::do_operation() const
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             electrons_per_carboxylation,
             electrons_per_oxygenation, beta_PSII, gbw_guess)
-            .Gs;  // mmol / m^2 / s
+            .Gs;  // mol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
     // stomatal conductance
@@ -107,5 +106,5 @@ void c3_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
-    update(gbw_op, et.gbw);
+    update(gbw_op, et.boundary_layer_conductance);
 }

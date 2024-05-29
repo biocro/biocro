@@ -64,7 +64,7 @@ photosynthesis_outputs c4photoC(
     stomata_outputs BB_res;
     double InterCellularCO2{0.4 * Ca_pa};  // Pa
     double Assim{};                        // micromol / m^2 / s
-    double Gs{1e6};                        // mmol / m^2 / s
+    double Gs{1e3};                        // mol / m^2 / s
     double an_conductance{};               // micromol / m^2 / s
 
     // Start the loop
@@ -90,7 +90,7 @@ photosynthesis_outputs c4photoC(
         // to prevent numerical errors during the convergence loop, but does not
         // actually limit the net assimilation rate if the loop converges.
         an_conductance =
-            conductance_limited_assim(Ca, gbw, Gs * 1e-3);  // micromol / m^2 / s
+            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
         Assim = std::min(
             Assim,
@@ -106,20 +106,20 @@ photosynthesis_outputs c4photoC(
             leaf_temperature,
             ambient_temperature);
 
-        Gs = BB_res.gsw;  // mmol / m^2 / s
+        Gs = BB_res.gsw;  // mol / m^2 / s
 
         // If it has gone through this many iterations, the convergence is not
         // stable. This convergence is inapproriate for high water stress
         // conditions, so use the minimum gs to try to get a stable system.
         if (iterCounter > max_iterations - 10) {
-            Gs = bb0 * 1e3;  // mmol / m^2 / s
+            Gs = bb0;  // mol / m^2 / s
         }
 
         // Calculate Ci using the total conductance across the boundary
         // layer and stomata
         InterCellularCO2 =
             Ca_pa - atmospheric_pressure * (Assim * 1e-6) *
-                        (dr_boundary / gbw + dr_stomata / (Gs * 1e-3));  // Pa
+                        (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
         diff = std::abs(OldAssim - Assim);  // micromole / m^2 / s
 
@@ -136,7 +136,7 @@ photosynthesis_outputs c4photoC(
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
         /* .Ci = */ Ci,                             // micromol / mol
         /* .GrossAssim = */ Assim + RT,             // micromol / m^2 / s
-        /* .Gs = */ Gs,                             // mmol / m^2 / s
+        /* .Gs = */ Gs,                             // mol / m^2 / s
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .Rp = */ 0,                              // micromol / m^2 / s

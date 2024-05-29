@@ -111,7 +111,6 @@ canopy_photosynthesis_outputs c3CanAC(
         }
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
-        double CanHeight = light_profile.height[current_layer];       // m
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -131,7 +130,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
-                .Gs;  // mmol / m^2 / s
+                .Gs;  // mol / m^2 / s
 
         energy_balance_outputs et_direct = leaf_energy_balance(
             absorbed_longwave,
@@ -173,7 +172,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 o2, theta, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
-                .Gs;  // mmol / m^2 / s
+                .Gs;  // mol / m^2 / s
 
         energy_balance_outputs et_diffuse = leaf_energy_balance(
             absorbed_longwave,
@@ -206,7 +205,7 @@ canopy_photosynthesis_outputs c3CanAC(
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
-        canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mmol / m^2 / s
+        canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
     }
 
     // For assimilation, we need to convert micromol / m^2 / s into
@@ -233,7 +232,7 @@ canopy_photosynthesis_outputs c3CanAC(
     ans.Trans = CanopyT * cf2;                                       // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;                      // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;                    // mmol / m^2 / s
-    ans.canopy_conductance = canopy_conductance;                     // mmol / m^2 / s
+    ans.canopy_conductance = canopy_conductance;                     // mol / m^2 / s
 
     return ans;
 }
