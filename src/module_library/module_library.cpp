@@ -28,6 +28,7 @@
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
 #include "harmonic_oscillator.h"  // Contains harmonic_oscillator and harmonic_energy
+#include "height_from_lai.h"
 #include "hyperbolas.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_evapotranspiration.h"
@@ -114,6 +115,7 @@ creator_map standardBML::module_library::library_entries =
      {"grimm_soybean_flowering_calculator",                    &create_mc<grimm_soybean_flowering_calculator>},
      {"harmonic_energy",                                       &create_mc<harmonic_energy>},
      {"harmonic_oscillator",                                   &create_mc<harmonic_oscillator>},
+     {"height_from_lai",                                       &create_mc<height_from_lai>},
      {"hyperbola_2d",                                          &create_mc<hyperbola_2d>},
      {"incident_shortwave_from_ground_par",                    &create_mc<incident_shortwave_from_ground_par>},
      {"leaf_evapotranspiration",                               &create_mc<leaf_evapotranspiration>},
