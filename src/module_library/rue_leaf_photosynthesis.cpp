@@ -1,12 +1,11 @@
 #include <algorithm>                    // for std::min
 #include <cmath>                        // for exp
-#include "ball_berry_gs.h"              // for ball_berry_gs
-#include "BioCro.h"                     // for c3EvapoTrans
+#include "../framework/constants.h"     // for celsius_to_kelvin, dr_stomata, dr_boundary
 #include "AuxBioCro.h"                  // for arrhenius_exponential
-#include "photosynthesis_outputs.h"     // for photosynthesis_outputs
+#include "ball_berry_gs.h"              // for ball_berry_gs
 #include "conductance_limited_assim.h"  // for conductance_limited_assim
-#include "../framework/constants.h"     // for celsius_to_kelvin, dr_stomata,
-                                        //     dr_boundary
+#include "leaf_energy_balance.h"        // for leaf_energy_balance
+#include "photosynthesis_outputs.h"     // for photosynthesis_outputs
 #include "rue_leaf_photosynthesis.h"
 
 using conversion_constants::celsius_to_kelvin;
@@ -87,19 +86,21 @@ photosynthesis_outputs rue_photo(
 string_vector rue_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_ppfd",         // micromol / (m^2 leaf) / s
+        "absorbed_longwave",     // J / m^2 / s
+        "absorbed_shortwave",    // J / (m^2 leaf) / s
         "alpha_rue",             // dimensionless
-        "temp",                  // deg. C
-        "rh",                    // dimensionless
-        "Rd",                    // micromol / m^2 / s
+        "atmospheric_pressure",  // Pa
         "b0",                    // mol / m^2 / s
         "b1",                    // dimensionless
+        "gbw_canopy",            // m / s
         "Catm",                  // micromol / mol
-        "absorbed_shortwave",    // J / (m^2 leaf) / s
-        "windspeed",             // m / s
         "height",                // m
-        "specific_heat_of_air",  // J / kg / K
-        "minimum_gbw",           // mol / m^2 / s
+        "incident_ppfd",         // micromol / (m^2 leaf) / s
+        "leafwidth",             // m
+        "Rd",                    // micromol / m^2 / s
+        "rh",                    // dimensionless
+        "temp",                  // degrees C
+        "windspeed",             // m / s
         "windspeed_height"       // m
     };
 }
@@ -115,7 +116,7 @@ string_vector rue_leaf_photosynthesis::get_outputs()
         "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
-        "leaf_temperature",  // deg. C
+        "leaf_temperature",  // degrees C
         "gbw"                // mol / m^2 / s
     };
 }
@@ -142,32 +143,32 @@ void rue_leaf_photosynthesis::do_operation() const
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
-    const struct ET_Str et = c3EvapoTrans(
+    const energy_balance_outputs et = leaf_energy_balance(
+        absorbed_longwave,
         absorbed_shortwave,
+        atmospheric_pressure,
         temp,
+        gbw_canopy,
+        leafwidth,
         rh,
-        windspeed,
-        height,
-        specific_heat_of_air,
         initial_stomatal_conductance,
-        minimum_gbw,
-        windspeed_height);
+        windspeed);
 
-    const double leaf_temperature = temp + et.Deltat;  // deg. C
+    const double leaf_temperature = temp + et.Deltat;  // degrees C
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
     const photosynthesis_outputs photo =
         rue_photo(
-            incident_ppfd * 1e-6,          // mol / m^2 / s
-            alpha_rue,                     // dimensionless
-            leaf_temperature,              // degrees C
-            rh,                            // dimensionless from Pa / Pa
-            Rd * 1e-6,                     // mol / m^2 / s
-            b0,                            // mol / m^2 / s
-            b1,                            // dimensionless
-            Catm * 1e-6,                   // dimensionless from mol / mol
-            et.boundary_layer_conductance  // mol / m^2 / s
+            incident_ppfd * 1e-6,  // mol / m^2 / s
+            alpha_rue,             // dimensionless
+            leaf_temperature,      // degrees C
+            rh,                    // dimensionless from Pa / Pa
+            Rd * 1e-6,             // mol / m^2 / s
+            b0,                    // mol / m^2 / s
+            b1,                    // dimensionless
+            Catm * 1e-6,           // dimensionless from mol / mol
+            et.gbw                 // mol / m^2 / s
         );
 
     // Update the outputs
@@ -180,5 +181,5 @@ void rue_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
-    update(gbw_op, et.boundary_layer_conductance);
+    update(gbw_op, et.gbw);
 }

@@ -449,20 +449,31 @@ From these calculations:
 # Set the absorbed photosynthetically active light (in micromol / m^2 / s)
 absorbed_ppfd <- 1000
 
-# Determine the total absorbed light energy (in J / m^2 / s)
-absorbed_energy <-
+# Determine the total absorbed shortwave light energy (in J / m^2 / s)
+absorbed_shortwave <-
     absorbed_ppfd * soybean$parameters$par_energy_content /
         soybean$parameters$par_energy_fraction
+
+# Set the air temperature
+air_temperature = 30
+
+# Determine the absorbed longwave light energy (in J / m^2 / s)
+absorbed_longwave <- evaluate_module(
+    'BioCro:stefan_boltzmann_longwave',
+    list(temp = air_temperature, emissivity_sky = 1)
+)$absorbed_longwave
 
 aci <- module_response_curve(
     'BioCro:c3_leaf_photosynthesis',
     within(soybean$parameters, {
-        StomataWS = 1 # dimensionless
-        temp = 30     # degrees C
-        windspeed = 3 # m / s
-        height = 0.8  # m
+        StomataWS = 1          # dimensionless
+        temp = air_temperature # degrees C
+        windspeed = 3          # m / s
+        height = 0.8           # m
+        gbw_canopy = 0.2       # m / s
         absorbed_ppfd = absorbed_ppfd
-        absorbed_shortwave = absorbed_energy
+        absorbed_shortwave = absorbed_shortwave
+        absorbed_longwave = absorbed_longwave
     }),
     expand.grid(
         Catm = seq(100, 1800, by = 5), # micromol / mol
@@ -580,6 +591,9 @@ canres <- run_biocro(
         'BioCro:solar_position_michalsky',
         'BioCro:shortwave_atmospheric_scattering',
         'BioCro:incident_shortwave_from_ground_par',
+        'BioCro:height_from_lai',
+        'BioCro:canopy_gbw_thornley',
+        'BioCro:stefan_boltzmann_longwave',
         'BioCro:ten_layer_canopy_properties',
         'BioCro:ten_layer_c3_canopy'
     ),

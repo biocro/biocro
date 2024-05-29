@@ -53,7 +53,7 @@ double vapor_density_from_pressure(
  *  other conductances must be provided as inputs.
  *
  *  Leaf temperature and transpiration are calculated using Equations 14.11e
- *  and 14.3i, respectively, from Thornley & Johnson (1990).
+ *  and 14.4c, respectively, from Thornley & Johnson (1990).
  *
  *  @param [in] pressure Gas pressure in Pa
  *
@@ -202,18 +202,19 @@ energy_balance_outputs leaf_energy_balance(
     double constexpr cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     return energy_balance_outputs{
-        /* Deltat = */ Delta_T,         // degrees C
-        /* EPenman = */ EPen * cf,      // mmol / m^2 / s
-        /* EPriestly = */ EPries * cf,  // mmol / m^2 / s
-        /* E_loss = */ lambda * E,      // J / m^2 / s
-        /* gbw = */ gbw,                // m / s
-        /* gbw_canopy = */ gbw_canopy,  // m / s
-        /* gbw_leaf = */ gbw_leaf,      // m / s
-        /* gsw = */ gsw,                // m / s
-        /* H = */ H,                    // J / m^2 / s
-        /* PhiN = */ Phi_N,             // J / m^2 / s
-        /* storage = */ storage,        // J / m^2 / s
-        /* TransR = */ E * cf,          // mmol / m^2 / s
-        /* iterations = */ counter      // not a physical quantity
+        /* boundary_layer_conductance = */ gbw / mv_tl,  // mol / m^2 / s
+        /* Deltat = */ Delta_T,                          // degrees C
+        /* EPenman = */ EPen * cf,                       // mmol / m^2 / s
+        /* EPriestly = */ EPries * cf,                   // mmol / m^2 / s
+        /* E_loss = */ lambda * E,                       // J / m^2 / s
+        /* gbw = */ gbw,                                 // m / s
+        /* gbw_canopy = */ gbw_canopy,                   // m / s
+        /* gbw_leaf = */ gbw_leaf,                       // m / s
+        /* gsw = */ gsw,                                 // m / s
+        /* H = */ H,                                     // J / m^2 / s
+        /* PhiN = */ Phi_N,                              // J / m^2 / s
+        /* storage = */ storage,                         // J / m^2 / s
+        /* TransR = */ E * cf,                           // mmol / m^2 / s
+        /* iterations = */ counter                       // not a physical quantity
     };
 }

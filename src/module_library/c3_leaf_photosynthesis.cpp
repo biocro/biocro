@@ -1,36 +1,37 @@
 #include "c3_leaf_photosynthesis.h"
-#include "c3photo.h"  // for c3photoC
-#include "BioCro.h"   // for c3EvapoTrans
+#include "c3photo.h"              // for c3photoC
+#include "leaf_energy_balance.h"  // for leaf_energy_balance
 
 using standardBML::c3_leaf_photosynthesis;
 
 string_vector c3_leaf_photosynthesis::get_inputs()
 {
     return {
+        "absorbed_longwave",            // J / (m^2 leaf) / s
         "absorbed_ppfd",                // micromol / (m^2 leaf) / s
-        "temp",                         // deg. C
-        "rh",                           // dimensionless
-        "vmax1",                        // micromole / m^2 / s
-        "jmax",                         // micromole / m^2 / s
-        "tpu_rate_max",                 // micromole / m^2 / s
-        "Rd",                           // micromole / m^2 / s
+        "absorbed_shortwave",           // J / (m^2 leaf) / s
+        "atmospheric_pressure",         // Pa
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
-        "Gs_min",                       // mol / m^2 / s
-        "Catm",                         // micromole / mol
-        "atmospheric_pressure",         // Pa
-        "O2",                           // mmol / mol
-        "theta",                        // dimensionless
-        "StomataWS",                    // dimensionless
+        "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "Catm",                         // micromol / mol
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
-        "absorbed_shortwave",           // J / (m^2 leaf) / s
-        "windspeed",                    // m / s
+        "gbw_canopy",                   // m / s
+        "Gs_min",                       // mol / m^2 / s
         "height",                       // m
-        "specific_heat_of_air",         // J / kg / K
-        "minimum_gbw",                  // mol / m^2 / s
-        "windspeed_height",             // m
-        "beta_PSII"                     // dimensionless (fraction of absorbed light that reaches photosystem II)
+        "jmax",                         // micromol / m^2 / s
+        "leafwidth",                    // m
+        "O2",                           // mmol / mol
+        "Rd",                           // micromol / m^2 / s
+        "rh",                           // dimensionless
+        "StomataWS",                    // dimensionless
+        "temp",                         // degrees C
+        "theta",                        // dimensionless
+        "tpu_rate_max",                 // micromol / m^2 / s
+        "vmax1",                        // micromol / m^2 / s
+        "windspeed",                    // m / s
+        "windspeed_height"              // m
     };
 }
 
@@ -40,14 +41,14 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "Assim",             // micromol / m^2 /s
         "GrossAssim",        // micromol / m^2 /s
         "Rp",                // micromol / m^2 / s
-        "Ci",                // micromole / mol
+        "Ci",                // micromol / mol
         "Gs",                // mmol / m^2 / s
         "Cs",                // micromol / m^2 / s
         "RHs",               // dimensionless from Pa / Pa
         "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
-        "leaf_temperature",  // deg. C
+        "leaf_temperature",  // degrees C
         "gbw"                // mol / m^2 / s
     };
 }
@@ -70,13 +71,18 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Calculate a new value for leaf temperature using the estimate for
     // stomatal conductance
-    const ET_Str et =
-        c3EvapoTrans(
-            absorbed_shortwave, ambient_temperature, rh, windspeed, height,
-            specific_heat_of_air, initial_stomatal_conductance, minimum_gbw,
-            windspeed_height);
+    const energy_balance_outputs et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        initial_stomatal_conductance,
+        windspeed);
 
-    double const leaf_temperature = ambient_temperature + et.Deltat;  // deg. C
+    double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
 
     // Calculate final values for assimilation, stomatal conductance, and Ci
     // using the new leaf temperature
@@ -101,5 +107,5 @@ void c3_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
-    update(gbw_op, et.boundary_layer_conductance);
+    update(gbw_op, et.gbw);
 }

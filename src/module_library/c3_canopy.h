@@ -15,48 +15,49 @@ class c3_canopy : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          lai{get_input(input_quantities, "lai")},
-          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
-          solar{get_input(input_quantities, "solar")},
-          temp{get_input(input_quantities, "temp")},
-          rh{get_input(input_quantities, "rh")},
-          windspeed{get_input(input_quantities, "windspeed")},
-          nlayers{get_input(input_quantities, "nlayers")},
-          vmax{get_input(input_quantities, "vmax")},
-          jmax{get_input(input_quantities, "jmax")},
-          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
-          Rd{get_input(input_quantities, "Rd")},
-          Catm{get_input(input_quantities, "Catm")},
-          O2{get_input(input_quantities, "O2")},
+          absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
+          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
+          Catm{get_input(input_quantities, "Catm")},
+          chil{get_input(input_quantities, "chil")},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
+          electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
+          electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
+          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
+          gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           Gs_min{get_input(input_quantities, "Gs_min")},
-          theta{get_input(input_quantities, "theta")},
-          k_diffuse{get_input(input_quantities, "k_diffuse")},
           heightf{get_input(input_quantities, "heightf")},
-          LeafN{get_input(input_quantities, "LeafN")},
+          jmax{get_input(input_quantities, "jmax")},
           kpLN{get_input(input_quantities, "kpLN")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
+          lai{get_input(input_quantities, "lai")},
+          LeafN{get_input(input_quantities, "LeafN")},
+          leafwidth{get_input(input_quantities, "leafwidth")},
+          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
+          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
+          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
+          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
           lnb0{get_input(input_quantities, "lnb0")},
           lnb1{get_input(input_quantities, "lnb1")},
           lnfun{get_input(input_quantities, "lnfun")},
-          chil{get_input(input_quantities, "chil")},
-          StomataWS{get_input(input_quantities, "StomataWS")},
-          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
-          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
-          electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
-          electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
+          nlayers{get_input(input_quantities, "nlayers")},
+          O2{get_input(input_quantities, "O2")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
-          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
-          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
-          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
-          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
+          Rd{get_input(input_quantities, "Rd")},
+          rh{get_input(input_quantities, "rh")},
+          solar{get_input(input_quantities, "solar")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          temp{get_input(input_quantities, "temp")},
+          theta{get_input(input_quantities, "theta")},
+          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          vmax{get_input(input_quantities, "vmax")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
-          beta_PSII{get_input(input_quantities, "beta_PSII")},
+          windspeed{get_input(input_quantities, "windspeed")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -72,48 +73,49 @@ class c3_canopy : public direct_module
 
    private:
     // References to input quantities
-    double const& lai;
-    double const& cosine_zenith_angle;
-    double const& solar;
-    double const& temp;
-    double const& rh;
-    double const& windspeed;
-    double const& nlayers;
-    double const& vmax;
-    double const& jmax;
-    double const& tpu_rate_max;
-    double const& Rd;
-    double const& Catm;
-    double const& O2;
+    double const& absorbed_longwave;
+    double const& atmospheric_pressure;
+    double const& atmospheric_scattering;
+    double const& atmospheric_transmittance;
     double const& b0;
     double const& b1;
+    double const& beta_PSII;
+    double const& Catm;
+    double const& chil;
+    double const& cosine_zenith_angle;
+    double const& electrons_per_carboxylation;
+    double const& electrons_per_oxygenation;
+    double const& growth_respiration_fraction;
+    double const& gbw_canopy;
     double const& Gs_min;
-    double const& theta;
-    double const& k_diffuse;
     double const& heightf;
-    double const& LeafN;
+    double const& jmax;
     double const& kpLN;
+    double const& k_diffuse;
+    double const& lai;
+    double const& LeafN;
+    double const& leafwidth;
+    double const& leaf_reflectance_nir;
+    double const& leaf_reflectance_par;
+    double const& leaf_transmittance_nir;
+    double const& leaf_transmittance_par;
     double const& lnb0;
     double const& lnb1;
     double const& lnfun;
-    double const& chil;
-    double const& StomataWS;
-    double const& specific_heat_of_air;
-    double const& atmospheric_pressure;
-    double const& atmospheric_transmittance;
-    double const& atmospheric_scattering;
-    double const& growth_respiration_fraction;
-    double const& electrons_per_carboxylation;
-    double const& electrons_per_oxygenation;
+    double const& nlayers;
+    double const& O2;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    double const& leaf_transmittance_nir;
-    double const& leaf_transmittance_par;
-    double const& leaf_reflectance_nir;
-    double const& leaf_reflectance_par;
-    double const& minimum_gbw;
+    double const& Rd;
+    double const& rh;
+    double const& solar;
+    double const& StomataWS;
+    double const& temp;
+    double const& theta;
+    double const& tpu_rate_max;
+    double const& vmax;
     double const& windspeed_height;
-    double const& beta_PSII;
+    double const& windspeed;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

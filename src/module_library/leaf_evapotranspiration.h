@@ -26,7 +26,6 @@ class leaf_evapotranspiration : public direct_module
           Gs{get_input(input_quantities, "Gs")},
           leafwidth{get_input(input_quantities, "leafwidth")},
           min_gbw_canopy{get_input(input_quantities, "min_gbw_canopy")},
-          min_gbw_leaf{get_input(input_quantities, "min_gbw_leaf")},
           rh{get_input(input_quantities, "rh")},
           temp{get_input(input_quantities, "temp")},
           windspeed{get_input(input_quantities, "windspeed")},
@@ -60,7 +59,6 @@ class leaf_evapotranspiration : public direct_module
     double const& Gs;
     double const& leafwidth;
     double const& min_gbw_canopy;
-    double const& min_gbw_leaf;
     double const& rh;
     double const& temp;
     double const& windspeed;
@@ -94,7 +92,6 @@ string_vector leaf_evapotranspiration::get_inputs()
         "Gs",                    // mol / m^2 / s
         "leafwidth",             // m
         "min_gbw_canopy",        // m / s
-        "min_gbw_leaf",          // m / s
         "rh",                    // dimensionless from Pa / Pa
         "temp",                  // degrees C
         "windspeed",             // m / s

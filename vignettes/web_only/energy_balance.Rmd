@@ -439,7 +439,6 @@ transpiration_res <- module_response_curve(
         canopy_height = 1,
         leafwidth = 0.1,
         min_gbw_canopy = 0.005,
-        min_gbw_leaf = 0.0,
         rh = 0.6,
         wind_speed_height = 10
     ),
@@ -489,7 +488,7 @@ canopy_gbw_res <- module_response_curve(
 )
 
 xyplot(
-    canopy_gbw ~ windspeed,
+    gbw_canopy ~ windspeed,
     group = canopy_height,
     data = canopy_gbw_res,
     type = 'l',
@@ -519,7 +518,7 @@ leaf_gbw_res <- module_response_curve(
 )
 
 xyplot(
-    leaf_gbw ~ windspeed,
+    gbw_leaf ~ windspeed,
     group = Gs,
     data = leaf_gbw_res,
     type = 'l',
