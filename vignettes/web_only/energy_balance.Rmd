@@ -402,8 +402,8 @@ temperature. The equations used to calculate these conductances are complex and
 not readily amenable to the types of linearizations employed in the
 Penman-Monteith approach. So, in BioCro, we take a hybrid approach to energy
 balance where $T_l$ is varied iteratively to simultaneously determine $g_W$,
-$T_l$, and $E$ using Equation \@ref(eq:DT1). See Section
-\@ref(numericalSolution) for more details about this.
+$T_l$, and $E$ using Equation \@ref(eq:DT1). See the `leaf_energy_balance()`
+function in BioCro's `C++` code for more details.
 
 Because $E_{leaf}$ is calculated numerically in BioCro, it is not possible to
 obtain an analytical expression for $E_{canopy}$ using Equation
@@ -419,7 +419,51 @@ Here the cLAI interval $(0, L)$ has been divided into $N$ sub-intervals of
 equal width ($L / N$) and $\ell_i = (i + 0.5) \cdot L / N$ is the midpoint of
 the $i^{th}$ sub-interval.
 
-## BioCro's Numerical Solution Method {#numericalSolution}
+Values of $T_l$ and $E$ calculated from energy balance are sensitive to the
+conductances across the stomata and boundary layer. Yet, the boundary layer
+conductance in particular is difficult to estimate because it depends on details
+such as wind speed, leaf shape, and other factors that change dynamically in
+realistic conditions and cannot be easily quantified. In BioCro, we consider the
+flow of water vapor from the leaf's intercellular spaces to the bulk air in the
+atmosphere to consist of three sequential steps as the gas crosses the stomata,
+the leaf boundary layer, and finally the canopy boundary layer. The latter two
+conductances combine to form the overall boundary layer conductance:
+
+\begin{equation}
+    \frac{1}{g_b} = \frac{1}{g_{b,leaf}} + \frac{1}{g_{b,canopy}},
+\end{equation}
+
+where $g_{b,leaf}$ and $g_{g,canopy}$ are the conductances across the leaf and
+canopy boundary layers.
+
+$g_{b,leaf}$ is calculated using a model described in @nikolov_coupling_1995. It
+treats the leaves in the canopy as individual flat objects in a moving air
+stream, and considers free and forced convection, where free convection is
+driven by wind and forced convection is driven by temperature gradients. In
+BioCro, wind speed within the canopy is modeled as an exponential decay with the
+cumulative leaf area index, and this depth-dependent wind speed is used to
+calculate $g_{b,leaf}$. Because of this, and a dependence on stomatal
+conductance, $g_{b,leaf}$ changes throughout the canopy and is different for
+sunlit and shaded leaves.
+
+On the other hand, $g_{b,canopy}$ is calculated using a model described in
+@thornley_plant_1990. It treats the canopy as an infinitely wide rough surface
+covering the ground, and only considers turbulent flow, so $g_{b,canopy}$
+primarily depends on the wind speed measured above the canopy. The model
+equations predict $g_{b,canopy} = 0$ when wind speed is zero. In reality,
+temperature-driven convection would occur at low wind speeds, setting a lower
+limit for $g_{b,canopy}$ as in the model for $g_{b,leaf}$. To account for this
+in a simple way, a minimum value of $g_{b,canopy}$ is enforced in BioCro. The
+minimum conductance is a parameter that can be varied by the user.
+$g_{b,canopy}$ is the same for sunlit and shaded leaves at all depths within the
+canopy.
+
+The numeric technique used to solve for $T_l$ in BioCro (fixed-point iteration)
+does not always converge to a reasonable solution. To prevent extremely high or
+low leaf temperatures, $\Delta T$ is restricted to lie between -30$^{\circ}$C
+and 30$^{\circ}$C. This restriction tends to be enforced only in unusual
+situations where stomatal conductance is very low (and hence assimilation is low
+as well), and thus has little impact on the overall result of a simulation.
 
 ## BioCro Examples
 
