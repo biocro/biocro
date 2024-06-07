@@ -154,7 +154,7 @@ photosynthesis_outputs c3photoC(
             Tleaf,
             Tambient);
 
-        Gs = 1e-3 * BB_res.gsw;  // mol / m^2 / s
+        Gs = BB_res.gsw;  // mol / m^2 / s
 
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
@@ -173,7 +173,7 @@ photosynthesis_outputs c3photoC(
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
         /* .Ci = */ Ci,                             // micromol / mol
         /* .GrossAssim = */ FvCB_res.Vc,            // micromol / m^2 / s
-        /* .Gs = */ Gs * 1e3,                       // mmol / m^2 / s
+        /* .Gs = */ Gs,                             // mol / m^2 / s
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s

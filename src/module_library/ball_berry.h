@@ -78,7 +78,7 @@ string_vector ball_berry::get_outputs()
     return {
         "cs", // micromol / mol
         "hs", // dimensionless from Pa / Pa
-        "leaf_stomatal_conductance"  // mmol / m^2 / s
+        "leaf_stomatal_conductance"  // mol / m^2 / s
     };
 }
 

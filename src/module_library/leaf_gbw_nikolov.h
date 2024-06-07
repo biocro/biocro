@@ -3,8 +3,8 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "water_and_air_properties.h"  // for saturation_vapor_pressure
-#include "AuxBioCro.h"                 // for leaf_boundary_layer_conductance_nikolov
+#include "water_and_air_properties.h"    // for saturation_vapor_pressure, molar_volume
+#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
 
 namespace standardBML
 {
@@ -13,21 +13,6 @@ namespace standardBML
  *
  * @brief Calculates the boundary layer conductance using the
  * `leaf_boundary_layer_conductance_nikolov()` function.
- *
- * The `leaf_boundary_layer_conductance_nikolov()` function returns a
- * conductance with units of m / s. However, in BioCro, we prefer to use
- * molecular conductances, so we convert using an approximate conversion factor
- * that is only exact when both the leaf and air temperatures are 20 degrees C.
- * Errors due to this conversion are expected to be smaller than the errors
- * associated with calculating a boundary layer conductance from environmental
- * parameters.
- *
- * ### BioCro module implementation
- *
- * In BioCro, we use the following names for this model's inputs and outputs:
- * - ``'height'`` for the canopy height above the ground
- * - ``'windspeed'`` for the wind speed
- * - ``'gbw'`` for the leaf boundary layer conductance to water
  */
 class leaf_gbw_nikolov : public direct_module
 {
@@ -44,10 +29,10 @@ class leaf_gbw_nikolov : public direct_module
           leaf_temperature{get_input(input_quantities, "leaf_temperature")},
           Gs{get_input(input_quantities, "Gs")},
           rh{get_input(input_quantities, "rh")},
-          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
+          air_pressure{get_input(input_quantities, "air_pressure")},
 
           // Get pointers to output quantities
-          gbw_op{get_op(output_quantities, "gbw")}
+          gbw_leaf_op{get_op(output_quantities, "gbw_leaf")}
     {
     }
     static string_vector get_inputs();
@@ -62,10 +47,10 @@ class leaf_gbw_nikolov : public direct_module
     double const& leaf_temperature;
     double const& Gs;
     double const& rh;
-    double const& minimum_gbw;
+    double const& air_pressure;
 
     // Pointers to output quantities
-    double* gbw_op;
+    double* gbw_leaf_op;
 
     // Main operation
     void do_operation() const;
@@ -80,21 +65,21 @@ string_vector leaf_gbw_nikolov::get_inputs()
         "leaf_temperature",  // degrees C
         "Gs",                // mol / m^2 / s
         "rh",                // dimensionless
-        "minimum_gbw"        // mol / m^2 / s
+        "air_pressure"       // mol / m^2 / s
     };
 }
 
 string_vector leaf_gbw_nikolov::get_outputs()
 {
     return {
-        "gbw"  // mol / m^2 / s
+        "gbw_leaf"  // m / s
     };
 }
 
 void leaf_gbw_nikolov::do_operation() const
 {
-    // This is for about 20 degrees C at 100000 Pa
-    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+    const double volume_of_one_mole_of_air =
+        molar_volume(air_temperature, air_pressure);  // m^3 / mol
 
     // Get the temperature difference between the leaf and the air
     const double delta_t = leaf_temperature - air_temperature;  // degrees C
@@ -106,17 +91,17 @@ void leaf_gbw_nikolov::do_operation() const
 
     // Calculate the boundary layer conductance. Here we need to convert
     // stomatal conductance from mol / m^2 / s to m / s.
-    const double gbw = leaf_boundary_layer_conductance_nikolov(
-        windspeed,
-        leafwidth,
+    const double gbw_leaf = leaf_boundary_layer_conductance_nikolov(
         air_temperature,
         delta_t,
-        Gs * volume_of_one_mole_of_air,
         water_vapor_pressure,
-        minimum_gbw * volume_of_one_mole_of_air);  // m / s
+        Gs * volume_of_one_mole_of_air,
+        leafwidth,
+        windspeed,
+        air_pressure);  // m / s
 
     // Update the output quantity list
-    update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s
+    update(gbw_leaf_op, gbw_leaf);  // m / s
 }
 
 }  // namespace standardBML

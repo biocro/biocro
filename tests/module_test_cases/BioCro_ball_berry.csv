@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,output,output,output,"description"
 Catm,b0,b1,gbw,leaf_temperature,net_assimilation_rate,rh,temp,cs,hs,leaf_stomatal_conductance,NA
-400,0.008,10.6,1.2,32,35,0.8,20,360.041666666667,0.601656418815088,627.968609319471,"typical soybean"
+400,0.008,10.6,1.2,32,35,0.8,20,360.041666666667,0.601656418815088,0.627968609319471,"typical soybean"

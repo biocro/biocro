@@ -5,6 +5,9 @@ miscanthus_x_giganteus <- list(
         "BioCro:parameter_calculator",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c4_canopy",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
         partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
@@ -53,12 +56,11 @@ miscanthus_x_giganteus <- list(
         beta                        = 0.93,
         Catm                        = 400,
         chil                        = 1,
-        et_equation                 = 0,
+        emissivity_sky              = 1,
         Gs_min                      = 1e-3,
-        heightf                     = 3,
+        heightf                     = 1.33, # LAI of 4 when canopy is 3 m tall
         hydrDist                    = 0,
         iSp                         = 1.7,
-        k_diffuse                   = 0.1,
         kGrain1                     = 0,
         kGrain2                     = 0,
         kGrain3                     = 0,
@@ -92,6 +94,7 @@ miscanthus_x_giganteus <- list(
         kStem4                      = 0.63,
         kStem5                      = 0.63,
         kStem6                      = 0.63,
+        k_diffuse                   = 0.1,
         lat                         = 40,
         LeafN                       = 2,
         LeafN_0                     = 2,
@@ -103,7 +106,7 @@ miscanthus_x_giganteus <- list(
         lnfun                       = 0,
         longitude                   = -88,
         lowerT                      = 3,
-        minimum_gbw                 = 0.34,
+        min_gbw_canopy              = 0.005,
         mrc1                        = 0.02,
         mrc2                        = 0.03,
         nalphab0                    = 0.02367,
@@ -164,6 +167,7 @@ miscanthus_x_giganteus <- list(
         upperT                      = 37.5,
         vmax1                       = 39,
         vmax_n_intercept            = 0,
+        windspeed_height            = 10, # for SURFRAD
         wsFun                       = 2
     )
 )

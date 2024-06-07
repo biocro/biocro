@@ -1,35 +1,34 @@
 #include "c4_leaf_photosynthesis.h"
-#include "c4photo.h"  // for c4photoC
-#include "BioCro.h"   // for EvapoTrans2
+#include "c4photo.h"              // for c4photoC
+#include "leaf_energy_balance.h"  // for leaf_energy_balance
 
 using standardBML::c4_leaf_photosynthesis;
 
 string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_ppfd",         // micromol / (m^2 leaf) / s
-        "temp",                  // deg. C
-        "rh",                    // dimensionless
-        "vmax1",                 // micromol / m^2 / s
+        "absorbed_longwave",     // J / (m^2 leaf) / s
+        "absorbed_shortwave",    // J / (m^2 leaf) / s
         "alpha1",                // mol / mol
-        "kparm",                 // mol / m^2 / s
-        "theta",                 // dimensionless
-        "beta",                  // dimensionless
-        "Rd",                    // micromol / m^2 / s
+        "atmospheric_pressure",  // Pa
         "b0",                    // mol / m^2 / s
         "b1",                    // dimensionless
-        "Gs_min",                // mol / m^2 / s
-        "StomataWS",             // dimensionless
+        "beta",                  // dimensionless
         "Catm",                  // micromol / mol
-        "atmospheric_pressure",  // Pa
-        "upperT",                // deg. C
-        "lowerT",                // deg. C
-        "absorbed_shortwave",    // J / (m^2 leaf) / s
-        "windspeed",             // m / s
+        "gbw_canopy",            // m / s
+        "Gs_min",                // mol / m^2 / s
+        "incident_ppfd",         // micromol / (m^2 leaf) / s
+        "kparm",                 // mol / m^2 / s
         "leafwidth",             // m
-        "specific_heat_of_air",  // J / kg / K
-        "minimum_gbw",           // mol / m^2 / s
-        "et_equation"            // a dimensionless switch
+        "lowerT",                // deg. C
+        "Rd",                    // micromol / m^2 / s
+        "rh",                    // dimensionless
+        "StomataWS",             // dimensionless
+        "temp",                  // deg. C
+        "theta",                 // dimensionless
+        "upperT",                // deg. C
+        "vmax1",                 // micromol / m^2 / s
+        "windspeed"              // m / s
     };
 }
 
@@ -40,7 +39,7 @@ string_vector c4_leaf_photosynthesis::get_outputs()
         "GrossAssim",        // micromol / m^2 /s
         "Rp",                // micromol / m^2 / s
         "Ci",                // micromol / mol
-        "Gs",                // mmol / m^2 / s
+        "Gs",                // mol / m^2 / s
         "Cs",                // micromol / m^2 / s
         "RHs",               // dimensionless from Pa / Pa
         "TransR",            // mmol / m^2 / s
@@ -64,14 +63,19 @@ void c4_leaf_photosynthesis::do_operation() const
             rh, vmax1, alpha1, kparm, theta, beta,
             Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
             upperT, lowerT, gbw_guess)
-            .Gs;  // mmol / m^2 / s
+            .Gs;  // mol / m^2 / s
 
     // Calculate a new value for leaf temperature
-    const ET_Str et =
-        EvapoTrans2(
-            absorbed_shortwave, absorbed_shortwave, ambient_temperature, rh, windspeed,
-            initial_stomatal_conductance, leafwidth, specific_heat_of_air,
-            minimum_gbw, et_equation);
+    const energy_balance_outputs et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        initial_stomatal_conductance,
+        windspeed);
 
     const double leaf_temperature = ambient_temperature + et.Deltat;  // deg. C
 

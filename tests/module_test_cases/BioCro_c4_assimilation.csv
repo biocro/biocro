@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,"description"
 Catm,Gs_min,Qp,Rd,StomataWS,Tleaf,alpha,atmospheric_pressure,b0,b1,beta,gbw,kparm,lowerT,rh,temp,theta,upperT,vmax,Assim,Assim_conductance,Ci,Cs,GrossAssim,Gs,RHs,Rp,iterations,NA
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.14209842811035,0.336700336700337,1.42203233148774,1.19467484651118,0.04736614270345,1000,1,0,1,"automatically-generated test case"
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.14209842811035,0.336700336700337,1.42203233148774,1.19467484651118,0.04736614270345,1,1,0,1,"automatically-generated test case"

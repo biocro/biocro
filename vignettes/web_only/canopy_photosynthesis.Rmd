@@ -72,10 +72,10 @@ integral over $\ell$:
 \end{equation}
 
 where $A_{n,leaf}(\ell)$ is the net CO$_2$ assimilation rate (per leaf area) of
-an infinitesimally small piece of leaf located at cLAI $\ell$, and $d \ell$ is
-the cLAI associated with that piece. ($d \ell$ can be thought of as $L \cdot dS
-/ S$, where $dS$ is the area of the piece of leaf and $S$ is the total leaf
-area of the canopy.)
+an infinitesimally small piece of leaf located at a height within the canopy
+where the cLAI is $\ell$, and $d \ell$ is the change in cLAI associated with
+that piece. ($d \ell$ can be thought of as $L \cdot dS / S$, where $dS$ is the
+area of the piece of leaf and $S$ is the total leaf area of the canopy.)
 
 Equation \@ref(eq:AnCanopy) is the most general way to express the relationship
 between leaf-level and canopy photosynthesis. From a biological point of view,
@@ -372,6 +372,7 @@ zenith_angle  <- 40   # degrees
 LAI           <- 3    # dimensionless
 total_ppfd    <- 2000 # micromol / m^2 / s
 beam_fraction <- 0.8  # dimensionless
+windspeed     <- 2.0  # m / s
 
 # Calculate total PAR energy just above the canopy
 total_par <- total_ppfd * soybean$parameters$par_energy_content
@@ -384,7 +385,7 @@ canopy_properties <- evaluate_module(
         lai = LAI
         par_incident_diffuse = total_par * (1 - beam_fraction)
         par_incident_direct = total_par * beam_fraction
-        windspeed = 1
+        windspeed = windspeed
     })
 )
 
@@ -535,13 +536,32 @@ Finally, we can see how assimilation rates change throughout the canopy. Here
 we will use an air temperature of 25 degrees C.
 
 ```{r}
+# Get boundary layer conductance
+gbw_canopy <- evaluate_module(
+    'BioCro:canopy_gbw_thornley',
+    c(soybean$parameters, list(
+        canopy_height = LAI / soybean$parameters$heightf,
+        windspeed = windspeed
+    ))
+)$gbw_canopy
+
+# Get absorbed longwave energy
+air_temperature <- 25
+
+absorbed_longwave <- evaluate_module(
+    'BioCro:stefan_boltzmann_longwave',
+    list(temp = air_temperature, emissivity_sky = soybean$parameters$emissivity_sky)
+)$absorbed_longwave
+
 # Calculate canopy assimilation rates
 canopy_assimilation <- evaluate_module(
     'BioCro:ten_layer_c3_canopy',
     within(c(soybean$parameters, canopy_properties), {
         StomataWS = 1
         rh = 0.6
-        temp = 25
+        temp = air_temperature
+        gbw_canopy = gbw_canopy
+        absorbed_longwave = absorbed_longwave
     })
 )
 
