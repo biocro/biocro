@@ -136,7 +136,7 @@ energy_balance_outputs leaf_energy_balance(
     double R_l{};        // J / m^2 / s
 
     // Run loop to find the leaf temperature
-    double constexpr max_delta{30};  // degrees C
+    double constexpr max_delta{10};  // degrees C
     double old_leaf_temperature{};   // degrees C
     double change_in_tl{};           // degrees C
     int counter{0};
