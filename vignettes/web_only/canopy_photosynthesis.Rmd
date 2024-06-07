@@ -72,10 +72,10 @@ integral over $\ell$:
 \end{equation}
 
 where $A_{n,leaf}(\ell)$ is the net CO$_2$ assimilation rate (per leaf area) of
-an infinitesimally small piece of leaf located at cLAI $\ell$, and $d \ell$ is
-the cLAI associated with that piece. ($d \ell$ can be thought of as $L \cdot dS
-/ S$, where $dS$ is the area of the piece of leaf and $S$ is the total leaf
-area of the canopy.)
+an infinitesimally small piece of leaf located at a height within the canopy
+where the cLAI is $\ell$, and $d \ell$ is the change in cLAI associated with
+that piece. ($d \ell$ can be thought of as $L \cdot dS / S$, where $dS$ is the
+area of the piece of leaf and $S$ is the total leaf area of the canopy.)
 
 Equation \@ref(eq:AnCanopy) is the most general way to express the relationship
 between leaf-level and canopy photosynthesis. From a biological point of view,
