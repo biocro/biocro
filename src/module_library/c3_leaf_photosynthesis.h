@@ -48,17 +48,18 @@ class c3_leaf_photosynthesis : public direct_module
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
-          Rp_op{get_op(output_quantities, "Rp")},
           Ci_op{get_op(output_quantities, "Ci")},
-          Gs_op{get_op(output_quantities, "Gs")},
           Cs_op{get_op(output_quantities, "Cs")},
-          RHs_op{get_op(output_quantities, "RHs")},
-          TransR_op{get_op(output_quantities, "TransR")},
           EPenman_op{get_op(output_quantities, "EPenman")},
           EPriestly_op{get_op(output_quantities, "EPriestly")},
+          gbw_op{get_op(output_quantities, "gbw")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Gs_op{get_op(output_quantities, "Gs")},
           leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
-          gbw_op{get_op(output_quantities, "gbw")}
+          RHs_op{get_op(output_quantities, "RHs")},
+          RH_canopy_op{get_op(output_quantities, "RH_canopy")},
+          Rp_op{get_op(output_quantities, "Rp")},
+          TransR_op{get_op(output_quantities, "TransR")}
     {
     }
     static string_vector get_inputs();
@@ -94,17 +95,18 @@ class c3_leaf_photosynthesis : public direct_module
 
     // Pointers to output quantities
     double* Assim_op;
-    double* GrossAssim_op;
-    double* Rp_op;
     double* Ci_op;
-    double* Gs_op;
     double* Cs_op;
-    double* RHs_op;
-    double* TransR_op;
     double* EPenman_op;
     double* EPriestly_op;
-    double* leaf_temperature_op;
     double* gbw_op;
+    double* GrossAssim_op;
+    double* Gs_op;
+    double* leaf_temperature_op;
+    double* RHs_op;
+    double* RH_canopy_op;
+    double* Rp_op;
+    double* TransR_op;
 
     // Main operation
     void do_operation() const;

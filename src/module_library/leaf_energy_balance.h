@@ -13,6 +13,7 @@ struct energy_balance_outputs {
     double gsw;                        //!< Stomatal conductance to water vapor (m / s)
     double H;                          //!< Rate of sensible heat loss (J / m^2 / s)
     double PhiN;                       //!< Net energy available for transpiration and heat loss (J / m^2 / s)
+    double RH_canopy;                  //!< Relative humidity in the canopy, just outside the leaf boundary layer (dimensionless)
     double storage;                    //!< Rate of energy storage by the leaf; should be zero (J / m^2 / s)
     double TransR;                     //!< Transpiration rate (mmol / m^2 / s)
     int iterations;                    //!< Number of iterations used by convergence loop

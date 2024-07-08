@@ -36,17 +36,18 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromol / m^2 /s
-        "GrossAssim",        // micromol / m^2 /s
-        "Rp",                // micromol / m^2 / s
         "Ci",                // micromol / mol
-        "Gs",                // mol / m^2 / s
         "Cs",                // micromol / m^2 / s
-        "RHs",               // dimensionless from Pa / Pa
-        "TransR",            // mmol / m^2 / s
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
+        "gbw",               // mol / m^2 / s
+        "GrossAssim",        // micromol / m^2 /s
+        "Gs",                // mol / m^2 / s
         "leaf_temperature",  // deg. C
-        "gbw"                // mol / m^2 / s
+        "RHs",               // dimensionless from Pa / Pa
+        "RH_canopy",         // dimensionless
+        "Rp",                // micromol / m^2 / s
+        "TransR"             // mmol / m^2 / s
     };
 }
 
@@ -91,15 +92,16 @@ void c4_leaf_photosynthesis::do_operation() const
 
     // Update the outputs
     update(Assim_op, photo.Assim);
-    update(GrossAssim_op, photo.GrossAssim);
-    update(Rp_op, photo.Rp);
     update(Ci_op, photo.Ci);
-    update(Gs_op, photo.Gs);
     update(Cs_op, photo.Cs);
-    update(RHs_op, photo.RHs);
-    update(TransR_op, et.TransR);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
-    update(leaf_temperature_op, leaf_temperature);
     update(gbw_op, et.boundary_layer_conductance);
+    update(GrossAssim_op, photo.GrossAssim);
+    update(Gs_op, photo.Gs);
+    update(leaf_temperature_op, leaf_temperature);
+    update(RHs_op, photo.RHs);
+    update(RH_canopy_op, et.RH_canopy);
+    update(Rp_op, photo.Rp);
+    update(TransR_op, et.TransR);
 }

@@ -626,6 +626,12 @@ canopy_profiles_list <- lapply(
             value = TRUE
         )
 
+        rh_canopy_column_names <- grep(
+            paste0(leaf_class, '_RH_canopy_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
         gsw_column_names <- grep(
             paste0(leaf_class, '_Gs_layer_[0-9]'),
             colnames(canres),
@@ -655,6 +661,7 @@ canopy_profiles_list <- lapply(
             layer = seq(0, 9),
             Cs = as.numeric(canres[cs_column_names]),
             RHs = as.numeric(canres[rhs_column_names]),
+            RH_canopy = as.numeric(canres[rh_canopy_column_names]),
             gsw = as.numeric(canres[gsw_column_names]),
             tl = as.numeric(canres[tl_column_names]),
             A = as.numeric(canres[a_column_names]),
@@ -686,20 +693,21 @@ xyplot(
 ```
 
 ```{r hs-layer}
-#| fig.cap = "$h_s$ vs canopy layer for sunlit and shaded leaves as predicted by
-#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
-#|   values."
+#| fig.cap = "Relative humidities at the leaf surface (RHs) and just outside the
+#|   leaf boundary layer (RH_canopy) plotted against canopy layer for sunlit and
+#|   shaded leaves as predicted by the coupled Ball-Berry + FvCB + energy
+#|   balance model with soybean parameter values."
 
 # Plot the RHs profiles
 xyplot(
-    RHs ~ layer,
+    RHs + RH_canopy ~ layer,
     group = type,
     data = canopy_profiles,
     type = 'l',
-    auto.key = list(space = 'right'),
+    auto.key = list(space = 'top'),
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Relative humidity at leaf surface (micromol / mol)',
+    ylab = 'Relative humidity (micromol / mol)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```
