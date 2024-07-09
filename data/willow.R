@@ -5,6 +5,9 @@ willow <- list(
         "BioCro:parameter_calculator",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c3_canopy",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
         partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
@@ -55,13 +58,13 @@ willow <- list(
         chil                         = 1,
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
+        emissivity_sky               = 1,
         growth_respiration_fraction  = 0.3,
         Gs_min                       = 1e-3,
-        heightf                      = 3,
+        heightf                      = 3, # LAI of 6 when canopy is 2 m tall
         hydrDist                     = 0,
         iSp                          = 1.1,
         jmax                         = 180,
-        k_diffuse                    = 0.37,
         kGrain1                      = 0,
         kGrain2                      = 0,
         kGrain3                      = 0,
@@ -94,9 +97,11 @@ willow <- list(
         kStem4                       = 0.7,
         kStem5                       = 0.7,
         kStem6                       = 0.7,
+        k_diffuse                    = 0.37,
         lat                          = 40,
         LeafN                        = 2,
         LeafN_0                      = 2,
+        leafwidth                    = 0.01,
         leaf_reflectance_nir         = 0.42, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         leaf_reflectance_par         = 0.09, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         leaf_transmittance_nir       = 0.42, # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
@@ -105,7 +110,7 @@ willow <- list(
         lnb1                         = 18,
         lnfun                        = 0,
         longitude                    = -88,
-        minimum_gbw                  = 0.08,
+        min_gbw_canopy               = 0.005,
         mrc1                         = 0.02,
         mrc2                         = 0.03,
         net_assimilation_rate_shell  = 0.0,

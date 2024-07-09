@@ -1,0 +1,3 @@
+input,input,output,"description"
+emissivity_sky,temp,absorbed_longwave,NA
+1,1,320.305751835433,"automatically-generated test case"

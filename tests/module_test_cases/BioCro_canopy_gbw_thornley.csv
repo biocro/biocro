@@ -1,0 +1,3 @@
+input,input,input,input,output,"description"
+canopy_height,min_gbw_canopy,windspeed,windspeed_height,gbw_canopy,NA
+1,1,1,1,1,"automatically-generated test case"

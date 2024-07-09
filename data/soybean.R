@@ -9,6 +9,9 @@ soybean <- list(
         solar_coordinates = "BioCro:solar_position_michalsky",
         "BioCro:shortwave_atmospheric_scattering",
         "BioCro:incident_shortwave_from_ground_par",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
         "BioCro:ten_layer_canopy_properties",
         canopy_photosynthesis = "BioCro:ten_layer_c3_canopy",
         "BioCro:ten_layer_canopy_integrator",
@@ -123,10 +126,18 @@ soybean <- list(
                                                    # J. Craig McFarlane. Table 2, Pg 3
                                                    # (https://www.controlledenvironments.org/wp-content/uploads/sites/6/2017/06/Ch01.pdf)
 
+        # height_from_lai module
+        heightf                     = 6,           # m^-1; LAI of 6 when canopy is 1 m tall
+
+        # canopy_gbw_thornley module
+        min_gbw_canopy              = 0.005,       # m / s
+
+        # stefan_boltzmann_longwave module
+        emissivity_sky              = 1,
+
         # ten_layer_canopy_properties module
         chil                        = 0.81,        # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Table 15.1, pg 253
         k_diffuse                   = 0.7,         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
-        heightf                     = 3,           # m^-1
         kpLN                        = 0,           # not used in Soybean-BioCro
         leaf_reflectance_nir        = 0.42,
         leaf_reflectance_par        = 0.10,
@@ -148,9 +159,9 @@ soybean <- list(
         b1                          = 10.6,        # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
         Gs_min                      = 1e-3,
         theta                       = 0.76,        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
-        minimum_gbw                 = 0.08,
         windspeed_height            = 5,
         beta_PSII                   = 0.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        leafwidth                   = 0.1,         # Large mature leaflets can reach 10 cm in width
 
         # ten_layer_canopy_integrator module
         growth_respiration_fraction = 0,

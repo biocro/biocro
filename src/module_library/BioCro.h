@@ -31,30 +31,5 @@ void WINDprof(double WindSpeed, double LAI, std::vector<double>& wind_speed_prof
 
 double AbiotEff(double smoist, double stemp);
 
-ET_Str EvapoTrans2(
-    double absorbed_shortwave_radiation_et,
-    double absorbed_shortwave_radiation_lt,
-    double airTemp,
-    double RH,
-    double WindSpeed,
-    double stomatal_conductance,
-    double leaf_width,
-    double specific_heat_of_air,
-    double minimum_gbw,
-    int eteq
-);
-
-ET_Str c3EvapoTrans(
-    double absorbed_shortwave_radiation,
-    double air_temperature,
-    double RH,
-    double WindSpeed,
-    double CanopyHeight,
-    double specific_heat_of_air,
-    double stomatal_conductance,
-    double minimum_gbw,
-    double WindSpeedHeight
-);
-
 #endif
 

@@ -626,18 +626,40 @@ absorbed_shortwave <-
   incident_nir * (1 - cmi_soybean$parameters$leaf_reflectance_nir -
         cmi_soybean$parameters$leaf_transmittance_nir)
 
+# Determine the absorbed longwave radiation using the air temperature
+air_temperature <- 25
+
+absorbed_longwave <- evaluate_module(
+    'BioCro:stefan_boltzmann_longwave',
+    list(temp = air_temperature, emissivity_sky = soybean$parameters$emissivity_sky)
+)$absorbed_longwave
+
+# Determine the canopy boundary layer conductance
+windspeed <- 3.28
+canopy_height <- 0.75
+
+gbw_canopy <- evaluate_module(
+    'BioCro:canopy_gbw_thornley',
+    c(soybean$parameters, list(
+        canopy_height = canopy_height,
+        windspeed = windspeed
+    ))
+)$gbw_canopy
+
 # Make a data frame with the incident PPFD and absorbed shortwave values, where
 # we also include values of a few other required parameters
 light_curve_inputs <- data.frame(
-    incident_ppfd = incident_ppfd,
+    absorbed_longwave = absorbed_longwave,
     absorbed_ppfd = absorbed_ppfd,
     absorbed_shortwave = absorbed_shortwave,
-    rh = 0.75,
-    temp = 25,
-    windspeed = 3.28,
     Catm = catm[['2002']],
+    gbw_canopy = gbw_canopy,
+    height = canopy_height,
+    incident_ppfd = incident_ppfd,
+    rh = 0.75,
     StomataWS = 0.99,
-    height = 0.75
+    temp = air_temperature,
+    windspeed = windspeed
 )
 @
 

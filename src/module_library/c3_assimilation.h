@@ -178,7 +178,7 @@ string_vector c3_assimilation::get_outputs()
 {
     return {
         "Assim",              // micromol / m^2 / s
-        "Gs",                 // millimol / m^2 / s
+        "Gs",                 // mol / m^2 / s
         "Cs",                 // micromol / m^2 / s
         "RHs",                // dimensionless from Pa / Pa
         "Ci",                 // micromol / mol
