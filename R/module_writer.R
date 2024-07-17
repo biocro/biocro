@@ -1,6 +1,6 @@
 module.write = function(
-        name = 'my_module', lib = 'my_library', type = 'direct',
-        inputs = 'x',  outputs = 'y',    
+        name , lib, type,
+        inputs,  outputs,    
         input.units = NULL, output.units = NULL
 ){
     name_caps = toupper(name)
