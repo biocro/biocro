@@ -1,9 +1,7 @@
 module.write = function(
-        name = 'my_module',
-        lib = 'my_library',
-        type = 'direct',
-        inputs = 'x', 
-        outputs = 'y'
+        name = 'my_module', lib = 'my_library', type = 'direct',
+        inputs = 'x',  outputs = 'y',    
+        input.units = NULL, output.units = NULL
 ){
     name_caps = toupper(name)
     lib_caps = toupper(lib)
@@ -20,19 +18,17 @@ module.write = function(
         stop(e)
     }
     
-    input.field = input_declare(inputs)
-    input.ptr = input_pointer_list(inputs)
-    input.units = names(inputs) # might be null
-    input.get = get_list(inputs, input.units)
+    input.field = make_input_initializations(inputs)
+    input.ptr = make_input_reference_list(inputs)
+    input.get = make_get(inputs, input.units)
     
-    output.field = output_declare(outputs)
-    output.ptr = output_pointer_list(outputs)
-    output.units = names(outputs) # might be null
-    output.get = get_list(outputs, output.units)
+    output.field = make_output_initializations(outputs)
+    output.ptr = make_output_pointer_list(outputs)
+    output.get = make_get(outputs, output.units)
 
 
     
-    update.template = update_template(outputs)
+    update.template = make_update_template(outputs)
     
     sprintf(template, 
             name, lib, type, 
@@ -65,11 +61,11 @@ namespace %2$s
                 state_map* output_quantities)
         : %3$s_module(),
         
-        // Get references to input quantities 
-        %6$s
-        
-        // Get pointers to output quantities 
-        %9$s
+            // Get references to input quantities 
+            %6$s
+            
+            // Get pointers to output quantities 
+            %9$s
         {
         }
         static string_vector get_inputs();
@@ -77,11 +73,11 @@ namespace %2$s
         static std::string get_name() { return \"%1$s\"; }
         
         private:
-        // References to input quantities 
-        %7$s
-    
-        // Pointers to output quantities 
-        %10$s
+            // References to input quantities 
+            %7$s
+        
+            // Pointers to output quantities 
+            %10$s
         
         // Main operation
         void do_operation() const;
@@ -90,14 +86,14 @@ namespace %2$s
     string_vector %1$s::get_inputs()
     {
         return {
-        %8$s
+            %8$s
         };
     }
     
     string_vector %1$s::get_outputs()
     {
         return {
-        %11$s
+            %11$s
         };
     }
     
@@ -112,39 +108,42 @@ namespace %2$s
 "
 
 # newline and indent
-endl = "\n\t" 
-comma_endl = ",\n\t" 
+indent = "    " 
+endl_dbl = paste0("\n",indent,indent)
+endl_tpl = paste0("\n",indent,indent,indent)
+comma_tpl = paste0(",",end_tpl)
 
-input_declare = function(x){
+
+make_input_initializations = function(x){
     paste0(x, "{get_input(input_quantities, \"", x, "\")},",  
-           collapse=endl)    
+           collapse=endl_tpl)    
 }
 
-input_pointer_list = function(x) {
+make_input_reference_list = function(x) {
     paste0('double const& ', x, ';',
-           collapse=endl)
+           collapse=endl_tpl)
 }
 
-output_declare = function(x){
+make_output_initializations = function(x){
     paste0(x, "_op{get_op(output_quantities, \"", x, "\")}", 
-           collapse=comma_endl)    
+           collapse=comma_tpl)    
 }
 
-output_pointer_list = function(x) {
+make_output_pointer_list = function(x) {
     paste0('double* ', x, '_op;', 
-           collapse=endl)    
+           collapse=endl_tpl)    
 }
 
-get_list = function(x, units=NULL) {
+make_get = function(x, units=NULL) {
     if(is.null(units)){units_string = ''}
     else{
-        units_string = paste("\t\t//", units)
+        units_string = paste(indent, indent, "//", units)
     }
     paste0('\"', x, '\",', units_string,
-           collapse=endl)    
+           collapse=endl_tpl)    
 }
 
-update_template = function(x){
+make_update_template = function(x){
     paste0('update(', x, '_op, 0);', 
-           collapse=endl)    
+           collapse=endl_dbl)    
 }

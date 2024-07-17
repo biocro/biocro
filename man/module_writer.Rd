@@ -9,8 +9,9 @@
 }
 \usage{
     module.write(
-        name = 'my_module', lib = 'my_library', type = 'direct',
-        inputs = 'x', outputs = 'y'
+        name, lib, type,
+        inputs, outputs,
+        input.units=NULL, output.units=NULL
     )
 }
 %- maybe also 'usage' for other objects documented here.
@@ -30,11 +31,15 @@
     \item{outputs}{
         A character vector of the module's output variables.
     }
+    \item{input.units}{
+        A character vector of the inputs' units. If \code{NULL}, no units are embedded.
+    }
+    \item{output.units}{
+        A character vector of the outputs' units. If \code{NULL}, no units are embedded.
+    }
 }
 \details{
     \code{type} should be either \code{'direct'} or \code{'differential'}; however, \code{module.write} does not enforce this in case new module types. 
-    
-    Units can be embedded by using a named character vector for \code{inputs} and \verb{outputs} to set the units of the variables.   
 }
 \value{
     A string containing a new BioCro module header file.  
@@ -52,41 +57,37 @@
 }
 \examples{
 # Example 1
-# Call module.write with defaults
-out <- module.write()
-# Use writeLines to print to console
-writeLines(out)
-
-
-# Example 2
 # Inputs as character vector
 xs = c('x1','x2','x3')
 
-# Use named vectors to set units
-names(xs) <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
-
-#outputs
+# Units
+xs.units <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
+# outputs
 ys = c('y1','y2')
 
-out <- module.write(inputs=xs,outputs=ys)
+out <- module.write('testmod', 'testlib', 'direct', 
+    inputs=xs, input.units= xs, outputs=ys)
+
+# Use writeLines to print to console
+writeLines(out)
 
 # Use writeLines to save as a `.h` file
 writeLines(out, "./testmod.h")
 
 
-# Example 3: A differential module
+# Example 2: A differential module
 xs <- c('var_1','var_2')
 out <- module.write('testmod', 'testlib', 'differential', xs, xs)
 writeLines(out)
 
 
-# Example 4: Inconsistent modules
+# Example 3: Inconsistent modules
 
 ## Not run:
 ## out <- module.write(inputs = c('x' ,'x'))
 
-## Will run:
-out <- module.write(type='direct', inputs = 'x' , outputs = 'x')
+## Will run, but not consistent:
+out <- module.write('inconsistent', 'examplelib', type='direct', inputs = 'x' , outputs = 'x')
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
