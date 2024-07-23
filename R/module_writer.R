@@ -18,6 +18,18 @@ module.write = function(
         stop(e)
     }
 
+    inputs_not_same_length = length(inputs) == length(input.units)
+    if (inputs_not_same_length){
+        e <- simpleError("The arguments `inputs` and `input.units` do not have the same length.")
+        stop(e)
+    }
+
+    outputs_not_same_length = length(outputs) == length(output.units)
+    if (outputs_not_same_length){
+        e <- simpleError("The arguments `outputs` and `output.units` do not have the same length.")
+        stop(e)
+    }
+
     input.field = make_input_initializations(inputs)
     input.ptr = make_input_reference_list(inputs)
     input.get = make_get(inputs, input.units)
