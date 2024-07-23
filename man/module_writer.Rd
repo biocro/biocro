@@ -5,25 +5,25 @@
     Generate a BioCro module header file.
 }
 \description{
-    To facilitate the creation of new BioCro modules, \code{module.write} generates a BioCro module header file. Given a set of input and output variables, \code{module.write} will create a C++ header file ('.h' file) filling in a template with the input and output variables with the correct C++ syntax for a BioCro module.  
+    To facilitate the creation of new BioCro modules, \code{module.write} generates a BioCro module header file. Given a set of input and output variables, \code{module.write} will create a C++ header file ('.h' file) filling in a template with the input and output variables with the correct C++ syntax for a BioCro module.
 }
 \usage{
     module.write(
-        name, lib, type,
+        module.name , module.library, module.type,
         inputs, outputs,
         input.units=NULL, output.units=NULL
     )
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-    \item{name}{
+    \item{module.name}{
         A string for the module's name.
     }
-    \item{lib}{
+    \item{module.library}{
         A string for the module's library namespace. E.g., \code{'biocro'}.
     }
-    \item{type}{
-        A string setting the module type: \code{'direct'} or \code{'differential'}. 
+    \item{module.type}{
+        A string setting the module type: \code{'direct'} or \code{'differential'}.
     }
     \item{inputs}{
         A character vector of the module's input variables.
@@ -39,15 +39,15 @@
     }
 }
 \details{
-    \code{type} should be either \code{'direct'} or \code{'differential'}; however, \code{module.write} does not enforce this in case new module types. 
+    \code{type} should be either \code{'direct'} or \code{'differential'}; however, \code{module.write} does not enforce this in case new module types.
 }
 \value{
-    A string containing a new BioCro module header file.  
+    A string containing a new BioCro module header file.
 }
 \note{
-    This function returns a string and has no file I/O. Use \code{\link{writeLines}} to print the output to console, or to save the output. See examples. Note that it is customary to name the header file with the same name as the module. 
-    
-    \code{module.write} checks for duplicate input or output variables, and if detected, it will raise an error. In theory, this check should ensure that the generated module will compile correctly. However, it is still possible to define an module that is inconsistent and will not pass the checks in \code{\link{validate_dynamical_system_inputs}}. See \verb{Example 4}.      
+    This function returns a string and has no file I/O. Use \code{\link{writeLines}} to print the output to console, or to save the output. See examples. Note that it is customary to name the header file with the same name as the module.
+
+    \code{module.write} checks for duplicate input or output variables, and if detected, it will raise an error. In theory, this check should ensure that the generated module will compile correctly. However, it is still possible to define an module that is inconsistent and will not pass the checks in \code{\link{validate_dynamical_system_inputs}}. See \verb{Example 4}.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -65,7 +65,7 @@ xs.units <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
 # outputs
 ys = c('y1','y2')
 
-out <- module.write('testmod', 'testlib', 'direct', 
+out <- module.write('testmod', 'testlib', 'direct',
     inputs=xs, input.units= xs, outputs=ys)
 
 # Use writeLines to print to console

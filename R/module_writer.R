@@ -1,10 +1,10 @@
 module.write = function(
-        name , lib, type,
+        module.name , module.library, module.type,
         inputs,  outputs,
         input.units = NULL, output.units = NULL
 ){
-    name_caps = toupper(name)
-    lib_caps = toupper(lib)
+    module.name.caps = toupper(module.name)
+    module.library.caps = toupper(module.library)
 
     # check for duplicate inputs
     if(anyDuplicated(inputs)){
@@ -31,8 +31,8 @@ module.write = function(
     update.template = make_update_template(outputs)
 
     sprintf(template,
-            name, lib, type,
-            name_caps, lib_caps,
+            module.name , module.library, module.type,
+            module.name.caps, module.library.caps,
             input.field, input.ptr, input.get,
             output.field, output.ptr, output.get,
             update.template )
