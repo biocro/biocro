@@ -18,13 +18,13 @@ module.write = function(
         stop(e)
     }
 
-    inputs_not_same_length = length(inputs) == length(input.units)
+    inputs_not_same_length = length(inputs) != length(input.units)
     if (inputs_not_same_length){
         e <- simpleError("The arguments `inputs` and `input.units` do not have the same length.")
         stop(e)
     }
 
-    outputs_not_same_length = length(outputs) == length(output.units)
+    outputs_not_same_length = length(outputs) != length(output.units)
     if (outputs_not_same_length){
         e <- simpleError("The arguments `outputs` and `output.units` do not have the same length.")
         stop(e)
