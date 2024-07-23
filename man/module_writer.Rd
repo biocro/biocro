@@ -83,11 +83,12 @@ writeLines(out)
 
 # Example 3: Inconsistent modules
 
-## Not run:
-## out <- module.write(inputs = c('x' ,'x'))
+\dontrun{
+  out <- module.write(inputs = c('x' ,'x'))
 
-## Will run, but not consistent:
-out <- module.write('inconsistent', 'examplelib', type='direct', inputs = 'x' , outputs = 'x')
+  ## Will run, but not consistent:
+  out <- module.write('inconsistent', 'examplelib', type='direct', inputs = 'x' , outputs = 'x')
+}
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
