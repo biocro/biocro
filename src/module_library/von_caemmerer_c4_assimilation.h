@@ -21,9 +21,12 @@ struct Light_Param_type {
     double Jmax;
     double absorptance;
     double f_spectral;
-    double rho;
+    double f_cyc;
     double theta;
     double mesophyll_electron_transport_fraction;  // x_etr
+
+    double atp_production_electron_transport_ratio();  // z
+    double rho();
 };
 
 struct VC_C4_param_type {
@@ -53,10 +56,16 @@ VC_C4_output vc_c4_assim(
     double light_photon_flux_density,
     VC_C4_param_type param);
 
+VC_C4_output vc_c4_approx(
+    double co2_mesophyll,
+    double oxygen_mesophyll,
+    double light_photon_flux_density,
+    VC_C4_param_type param);
+
 template <typename T>
 T quadratic_root_lower(T a, T b, T c)
 {
-    return (-b - std::sqrt(b*b - 4 * a * c)) / (2 * a);
+    return (-b - std::sqrt(b * b - 4 * a * c)) / (2 * a);
 }
 
 #endif

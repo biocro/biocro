@@ -39,9 +39,9 @@ class von_caemmerer_c4_biocro : public direct_module
           alpha_psii{get_input(input_quantities, "alpha_psii")},
           ao{get_input(input_quantities, "ao")},
           f_spectral{get_input(input_quantities, "f_spectral")},
+          f_cyc{get_input(input_quantities, "f_cyc")},
           gamma_star{get_input(input_quantities, "gamma_star")},
           gbs{get_input(input_quantities, "gbs")},
-          rho{get_input(input_quantities, "rho")},
           theta{get_input(input_quantities, "theta")},
           x_etr{get_input(input_quantities, "x_etr")},
 
@@ -74,9 +74,9 @@ class von_caemmerer_c4_biocro : public direct_module
     double const& alpha_psii;
     double const& ao;
     double const& f_spectral;
+    double const& f_cyc;
     double const& gamma_star;
     double const& gbs;
-    double const& rho;
     double const& theta;
     double const& x_etr;
 
@@ -109,9 +109,9 @@ string_vector von_caemmerer_c4_biocro::get_inputs()
         "alpha_psii",
         "ao",
         "f_spectral",
+        "f_cyc",
         "gamma_star",
         "gbs",
-        "rho",
         "theta",
         "x_etr",
     };
@@ -132,11 +132,11 @@ void von_caemmerer_c4_biocro::do_operation() const
     // bundle parameters into parameter objects
     Rate_type rate = {Vcmax, Vpmax, Vpr};
     K_type K = {Kc, Ko, Kp};
-    Light_Param_type light = {Jmax, absorptance, f_spectral, rho, theta, x_etr};
+    Light_Param_type light = {Jmax, absorptance, f_spectral, f_cyc, theta, x_etr};
     VC_C4_param_type params = {RL, Rm_frac, K, rate, light, alpha_psii, ao, gamma_star, gbs};
 
     // call vc_c4_assim for assimilation rates
-    VC_C4_output out = vc_c4_assim(Cm, POm, Qin, params);
+    VC_C4_output out = vc_c4_assim(Qin, Cm, POm, params);
     update(assimilation_op, out.assimilation);
     update(Aj_op, out.light_limited_assimilation);
     update(Ac_op, out.enzyme_limited_assimilation);
