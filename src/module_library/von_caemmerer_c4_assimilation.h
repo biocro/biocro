@@ -56,7 +56,7 @@ VC_C4_output vc_c4_assim(
 template <typename T>
 T quadratic_root_lower(T a, T b, T c)
 {
-    return (-b - std::sqrt(std::pow(b, 2) - 4 * a * c)) / (2 * a);
+    return (-b - std::sqrt(b*b - 4 * a * c)) / (2 * a);
 }
 
 #endif
