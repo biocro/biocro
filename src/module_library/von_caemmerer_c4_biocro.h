@@ -86,6 +86,7 @@ class von_caemmerer_c4_biocro : public direct_module
     double* Ac_op;
     double* J_op;
 
+
     // Main operation
     void do_operation() const;
 };
@@ -123,7 +124,7 @@ string_vector von_caemmerer_c4_biocro::get_outputs()
         "assimilation",
         "Aj",
         "Ac",
-        "J",
+        "J"
     };
 }
 
@@ -137,6 +138,7 @@ void von_caemmerer_c4_biocro::do_operation() const
 
     // call vc_c4_assim for assimilation rates
     VC_C4_output out = vc_c4_assim(Qin, Cm, POm, params);
+
     update(assimilation_op, out.assimilation);
     update(Aj_op, out.light_limited_assimilation);
     update(Ac_op, out.enzyme_limited_assimilation);
