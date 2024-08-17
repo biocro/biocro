@@ -36,34 +36,31 @@ double enzyme_limited_assimilation(
     double oxygen_mesophyll,
     VC_C4_param_type param)
 {
-    double RL = param.light_mitochondrial_respiration;
-    double RLm = param.mesophyll_respiration_fraction * RL;  // micromol / m^2 / s
+    double RLm = param.mesophyll_respiration_fraction * param.light_mitochondrial_respiration;  // micromol / m^2 / s
     double gbs = param.bundle_sheath_conductance;
 
     // Equations 4.17 and 4.19
     double Vpc = co2_mesophyll * param.rate.Vpmax / (co2_mesophyll + param.K.p);  // micromol / m^2 / s
     double Vp = std::min(Vpc, param.rate.Vpr);                                    // micromol / m^2 / s
 
-    // Cs = y0 + y1 * A  Equation (12)
-    double y0 = co2_mesophyll + (Vp - RLm)/gbs;
-    double y1 = - 1/gbs;
+    double x0 = (gbs* co2_mesophyll + Vp  - RLm )/param.K.c/gbs;
+    double x1 = - param.rate.Vcmax/gbs/param.K.c;
 
-    // Os = z0 + z1 * A Equation (16)
-    double z0 = oxygen_mesophyll;
-    double z1 = param.alpha_psii / param.ao/gbs;
+    double y0 = oxygen_mesophyll/param.K.o;
+    double y1 = param.alpha_psii* param.rate.Vcmax/param.ao/gbs/param.K.o;
 
-    double Kco_ratio = param.K.c / param.K.o;                                   // dimensionless
-    double K_z0 = param.K.c * (1.0 + oxygen_mesophyll / param.K.o);
     // Equation (20)
     // p(A) = ec + eb*A + ea * A * A = 0
-    double ea = y1 + Kco_ratio * z1;  // dimensionless
-    double eb = (y0 + K_z0 )  + RL* (y1 + Kco_ratio*z1) - param.rate.Vcmax* (y1 - param.gamma_star*z1) ;  // micromol / m^2 / s
-    double ec = RL *( y0 + K_z0 ) - param.rate.Vcmax * (y0 - param.gamma_star* z0) ;  // (micromol / m^2 / s)^2
+    double Rp = param.light_mitochondrial_respiration/param.rate.Vcmax;
+    double gamma = param.gamma_star * param.K.o /param.K.c;
+    double ea = x1 + y1;  // dimensionless
+    double eb = (y0 + x0 + 1)  + Rp * (x1 + y1) - (x1 - gamma*y1) ;  // micromol / m^2 / s
+    double ec = Rp *( x0 + y0 + 1 ) - (x0 - gamma*y0);  // (micromol / m^2 / s)^2
 
     // normalize to  A*A + p1 * A + p0 = 0
     double p1 = eb/ea;
     double p0 = ec/ea;
-    return quadratic_root_lower<double>(1, p1, p0);
+    return param.rate.Vcmax * quadratic_root_lower<double>(1, p1, p0);
 }
 
 double light_limited_assimilation(
