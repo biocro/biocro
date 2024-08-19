@@ -184,7 +184,11 @@ void multilayer_canopy_integrator::run() const
     // Note: this was originally only done for the C3 canopy
     // Note: it seems like this should not be necessary since the assimilation
     //   model includes respiration
-    canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
+    if(canopy_assimilation_rate>0){
+      canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
+    }else{
+      canopy_assimilation_rate *= (1.0 + growth_respiration_fraction);
+    }
 
     // For assimilation, we need to convert micromol / m^2 / s into
     // Mg / ha / hr, assuming that all carbon is converted into biomass in the
