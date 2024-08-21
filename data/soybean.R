@@ -20,6 +20,7 @@ soybean <- list(
     ),
     differential_modules = list(
         senescence = "BioCro:senescence_logistic",
+        "BioCro:maintenance_respiration",
         "BioCro:partitioning_growth",
         soil_profile = "BioCro:two_layer_soil_profile",
         "BioCro:development_index",
@@ -167,8 +168,14 @@ soybean <- list(
         growth_respiration_fraction = 0,
 
         # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
-        mrc1                        = 0.0008333,   # hour^-1, Bunce and Ziska 1996 (https://doi.org/10.1006/anbo.1996.0061)
-        mrc2                        = 0.000025,    # 0.03 * mrc1, ratio used in previous BioCro crops
+        grc_stem                        = 0.001,   # dimensionless, optimized. growth respiration coefficient 
+        grc_root                        = 0.001,    # dimensionless, optimized 
+        
+        # maintenance respiration module
+        mrc_leaf                        = 0.001,    # hour^-1, maintenance respiration coefficient. optimized 
+        mrc_stem                        = 0.001,    # hour^-1, optimized 
+        mrc_root                        = 0.001,    # hour^-1, optimized 
+        mrc_grain                       = 0.001,    # hour^-1, optimized 
 
         # partitioning_growth module
         retrans                     = 0.9,         # previously hard-coded in the partitioning_growth module
