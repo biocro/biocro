@@ -11,8 +11,15 @@ namespace standardBML
 /**
  * @class von_caemmerer_c4_biocro
  *
- * @brief Put Documentation Here.
+ * @brief An implementation of the von Caemmerer model of C4 photosynthesis.
+ * The model is described in:
  *
+ * von Caemmerer (2021) Journal of Experimental Botany, Vol. 72, No. 17 pp. 6003–6017.
+ * https://doi.org/10.1093/jxb/erab266
+ *
+ * This file implements the Biocro module wrapping the algorithm in `von_caemmerer_c4_assimilation.h`.
+ *
+ * Temperature-dependence for the parameters is not included in this implementation.
  */
 class von_caemmerer_c4_biocro : public direct_module
 {
@@ -47,9 +54,9 @@ class von_caemmerer_c4_biocro : public direct_module
 
           // Get pointers to output quantities
           assimilation_op{get_op(output_quantities, "assimilation")},
-          Aj_op{get_op(output_quantities, "Aj")},
-          Ac_op{get_op(output_quantities, "Ac")},
-          J_op{get_op(output_quantities, "J")}
+          Aj_op{get_op(output_quantities, "assimilation_light_limited")},
+          Ac_op{get_op(output_quantities, "assimilation_co2_limited")},
+          J_op{get_op(output_quantities, "electron_transport_rate")}
     {
     }
     static string_vector get_inputs();
@@ -114,7 +121,7 @@ string_vector von_caemmerer_c4_biocro::get_inputs()
         "gamma_star",
         "gbs",
         "theta",
-        "x_etr",
+        "x_etr"
     };
 }
 
@@ -122,22 +129,22 @@ string_vector von_caemmerer_c4_biocro::get_outputs()
 {
     return {
         "assimilation",
-        "Aj",
-        "Ac",
-        "J"
+        "assimilation_light_limited",
+        "assimilation_co2_limited",
+        "electron_transport_rate"
     };
 }
 
 void von_caemmerer_c4_biocro::do_operation() const
 {
     // bundle parameters into parameter objects
-    Rate_type rate = {Vcmax, Vpmax, Vpr};
-    K_type K = {Kc, Ko, Kp};
-    Light_Param_type light = {Jmax, absorptance, f_spectral, f_cyc, theta, x_etr};
-    VC_C4_param_type params = {RL, Rm_frac, K, rate, light, alpha_psii, ao, gamma_star, gbs};
-
+    Vmax_type V({Vcmax, Vpmax, Vpr});
+    K_type K({Kc, Ko, Kp});
+    VC_C4_Param_type param = {alpha_psii, gbs, ao, gamma_star, RL, Rm_frac};
+    ElectronTransportModel electron_transport{Jmax, f_spectral, f_cyc, absorptance, 4.0, theta, x_etr};
+    VC_C4_Model vc_c4_assim{electron_transport, K, param, V};
     // call vc_c4_assim for assimilation rates
-    VC_C4_output out = vc_c4_assim(Qin, Cm, POm, params);
+    VC_C4_output out = vc_c4_assim.get_assimilation(Qin, Cm, POm);
 
     update(assimilation_op, out.assimilation);
     update(Aj_op, out.light_limited_assimilation);
