@@ -642,7 +642,7 @@ soilML_str soilML(
  *                        include respiratory losses. Any units are acceptable,
  *                        e.g. mol / m^2 / s or Mg / ha / hour.
  *
- *  @param [in] mrc Maintenance respiration coefficient (dimensionless)
+ *  @param [in] grc Growth respiration coefficient (dimensionless)
  *
  *  @param [in] temp Temperature (degrees C)
  *
@@ -732,12 +732,37 @@ soilML_str soilML(
  *  into the response of plant production to climate change?: development and
  *  experiments with WIMOVAC: (Windows Intuitive Model of Vegetation response
  *  to Atmosphere & Climate Change)" (University of Essex, 2002)
+ *
+ *  [YH] This function scales the assimilation rate. It should be called the growth
+ *  respiration instead of maintenance respiration, as defined in these papers:
+ *  - Apsim: (https://apsimdev.apsim.info/ApsimX/Documents/AgPastureScience.pdf)
+ *  - Thornley, J. H. M. "Growth, maintenance and respiration: a re-interpretation."
+ *    Annals of Botany 41.6 (1977): 1191-1203.
  */
-double resp(double base_rate, double mrc, double temp)
+double resp(double base_rate, double grc, double temp)
 {
-    double ans = base_rate * (1 - (mrc * pow(2, (temp / 10.0))));
+    double ans = base_rate * (1 - (grc * pow(2, (temp / 10.0))));
 
     if (ans < 0) ans = 0;
+
+    return ans;
+}
+
+/**
+ *  @brief A typical Q10-based temperature response for the maintenance respiration 
+ *
+ *  @param [in] temp Temperature (degrees C)
+ *
+ *  @return A scaling factor 
+ *
+ *  ### Sources
+ *  https://doi.org/10.1016/j.fcr.2010.07.007 
+ */
+double temperature_response(double temp)
+{
+    double Tref = 25.0;
+    double Q10  = 2.0;
+    double ans  = pow(Q10,(temp - Tref) / 10.0); 
 
     return ans;
 }
