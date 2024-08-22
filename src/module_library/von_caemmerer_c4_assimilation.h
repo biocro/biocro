@@ -15,6 +15,7 @@
 using std::array;
 
 
+
 /**
  * @brief A object for the Michaelis Menten affinity parameters.
  */
@@ -39,7 +40,7 @@ class K_type {
  */
 class Vmax_type {
 
-    array<double, 3> val;
+    array<double, 3> ref_value;
 
     public:
         Vmax_type(double vcmax, double vpmax, double vpr) :
