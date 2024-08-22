@@ -23,8 +23,6 @@ double ElectronTransportModel::light_nondimensionalize(double light_photon_flux_
     return beta/Jmax * light_photon_flux_density;
 }
 
-
-
 double VC_C4_Model::enzyme_limited_assimilation(
     double co2_mesophyll,
     double oxygen_mesophyll)
@@ -67,7 +65,7 @@ double VC_C4_Model::enzyme_limited_assimilation(
     double Q1 = x1 + y1; //Q'(0)
     // f(Ac) = ec + eb*Ac + ea * Ac * Ac
     double ea = Q1;
-    double eb = Q0  + Rd * Q1  - P1;
+    double eb = Rd * Q1 - P1 + Q0;
     double ec = Rd * Q0 - P0;
 
     // solve for lower root of f(Ac) = 0

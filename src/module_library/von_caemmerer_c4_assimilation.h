@@ -44,10 +44,10 @@ class Vmax_type {
 
     public:
         Vmax_type(double vcmax, double vpmax, double vpr) :
-         val({vcmax, vpmax, vpr}) {}
-        double rubisco_carboxylation(){return val[0];}
-        double pep_carboxylation(){return val[1];}
-        double pep_regeneration(){return val[2];}
+         ref_value({vcmax, vpmax, vpr}) {}
+        double rubisco_carboxylation(){return ref_value[0];}
+        double pep_carboxylation(){return ref_value[1];}
+        double pep_regeneration(){return ref_value[2];}
 
 };
 
@@ -71,6 +71,8 @@ public:
     double light_nondimensionalize(double light_photon_flux_density);
     double operator()(double light_photon_flux_density);
 };
+
+
 
 /**
  * @brief A object that holds other parameters for the C4 photosynthesis model.
