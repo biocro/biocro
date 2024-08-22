@@ -94,12 +94,12 @@ soybean <- list(
         # partitioning_coefficient_logistic module
         alphaRoot                   = 36.9670,
         betaRoot                    = -40.1915,
-        alphaStem                   = 27.2396,
-        betaStem                    = -22.3964,
-        alphaLeaf                   = 25.5416,
-        betaLeaf                    = -20.8222,
-        alphaShell                  = 10.4289,
-        betaShell                   = -7.8057,
+        alphaStem                   = 23.7509,
+        betaStem                    = -17.7246,
+        alphaLeaf                   = 23.8548,
+        betaLeaf                    = -18.5305,
+        alphaShell                  = 10.3599,
+        betaShell                   = -7.4092,
         kRhizome_emr                = 0,
 
         # soil_evaporation module
@@ -168,30 +168,30 @@ soybean <- list(
         growth_respiration_fraction = 0,
 
         # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
-        grc_stem                        = 0.001,   # dimensionless, optimized. growth respiration coefficient 
-        grc_root                        = 0.001,    # dimensionless, optimized 
+        grc_stem                        = 0.0361,   # dimensionless, optimized. growth respiration coefficient 
+        grc_root                        = 0.0025,    # dimensionless, optimized 
         
         # maintenance respiration module
-        mrc_leaf                        = 0.001,    # hour^-1, maintenance respiration coefficient. optimized 
-        mrc_stem                        = 0.001,    # hour^-1, optimized 
-        mrc_root                        = 0.001,    # hour^-1, optimized 
-        mrc_grain                       = 0.001,    # hour^-1, optimized 
+        mrc_leaf                        = 3.7e-4,    # hour^-1, maintenance respiration coefficient. optimized 
+        mrc_stem                        = 4.6e-4,    # hour^-1, optimized 
+        mrc_root                        = 1e-4,      # hour^-1, optimized 
+        mrc_grain                       = 1e-4,      # hour^-1, optimized 
 
         # partitioning_growth module
         retrans                     = 0.9,         # previously hard-coded in the partitioning_growth module
         retrans_rhizome             = 1.0,         # previously hard-coded in the partitioning_growth module
 
         # senescence_coefficient_logistic module
-        rateSeneLeaf                = 0.0100428,
-        rateSeneStem                = 0.0005118,
+        rateSeneLeaf                = 0.0097787,
+        rateSeneStem                = 0.0013796,
         rateSeneRoot                = 0,           # senescence of root not simulated in Soybean-BioCro
         rateSeneRhizome             = 0,           # no rhizome simulated in Soybean-BioCro
-        alphaSeneLeaf               = 15.39022,
-        alphaSeneStem               = 20.58836,
+        alphaSeneLeaf               = 45.2726,
+        alphaSeneStem               = 6.44918,
         alphaSeneRoot               = 10,          # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         alphaSeneRhizome            = 10,          # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
-        betaSeneLeaf                = -8.761004,
-        betaSeneStem                = -12.06983,
+        betaSeneLeaf                = -27.4968,
+        betaSeneStem                = -2.37850,
         betaSeneRoot                = -10,         # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         betaSeneRhizome             = -10,         # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
 
