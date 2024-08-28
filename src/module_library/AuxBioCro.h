@@ -144,7 +144,7 @@ inline double arrhenius_exponential(
     return exp(c - activation_energy / (ideal_gas_constant * temperature));
 }
 
-double Q10_temperature_response(double temp);
+double Q10_temperature_response(double temp,double Tref);
 
 #endif
 

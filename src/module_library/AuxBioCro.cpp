@@ -636,6 +636,24 @@ soilML_str soilML(
 }
 
 /**
+ *  @brief A typical Q10-based temperature response for the maintenance respiration 
+ *
+ *  @param [in] temp Temperature (degrees C)
+ *
+ *  @return A scaling factor 
+ *
+ *  ### Sources
+ *  https://doi.org/10.1016/j.fcr.2010.07.007 
+ */
+double Q10_temperature_response(double temp, double Tref)
+{
+    double Q10  = 2.0;
+    double ans  = pow(Q10,(temp - Tref) / 10.0); 
+
+    return ans;
+}
+
+/**
  *  @brief Subtracts respiratory losses from a carbon production rate
  *
  *  @param [in] base_rate The base rate of carbon production that does not
@@ -741,31 +759,13 @@ soilML_str soilML(
  */
 double resp(double base_rate, double grc, double temp)
 {
-    double ans = base_rate * (1 - (grc * pow(2, (temp / 10.0))));
+    double ans = base_rate * (1 - (grc * Q10_temperature_response(temp,0.0)));
 
     if (ans < 0) ans = 0;
 
     return ans;
 }
 
-/**
- *  @brief A typical Q10-based temperature response for the maintenance respiration 
- *
- *  @param [in] temp Temperature (degrees C)
- *
- *  @return A scaling factor 
- *
- *  ### Sources
- *  https://doi.org/10.1016/j.fcr.2010.07.007 
- */
-double Q10_temperature_response(double temp)
-{
-    double Tref = 25.0;
-    double Q10  = 2.0;
-    double ans  = pow(Q10,(temp - Tref) / 10.0); 
-
-    return ans;
-}
 
 seqRD_str seqRootDepth(double to, int lengthOut)
 {
