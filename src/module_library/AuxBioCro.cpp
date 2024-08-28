@@ -639,6 +639,8 @@ soilML_str soilML(
  *  @brief A typical Q10-based temperature response for the maintenance respiration 
  *
  *  @param [in] temp Temperature (degrees C)
+ *  
+ *  @param [in] Tref Reference Temperature (degrees C)
  *
  *  @return A scaling factor 
  *
