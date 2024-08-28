@@ -174,8 +174,8 @@ soybean <- list(
         # maintenance respiration module
         mrc_leaf                        = 3.7e-4,    # hour^-1, maintenance respiration coefficient. optimized 
         mrc_stem                        = 4.6e-4,    # hour^-1, optimized 
-        mrc_root                        = 1e-4,      # hour^-1, optimized 
-        mrc_grain                       = 1e-4,      # hour^-1, optimized 
+        mrc_root                        = 1e-5,      # hour^-1, optimized 
+        mrc_grain                       = 1e-5,      # hour^-1, optimized 
 
         # partitioning_growth module
         retrans                     = 0.9,         # previously hard-coded in the partitioning_growth module
