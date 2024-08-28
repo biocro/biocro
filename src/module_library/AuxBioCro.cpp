@@ -758,7 +758,7 @@ double resp(double base_rate, double grc, double temp)
  *  ### Sources
  *  https://doi.org/10.1016/j.fcr.2010.07.007 
  */
-double temperature_response(double temp)
+double Q10_temperature_response(double temp)
 {
     double Tref = 25.0;
     double Q10  = 2.0;

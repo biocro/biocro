@@ -104,17 +104,17 @@ string_vector maintenance_respiration::get_outputs()
 
 void maintenance_respiration::do_operation() const
 {
-    double dLeaf = -Leaf * mrc_leaf * temperature_response(temp);  // Mg / ha
+    double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp);  // Mg / ha
 
-    double dStem = -Stem * mrc_stem * temperature_response(temp); 
+    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp); 
 
-    double dRoot = -Root * mrc_root * temperature_response(temp); 
+    double dRoot = -Root * mrc_root * Q10_temperature_response(temp); 
     //assume rhizome has the same maintenance_respiration_coef as root
-    double dRhizome = -Rhizome * mrc_root * temperature_response(temp); 
+    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp); 
 
-    double dGrain = -Grain * mrc_grain * temperature_response(temp); 
+    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp); 
     //assume shell has the same maintenance_respiration_coef as grain 
-    double dShell = -Shell * mrc_grain * temperature_response(temp);  // Mg / ha
+    double dShell = -Shell * mrc_grain * Q10_temperature_response(temp);  // Mg / ha
 
     update(Leaf_op, dLeaf);                    // Mg / ha
     update(Stem_op, dStem);                    // Mg / ha
