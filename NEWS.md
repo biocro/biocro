@@ -33,7 +33,13 @@ be directly added to this file to describe the related changes.
 -->
 
 # UNRELEASED
-
+- Added maintenance respirations for each organ in a new module called 
+  `maintenance_respiration`. The maintenance respiration is modelled by removing 
+  a fraction of dry biomasses. It removes a fraction of an organ by a constant 
+  parameter called `mrc_*` (e.g., `mrc_leaf`) and also by a Q10-based 
+  temperature response. This differs from the existing growth respirations that
+  are applied to stem and root. The growth respiration is often to scale the 
+  carbon assimilation. 
 # MINOR USER-FACING CHANGES
 
 - Added a new vignette explaining key features of BioCro's multilayer canopy
