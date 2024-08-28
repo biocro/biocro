@@ -20,7 +20,7 @@ jobs:
     # Checks out this repository under $GITHUB_WORKSPACE/source:
 
     - name: 1. Check out master
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4
       with:
         submodules: true
         path: source
@@ -87,7 +87,7 @@ jobs:
     # check in our changes later, in the Push step:
 
     - name: 10. Check out master of the "publish-to" repository
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4
       with:
         repository: ${{ env.publish-to }}
         path: target
