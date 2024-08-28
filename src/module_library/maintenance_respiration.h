@@ -1,9 +1,9 @@
 #ifndef MAINTENANCE_RESPIRATION_H
-#define MAINTENANCE_RESPIRATION_H 
+#define MAINTENANCE_RESPIRATION_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "BioCro.h"  // for temprature_response 
+#include "AuxBioCro.h"  // for Q10_temprature_response
 
 namespace standardBML
 {
@@ -80,25 +80,25 @@ class maintenance_respiration : public differential_module
 string_vector maintenance_respiration::get_inputs()
 {
     return {
-        "Leaf",                    // Mg / ha
-        "Stem",                    // Mg / ha
-        "Root",                    // Mg / ha
-        "Rhizome",                 // Mg / ha
-        "Shell",                   // Mg / ha
-        "Grain",                   // Mg / ha
-        "temp"                     // degree C
+        "Leaf",     // Mg / ha
+        "Stem",     // Mg / ha
+        "Root",     // Mg / ha
+        "Rhizome",  // Mg / ha
+        "Shell",    // Mg / ha
+        "Grain",    // Mg / ha
+        "temp"      // degree C
     };
 }
 
 string_vector maintenance_respiration::get_outputs()
 {
     return {
-        "Leaf",           // Mg / ha
-        "Stem",           // Mg / ha
-        "Root",           // Mg / ha
-        "Rhizome",        // Mg / ha
-        "Shell",          // Mg / ha
-        "Grain"           // Mg / ha
+        "Leaf",     // Mg / ha
+        "Stem",     // Mg / ha
+        "Root",     // Mg / ha
+        "Rhizome",  // Mg / ha
+        "Shell",    // Mg / ha
+        "Grain"     // Mg / ha
     };
 }
 
@@ -106,22 +106,22 @@ void maintenance_respiration::do_operation() const
 {
     double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp);  // Mg / ha
 
-    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp); 
+    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp);
 
-    double dRoot = -Root * mrc_root * Q10_temperature_response(temp); 
+    double dRoot = -Root * mrc_root * Q10_temperature_response(temp);
     //assume rhizome has the same maintenance_respiration_coef as root
-    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp); 
+    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp);
 
-    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp); 
-    //assume shell has the same maintenance_respiration_coef as grain 
+    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp);
+    //assume shell has the same maintenance_respiration_coef as grain
     double dShell = -Shell * mrc_grain * Q10_temperature_response(temp);  // Mg / ha
 
-    update(Leaf_op, dLeaf);                    // Mg / ha
-    update(Stem_op, dStem);                    // Mg / ha
-    update(Root_op, dRoot);                    // Mg / ha
-    update(Rhizome_op, dRhizome);              // Mg / ha
-    update(Grain_op, dGrain);                  // Mg / ha
-    update(Shell_op, dShell);                  // Mg / ha
+    update(Leaf_op, dLeaf);        // Mg / ha
+    update(Stem_op, dStem);        // Mg / ha
+    update(Root_op, dRoot);        // Mg / ha
+    update(Rhizome_op, dRhizome);  // Mg / ha
+    update(Grain_op, dGrain);      // Mg / ha
+    update(Shell_op, dShell);      // Mg / ha
 }
 
 }  // namespace standardBML
