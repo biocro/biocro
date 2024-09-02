@@ -67,6 +67,7 @@
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
+#include "maintenance_respiration.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "soil_evaporation.h"
 #include "soil_sunlight.h"
@@ -151,6 +152,7 @@ creator_map standardBML::module_library::library_entries =
      {"rue_leaf_photosynthesis",                               &create_mc<rue_leaf_photosynthesis>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
+     {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
      {"shortwave_atmospheric_scattering",                      &create_mc<shortwave_atmospheric_scattering>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
