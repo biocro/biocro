@@ -1,6 +1,7 @@
 soybean <- list(
     direct_modules = list(
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
+        specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
         "BioCro:soybean_development_rate_calculator",
         leaf_water_stress = "BioCro:leaf_water_stress_exponential",
@@ -65,9 +66,11 @@ soybean <- list(
         soil_silt_content           = 0.34,
         soil_wilting_point          = 0.2,
 
-        # parameter_calculator module
+        # sla_linear module
         iSp                         = 3.5,         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
         Sp_thermal_time_decay       = 0,           # not used in Soybean-BioCro, but must be defined
+
+        # parameter_calculator module
         LeafN                       = 2,           # not used in Soybean-BioCro, but must be defined
         LeafN_0                     = 2,           # not used in Soybean-BioCro, but must be defined
         vmax_n_intercept            = 0,           # not used in Soybean-BioCro, but must be defined
@@ -168,14 +171,14 @@ soybean <- list(
         growth_respiration_fraction = 0,
 
         # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
-        grc_stem                        = 0.0361,   # dimensionless, optimized. growth respiration coefficient 
-        grc_root                        = 0.0025,    # dimensionless, optimized 
-        
+        grc_stem                        = 0.0361,   # dimensionless, optimized. growth respiration coefficient
+        grc_root                        = 0.0025,    # dimensionless, optimized
+
         # maintenance respiration module
-        mrc_leaf                        = 3.7e-4,    # hour^-1, maintenance respiration coefficient. optimized 
-        mrc_stem                        = 4.6e-4,    # hour^-1, optimized 
-        mrc_root                        = 1e-5,      # hour^-1, optimized 
-        mrc_grain                       = 1e-5,      # hour^-1, optimized 
+        mrc_leaf                        = 3.7e-4,    # hour^-1, maintenance respiration coefficient. optimized
+        mrc_stem                        = 4.6e-4,    # hour^-1, optimized
+        mrc_root                        = 1e-5,      # hour^-1, optimized
+        mrc_grain                       = 1e-5,      # hour^-1, optimized
 
         # partitioning_growth module
         retrans                     = 0.9,         # previously hard-coded in the partitioning_growth module

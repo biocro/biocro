@@ -11,8 +11,8 @@
 #include "aba_decay.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
-#include "bucket_soil_drainage.h"
 #include "buck_swvp.h"
+#include "bucket_soil_drainage.h"
 #include "c3_assimilation.h"
 #include "c3_canopy.h"
 #include "c3_leaf_photosynthesis.h"
@@ -39,6 +39,7 @@
 #include "linear_vmax_from_leaf_n.h"
 #include "litter_cover.h"
 #include "magic_clock.h"
+#include "maintenance_respiration.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
@@ -67,8 +68,8 @@
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
-#include "maintenance_respiration.h"
 #include "shortwave_atmospheric_scattering.h"
+#include "sla_linear.h"
 #include "soil_evaporation.h"
 #include "soil_sunlight.h"
 #include "solar_position_michalsky.h"
@@ -97,8 +98,8 @@ creator_map standardBML::module_library::library_entries =
      {"aba_decay",                                             &create_mc<aba_decay>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
-     {"bucket_soil_drainage",                                  &create_mc<bucket_soil_drainage>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
+     {"bucket_soil_drainage",                                  &create_mc<bucket_soil_drainage>},
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c3_leaf_photosynthesis",                                &create_mc<c3_leaf_photosynthesis>},
@@ -127,6 +128,7 @@ creator_map standardBML::module_library::library_entries =
      {"linear_vmax_from_leaf_n",                               &create_mc<linear_vmax_from_leaf_n>},
      {"litter_cover",                                          &create_mc<litter_cover>},
      {"magic_clock",                                           &create_mc<magic_clock>},
+     {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},
@@ -152,8 +154,8 @@ creator_map standardBML::module_library::library_entries =
      {"rue_leaf_photosynthesis",                               &create_mc<rue_leaf_photosynthesis>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
-     {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
      {"shortwave_atmospheric_scattering",                      &create_mc<shortwave_atmospheric_scattering>},
+     {"sla_linear",                                            &create_mc<sla_linear>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
      {"solar_position_michalsky",                              &create_mc<solar_position_michalsky>},
