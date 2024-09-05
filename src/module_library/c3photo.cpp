@@ -3,16 +3,13 @@
 #include "ball_berry_gs.h"              // for ball_berry_gs
 #include "FvCB_assim.h"                 // for FvCB_assim
 #include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "c3_temperature_response.h"    // for c3_temperature_response
 #include "AuxBioCro.h"                  // for arrhenius_exponential
-#include "../framework/constants.h"     // for ideal_gas_constant,
-                                        //     celsius_to_kelvin, dr_stomata,
-                                        //     dr_boundary
+#include "../framework/constants.h"     // for dr_stomata, dr_boundary
 #include "c3photo.h"
 
-using conversion_constants::celsius_to_kelvin;
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
-using physical_constants::ideal_gas_constant;
 
 photosynthesis_outputs c3photoC(
     double const absorbed_ppfd,                // micromol / m^2 / s
@@ -37,27 +34,53 @@ photosynthesis_outputs c3photoC(
     double const gbw                           // mol / m^2 / s
 )
 {
-    // Get leaf temperature in Kelvin
-    double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
-
-    // Temperature corrections are from the following sources:
+    // Calculate values of key parameters at leaf temperature. Temperature
+    // corrections are from the following sources:
     // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
     //   https://doi.org/10.1046/j.0016-8025.2003.01050.x
     // - Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
     //   https://doi.org/10.1111/j.1365-3040.2001.00668.x
+    // - Yang et al. (2016) Planta, 243, 687-698.
+    //   https://doi.org/10.1007/s00425-015-2436-8
     // Note: Values in Dubois and Bernacchi are incorrect.
-    double const Kc = arrhenius_exponential(38.05, 79.43e3, Tleaf_K);              // micromol / mol
-    double const Ko = arrhenius_exponential(20.30, 36.38e3, Tleaf_K);              // mmol / mol
-    double const Gstar = arrhenius_exponential(19.02, 37.83e3, Tleaf_K);           // micromol / mol
-    double const Vcmax = Vcmax0 * arrhenius_exponential(26.35, 65.33e3, Tleaf_K);  // micromol / m^2 / s
-    double const Jmax = Jmax0 * arrhenius_exponential(17.57, 43.54e3, Tleaf_K);    // micromol / m^2 / s
-    double const Rd = Rd0 * arrhenius_exponential(18.72, 46.39e3, Tleaf_K);        // micromol / m^2 / s
+    // Note about Tp_c: The value in Yang et al. (2016) is given as 25.50, but
+    //   the value of Tp_norm at 25 degrees C is 306.742 when using this value
+    //   of c. Here we use 25.5 - log(306.742) = 19.77399 to ensure Tp_norm = 1
+    //   at 25 degrees C.
+    c3_param_at_tleaf t_param = c3_temperature_response(
+        {/* Gstar_c = */ 19.02,
+         /* Gstar_Ea = */ 37.83e3,
+         /* Jmax_c = */ 17.57,
+         /* Jmax_Ea = */ 43.54e3,
+         /* Kc_c = */ 38.05,
+         /* Kc_Ea = */ 79.43e3,
+         /* Ko_c = */ 20.30,
+         /* Ko_Ea = */ 36.38e3,
+         /* phi_PSII_0 = */ 0.352,
+         /* phi_PSII_1 = */ 0.022,
+         /* phi_PSII_2 = */ -3.4e-4,
+         /* Rd_c = */ 18.72,
+         /* Rd_Ea = */ 46.39e3,
+         /* theta_0 = */ thet,
+         /* theta_1 = */ 0.018,
+         /* theta_2 = */ -3.7e-4,
+         /* Tp_c = */ 19.77399,
+         /* Tp_Ha = */ 62.99e3,
+         /* Tp_Hd = */ 182.14e3,
+         /* Tp_S = */ 0.588e3,
+         /* Vcmax_c = */ 26.35,
+         /* Vcmax_Ea = */ 65.33e3},
+        Tleaf);
 
-    double const theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf, 2);  // dimensionless
-
-    // Light limited
-    double const dark_adapted_phi_PSII =
-        0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 1e4;  // dimensionless (Bernacchi et al. (2003))
+    double const Kc = t_param.Kc;                           // micromol / mol
+    double const Ko = t_param.Ko;                           // mmol / mol
+    double const Gstar = t_param.Gstar;                     // micromol / mol
+    double const Vcmax = Vcmax0 * t_param.Vcmax_norm;       // micromol / m^2 / s
+    double const Jmax = Jmax0 * t_param.Jmax_norm;          // micromol / m^2 / s
+    double const Rd = Rd0 * t_param.Rd_norm;                // micromol / m^2 / s
+    double const theta = t_param.theta;                     // dimensionless
+    double const dark_adapted_phi_PSII = t_param.phi_PSII;  // dimensionless
+    double const TPU = TPU_rate_max * t_param.Tp_norm;      // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
@@ -77,25 +100,6 @@ photosynthesis_outputs c3photoC(
         (2.0 * theta);  // micromol / m^2 / s
 
     double const Oi = O2 * solo(Tleaf);  // mmol / mol
-
-    // TPU rate temperature dependence from Figure 7, Yang et al. (2016) Planta,
-    // 243, 687-698. https://doi.org/10.1007/s00425-015-2436-8
-    //
-    // In Yang et al., the equation in the caption of Figure 7 calculates the
-    // maximum rate of TPU utilization, but here we need the rate relative to
-    // its value at 25 degrees C (as shown in the figure itself). Using the
-    // equation, the rate at 25 degrees C can be found to have the value
-    // 306.742, so here we normalize the equation by this value.
-    double const TPU_c = 25.5;                                               // dimensionless (fitted constant)
-    double const Ha = 62.99e3;                                               // J / mol (enthalpy of activation)
-    double const S = 0.588e3;                                                // J / K / mol (entropy)
-    double const Hd = 182.14e3;                                              // J / mol (enthalpy of deactivation)
-    double const R = ideal_gas_constant;                                     // J / K / mol (ideal gas constant)
-    double const top = Tleaf_K * arrhenius_exponential(TPU_c, Ha, Tleaf_K);  // dimensionless
-    double const bot = 1.0 + arrhenius_exponential(S / R, Hd, Tleaf_K);      // dimensionless
-    double TPU_rate_multiplier = (top / bot) / 306.742;                      // dimensionless
-
-    double TPU = TPU_rate_max * TPU_rate_multiplier;  // micromol / m^2 / s
 
     // The alpha constant for calculating Ap is from Eq. 2.26, von Caemmerer, S.
     // Biochemical models of leaf photosynthesis.
