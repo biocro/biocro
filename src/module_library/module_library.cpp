@@ -70,6 +70,7 @@
 #include "senescence_logistic.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "sla_linear.h"
+#include "sla_logistic.h"
 #include "soil_evaporation.h"
 #include "soil_sunlight.h"
 #include "solar_position_michalsky.h"
@@ -156,6 +157,7 @@ creator_map standardBML::module_library::library_entries =
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
      {"shortwave_atmospheric_scattering",                      &create_mc<shortwave_atmospheric_scattering>},
      {"sla_linear",                                            &create_mc<sla_linear>},
+     {"sla_logistic",                                          &create_mc<sla_logistic>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
      {"solar_position_michalsky",                              &create_mc<solar_position_michalsky>},
