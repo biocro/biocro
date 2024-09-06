@@ -1,11 +1,11 @@
-#include <algorithm>                    // for std::min
-#include <cmath>                        // for exp
-#include "../framework/constants.h"     // for celsius_to_kelvin, dr_stomata, dr_boundary
-#include "AuxBioCro.h"                  // for arrhenius_exponential
-#include "ball_berry_gs.h"              // for ball_berry_gs
-#include "conductance_limited_assim.h"  // for conductance_limited_assim
-#include "leaf_energy_balance.h"        // for leaf_energy_balance
-#include "photosynthesis_outputs.h"     // for photosynthesis_outputs
+#include <algorithm>                         // for std::min
+#include <cmath>                             // for exp
+#include "../framework/constants.h"          // for celsius_to_kelvin, dr_stomata, dr_boundary
+#include "temperature_response_functions.h"  // for arrhenius_exponential
+#include "ball_berry_gs.h"                   // for ball_berry_gs
+#include "conductance_limited_assim.h"       // for conductance_limited_assim
+#include "leaf_energy_balance.h"             // for leaf_energy_balance
+#include "photosynthesis_outputs.h"          // for photosynthesis_outputs
 #include "rue_leaf_photosynthesis.h"
 
 using conversion_constants::celsius_to_kelvin;
@@ -65,7 +65,7 @@ photosynthesis_outputs rue_photo(
     stomata_outputs const BB_res =
         ball_berry_gs(an, Ca, RH, bb0, bb1, gbw, Tleaf, Tleaf);
 
-    double const gs = BB_res.gsw; // mol / m^2 / s
+    double const gs = BB_res.gsw;  // mol / m^2 / s
 
     // Determine intercellular CO2 concentration
     double const ci = Ca - an * (dr_boundary / gbw + dr_stomata / gs);  // dimensionless

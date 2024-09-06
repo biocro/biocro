@@ -1,11 +1,11 @@
-#include <cmath>                        // for pow, sqrt, std::abs
-#include <algorithm>                    // for std::min
-#include "ball_berry_gs.h"              // for ball_berry_gs
-#include "FvCB_assim.h"                 // for FvCB_assim
-#include "conductance_limited_assim.h"  // for conductance_limited_assim
-#include "c3_temperature_response.h"    // for c3_temperature_response
-#include "AuxBioCro.h"                  // for arrhenius_exponential
-#include "../framework/constants.h"     // for dr_stomata, dr_boundary
+#include <cmath>                             // for pow, sqrt, std::abs
+#include <algorithm>                         // for std::min
+#include "ball_berry_gs.h"                   // for ball_berry_gs
+#include "FvCB_assim.h"                      // for FvCB_assim
+#include "conductance_limited_assim.h"       // for conductance_limited_assim
+#include "c3_temperature_response.h"         // for c3_temperature_response
+#include "temperature_response_functions.h"  // for arrhenius_exponential
+#include "../framework/constants.h"          // for dr_stomata, dr_boundary
 #include "c3photo.h"
 
 using physical_constants::dr_boundary;

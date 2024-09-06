@@ -38,21 +38,6 @@ struct c3_param_at_tleaf {
     double Vcmax_norm;  //!< Vcmax normalized to its value at 25 degrees C (dimensionless)
 };
 
-double johnson_eyring_williams_response(
-    double c,           // dimensionless
-    double Ha,          // J / mol
-    double Hd,          // J / mol
-    double S,           // J / K / mol
-    double temperature  // K
-);
-
-double polynomial_response(
-    double c0,          // output units
-    double c1,          // output units * (degrees C)^(-1)
-    double c2,          // output units * (degrees C)^(-2)
-    double temperature  // degrees C
-);
-
 c3_param_at_tleaf c3_temperature_response(
     c3_temperature_response_parameters param,
     double Tleaf  // degrees C
