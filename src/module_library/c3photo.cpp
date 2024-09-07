@@ -36,15 +36,15 @@ photosynthesis_outputs c3photoC(
     // Calculate values of key parameters at leaf temperature
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
+    double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
+    double const Gstar = c3_param.Gstar;                     // micromol / mol
+    double const Jmax = Jmax0 * c3_param.Jmax_norm;          // micromol / m^2 / s
     double const Kc = c3_param.Kc;                           // micromol / mol
     double const Ko = c3_param.Ko;                           // mmol / mol
-    double const Gstar = c3_param.Gstar;                     // micromol / mol
-    double const Vcmax = Vcmax0 * c3_param.Vcmax_norm;       // micromol / m^2 / s
-    double const Jmax = Jmax0 * c3_param.Jmax_norm;          // micromol / m^2 / s
     double const Rd = Rd0 * c3_param.Rd_norm;                // micromol / m^2 / s
     double const theta = c3_param.theta;                     // dimensionless
-    double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
     double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
+    double const Vcmax = Vcmax0 * c3_param.Vcmax_norm;       // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the

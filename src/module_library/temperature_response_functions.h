@@ -82,7 +82,7 @@ inline double Q10_temperature_response(
  *    Comparative Physiology 20, 247–268 (1942)](https://doi.org/10.1002/jcp.1030200302)
  *
  *  - [Harley, P. C., Thomas, R. B., Reynolds, J. F. & Strain, B. R. Plant, Cell
- *    & Environment 15, 271–282 (1992)](10.1111/j.1365-3040.1992.tb00974.x)
+ *    & Environment 15, 271–282 (1992)](https://doi.org/10.1111/j.1365-3040.1992.tb00974.x)
  *
  *  - [Sharkey, T. D., Bernacchi, C. J., Farquhar, G. D. & Singsaas, E. L.
  *    Plant, Cell & Environment 30, 1035–1040 (2007)](10.1111/j.1365-3040.2007.01710.x)

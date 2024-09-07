@@ -16,6 +16,7 @@
 #include "c3_assimilation.h"
 #include "c3_canopy.h"
 #include "c3_leaf_photosynthesis.h"
+#include "c3_parameters.h"
 #include "c4_assimilation.h"
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
@@ -104,6 +105,7 @@ creator_map standardBML::module_library::library_entries =
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c3_leaf_photosynthesis",                                &create_mc<c3_leaf_photosynthesis>},
+     {"c3_parameters",                                         &create_mc<c3_parameters>},
      {"c4_assimilation",                                       &create_mc<c4_assimilation>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
