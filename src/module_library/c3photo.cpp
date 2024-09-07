@@ -4,7 +4,6 @@
 #include "FvCB_assim.h"                      // for FvCB_assim
 #include "conductance_limited_assim.h"       // for conductance_limited_assim
 #include "c3_temperature_response.h"         // for c3_temperature_response
-#include "temperature_response_functions.h"  // for arrhenius_exponential
 #include "../framework/constants.h"          // for dr_stomata, dr_boundary
 #include "c3photo.h"
 
@@ -12,6 +11,7 @@ using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 
 photosynthesis_outputs c3photoC(
+    c3_temperature_response_parameters const tr_param,
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
     double const Tambient,                     // degrees C
@@ -26,7 +26,6 @@ photosynthesis_outputs c3photoC(
     double const Ca,                           // micromol / mol
     double const AP,                           // Pa (TEMPORARILY UNUSED)
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
-    double const thet,                         // dimensionless
     double const StomWS,                       // dimensionless
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
@@ -34,53 +33,18 @@ photosynthesis_outputs c3photoC(
     double const gbw                           // mol / m^2 / s
 )
 {
-    // Calculate values of key parameters at leaf temperature. Temperature
-    // corrections are from the following sources:
-    // - Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
-    //   https://doi.org/10.1046/j.0016-8025.2003.01050.x
-    // - Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
-    //   https://doi.org/10.1111/j.1365-3040.2001.00668.x
-    // - Yang et al. (2016) Planta, 243, 687-698.
-    //   https://doi.org/10.1007/s00425-015-2436-8
-    // Note: Values in Dubois and Bernacchi are incorrect.
-    // Note about Tp_c: The value in Yang et al. (2016) is given as 25.50, but
-    //   the value of Tp_norm at 25 degrees C is 306.742 when using this value
-    //   of c. Here we use 25.5 - log(306.742) = 19.77399 to ensure Tp_norm = 1
-    //   at 25 degrees C.
-    c3_param_at_tleaf t_param = c3_temperature_response(
-        {/* Gstar_c = */ 19.02,
-         /* Gstar_Ea = */ 37.83e3,
-         /* Jmax_c = */ 17.57,
-         /* Jmax_Ea = */ 43.54e3,
-         /* Kc_c = */ 38.05,
-         /* Kc_Ea = */ 79.43e3,
-         /* Ko_c = */ 20.30,
-         /* Ko_Ea = */ 36.38e3,
-         /* phi_PSII_0 = */ 0.352,
-         /* phi_PSII_1 = */ 0.022,
-         /* phi_PSII_2 = */ -3.4e-4,
-         /* Rd_c = */ 18.72,
-         /* Rd_Ea = */ 46.39e3,
-         /* theta_0 = */ thet,
-         /* theta_1 = */ 0.018,
-         /* theta_2 = */ -3.7e-4,
-         /* Tp_c = */ 19.77399,
-         /* Tp_Ha = */ 62.99e3,
-         /* Tp_Hd = */ 182.14e3,
-         /* Tp_S = */ 0.588e3,
-         /* Vcmax_c = */ 26.35,
-         /* Vcmax_Ea = */ 65.33e3},
-        Tleaf);
+    // Calculate values of key parameters at leaf temperature
+    c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
-    double const Kc = t_param.Kc;                           // micromol / mol
-    double const Ko = t_param.Ko;                           // mmol / mol
-    double const Gstar = t_param.Gstar;                     // micromol / mol
-    double const Vcmax = Vcmax0 * t_param.Vcmax_norm;       // micromol / m^2 / s
-    double const Jmax = Jmax0 * t_param.Jmax_norm;          // micromol / m^2 / s
-    double const Rd = Rd0 * t_param.Rd_norm;                // micromol / m^2 / s
-    double const theta = t_param.theta;                     // dimensionless
-    double const dark_adapted_phi_PSII = t_param.phi_PSII;  // dimensionless
-    double const TPU = TPU_rate_max * t_param.Tp_norm;      // micromol / m^2 / s
+    double const Kc = c3_param.Kc;                           // micromol / mol
+    double const Ko = c3_param.Ko;                           // mmol / mol
+    double const Gstar = c3_param.Gstar;                     // micromol / mol
+    double const Vcmax = Vcmax0 * c3_param.Vcmax_norm;       // micromol / m^2 / s
+    double const Jmax = Jmax0 * c3_param.Jmax_norm;          // micromol / m^2 / s
+    double const Rd = Rd0 * c3_param.Rd_norm;                // micromol / m^2 / s
+    double const theta = c3_param.theta;                     // dimensionless
+    double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
+    double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
