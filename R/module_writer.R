@@ -1,6 +1,6 @@
 module.write = function(
         module.name , module.library, module.type,
-        inputs,  outputs,
+        inputs,  outputs, output_equations =NULL,
         input.units = NULL, output.units = NULL
 ){
     module.name.caps = toupper(module.name)
@@ -42,7 +42,7 @@ module.write = function(
 
 
 
-    update.template = make_update_template(outputs)
+    update.template = make_update_template(outputs, output_equations)
 
     sprintf(template,
             module.name , module.library, module.type,
@@ -157,7 +157,22 @@ make_get = function(x, units=NULL) {
            collapse=endl_tpl)
 }
 
-make_update_template = function(x){
-    paste0('update(', x, '_op, 0);',
-           collapse=endl_dbl)
+make_update_template = function(x, y=NULL){
+    if (is.null(y)){
+        out= paste0('update(', x, '_op, 0);',
+            collapse=endl_dbl)
+        return(out)
+    }
+    out= paste0('update(', x, '_op,', y, ');',
+            collapse=endl_dbl)
+    return(out)
+
+
+}
+
+tensor_string_vector = function(x, y){
+    paste(
+        rep(x, times =length(y)),
+        rep(y, each = length(x)),
+        sep="_")
 }

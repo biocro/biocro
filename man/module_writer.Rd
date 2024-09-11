@@ -9,8 +9,9 @@
 }
 \usage{
     module.write(
-        module.name , module.library, module.type,
+        module.name, module.library, module.type,
         inputs, outputs,
+        output_equations=NULL,
         input.units=NULL, output.units=NULL
     )
 }
@@ -30,6 +31,9 @@
     }
     \item{outputs}{
         A character vector of the module's output variables.
+    }
+    \item{output_equations}{
+        A character vector. The module's output variables will be updated with these variables. If \code{NULL}, a zero is inserted instead.
     }
     \item{input.units}{
         A character vector of the inputs' units. If \code{NULL}, no units are embedded.
