@@ -87,10 +87,10 @@ string_vector maintenance_respiration::get_inputs()
         "Shell",      // Mg / ha
         "Grain",      // Mg / ha
         "temp",       // degree C
-        "mrc_leaf",   // kg kg-1 h-1 
-        "mrc_stem",   // kg kg-1 h-1 
-        "mrc_root",   // kg kg-1 h-1 
-        "mrc_grain"   // kg kg-1 h-1 
+        "mrc_leaf",   // kg / kg / hr 
+        "mrc_stem",   // kg / kg / hr 
+        "mrc_root",   // kg / kg / hr 
+        "mrc_grain"   // kg / kg / hr 
     };
 }
 
