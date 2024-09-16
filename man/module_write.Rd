@@ -1,29 +1,29 @@
-\name{module.write}
-\alias{module.write}
+\name{module_write}
+\alias{module_write}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
     Generate a BioCro module header file.
 }
 \description{
-    To facilitate the creation of new BioCro modules, \code{module.write} generates a BioCro module header file. Given a set of input and output variables, \code{module.write} will create a C++ header file ('.h' file) filling in a template with the input and output variables with the correct C++ syntax for a BioCro module.
+    To facilitate the creation of new BioCro modules, \code{module_write} generates a BioCro module header file. Given a set of input and output variables, \code{module_write} will create a C++ header file ('.h' file) filling in a template with the input and output variables with the correct C++ syntax for a BioCro module.
 }
 \usage{
     module.write(
-        module.name, module.library, module.type,
+        module_name, module_library, module_type,
         inputs, outputs,
         output_equations=NULL,
-        input.units=NULL, output.units=NULL
+        input_units=NULL, output_units=NULL
     )
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-    \item{module.name}{
+    \item{module_name}{
         A string for the module's name.
     }
-    \item{module.library}{
+    \item{module_library}{
         A string for the module's library namespace. E.g., \code{'biocro'}.
     }
-    \item{module.type}{
+    \item{module_type}{
         A string setting the module type: \code{'direct'} or \code{'differential'}.
     }
     \item{inputs}{
@@ -35,10 +35,10 @@
     \item{output_equations}{
         A character vector. The module's output variables will be updated with these variables. If \code{NULL}, a zero is inserted instead.
     }
-    \item{input.units}{
+    \item{input_units}{
         A character vector of the inputs' units. If \code{NULL}, no units are embedded.
     }
-    \item{output.units}{
+    \item{output_units}{
         A character vector of the outputs' units. If \code{NULL}, no units are embedded.
     }
 }
@@ -65,12 +65,12 @@
 xs = c('x1','x2','x3')
 
 # Units
-xs.units <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
+xs_units <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
 # outputs
 ys = c('y1','y2')
 
-out <- module.write('testmod', 'testlib', 'direct',
-    inputs=xs, input.units= xs, outputs=ys)
+out <- module_write('testmod', 'testlib', 'direct',
+    inputs=xs, input_units= xs, outputs=ys)
 
 # Use writeLines to print to console
 writeLines(out)
@@ -81,17 +81,17 @@ writeLines(out, "./testmod.h")
 
 # Example 2: A differential module
 xs <- c('var_1','var_2')
-out <- module.write('testmod', 'testlib', 'differential', xs, xs)
+out <- module_write('testmod', 'testlib', 'differential', xs, xs)
 writeLines(out)
 
 
 # Example 3: Inconsistent modules
 
 \dontrun{
-  out <- module.write(inputs = c('x' ,'x'))
+  out <- module_write(inputs = c('x' ,'x'))
 
   ## Will run, but not consistent:
-  out <- module.write('inconsistent', 'examplelib', type='direct', inputs = 'x' , outputs = 'x')
+  out <- module_write('inconsistent', 'examplelib', type='direct', inputs = 'x' , outputs = 'x')
 }
 
 }

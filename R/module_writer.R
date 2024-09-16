@@ -1,10 +1,10 @@
-module.write = function(
-        module.name , module.library, module.type,
+module_write = function(
+        module_name , module_library, module_type,
         inputs,  outputs, output_equations =NULL,
-        input.units = NULL, output.units = NULL
+        input_units = NULL, output_units = NULL
 ){
-    module.name.caps = toupper(module.name)
-    module.library.caps = toupper(module.library)
+    module_name_caps = toupper(module_name)
+    module_library_caps = toupper(module_library)
 
     # check for duplicate inputs
     if(anyDuplicated(inputs)){
@@ -18,38 +18,38 @@ module.write = function(
         stop(e)
     }
 
-    not_null = !is.null(input.units)
-    inputs_not_same_length = length(inputs) != length(input.units)
+    not_null = !is.null(input_units)
+    inputs_not_same_length = length(inputs) != length(input_units)
     if (inputs_not_same_length && not_null){
-        e <- simpleError("The arguments `inputs` and `input.units` do not have the same length.")
+        e <- simpleError("The arguments `inputs` and `input_units` do not have the same length.")
         stop(e)
     }
 
-    not_null = !is.null(output.units)
-    outputs_not_same_length = length(outputs) != length(output.units)
+    not_null = !is.null(output_units)
+    outputs_not_same_length = length(outputs) != length(output_units)
     if (outputs_not_same_length && not_null){
-        e <- simpleError("The arguments `outputs` and `output.units` do not have the same length.")
+        e <- simpleError("The arguments `outputs` and `output_units` do not have the same length.")
         stop(e)
     }
 
-    input.field = make_input_initializations(inputs)
-    input.ptr = make_input_reference_list(inputs)
-    input.get = make_get(inputs, input.units)
+    input_field = make_input_initializations(inputs)
+    input_ptr = make_input_reference_list(inputs)
+    input_get = make_get(inputs, input_units)
 
-    output.field = make_output_initializations(outputs)
-    output.ptr = make_output_pointer_list(outputs)
-    output.get = make_get(outputs, output.units)
+    output_field = make_output_initializations(outputs)
+    output_ptr = make_output_pointer_list(outputs)
+    output_get = make_get(outputs, output_units)
 
 
 
-    update.template = make_update_template(outputs, output_equations)
+    update_template = make_update_template(outputs, output_equations)
 
     sprintf(template,
-            module.name , module.library, module.type,
-            module.name.caps, module.library.caps,
-            input.field, input.ptr, input.get,
-            output.field, output.ptr, output.get,
-            update.template )
+            module_name , module_library, module_type,
+            module_name_caps, module_library_caps,
+            input_field, input_ptr, input_get,
+            output_field, output_ptr, output_get,
+            update_template )
 }
 
 template = "
@@ -170,9 +170,14 @@ make_update_template = function(x, y=NULL){
 
 }
 
-tensor_string_vector = function(x, y){
-    paste(
-        rep(x, times =length(y)),
-        rep(y, each = length(x)),
-        sep="_")
+tensor_string_vector = function(x, y, sep="_", order_by_left_first=TRUE){
+    if (order_by_left_first){
+        left = rep(x, each =length(y))
+        right =  rep(y, times = length(x))
+    }
+    else {
+        left = rep(x, times=length(y))
+        right = rep(y, each = length(x))
+    }
+    paste(left, right , sep=sep)
 }
