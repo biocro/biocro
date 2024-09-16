@@ -35,9 +35,6 @@
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 
 # example one; all pairs of upper and lowercase letters.
