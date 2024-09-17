@@ -170,14 +170,12 @@ make_update_template = function(x, y=NULL){
 
 }
 
-tensor_string_vector = function(x, y, sep="_", order_by_left_first=TRUE){
+tensor_string_vector = function(x, y, sep="_", order_by_left_first=FALSE){
+    out = outer(x, y, FUN=paste, sep=sep)
+
     if (order_by_left_first){
-        left = rep(x, each =length(y))
-        right =  rep(y, times = length(x))
+        out = t(out)
     }
-    else {
-        left = rep(x, times=length(y))
-        right = rep(y, each = length(x))
-    }
-    paste(left, right , sep=sep)
+
+    as.vector(out)
 }
