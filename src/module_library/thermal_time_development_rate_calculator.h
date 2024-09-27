@@ -12,8 +12,6 @@ namespace standardBML
  * @brief Calculates hourly plant development rate based on thermal time ranges
  * of emergence, vegetative, and reproductive growth stages.
  *
- * This module is designed to be used with the `development_index module`.
- *
  * Based on growth rate functions from Osborne et al. and uses the following
  * `DVI` ranges:
  *
@@ -33,6 +31,16 @@ namespace standardBML
  * thermal time for each of the above three growth stages (`TTemr`, `TTveg`,
  * and `TTrep`).
  *
+ * This module is intended to be used along with the `development_index` module,
+ * and it is particularly useful for modeling soybean growth, since it can
+ * easily be swapped with the `soybean_development_rate_calculator` module to
+ * compare thermal and photothermal development. However, this module specifies
+ * a linear thermal time equation identical to the one implemented by the
+ * `thermal_time_linear` module, and cannot represent other thermal time
+ * equations, such as the one implemented in the `thermal_time_bilinear` module.
+ * For more flexibility regarding thermal time calculations, an alternative
+ * approach is to use the `development_index_from_thermal_time` module instead.
+ * See that module's documentation for more information.
  *
  * ### References:
  *

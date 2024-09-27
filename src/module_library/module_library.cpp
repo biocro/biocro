@@ -22,6 +22,7 @@
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
 #include "development_index.h"
+#include "development_index_from_thermal_time.h"
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
 #include "fake_solar.h"
@@ -111,6 +112,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
      {"development_index",                                     &create_mc<development_index>},
+     {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
      {"example_model_partitioning",                            &create_mc<example_model_partitioning>},
      {"fake_solar",                                            &create_mc<fake_solar>},
