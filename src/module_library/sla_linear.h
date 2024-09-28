@@ -6,6 +6,26 @@
 
 namespace standardBML
 {
+/**
+ *  @class sla_linear
+ *
+ *  @brief Calculates the specific leaf area as a linear function of thermal
+ *  time.
+ *
+ *  As plants age, they tend to produce thicker leaves. Thus, the leaf mass per
+ *  area increases, while its inverse, the specific leaf area, decreases.
+ *
+ *  Here, this process is modeled as a linear dependence of specific leaf area
+ *  (`Sp`) on thermal time (`TTc`):
+ *
+ *  > `Sp = iSp - Sp_thermal_time_decay * TTc`,
+ *
+ *  where `iSp` is the initial value of the specific leaf area and
+ *  `Sp_thermal_time_decay` is the slope.
+ *
+ *  For an alternate way to model specific leaf area, see the `sla_logistic`
+ *  module.
+ */
 class sla_linear : public direct_module
 {
    public:

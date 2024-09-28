@@ -98,7 +98,7 @@ inline double Q10_temperature_response(
  *
  *  @param [in] S Entropy (J / K / mol)
  *
- *  @param [in] temperature_k Temperature (K)
+ *  @param [in] temperature_k Absolute temperature (K)
  *
  *  @return The value of a reaction rate (or some other parameter) at the
  *          specified temperature; the units of the return value will depend on
@@ -135,6 +135,8 @@ inline double johnson_eyring_williams_response(
  *
  *  @param [in] c2 The second-order coefficient, in units of
  *                 (output units) / (degrees C)^2
+ *
+ *  @param [in] temperature_c Temperature (degrees C)
  *
  */
 inline double polynomial_response(

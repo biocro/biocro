@@ -349,12 +349,6 @@ double shaded_radiation(
  *  @brief Computes an n-layered light profile from the direct light, diffuse
  *  light, leaf area index, solar zenith angle, and other parameters.
  *
- *  @param [in] absorptivity_nir The leaf absorptivity for NIR radiation
- *              on a quantum basis (dimensionless from mol / mol)
- *
- *  @param [in] absorptivity_par The leaf absorptivity for PAR radiation
- *              on a quantum basis (dimensionless from mol / mol)
- *
  *  @param [in] ambient_ppfd_beam Photosynthetically active photon flux density
  *              (PPFD) for beam light passing through a surface perpendicular
  *              to the beam direction at the top of the canopy; this represents
