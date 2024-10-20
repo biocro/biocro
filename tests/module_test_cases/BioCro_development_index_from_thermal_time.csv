@@ -1,0 +1,6 @@
+input,input,input,input,output,"description"
+TTc,TTemr,TTrep,TTveg,DVI,NA
+45,60,900,600,-0.25,"pre-emergence"
+300,60,900,600,0.4,"vegetative"
+840,60,900,600,1.2,"reproductive"
+1740,60,900,600,2.2,"post-maturity"

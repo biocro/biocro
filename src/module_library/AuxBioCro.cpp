@@ -9,14 +9,13 @@
 #include <vector>
 #include "c4photo.h"
 #include "BioCro.h"
-#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "sunML.h"                       // for thick_layer_absorption
-#include "water_and_air_properties.h"    // for saturation_vapor_pressure,
-                                         // TempToDdryA, TempToLHV, TempToSFS
-#include "../framework/constants.h"      // for pi, e, ideal_gas_constant,
-                                         // atmospheric_pressure_at_sea_level,
-                                         // molar_mass_of_water, stefan_boltzmann
-                                         // celsius_to_kelvin
+#include "temperature_response_functions.h"  // for Q10_temperature_response
+#include "boundary_layer_conductance.h"      // for leaf_boundary_layer_conductance_nikolov
+#include "sunML.h"                           // for thick_layer_absorption
+#include "water_and_air_properties.h"        // for saturation_vapor_pressure,
+                                             // TempToDdryA, TempToLHV, TempToSFS
+#include "../framework/constants.h"          // for pi, e, molar_mass_of_water,
+                                             // celsius_to_kelvin, stefan_boltzmann
 
 using std::vector;
 
@@ -636,26 +635,6 @@ soilML_str soilML(
 }
 
 /**
- *  @brief A typical Q10-based temperature response for the maintenance respiration 
- *
- *  @param [in] temp Temperature (degrees C)
- *  
- *  @param [in] Tref Reference Temperature (degrees C)
- *
- *  @return A scaling factor 
- *
- *  ### Sources
- *  https://doi.org/10.1016/j.fcr.2010.07.007 
- */
-double Q10_temperature_response(double temp, double Tref)
-{
-    double Q10  = 2.0;
-    double ans  = pow(Q10,(temp - Tref) / 10.0); 
-
-    return ans;
-}
-
-/**
  *  @brief Subtracts respiratory losses from a carbon production rate
  *
  *  @param [in] base_rate The base rate of carbon production that does not
@@ -761,13 +740,12 @@ double Q10_temperature_response(double temp, double Tref)
  */
 double resp(double base_rate, double grc, double temp)
 {
-    double ans = base_rate * (1 - (grc * Q10_temperature_response(temp,0.0)));
+    double ans = base_rate * (1 - (grc * Q10_temperature_response(temp, 0.0)));
 
     if (ans < 0) ans = 0;
 
     return ans;
 }
-
 
 seqRD_str seqRootDepth(double to, int lengthOut)
 {

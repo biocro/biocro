@@ -55,8 +55,6 @@ double vapor_density_from_pressure(
  *  Leaf temperature and transpiration are calculated using Equations 14.11e
  *  and 14.4c, respectively, from Thornley & Johnson (1990).
  *
- *  @param [in] pressure Gas pressure in Pa
- *
  *  @param [in] absorbed_longwave_energy Absorbed light energy in the longwave
  *              (infrared) band (J / m^2 / s)
  *

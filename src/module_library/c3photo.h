@@ -1,9 +1,11 @@
 #ifndef C3PHOTO_H
 #define C3PHOTO_H
 
-#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
+#include "photosynthesis_outputs.h"   // for photosynthesis_outputs
+#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 
 photosynthesis_outputs c3photoC(
+    c3_temperature_response_parameters const tr_param,
     double const absorbed_ppfd,
     double const Tleaf,
     double const Tambient,
@@ -18,7 +20,6 @@ photosynthesis_outputs c3photoC(
     double Ca,
     double const AP,
     double const O2,
-    double const thet,
     double const StomWS,
     double const electrons_per_carboxylation,
     double const electrons_per_oxygenation,

@@ -27,20 +27,28 @@ class c3_canopy : public direct_module
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
-          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
+          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           Gs_min{get_input(input_quantities, "Gs_min")},
+          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           heightf{get_input(input_quantities, "heightf")},
           jmax{get_input(input_quantities, "jmax")},
-          kpLN{get_input(input_quantities, "kpLN")},
+          Jmax_c{get_input(input_quantities, "Jmax_c")},
+          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
+          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_Ea{get_input(input_quantities, "Kc_Ea")},
+          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_Ea{get_input(input_quantities, "Ko_Ea")},
+          kpLN{get_input(input_quantities, "kpLN")},
           lai{get_input(input_quantities, "lai")},
-          LeafN{get_input(input_quantities, "LeafN")},
-          leafwidth{get_input(input_quantities, "leafwidth")},
           leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
           leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
           leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
           leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
+          LeafN{get_input(input_quantities, "LeafN")},
+          leafwidth{get_input(input_quantities, "leafwidth")},
           lnb0{get_input(input_quantities, "lnb0")},
           lnb1{get_input(input_quantities, "lnb1")},
           lnfun{get_input(input_quantities, "lnfun")},
@@ -48,16 +56,29 @@ class c3_canopy : public direct_module
           O2{get_input(input_quantities, "O2")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
+          phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
+          phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
+          phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
           Rd{get_input(input_quantities, "Rd")},
+          Rd_c{get_input(input_quantities, "Rd_c")},
+          Rd_Ea{get_input(input_quantities, "Rd_Ea")},
           rh{get_input(input_quantities, "rh")},
           solar{get_input(input_quantities, "solar")},
           StomataWS{get_input(input_quantities, "StomataWS")},
           temp{get_input(input_quantities, "temp")},
-          theta{get_input(input_quantities, "theta")},
+          theta_0{get_input(input_quantities, "theta_0")},
+          theta_1{get_input(input_quantities, "theta_1")},
+          theta_2{get_input(input_quantities, "theta_2")},
+          Tp_c{get_input(input_quantities, "Tp_c")},
+          Tp_Ha{get_input(input_quantities, "Tp_Ha")},
+          Tp_Hd{get_input(input_quantities, "Tp_Hd")},
+          Tp_S{get_input(input_quantities, "Tp_S")},
           tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
+          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
           vmax{get_input(input_quantities, "vmax")},
-          windspeed_height{get_input(input_quantities, "windspeed_height")},
           windspeed{get_input(input_quantities, "windspeed")},
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -85,20 +106,28 @@ class c3_canopy : public direct_module
     double const& cosine_zenith_angle;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& growth_respiration_fraction;
     double const& gbw_canopy;
+    double const& growth_respiration_fraction;
     double const& Gs_min;
+    double const& Gstar_c;
+    double const& Gstar_Ea;
     double const& heightf;
     double const& jmax;
-    double const& kpLN;
+    double const& Jmax_c;
+    double const& Jmax_Ea;
     double const& k_diffuse;
+    double const& Kc_c;
+    double const& Kc_Ea;
+    double const& Ko_c;
+    double const& Ko_Ea;
+    double const& kpLN;
     double const& lai;
-    double const& LeafN;
-    double const& leafwidth;
     double const& leaf_reflectance_nir;
     double const& leaf_reflectance_par;
     double const& leaf_transmittance_nir;
     double const& leaf_transmittance_par;
+    double const& LeafN;
+    double const& leafwidth;
     double const& lnb0;
     double const& lnb1;
     double const& lnfun;
@@ -106,16 +135,29 @@ class c3_canopy : public direct_module
     double const& O2;
     double const& par_energy_content;
     double const& par_energy_fraction;
+    double const& phi_PSII_0;
+    double const& phi_PSII_1;
+    double const& phi_PSII_2;
     double const& Rd;
+    double const& Rd_c;
+    double const& Rd_Ea;
     double const& rh;
     double const& solar;
     double const& StomataWS;
     double const& temp;
-    double const& theta;
+    double const& theta_0;
+    double const& theta_1;
+    double const& theta_2;
+    double const& Tp_c;
+    double const& Tp_Ha;
+    double const& Tp_Hd;
+    double const& Tp_S;
     double const& tpu_rate_max;
+    double const& Vcmax_c;
+    double const& Vcmax_Ea;
     double const& vmax;
-    double const& windspeed_height;
     double const& windspeed;
+    double const& windspeed_height;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

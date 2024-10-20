@@ -13,19 +13,16 @@ class parameter_calculator : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          iSp_ip{get_ip(input_quantities, "iSp")},
-          TTc_ip{get_ip(input_quantities, "TTc")},
-          Sp_thermal_time_decay_ip{get_ip(input_quantities, "Sp_thermal_time_decay")},
-          Leaf_ip{get_ip(input_quantities, "Leaf")},
-          LeafN_0_ip{get_ip(input_quantities, "LeafN_0")},
-          LeafN_ip{get_ip(input_quantities, "LeafN")},
-          vmax_n_intercept_ip{get_ip(input_quantities, "vmax_n_intercept")},
-          vmax1_ip{get_ip(input_quantities, "vmax1")},
-          alphab1_ip{get_ip(input_quantities, "alphab1")},
-          alpha1_ip{get_ip(input_quantities, "alpha1")},
+          Sp{get_input(input_quantities, "Sp")},
+          Leaf{get_input(input_quantities, "Leaf")},
+          LeafN_0{get_input(input_quantities, "LeafN_0")},
+          LeafN{get_input(input_quantities, "LeafN")},
+          vmax_n_intercept{get_input(input_quantities, "vmax_n_intercept")},
+          vmax1{get_input(input_quantities, "vmax1")},
+          alphab1{get_input(input_quantities, "alphab1")},
+          alpha1{get_input(input_quantities, "alpha1")},
 
           // Get pointers to output quantities
-          Sp_op{get_op(output_quantities, "Sp")},
           lai_op{get_op(output_quantities, "lai")},
           vmax_op{get_op(output_quantities, "vmax")},
           alpha_op{get_op(output_quantities, "alpha")}
@@ -36,20 +33,17 @@ class parameter_calculator : public direct_module
     static std::string get_name() { return "parameter_calculator"; }
 
    private:
-    // Pointers to input quantities
-    const double* iSp_ip;
-    const double* TTc_ip;
-    const double* Sp_thermal_time_decay_ip;
-    const double* Leaf_ip;
-    const double* LeafN_0_ip;
-    const double* LeafN_ip;
-    const double* vmax_n_intercept_ip;
-    const double* vmax1_ip;
-    const double* alphab1_ip;
-    const double* alpha1_ip;
+    // References to input quantities
+    double const& Sp;
+    double const& Leaf;
+    double const& LeafN_0;
+    double const& LeafN;
+    double const& vmax_n_intercept;
+    double const& vmax1;
+    double const& alphab1;
+    double const& alpha1;
 
     // Pointers to output quantities
-    double* Sp_op;
     double* lai_op;
     double* vmax_op;
     double* alpha_op;
@@ -61,37 +55,31 @@ class parameter_calculator : public direct_module
 string_vector parameter_calculator::get_inputs()
 {
     return {
-        "iSp",
-        "TTc",
-        "Sp_thermal_time_decay",
-        "Leaf",
-        "LeafN_0",
-        "LeafN",
-        "vmax_n_intercept",
-        "vmax1",
-        "alphab1",
-        "alpha1"};
+        "Sp",                // Ha / Mg
+        "Leaf",              // Mg / Ha
+        "LeafN_0",           //
+        "LeafN",             //
+        "vmax_n_intercept",  //
+        "vmax1",             // micromol / m^2 / s
+        "alphab1",           //
+        "alpha1"             //
+    };
 }
 
 string_vector parameter_calculator::get_outputs()
 {
     return {
-        "Sp",
-        "lai",
-        "vmax",
-        "alpha"};
+        "lai",   // dimensionless
+        "vmax",  // micromol / m^2 / s
+        "alpha"  //
+    };
 }
 
 void parameter_calculator::do_operation() const
 {
-    // Collect inputs and make calculations
-    double Sp = (*iSp_ip) - (*TTc_ip) * (*Sp_thermal_time_decay_ip);
-
-    // Update the output quantity list
-    update(Sp_op, Sp);
-    update(lai_op, (*Leaf_ip) * Sp);
-    update(vmax_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*vmax_n_intercept_ip) + (*vmax1_ip));
-    update(alpha_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*alphab1_ip) + (*alpha1_ip));
+    update(lai_op, Leaf * Sp);
+    update(vmax_op, (LeafN_0 - LeafN) * vmax_n_intercept + vmax1);
+    update(alpha_op, (LeafN_0 - LeafN) * alphab1 + alpha1);
 }
 
 }  // namespace standardBML

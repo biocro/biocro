@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // for Q10_temprature_response
+#include "temperature_response_functions.h"  // for Q10_temprature_response
 
 namespace standardBML
 {
@@ -13,8 +13,8 @@ namespace standardBML
  * @brief Calculates the change in plant organ biomasses due to maintenance respiration.
  *
  * The amount that each plant component respires is determined as a
- * percentage of its current biomass. 
- * This ideas is from this paper: 
+ * percentage of its current biomass.
+ * This ideas is from this paper:
  * (https://doi.org/10.1016/j.fcr.2010.07.007)
  */
 class maintenance_respiration : public differential_module
@@ -87,10 +87,10 @@ string_vector maintenance_respiration::get_inputs()
         "Shell",      // Mg / ha
         "Grain",      // Mg / ha
         "temp",       // degree C
-        "mrc_leaf",   // kg / kg / hr 
-        "mrc_stem",   // kg / kg / hr 
-        "mrc_root",   // kg / kg / hr 
-        "mrc_grain"   // kg / kg / hr 
+        "mrc_leaf",   // kg / kg / hr
+        "mrc_stem",   // kg / kg / hr
+        "mrc_root",   // kg / kg / hr
+        "mrc_grain"   // kg / kg / hr
     };
 }
 
@@ -110,17 +110,17 @@ void maintenance_respiration::do_operation() const
 {
     double Tref = 25.0;  // reference temperature for the Q10 function
 
-    double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp,Tref);  // Mg / ha
+    double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp, Tref);  // Mg / ha
 
-    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp,Tref);
+    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp, Tref);
 
-    double dRoot = -Root * mrc_root * Q10_temperature_response(temp,Tref);
+    double dRoot = -Root * mrc_root * Q10_temperature_response(temp, Tref);
     //assume rhizome has the same maintenance_respiration_coef as root
-    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp,Tref);
+    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp, Tref);
 
-    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp,Tref);
+    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp, Tref);
     //assume shell has the same maintenance_respiration_coef as grain
-    double dShell = -Shell * mrc_grain * Q10_temperature_response(temp,Tref);  // Mg / ha
+    double dShell = -Shell * mrc_grain * Q10_temperature_response(temp, Tref);  // Mg / ha
 
     update(Leaf_op, dLeaf);        // Mg / ha
     update(Stem_op, dStem);        // Mg / ha
