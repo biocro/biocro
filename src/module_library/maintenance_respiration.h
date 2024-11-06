@@ -112,7 +112,7 @@ void maintenance_respiration::do_operation() const
 
     double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp,Tref);  // Mg / ha
 
-    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp,Tref);
+    double dStem = -Stem * mrc_leaf * Q10_temperature_response(temp,Tref);
 
     double dRoot = -Root * mrc_root * Q10_temperature_response(temp,Tref);
     //assume rhizome has the same maintenance_respiration_coef as root
