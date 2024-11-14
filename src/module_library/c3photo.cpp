@@ -44,7 +44,8 @@ photosynthesis_outputs c3photoC(
     double const Rd = Rd0 * c3_param.Rd_norm;                // micromol / m^2 / s
     double const theta = c3_param.theta;                     // dimensionless
     double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
-    double const Vcmax = Vcmax0 * c3_param.Vcmax_norm;       // micromol / m^2 / s
+//    double const Vcmax = Vcmax0 * c3_param.Vcmax_norm;       // micromol / m^2 / s
+    double const Vcmax = Vcmax0 * Vcmax_multiplier(Tleaf+273.15); // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
@@ -160,4 +161,21 @@ double solo(
 )
 {
     return (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
+}
+
+double Vcmax_multiplier(double T_kelvin){
+//  Eq. 10 in,
+//  Scafaro, A.P., Posch, B.C., Evans, J.R. et al. Rubisco deactivation and chloroplast electron transport rates co-limit photosynthesis above optimal leaf temperature in terrestrial plants. Nat Commun 14, 2820 (2023). https://doi.org/10.1038/s41467-023-38496-4
+  double Tgrowth =  24.0; 
+  double Ha = 82992.-632.*Tgrowth;
+  double Tref = 25.0 + 273.15; //kelvin
+  double R = 8.314;//gas constant J K-1 mol-1
+  double deltaS = 668.39 - 1.07 * Tgrowth;//J mol-1
+  double Hd = 200.e3;//J mol-1
+  
+  double term1 = exp(Ha*(T_kelvin - Tref)/(Tref*R*T_kelvin));
+  double term2 = 1.0 + exp(Tref*(deltaS - Hd)/(Tref*R));
+  double term3 = 1.0 + exp((T_kelvin*deltaS - Hd)/(T_kelvin*R));
+  
+  return term1 * term2 / term3;
 }

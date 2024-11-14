@@ -29,4 +29,6 @@ photosynthesis_outputs c3photoC(
 double solc(double LeafT);
 double solo(double LeafT);
 
+double Vcmax_multiplier(double T_kelvin);
+
 #endif
