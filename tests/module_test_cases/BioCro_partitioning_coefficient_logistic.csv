@@ -1,3 +1,3 @@
-input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
-DVI,alphaLeaf,alphaRoot,alphaShell,alphaStem,betaLeaf,betaRoot,betaShell,betaStem,kRhizome_emr,kGrain,kLeaf,kRhizome,kRoot,kShell,kStem,NA
-1,1,1,1,1,1,1,1,1,1,0.0327265563653861,0.241818360908653,0,0.241818360908653,0.241818360908653,0.241818360908653,"automatically-generated test case"
+input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,"description"
+DVI,alphaLeaf,alphaNodule,alphaRoot,alphaShell,alphaStem,betaLeaf,betaNodule,betaRoot,betaShell,betaStem,kRhizome_emr,kGrain,kLeaf,kNodule,kRhizome,kRoot,kShell,kStem,NA
+1,1,1,1,1,1,1,1,1,1,1,1,0.0263537385140929,0.194729252297181,0.194729252297181,0,0.194729252297181,0.194729252297181,0.194729252297181,"automatically-generated test case"

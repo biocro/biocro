@@ -72,6 +72,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
           kShell{get_input(input_quantities, "kShell")},
+          kNodule{get_input(input_quantities, "kNodule")},
           canopy_assim{get_input(input_quantities, "canopy_assimilation_rate")},
           grc_stem{get_input(input_quantities, "grc_stem")},
           grc_root{get_input(input_quantities, "grc_root")},
@@ -84,7 +85,8 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
           net_assimilation_rate_root_op{get_op(output_quantities, "net_assimilation_rate_root")},
           net_assimilation_rate_rhizome_op{get_op(output_quantities, "net_assimilation_rate_rhizome")},
           net_assimilation_rate_grain_op{get_op(output_quantities, "net_assimilation_rate_grain")},
-          net_assimilation_rate_shell_op{get_op(output_quantities, "net_assimilation_rate_shell")}
+          net_assimilation_rate_shell_op{get_op(output_quantities, "net_assimilation_rate_shell")},
+          net_assimilation_rate_nodule_op{get_op(output_quantities, "net_assimilation_rate_nodule")}
     {
     }
     static string_vector get_inputs();
@@ -99,6 +101,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     const double& kRhizome;
     const double& kGrain;
     const double& kShell;
+    const double& kNodule;
     const double& canopy_assim;
     const double& grc_stem;
     const double& grc_root;
@@ -112,6 +115,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public direct_modu
     double* net_assimilation_rate_rhizome_op;
     double* net_assimilation_rate_grain_op;
     double* net_assimilation_rate_shell_op;
+    double* net_assimilation_rate_nodule_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -126,6 +130,7 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs(
         "kRhizome",                  // dimensionless
         "kGrain",                    // dimensionless
         "kShell",                    // dimensionless
+        "kNodule",                   // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "grc_stem",                  // dimensionless
         "grc_root",                  // dimensionless
@@ -142,7 +147,8 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs
         "net_assimilation_rate_root",     // Mg / ha / hour
         "net_assimilation_rate_rhizome",  // Mg / ha / hour
         "net_assimilation_rate_grain",    // Mg / ha / hour
-        "net_assimilation_rate_shell"     // Mg / ha / hour
+        "net_assimilation_rate_shell",    // Mg / ha / hour
+        "net_assimilation_rate_nodule"    // Mg / ha / hour
     };
 }
 
@@ -178,6 +184,11 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
     double net_assimilation_rate_shell{
         kShell > 0 ? canopy_assim * kShell : 0};
 
+    // Calculate the rate of new nodule production without any respiratory costs
+    // (Mg / ha / hr)
+    double net_assimilation_rate_nodule{
+        kNodule > 0 ? canopy_assim * kNodule : 0};
+
     // Update the output quantity list
     update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
     update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
@@ -185,6 +196,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
     update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
     update(net_assimilation_rate_shell_op, net_assimilation_rate_shell);
+    update(net_assimilation_rate_nodule_op, net_assimilation_rate_nodule);
 }
 
 }  // namespace standardBML
