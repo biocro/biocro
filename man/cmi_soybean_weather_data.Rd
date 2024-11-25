@@ -105,10 +105,10 @@
   rather than a driver; however, it is included with the weather data for
   convenience.
 
-  To reduce size the in the BioCro repository, the raw data is rounded to three
-  significant digits. This can be done with the following code: \code{
-  soybean_weather <- lapply(raw_soybean_weather, function(wd) { for (cn in colnames(wd)) { wd[[cn]] <- signif(wd[[cn]], digits = 3) }; wd })
-  }
+  To reduce size the in the BioCro repository, the raw data values are rounded.
+  This was done using the commands in a script that is included with the BioCro
+  package. This script can be located by typing
+  \code{system.file('BioCro', 'extdata', 'get_soybean_weather_data.R')}.
 }
 
 \keyword{datasets}
