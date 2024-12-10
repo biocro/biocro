@@ -1,10 +1,16 @@
-module_write = function(
-        module_name , module_library, module_type,
-        inputs,  outputs, output_equations =NULL,
-        input_units = NULL, output_units = NULL
-){
-    module_name_caps = toupper(module_name)
-    module_library_caps = toupper(module_library)
+module_write <- function(
+    module_name,
+    module_library,
+    module_type,
+    inputs,
+    outputs,
+    output_equations = NULL,
+    input_units = NULL,
+    output_units = NULL
+)
+{
+    module_name_caps    <- toupper(module_name)
+    module_library_caps <- toupper(module_library)
 
     # check for duplicate inputs
     if(anyDuplicated(inputs)){
@@ -18,41 +24,52 @@ module_write = function(
         stop(e)
     }
 
-    not_null = !is.null(input_units)
-    inputs_not_same_length = length(inputs) != length(input_units)
+    # check input unit length
+    not_null <- !is.null(input_units)
+    inputs_not_same_length <- length(inputs) != length(input_units)
     if (inputs_not_same_length && not_null){
         e <- simpleError("The arguments `inputs` and `input_units` do not have the same length.")
         stop(e)
     }
 
-    not_null = !is.null(output_units)
-    outputs_not_same_length = length(outputs) != length(output_units)
+    # check output unit length
+    not_null <- !is.null(output_units)
+    outputs_not_same_length <- length(outputs) != length(output_units)
     if (outputs_not_same_length && not_null){
         e <- simpleError("The arguments `outputs` and `output_units` do not have the same length.")
         stop(e)
     }
 
-    input_field = make_input_initializations(inputs)
-    input_ptr = make_input_reference_list(inputs)
-    input_get = make_get(inputs, input_units)
+    # get customized parts of C++ code
+    input_field <- make_input_initializations(inputs)
+    input_ptr   <- make_input_reference_list(inputs)
+    input_get   <- make_get(inputs, input_units)
 
-    output_field = make_output_initializations(outputs)
-    output_ptr = make_output_pointer_list(outputs)
-    output_get = make_get(outputs, output_units)
+    output_field <- make_output_initializations(outputs)
+    output_ptr   <- make_output_pointer_list(outputs)
+    output_get   <- make_get(outputs, output_units)
 
+    update_template <- make_update_template(outputs, output_equations)
 
-
-    update_template = make_update_template(outputs, output_equations)
-
-    sprintf(template,
-            module_name , module_library, module_type,
-            module_name_caps, module_library_caps,
-            input_field, input_ptr, input_get,
-            output_field, output_ptr, output_get,
-            update_template )
+    # fill in header template (defined below)
+    sprintf(
+        module_header_template,
+        module_name,         # %1
+        module_library,      # %2
+        module_type,         # %3
+        module_name_caps,    # %4
+        module_library_caps, # %5
+        input_field,         # %6
+        input_ptr,           # %7
+        input_get,           # %8
+        output_field,        # %9
+        output_ptr,          # %10
+        output_get,          # %11
+        update_template      # %12
+    )
 }
 
-template = "#ifndef %5$s_%4$s_H
+module_header_template <- "#ifndef %5$s_%4$s_H
 #define %5$s_%4$s_H
 
 #include \"../framework/module.h\"
@@ -123,33 +140,33 @@ void %1$s::do_operation() const
 "
 
 # newline and indent
-indent = "    "
-endl_class_members = paste0("\n", indent)
-endl_do_operation = paste0("\n", indent)
-endl_initializer_list = paste0("\n  ", indent, indent)
-endl_get = paste0("\n", indent, indent)
+indent <- "    "
 
-make_input_initializations = function(x){
+endl_initializer_list <- paste0("\n  ", indent, indent)
+endl_class_members    <- paste0("\n", indent)
+endl_get              <- paste0("\n", indent, indent)
+endl_do_operation     <- paste0("\n", indent)
+
+# helping functions for generating C++ code
+make_input_initializations <- function(x){
     paste0(x, "{get_input(input_quantities, \"", x, "\")},",
-           collapse=endl_initializer_list)
+        collapse = endl_initializer_list)
 }
 
-make_input_reference_list = function(x) {
-    paste0('double const& ', x, ';',
-           collapse=endl_class_members)
-}
-
-make_output_initializations = function(x){
+make_output_initializations <- function(x){
     paste0(x, "_op{get_op(output_quantities, \"", x, "\")}",
-           collapse=paste0(',', endl_initializer_list))
+        collapse = paste0(',', endl_initializer_list))
 }
 
-make_output_pointer_list = function(x) {
-    paste0('double* ', x, '_op;',
-           collapse=endl_class_members)
+make_input_reference_list <- function(x) {
+    paste0('double const& ', x, ';', collapse = endl_class_members)
 }
 
-make_get = function(x, units=NULL) {
+make_output_pointer_list <- function(x) {
+    paste0('double* ', x, '_op;', collapse = endl_class_members)
+}
+
+make_get <- function(x, units = NULL) {
     qnames_string <- paste0('\"', x, '\"')
 
     comma_string <- rep_len(',', length(x))
@@ -164,18 +181,15 @@ make_get = function(x, units=NULL) {
     paste0(qnames_string, comma_string, units_string, collapse = endl_get)
 }
 
-make_update_template = function(x, y=NULL){
+make_update_template <- function(x, y = NULL){
     if (is.null(y)){
-        out= paste0('update(', x, '_op, 0);',
-            collapse=endl_do_operation)
-        return(out)
+        paste0('update(', x, '_op, 0);', collapse = endl_do_operation)
+    } else {
+        paste0('update(', x, '_op,', y, ');', collapse = endl_do_operation)
     }
-    out= paste0('update(', x, '_op,', y, ');',
-            collapse=endl_do_operation)
-    return(out)
 }
 
-tensor_string_vector = function(x, y, sep="_", order_by_left_first=FALSE){
+tensor_string_vector = function(x, y, sep = "_", order_by_left_first = FALSE){
     out = outer(x, y, FUN=paste, sep=sep)
 
     if (order_by_left_first){
