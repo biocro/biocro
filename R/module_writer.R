@@ -52,8 +52,7 @@ module_write = function(
             update_template )
 }
 
-template = "
-#ifndef %5$s_%4$s_H
+template = "#ifndef %5$s_%4$s_H
 #define %5$s_%4$s_H
 
 #include \"../framework/module.h\"
@@ -61,61 +60,63 @@ template = "
 
 namespace %2$s
 {
-    /**
-    * @class %1$s
-    *
-    * @brief Put Documentation Here.
-    *
-    */
-    class %1$s : public %3$s_module
+/**
+ * @class %1$s
+ *
+ * @brief Put documentation here.
+ *
+ */
+class %1$s : public %3$s_module
+{
+   public:
+    %1$s(
+        state_map const& input_quantities,
+        state_map* output_quantities)
+        : %3$s_module{},
+
+          // Get references to input quantities
+          %6$s
+
+          // Get pointers to output quantities
+          %9$s
     {
-        public:
-            %1$s(
-                state_map const& input_quantities,
-                state_map* output_quantities)
-        : %3$s_module(),
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+    static std::string get_name() { return \"%1$s\"; }
 
-            // Get references to input quantities
-            %6$s
+   private:
+    // References to input quantities
+    %7$s
 
-            // Get pointers to output quantities
-            %9$s
-        {
-        }
-        static string_vector get_inputs();
-        static string_vector get_outputs();
-        static std::string get_name() { return \"%1$s\"; }
+    // Pointers to output quantities
+    %10$s
 
-        private:
-            // References to input quantities
-            %7$s
+    // Main operation
+    void do_operation() const;
+};
 
-            // Pointers to output quantities
-            %10$s
-
-        // Main operation
-        void do_operation() const;
+string_vector %1$s::get_inputs()
+{
+    return {
+        %8$s
     };
+}
 
-    string_vector %1$s::get_inputs()
-    {
-        return {
-            %8$s
-        };
-    }
+string_vector %1$s::get_outputs()
+{
+    return {
+        %11$s
+    };
+}
 
-    string_vector %1$s::get_outputs()
-    {
-        return {
-            %11$s
-        };
-    }
+void %1$s::do_operation() const
+{
+    // Make calculations here
 
-    void %1$s::do_operation() const
-    {
-        //use update to set outputs as function of inputs
-        %12$s
-    }
+    // Use `update` to set outputs
+    %12$s
+}
 
 }  // namespace %2$s
 #endif
@@ -123,51 +124,55 @@ namespace %2$s
 
 # newline and indent
 indent = "    "
-endl_dbl = paste0("\n",indent,indent)
-endl_tpl = paste0("\n",indent,indent,indent)
-comma_tpl = paste0(",",endl_tpl)
-
+endl_class_members = paste0("\n", indent)
+endl_do_operation = paste0("\n", indent)
+endl_initializer_list = paste0("\n  ", indent, indent)
+endl_get = paste0("\n", indent, indent)
 
 make_input_initializations = function(x){
     paste0(x, "{get_input(input_quantities, \"", x, "\")},",
-           collapse=endl_tpl)
+           collapse=endl_initializer_list)
 }
 
 make_input_reference_list = function(x) {
     paste0('double const& ', x, ';',
-           collapse=endl_tpl)
+           collapse=endl_class_members)
 }
 
 make_output_initializations = function(x){
     paste0(x, "_op{get_op(output_quantities, \"", x, "\")}",
-           collapse=comma_tpl)
+           collapse=paste0(',', endl_initializer_list))
 }
 
 make_output_pointer_list = function(x) {
     paste0('double* ', x, '_op;',
-           collapse=endl_tpl)
+           collapse=endl_class_members)
 }
 
 make_get = function(x, units=NULL) {
-    if(is.null(units)){units_string = ''}
-    else{
-        units_string = paste(indent, indent, "//", units)
+    qnames_string <- paste0('\"', x, '\"')
+
+    comma_string <- rep_len(',', length(x))
+    comma_string[length(x)] <- ' '
+
+    units_string <- if (is.null(units)) {
+        paste(indent, indent, '// Put', x, 'units here')
+    } else {
+        paste(indent, indent, "//", units)
     }
-    paste0('\"', x, '\",', units_string,
-           collapse=endl_tpl)
+
+    paste0(qnames_string, comma_string, units_string, collapse = endl_get)
 }
 
 make_update_template = function(x, y=NULL){
     if (is.null(y)){
         out= paste0('update(', x, '_op, 0);',
-            collapse=endl_dbl)
+            collapse=endl_do_operation)
         return(out)
     }
     out= paste0('update(', x, '_op,', y, ');',
-            collapse=endl_dbl)
+            collapse=endl_do_operation)
     return(out)
-
-
 }
 
 tensor_string_vector = function(x, y, sep="_", order_by_left_first=FALSE){
