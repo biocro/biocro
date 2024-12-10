@@ -99,7 +99,7 @@ xs_units <- c('Mg / ha', 'Mg / ha / hr', 'dimensionless')
 ys = c('y1','y2')
 
 out <- module_write('testmod', 'testlib', 'direct',
-    inputs=xs, input_units= xs, outputs=ys)
+    inputs=xs, input_units= xs_units, outputs=ys)
 
 # Use writeLines to print to console
 writeLines(out)
