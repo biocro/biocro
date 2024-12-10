@@ -23,7 +23,7 @@ test_that('Results have not changed', {
     )
 })
 
-test_that('Duplicate inputs are detected', {
+test_that('Duplicates are detected', {
     expect_error(
         module_write(
             'testmod',
@@ -35,9 +35,7 @@ test_that('Duplicate inputs are detected', {
         'Duplicate inputs detected.',
         fixed = TRUE
     )
-})
 
-test_that('Duplicate outputs are detected', {
     expect_error(
         module_write(
             'testmod',
@@ -51,7 +49,7 @@ test_that('Duplicate outputs are detected', {
     )
 })
 
-test_that('Input length mismatches are detected', {
+test_that('Length mismatches are detected', {
     expect_error(
         module_write(
             'testmod',
@@ -64,9 +62,7 @@ test_that('Input length mismatches are detected', {
         'The arguments `inputs` and `input_units` do not have the same length.',
         fixed = TRUE
     )
-})
 
-test_that('Output length mismatches are detected', {
     expect_error(
         module_write(
             'testmod',
@@ -77,6 +73,58 @@ test_that('Output length mismatches are detected', {
             output_units = 'm / s'
         ),
         'The arguments `outputs` and `output_units` do not have the same length.',
+        fixed = TRUE
+    )
+})
+
+test_that('Spaces are detected', {
+    expect_error(
+        module_write(
+            'testmod',
+            'standardBML',
+            'direct',
+            inputs = c('A B', 'B'),
+            outputs = c('C', 'D')
+        ),
+        'The values of `inputs` cannot have any spaces in them.',
+        fixed = TRUE
+    )
+
+    expect_error(
+        module_write(
+            'testmod',
+            'standardBML',
+            'direct',
+            inputs = c('A', 'B'),
+            outputs = c('C D', 'D')
+        ),
+        'The values of `outputs` cannot have any spaces in them.',
+        fixed = TRUE
+    )
+})
+
+test_that('Numbers are detected', {
+    expect_error(
+        module_write(
+            'testmod',
+            'standardBML',
+            'direct',
+            inputs = c('1B', 'B'),
+            outputs = c('C', 'D')
+        ),
+        'The values of `inputs` cannot start with a number.',
+        fixed = TRUE
+    )
+
+    expect_error(
+        module_write(
+            'testmod',
+            'standardBML',
+            'direct',
+            inputs = c('A', 'B'),
+            outputs = c('1D', 'D')
+        ),
+        'The values of `outputs` cannot start with a number.',
         fixed = TRUE
     )
 })

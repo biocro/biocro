@@ -40,6 +40,28 @@ module_write <- function(
         stop(e)
     }
 
+    # check for spaces
+    if (any(grepl(' ', inputs))) {
+        e <- simpleError("The values of `inputs` cannot have any spaces in them.")
+        stop(e)
+    }
+
+    if (any(grepl(' ', outputs))) {
+        e <- simpleError("The values of `outputs` cannot have any spaces in them.")
+        stop(e)
+    }
+
+    # check for starting numbers
+    if (any(grepl('^[[:digit:]]', inputs))) {
+        e <- simpleError("The values of `inputs` cannot start with a number.")
+        stop(e)
+    }
+
+    if (any(grepl('^[[:digit:]]', outputs))) {
+        e <- simpleError("The values of `outputs` cannot start with a number.")
+        stop(e)
+    }
+
     # get customized parts of C++ code
     input_field <- make_input_initializations(inputs)
     input_ptr   <- make_input_reference_list(inputs)
