@@ -8,7 +8,7 @@
     This function is a utility function to be used wtih \code{\link{module_write}}. It returns the tensor product or Cartesian product of two string vectors.
     }
 \usage{
-    tensor_string_vector(x, y, sep="_", order_by_left_first=TRUE)
+    tensor_string_vector(x, y, sep="_", order_by_left_first=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

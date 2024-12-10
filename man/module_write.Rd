@@ -15,7 +15,7 @@
 }
 
 \usage{
-  module.write(
+  module_write(
     module_name,
     module_library,
     module_type,
@@ -66,7 +66,7 @@
 
 \details{
     \code{type} should be either \code{'direct'} or \code{'differential'};
-    however, \code{module.write} does not enforce this in case new module types
+    however, \code{module_write} does not enforce this in case new module types
     are created in the future.
 }
 
@@ -80,7 +80,7 @@
     output. See examples below. Note that it is customary to name the header
     file with the same name as the module.
 
-    \code{module.write} checks for duplicate input or output variables, and if
+    \code{module_write} checks for duplicate input or output variables, and if
     detected, it will raise an error. In theory, this check should ensure that
     the generated module will compile correctly. However, it is still possible
     to define an module that is circular and will not pass the checks in
