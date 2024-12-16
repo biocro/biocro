@@ -29,7 +29,6 @@ jobs:
       uses: r-lib/actions/setup-r@v2
 
     - name: 3. Query dependencies
-      uses: r-lib/actions/setup-r@v2
       run: |
         install.packages('remotes')
         saveRDS(remotes::dev_package_deps(dependencies = "Depends"), ".github/depends.Rds", version = 2)
@@ -45,7 +44,6 @@ jobs:
         restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
     - name: 5. Install system dependencies
-      uses: r-lib/actions/setup-r@v2
       run: |
         while read -r cmd
         do
@@ -55,7 +53,6 @@ jobs:
     # Currently, this should be a no-op since BioCro doesn't have any
     # dependencies.
     - name: 6. Install dependencies
-      uses: r-lib/actions/setup-r@v2
       run: |
         remotes::install_deps(dependencies = "Depends")
       shell: Rscript {0}
@@ -66,7 +63,6 @@ jobs:
         R CMD INSTALL --no-docs source
 
     - name: 8. Install packages for script
-      uses: r-lib/actions/setup-r@v2
       run: |
         install.packages(
             c(
@@ -81,7 +77,6 @@ jobs:
       shell: Rscript {0}
 
     - name: 9. Run script
-      uses: r-lib/actions/setup-r@v2
       run: |
         Rscript --vanilla create_quantity_table.R -v
       working-directory: source/script

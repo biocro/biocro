@@ -17,13 +17,15 @@ runs:
       if: steps.pandoc-test.outcome == 'failure'
       uses: r-lib/actions/setup-pandoc@v2
 
-    - name: 3. Install bookdown
+    - name: 3. Install R
       uses: r-lib/actions/setup-r@v2
+
+    - name: 4. Install bookdown
       run: |
         install.packages(c("bookdown"))
       shell: Rscript {0}
 
-    - name: 4. Run bookdown
+    - name: 5. Run bookdown
       working-directory: ${{ inputs.package_root }}/documentation/script
       run: |
         Rscript run_bookdown.R
