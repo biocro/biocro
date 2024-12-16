@@ -96,6 +96,16 @@ check_run_biocro_inputs <- function(
         )
     )
 
+    # The `time` variable in the `drivers` should be sequential and sorted, with
+    # no repeated times. Checks that `time` satisfies t[n] = t[1] + (n-1) * timestep
+    error_message <- append(
+        error_message,
+        check_time_is_correct_format(
+            drivers,
+            parameters
+        )
+    )
+
     # The direct_module_names and differential_module_names should be vectors or
     # lists of strings. The ode_solver's `type` element should also be a string.
     error_message <- append(

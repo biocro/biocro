@@ -7,6 +7,9 @@ validate_dynamical_system_inputs <- function(
     verbose = TRUE
 )
 {
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
     # The inputs to this function have the same requirements as the `run_biocro`
     # inputs with the same names
     error_messages <- check_run_biocro_inputs(
@@ -19,9 +22,6 @@ validate_dynamical_system_inputs <- function(
     )
 
     send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(

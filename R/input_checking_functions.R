@@ -272,3 +272,31 @@ check_boolean <- function(args_to_check) {
     }
     return(error_message)
 }
+
+# Checks whether the `time` driver has
+check_time_is_correct_format <- function(drivers, parameters, rtol = sqrt(.Machine$double.eps)){
+    time_is_null <- is.null(drivers[['time']])
+    if(time_is_null){
+        error_message <- "No `time` variable found in the `drivers` dataframe."
+        return(error_message)
+    }
+    time <- drivers[['time']]
+    timestep <- parameters[['timestep']]
+
+    diff_days = diff(time)
+    diff_hours = diff_days  * 24
+    dt = diff(time) * 24 - timestep
+    is_zero = abs(dt) < rtol
+    not_all_zero = !all(is_zero)
+    if(not_all_zero){
+        error_message <- "
+        The `time` variable is not a sequence of integer multiples of the `timestep`.\n
+        `time` should satisfy: t[n] = t[1] + timestep * (n-1)"
+
+        return(error_message)
+    }
+
+    error_message <- character()
+    return(error_message)
+
+}
