@@ -273,7 +273,9 @@ check_boolean <- function(args_to_check) {
     return(error_message)
 }
 
-# Checks whether the `time` driver has
+# Checks that the `time` variable is strictly increasing and evenly spaced with the `timestep`.
+# The check is t[n] - t[n-1] == timestep / 24 up to error tolerance due to
+# inexact floating point arithmetic.
 check_time_is_correct_format <- function(drivers, parameters, rtol = sqrt(.Machine$double.eps)){
     time_is_null <- is.null(drivers[['time']])
     if(time_is_null){
@@ -291,7 +293,7 @@ check_time_is_correct_format <- function(drivers, parameters, rtol = sqrt(.Machi
     if(not_all_zero){
         error_message <- "
         The `time` variable is not a sequence of integer multiples of the `timestep`.\n
-        `time` should satisfy: t[n] = t[1] + timestep * (n-1)"
+        `time` should satisfy: t[n] = t[1] + timestep / 24 * (n-1)"
 
         return(error_message)
     }
