@@ -1,6 +1,7 @@
 #ifndef MULTILAYER_CANOPY_INTEGRATOR_H
 #define MULTILAYER_CANOPY_INTEGRATOR_H
 
+#include <cmath>  // for fabs
 #include "../framework/state_map.h"
 #include "../framework/module.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
@@ -184,7 +185,11 @@ void multilayer_canopy_integrator::run() const
     // Note: this was originally only done for the C3 canopy
     // Note: it seems like this should not be necessary since the assimilation
     //   model includes respiration
-    canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
+    double const growth_respiration =
+        growth_respiration_fraction * fabs(canopy_assimilation_rate);  // micromol / m^2 / s
+
+    canopy_assimilation_rate =
+        canopy_assimilation_rate - growth_respiration;  // micromol / m^2 / s
 
     // For assimilation, we need to convert micromol / m^2 / s into
     // Mg / ha / hr, assuming that all carbon is converted into biomass in the

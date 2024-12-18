@@ -1,5 +1,6 @@
-#include <cmath>      // For floor
-#include "c3CanAC.h"  // For c3CanAC
+#include <cmath>                      // For floor
+#include "c3CanAC.h"                  // For c3CanAC
+#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 #include "c3_canopy.h"
 
 using standardBML::c3_canopy;
@@ -22,17 +23,25 @@ string_vector c3_canopy::get_inputs()
         "gbw_canopy",                   // m / s
         "growth_respiration_fraction",  // dimensionless
         "Gs_min",                       // mol / m^2 / s
+        "Gstar_c",                      // dimensionless
+        "Gstar_Ea",                     // J / mol
         "heightf",                      // m^(-1)
         "jmax",                         // micromol / m^2 / s
+        "Jmax_c",                       // dimensionless
+        "Jmax_Ea",                      // J / mol
+        "k_diffuse",                    // dimensionless
+        "Kc_c",                         // dimensionless
+        "Kc_Ea",                        // J / mol
+        "Ko_c",                         // dimensionless
+        "Ko_Ea",                        // J / mol
         "kpLN",
-        "k_diffuse",  // dimensionless
-        "lai",        // dimensionless
-        "LeafN",
-        "leafwidth",               // m
+        "lai",                     // dimensionless
         "leaf_reflectance_nir",    // dimensionless
         "leaf_reflectance_par",    // dimensionless
         "leaf_transmittance_nir",  // dimensionless
         "leaf_transmittance_par",  // dimensionless
+        "LeafN",
+        "leafwidth",  // m
         "lnb0",
         "lnb1",
         "lnfun",
@@ -40,13 +49,26 @@ string_vector c3_canopy::get_inputs()
         "O2",                   // mmol / mol
         "par_energy_content",   // J / micromol
         "par_energy_fraction",  // dimensionless
+        "phi_PSII_0",           // dimensionless
+        "phi_PSII_1",           // (degrees C)^(-1)
+        "phi_PSII_2",           // (degrees C)^(-2)
         "Rd",                   // micromol / m^2 / s
+        "Rd_c",                 // dimensionless
+        "Rd_Ea",                // J / mol
         "rh",                   // dimensionless
         "solar",                // micromol / m^2 / s
         "StomataWS",            // dimensionless
         "temp",                 // degrees C
-        "theta",                // dimensionless
+        "theta_0",              // dimensionless
+        "theta_1",              // (degrees C)^(-1)
+        "theta_2",              // (degrees C)^(-2)
+        "Tp_c",                 // dimensionless
+        "Tp_Ha",                // J / mol
+        "Tp_Hd",                // J / mol
+        "Tp_S",                 // J / K / mol
         "tpu_rate_max",         // micromol / m^2 / s
+        "Vcmax_c",              // dimensionless
+        "Vcmax_Ea",             // J / mol
         "vmax",                 // micromol / m^2 / s
         "windspeed",            // m / s
         "windspeed_height",     // m
@@ -66,7 +88,33 @@ string_vector c3_canopy::get_outputs()
 
 void c3_canopy::do_operation() const
 {
+    // Combine temperature response parameters
+    c3_temperature_response_parameters const tr_param{
+        Gstar_c,
+        Gstar_Ea,
+        Jmax_c,
+        Jmax_Ea,
+        Kc_c,
+        Kc_Ea,
+        Ko_c,
+        Ko_Ea,
+        phi_PSII_0,
+        phi_PSII_1,
+        phi_PSII_2,
+        Rd_c,
+        Rd_Ea,
+        theta_0,
+        theta_1,
+        theta_2,
+        Tp_c,
+        Tp_Ha,
+        Tp_Hd,
+        Tp_S,
+        Vcmax_c,
+        Vcmax_Ea};
+
     const canopy_photosynthesis_outputs can_result = c3CanAC(
+        tr_param,
         absorbed_longwave,
         temp,
         atmospheric_pressure,
@@ -103,7 +151,6 @@ void c3_canopy::do_operation() const
         rh,
         solar,
         StomataWS,
-        theta,
         tpu_rate_max,
         vmax,
         windspeed,

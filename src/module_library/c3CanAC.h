@@ -2,8 +2,10 @@
 #define C3CANAC_H
 
 #include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
+#include "c3_temperature_response.h"        // for c3_temperature_response_parameters
 
 canopy_photosynthesis_outputs c3CanAC(
+    c3_temperature_response_parameters const tr_param,
     double absorbed_longwave,            // J / m^2 / s
     double ambient_temperature,          // degrees C
     double atmospheric_pressure,         // Pa
@@ -33,20 +35,19 @@ canopy_photosynthesis_outputs c3CanAC(
     double leaf_width,              // m
     double lnb0,                    // micromol / m^2 / s
     double lnb1,
-    double o2,                    // mmol / mol
-    double par_energy_content,    // J / micromol
-    double par_energy_fraction,   // dimensionless
-    double Rd,                    // micromol / m^2 / s
-    double RH,                    // Pa / Pa
-    double solarR,                // micromol / m^2 / s
-    double StomataWS,             // dimensionless
-    double theta,                 // dimensionless
-    double tpu_rate_max,          // micromol / m^2 / s
-    double Vmax,                  // micromol / m^2 / s
-    double WindSpeed,             // m / s
-    double WindSpeedHeight,       // m
-    int lnfun,                    // dimensionless switch
-    int nlayers                   // dimensionless
+    double o2,                   // mmol / mol
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double Rd,                   // micromol / m^2 / s
+    double RH,                   // Pa / Pa
+    double solarR,               // micromol / m^2 / s
+    double StomataWS,            // dimensionless
+    double tpu_rate_max,         // micromol / m^2 / s
+    double Vmax,                 // micromol / m^2 / s
+    double WindSpeed,            // m / s
+    double WindSpeedHeight,      // m
+    int lnfun,                   // dimensionless switch
+    int nlayers                  // dimensionless
 );
 
 #endif

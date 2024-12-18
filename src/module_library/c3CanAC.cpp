@@ -8,6 +8,7 @@
 #include "sunML.h"                   // for sunML
 
 canopy_photosynthesis_outputs c3CanAC(
+    c3_temperature_response_parameters const tr_param,
     double absorbed_longwave,            // J / m^2 / s
     double ambient_temperature,          // degrees C
     double atmospheric_pressure,         // Pa
@@ -37,20 +38,19 @@ canopy_photosynthesis_outputs c3CanAC(
     double leaf_width,              // m
     double lnb0,                    // micromol / m^2 / s
     double lnb1,
-    double o2,                    // mmol / mol
-    double par_energy_content,    // J / micromol
-    double par_energy_fraction,   // dimensionless
-    double Rd,                    // micromol / m^2 / s
-    double RH,                    // Pa / Pa
-    double solarR,                // micromol / m^2 / s
-    double StomataWS,             // dimensionless
-    double theta,                 // dimensionless
-    double tpu_rate_max,          // micromol / m^2 / s
-    double Vmax,                  // micromol / m^2 / s
-    double WindSpeed,             // m / s
-    double WindSpeedHeight,       // m
-    int lnfun,                    // dimensionless switch
-    int nlayers                   // dimensionless
+    double o2,                   // mmol / mol
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double Rd,                   // micromol / m^2 / s
+    double RH,                   // Pa / Pa
+    double solarR,               // micromol / m^2 / s
+    double StomataWS,            // dimensionless
+    double tpu_rate_max,         // micromol / m^2 / s
+    double Vmax,                 // micromol / m^2 / s
+    double WindSpeed,            // m / s
+    double WindSpeedHeight,      // m
+    int lnfun,                   // dimensionless switch
+    int nlayers                  // dimensionless
 )
 {
     Light_model const light_model = lightME(
@@ -124,10 +124,10 @@ canopy_photosynthesis_outputs c3CanAC(
 
         double direct_gsw_estimate =
             c3photoC(
-                iabs_dir, ambient_temperature, ambient_temperature,
+                tr_param, iabs_dir, ambient_temperature, ambient_temperature,
                 RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS,
+                o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
@@ -147,10 +147,10 @@ canopy_photosynthesis_outputs c3CanAC(
 
         photosynthesis_outputs direct_photo =
             c3photoC(
-                iabs_dir, leaf_temperature_dir, ambient_temperature,
+                tr_param, iabs_dir, leaf_temperature_dir, ambient_temperature,
                 RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS,
+                o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, et_direct.boundary_layer_conductance);
 
@@ -166,10 +166,10 @@ canopy_photosynthesis_outputs c3CanAC(
 
         double diffuse_gsw_estimate =
             c3photoC(
-                iabs_diff, ambient_temperature, ambient_temperature,
+                tr_param, iabs_diff, ambient_temperature, ambient_temperature,
                 RH, vmax1, Jmax,
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, theta, StomataWS,
+                o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
                 beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
@@ -189,10 +189,10 @@ canopy_photosynthesis_outputs c3CanAC(
 
         photosynthesis_outputs diffuse_photo =
             c3photoC(
-                iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
+                tr_param, iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
                 RH, vmax1,
                 Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm,
-                atmospheric_pressure, o2, theta, StomataWS,
+                atmospheric_pressure, o2, StomataWS,
                 electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII,
                 et_diffuse.boundary_layer_conductance);

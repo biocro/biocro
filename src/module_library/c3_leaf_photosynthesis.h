@@ -34,15 +34,36 @@ class c3_leaf_photosynthesis : public direct_module
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           Gs_min{get_input(input_quantities, "Gs_min")},
+          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           height{get_input(input_quantities, "height")},
           jmax{get_input(input_quantities, "jmax")},
+          Jmax_c{get_input(input_quantities, "Jmax_c")},
+          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
+          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_Ea{get_input(input_quantities, "Kc_Ea")},
+          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_Ea{get_input(input_quantities, "Ko_Ea")},
           leafwidth{get_input(input_quantities, "leafwidth")},
           O2{get_input(input_quantities, "O2")},
+          phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
+          phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
+          phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
           Rd{get_input(input_quantities, "Rd")},
+          Rd_c{get_input(input_quantities, "Rd_c")},
+          Rd_Ea{get_input(input_quantities, "Rd_Ea")},
           rh{get_input(input_quantities, "rh")},
           StomataWS{get_input(input_quantities, "StomataWS")},
-          theta{get_input(input_quantities, "theta")},
+          theta_0{get_input(input_quantities, "theta_0")},
+          theta_1{get_input(input_quantities, "theta_1")},
+          theta_2{get_input(input_quantities, "theta_2")},
+          Tp_c{get_input(input_quantities, "Tp_c")},
+          Tp_Ha{get_input(input_quantities, "Tp_Ha")},
+          Tp_Hd{get_input(input_quantities, "Tp_Hd")},
+          Tp_S{get_input(input_quantities, "Tp_S")},
           tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
+          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
           vmax1{get_input(input_quantities, "vmax1")},
           windspeed{get_input(input_quantities, "windspeed")},
 
@@ -81,15 +102,36 @@ class c3_leaf_photosynthesis : public direct_module
     double const& electrons_per_oxygenation;
     double const& gbw_canopy;
     double const& Gs_min;
+    double const& Gstar_c;
+    double const& Gstar_Ea;
     double const& height;
     double const& jmax;
+    double const& Jmax_c;
+    double const& Jmax_Ea;
+    double const& Kc_c;
+    double const& Kc_Ea;
+    double const& Ko_c;
+    double const& Ko_Ea;
     double const& leafwidth;
     double const& O2;
+    double const& phi_PSII_0;
+    double const& phi_PSII_1;
+    double const& phi_PSII_2;
     double const& Rd;
+    double const& Rd_c;
+    double const& Rd_Ea;
     double const& rh;
     double const& StomataWS;
-    double const& theta;
+    double const& theta_0;
+    double const& theta_1;
+    double const& theta_2;
+    double const& Tp_c;
+    double const& Tp_Ha;
+    double const& Tp_Hd;
+    double const& Tp_S;
     double const& tpu_rate_max;
+    double const& Vcmax_c;
+    double const& Vcmax_Ea;
     double const& vmax1;
     double const& windspeed;
 

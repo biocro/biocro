@@ -75,6 +75,20 @@
     \code{betaSeneStem}. It was also necessary to add a new direct module to the
     model definition: \code{BioCro:leaf_water_stress_exponential}. This module
     calculates the fractional reduction in leaf growth rate due to water stress.
+    
+    \item \emph{2024-09-12}: Several changes have been made: (1) The 
+    \code{mrc1} and \code{mrc2} were renamed to \code{grc_stem} and 
+    \code{grc_root}, respectively. These two parameters are used to scale the 
+    assimilate rate, which is commonly called growth respiration coefficient (grc). 
+    (2) A new module, \code{BioCro:maintenance_respiration}, has been added to 
+    account for maintenance respiration during the biomass partitioning. This
+    module removes a fraction from each organ by a constant parameter called \code{mrc_*} 
+    (e.g., \code{mrc_leaf}) and also by a temperature-dependent Q10 scaling factor. 
+    Among these \code{mrc_*} parameters, \code{mrc_leaf} and \code{mrc_stem} are set
+    equal to represent maintenance respiration for the shoot, while \code{mrc_grain} 
+    is assigned a negligible value to prevent grain biomass reduction at the season end. 
+    No decreasing trends have been seen in the observed data. (3) Parameter optimizations 
+    against the 2002-2006 biomass datasets were performed to accommodate these changes.
   }
 
   Whenever a reparameterization is made, this list should be updated, and any

@@ -9,14 +9,13 @@
 #include <vector>
 #include "c4photo.h"
 #include "BioCro.h"
-#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "sunML.h"                       // for thick_layer_absorption
-#include "water_and_air_properties.h"    // for saturation_vapor_pressure,
-                                         // TempToDdryA, TempToLHV, TempToSFS
-#include "../framework/constants.h"      // for pi, e, ideal_gas_constant,
-                                         // atmospheric_pressure_at_sea_level,
-                                         // molar_mass_of_water, stefan_boltzmann
-                                         // celsius_to_kelvin
+#include "temperature_response_functions.h"  // for Q10_temperature_response
+#include "boundary_layer_conductance.h"      // for leaf_boundary_layer_conductance_nikolov
+#include "sunML.h"                           // for thick_layer_absorption
+#include "water_and_air_properties.h"        // for saturation_vapor_pressure,
+                                             // TempToDdryA, TempToLHV, TempToSFS
+#include "../framework/constants.h"          // for pi, e, molar_mass_of_water,
+                                             // celsius_to_kelvin, stefan_boltzmann
 
 using std::vector;
 
@@ -642,7 +641,7 @@ soilML_str soilML(
  *                        include respiratory losses. Any units are acceptable,
  *                        e.g. mol / m^2 / s or Mg / ha / hour.
  *
- *  @param [in] mrc Maintenance respiration coefficient (dimensionless)
+ *  @param [in] grc Growth respiration coefficient (dimensionless)
  *
  *  @param [in] temp Temperature (degrees C)
  *
@@ -732,10 +731,16 @@ soilML_str soilML(
  *  into the response of plant production to climate change?: development and
  *  experiments with WIMOVAC: (Windows Intuitive Model of Vegetation response
  *  to Atmosphere & Climate Change)" (University of Essex, 2002)
+ *
+ *  [YH] This function scales the assimilation rate. It should be called the growth
+ *  respiration instead of maintenance respiration, as defined in these papers:
+ *  - Apsim: (https://apsimdev.apsim.info/ApsimX/Documents/AgPastureScience.pdf)
+ *  - Thornley, J. H. M. "Growth, maintenance and respiration: a re-interpretation."
+ *    Annals of Botany 41.6 (1977): 1191-1203.
  */
-double resp(double base_rate, double mrc, double temp)
+double resp(double base_rate, double grc, double temp)
 {
-    double ans = base_rate * (1 - (mrc * pow(2, (temp / 10.0))));
+    double ans = base_rate * (1 - (grc * Q10_temperature_response(temp, 0.0)));
 
     if (ans < 0) ans = 0;
 

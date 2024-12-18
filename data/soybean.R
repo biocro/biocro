@@ -1,6 +1,7 @@
 soybean <- list(
     direct_modules = list(
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
+        specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
         "BioCro:soybean_development_rate_calculator",
         leaf_water_stress = "BioCro:leaf_water_stress_exponential",
@@ -20,6 +21,7 @@ soybean <- list(
     ),
     differential_modules = list(
         senescence = "BioCro:senescence_logistic",
+        "BioCro:maintenance_respiration",
         "BioCro:partitioning_growth",
         soil_profile = "BioCro:two_layer_soil_profile",
         "BioCro:development_index",
@@ -64,9 +66,11 @@ soybean <- list(
         soil_silt_content           = 0.34,
         soil_wilting_point          = 0.2,
 
-        # parameter_calculator module
+        # sla_linear module
         iSp                         = 3.5,         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
         Sp_thermal_time_decay       = 0,           # not used in Soybean-BioCro, but must be defined
+
+        # parameter_calculator module
         LeafN                       = 2,           # not used in Soybean-BioCro, but must be defined
         LeafN_0                     = 2,           # not used in Soybean-BioCro, but must be defined
         vmax_n_intercept            = 0,           # not used in Soybean-BioCro, but must be defined
@@ -91,14 +95,14 @@ soybean <- list(
         sowing_time                 = 0,           # Soybean-BioCro uses the weather data to set the sowing time
 
         # partitioning_coefficient_logistic module
+        alphaLeaf                   = 23.8895,
+        alphaStem                   = 24.8248,
+        betaLeaf                    = -18.0851,
+        betaStem                    = -18.5214,
         alphaRoot                   = 36.9670,
         betaRoot                    = -40.1915,
-        alphaStem                   = 27.2396,
-        betaStem                    = -22.3964,
-        alphaLeaf                   = 25.5416,
-        betaLeaf                    = -20.8222,
-        alphaShell                  = 10.4289,
-        betaShell                   = -7.8057,
+        alphaShell                  = 13.5955,
+        betaShell                   = -9.9809,
         kRhizome_emr                = 0,
 
         # soil_evaporation module
@@ -145,6 +149,30 @@ soybean <- list(
         leaf_transmittance_par      = 0.05,
         lnfun                       = 0,           # not used in Soybean-BioCro
 
+        # ten_layer_c3_canopy module (temperature response)
+        Gstar_c    = 19.02,       # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Gstar_Ea   = 37.83e3,     # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Jmax_c     = 17.57,       # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        Jmax_Ea    = 43.54e3,     # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        Kc_c       = 38.05,       # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Kc_Ea      = 79.43e3,     # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Ko_c       = 20.30,       # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Ko_Ea      = 36.38e3,     # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        phi_PSII_0 = 0.352,       # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        phi_PSII_1 = 0.022,       # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        phi_PSII_2 = -3.4e-4,     # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        Rd_c       = 18.72,       # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Rd_Ea      = 46.39e3,     # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        theta_0    = 0.76,        # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        theta_1    = 0.018,       # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        theta_2    = -3.7e-4,     # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        Tp_c       = 19.77399,    # Chosen so that Tp_norm = 1 at 25 degrees C
+        Tp_Ha      = 62.99e3,     # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
+        Tp_Hd      = 182.14e3,    # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
+        Tp_S       = 0.588e3,     # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
+        Vcmax_c    = 26.35,       # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Vcmax_Ea   = 65.33e3,     # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+
         # ten_layer_c3_canopy module
         jmax                        = 195,         # Bernacchi et al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
         jmax_mature                 = 195,         # Needed in the varying_Jmax25 module
@@ -158,7 +186,6 @@ soybean <- list(
         b0                          = 0.008,       # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
         b1                          = 10.6,        # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
         Gs_min                      = 1e-3,
-        theta                       = 0.76,        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         windspeed_height            = 5,
         beta_PSII                   = 0.5,         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         leafwidth                   = 0.1,         # Large mature leaflets can reach 10 cm in width
@@ -167,24 +194,30 @@ soybean <- list(
         growth_respiration_fraction = 0,
 
         # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
-        mrc1                        = 0.0008333,   # hour^-1, Bunce and Ziska 1996 (https://doi.org/10.1006/anbo.1996.0061)
-        mrc2                        = 0.000025,    # 0.03 * mrc1, ratio used in previous BioCro crops
+        grc_stem                        = 0.02828,    # dimensionless, optimized. growth respiration coefficient
+        grc_root                        = 0.00270,    # dimensionless, optimized
+
+        # maintenance respiration module
+        mrc_leaf                        = 0.00048836,    # kg / kg / hr maintenance respiration coefficient. optimized
+        mrc_stem                        = 0.00048836,    # kg / kg / hr, assumed to be same as leaf
+        mrc_root                        = 0.00001,       # kg / kg / hr, optimized
+        mrc_grain                       = 1e-5,          # kg / kg / hr, assigned a small value to ignore this
 
         # partitioning_growth module
         retrans                     = 0.9,         # previously hard-coded in the partitioning_growth module
         retrans_rhizome             = 1.0,         # previously hard-coded in the partitioning_growth module
 
         # senescence_coefficient_logistic module
-        rateSeneLeaf                = 0.0100428,
-        rateSeneStem                = 0.0005118,
+        rateSeneLeaf                = 0.012198,
+        rateSeneStem                = 0.000117,
         rateSeneRoot                = 0,           # senescence of root not simulated in Soybean-BioCro
         rateSeneRhizome             = 0,           # no rhizome simulated in Soybean-BioCro
-        alphaSeneLeaf               = 15.39022,
-        alphaSeneStem               = 20.58836,
+        alphaSeneLeaf               = 48.3200,
+        alphaSeneStem               = 4.1937,
         alphaSeneRoot               = 10,          # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         alphaSeneRhizome            = 10,          # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
-        betaSeneLeaf                = -8.761004,
-        betaSeneStem                = -12.06983,
+        betaSeneLeaf                = -29.5393,
+        betaSeneStem                = -3.3124,
         betaSeneRoot                = -10,         # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
         betaSeneRhizome             = -10,         # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
 

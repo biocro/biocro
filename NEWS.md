@@ -36,6 +36,44 @@ be directly added to this file to describe the related changes.
 
 # MINOR USER-FACING CHANGES
 
+- Added maintenance respirations for each organ in a new module called
+  `maintenance_respiration`. The maintenance respiration is modelled by removing
+  a fraction of dry biomasses. It removes a fraction of an organ by a constant
+  parameter called `mrc_*` (e.g., `mrc_leaf`) and also by a Q10-based
+  temperature response. This differs from the existing growth respirations that
+  are applied to stem and root. The growth respiration is often to scale the
+  carbon assimilation.
+
+- Separated the specific leaf area calculations from the
+  `BioCro:parameter_calculator` module to enable alternate approaches to SLA.
+  The original method is now available as the `BioCro:sla_linear` module, and a
+  new logistic method has been added: `BioCro:sla_logistic`. The stored crop
+  model definitions were updated to use the linear SLA module.
+
+- Provided a new direct module for determining development index from thermal
+  time: `BioCro:development_index_from_thermal_time`. This module is an
+  alternative to the `BioCro:thermal_time_development_rate_calculator`
+  differential module.
+
+- C3 temperature response parameters are no longer hard-coded into `c3photoC`:
+
+  - There are now specialized structs for the temperature response parameters
+    (`c3_temperature_response_parameters`) and the temperature-dependent values
+    of key photosynthetic parameters (`c3_param_at_tleaf`).
+
+  - There is also a dedicated function for calculating temperature-dependent
+    parameter values: `c3_temperature_response()`.
+
+  - The temperature response parameters are now inputs to several modules:
+    `BioCro:c3_assimilation`, `BioCro:c3_canopy`,
+    `BioCro:c3_leaf_photosynthesis`,
+
+  - There is also a dedicated module for calculating values of C3 parameters at
+    leaf temperature: `BioCro:c3_parameters`.
+
+  - The `theta` parameter was renamed to `theta_0` for better consistency with
+    the `polynomial_response()` function input argument names.
+
 - Added a new vignette explaining key features of BioCro's multilayer canopy
   model
 
@@ -61,6 +99,13 @@ be directly added to this file to describe the related changes.
   - Started calculating absorptivity as `1 - R - T`, where `R` and `T` are the
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
+
+## OTHER CHANGES
+
+- Consolidated all temperature response functions into a single header file
+  (`src/module_library/temperature_response_functions.h`) that now includes
+  `arrhenius_exponential()`, `Q10_temperature_response()`,
+  `johnson_eyring_williams_response()`, and `polynomial_response()`.
 
 # CHANGES IN BioCro VERSION 3.1.3
 
