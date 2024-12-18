@@ -114,7 +114,16 @@ xs <- c('var_1','var_2')
 out <- module_write('testmod', 'testlib', 'differential', xs, xs)
 writeLines(out)
 
-# Example 3: Circular modules
+# Example 3: A module with pairwise names
+# Here we use an outer product to generate pairwise combinations of
+# tissues and pool types
+tissues <- c('leaf', 'stem', 'root')
+pools <- c('carbon', 'nitrogen')
+xs <- as.vector(outer(tissues, pools, paste, sep = '_'))
+out <- module_write('testmod', 'testlib', 'differential', xs, xs)
+writeLines(out)
+
+# Example 4: Circular modules
 
 \dontrun{
   out <- module_write(inputs = c('x' ,'x'))
