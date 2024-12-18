@@ -105,7 +105,7 @@ jobs:
           #         "r": "3.6.0"
           #       }
           #     ]
-          # }.       
+          # }.
           filter:
             '[?configName == `${{ inputs.platform-to-check }}`
                 || `${{ github.event_name }}` != ''workflow_dispatch'']'
@@ -125,7 +125,7 @@ jobs:
     needs: matrix_prep
     with:
       strategy-matrix: ${{ needs.matrix_prep.outputs.matrix }}
-      
+
       # Note: Non-manual dispatches automatically run the tests and
       # check the examples and the vignettes, but do not check the
       # manual.  Note that the inputs.* values will have non-boolean
