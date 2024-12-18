@@ -286,8 +286,8 @@ check_time_is_correct_format <- function(drivers, parameters, rtol = sqrt(.Machi
     timestep <- parameters[['timestep']]
 
     diff_days = diff(time)
-    diff_hours = diff_days  * 24
-    dt = diff(time) * 24 - timestep
+    diff_hours = diff_days
+    dt = diff(time) - timestep
     is_zero = abs(dt) < rtol
     not_all_zero = !all(is_zero)
     if(not_all_zero){
