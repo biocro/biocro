@@ -60,7 +60,7 @@ class soybean_development_rate_calculator : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          time{get_input(input_quantities, "time")},
+          doy{get_input(input_quantities, "doy")},
           sowing_time{get_input(input_quantities, "sowing_time")},
           maturity_group{get_input(input_quantities, "maturity_group")},
           DVI{get_input(input_quantities, "DVI")},
@@ -89,7 +89,7 @@ class soybean_development_rate_calculator : public direct_module
 
    private:
     // References to input quantities
-    double const& time;
+    double const& doy;
     double const& sowing_time;
     double const& maturity_group;
     double const& DVI;
@@ -118,7 +118,7 @@ class soybean_development_rate_calculator : public direct_module
 string_vector soybean_development_rate_calculator::get_inputs()
 {
     return {
-        "time",             // days
+        "doy",             // days
         "sowing_time",      // days
         "maturity_group",   // dimensionless; maturity group of soybean cultivar
         "DVI",              // dimensionless; development index, see Osborne et al. 2015
@@ -150,7 +150,7 @@ void soybean_development_rate_calculator::do_operation() const
 {
     double soybean_development_rate;  // day^-1
 
-    if (time < sowing_time) {
+    if (doy < sowing_time) {
         // The seeds haven't been sown yet, so no development should occur
         soybean_development_rate = 0;  // day^-1
     } else if (DVI < -1) {

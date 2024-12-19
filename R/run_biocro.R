@@ -149,7 +149,7 @@ run_biocro <- function(
     send_error_messages(error_messages)
 
     # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
+    # drivers <- add_time_to_weather_data(drivers)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
@@ -198,8 +198,8 @@ run_biocro <- function(
     ))
 
     # Make sure doy and hour are properly defined
-    result$doy = floor(result$time)
-    result$hour = 24.0*(result$time - result$doy)
+    # result$doy = floor(result$time)
+    # result$hour = 24.0*(result$time - result$doy)
 
     # Sort the columns by name
     result <- result[,sort(names(result))]

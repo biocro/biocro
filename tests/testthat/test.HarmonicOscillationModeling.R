@@ -82,6 +82,7 @@ debug_view <- function(ob) {
 differential_modules <- "BioCro:harmonic_oscillator"
 direct_modules <- "BioCro:harmonic_energy"
 drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+drivers$time <- drivers$doy + drivers$hour/24
 default_ode_solver <- list(type='boost_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-7, adaptive_abs_error_tol=1e-7, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic

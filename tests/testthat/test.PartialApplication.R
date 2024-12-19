@@ -192,13 +192,13 @@ tbase = 10
 temp = 20
 baseline_em_result <- evaluate_module(
     module,
-    list(sowing_time = 0, tbase = tbase, temp = temp, time = 1)
+    list(sowing_time = 0, tbase = tbase, temp = temp, doy = 1)
 )
 
 # Now use partial application
 ttc_func <- partial_evaluate_module(
     module,
-    list(sowing_time = 0, time = 1),
+    list(sowing_time = 0, doy = 1),
     c("tbase", "temp")
 )
 
