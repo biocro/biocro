@@ -197,10 +197,6 @@ run_biocro <- function(
         verbose
     ))
 
-    # Make sure doy and hour are properly defined
-    # result$doy = floor(result$time)
-    # result$hour = 24.0*(result$time - result$doy)
-
     # Sort the columns by name
     result <- result[,sort(names(result))]
 
