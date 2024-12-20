@@ -73,11 +73,12 @@
 \seealso{\code{\link{run_biocro}}}
 
 \examples{
+  weather_data <- add_time_to_weather_data(soybean_weather$'2002')
 # Example 1: missing a parameter and an initial value
 validate_dynamical_system_inputs(
   within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
   within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
-  soybean_weather$'2002',
+   weather_data,
   soybean$direct_modules,
   soybean$differential_modules
 )
@@ -86,7 +87,7 @@ validate_dynamical_system_inputs(
 validate_dynamical_system_inputs(
   soybean$initial_values,
   soybean$parameters,
-  soybean_weather$'2002',
+  weather_data,
   soybean$direct_modules,
   soybean$differential_modules
 )
