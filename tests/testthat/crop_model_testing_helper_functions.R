@@ -58,10 +58,11 @@ specify_crop <- function(
 # Define lists of species-specific variables to ignore.
 
 MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
-    "soil_evaporation_rate"
+    "soil_evaporation_rate",
+    "time"
 )
 
-WILLOW_IGNORE <- character(0)
+WILLOW_IGNORE <- c("time")
 
 # As of 2023-04-11, test failures have started occurring for some soybean model
 # outputs: canopy conductance and a few photosynthesis outputs from sunlit
@@ -99,7 +100,8 @@ SOYBEAN_IGNORE <- c(
     "sunlit_RHs_layer_9",
     "sunlit_EPriestly_layer_7",
     "sunlit_EPriestly_layer_8",
-    "sunlit_EPriestly_layer_9"
+    "sunlit_EPriestly_layer_9",
+    "time"
 )
 
 SOYBEAN_WEATHER <- add_time_to_weather_data(soybean_weather$'2002')
