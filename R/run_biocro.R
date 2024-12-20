@@ -36,6 +36,18 @@ check_run_biocro_inputs <- function(
         error_message <- append(error_message, "The drivers cannot be empty")
     }
 
+    # The `time` variable in the `drivers` should be sequential and sorted, with
+    # no repeated times. Checks that `time` satisfies t[n] = t[1] + (n-1) * timestep
+    error_message <- append(
+        error_message,
+        check_time_is_correct_format(
+            drivers,
+            parameters
+        )
+    )
+
+
+
     # The components of initial_values, parameters, drivers, and ode_solver
     # should all have names
     error_message <- append(
@@ -196,6 +208,8 @@ run_biocro <- function(
         ode_solver_adaptive_max_steps,
         verbose
     ))
+
+    result$time <- seq(0, length = nrow(result), by = parameters$timestep)
 
     # Sort the columns by name
     result <- result[,sort(names(result))]

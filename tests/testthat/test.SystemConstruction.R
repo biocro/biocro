@@ -175,8 +175,7 @@ test_that("Duplicated quantities produce an error during validation", {
     )
 
     drivers <- data.frame(
-        doy=rep(0, MAX_INDEX),
-        hour=seq(from=0, by=1, length=MAX_INDEX)
+        time=seq(from=0, by=1, length=MAX_INDEX)
     )
 
     direct_module_names <- "BioCro:harmonic_energy"
@@ -211,8 +210,7 @@ test_that("Missing inputs produce an error during validation", {
     )
 
     drivers <- data.frame(
-        doy=rep(0, MAX_INDEX),
-        hour=seq(from=0, by=1, length=MAX_INDEX)
+        time=seq(from=0, by=1, length=MAX_INDEX)
     )
 
     direct_module_names <- "BioCro:harmonic_energy"
@@ -247,8 +245,7 @@ test_that("Differential modules only supply derivatives for quantities in the in
     )
 
     drivers <- data.frame(
-        doy=rep(0, MAX_INDEX),
-        hour=seq(from=0, by=1, length=MAX_INDEX)
+        time=seq(from=0, by=1, length=MAX_INDEX)
     )
 
     direct_module_names <- "BioCro:harmonic_energy"
@@ -276,11 +273,13 @@ test_that("Direct modules are not required to be supplied in the correct order",
     )
 
     parameters <- list(
-        unused_parameter = 0
+        unused_parameter = 0,
+        timestep = 1
     )
 
     drivers <- data.frame(
-        unused_varying_parameter=rep(0, MAX_INDEX)
+        unused_varying_parameter=rep(0, MAX_INDEX),
+        time = seq(0, length=MAX_INDEX, by=parameters$timestep)
     )
 
     direct_module_names <- c("BioCro:Module_1", "BioCro:Module_2")

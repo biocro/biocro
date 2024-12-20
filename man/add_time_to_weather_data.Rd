@@ -37,6 +37,6 @@
 }
 
 \examples{
-  # Add a time column to the buit-in 2002 weather data
+  # Add a time column to the built-in 2002 weather data
   new_weather <- add_time_to_weather_data(weather[['2002']])
 }

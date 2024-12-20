@@ -102,11 +102,12 @@ SOYBEAN_IGNORE <- c(
     "sunlit_EPriestly_layer_9"
 )
 
+SOYBEAN_WEATHER <- add_time_to_weather_data(soybean_weather$'2002')
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
     specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
     specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
+    specify_crop("soybean",                TRUE,  soybean,                SOYBEAN_WEATHER,        SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop, stores the number
