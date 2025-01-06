@@ -100,6 +100,9 @@ be directly added to this file to describe the related changes.
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
+- Added a new function for generating C++ header files for new module classes:
+  `module_write`
+
 ## OTHER CHANGES
 
 - Consolidated all temperature response functions into a single header file
