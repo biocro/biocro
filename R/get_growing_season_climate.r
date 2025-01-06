@@ -2,7 +2,9 @@ get_growing_season_climate <- function(climate, threshold_temperature = 0) {
     doy_range <-
         guess_growing_season_start_and_end_doy(climate, threshold_temperature)
 
-    return(climate[with(climate, doy >= doy_range[1] & doy <= doy_range[2]), ])
+    out <- climate[with(climate, doy >= doy_range[1] & doy <= doy_range[2]), ]
+    out <- add_time_to_weather_data(out)
+    return(out)
 }
 
 # This is a helper function for `get_growing_season_climate`.

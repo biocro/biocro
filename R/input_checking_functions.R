@@ -273,6 +273,7 @@ check_boolean <- function(args_to_check) {
     return(error_message)
 }
 
+
 # Checks that the `time` variable is ordered, strictly increasing, and evenly spaced with the `timestep`.
 # The check is dt = t[n] - t[n-1] is the same for all n up to error tolerance due to
 # inexact floating point arithmetic.

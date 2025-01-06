@@ -76,7 +76,7 @@ class thermal_time_linear : public differential_module
         : differential_module{},
 
           // Get references to input quantities
-          time{get_input(input_quantities, "time")},
+          doy{get_input(input_quantities, "doy")},
           sowing_time{get_input(input_quantities, "sowing_time")},
           temp{get_input(input_quantities, "temp")},
           tbase{get_input(input_quantities, "tbase")},
@@ -91,7 +91,7 @@ class thermal_time_linear : public differential_module
 
    private:
     // References to input quantities
-    double const& time;
+    double const& doy;
     double const& sowing_time;
     double const& temp;
     double const& tbase;
@@ -106,7 +106,7 @@ class thermal_time_linear : public differential_module
 string_vector thermal_time_linear::get_inputs()
 {
     return {
-        "time",         // days
+        "doy",         // days
         "sowing_time",  // days
         "temp",         // degrees C
         "tbase"         // degrees C
@@ -123,7 +123,7 @@ string_vector thermal_time_linear::get_outputs()
 void thermal_time_linear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double const rate_per_day = time < sowing_time ? 0.0
+    double const rate_per_day = doy < sowing_time ? 0.0
                                 : temp <= tbase    ? 0.0
                                                    : temp - tbase;  // degrees C
 

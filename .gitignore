@@ -71,3 +71,5 @@ tags
 docs/
 index.md
 about_pkgdown_documentation.md
+/doc/
+/Meta/

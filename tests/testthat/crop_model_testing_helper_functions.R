@@ -58,10 +58,11 @@ specify_crop <- function(
 # Define lists of species-specific variables to ignore.
 
 MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
-    "soil_evaporation_rate"
+    "soil_evaporation_rate",
+    "time"
 )
 
-WILLOW_IGNORE <- character(0)
+WILLOW_IGNORE <- c("time")
 
 # As of 2023-04-11, test failures have started occurring for some soybean model
 # outputs: canopy conductance and a few photosynthesis outputs from sunlit
@@ -99,14 +100,16 @@ SOYBEAN_IGNORE <- c(
     "sunlit_RHs_layer_9",
     "sunlit_EPriestly_layer_7",
     "sunlit_EPriestly_layer_8",
-    "sunlit_EPriestly_layer_9"
+    "sunlit_EPriestly_layer_9",
+    "time"
 )
 
+SOYBEAN_WEATHER <- add_time_to_weather_data(soybean_weather$'2002')
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
     specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
     specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
+    specify_crop("soybean",                TRUE,  soybean,                SOYBEAN_WEATHER,        SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop, stores the number

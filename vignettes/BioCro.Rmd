@@ -36,11 +36,12 @@ variables, and sets of modules to run. It returns the results in a data frame.
 ```{r}
 library(BioCro)
 library(lattice)
+weather_data <- add_time_to_weather_data(soybean_weather$'2002') # required 
 
 result <- with(soybean, {run_biocro(
   initial_values,
   parameters,
-  soybean_weather$'2002',
+  weather_data,
   direct_modules,
   differential_modules,
   ode_solver

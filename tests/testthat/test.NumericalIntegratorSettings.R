@@ -22,8 +22,7 @@ final_position <- function(ode_solver)
             timestep = 1.0
         ),
         drivers = data.frame(
-            doy=rep(0, MAX_INDEX),
-            hour=seq(from=0, by=1, length=MAX_INDEX)
+            time=seq(from=0, by=1, length=MAX_INDEX)
         ),
         direct_module_names = c(),
         differential_module_names = "BioCro:harmonic_oscillator",
