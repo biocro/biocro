@@ -291,7 +291,7 @@ check_time_is_correct_format <- function(drivers, parameters, rtol = sqrt(.Machi
     dt = diff(time) - timestep
     is_zero = abs(dt) < rtol
     not_all_zero = !all(is_zero)
-    if(not_all_zero){
+    if (not_all_zero) {
         error_message <- "
         The `time` variable is not a sequence of integer multiples of the `timestep`.\n
         `time` must satisfy: time[n] = time[1] + timestep * (n-1)"
