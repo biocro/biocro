@@ -272,3 +272,32 @@ check_boolean <- function(args_to_check) {
     }
     return(error_message)
 }
+
+# Checks that the `time` variable is ordered, strictly increasing, and evenly spaced with the `timestep`.
+# The check is dt = t[n] - t[n-1] is the same for all n up to error tolerance due to
+# inexact floating point arithmetic.
+check_time_is_sequential <- function(drivers, rtol = sqrt(.Machine$double.eps)){
+    time_is_null <- is.null(drivers[['time']])
+    if(time_is_null){
+        error_message <- "No `time` variable found in the `drivers` dataframe."
+        return(error_message)
+    }
+
+    time <- drivers[['time']]
+    error_message <- character()
+    if (length(time) < 3){
+        # automatic pass because 3+ rows are needed to check the spacing.
+        return (error_message)
+    }
+
+    dt = diff(time, differences = 2)
+    is_zero = abs(dt) < rtol
+    not_all_zero = !all(is_zero)
+    if (not_all_zero) {
+        error_message <- "The `time` variable is not evenly spaced or sequential."
+        return(error_message)
+    }
+
+    return(error_message)
+
+}
