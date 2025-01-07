@@ -120,6 +120,13 @@ check_run_biocro_inputs <- function(
         check_length(list(verbose=verbose))
     )
 
+    # Drivers must have a `time` variable that's evenly spaced.
+    error_message <- append(
+        error_message,
+        check_time_is_sequential(
+            drivers
+        )
+    )
 
     return(error_message)
 }
