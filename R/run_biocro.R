@@ -142,6 +142,10 @@ run_biocro <- function(
     verbose = FALSE
 )
 {
+
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(
         initial_values,
@@ -154,9 +158,6 @@ run_biocro <- function(
     )
 
     send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
