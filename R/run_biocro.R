@@ -120,16 +120,6 @@ check_run_biocro_inputs <- function(
         check_length(list(verbose=verbose))
     )
 
-    # Drivers must have a `time` variable that's evenly spaced.
-    error_message <- append(
-        error_message,
-        check_time_is_sequential(
-            drivers,
-            differential_module_names
-
-        )
-    )
-
     return(error_message)
 }
 
@@ -144,10 +134,6 @@ run_biocro <- function(
     verbose = FALSE
 )
 {
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(
         initial_values,
@@ -160,6 +146,12 @@ run_biocro <- function(
     )
 
     send_error_messages(error_messages)
+
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
+    # Check to ensure time is sequential.
+    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
@@ -229,7 +221,8 @@ partial_run_biocro <- function(
     verbose = FALSE
 )
 {
-    # Check over the inputs arguments for possible issues
+    # The inputs to this function have the same requirements as the `run_biocro`
+    # inputs with the same names
     error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
@@ -238,6 +231,14 @@ partial_run_biocro <- function(
         differential_module_names,
         ode_solver
     )
+
+    send_error_messages(error_messages)
+
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
+    # Check to ensure time is sequential.
+    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
 
     arg_list = list(
         initial_values = initial_values,

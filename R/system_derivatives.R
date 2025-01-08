@@ -20,6 +20,10 @@ system_derivatives <- function(
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
+    # Check to ensure time is sequential.
+    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
+
+
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
         direct_module_names,
