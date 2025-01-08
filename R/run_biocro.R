@@ -120,6 +120,14 @@ check_run_biocro_inputs <- function(
         check_length(list(verbose=verbose))
     )
 
+    error_message <- append(
+        error_message,
+        check_time_is_sequential(
+            drivers,
+            differential_module_names
+        )
+    )
+
     return(error_message)
 }
 
@@ -134,6 +142,10 @@ run_biocro <- function(
     verbose = FALSE
 )
 {
+
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(
         initial_values,
@@ -145,13 +157,7 @@ run_biocro <- function(
         verbose
     )
 
-    send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
-    # Check to ensure time is sequential.
-    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
+    stop_and_send_error_messages(error_messages)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
@@ -221,6 +227,9 @@ partial_run_biocro <- function(
     verbose = FALSE
 )
 {
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
     # The inputs to this function have the same requirements as the `run_biocro`
     # inputs with the same names
     error_messages <- check_run_biocro_inputs(
@@ -232,13 +241,7 @@ partial_run_biocro <- function(
         ode_solver
     )
 
-    send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
-    # Check to ensure time is sequential.
-    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
+    stop_and_send_error_messages(error_messages)
 
     arg_list = list(
         initial_values = initial_values,
@@ -291,7 +294,7 @@ partial_run_biocro <- function(
         )
     }
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Make a function that calls run_biocro with new values for the quantities
     # specified in arg_names

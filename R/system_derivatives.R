@@ -5,6 +5,9 @@ system_derivatives <- function(
     differential_module_names = list()
 )
 {
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
     # The inputs to this function have the same requirements as the `run_biocro`
     # inputs with the same names
     error_messages <- check_run_biocro_inputs(
@@ -15,14 +18,7 @@ system_derivatives <- function(
         differential_module_names
     )
 
-    send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
-    # Check to ensure time is sequential.
-    time_is_sequential <- is_time_sequential(drivers, differential_module_names)
-
+    stop_and_send_error_messages(error_messages)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
