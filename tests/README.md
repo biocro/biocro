@@ -4,7 +4,7 @@
     https://github.com/biocro/biocro/actions/workflows/R-CMD-check.yaml
     "BioCro R-CMD-check workflow runs" {target="_blank"}
 
-# Running the _testthat_ Tests
+# Running the _testthat_ Tests {#running-testthat}
 
 ## Requirements
 
@@ -43,7 +43,7 @@ section](#sec:testing-local) (Section \@ref(sec:testing-local)) for
 details.
 
 
-## Continuous integration workflow; why run tests manually?
+## Continuous integration workflow; why run tests manually? {#sec:ci-tests}
 
 BioCro's _testthat_ test suite is automatically run on GitHub as part
 of the _R-CMD-check_ workflow every time a BioCro developer makes or

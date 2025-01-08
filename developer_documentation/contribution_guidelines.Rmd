@@ -176,7 +176,7 @@ the devil].
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
 
-### Etiquette for Pull Requests
+### Etiquette for pull requests
 
 We have several conventions when making and reviewing pull requests that are
 designed to make the process as efficient as possible, and to minimize any
@@ -190,9 +190,10 @@ found to be helpful.
   treat each branch and PR as having a single "owner" who is in charge of making
   all commits. There are a few consequences of this approach:
 
-  - Pull request reviewers should only suggest changes, not implement them. If a
-    reviewer wishes to make changes, it is better to make them in a new branch,
-    and create a secondary PR to merge the changes into the original PR.
+  - Pull request reviewers should suggest changes, not commit changes directly
+    to the PR branch. If a reviewers wishes to contribute specific code changes,
+    it is better to make them in a new branch and create a secondary PR to merge
+    the changes into the original PR.
 
   - Pull request owners should either implement the suggested changes or give a
     short explanation for why they have chosen not to.
@@ -210,12 +211,20 @@ found to be helpful.
   for any code to be incorporated into BioCro. The following is a thorough
   workflow that should ensure submitted code is working:
 
-  1. Build the package and run the tests locally. The tests don't take much time
-     to run so this is a good way to get fast feedback.
+  1. Run the package tests locally. The tests don't take much time to run, so
+     this is a good way to get fast feedback.
+
+     Instructions for running the tests locally can be found in
+     ["Running the _testthat_ Tests"](#running-testthat) (Chapter
+     \@ref(running-testthat)).
 
   2. When all the tests are passing, run `R CMD check` locally. This takes
      longer than just running the tests, but it will also check the examples and
      vignettes, which sometimes turns up more issues.
+
+     Instructions for running `R CMD check` locally can be found in
+     ["Running R CMD check locally"](#sec:local-r-cmd-check) (Section
+     \@ref(sec:local-r-cmd-check)).
 
   3. When `R CMD check` is passing locally, make a PR, but don't assign any
      reviewers. Making the PR will cause the workflow tests to run, which
