@@ -262,7 +262,8 @@ modified:
   `R CMD check` passes locally.
 
 * If there are `R CMD check` errors but you cannot figure out how to resolve
-  them, a PR could be made to ask for help from other developers.
+  them, a PR could be made to ask for help from other developers. Such a PR
+  could be initially marked as a draft PR until the tests are passing.
 
 ### Making large modifications to BioCro
 
