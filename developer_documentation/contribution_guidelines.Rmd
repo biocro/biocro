@@ -176,6 +176,85 @@ the devil].
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
 
+### Etiquette for Pull Requests
+
+We have several conventions when making and reviewing pull requests that are
+designed to make the process as efficient as possible, and to minimize any
+issues introduced by new code. These have been used in many PRs and have been
+found to be helpful.
+
+* **Single ownership of each PR:** If multiple people are making changes to the
+  same code, there is a potential for conflicting changes to occur. While git
+  provides a way to resolve such conflicts, it is better to avoid causing them
+  in the first place. A simple way to prevent most of these conflicts is to
+  treat each branch and PR as having a single "owner" who is in charge of making
+  all commits. There are a few consequences of this approach:
+
+  - Pull request reviewers should only suggest changes, not implement them. If a
+    reviewer wishes to make changes, it is better to make them in a new branch,
+    and create a secondary PR to merge the changes into the original PR.
+
+  - Pull request owners should either implement the suggested changes or give a
+    short explanation for why they have chosen not to.
+
+  - Once one or more reviewers have indicated their approval, it is the
+    responsibility of the pull request owner to finalize the PR by merging it
+    and deleting the branch.
+
+* **Submitted code should work:** It takes time and effort to produce a
+  thoughtful review of a pull request, so requests to review a PR should
+  generally only be made for working code. In a BioCro context, "working" code
+  means that `R CMD check` does not produce any errors. While this does not
+  guarantee that the new code achieves its goals, is fully documented, or
+  follows the coding style guidelines, it is nevertheless a minimum requirement
+  for any code to be incorporated into BioCro. The following is a thorough
+  workflow that should ensure submitted code is working:
+
+  1. Build the package and run the tests locally. The tests don't take much time
+     to run so this is a good way to get fast feedback.
+
+  2. When all the tests are passing, run `R CMD check` locally. This takes
+     longer than just running the tests, but it will also check the examples and
+     vignettes, which sometimes turns up more issues.
+
+  3. When `R CMD check` is passing locally, make a PR, but don't assign any
+     reviewers. Making the PR will cause the workflow tests to run, which
+     includes running `R CMD check` on several operating systems and versions of
+     R. Sometimes an issue will appear that didn't occur locally on your own
+     operating system / R version.
+
+  4. When the online checks have passed, then assign reviewers to begin the
+     review process.
+
+  Doing this will ensure that there are no basic issues when reviewers begin to
+  look at the code. It may seem like a hassle, but it saves time in the long
+  run. Even when the exact workflow above is not followed, the online tests can
+  still be extremely helpful to a PR owner or reviewer:
+
+  - It is possible to see whether the checks have passed by looking at the list
+    of current PRs, where a red X next to a PR name indicates failure and a
+    green check mark indicates success.
+
+  - When the tests have failed, more details can be found in the "Checks" tab of
+    the PR web site. This will include the exact error messages, which are the
+    starting point for troubleshooting.
+
+Of course, the conventions above are not hard rules, and there may be situations
+where it is acceptable, or even necessary, to deviate from them. The following
+is a (non-exhaustive) list of situations where these conventions could be
+modified:
+
+* A PR owner may give clear permission to another developer to make direct code
+  changes. This may be in response to a reviewer asking to make changes.
+
+* Sometimes the online tests will fail due to an issue with the testing setup
+  itself. In that case it might not be necessary for them to pass. However, in
+  this scenario, it is important for at least one developer to ensure that
+  `R CMD check` passes locally.
+
+* If there are `R CMD check` errors but you cannot figure out how to resolve
+  them, a PR could be made to ask for help from other developers.
+
 ### Making large modifications to BioCro
 
 From time to time, someone will propose making a large change to the
