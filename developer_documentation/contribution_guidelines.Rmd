@@ -22,7 +22,8 @@ chapter on contributing to BioCro.  -->
         "Docker and Reproducibility" {target="_blank"}
 [Reproducible analysis and Research Transparency]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/index.html
         "Reproducible analysis and Research Transparency" {target="_blank"}
-
+[Advanced R (1e) Style Guide]: http://adv-r.had.co.nz/Style.html
+        "Advanced R (1e) style guide" {target="_blank"}
 
 [Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
@@ -360,7 +361,8 @@ discuss the following questions:
 
 ## Code style
 
-(Most of what is discussed here pertains specifically to code for the BioCro C++ library.)
+(Most of what is discussed here pertains specifically to code for the BioCro C++
+library.)
 
 ### Scientific considerations
 
@@ -472,7 +474,9 @@ discuss the following questions:
   issue.
 
 ### General coding considerations
-* Do not use C-style arrays. Use an appropriate data type from the standard library instead.
+* Do not use C-style arrays. Use an appropriate data type from the standard
+  library instead.
+
 * Use cmath, not math.h, for common mathematical functions.
 
 * Be careful with **using**-directives (e.g. `using namespace std`) in
@@ -584,7 +588,8 @@ For example,
     chunks, unless exceeding 80 columns significantly increases
     readability and does not hide information.
 
-* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters.
+* Do not include trailing whitespace, i.e., whitespace characters preceding
+  newline characters.
 
 * Each file should end with a newline character (i.e. a terminal endline).
 
@@ -622,6 +627,27 @@ For tools to help with formatting code, see the section
   `[`). Many guides for optimizing loop performance are available
   online, such as [Strategies to Speedup R Code][] and [Why loops are
   slow in R][].
+
+* Generally our R code follows the [Advanced R (1e) Style Guide][] with the
+  exception of indentation, where we use 4 spaces rather than 2.
+
+  * Put a space after control statements (such as `if` and `for`), but do not
+    put a space after function names (such as `function`, `return`, and `sqrt`).
+    For example:
+
+    ```R
+    myfun <- function(x) {
+        y <- if (x == 1) {
+            2
+        } else {
+            sqrt(x)
+        }
+
+        return(y)
+    }
+    ```
+
+    (Yes, in R, `function` is a function.)
 
 ---
 
