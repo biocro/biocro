@@ -64,7 +64,7 @@ test_that('Time errors are caught', {
         "`time` variable is not increasing."
     )
 
-    # Check singel row drivers should.
+    # Check single row drivers should pass.
     expect_silent(
         with(testing_model, {run_biocro(
             initial_values,

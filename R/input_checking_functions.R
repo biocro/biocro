@@ -1,7 +1,7 @@
 # Checks whether `args_to_check` has names. The other checking functions require
 # names to give useful error messages.
 check_names <- function(args_to_check) {
-    if(is.null(names(args_to_check))) {
+    if (is.null(names(args_to_check))) {
         stop(paste0("`", substitute(args_to_check), "` must have names"))
     }
 }
@@ -279,8 +279,8 @@ check_time_is_sequential <- function(
     drivers,
     differential_modules,
     rtol = sqrt(.Machine$double.eps)
-    ){
-
+)
+{
     # only checked if differential modules are present
     if (length(differential_modules) == 0) {
         return(character())
@@ -305,8 +305,7 @@ check_time_is_sequential <- function(
         return("The `time` variable is not evenly spaced / sequential.")
     }
 
-    return (character())
-
+    return(character())
 }
 
 # check if a vector is evenly spaced.
