@@ -631,9 +631,9 @@ For tools to help with formatting code, see the section
 * Generally our R code follows the [Advanced R (1e) Style Guide][] with the
   exception of indentation, where we use 4 spaces rather than 2.
 
-  * Put a space after control statements (such as `if` and `for`), but do not
-    put a space after function names (such as `function`, `return`, and `sqrt`).
-    For example:
+  * Put a space after control statements (such as `if` or `for`), but do not
+    put a space after other function names (such as `function`, `return`, or
+    `sqrt`). For example:
 
     ```R
     myfun <- function(x) {
