@@ -273,33 +273,45 @@ check_boolean <- function(args_to_check) {
     return(error_message)
 }
 
-# Checks that the `time` variable is ordered, strictly increasing, and evenly spaced with the `timestep`.
-# The check is that for all n, dt = t[n] - t[n-1] up to error tolerance due to
-# inexact floating point arithmetic.
-check_time_is_sequential <- function(drivers, differential_modules, rtol = sqrt(.Machine$double.eps)){
+# Checks that the `time` variable is ordered, increasing, and evenly
+# spaced, up to tolerance for inexact floating point arithmetic.
+check_time_is_sequential <- function(
+    drivers,
+    differential_modules,
+    rtol = sqrt(.Machine$double.eps)
+    ){
+
+    # only checked if differential modules are present
     if (length(differential_modules) == 0) {
-        return (character())
+        return(character())
     }
 
     no_time_variable <- !('time' %in% names(drivers))
     if (no_time_variable) {
-        return ("No `time` variable found in the `drivers` dataframe.")
+        return("No `time` variable found in the `drivers` dataframe.")
     }
 
     time <- drivers[['time']]
-    if (length(time) < 3) {
-        # automatic pass because >2 rows are needed to check the spacing.
-        return (TRUE)
+    if (is.unsorted(time)) {
+        return("`time` variable is not increasing.")
     }
 
-    dt = diff(time, differences = 2)
-    is_zero = abs(dt) < rtol
-    not_all_zero = !all(is_zero)
-    if (not_all_zero) {
-        return("The `time` variable is not evenly spaced or sequential.")
+    if (length(time) < 3) {
+        # automatic pass because >2 rows are needed to check the spacing.
+        return(character())
+    }
 
+    if (!is_evenly_spaced(time, rtol)) {
+        return("The `time` variable is not evenly spaced / sequential.")
     }
 
     return (character())
 
+}
+
+# check if a vector is evenly spaced.
+is_evenly_spaced <- function(x, rtol = sqrt(.Machine$double.eps)){
+    second_diff = diff(x, differences = 2)
+    is_zero = abs(second_diff) < rtol
+    return(all(is_zero))
 }
