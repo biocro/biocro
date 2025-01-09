@@ -205,22 +205,25 @@ found to be helpful.
 * **Submitted code should work:** It takes time and effort to produce a
   thoughtful review of a pull request, so requests to review a PR should
   generally only be made for working code. In a BioCro context, "working" code
-  means that `R CMD check` does not produce any errors. While this does not
-  guarantee that the new code achieves its goals, is fully documented, or
-  follows the coding style guidelines, it is nevertheless a minimum requirement
-  for any code to be incorporated into BioCro. The following is a thorough
-  workflow that should ensure submitted code is working:
+  means that `R CMD check` does not produce any errors. See
+  [Running R CMD check](#r-cmd-check) (Chapter \@ref(r-cmd-check)) for more
+  information. While passing `R CMD check` does not guarantee that the new code
+  achieves its goals, is fully documented, or follows the coding style
+  guidelines, it is nevertheless a minimum requirement for any code to be
+  incorporated into BioCro. The following is a thorough workflow that should
+  ensure submitted code is working:
 
-  1. Run the package tests locally. The tests don't take much time to run, so
+  1. Run the regression tests locally. The tests don't take much time to run, so
      this is a good way to get fast feedback.
 
-     Instructions for running the tests locally can be found in
+     Instructions for running the regression tests locally can be found in
      ["Running the _testthat_ Tests"](#running-testthat) (Chapter
      \@ref(running-testthat)).
 
-  2. When all the tests are passing, run `R CMD check` locally. This takes
-     longer than just running the tests, but it will also check the examples and
-     vignettes, which sometimes turns up more issues.
+  2. When all the regression tests are passing, run `R CMD check` locally. This
+     takes longer than just running the regression tests, but it will also make
+     sure that all code in the examples and vignettes is able to run, which
+     sometimes turns up more issues.
 
      Instructions for running `R CMD check` locally can be found in
      ["Running R CMD check locally"](#sec:local-r-cmd-check) (Section
@@ -229,8 +232,9 @@ found to be helpful.
   3. When `R CMD check` is passing locally, make a PR, but don't assign any
      reviewers. Making the PR will cause the workflow tests to run, which
      includes running `R CMD check` on several operating systems and versions of
-     R. Sometimes an issue will appear that didn't occur locally on your own
-     operating system / R version.
+     R. This step takes the most time, but is important because sometimes an
+     issue will appear that didn't occur locally on your own operating system or
+     version of R.
 
   4. When the online checks have passed, then assign reviewers to begin the
      review process.
@@ -261,9 +265,17 @@ modified:
   this scenario, it is important for at least one developer to ensure that
   `R CMD check` passes locally.
 
-* If there are `R CMD check` errors but you cannot figure out how to resolve
-  them, a PR could be made to ask for help from other developers. Such a PR
-  could be initially marked as a draft PR until the tests are passing.
+* Although it is ideal to only submit working code, sometimes this is not
+  possible for a variety of reasons. If you are working on new code and wish to
+  discuss it but there are `R CMD check` errors, this can be accomplished via a
+  PR, a draft PR, a GitHub issue, or a GitHub discussion. The best approach may
+  vary with the particular situation. Regardless of which approach is taken, it
+  is essential to acknowledge the the `R CMD check` issue and be clear about the
+  type of feedback or discussion you are requesting.
+
+* Sometimes a working PR may begin failing `R CMD check` after the author has
+  made code changes in response to reviewer feedback. This is normal; the new
+  problems and their solutions will simply become part of the PR discussion.
 
 ### Making large modifications to BioCro
 
