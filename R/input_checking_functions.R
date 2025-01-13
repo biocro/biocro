@@ -1,13 +1,13 @@
 # Checks whether `args_to_check` has names. The other checking functions require
 # names to give useful error messages.
 check_names <- function(args_to_check) {
-    if(is.null(names(args_to_check))) {
+    if (is.null(names(args_to_check))) {
         stop(paste0("`", substitute(args_to_check), "` must have names"))
     }
 }
 
 # Sends the error messages to the user in the proper format
-send_error_messages <- function(error_messages) {
+stop_and_send_error_messages <- function(error_messages) {
     if (length(error_messages) > 0) {
         stop(paste(error_messages, collapse='  '))
     }
@@ -271,4 +271,46 @@ check_boolean <- function(args_to_check) {
         }
     }
     return(error_message)
+}
+
+# Checks that the `time` variable is ordered, increasing, and evenly
+# spaced, up to tolerance for inexact floating point arithmetic.
+check_time_is_sequential <- function(
+    drivers,
+    differential_modules,
+    rtol = sqrt(.Machine$double.eps)
+)
+{
+    # only checked if differential modules are present
+    if (length(differential_modules) == 0) {
+        return(character())
+    }
+
+    no_time_variable <- !('time' %in% names(drivers))
+    if (no_time_variable) {
+        return("No `time` variable found in the `drivers` dataframe.")
+    }
+
+    time <- drivers[['time']]
+    if (is.unsorted(time)) {
+        return("`time` variable is not increasing.")
+    }
+
+    if (length(time) < 3) {
+        # automatic pass because >2 rows are needed to check the spacing.
+        return(character())
+    }
+
+    if (!is_evenly_spaced(time, rtol)) {
+        return("The `time` variable is not evenly spaced / sequential.")
+    }
+
+    return(character())
+}
+
+# check if a vector is evenly spaced.
+is_evenly_spaced <- function(x, rtol = sqrt(.Machine$double.eps)){
+    second_diff = diff(x, differences = 2)
+    is_zero = abs(second_diff) < rtol
+    return(all(is_zero))
 }

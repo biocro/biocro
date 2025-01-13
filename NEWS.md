@@ -100,8 +100,15 @@ be directly added to this file to describe the related changes.
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
+
+- Added a check to ensure the drivers passed to `run_biocro` are sequential
+  in time, because BioCro assumes that drivers are evenly spaced in time.
+  As a result, the drivers are required to always have a `time` variable
+  (`time` is computed from `doy` and `hour` if provided as a convenience).
+
 - Added a new function for generating C++ header files for new module classes:
   `module_write`
+
 
 ## OTHER CHANGES
 
