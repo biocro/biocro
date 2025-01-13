@@ -22,10 +22,9 @@ R includes a command-line tool called `R CMD check` whose purpose is to check
 whether an R package meets key requirements. At minimum, any package submitted
 to CRAN must pass `R CMD check` without producing any errors.
 
-`R CMD check` includes the regression tests discussed in
-["Running the _testthat_ Tests"](#running-testthat) (Chapter
-\@ref(running-testthat)) but is also more expansive. Key components of
-`R CMD check` are:
+`R CMD check` includes the regression tests discussed in the
+["Running the _testthat_ Tests" section](#running-testthat)but is also more
+expansive. Key components of `R CMD check` are:
 
 * It runs the regression tests in the `tests` directory. For more information
   about using the `testthat` package for regression tests, see the
@@ -61,9 +60,8 @@ There are several ways to run `R CMD check`, as described below.
 There is a GitHub action for running `R CMD check` on multiple operating systems
 and versions of R. It runs automatically in several situations (such as creating
 a pull request), but also can be triggered manually on any branch. See the
-[Continuous integration workflow](#sec:ci-tests) section (Section
-\@ref(sec:ci-tests)) for more details. Running `R CMD check` online tends to
-be slower than running it locally.
+["Continuous integration workflow" section](#sec:ci-tests) for more details.
+Running `R CMD check` online tends to be slower than running it locally.
 
 ## Running R CMD check locally  {#sec:local-r-cmd-check}
 

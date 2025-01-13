@@ -206,20 +206,19 @@ found to be helpful.
 * **Submitted code should work:** It takes time and effort to produce a
   thoughtful review of a pull request, so requests to review a PR should
   generally only be made for working code. In a BioCro context, "working" code
-  means that `R CMD check` does not produce any errors. See
-  [Running R CMD check](#r-cmd-check) (Chapter \@ref(r-cmd-check)) for more
-  information. While passing `R CMD check` does not guarantee that the new code
-  achieves its goals, is fully documented, or follows the coding style
-  guidelines, it is nevertheless a minimum requirement for any code to be
-  incorporated into BioCro. The following is a thorough workflow that should
-  ensure submitted code is working:
+  means that `R CMD check` does not produce any errors. See the
+  ["Running R CMD check" chapter](#r-cmd-check) for more information. While
+  passing `R CMD check` does not guarantee that the new code achieves its goals,
+  is fully documented, or follows the coding style guidelines, it is
+  nevertheless a minimum requirement for any code to be incorporated into
+  BioCro. The following is a thorough workflow that should ensure submitted code
+  is working:
 
   1. Run the regression tests locally. The tests don't take much time to run, so
      this is a good way to get fast feedback.
 
-     Instructions for running the regression tests locally can be found in
-     ["Running the _testthat_ Tests"](#running-testthat) (Chapter
-     \@ref(running-testthat)).
+     Instructions for running the regression tests locally can be found in the
+     ["Running the _testthat_ Tests" chapter](#running-testthat).
 
   2. When all the regression tests are passing, run `R CMD check` locally. This
      takes longer than just running the regression tests, but it will also make
@@ -271,7 +270,7 @@ modified:
   discuss it but there are `R CMD check` errors, this can be accomplished via a
   PR, a draft PR, a GitHub issue, or a GitHub discussion. The best approach may
   vary with the particular situation. Regardless of which approach is taken, it
-  is essential to acknowledge the the `R CMD check` issue and be clear about the
+  is essential to acknowledge the `R CMD check` issue and be clear about the
   type of feedback or discussion you are requesting.
 
 * Sometimes a working PR may begin failing `R CMD check` after the author has
@@ -604,8 +603,8 @@ For example,
   [formatting conventions][aspects of coding and design] that are
   informative, particularly regarding the use of code comments.
 
-For tools to help with formatting code, see the section
-\@ref(formatting-tools).
+For tools to help with formatting code, see the
+["Formatting Tools" section](#formatting-tools).
 
 ### R-specific coding advice
 
