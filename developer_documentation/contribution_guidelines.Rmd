@@ -22,7 +22,8 @@ chapter on contributing to BioCro.  -->
         "Docker and Reproducibility" {target="_blank"}
 [Reproducible analysis and Research Transparency]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/index.html
         "Reproducible analysis and Research Transparency" {target="_blank"}
-
+[Advanced R (1e) Style Guide]: http://adv-r.had.co.nz/Style.html
+        "Advanced R (1e) style guide" {target="_blank"}
 
 [Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
@@ -176,6 +177,106 @@ the devil].
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
 
+### Etiquette for pull requests
+
+We have several conventions when making and reviewing pull requests that are
+designed to make the process as efficient as possible, and to minimize any
+issues introduced by new code. These have been used in many PRs and have been
+found to be helpful.
+
+* **Single ownership of each PR:** If multiple people are making changes to the
+  same code, there is a potential for conflicting changes to occur. While git
+  provides a way to resolve such conflicts, it is better to avoid causing them
+  in the first place. A simple way to prevent most of these conflicts is to
+  treat each branch and PR as having a single "owner" who is in charge of making
+  all commits. There are a few consequences of this approach:
+
+  - Pull request reviewers should suggest changes, not commit changes directly
+    to the PR branch. If a reviewers wishes to contribute specific code changes,
+    it is better to make them in a new branch and create a secondary PR to merge
+    the changes into the original PR.
+
+  - Pull request owners should either implement the suggested changes or give a
+    short explanation for why they have chosen not to.
+
+  - Once one or more reviewers have indicated their approval, it is the
+    responsibility of the pull request owner to finalize the PR by merging it
+    and deleting the branch.
+
+* **Submitted code should work:** It takes time and effort to produce a
+  thoughtful review of a pull request, so requests to review a PR should
+  generally only be made for working code. In a BioCro context, "working" code
+  means that `R CMD check` does not produce any errors. See the
+  ["Running R CMD check" chapter](#r-cmd-check) for more information. While
+  passing `R CMD check` does not guarantee that the new code achieves its goals,
+  is fully documented, or follows the coding style guidelines, it is
+  nevertheless a minimum requirement for any code to be incorporated into
+  BioCro. The following is a thorough workflow that should ensure submitted code
+  is working:
+
+  1. Run the regression tests locally. The tests don't take much time to run, so
+     this is a good way to get fast feedback.
+
+     Instructions for running the regression tests locally can be found in the
+     ["Running the _testthat_ Tests" chapter](#running-testthat).
+
+  2. When all the regression tests are passing, run `R CMD check` locally. This
+     takes longer than just running the regression tests, but it will also make
+     sure that all code in the examples and vignettes is able to run, which
+     sometimes turns up more issues.
+
+     Instructions for running `R CMD check` locally can be found in
+     ["Running R CMD check locally"](#sec:local-r-cmd-check) (Section
+     \@ref(sec:local-r-cmd-check)).
+
+  3. When `R CMD check` is passing locally, make a PR, but don't assign any
+     reviewers. Making the PR will cause the workflow tests to run, which
+     includes running `R CMD check` on several operating systems and versions of
+     R. This step takes the most time, but is important because sometimes an
+     issue will appear that didn't occur locally on your own operating system or
+     version of R.
+
+  4. When the online checks have passed, then assign reviewers to begin the
+     review process.
+
+  Doing this will ensure that there are no basic issues when reviewers begin to
+  look at the code. It may seem like a hassle, but it saves time in the long
+  run. Even when the exact workflow above is not followed, the online tests can
+  still be extremely helpful to a PR owner or reviewer:
+
+  - It is possible to see whether the checks have passed by looking at the list
+    of current PRs, where a red X next to a PR name indicates failure and a
+    green check mark indicates success.
+
+  - When the tests have failed, more details can be found in the "Checks" tab of
+    the PR web site. This will include the exact error messages, which are the
+    starting point for troubleshooting.
+
+Of course, the conventions above are not hard rules, and there may be situations
+where it is acceptable, or even necessary, to deviate from them. The following
+is a (non-exhaustive) list of situations where these conventions could be
+modified:
+
+* A PR owner may give clear permission to another developer to make direct code
+  changes. This may be in response to a reviewer asking to make changes.
+
+* Sometimes the online tests will fail due to an issue with the testing setup
+  itself. In that case it might not be necessary for them to pass. However, in
+  this scenario, it is important for at least one developer to ensure that
+  `R CMD check` passes locally.
+
+* Although it is ideal to only submit working code, sometimes this is not
+  possible for a variety of reasons. If you are working on new code and wish to
+  discuss it but there are `R CMD check` errors, this can be accomplished via a
+  PR, a draft PR, a GitHub issue, or a GitHub discussion. The best approach may
+  vary with the particular situation. Regardless of which approach is taken, it
+  is essential to acknowledge the `R CMD check` issue and be clear about the
+  type of feedback or discussion you are requesting.
+
+* Sometimes a working PR may begin failing `R CMD check` after the author has
+  made code changes in response to reviewer feedback. This is normal; the new
+  problems and their solutions will simply become part of the PR discussion.
+
 ### Making large modifications to BioCro
 
 From time to time, someone will propose making a large change to the
@@ -259,7 +360,8 @@ discuss the following questions:
 
 ## Code style
 
-(Most of what is discussed here pertains specifically to code for the BioCro C++ library.)
+(Most of what is discussed here pertains specifically to code for the BioCro C++
+library.)
 
 ### Scientific considerations
 
@@ -371,7 +473,9 @@ discuss the following questions:
   issue.
 
 ### General coding considerations
-* Do not use C-style arrays. Use an appropriate data type from the standard library instead.
+* Do not use C-style arrays. Use an appropriate data type from the standard
+  library instead.
+
 * Use cmath, not math.h, for common mathematical functions.
 
 * Be careful with **using**-directives (e.g. `using namespace std`) in
@@ -483,7 +587,8 @@ For example,
     chunks, unless exceeding 80 columns significantly increases
     readability and does not hide information.
 
-* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters.
+* Do not include trailing whitespace, i.e., whitespace characters preceding
+  newline characters.
 
 * Each file should end with a newline character (i.e. a terminal endline).
 
@@ -498,8 +603,8 @@ For example,
   [formatting conventions][aspects of coding and design] that are
   informative, particularly regarding the use of code comments.
 
-For tools to help with formatting code, see the section
-\@ref(formatting-tools).
+For tools to help with formatting code, see the
+["Formatting Tools" section](#formatting-tools).
 
 ### R-specific coding advice
 
@@ -521,6 +626,27 @@ For tools to help with formatting code, see the section
   `[`). Many guides for optimizing loop performance are available
   online, such as [Strategies to Speedup R Code][] and [Why loops are
   slow in R][].
+
+* Generally our R code follows the [Advanced R (1e) Style Guide][] with the
+  exception of indentation, where we use 4 spaces rather than 2.
+
+  * Put a space after control statements (such as `if` or `for`), but do not
+    put a space after other function names (such as `function`, `return`, or
+    `sqrt`). For example:
+
+    ```R
+    myfun <- function(x) {
+        y <- if (x == 1) {
+            2
+        } else {
+            sqrt(x)
+        }
+
+        return(y)
+    }
+    ```
+
+    (Yes, in R, `function` is a function.)
 
 ---
 

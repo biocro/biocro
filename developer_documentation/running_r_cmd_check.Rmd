@@ -1,0 +1,117 @@
+<!-- external references -->
+
+[Description of R CMD check]:
+    https://r-pkgs.org/r-cmd-check.html
+    "Description of R CMD check" {target="_blank"}
+
+[Description of examples]:
+    https://r-pkgs.org/man.html#sec-man-examples
+    "Description of examples" {target="_blank"}
+
+[Description of vignettes]:
+    https://r-pkgs.org/vignettes.html
+    "Description of vignettes" {target="_blank"}
+
+[Description of tests]:
+    https://r-pkgs.org/testing-basics.html
+    "Description of tests" {target="_blank"}
+
+# Running R CMD check {#r-cmd-check}
+
+R includes a command-line tool called `R CMD check` whose purpose is to check
+whether an R package meets key requirements. At minimum, any package submitted
+to CRAN must pass `R CMD check` without producing any errors.
+
+`R CMD check` includes the regression tests discussed in the
+["Running the _testthat_ Tests" section](#running-testthat)but is also more
+expansive. Key components of `R CMD check` are:
+
+* It runs the regression tests in the `tests` directory. For more information
+  about using the `testthat` package for regression tests, see the
+  [Testing section of the "R Packages" textbook][Description of tests].
+
+* It runs all of the examples, which are short pieces of code in the
+  documentation for individual functions in the package. The examples can be
+  found in the `examples` sections of the `.Rd` files in the `man` directory.
+  For more information about examples, see the
+  [Examples section of the "R Packages" textbook][Description of examples].
+
+* It builds all of the vignettes, which are long-form pieces of documentation.
+  The vignettes can be found in the `vignettes` directory. For more information
+  about vignettes, see the
+  [Vignettes section of the "R Packages" textbook][Description of vignettes].
+
+For more information about the individual checks that compose `R CMD check`,
+please see [its entry in the "R Packages" textbook][Description of R CMD check].
+
+In the course of BioCro development, we frequently run `R CMD check` to make
+sure our code meets these requirements. Since `R CMD check` is so thorough, it
+is an important tool for identifying issues that may occur when changes are made
+to the code.
+
+`R CMD check` identifies issues with a range of severity. Anything labeled as an
+"error" is a serious issue and must be addressed. "Warnings" should almost
+always be addressed, and "notes" are the least serious.
+
+There are several ways to run `R CMD check`, as described below.
+
+## Running R CMD check online
+
+There is a GitHub action for running `R CMD check` on multiple operating systems
+and versions of R. It runs automatically in several situations (such as creating
+a pull request), but also can be triggered manually on any branch. See the
+["Continuous integration workflow" section](#sec:ci-tests) for more details.
+Running `R CMD check` online tends to be slower than running it locally.
+
+## Running R CMD check locally  {#sec:local-r-cmd-check}
+
+### From the command line
+
+Since `R CMD check` is a command line tool, a basic way to run it is from the
+command line. It is necessary to run `R CMD build` first; this "builds" the
+package by building the vignettes and compiling all the files into a single
+archive.
+
+To do this, open a terminal running in the parent directory of a local copy of
+the BioCro repository, and then run the following command, assuming that the
+BioCro repository is stored in a directory called `biocro`:
+
+```
+R CMD build --compact-vignettes=both biocro
+```
+
+If there are any issues with the vignettes, one or more errors will occur at
+this stage. They must be addressed to actually "build" the package. If this
+command is successful, it will create a new file called `BioCro_X.Y.Z.tar.gz`,
+where `X.Y.Z` is the version of the BioCro package that was built. Then the
+package can be checked with
+
+```
+R CMD check --as-cran BioCro_X.Y.Z.tar.gz
+```
+
+In these commands, `--compact-vignettes=both` and `--as-cran` are optional
+arguments. We usually compact the vignettes before submitting to CRAN to ensure
+we meet package size requirements, while the "as-cran" option ensures that the
+`R CMD check` behavior matches the checks actually used by CRAN.
+
+### From within R
+
+There are also options for running `R CMD check` from within R. These R
+functions generally build and check the package, so they can be simpler than the
+command line approach.
+
+The central option is the `rcmdcheck` function from the `rcmdcheck` package. To
+use it, start an R session running in the parent directory of a local copy of
+the BioCro repository, and then run the following command, assuming that the
+BioCro repository is stored in a directory called `biocro`:
+
+```R
+rcmdcheck::rcmdcheck(path = 'biocro', args = '--as-cran', error_on = 'warning')
+```
+
+Here the "as-cran" and "error on warning" options ensure that the `R CMD check`
+behavior matches the checks actually used by CRAN.
+
+It also possible to use the `check` function from the `devtools` package,
+although that command is essentially just a wrapper for `rcmdcheck::rcmdcheck`.
