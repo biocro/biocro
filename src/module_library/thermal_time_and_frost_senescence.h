@@ -210,7 +210,7 @@ string_vector thermal_time_and_frost_senescence::get_inputs()
         "Leaf",                          // Mg / ha
         "leafdeathrate",                 // percent
         "lat",                           // degrees
-        "time",                          // days
+        "time",                          // hours
         "temp",                          // degrees C
         "Tfrostlow",                     // degrees C
         "Tfrosthigh",                    // degrees C
@@ -283,7 +283,8 @@ void thermal_time_and_frost_senescence::do_operation() const
     // linearly with temperature.
     bool const sene_started = TTc >= seneLeaf;
     bool const in_north = lat >= 0.0;
-    bool const late_year = time >= 180.0;
+    int const doy = 1 + std::floor(time / 24);
+    bool const late_year = doy >= 180;
     bool const in_winter = (in_north && late_year) || (!in_north && !late_year);
 
     double const base_frost_death_rate =

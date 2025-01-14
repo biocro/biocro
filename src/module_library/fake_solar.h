@@ -69,8 +69,9 @@ void fake_solar::do_operation() const
     // Calculate the radiation in a way that's good for testing different day lengths, and the switch to dark conditions
 
     // Extract out the DOY and hour
-    int doy = (int)time;
-    double hour = 24.0 * (time - doy);
+    int d =  std::floor(time / 24);
+    int doy = 1 + d;
+    double hour = time - 24 * d;
 
     // Define the parameters for calculating the solar radiation
     int min_doy = 91;           // The first day to shine light (min in dataset is 91) (mean is 196)

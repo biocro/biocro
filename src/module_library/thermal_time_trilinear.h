@@ -128,8 +128,8 @@ class thermal_time_trilinear : public differential_module
 string_vector thermal_time_trilinear::get_inputs()
 {
     return {
-        "time",         // days
-        "sowing_time",  // days
+        "time",         // hours
+        "sowing_time",  // hours
         "temp",         // degrees C
         "tbase",        // degrees C
         "topt_lower",   // degrees C
