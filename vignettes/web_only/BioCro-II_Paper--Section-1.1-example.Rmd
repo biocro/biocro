@@ -272,7 +272,7 @@ cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 
-xyplot(Q ~  24 *time , data = result, xlab = "hour", ylab = "Q (mol / m^2 / s)")
+xyplot(Q ~  24 * time , data = result, xlab = "hour", ylab = "Q (mol / m^2 / s)")
 
 xyplot(Leaf ~ 24 * time , data = result, xlab = "hour", ylab = "Leaf (kg)")
 ```
@@ -298,7 +298,7 @@ assume the timestep value to be in hours, not seconds.)
 
 ```{r, realistic-time-of-year, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
-    time = times/86400 + 79,
+    time = times +  79 * 86400,
     Q = Q(times)
 )
 
@@ -317,9 +317,9 @@ cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 
-xyplot(Q ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
+xyplot(Q ~ time/3600 -  24 * (79 - 1), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
 
-xyplot(Leaf ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
+xyplot(Leaf ~ time/3600 - 24 * (79 - 1) , data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
 ```
 
 ## References
