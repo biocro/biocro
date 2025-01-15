@@ -132,7 +132,6 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
 
     ## add useful columns to the resulting data frame:
-    # result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
 
