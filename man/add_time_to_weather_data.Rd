@@ -21,19 +21,17 @@
 }
 
 \value{
-  If drivers has no time component, then one is added, provided it \emph{does}
-  have components for doy and hour. (The time values will be equal to the doy
-  values plus the fractional portion of a day represented by the hour values.)
-  Otherwise drivers is returned as is.
+  If drivers has no `time` component, then one is added, provided it \emph{does}
+  have components for doy and hour. See \link{time} for its definition. Otherwise
+  drivers is returned as is.
 }
 
 \note{
   Preconditions: If drivers is a list, the values should be vectors of equal
-  length.  Moreover, if it already contains a time component, then it shouldn't
+  length. Moreover, if it already contains a time component, then it shouldn't
   contain either a doy or an hour component unless it contains both of them and
-  the values are mutually consistent.  Furthermore, the time represented by
-  (doy, hour), if given, or by time, if given, should increase as the vector or
-  row index increases.
+  the values are mutually consistent. Furthermore, the time represented by
+  (doy, hour), if given, or by time, if given, should be spaced by the timestep.
 }
 
 \examples{

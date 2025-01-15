@@ -198,7 +198,7 @@ void solar_position_michalsky::do_operation() const
 
     // Unpack the doy and hour in UTC
     double time_utc = time - time_zone_offset;     // hours
-    int d =  floor(time_utc / hr_per_day);
+    int d = std::floor(time_utc / hr_per_day);
     double const doy_utc = 1 + d; // days
     double const hour_utc = time_utc - hr_per_day * d;  // hours
 

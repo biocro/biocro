@@ -124,7 +124,8 @@ check_run_biocro_inputs <- function(
         error_message,
         check_time_is_sequential(
             drivers,
-            differential_module_names
+            differential_module_names,
+            parameters
         )
     )
 

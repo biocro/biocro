@@ -147,6 +147,7 @@ writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
 add_csv_row(
   'BioCro:thermal_time_linear',
   td,
+  # note `time` and `sowing_time` are in hours.
   list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
   'temp above tbase'
 )

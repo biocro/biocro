@@ -100,11 +100,13 @@ be directly added to this file to describe the related changes.
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
-
 - Added a check to ensure the drivers passed to `run_biocro` are sequential
   in time, because BioCro assumes that drivers are evenly spaced in time.
-  As a result, the drivers are required to always have a `time` variable
-  (`time` is computed from `doy` and `hour` if provided as a convenience).
+  `run_biocro` will check that the spacing is equal to `timestep`. As a result,
+  the drivers are required to always have a `time` variable in the same units
+  as `timestep`. When `time` corresponds to a date and time (e.g., in
+  `solar_position_michalsky.h`), `time` is expected to be the number of hours
+  since midnight Jan 1. As a convenience, `time` is computed from `doy` and `hour`.
 
 - Added a new function for generating C++ header files for new module classes:
   `module_write`

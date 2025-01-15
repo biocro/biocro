@@ -138,7 +138,8 @@ units one may wish to use.
 
 As always, the difference in time between any row _n_ in the _drivers_
 dataframe and the row _n + 1_ that immediately follows it should be
-equal to "timestep" (in whatever units _timestep_ has been given).
+equal to "timestep" (in whatever units _timestep_ has been given). BioCro
+will check this is the case, and raise an error if not.
 
 
 ## First modification: 24 hour simulation
@@ -222,9 +223,9 @@ xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hour
 ## Second modification: Changing the time specification from seconds to days
 
 The usual assumption in BioCro is that the `time` quantity represents
-the time, in days, from the beginning of the year, not the number of
-seconds that have elapsed from the start of the simulation.  (More
-precisely, the integral part of the `time` value should be the day of
+the time, in hours, that has elapsed from the beginning of the year,
+not the number of seconds that have elapsed from the start of the simulation.
+(More precisely, the integral part of the `time` value should be the day of
 the year, counting from one, and the fractional part should be the
 portion of the day that has elapsed since midnight at the begining of
 that day.  Thus `time = 4.25` would occur at 6 a.m. on January 4.)
@@ -251,7 +252,7 @@ from row to row (an amount still corresponding to one second):
 
 ```{r, consistent-durations, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
-    time = times/86400,
+    time = times,
     Q = Q(times)
 )
 
@@ -263,15 +264,17 @@ result <- run_biocro(
     'BioCro:example_model_partitioning'
 )
 
+result$time <- result$time /86400
+
 cable(result[1:4,]) # beginning
 cable(result[seq(21591, 21661, 10),]) # around dawn
 cable(result[43199:43203,]) # around mid day
 cable(result[seq(64741, 64811, 10),]) # around dusk
 cable(result[86398:86401,]) # end
 
-xyplot(Q ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Q (mol / m^2 / s)")
+xyplot(Q ~  24 *time , data = result, xlab = "hour", ylab = "Q (mol / m^2 / s)")
 
-xyplot(Leaf ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Leaf (kg)")
+xyplot(Leaf ~ 24 * time , data = result, xlab = "hour", ylab = "Leaf (kg)")
 ```
 
 ## Third modification: Making the `time` variable consistent with a reasonable time of year

@@ -485,7 +485,7 @@ temperature (\texttt{temp}) throughout one day at 3-hour intervals as follows:
 hour <- seq(0, 23, 3)
 temp <- 20 + 8 * sin((hour / 24) * pi)^2 # we use "vector arithmetic" to form `temp`
 drivers <- data.frame(
-    hour = hour,
+    time = hour, # BioCro requires the drivers to have `time` variable.
     temp = temp
 )
 @
