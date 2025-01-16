@@ -225,18 +225,15 @@ xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hour
 The usual assumption in BioCro is that the `time` quantity represents
 the time, in hours, that has elapsed from the beginning of the year,
 not the number of seconds that have elapsed from the start of the simulation.
-(More precisely, the integral part of the `time` value should be the day of
-the year, counting from one, and the fractional part should be the
-portion of the day that has elapsed since midnight at the begining of
-that day.  Thus `time = 4.25` would occur at 6 a.m. on January 4.)
 
 It follows, then, that the way we have been using the `time` variable
 in the previous examples in inconsistent with the usual interpretation
 of time in two respects: First, the units were in seconds rather than
-days.  Second, the time represented the amount of time elapsed from
+days. Second, the time represented the amount of time elapsed from
 the beginning of the simulation rather than an "absolute" time, that
 is, a time value specifying a specific time of day on a specific day
-of the year.  (There is no great harm in using the `time` variable in
+of the year (a date and time on the calendar).
+(There is no great harm in using the `time` variable in
 this unconventional way of the previous examples, as long as we know
 what we are doing and as long as we aren't using any modules that
 assume the _conventional_ interpretation of the `time` variable.  In
@@ -246,9 +243,10 @@ than in days.)
 
 The first of these inconsistencies is easily remedied by rescaling the
 time values so that instead of running from 0 to 86400 (seconds), they
-run from from 0 to 1 (days): we simply divide each former time value
-by 86400.  Now, the value of `time` increases by 1/86400 (of a day!)
-from row to row (an amount still corresponding to one second):
+run from from 0 to 1 (days): we could simply divide each former time value
+by 86400.  Now, the value of `time` would increase by 1/86400 (of a day!)
+from row to row (an amount still corresponding to one second). However,
+`run_biocro` requires `time` to be spaced by `timestep`.
 
 ```{r, consistent-durations, fig.show="hold", out.width="50%"}
 light_intensity <- data.frame(
@@ -282,16 +280,14 @@ xyplot(Leaf ~ 24 * time , data = result, xlab = "hour", ylab = "Leaf (kg)")
 The simulation just shown takes care of making the time step
 consistent with the time duration represented by the time column in
 its usual interpretation.  But the `time` value of 0 corresponds (in
-the conventional BioCro interpretation) to midnight at the start of
-December 31, and this is not consistent with a sun passing directly
+the conventional BioCro interpretation) to midnight January 1st, and
+this is not consistent with a sun passing directly
 overhead during the course of a 12 hour day, even at an equatorial
 location.  We may remedy this by shifting the time values forward by
-79 days to the time of the March equinox.  Now time represents not
-just a duration in days, but more precisely, it represents the number
-of (fractional) days that have elapsed since midnight at the start of
-December 31 of the previous year.  Direct modules that rely on this
+79 days to the time of the March equinox.  Direct modules that rely on this
 meaning for time, such as `solar_position_michalsky`, could now be
-used if we wished.  (But we still can not mix in derivative modules,
+used if we wished (`time` represents a date and time).
+(But we still can not mix in derivative modules,
 such as the thermal time modules, that use `time` as input, since
 these, unlike the `example_model_partitioning` module we are using,
 assume the timestep value to be in hours, not seconds.)
