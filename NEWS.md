@@ -100,13 +100,21 @@ be directly added to this file to describe the related changes.
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
-- Added a check to ensure the drivers passed to `run_biocro` are sequential
-  in time, because BioCro assumes that drivers are evenly spaced in time.
-  `run_biocro` will check that the spacing is equal to `timestep`. As a result,
-  the drivers are required to always have a `time` variable in the same units
-  as `timestep`. When `time` corresponds to a date and time (e.g., in
-  `solar_position_michalsky.h`), `time` is expected to be the number of hours
-  since midnight Jan 1. As a convenience, `time` is computed from `doy` and `hour`.
+- Made several changes to BioCro's time handling:
+  - The `time` variable is now required to be sequential and evenly spaced,
+    where the time interval must be equal to `timestep`. A consequence is that
+    `time` and `timestep` are expected to have the same units.
+  - With this change, it was necessary to change the definition of `time` used
+    with the crop models. Now it is expected to be expressed as the number of
+    hours since midnight on January 1, rather than a fractional day of year.
+  - There is a new module for calculating `doy` and `hour` from `time`, called
+    `BioCro:format_time`. This module ensures that `doy` always takes integer
+    values in the output from `run_biocro`.
+  - In most cases, old scripts calling `run_biocro` will continue to function
+    following these changes, but for some models, it may be necessary to add
+    `BioCro:format_time` to the direct modules. A warning will inform users when
+    this is the case. The redefinition of `time` from days to hours may also
+    require changes to plotting commands or other operations using `time`.
 
 - Added a new function for generating C++ header files for new module classes:
   `module_write`
