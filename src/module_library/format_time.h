@@ -26,6 +26,7 @@ class format_time : public direct_module
 
           // Get pointers to output quantities
           doy_op{get_op(output_quantities, "doy")},
+          fractional_doy_op{get_op(output_quantities, "fractional_doy")},
           hour_op{get_op(output_quantities, "hour")}
     {
     }
@@ -39,6 +40,7 @@ class format_time : public direct_module
 
     // Pointers to output quantities
     double* doy_op;
+    double* fractional_doy_op;
     double* hour_op;
 
     // Main operation
@@ -55,8 +57,9 @@ string_vector format_time::get_inputs()
 string_vector format_time::get_outputs()
 {
     return {
-        "doy",  // days
-        "hour"  // hours
+        "doy",             // days
+        "fractional_doy",  // days
+        "hour"             // hours
     };
 }
 
@@ -69,6 +72,7 @@ void format_time::do_operation() const
     double const hour = time - hr_per_day * d;  // hours
 
     update(doy_op, doy);
+    update(fractional_doy_op, doy + hour / hr_per_day);
     update(hour_op, hour);
 }
 

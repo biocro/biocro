@@ -113,8 +113,11 @@ be directly added to this file to describe the related changes.
   - In most cases, old scripts calling `run_biocro` will continue to function
     following these changes, but for some models, it may be necessary to add
     `BioCro:format_time` to the direct modules. A warning will inform users when
-    this is the case. The redefinition of `time` from days to hours may also
-    require changes to plotting commands or other operations using `time`.
+    this is the case.
+  - The redefinition of `time` from days to hours may require changes to
+    plotting commands or other operations using `time`. In most cases, instances
+    of `time` in old scripts can be replaced by `fractional_doy`, which is
+    equivalent to the definition of `time` used in previous versions of BioCro.
 
 - Added a new function for generating C++ header files for new module classes:
   `module_write`
