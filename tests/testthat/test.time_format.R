@@ -74,16 +74,21 @@ test_that('doy and hour are not gratuitously added to run_biocro results', {
     expect_false('hour' %in% colnames(sho_result))
 })
 
-test_that('helpful warning message is provided', {
-    expect_warning(
-        with(sho_model, {run_biocro(
-            initial_values,
-            parameters,
-            drivers = data.frame(hour = seq(0, 10, 1), doy = 1),
-            direct_module_names,
-            differential_module_names,
-            ode_solver
-        )}),
-        '`doy` and `hour` have been removed by `add_time_to_weather_data`. It is recommended to add `BioCro:format_time` to the direct modules.'
+test_that('The BioCro:format_time module is added when necessary', {
+    direct_modules <- soybean$direct_modules
+    direct_modules <- direct_modules[direct_modules != 'BioCro:format_time']
+
+    res <- expect_silent(
+        with(soybean, {run_biocro(
+          initial_values,
+          parameters,
+          short_weather,
+          direct_modules,
+          differential_modules,
+          ode_solver
+        )})
     )
+
+    expect_true('doy'  %in% colnames(res))
+    expect_true('hour' %in% colnames(res))
 })

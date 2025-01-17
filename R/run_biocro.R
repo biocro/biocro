@@ -132,6 +132,23 @@ check_run_biocro_inputs <- function(
     return(error_message)
 }
 
+# A helping function for making convenient alterations when weather data is
+# supplied
+adapt_weather_data <- function(drivers, direct_module_names) {
+    if ('doy' %in% names(drivers) && 'hour' %in% names(drivers)) {
+        drivers <- add_time_to_weather_data(drivers)
+
+        if (!'BioCro:format_time' %in% unlist(direct_module_names)) {
+            direct_module_names <-
+                append(direct_module_names, 'BioCro:format_time')
+        }
+    }
+
+    list(
+        direct_module_names = direct_module_names,
+        drivers = drivers
+    )
+}
 
 run_biocro <- function(
     initial_values = list(),
@@ -143,9 +160,10 @@ run_biocro <- function(
     verbose = FALSE
 )
 {
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers, direct_module_names)
+    # Make sure weather data is properly handled
+    adapted <- adapt_weather_data(drivers, direct_module_names)
+    drivers <- adapted$drivers
+    direct_module_names <- adapted$direct_module_names
 
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(

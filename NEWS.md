@@ -111,9 +111,9 @@ be directly added to this file to describe the related changes.
     `BioCro:format_time`. This module ensures that `doy` always takes integer
     values in the output from `run_biocro`.
   - In most cases, old scripts calling `run_biocro` will continue to function
-    following these changes, but for some models, it may be necessary to add
-    `BioCro:format_time` to the direct modules. A warning will inform users when
-    this is the case.
+    following these changes because `time` will be correctly computed from `doy`
+    and `hour`, and `BioCro:format_time` will be automatically added to module
+    lists.
   - The redefinition of `time` from days to hours may require changes to
     plotting commands or other operations using `time`. In most cases, instances
     of `time` in old scripts can be replaced by `fractional_doy`, which is

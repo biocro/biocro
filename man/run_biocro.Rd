@@ -34,9 +34,9 @@
     A data frame of quantities with rows at equally spaced time intervals
     specified in the `parameters` as 'timestep'. The drivers must include either
     (1) 'time' or (2) 'doy' and 'hour' columns. In the latter case, 'time' will
-    be automatically computed from 'doy' and 'hour' as a convenience using
-    \code{\link{add_time_to_weather_data}}. See \code{\link{time}} for its
-    definition.
+    be automatically computed from 'doy' and 'hour' using
+    \code{\link{add_time_to_weather_data}}, and the \code{BioCro:format_time}
+    module will be added to the direct modules if it is not already present.
   }
 
   \item{direct_module_names}{

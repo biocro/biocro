@@ -6,25 +6,21 @@
 
 \description{
   Ensure, if possible, that input data that varies over time has a "time"
-  component.
+  component. See the documentation for \code{\link{time}} for more information
+  about this quantity.
 
   It is rare for users to call this function directly because it is called
   internally by \code{\link{run_biocro}}.
 }
 
 \usage{
-  add_time_to_weather_data(drivers, direct_modules = NULL)
+  add_time_to_weather_data(drivers)
 }
 
 \arguments{
   \item{drivers}{
     A list or dataframe representing known system parameters that vary over
     time, such as weather data.
-  }
-
-  \item{direct_modules}{
-    An (optional) character vector of direct module names, as would be passed to
-    \code{\link{run_biocro}}.
   }
 }
 
@@ -38,9 +34,7 @@
   }
 
   In this case, it is expected that the \code{BioCro:format_time} direct module
-  will be used to re-compute \code{doy} and \code{hour} from \code{time}. If the
-  \code{direct_modules} argument is supplied and does not contain
-  \code{BioCro:format_time}, a helpful warning message will occur.
+  will be used to re-compute \code{doy} and \code{hour} from \code{time}.
 
   If \code{drivers} does not have \code{doy} and \code{hour} columns, then
   \code{drivers} will be returned as-is.
