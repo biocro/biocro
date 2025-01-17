@@ -31,10 +31,12 @@
   }
 
   \item{drivers}{
-    A data frame of quantities with rows at equally spaced time intervals specified
-    in the `parameters` as 'timestep'. The drivers must include either (1) 'time'
-    or (2) 'doy' and 'hour' columns. In the latter case, 'time' will be computed
-    from 'doy' and 'hour' as a convenience. See \link{time} for its definition.
+    A data frame of quantities with rows at equally spaced time intervals
+    specified in the `parameters` as 'timestep'. The drivers must include either
+    (1) 'time' or (2) 'doy' and 'hour' columns. In the latter case, 'time' will
+    be automatically computed from 'doy' and 'hour' as a convenience using
+    \code{\link{add_time_to_weather_data}}. See \code{\link{time}} for its
+    definition.
   }
 
   \item{direct_module_names}{

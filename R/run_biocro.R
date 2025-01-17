@@ -145,7 +145,7 @@ run_biocro <- function(
 {
 
     # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
+    drivers <- add_time_to_weather_data(drivers, direct_module_names)
 
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(
@@ -205,13 +205,6 @@ run_biocro <- function(
         ode_solver_adaptive_max_steps,
         verbose
     ))
-
-    # Make sure doy and hour are properly defined
-    if ('doy' %in% names(drivers) && 'hour' %in% names(drivers)) {
-        d = floor(result$time / 24)
-        result$doy = 1 + d
-        result$hour = result$time - 24 * d
-    }
 
     # Sort the columns by name
     result <- result[,sort(names(result))]
