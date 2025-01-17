@@ -1,5 +1,6 @@
 miscanthus_x_giganteus <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:leaf_water_stress_exponential",
         specific_leaf_area = "BioCro:sla_linear",

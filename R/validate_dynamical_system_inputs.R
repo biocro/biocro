@@ -7,8 +7,10 @@ validate_dynamical_system_inputs <- function(
     verbose = TRUE
 )
 {
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
+    # Make sure weather data is properly handled
+    adapted <- adapt_weather_data(drivers, direct_module_names)
+    drivers <- adapted$drivers
+    direct_module_names <- adapted$direct_module_names
 
     # The inputs to this function have the same requirements as the `run_biocro`
     # inputs with the same names

@@ -743,14 +743,15 @@ str(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
 
 Viewing the numeric results directly from a data frame can be useful at times,
 but it's often more useful to plot one or more columns from the result against
-an independent variable such as time. We can do this with the \texttt{xyplot}
-function from the \texttt{lattice} package, which must be loaded into the R
-workspace (Section \ref{sec:getting_started}). This function produces an R
-\emph{trellis} object which can be viewed with the \texttt{print} function.
+an independent variable such as the fractional day of year. We can do this with
+the \texttt{xyplot} function from the \texttt{lattice} package, which must be
+loaded into the R workspace (Section \ref{sec:getting_started}). This function
+produces an R \emph{trellis} object which can be viewed with the \texttt{print}
+function.
 
 <<soybean_plot_1>>=
 soybean_plot_v1 <- xyplot(
-  soybean_result$Leaf ~ soybean_result$time
+  soybean_result$Leaf ~ soybean_result$fractional_doy
 )
 print(soybean_plot_v1)
 @
@@ -761,7 +762,7 @@ labels:
 
 <<soybean_plot_v2>>=
 soybean_plot_v2 <- xyplot(
-  Leaf ~ time,
+  Leaf ~ fractional_doy,
   data = soybean_result
 )
 print(soybean_plot_v2)
@@ -775,7 +776,7 @@ discussion about the units used in this figure.
 
 <<soybean_plot_v3>>=
 soybean_plot_v3 = xyplot(
-  Stem + Leaf + Root ~ time,                   # Specify multiple data series using `+`
+  Stem + Leaf + Root ~ fractional_doy,         # Specify multiple data series using `+`
   data = soybean_result,                       # Plot data from `soybean_result`
   type = 'b',                                  # Plot using both points and a line (use
                                                # 'l' for just a line or 'p' for points)
