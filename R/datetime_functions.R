@@ -45,6 +45,11 @@ setGeneric("get_origin<-", function(x, value) standardGeneric("get_origin<-"))
 setMethod("get_origin<-", "_biocro_time", function(x, value){x@origin <- value; x})
 
 # R METHODS
+setMethod("[", "_biocro_time",  function(x, i, j, ..., drop=TRUE) x@value[i])
+setMethod("[<-", "_biocro_time", function(x, i, j, ..., value) {x@value[i] <- value; x})
+
+
+
 print._biocro_time <- function(x){
     cat(
         "Hours since the year", get_origin(x), "begin:\n",
@@ -57,6 +62,7 @@ length._biocro_time <- function(x) {
     return(length(x@value))
 }
 
+
 setMethod("show", "_biocro_time", function(object) {
     print._biocro_time(object)
 })
@@ -68,11 +74,30 @@ as.vector._biocro_time <- function(x, mode="any"){
     return(v)
 }
 
-as.data.frame._biocro_time <- function(x,
-    row.names = NULL, optional=TRUE, ...)
+as.data.frame._biocro_time <- function (x,
+    row.names = NULL, optional = FALSE, ..., nm = deparse1(substitute(x)))
 {
-    as.data.frame.vector(x, row.names = NULL, optional=TRUE, ...)
+    force(nm)
+    x <- as.vector(x)
+    nrows <- length(x)
+    if (is.null(row.names)) {
+        if (nrows == 0L)
+            row.names <- character()
+        else if (length(row.names <- names(x)) != nrows || anyDuplicated(row.names))
+            row.names <- .set_row_names(nrows)
+    }
+    else if (!(is.character(row.names) || is.integer(row.names)) ||
+        length(row.names) != nrows)
+        stop(gettextf("'row.names' is not a character or integer vector of length %d",
+            nrows), domain = NA)
+    if (!is.null(names(x)))
+        names(x) <- NULL
+    value <- list(x)
+    if (!optional)
+        names(value) <- nm
+    structure(value, row.names = row.names, class = "data.frame")
 }
+
 
 
 # CONVERSIONS TO TIME COMPONENTS
