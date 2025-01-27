@@ -206,10 +206,10 @@ found to be helpful.
 * **Submitted code should work:** It takes time and effort to produce a
   thoughtful review of a pull request, so requests to review a PR should
   generally only be made for working code. In a BioCro context, "working" code
-  means that `R CMD check` does not produce any errors. See the
-  ["Running R CMD check" chapter](#r-cmd-check) for more information. While
-  passing `R CMD check` does not guarantee that the new code achieves its goals,
-  is fully documented, or follows the coding style guidelines, it is
+  means that `R CMD check` does not produce any errors and that all the
+  vignettes can be built. See the ["Running R CMD check" chapter](#r-cmd-check)
+  for more information. While this does not guarantee that the new code achieves
+  its goals, is fully documented, or follows the coding style guidelines, it is
   nevertheless a minimum requirement for any code to be incorporated into
   BioCro. The following is a thorough workflow that should ensure submitted code
   is working:
@@ -222,21 +222,31 @@ found to be helpful.
 
   2. When all the regression tests are passing, run `R CMD check` locally. This
      takes longer than just running the regression tests, but it will also make
-     sure that all code in the examples and vignettes is able to run, which
-     sometimes turns up more issues.
+     sure that all code in the examples (and some of the vignettes) is able to
+     run, which sometimes turns up more issues.
 
      Instructions for running `R CMD check` locally can be found in
-     ["Running R CMD check locally"](#sec:local-r-cmd-check) (Section
-     \@ref(sec:local-r-cmd-check)).
+     ["Running R CMD check locally" section](#sec:local-r-cmd-check).
 
-  3. When `R CMD check` is passing locally, make a PR, but don't assign any
-     reviewers. Making the PR will cause the workflow tests to run, which
-     includes running `R CMD check` on several operating systems and versions of
-     R. This step takes the most time, but is important because sometimes an
-     issue will appear that didn't occur locally on your own operating system or
-     version of R.
+  3. When `R CMD check` is passing locally, build _all_ the vignettes. Because
+     of space limits imposed by CRAN, some of our vignettes are designated as
+     "web only." Such vignettes are stored in the `vignettes/web_only` directoty
+     and are not checked by `R CMD check`. They can be built manually on a
+     case-by-case basis from within R by using `tools::build_vignette`, or all
+     at once by running `pkgdown::build_site()` in an R session whose working
+     directory is set to the root directory of the BioCro repository. See the
+     ["Building package vignettes" section](#sec:building-vignettes) for more
+     information.
 
-  4. When the online checks have passed, then assign reviewers to begin the
+  4. When `R CMD check` is passing locally and the vignettes can all be built
+     locally, make a PR, but don't assign any reviewers. Making the PR will
+     cause the workflow tests to run, which includes running `R CMD check` on
+     several operating systems and versions of R, and building all the vignettes
+     as part of the package documentation. This step takes the most time, but is
+     important because sometimes an issue will appear that didn't occur locally
+     on your own operating system or version of R.
+
+  5. When the online checks have passed, then assign reviewers to begin the
      review process.
 
   Doing this will ensure that there are no basic issues when reviewers begin to

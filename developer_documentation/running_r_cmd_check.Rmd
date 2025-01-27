@@ -36,10 +36,13 @@ expansive. Key components of `R CMD check` are:
   For more information about examples, see the
   [Examples section of the "R Packages" textbook][Description of examples].
 
-* It builds all of the vignettes, which are long-form pieces of documentation.
-  The vignettes can be found in the `vignettes` directory. For more information
-  about vignettes, see the
+* It builds the vignettes, which are long-form pieces of documentation that can
+  be found in the `vignettes` directory. For more information about vignettes,
+  see the
   [Vignettes section of the "R Packages" textbook][Description of vignettes].
+  Note that any vignettes inside the `vignettes/web_only` directory are excluded
+  from this check because that directory has been added to BioCro's
+  `.Rbuildignore` file.
 
 For more information about the individual checks that compose `R CMD check`,
 please see [its entry in the "R Packages" textbook][Description of R CMD check].
