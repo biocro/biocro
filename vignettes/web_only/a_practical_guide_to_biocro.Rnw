@@ -986,25 +986,27 @@ the \texttt{Stem}, \texttt{Leaf}, and \texttt{Root} quantities are each Mg / ha
 (megagrams per hectare). You may be wondering: where did this information come
 from?
 
-% TO-DO: update this discussion once the HTML quantity page is running
+Essential information for each quantity---including its units, modules that
+use it as an input, and modules that calculate it as an output---can be found at
+the quantity documentation web site:
+\url{https://biocro.github.io/BioCro-documentation/quantity_docs/quantities.html}.
+Visiting this site is the easiest way to find units.
 
-The BioCro development team is currently working on an automatically-generated
-HTML document that describes the essential properties of each quantity: its
-units, modules that use it as an input, and modules that calculate it as an
-output. However, even though this document is not yet available, there is
-another route for learning about a particular quantity.
+The quantity documentation web site is automatically generated from the module
+source code. If the code is not formatted properly, the units may not be
+detected for a particular quantity. In that case, units can be found by directly
+viewing the code. Here we will demonstrate how to do this for \texttt{Leaf}.
+First, we will need to locate a module which uses \texttt{Leaf} as an input or
+an output, and then we will view its source code.
 
-Unfortunately, determining the units is not very easy since the units are only
-documented within the source code for individual modules. So, to find out the
-units for \texttt{Leaf}, we need to first locate a module which uses
-\texttt{Leaf} as an input or an output and then view its source code.
-
-To do this, we begin by using the \texttt{get\_all\_quantities} function, which
-is part of the BioCro framework. This function requires the name of a module
-library as its input argument, and it returns a data frame with three columns:
-\texttt{quantity\_name}, \texttt{quantity\_type}, and
-\texttt{module\_name}. Each row in this data frame represents an input or output
-of one of the modules from the specified module library.
+An appropriate module can be located using the quantity documentation web site
+or through R commands. To use R commands, we begin by using the
+\texttt{get\_all\_quantities} function, which is part of the BioCro framework.
+This function requires the name of a module library as its input argument, and
+it returns a data frame with three columns: \texttt{quantity\_name},
+\texttt{quantity\_type}, and \texttt{module\_name}. Each row in this data frame
+represents an input or output of one of the modules from the specified module
+library.
 
 Once we get information about all the BioCro quantities, we can take a subset
 of them: we just want the rows where the quantity name is \texttt{Leaf}. This

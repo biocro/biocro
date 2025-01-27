@@ -58,9 +58,10 @@
       \item \code{type}: A string specifying the name of the algorithm to use;
             a list of available options can be obtained using the
             \code{\link{get_all_ode_solvers}} function.
-      \item \code{output_step_size}: The output step size. If smaller than 1, it
-            should equal 1.0 / N for some integer N. If larger than 1, it should
-            be an integer.
+      \item \code{output_step_size}: The output time step size in units of
+            'timestep'. For example, if \code{output_step_size} is 0.25 and
+            'timestep' is 2, the output will have time points spaced by
+            \code{0.25 * 2 = 0.5}.
       \item \code{adaptive_rel_error_tol}: used to set the relative error
             tolerance for adaptive step size methods
       \item \code{adaptive_abs_error_tol}: used to set the absolute error

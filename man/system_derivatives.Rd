@@ -88,7 +88,7 @@ derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
 # Example 2: a simple oscillator with only one module
 
-times = seq(0, 5, by = 1) # times by spaced by `timestep`
+times = seq(0, 5, by = 1) # times spaced by `timestep`
 
 oscillator_system_derivatives <- system_derivatives(
   list(
