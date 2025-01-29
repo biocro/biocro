@@ -66,7 +66,7 @@ class carbon_assimilation_to_biomass : public direct_module
           canopy_assimilation_rate_mol_CO2{get_input(input_quantities, "canopy_assimilation_rate_mol_CO2")},
           GrossAssim_mol_CO2{get_input(input_quantities, "GrossAssim_mol_CO2")},
           canopy_photorespiration_rate_mol_CO2{get_input(input_quantities, "canopy_photorespiration_rate_mol_CO2")},
-          CHO_molar_mass_per_mol_C{get_input(input_quantities, "CHO_molar_mass_per_mol_C")},
+          CHO_carbon_molar_mass{get_input(input_quantities, "CHO_carbon_molar_mass")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -83,7 +83,7 @@ class carbon_assimilation_to_biomass : public direct_module
     double const& canopy_assimilation_rate_mol_CO2;
     double const& GrossAssim_mol_CO2;
     double const& canopy_photorespiration_rate_mol_CO2;
-    double const& CHO_molar_mass_per_mol_C;
+    double const& CHO_carbon_molar_mass;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;
@@ -100,7 +100,7 @@ string_vector carbon_assimilation_to_biomass::get_inputs()
         "canopy_assimilation_rate_mol_CO2",          // micromol CO2 / m^2 / s
         "GrossAssim_mol_CO2",          // micromol CO2 / m^2 / s
         "canopy_photorespiration_rate_mol_CO2",          // micromol CO2 / m^2 / s
-        "CHO_molar_mass_per_mol_C"           // g CHO / mol C
+        "CHO_carbon_molar_mass"           // g CHO / mol C
     };
 }
 
@@ -117,15 +117,13 @@ void carbon_assimilation_to_biomass::do_operation() const
 {
     // Make calculations here
 
-
-
     constexpr double sec_per_hour = 3600;
     constexpr double mol_per_micromol = 1e-6;
     constexpr double square_meters_per_hectare = 1e4;
     constexpr double megagram_per_gram = 1e-6;
     constexpr double a = sec_per_hour * mol_per_micromol * square_meters_per_hectare * megagram_per_gram;
 
-    const double cf = CHO_molar_mass_per_mol_C * a;
+    const double cf = CHO_carbon_molar_mass * a;
 
     // Use `update` to set outputs
     update(canopy_assimilation_rate_op, canopy_assimilation_rate_mol_CO2 * cf);

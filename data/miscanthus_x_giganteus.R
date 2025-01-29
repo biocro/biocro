@@ -11,7 +11,8 @@ miscanthus_x_giganteus <- list(
         "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c4_canopy",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
-        partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
+        partitioning_growth_calculator = "BioCro:partitioning_growth_calculator",
+        "BioCro:carbon_assimilation_to_biomass"
     ),
     differential_modules = list(
         senescence = "BioCro:thermal_time_senescence",
@@ -57,6 +58,7 @@ miscanthus_x_giganteus <- list(
         beta                        = 0.93,
         Catm                        = 400,
         chil                        = 1,
+        CHO_carbon_molar_mass       = 30.026,
         emissivity_sky              = 1,
         Gs_min                      = 1e-3,
         heightf                     = 1.33, # LAI of 4 when canopy is 3 m tall

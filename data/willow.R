@@ -10,6 +10,7 @@ willow <- list(
         "BioCro:canopy_gbw_thornley",
         "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c3_canopy",
+        "BioCro:carbon_assimilation_to_biomass",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
         partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
     ),
@@ -57,6 +58,7 @@ willow <- list(
         beta_PSII                    = 0.5,
         Catm                         = 400,
         chil                         = 1,
+        CHO_carbon_molar_mass        = 30.026,   # g CHO / mol C (glucose)
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
