@@ -216,7 +216,8 @@ canopy_photosynthesis_outputs c3CanAC(
     // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
     //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
     // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
-    double constexpr cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
+    // double constexpr cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
+    double constexpr cf = 1;
 
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by

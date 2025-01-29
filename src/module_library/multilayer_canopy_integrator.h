@@ -212,8 +212,6 @@ void multilayer_canopy_integrator::run() const
 
     update(GrossAssim_op, GrossAssim * cf);
 
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
-
     update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
     update(canopy_conductance_op, canopy_conductance);
