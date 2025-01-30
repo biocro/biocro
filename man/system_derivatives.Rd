@@ -55,8 +55,7 @@
   (\code{t}, \code{differential_quantities}, and \code{parms}) that returns
   derivatives for each of the differential quantities in the dynamical system
   determined by the original inputs (\code{parameters}, \code{drivers},
-  \code{direct_module_names}, and
-  \code{differential_module_names}).
+  \code{direct_module_names}, and \code{differential_module_names}).
 
   This function signature and the requirements for its inputs are set by the
   \code{LSODES} function from the \code{deSolve} package. The \code{t} input
@@ -89,7 +88,7 @@ derivs <- soybean_system(0, unlist(soybean$initial_values), NULL)
 
 # Example 2: a simple oscillator with only one module
 
-times = seq(0, 5, length=100)
+times = seq(0, 5, by = 1) # times spaced by `timestep`
 
 oscillator_system_derivatives <- system_derivatives(
   list(
@@ -97,7 +96,7 @@ oscillator_system_derivatives <- system_derivatives(
     mass = 1,
     spring_constant = 1
   ),
-  data.frame(time=times),
+  data.frame(time = times),
   c(),
   'BioCro:harmonic_oscillator'
 )
