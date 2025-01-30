@@ -160,15 +160,15 @@ void rue_leaf_photosynthesis::do_operation() const
     // using the new leaf temperature
     const photosynthesis_outputs photo =
         rue_photo(
-            incident_ppfd * 1e-6,  // mol / m^2 / s
-            alpha_rue,             // dimensionless
-            leaf_temperature,      // degrees C
-            rh,                    // dimensionless from Pa / Pa
-            Rd * 1e-6,             // mol / m^2 / s
-            b0,                    // mol / m^2 / s
-            b1,                    // dimensionless
-            Catm * 1e-6,           // dimensionless from mol / mol
-            et.gbw                 // mol / m^2 / s
+            incident_ppfd * 1e-6,          // mol / m^2 / s
+            alpha_rue,                     // dimensionless
+            leaf_temperature,              // degrees C
+            rh,                            // dimensionless from Pa / Pa
+            Rd * 1e-6,                     // mol / m^2 / s
+            b0,                            // mol / m^2 / s
+            b1,                            // dimensionless
+            Catm * 1e-6,                   // dimensionless from mol / mol
+            et.boundary_layer_conductance  // mol / m^2 / s
         );
 
     // Update the outputs
