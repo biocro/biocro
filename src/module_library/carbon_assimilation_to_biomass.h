@@ -53,6 +53,19 @@ namespace standardBML
  * molar mass varies more for amino acids than for carbohydrates.
  * Proteinogenic amino acids vary from 18 - 41 g / mol C.
  *
+ * The carbon molar mass of a biomass sample can be measured by identifying
+ * the number of carbon moles contained in the sample:
+ *
+ * (carbon molar mass) = (biomass)/(# mol C)
+ *
+ * Given a C mass fraction, the number of mol C in the sample is:
+ *
+ * (# mol C) = (biomass) * (C mass fraction) / (molar mass of carbon)
+ *
+ * Substituting yields:
+ *
+ * (carbon molar mass) = (molar mass of carbon) / (C mass fraction)
+ *
  */
 class carbon_assimilation_to_biomass : public direct_module
 {

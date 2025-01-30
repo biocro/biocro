@@ -191,16 +191,7 @@ void multilayer_canopy_integrator::run() const
     canopy_assimilation_rate =
         canopy_assimilation_rate - growth_respiration;  // micromol / m^2 / s
 
-    // For assimilation, we need to convert micromol / m^2 / s into
-    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
-    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
-    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
-    // conversion can be accomplished with the following factor:
-    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
-    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
-    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
-    // const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
-    const double cf = 1;
+
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
     // the following conversion factor:
@@ -208,13 +199,15 @@ void multilayer_canopy_integrator::run() const
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    update(canopy_assimilation_rate_mol_CO2_op, canopy_assimilation_rate * cf);
+    update(canopy_assimilation_rate_mol_CO2_op, canopy_assimilation_rate);
 
-    update(GrossAssim_mol_CO2_op, GrossAssim * cf);
+    update(GrossAssim_mol_CO2_op, GrossAssim);
 
     update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
     update(canopy_conductance_op, canopy_conductance);
+
+    update(canopy_photorespiration_rate_mol_CO2_op, canopy_photorespiration_rate);
 }
 
 ////////////////////////////////////////
