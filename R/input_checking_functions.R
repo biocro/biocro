@@ -6,10 +6,11 @@ check_names <- function(args_to_check) {
     }
 }
 
-# Sends the error messages to the user in the proper format
+# Sends the error messages to the user in the proper format. Don't include the
+# call to `stop_and_send_error_messages` in the message itself.
 stop_and_send_error_messages <- function(error_messages) {
     if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
+        stop(paste(error_messages, collapse='  '), call. = FALSE)
     }
 }
 
