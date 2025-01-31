@@ -88,7 +88,7 @@ void c4_leaf_photosynthesis::do_operation() const
             rh, vmax1, alpha1, kparm,
             theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
             atmospheric_pressure, upperT, lowerT,
-            et.boundary_layer_conductance);
+            et.gbw_molecular);
 
     // Update the outputs
     update(Assim_op, photo.Assim);
@@ -96,7 +96,7 @@ void c4_leaf_photosynthesis::do_operation() const
     update(Cs_op, photo.Cs);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
-    update(gbw_op, et.boundary_layer_conductance);
+    update(gbw_op, et.gbw_molecular);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
     update(leaf_temperature_op, leaf_temperature);
