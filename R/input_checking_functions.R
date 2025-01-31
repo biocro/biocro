@@ -324,3 +324,28 @@ is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
 
     return(all(is_zero))
 }
+
+# Check that the ode_solver list has the necessary elements
+check_ode_solver <- function(ode_solver) {
+    required_ode_solver_elements <- c(
+        'type',
+        'output_step_size',
+        'adaptive_rel_error_tol',
+        'adaptive_abs_error_tol',
+        'adaptive_max_steps'
+    )
+
+    in_names <- required_ode_solver_elements %in% names(ode_solver)
+
+    if (!all(in_names)) {
+        missing_names <- required_ode_solver_elements[!in_names]
+
+        paste0(
+            'The following required elements of `ode_solver` are not defined: ',
+            paste(missing_names, collapse = ', '),
+            '.'
+        )
+    } else {
+        character()
+    }
+}
