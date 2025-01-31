@@ -216,9 +216,9 @@ canopy_photosynthesis_outputs CanAC(
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
     canopy_photosynthesis_outputs ans;
-    ans.Assim = CanopyA;                      // micromol / m^2 / s
-    ans.GrossAssim = GCanopyA;                // micromol / m^2 / s
-    ans.Rp = canopy_rp;                       // micromol / m^2 / s
+    ans.Assim = CanopyA;                           // micromol / m^2 / s
+    ans.GrossAssim = GCanopyA;                     // micromol / m^2 / s
+    ans.Rp = canopy_rp;                            // micromol / m^2 / s
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;  // mmol / m^2 / s

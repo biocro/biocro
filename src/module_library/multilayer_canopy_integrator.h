@@ -138,8 +138,8 @@ string_vector multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
         "canopy_assimilation_rate_mol_CO2",     // micromol CO2 / m^2 / s
-        "canopy_transpiration_rate",    // Mg / ha / hr
-        "canopy_conductance",           // mmol / m^2 / s
+        "canopy_transpiration_rate",            // Mg / ha / hr
+        "canopy_conductance",                   // mmol / m^2 / s
         "GrossAssim_mol_CO2",                   // micromol CO2 / m^2 / s
         "canopy_photorespiration_rate_mol_CO2"  // micromol CO2 / m^2 / s
     };
@@ -190,7 +190,6 @@ void multilayer_canopy_integrator::run() const
 
     canopy_assimilation_rate =
         canopy_assimilation_rate - growth_respiration;  // micromol / m^2 / s
-
 
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by

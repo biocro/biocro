@@ -20,9 +20,13 @@ namespace standardBML
  * to oxygen and hydrogen is nearly the same for all carbohydrates. Thus,
  * given a number of carbon atoms (i.e., moles of carbon), we can estimate
  * the carbon-hydrogen-oxygen mass (the CHO mass) which will account for
- * ~95% of plant biomass. We call this ratio the carbon molar mass.
+ * ~95% of plant biomass. We call this ratio \f$\kappa\f$ the carbon molar mass.
  *
- * (carbon molar mass) = (molar mass) / (carbon atoms per mol)
+ * \f[
+ *  \kappa = \frac{\mu}{(\text{carbon atoms per mol})}
+ * \f]
+ *
+ * Where \f$\mu\f$ is the molar mass.
  *
  * For example, glucose has a molar mass of 180 g/mol and 6 carbon atoms.
  * So every mol C contributes 12 g of C + 2 g H + 16 g O = 30 g CHO mass.
@@ -33,13 +37,14 @@ namespace standardBML
  * Any mixture of these substances will have a carbon molar mass between
  * 27 and 30 g/mol.
  *
- * Thus, given a carbon molar mass, this module will convert
+ * Thus, given a carbon molar mass \f$\kappa\f$, this module will convert
  * the CO2 assimilation rate in micromol C / m^2 land / s to a biomass
  * accumulation rate in Mg / Ha / hr.
  *
  * To convert micromol / m^2 / s into Mg / ha / hour, we also must
  * convert the units of time and land area as well as to shift the SI
  * prefixes. The following factor gives the correct conversion:
+ *
  * (carbon molar mass) * (3600 s / hr) * (1e-6 mol / umol) *
  * (1e-3 Mg / kg) * (1e4 m^2 / ha)
  * = (carbon molar mass) * 3.6e-5 (s * mol * Mg * m^2) / (hr * micromol * g * ha)
@@ -53,18 +58,20 @@ namespace standardBML
  * molar mass varies more for amino acids than for carbohydrates.
  * Proteinogenic amino acids vary from 18 - 41 g / mol C.
  *
- * The carbon molar mass of a biomass sample can be measured by identifying
- * the number of carbon moles contained in the sample:
+ * The carbon molar mass \f$\kappa\f$ of a biomass sample of mass \f$m\f$ can be measured by identifying
+ * the number of carbon moles \f$C\f$ contained in the sample:
  *
- * (carbon molar mass) = (biomass)/(# mol C)
+ * \f[
+ *   \kappa = \frac{m}{C}
+ * \f]
  *
- * Given a C mass fraction, the number of mol C in the sample is:
+ * Given a C mass fraction \f$x\f$, the number of mol C in the sample is:
  *
- * (# mol C) = (biomass) * (C mass fraction) / (molar mass of carbon)
+ * \f[ C = \frac{m x}{\mu_C} \f]
  *
- * Substituting yields:
+ * Where \f$\mu_C=12\f$ g/mol is the molar mass of carbon. Substituting yields:
  *
- * (carbon molar mass) = (molar mass of carbon) / (C mass fraction)
+ * \f[ \kappa = \frac{\mu_C}{x} \f]
  *
  */
 class carbon_assimilation_to_biomass : public direct_module
@@ -110,19 +117,19 @@ class carbon_assimilation_to_biomass : public direct_module
 string_vector carbon_assimilation_to_biomass::get_inputs()
 {
     return {
-        "canopy_assimilation_rate_mol_CO2",          // micromol CO2 / m^2 / s
-        "GrossAssim_mol_CO2",          // micromol CO2 / m^2 / s
-        "canopy_photorespiration_rate_mol_CO2",          // micromol CO2 / m^2 / s
-        "CHO_carbon_molar_mass"           // g CHO / mol C
+        "canopy_assimilation_rate_mol_CO2",      // micromol CO2 / m^2 / s
+        "GrossAssim_mol_CO2",                    // micromol CO2 / m^2 / s
+        "canopy_photorespiration_rate_mol_CO2",  // micromol CO2 / m^2 / s
+        "CHO_carbon_molar_mass"                  // g CHO / mol C
     };
 }
 
 string_vector carbon_assimilation_to_biomass::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",          // Mg / ha / hr
-        "GrossAssim",          // Mg / ha / hr
-        "canopy_photorespiration_rate"           // Mg / ha / hr
+        "canopy_assimilation_rate",     // Mg / ha / hr
+        "GrossAssim",                   // Mg / ha / hr
+        "canopy_photorespiration_rate"  // Mg / ha / hr
     };
 }
 
@@ -146,4 +153,3 @@ void carbon_assimilation_to_biomass::do_operation() const
 
 }  // namespace standardBML
 #endif
-

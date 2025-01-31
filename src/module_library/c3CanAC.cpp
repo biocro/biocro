@@ -208,7 +208,6 @@ canopy_photosynthesis_outputs c3CanAC(
         canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
     }
 
-
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
     // the following conversion factor:
@@ -220,10 +219,10 @@ canopy_photosynthesis_outputs c3CanAC(
     ans.Assim = CanopyA * (1.0 - growth_respiration_fraction);  // micromol / m^2 / s
     ans.GrossAssim = GCanopyA;                                  // micromol / m^2 / s
     ans.Rp = canopy_rp;                                         // micromol / m^2 / s
-    ans.Trans = CanopyT * cf2;                                       // Mg / ha / hr
-    ans.canopy_transpiration_penman = CanopyPe;                      // mmol / m^2 / s
-    ans.canopy_transpiration_priestly = CanopyPr;                    // mmol / m^2 / s
-    ans.canopy_conductance = canopy_conductance;                     // mol / m^2 / s
+    ans.Trans = CanopyT * cf2;                                  // Mg / ha / hr
+    ans.canopy_transpiration_penman = CanopyPe;                 // mmol / m^2 / s
+    ans.canopy_transpiration_priestly = CanopyPr;               // mmol / m^2 / s
+    ans.canopy_conductance = canopy_conductance;                // mol / m^2 / s
 
     return ans;
 }

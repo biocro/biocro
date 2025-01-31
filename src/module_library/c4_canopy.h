@@ -197,8 +197,8 @@ string_vector c4_canopy::get_outputs()
 {
     return {
         "canopy_assimilation_rate_mol_CO2",     // micromol CO2 / m^2 / s
-        "canopy_transpiration_rate",    // Mg / ha / hr
-        "canopy_conductance",           // mol / m^2 / s
+        "canopy_transpiration_rate",            // Mg / ha / hr
+        "canopy_conductance",                   // mol / m^2 / s
         "GrossAssim_mol_CO2",                   // micromol CO2 / m^2 / s
         "canopy_photorespiration_rate_mol_CO2"  // micromol / m^2 / s
     };
@@ -261,11 +261,11 @@ void c4_canopy::do_operation() const
         nlayers);
 
     // Update the parameter list
-    update(canopy_assimilation_rate_mol_CO2_op, can_result.Assim);         // micromol / m^2 /s
-    update(canopy_transpiration_rate_op, can_result.Trans);        // Mg / ha / hr
-    update(canopy_conductance_op, can_result.canopy_conductance);  // mol / m^2 / s
-    update(GrossAssim_mol_CO2_op, can_result.GrossAssim);                  // micromol / m^2 /s
-    update(canopy_photorespiration_rate_mol_CO2_op, can_result.Rp);        // micromol / m^2 /s
- }
+    update(canopy_assimilation_rate_mol_CO2_op, can_result.Assim);   // micromol / m^2 /s
+    update(canopy_transpiration_rate_op, can_result.Trans);          // Mg / ha / hr
+    update(canopy_conductance_op, can_result.canopy_conductance);    // mol / m^2 / s
+    update(GrossAssim_mol_CO2_op, can_result.GrossAssim);            // micromol / m^2 /s
+    update(canopy_photorespiration_rate_mol_CO2_op, can_result.Rp);  // micromol / m^2 /s
+}
 }  // namespace standardBML
 #endif
