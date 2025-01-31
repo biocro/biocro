@@ -28,32 +28,8 @@ RELATIVE_ERROR_TOLERANCE <- 5e-3
 # Choose default weather
 WEATHER <- get_growing_season_climate(weather$'2005')
 
-# Make a helping function for specifying crop information
-specify_crop <- function(
-    plant_name,
-    should_run,
-    crop_info,
-    drivers,
-    ignored_variables
-)
-{
-    list(
-        plant_name = plant_name,
-        should_run = should_run,
-        initial_values = crop_info$initial_values,
-        parameters = crop_info$parameters,
-        drivers = drivers,
-        direct_modules = crop_info$direct_modules,
-        differential_modules = crop_info$differential_modules,
-        ode_solver = crop_info$ode_solver,
-        stored_result_file = paste0(
-            "../test_data/",
-            plant_name,
-            "_simulation.csv"
-        ),
-        ignored_variables = ignored_variables
-    )
-}
+# Specify the testing directory
+TEST_DIR <- file.path('..', 'test_data')
 
 # Define lists of species-specific variables to ignore.
 
@@ -104,9 +80,9 @@ SOYBEAN_IGNORE <- c(
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("miscanthus_x_giganteus", TRUE,  miscanthus_x_giganteus, WEATHER,                MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
-    specify_crop("willow",                 TRUE,  willow,                 WEATHER,                WILLOW_IGNORE),                 # INDEX = 2
-    specify_crop("soybean",                TRUE,  soybean,                soybean_weather$'2002', SOYBEAN_IGNORE)                 # INDEX = 3
+    model_test_case('miscanthus_x_giganteus', miscanthus_x_giganteus, WEATHER,                TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
+    model_test_case('willow',                 willow,                 WEATHER,                TRUE, TEST_DIR, WILLOW_IGNORE),                 # INDEX = 2
+    model_test_case('soybean',                soybean,                soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop, stores the number
@@ -184,7 +160,7 @@ test_plant_model <- function(test_info) {
     # Describe the current test
     description_validity <- paste(
         "The",
-        test_info[['plant_name']],
+        test_info[['model_name']],
         "simulation has a valid definition"
     )
 
@@ -206,7 +182,7 @@ test_plant_model <- function(test_info) {
         # Describe the current test
         description_run <- paste(
             "The",
-            test_info[['plant_name']],
+            test_info[['model_name']],
             "simulation runs without producing any errors"
         )
 
@@ -221,7 +197,7 @@ test_plant_model <- function(test_info) {
         # Make sure the simulation was completed
         description <- paste(
             "The",
-            test_info[['plant_name']],
+            test_info[['model_name']],
             "simulation ran to completion"
         )
 
@@ -242,7 +218,7 @@ test_plant_model <- function(test_info) {
             # result, this could indicate that one of the default modules has
             # been changed, and the list of ignored variables should probably be
             # revisited, so warn the user.
-            for (variable in test_info[['ignored_variables']]) {
+            for (variable in test_info[['quantities_to_ignore']]) {
                 if (variable %in% names(new_result)) {
                     new_result[[variable]] <- NULL
                 } else {
@@ -250,7 +226,7 @@ test_plant_model <- function(test_info) {
                         "The regression test reports that '",
                         variable,
                         "' is no longer included in the ",
-                        test_info[['plant_name']],
+                        test_info[['model_name']],
                         " simulation result. Did a default module change?"
                     )
                     warning(msg)
@@ -269,7 +245,7 @@ test_plant_model <- function(test_info) {
             for (name in new_column_names) {
                 description <- paste(
                     "The stored",
-                    test_info[['plant_name']],
+                    test_info[['model_name']],
                     "simulation result includes the",
                     name,
                     "column"
@@ -285,7 +261,7 @@ test_plant_model <- function(test_info) {
             compare_simulation_trial <- function(index) {
                 for (variable in new_column_names) {
                     description <- paste0(
-                        "The ", test_info[['plant_name']], " simulation result ",
+                        "The ", test_info[['model_name']], " simulation result ",
                         "agrees with the stored result at index ",
                         index,
                         " for the '",
