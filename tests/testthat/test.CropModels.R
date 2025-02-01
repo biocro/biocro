@@ -10,6 +10,6 @@
 source('crop_model_testing_helper_functions.R')
 
 # Run all the tests
-for(i in 1:length(PLANT_TESTING_INFO)) {
-    test_plant_model(PLANT_TESTING_INFO[[i]])
-}
+expect_true(
+    run_model_test_cases(PLANT_TESTING_INFO)
+)

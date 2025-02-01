@@ -17,9 +17,6 @@
 ## Finally, rerun this file using the `testthat` package to make sure the tests
 ## all pass.
 
-# Choose the number of time points to test for each simulation result
-MAX_SAMPLE_SIZE <- 5
-
 # Use a 0.5% tolerance when comparing values between simulations. Lower
 # tolerances have caused problems when comparing results calculated on different
 # operating systems.
@@ -30,6 +27,9 @@ WEATHER <- get_growing_season_climate(weather$'2005')
 
 # Specify the testing directory
 TEST_DIR <- file.path('..', 'test_data')
+
+# Specify the row interval to keep
+ROW_INTERVAL <- 24
 
 # Define lists of species-specific variables to ignore.
 
@@ -80,9 +80,9 @@ SOYBEAN_IGNORE <- c(
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    model_test_case('miscanthus_x_giganteus', miscanthus_x_giganteus, WEATHER,                TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
-    model_test_case('willow',                 willow,                 WEATHER,                TRUE, TEST_DIR, WILLOW_IGNORE),                 # INDEX = 2
-    model_test_case('soybean',                soybean,                soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                 # INDEX = 3
+    model_test_case('miscanthus_x_giganteus', miscanthus_x_giganteus, WEATHER,                TRUE, TEST_DIR, ROW_INTERVAL, MISCANTHUS_X_GIGANTEUS_IGNORE, RELATIVE_ERROR_TOLERANCE), # INDEX = 1
+    model_test_case('willow',                 willow,                 WEATHER,                TRUE, TEST_DIR, ROW_INTERVAL, WILLOW_IGNORE,                 RELATIVE_ERROR_TOLERANCE), # INDEX = 2
+    model_test_case('soybean',                soybean,                soybean_weather$'2002', TRUE, TEST_DIR, ROW_INTERVAL, SOYBEAN_IGNORE,                RELATIVE_ERROR_TOLERANCE)  # INDEX = 3
 )
 
 # Make a helping function that runs a simulation for one crop, stores the number
@@ -151,155 +151,3 @@ update_stored_results <- function(test_info) {
     )
 }
 
-# Make a helping function that checks the result of a new simulation against the
-# stored data for one crop
-test_plant_model <- function(test_info) {
-    # Read the stored result from the data file
-    stored_result <- read.csv(test_info[['stored_result_file']])
-
-    # Describe the current test
-    description_validity <- paste(
-        "The",
-        test_info[['model_name']],
-        "simulation has a valid definition"
-    )
-
-    # Check the inputs for validity
-    test_that(description_validity, {
-        expect_true(
-            validate_dynamical_system_inputs(
-                test_info[['initial_values']],
-                test_info[['parameters']],
-                test_info[['drivers']],
-                test_info[['direct_modules']],
-                test_info[['differential_modules']],
-                verbose = FALSE
-            )
-        )
-    })
-
-    if (test_info[['should_run']]) {
-        # Describe the current test
-        description_run <- paste(
-            "The",
-            test_info[['model_name']],
-            "simulation runs without producing any errors"
-        )
-
-        # Run the simulation
-        new_result <- 0
-        test_that(description_run, {
-            expect_no_error(
-                new_result <<- run_crop_simulation(test_info)
-            )
-        })
-
-        # Make sure the simulation was completed
-        description <- paste(
-            "The",
-            test_info[['model_name']],
-            "simulation ran to completion"
-        )
-
-        # Get nrow information
-        stored_nrow <- stored_result[1, 'nrow']
-        new_nrow <- new_result[1, 'nrow']
-
-        test_that(description, {
-            expect_equal(new_nrow, stored_nrow)
-        })
-
-        # If the simulation finished, make additional checks
-        if (new_nrow == stored_nrow) {
-            # Some variables may need to be ignored, possibly because their
-            # values depend on the operating system or other factors that may
-            # change between simulation runs. Remove these from the results. If
-            # a variable is flagged to be ignored but is not in the simulation
-            # result, this could indicate that one of the default modules has
-            # been changed, and the list of ignored variables should probably be
-            # revisited, so warn the user.
-            for (variable in test_info[['quantities_to_ignore']]) {
-                if (variable %in% names(new_result)) {
-                    new_result[[variable]] <- NULL
-                } else {
-                    msg <- paste0(
-                        "The regression test reports that '",
-                        variable,
-                        "' is no longer included in the ",
-                        test_info[['model_name']],
-                        " simulation result. Did a default module change?"
-                    )
-                    warning(msg)
-                }
-            }
-
-            # Make sure all columns contain numeric data
-            stored_result <- as.data.frame(sapply(stored_result, as.numeric))
-
-            # Make sure the stored result contains all the non-ignored
-            # quantities in the new result
-            new_column_names <- names(new_result)
-
-            stored_column_names <- names(stored_result)
-
-            for (name in new_column_names) {
-                description <- paste(
-                    "The stored",
-                    test_info[['model_name']],
-                    "simulation result includes the",
-                    name,
-                    "column"
-                )
-
-                test_that(description, {
-                    expect_true(name %in% stored_column_names)
-                })
-            }
-
-            # Make a helping function that compares the new result to the old
-            # one at a single index
-            compare_simulation_trial <- function(index) {
-                for (variable in new_column_names) {
-                    description <- paste0(
-                        "The ", test_info[['model_name']], " simulation result ",
-                        "agrees with the stored result at index ",
-                        index,
-                        " for the '",
-                        variable,
-                        "' quantity"
-                    )
-
-                    test_that(description, {
-                        expect_equal(
-                            new_result[[variable]][index],
-                            stored_result[[variable]][index],
-                            tolerance=RELATIVE_ERROR_TOLERANCE
-                        )
-                    })
-                }
-            }
-
-            # Run the test for some equally spaced indices including the first
-            # and last points of the simulation. Note that no problems occur if
-            # `points_to_test` includes non-integer elements, since R
-            # automatically truncates them to integer values when they are used
-            # as indices to access elements of a vector.
-            index_of_last_row <- length(new_result[[1]])
-            points_to_test = seq(
-                from = 1,
-                to = index_of_last_row,
-                length.out = max(
-                    min(
-                        index_of_last_row,
-                        MAX_SAMPLE_SIZE
-                    ),
-                    2.0
-                )
-            )
-
-            for (index in points_to_test) {
-                compare_simulation_trial(index)
-            }
-        }
-    }
-}
