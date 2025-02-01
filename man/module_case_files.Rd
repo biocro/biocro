@@ -22,6 +22,9 @@
 
   \code{update_csv_cases} helps define cases for module testing by updating the
   expected output values for each case stored in a module's csv file.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \usage{
