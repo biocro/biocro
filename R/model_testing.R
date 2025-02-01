@@ -172,6 +172,58 @@ run_model_simulation <- function(mtc) {
     return(simulation_result)
 }
 
+get_stored_result <- function(mtc) {
+    stored_result_file <- mtc[['stored_result_file']]
+
+    if (!file.exists(stored_result_file)) {
+        msg <- paste0(
+            'Stored result file `', stored_result_file,
+            '` does not exist.'
+        )
+        return(msg)
+    } else {
+        return(read.csv(stored_result_file, stringsAsFactors = FALSE))
+    }
+}
+
+compare_model_output <- function(mtc, columns_to_keep = NULL) {
+    # Get the stored result, if it exists
+    stored_result <- get_stored_result(mtc)
+
+    if (is.character(stored_result)) {
+        stop(stored_result, call. = FALSE)
+    }
+
+    # Get the new result
+    new_result <- run_model_simulation(mtc)
+
+    if (!is.null(columns_to_keep)) {
+        new_result    <- new_result[,columns_to_keep]
+        stored_result <- stored_result[,columns_to_keep]
+    }
+
+    new_result[['version']]    <- 'new'
+    stored_result[['version']] <- 'stored'
+
+    return(rbind(new_result, stored_result))
+}
+
+# Make a helping function that updates the stored data for one crop
+update_stored_model_results <- function(mtc) {
+    # Get the new result
+    plant_result <- run_model_simulation(mtc)
+
+    # Save it as a csv file
+    write.csv(
+        plant_result,
+        file = mtc[['stored_result_file']],
+        quote = FALSE,
+        eol = '\n',
+        na = '',
+        row.names = FALSE
+    )
+}
+
 test_model <- function(mtc) {
     # Always check the model for validity
     model_valid <- validate_dynamical_system_inputs(
@@ -194,17 +246,11 @@ test_model <- function(mtc) {
     # Optionally run the model and check the results
     if (mtc[['should_run']]) {
         # Get the stored result, if it exists
-        stored_result_file <- mtc[['stored_result_file']]
+        stored_result <- get_stored_result(mtc)
 
-        if (!file.exists(stored_result_file)) {
-            msg <- paste0(
-                'Stored result file `', stored_result_file,
-                '` does not exist.'
-            )
-            return(msg)
+        if (is.character(stored_result)) {
+            return(stored_result)
         }
-
-        stored_result <- read.csv(stored_result_file, stringsAsFactors = FALSE)
 
         # Run the model to get the new result, if possible
         new_result <- tryCatch(

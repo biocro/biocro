@@ -4,23 +4,28 @@
 ## If any of the crop-specific defaults for the initial values, parameters,
 ## modules or weather data change, or if the behavior of any of these modules
 ## changes, the stored data for one or more crops will likely need to be
-## updated. To do this, open a fresh R session in this directory, load the
-## `BioCro` and `testthat` libraries, source this file, and type the following
-## command:
+## updated.
 ##
-## update_stored_results(PLANT_TESTING_INFO[[INDEX]])
+## Sometimes these changes are not expected to alter key outputs like the
+## biomass values. In this case, it is helpful to visually compare the new and
+## old biomass values. To do this, open a fresh R session in this directory,
+## load the `BioCro` and `lattice` libraries, source this file, and type the
+## following commands:
 ##
-## where the value of `INDEX` corresponds to the desired crop as defined in the
+##   compare_crop_output <- compare_model_output(PLANT_TESTING_INFO[[INDEX]], c('time', 'Leaf', 'Stem', 'Root', 'Grain'))
+##   lattice::xyplot(Leaf + Stem + Root + Grain ~ time, group = version, data = compare_crop_output, type = 'l', auto = TRUE, grid = TRUE)
+##
+## Here, the value of `INDEX` corresponds to the desired crop as defined in the
 ## `PLANT_TESTING_INFO` list below. For example, INDEX = 1 corresponds to
-## Glycine max. Afterwards, check the git diff for the stored data files to make
-## sure the changes are reasonable (to the extent that this is possible).
-## Finally, rerun this file using the `testthat` package to make sure the tests
-## all pass.
-
-# Use a 0.5% tolerance when comparing values between simulations. Lower
-# tolerances have caused problems when comparing results calculated on different
-# operating systems.
-RELATIVE_ERROR_TOLERANCE <- 5e-3
+## miscanthus_x_giganteus.
+##
+## When you are ready to update the stored values, use the following command:
+##
+##   update_stored_model_results(PLANT_TESTING_INFO[[INDEX]])
+##
+## Afterwards, check the git diff for the stored data files to make sure the
+## changes are reasonable (to the extent that this is possible). Finally, rerun
+## the tests to make sure they all pass.
 
 # Choose default weather
 WEATHER <- get_growing_season_climate(weather$'2005')
@@ -31,8 +36,12 @@ TEST_DIR <- file.path('..', 'test_data')
 # Specify the row interval to keep
 ROW_INTERVAL <- 24
 
-# Define lists of species-specific variables to ignore.
+# Use a 0.5% tolerance when comparing values between simulations. Lower
+# tolerances have caused problems when comparing results calculated on different
+# operating systems.
+RELATIVE_ERROR_TOLERANCE <- 5e-3
 
+# Define lists of species-specific variables to ignore.
 MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
     "soil_evaporation_rate"
 )
@@ -84,70 +93,3 @@ PLANT_TESTING_INFO <- list(
     model_test_case('willow',                 willow,                 WEATHER,                TRUE, TEST_DIR, ROW_INTERVAL, WILLOW_IGNORE,                 RELATIVE_ERROR_TOLERANCE), # INDEX = 2
     model_test_case('soybean',                soybean,                soybean_weather$'2002', TRUE, TEST_DIR, ROW_INTERVAL, SOYBEAN_IGNORE,                RELATIVE_ERROR_TOLERANCE)  # INDEX = 3
 )
-
-# Make a helping function that runs a simulation for one crop, stores the number
-# of rows in the result, and keeps just a subset of the rows
-run_crop_simulation <- function(test_info) {
-    res <- run_biocro(
-        test_info[['initial_values']],
-        test_info[['parameters']],
-        test_info[['drivers']],
-        test_info[['direct_modules']],
-        test_info[['differential_modules']],
-        test_info[['ode_solver']]
-    )
-
-    res$nrow <- nrow(res)
-    res <- res[seq(1, nrow(res), by = 24), ]
-
-    for (cn in colnames(res)) {
-        if (is.numeric(res[[cn]])) {
-            res[[cn]] <- signif(res[[cn]], digits = 5)
-        }
-    }
-
-    res
-}
-
-# Combine new and old results into one data frame for plotting purposes (this
-# will be useful when manually assessing the differences between a new and old
-# simulation). If the columns have changed between the new and old outputs, it's
-# possible to specify a vector of column names to include in the output.
-# (Otherwise, the call to rbind will fail).
-#
-# The output from this function is intended to be used in plotting commands like
-#
-# compare_crop_output <- compare_crop(PLANT_TESTING_INFO[[INDEX]], c('time', 'Leaf', 'Stem', 'Root', 'Grain'))
-# lattice::xyplot(Leaf + Stem + Root + Grain ~ time, group = version, data = compare_crop_output, type = 'l', auto = TRUE, grid = TRUE)
-compare_crop <- function(test_info, columns_to_keep = NULL) {
-    new_result <- run_crop_simulation(test_info)
-    stored_result <- read.csv(test_info[['stored_result_file']])
-
-    if (!is.null(columns_to_keep)) {
-        new_result <- new_result[,columns_to_keep]
-        stored_result <- stored_result[,columns_to_keep]
-    }
-
-    new_result[['version']] <- "new"
-    stored_result[['version']] <- "stored"
-
-    return(rbind(new_result, stored_result))
-}
-
-# Make a helping function that updates the stored data for one crop
-update_stored_results <- function(test_info) {
-
-    # Calculate the result
-    plant_result <- run_crop_simulation(test_info)
-
-    # Save it as a csv file
-    write.csv(
-        plant_result,
-        file=test_info[['stored_result_file']],
-        quote=FALSE,
-        eol="\n",
-        na="",
-        row.names=FALSE
-    )
-}
-
