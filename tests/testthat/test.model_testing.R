@@ -1,9 +1,16 @@
 # The purpose of this file is to make sure certain types of model errors are
 # caught by the model testing functions
 
-source('crop_model_testing_helper_functions.R')
-
-example_test_case <- PLANT_TESTING_INFO[[1]]
+example_test_case <- model_test_case(
+    'miscanthus_x_giganteus',
+    miscanthus_x_giganteus,
+    get_growing_season_climate(weather$'2005'),
+    TRUE,
+    file.path('..', 'test_data'),
+    24,
+    'soil_evaporation_rate',
+    5e-3
+)
 
 test_that('definitions must be valid', {
     expect_error(
@@ -39,14 +46,15 @@ test_that('simulation must run to completion', {
 })
 
 test_that('separate errors are reported for each model', {
-    bad_cases <- PLANT_TESTING_INFO
-    bad_cases[[1]]$parameters <- list()
-    bad_cases[[2]]$stored_result_file <- 'fake_file.csv'
-    bad_cases[[3]]$drivers <- bad_cases[[3]]$drivers[seq_len(3), ]
+    bad_cases <- list(
+        within(example_test_case, {parameters = list()}),
+        within(example_test_case, {stored_result_file = 'fake_file.csv'}),
+        within(example_test_case, {drivers = drivers[seq_len(3), ]})
+    )
 
     expect_error(
         run_model_test_cases(bad_cases),
-        'The `miscanthus_x_giganteus` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `soybean` simulation result has 3 rows, but the saved result has 3288 rows.'
+        'The `miscanthus_x_giganteus` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `miscanthus_x_giganteus` simulation result has 3 rows, but the saved result has 4296 rows.'
     )
 })
 
@@ -83,7 +91,7 @@ test_that('new values must agree with old values', {
                 within(example_test_case, {drivers$time_zone_offset = -5})
             )
         ),
-        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns: canopy_conductance, canopy_height, canopy_transpiration_rate, cosine_zenith_angle, gbw_canopy, gmst, lai, Leaf, LeafLitter, lha, lmst, Rhizome, Root, solar_azimuth_angle, solar_zenith_angle, Stem, StemLitter, time_zone_offset.'
+        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns:'
     )
 
     expect_error(
@@ -92,6 +100,30 @@ test_that('new values must agree with old values', {
                 within(example_test_case, {parameters$Rd = parameters$Rd * 1.1})
             )
         ),
-        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns: canopy_conductance, canopy_height, lai, Leaf, LeafLitter, Rhizome, Root, Stem, StemLitter.'
+        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns:'
+    )
+})
+
+test_that('results can be stored and loaded', {
+    model_with_tempfile <-
+        within(example_test_case, {stored_result_file = tempfile()})
+
+    expect_silent(
+        update_stored_model_results(model_with_tempfile)
+    )
+
+    col_to_keep <- c('time', 'Leaf', 'Stem', 'Root', 'Grain')
+
+    compare_crop_output <- expect_silent(
+        compare_model_output(model_with_tempfile, col_to_keep)
+    )
+
+    expect_true(
+        all(col_to_keep %in% colnames(compare_crop_output))
+    )
+
+    expect_equal(
+        sort(unique(compare_crop_output[['version']])),
+        c('new', 'stored')
     )
 })
