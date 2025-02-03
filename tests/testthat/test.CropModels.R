@@ -39,14 +39,6 @@ WEATHER <- BioCro::get_growing_season_climate(BioCro::weather$'2005')
 # Specify the testing directory
 TEST_DIR <- file.path('..', 'test_data')
 
-# Specify the row interval to keep
-ROW_INTERVAL <- 24
-
-# Use a 0.5% tolerance when comparing values between simulations. Lower
-# tolerances have caused problems when comparing results calculated on different
-# operating systems.
-RELATIVE_ERROR_TOLERANCE <- 5e-3
-
 # Define lists of species-specific variables to ignore.
 MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
     "soil_evaporation_rate"
@@ -95,9 +87,9 @@ SOYBEAN_IGNORE <- c(
 
 # Define the models to test
 PLANT_TESTING_INFO <- list(
-    BioCro::model_test_case('miscanthus_x_giganteus', BioCro::miscanthus_x_giganteus, WEATHER,                        TRUE, TEST_DIR, ROW_INTERVAL, MISCANTHUS_X_GIGANTEUS_IGNORE, RELATIVE_ERROR_TOLERANCE), # INDEX = 1
-    BioCro::model_test_case('willow',                 BioCro::willow,                 WEATHER,                        TRUE, TEST_DIR, ROW_INTERVAL, WILLOW_IGNORE,                 RELATIVE_ERROR_TOLERANCE), # INDEX = 2
-    BioCro::model_test_case('soybean',                BioCro::soybean,                BioCro::soybean_weather$'2002', TRUE, TEST_DIR, ROW_INTERVAL, SOYBEAN_IGNORE,                RELATIVE_ERROR_TOLERANCE)  # INDEX = 3
+    BioCro::model_test_case('miscanthus_x_giganteus', BioCro::miscanthus_x_giganteus, WEATHER,                        TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
+    BioCro::model_test_case('willow',                 BioCro::willow,                 WEATHER,                        TRUE, TEST_DIR, WILLOW_IGNORE),                 # INDEX = 2
+    BioCro::model_test_case('soybean',                BioCro::soybean,                BioCro::soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                 # INDEX = 3
 )
 
 # Run all the tests

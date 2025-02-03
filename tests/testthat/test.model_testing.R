@@ -7,9 +7,7 @@ example_test_case <- model_test_case(
     get_growing_season_climate(weather$'2005'),
     TRUE,
     file.path('..', 'test_data'),
-    24,
-    'soil_evaporation_rate',
-    5e-3
+    'soil_evaporation_rate'
 )
 
 test_that('definitions must be valid', {

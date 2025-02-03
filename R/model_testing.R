@@ -7,8 +7,9 @@ check_model_test_case_inputs <- function(
     drivers,
     check_outputs,
     directory,
-    row_interval,
     quantities_to_ignore,
+    row_interval,
+    digits,
     relative_tolerance
 )
 {
@@ -54,19 +55,20 @@ check_model_test_case_inputs <- function(
         check_boolean(list(check_outputs = check_outputs))
     )
 
-    # The row_interval and relative_tolerance should be
+    # The row_interval, digits, and relative_tolerance should be
     # numeric
     error_message <- append(
         error_message,
         check_numeric(
             list(
                 row_interval = row_interval,
+                digits = digits,
                 relative_tolerance = relative_tolerance
             )
         )
     )
 
-    # test_case_name, directory, check_outputs, row_interval, and
+    # test_case_name, directory, check_outputs, row_interval, digits, and
     # relative_tolerance should have length one
     error_message <- append(
         error_message,
@@ -76,6 +78,7 @@ check_model_test_case_inputs <- function(
                 directory = directory,
                 check_outputs = check_outputs,
                 row_interval = row_interval,
+                digits = digits,
                 relative_tolerance = relative_tolerance
             )
         )
@@ -105,9 +108,10 @@ model_test_case <- function(
     drivers,
     check_outputs,
     directory = '.',
-    row_interval = 1,
     quantities_to_ignore = character(),
-    relative_tolerance = 5e-3
+    row_interval = 24,
+    digits = 5,
+    relative_tolerance = sqrt(.Machine$double.eps)
 )
 {
     # Check over the inputs arguments for possible issues
@@ -117,8 +121,9 @@ model_test_case <- function(
         drivers,
         check_outputs,
         directory,
-        row_interval,
         quantities_to_ignore,
+        row_interval,
+        digits,
         relative_tolerance
     )
 
@@ -138,8 +143,9 @@ model_test_case <- function(
             directory,
             paste0(test_case_name, '_simulation.csv')
         ),
-        row_interval = row_interval,
         quantities_to_ignore = quantities_to_ignore,
+        row_interval = row_interval,
+        digits = digits,
         relative_tolerance = relative_tolerance
     )
 }
@@ -171,7 +177,7 @@ run_model_simulation <- function(mtc) {
     for (cn in colnames(simulation_result)) {
         if (is.numeric(simulation_result[[cn]])) {
             simulation_result[[cn]] <-
-                signif(simulation_result[[cn]], digits = 5)
+                signif(simulation_result[[cn]], digits = mtc[['digits']])
         }
     }
 

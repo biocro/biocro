@@ -20,9 +20,10 @@
     drivers,
     check_outputs,
     directory = '.',
-    row_interval = 1,
     quantities_to_ignore = character(),
-    relative_tolerance = 5e-3
+    row_interval = 24,
+    digits = 5,
+    relative_tolerance = sqrt(.Machine$double.eps)
   )
 }
 
@@ -49,6 +50,11 @@
     result. Only used when \code{check_outputs} is \code{TRUE}.
   }
 
+  \item{quantities_to_ignore}{
+    A character vector of any quantities that should not be compared against the
+    stored results. Only used when \code{check_outputs} is \code{TRUE}.
+  }
+
   \item{row_interval}{
     Determines which rows are saved and compared when using
     \code{\link{update_stored_model_results}},
@@ -57,9 +63,9 @@
     \code{TRUE}.
   }
 
-  \item{quantities_to_ignore}{
-    A character vector of any quantities that should not be compared against the
-    stored results. Only used when \code{check_outputs} is \code{TRUE}.
+  \item{digits}{
+    Passed to \code{\link{signif}} to round values when storing saved results.
+    Only used when \code{check_outputs} is \code{TRUE}.
   }
 
   \item{relative_tolerance}{
@@ -73,6 +79,23 @@
 \details{
   The \code{model_test_case} function forms the basis for the BioCro model
   testing system. See \code{\link{model_testing}} for more information.
+
+  With the default settings:
+  \itemize{
+    \item Every 24 rows of the simulation output will be stored and compared.
+          When using drivers with an hourly time step, this corresponds to one
+          row for each day.
+    \item Values in the stored simulation results will be rounded to five
+          significant digits. This saves space and also reduces the impact of
+          operating-system-specific roundoff errors, which typically do not
+          cause differences in the first five digits of any simulation outputs.
+    \item The low value of the relative tolerance essentially means that the
+          new results must match the stored ones to all significant digits.
+  }
+
+  These default settings have proven useful for the BioCro
+  \code{\link{miscanthus_x_giganteus}}, \code{\link{willow}}, and
+  \code{\link{soybean}} models.
 }
 
 \value{

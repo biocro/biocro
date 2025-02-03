@@ -31,9 +31,10 @@
   This function will run the model with the supplied drivers and store the
   results in an appropriately-named CSV file in the specified directory.
 
-  To save space, the values in the result will be rounded to 5 significant
-  digits using \code{\link{signif}}. Also, only every Nth row will be retained,
-  where N is the value of \code{row_interval} specified in the module test case.
+  To save space, the values in the result will be rounded using
+  \code{\link{signif}}, where the number of digits is specified in the module
+  test case. Also, only every Nth row will be retained, where N is the value of
+  \code{row_interval} specified in the module test case.
 
   The saved result created by this function will be retrieved by
   \code{\link{run_model_test_cases}} when checking the test case.
