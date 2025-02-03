@@ -83,9 +83,9 @@ class carbon_assimilation_to_biomass : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          canopy_assimilation_rate_mol_CO2{get_input(input_quantities, "canopy_assimilation_rate_mol_CO2")},
-          GrossAssim_mol_CO2{get_input(input_quantities, "GrossAssim_mol_CO2")},
-          canopy_photorespiration_rate_mol_CO2{get_input(input_quantities, "canopy_photorespiration_rate_mol_CO2")},
+          canopy_assimilation_rate_CO2{get_input(input_quantities, "canopy_assimilation_rate_CO2")},
+          GrossAssim_CO2{get_input(input_quantities, "GrossAssim_CO2")},
+          canopy_photorespiration_rate_CO2{get_input(input_quantities, "canopy_photorespiration_rate_CO2")},
           CHO_carbon_molar_mass{get_input(input_quantities, "CHO_carbon_molar_mass")},
 
           // Get pointers to output quantities
@@ -100,9 +100,9 @@ class carbon_assimilation_to_biomass : public direct_module
 
    private:
     // References to input quantities
-    double const& canopy_assimilation_rate_mol_CO2;
-    double const& GrossAssim_mol_CO2;
-    double const& canopy_photorespiration_rate_mol_CO2;
+    double const& canopy_assimilation_rate_CO2;
+    double const& GrossAssim_CO2;
+    double const& canopy_photorespiration_rate_CO2;
     double const& CHO_carbon_molar_mass;
 
     // Pointers to output quantities
@@ -117,9 +117,9 @@ class carbon_assimilation_to_biomass : public direct_module
 string_vector carbon_assimilation_to_biomass::get_inputs()
 {
     return {
-        "canopy_assimilation_rate_mol_CO2",      // micromol CO2 / m^2 / s
-        "GrossAssim_mol_CO2",                    // micromol CO2 / m^2 / s
-        "canopy_photorespiration_rate_mol_CO2",  // micromol CO2 / m^2 / s
+        "canopy_assimilation_rate_CO2",      // micromol CO2 / m^2 / s
+        "GrossAssim_CO2",                    // micromol CO2 / m^2 / s
+        "canopy_photorespiration_rate_CO2",  // micromol CO2 / m^2 / s
         "CHO_carbon_molar_mass"                  // g CHO / mol C
     };
 }
@@ -146,9 +146,9 @@ void carbon_assimilation_to_biomass::do_operation() const
     const double cf = CHO_carbon_molar_mass * a;
 
     // Use `update` to set outputs
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate_mol_CO2 * cf);
-    update(GrossAssim_op, GrossAssim_mol_CO2 * cf);
-    update(canopy_photorespiration_rate_op, canopy_photorespiration_rate_mol_CO2 * cf);
+    update(canopy_assimilation_rate_op, canopy_assimilation_rate_CO2 * cf);
+    update(GrossAssim_op, GrossAssim_CO2 * cf);
+    update(canopy_photorespiration_rate_op, canopy_photorespiration_rate_CO2 * cf);
 }
 
 }  // namespace standardBML
