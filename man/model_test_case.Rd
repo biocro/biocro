@@ -122,9 +122,7 @@ miscanthus_test_case <- model_test_case(
     get_growing_season_climate(weather$'2005'),
     TRUE,
     tempdir(),
-    24,
-    'soil_evaporation_rate',
-    5e-3
+    'soil_evaporation_rate'
 )
 
 # The result is a specially formatted list
