@@ -122,6 +122,10 @@ be directly added to this file to describe the related changes.
 - Added a new function for generating C++ header files for new module classes:
   `module_write`
 
+- Added several functions to help with model regression tests:
+  `compare_model_output`, `model_test_case`, `run_model_test_cases`, and
+  `update_stored_model_results`. Previously, these were part of
+  `tests/testthat/crop_model_testing_helper_functions.R`.
 
 ## OTHER CHANGES
 
