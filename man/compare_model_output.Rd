@@ -64,10 +64,7 @@ miscanthus_test_case <- model_test_case(
     miscanthus_x_giganteus,
     get_growing_season_climate(weather$'2005'),
     TRUE,
-    tempdir(),
-    24,
-    'soil_evaporation_rate',
-    5e-3
+    tempdir()
 )
 
 update_stored_model_results(miscanthus_test_case)
