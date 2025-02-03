@@ -118,8 +118,8 @@ class soybean_development_rate_calculator : public direct_module
 string_vector soybean_development_rate_calculator::get_inputs()
 {
     return {
-        "time",             // days
-        "sowing_time",      // days
+        "time",             // hours
+        "sowing_time",      // hours
         "maturity_group",   // dimensionless; maturity group of soybean cultivar
         "DVI",              // dimensionless; development index, see Osborne et al. 2015
         "day_length",       // hours

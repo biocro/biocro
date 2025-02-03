@@ -132,7 +132,7 @@ void oscillator_clock_calculator::do_operation() const
 
     // Get the current time value
     const double time = *time_ip;
-    const double hour = 24.0 * (time - floor(time));
+    const double hour = std::fmod(time,  24);
 
     // Get the current light value
     const double light = *light_ip;

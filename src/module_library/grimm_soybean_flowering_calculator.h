@@ -124,7 +124,7 @@ class grimm_soybean_flowering_calculator : public direct_module
 string_vector grimm_soybean_flowering_calculator::get_inputs()
 {
     return {
-        "sowing_time",                  // days
+        "sowing_time",                  // hours
         "grimm_physiological_age",      // physiological days
         "grimm_juvenile_T0",            // degrees C
         "grimm_juvenile_T1",            // degrees C
@@ -136,7 +136,7 @@ string_vector grimm_soybean_flowering_calculator::get_inputs()
         "grimm_N_min",                  // hours
         "grimm_N_opt",                  // hours
         "grimm_flowering_threshold",    // physiological days
-        "time",                         // days
+        "time",                         // hours
         "temp",                         // degrees C
         "day_length"                    // hours
     };

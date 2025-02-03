@@ -160,7 +160,7 @@ string_vector solar_position_michalsky::get_inputs()
     return {
         "lat",               // degrees (North is positive)
         "longitude",         // degrees (East is positive)
-        "time",              // time expressed as a fractional day of year
+        "time",              // hours
         "time_zone_offset",  // the offset of the time zone relative to UTC
         "year"               // a year between 1950 and 2050
     };
@@ -197,9 +197,10 @@ void solar_position_michalsky::do_operation() const
     double constexpr jd_ref_2000 = 2451545.0;  // Julian date at noon on 1 January 2000 (UTC)
 
     // Unpack the doy and hour in UTC
-    double time_utc = time - time_zone_offset / hr_per_day;     // days
-    double const doy_utc = floor(time_utc);                     // days
-    double const hour_utc = hr_per_day * (time_utc - doy_utc);  // hours
+    double time_utc = time - time_zone_offset;     // hours
+    int d = std::floor(time_utc / hr_per_day);
+    double const doy_utc = 1 + d; // days
+    double const hour_utc = time_utc - hr_per_day * d;  // hours
 
     // Calculate the Julian date
     double const delta = year - 1949.0;

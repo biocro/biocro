@@ -108,11 +108,11 @@ cat(
 @
 
 <<plotting_tools,echo=FALSE>>=
-time_range <- c(142, 298)
+doy_range <- c(142, 298)
 biomass_range <- c(-0.5, 6.5)
 ppfd_range <- c(-100, 1200)
 assim_range <- c(-2, 32)
-biomass_columns <- c('time', 'Grain', 'Leaf', 'Root', 'Stem')
+biomass_columns <- c('fractional_doy', 'Grain', 'Leaf', 'Root', 'Stem')
 @
 
 \tableofcontents
@@ -444,13 +444,13 @@ biomass_comparison_2002 <- rbind(
 )
 
 biomass_comparison_2002_plot <- xyplot(
-    Leaf + Stem + Root + Grain ~ time,
+    Leaf + Stem + Root + Grain ~ fractional_doy,
     group = model,
     data = biomass_comparison_2002,
     type = 'l',
     auto = TRUE,
     grid = TRUE,
-    xlim = time_range,
+    xlim = doy_range,
     ylim = biomass_range,
     xlab = 'Day of year (2002)',
     ylab = 'Biomass (Mg / ha)',
@@ -846,7 +846,7 @@ biomass_driver_sensitivity <- function(
   return(
     data.frame(
       normalized_sensitivity = normalized_sensitivity,
-      time = default_result[['time']]
+      fractional_doy = default_result[['fractional_doy']]
     )
   )
 }
@@ -880,13 +880,13 @@ biomass_temp_sensitivity <- rbind(
 
 # Create Figure 5b
 biomass_temp_sensitivity_plot <- xyplot(
-  normalized_sensitivity ~ time,
+  normalized_sensitivity ~ fractional_doy,
   group = model,
   data = biomass_temp_sensitivity,
   type = 'l',
   auto = TRUE,
   grid = TRUE,
-  xlim = time_range,
+  xlim = doy_range,
   ylim = c(-20, 35),
   xlab = 'Day of year (2002)',
   ylab = 'dM / dT / (M / T)'
@@ -963,7 +963,7 @@ biomass_parameter_sensitivity <- function(
   return(
     data.frame(
       normalized_sensitivity = normalized_sensitivity,
-      time = default_result[['time']]
+      fractional_doy = default_result[['fractional_doy']]
     )
   )
 }
@@ -997,13 +997,13 @@ biomass_catm_sensitivity <- rbind(
 
 # Create Figure 5c
 biomass_catm_sensitivity_plot <- xyplot(
-  normalized_sensitivity ~ time,
+  normalized_sensitivity ~ fractional_doy,
   group = model,
   data = biomass_catm_sensitivity,
   type = 'l',
   auto = TRUE,
   grid = TRUE,
-  xlim = time_range,
+  xlim = doy_range,
   ylim = c(-60, 60),
   xlab = 'Day of year (2002)',
   ylab = 'dM / dCa / (M / Ca)'
@@ -1058,7 +1058,7 @@ rue_result_2006 <- with(cmi_soybean, {run_biocro(
 
 <<figure_6a,echo=FALSE,results=FALSE>>=
 # Combine the RUE and FvCB results into one data frame for plotting
-biomass_columns <- c('time', 'Leaf', 'Stem', 'Root', 'Grain')
+biomass_columns <- c('fractional_doy', 'Leaf', 'Stem', 'Root', 'Grain')
 biomass_comparison_2006 <- rbind(
   within(fvcb_result_2006[biomass_columns], {model = 'FvCB'}),
   within(rue_result_2006[biomass_columns], {model = 'RUE'})
@@ -1066,13 +1066,13 @@ biomass_comparison_2006 <- rbind(
 
 # Make Figure 6a
 biomass_comparison_2006_plot <- xyplot(
-    Leaf + Stem + Root + Grain ~ time,
+    Leaf + Stem + Root + Grain ~ fractional_doy,
     group = model,
     data = biomass_comparison_2006,
     type = 'l',
     auto = TRUE,
     grid = TRUE,
-    xlim = time_range,
+    xlim = doy_range,
     ylim = biomass_range,
     xlab = 'Day of year (2006)',
     ylab = 'Biomass (Mg / ha)',
