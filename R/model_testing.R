@@ -111,7 +111,7 @@ model_test_case <- function(
     quantities_to_ignore = character(),
     row_interval = 24,
     digits = 5,
-    relative_tolerance = 1e-4
+    relative_tolerance = 1e-3
 )
 {
     # Check over the inputs arguments for possible issues

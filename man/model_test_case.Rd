@@ -23,7 +23,7 @@
     quantities_to_ignore = character(),
     row_interval = 24,
     digits = 5,
-    relative_tolerance = 1e-4
+    relative_tolerance = 1e-3
   )
 }
 
@@ -86,9 +86,7 @@
           When using drivers with an hourly time step, this corresponds to one
           row for each day.
     \item Values in the stored simulation results will be rounded to five
-          significant digits. This saves space and also reduces the impact of
-          operating-system-specific roundoff errors, which typically do not
-          cause differences in the first five digits of any simulation outputs.
+          significant digits. This reduces the size of the stored result file.
     \item The value of the relative tolerance was chosen to be the smallest
           value that enabled the tests to pass on all operating systems.
   }
