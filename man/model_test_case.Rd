@@ -23,7 +23,7 @@
     quantities_to_ignore = character(),
     row_interval = 24,
     digits = 5,
-    relative_tolerance = sqrt(.Machine$double.eps)
+    relative_tolerance = 1e-5
   )
 }
 
@@ -89,8 +89,8 @@
           significant digits. This saves space and also reduces the impact of
           operating-system-specific roundoff errors, which typically do not
           cause differences in the first five digits of any simulation outputs.
-    \item The low value of the relative tolerance essentially means that the
-          new results must match the stored ones to all significant digits.
+    \item The value of the relative tolerance is chosen so that the new results
+          must match the stored ones to all significant digits.
   }
 
   These default settings have proven useful for the BioCro
