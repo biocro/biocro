@@ -113,8 +113,8 @@ class thermal_time_linear_extended : public differential_module
 string_vector thermal_time_linear_extended::get_inputs()
 {
     return {
-        "time",         // days
-        "sowing_time",  // days
+        "time",         // hours
+        "sowing_time",  // hours
         "temp",         // degrees C
         "tbase",        // degrees C
         "tupper"        // degrees C

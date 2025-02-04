@@ -4,12 +4,13 @@ direct_modules <- c()
 differential_modules <- c("heating_degree_days")
 
 ## Given an initial value for the number of heating degree days, a
-## vector of equally-spaced time values (as fractional day-of-year
-## values), a corresponding vector of temperatures, a threshold
-## temperature value, a timestep value, and the specification of a
-## solver, run the system and return the final heating-degree-days
-## value.
+## vector of equally-spaced time values, a corresponding vector of
+## temperatures, a thresholdtemperature value, a timestep value, and the
+## specification of a solver, run the system and return the final heatin
+## g-degree-days value.
 calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
+    ## Time_vector must be hours.
+    time <- 24 * (time_vector - 1)
     initial_values <- list(heating_degree_days = initial_value)
     parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
     drivers <- list(time = time_vector, temp = temperature_vector)

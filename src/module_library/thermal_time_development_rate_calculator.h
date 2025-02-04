@@ -96,8 +96,8 @@ class thermal_time_development_rate_calculator : public direct_module
 string_vector thermal_time_development_rate_calculator::get_inputs()
 {
     return {
-        "time",         // days
-        "sowing_time",  // days
+        "time",         // hours
+        "sowing_time",  // hours
         "DVI",          // dimensionless, development index
         "temp",         // degrees C
         "tbase",        // degrees C, base temperature

@@ -607,7 +607,7 @@ canres <- run_biocro(
         temp = T_ambient      # degrees C
         StomataWS = StomataWS # dimensionless
     }),
-    drivers = data.frame(time = 210.5) # noon on day 210 (July 29 for 2022)
+    drivers = data.frame(time = 24 * (210 - 1) + 12) # noon on day 210 (July 29 for 2022)
 )
 
 # Extract canopy profiles
@@ -838,7 +838,7 @@ bb1_result <- do.call(rbind, bb1_result_list)
 
 # Plot soybean biomass values for different values of the Ball-Berry slope
 xyplot(
-    Leaf + Stem + Root + Grain ~ time,
+    Leaf + Stem + Root + Grain ~ fractional_doy,
     group = b1,
     data = bb1_result,
     type = 'l',

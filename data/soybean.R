@@ -1,5 +1,6 @@
 soybean <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",

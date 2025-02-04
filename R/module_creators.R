@@ -10,7 +10,7 @@ module_creators <- function(module_names)
         check_element_length(list(module_names = module_names))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Make sure the module names are a vector
     module_names <- unlist(module_names)
