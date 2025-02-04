@@ -33,20 +33,42 @@ namespace standardBML
  *  \kappa = \frac{\mu}{(\text{carbon atoms per mol})}
  * \f]
  *
- * Where \f$\mu\f$ is the molar mass.
+ * Where \f$\mu\f$ is the molar mass. Given the molar mass of a substance,
+ * and the number of carbon atoms contained in the substance, we can compute
+ * \f$\kappa\f$.
  *
- * For example, glucose has a molar mass of 180 g/mol and 6 carbon atoms.
+ * For example, glucose has a molar mass of 180 g/mol and 6 carbon atoms,
+ * assuming isotopes 1-H, 12-C, 16-O. The molar mass varies with the ratio of
+ * isotopes, but the average isotopic ratio is close to the same molar mass.
  * So every mol C contributes 12 g of C + 2 g H + 16 g O = 30 g CHO mass.
  * Or (180 g / mol glucose) / (6 mol C / mol glucose) = 30 g CHO / mol C.
- * All monosaccharides have this value. All disaccharides are 28.5 g/mol.
- * Starch, cellulose, and hemi-celluloses have a value of 27 g/mol.
+ * All hexoses (e.g., glucose, fructose, galactose) all have the same molecular
+ * formula C6H12O6, and thus the same molar mass (180 g / mol) and all consist
+ * of 6 carbons, again ignoring any variation in isotope distribution.
+ * Thus, they all have a carbon molar mass of about 30 g / mol this value.
+ * Disaccharides consisting of two hexose unitssuch as sucrose, maltose, and
+ * lactose all have the same molecular formula C12H22O11, therefore the same molar mass,
+ * and thus the same carbon molar mass equal to 28.5 g/mol.
+ * Polysaccharides such as starch, cellulose, and hemi-celluloses are
+ * hexose polymers all have a formula of (C6H10O5)n for n monomers, and
+ * thus they have a carbon molar mass of 27 g/mol.
  *
- * Any mixture of these substances will have a carbon molar mass between
- * 27 and 30 g/mol.
+ * The larger molecules have large molar masses, but also typically a proportional
+ * increase in the number of carbon atoms. It isn't particularly useful
+ * to talk about molecules of a polymer, but the number of carbon atoms is
+ * proportional to the mass of the polymer.
  *
- * Thus, given a carbon molar mass \f$\kappa\f$, this module will convert
+ * The molar mass of a mixture of these substances is a weighted average of
+ * of their individual molar masses. And therefore will generally be
+ * between 27 and 30 g / mol C.
+ *
+ * Thus, given any carbon molar mass \f$\kappa\f$, this module will convert
  * the CO2 assimilation rate in micromol C / m^2 land / s to a biomass
  * accumulation rate in Mg / Ha / hr.
+ *
+ * Note again, the key assumption is that dry biomass is exactly
+ * proportional to number of carbon atoms, and that this proportional is
+ * fixed over time.
  *
  * ### Conversion from square meters to hectares and seconds to hours.
  *
@@ -92,6 +114,7 @@ namespace standardBML
  * Where \f$\mu_C=12\f$ g/mol is the molar mass of carbon. Substituting yields:
  *
  * \f[ \kappa = \frac{\mu_C}{x} \f]
+ *
  *
  */
 class carbon_assimilation_to_biomass : public direct_module
