@@ -138,8 +138,8 @@ string_vector multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
         "canopy_assimilation_rate_CO2",     // micromol CO2 / m^2 / s
-        "canopy_transpiration_rate",            // Mg / ha / hr
-        "canopy_conductance",                   // mmol / m^2 / s
+        "canopy_transpiration_rate",        // Mg / ha / hr
+        "canopy_conductance",               // mmol / m^2 / s
         "GrossAssim_CO2",                   // micromol CO2 / m^2 / s
         "canopy_photorespiration_rate_CO2"  // micromol CO2 / m^2 / s
     };

@@ -125,7 +125,7 @@ be directly added to this file to describe the related changes.
 - The conversion of CO2 assimilation to biomass is no longer hard coded into
   the photosynthesis modules: c3CanAC, CanAC, multilayer_canopy_integrator, etc.
   These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s
-  A new module called `biocro:carbon_assimilation_to_biomass` now performs the
+  A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
   conversion. A new parameter `CHO_carbon_molar_mass` controls the conversion.
   All affected models have the same behavior as before if the new module is used
   with `CHO_carbon_molar_mass = 30.026` g/mol. See module documentation for
