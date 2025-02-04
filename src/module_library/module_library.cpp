@@ -96,6 +96,7 @@
 #include "total_biomass.h"
 #include "two_layer_soil_profile.h"
 #include "varying_Jmax25.h"
+#include "vc_c4.h"
 #include "water_vapor_properties_from_air_temperature.h"
 
 creator_map standardBML::module_library::library_entries =
@@ -192,5 +193,6 @@ creator_map standardBML::module_library::library_entries =
      {"total_biomass",                                         &create_mc<total_biomass>},
      {"two_layer_soil_profile",                                &create_mc<two_layer_soil_profile>},
      {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
+     {"vc_c4",                                                 &create_mc<vc_c4>},
      {"water_vapor_properties_from_air_temperature",           &create_mc<water_vapor_properties_from_air_temperature>}
 };

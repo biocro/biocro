@@ -1,29 +1,62 @@
 #include "von_caemmerer_c4_model_core.h"
 
-namespace vc_c4_core {
 
-
-struct A_t {double val;};
-struct R_t {double val;};
-struct V_t {double val;};
-struct K_t {double val;};
-
+template<typename T>
 struct K_type {
-    double c, o, p;
+    T c, o, p;
 };
 
+template<typename T>
 struct R_type {
-    double m, d;
+    T d, m;
 };
 
+template<typename T>
 struct Vmax_type {
-    double cmax, pmax, pr;
+    T cmax, pmax, pr;
 };
 
-struct enyzme_params{
-    K_type K;
-    R_type resp;
-    Vmax_type V;
+template<typename T>
+class vc_c4_model {
+
+    public:
+    T alpha_psii;
+    T ao;
+    T Cm;
+    T f_cyc;
+    T gbs;
+    T Om;
+    T x_etr;
+    K_type<T> K;
+    R_type<T> R;
+    Vmax_type<T> V;
+
+    vc_c4_model(
+        double alpha_psii,
+        double ao,
+        double Cm,
+        double f_cyc,
+        double gamma_star,
+        double gbs,
+        double J,
+        double Kc,
+        double Ko,
+        double Kp,
+        double Om,
+        double Rd,
+        double Rm,
+        double Vcmax,
+        double Vpmax,
+        double Vpr,
+        double x_etr
+    ) :
+
+    K{Kc, Ko, Kp},
+    R{Rd, Rm},
+    V{Vcmax, Vpmax, Vpr} {}
+
+
+
 };
 
 // template<typename T, int deg>
@@ -97,6 +130,11 @@ struct linpoly {
         return *this;
     }
 
+    linpoly& operator-=(const double rhs){
+        c0 -= rhs;
+        return *this;
+    }
+
     linpoly& operator-=(const linpoly rhs){
         c0 -= rhs.c0;
         c1 -= rhs.c1;
@@ -136,6 +174,19 @@ inline linpoly operator+(const linpoly& lhs, const linpoly& rhs){
 inline linpoly operator-(const linpoly& lhs, const linpoly& rhs){
     linpoly result = lhs;
     result -= rhs;
+    return result;
+}
+
+inline linpoly operator-(const linpoly& lhs, const double rhs){
+    linpoly result = lhs;
+    result -= rhs;
+    return result;
+}
+
+inline linpoly operator-(const double lhs, const linpoly& rhs){
+    linpoly result = rhs;
+    result *= -1;
+    result += lhs;
     return result;
 }
 
@@ -186,7 +237,7 @@ double eq7(double Vc, double Cs, double Os,
     return rhs - Vc;
 }
 
-double get_Vc(double Cs, double Os, double Vcmax, K_type K){
+double get_Vc(double Cs, double Os, double Vcmax, K_type<double> K){
     double denom = Cs + K.c * (1 + Os / K.o);
     return (Cs / denom) *  Vcmax;
 }
@@ -202,7 +253,8 @@ double eq9(double gamma_star, double Vcmax, double Kc, double Vomax, double Ko){
     return rhs - gamma_star;
 }
 
-double get_reduced_Vc(double Cs, double Os, double Vcmax, K_type K, double gamma_star){
+template<typename T>
+double get_reduced_Vc(double Cs, double Os, double Vcmax, K_type<T> K, double gamma_star){
     double num = Vcmax * (Cs - gamma_star * Os);
     double denom = Cs + K.c * (1 + Os / K.o);
     return num / denom;
@@ -239,15 +291,41 @@ double eq10(double Ac, double reduced_Vc, double Rd){
     return (reduced_Vc - Rd) - Ac;
 }
 
+double eq37(double Aj, double Vjmax, double Cs, double Os, double gamma_star, double Rd){
+    double num = Vjmax * (Cs - gamma_star * Os);
+    double denom = 3 * Cs + 7 * gamma_star * Os;
+    double rhs = num/ denom  - Rd;
+    return rhs - Aj ;
+}
+
+double get_z(double f_cyc){
+    constexpr double protons_per_atp = 4;
+    return ((3 - f_cyc)/(1 - f_cyc) ) / protons_per_atp;
+}
+
+double solve_quadratic_balance(linpoly P, linpoly Q,  double Rd){
+    // A = P / Q - Rd
+    // P(A) - Q(A) * (A + Rd) = 0 (quadratic in A)
+    double f0 = P.c0 - Q.c0  * Rd ;
+    double f1 = P.c1  -  Q.c0 - Rd * Q.c1;
+    double f2 = - Q.c1;
+    return quadratic_root_minus(f2, f1, f0);
+}
+
+
+
+
+
+
 double get_Ac(double Cm, double Om, double gbs,
-    double alpha, double ao, double gamma_star,
-    K_type K, R_type R, Vmax_type V)
+    double alpha_psii, double ao, double gamma_star,
+    K_type<double> K, R_type<double> R, Vmax_type<double> V)
 {
     double Vp = get_Vp(Cm, V.pmax, K.p, V.pr);
     // Cs = c0 + c1 * A;
-    linpoly Cs{Cm - (Vp - R.m) / gbs, - 1/gbs};
+    linpoly Cs{Cm + (Vp - R.m) / gbs, - 1/gbs};
     // Os = o0 + o1 * A
-    linpoly Os{Om, alpha / get_go(gbs, ao)};
+    linpoly Os{Om, alpha_psii / get_go(gbs, ao)};
 
     // Ac = P(A)/Q(A) - Rd  (eq 10)
     // P = P0 + P1 * A = Vcmax * (Cs - gamma_star * Os)
@@ -256,23 +334,135 @@ double get_Ac(double Cm, double Om, double gbs,
     // Q = Q0 + Q1 * A = Cs + Kc * (1 + Os / Ko)
     linpoly Q = Cs + K.c * (1 + Os / K.o);
 
+    // the solution closer to zero is the correct solution
+    return solve_quadratic_balance(P, Q, R.d);
+
+}
+
+
+double get_Aj(double J, double Cm, double Om, double gbs, double f_cyc, double alpha_psii, double ao, double gamma_star, R_type<double> R){
+    double x_etr = 0.4; // partitioning factor
+    double protons_per_atp = 4;
+    double z = ((3 - f_cyc)/(1 - f_cyc) ) / protons_per_atp;
+    double zJ = z * J;
+    // Cs = c0 + c1 * A;
+    linpoly Cs{Cm + (0.5 * zJ * x_etr   - R.m) / gbs, - 1/gbs};
+    // Os = o0 + o1 * A
+    linpoly Os{Om, alpha_psii / get_go(gbs, ao)};
+
+    // Ac = P(A)/Q(A) - Rd  (eq 10)
+    // P = P0 + P1 * A = Vcmax * (Cs - gamma_star * Os)
+    linpoly P = zJ * (1 - x_etr) * (Cs - gamma_star * Os);
+
+    // Q = Q0 + Q1 * A = Cs + Kc * (1 + Os / Ko)
+    linpoly Q = 3 * Cs + 7 * gamma_star * Os;
 
     // solve P(A)/Q(A) - Rd - A = 0 for A;
-    // P - Rd * Q - A * Q is quadratic in A;
-    // P - Rd * Q - A * Q = f0 + f1 * A + f2 * A^2
-    // one solution is extraneous;
-    double f0 = P.c0 - Q.c0  * (R.d + 1);
-    double f1 = P.c1 - R.d * Q.c1 - Q.c0;
-    double f2 = 0.5 * Q.c1;
+    return solve_quadratic_balance(P, Q, R.d);
+}
 
-    // the solution closer to zero is the correct solution
-    return quadratic_root_min(f2, f1, f0);
+double check_Ac(
+    double Ac,
+    double alpha_psii,
+    double ao,
+    double Cm,
+    double f_cyc,
+    double gamma_star,
+    double gbs,
+    double J,
+    double Kc,
+    double Ko,
+    double Kp,
+    double Om,
+    double Rd,
+    double Rm,
+    double Vcmax,
+    double Vpmax,
+    double Vpr,
+    double x_etr
+){
+    K_type<double> K{Kc, Ko, Kp};
+    double Vp = get_Vp(Cm, Vpmax, Kp, Vpr);
+    double Cs = Cm + (Vp - Ac - Rm)/gbs;
+    double Os = Om + alpha_psii * Ac / (ao * gbs);
+    double reduced_Vc = get_reduced_Vc<double>(Cs, Os, Vcmax, K, gamma_star);
+    return eq10(Ac, reduced_Vc, Rd);
+}
 
+double check_Aj(
+    double Aj,
+    double alpha_psii,
+    double ao,
+    double Cm,
+    double f_cyc,
+    double gamma_star,
+    double gbs,
+    double J,
+    double Kc,
+    double Ko,
+    double Kp,
+    double Om,
+    double Rd,
+    double Rm,
+    double Vcmax,
+    double Vpmax,
+    double Vpr,
+    double x_etr
+){
+    K_type<double> K{Kc, Ko, Kp};
+    double z = get_z(f_cyc);
+    double Cs = Cm + (0.5 *z*x_etr*J - Aj - Rm)/gbs;
+    double Os = Om + alpha_psii * Aj / (ao * gbs);
+
+    return eq37(Aj, z * (1 - x_etr) * J, Cs, Os, gamma_star, Rd);
+}
+
+vc_c4_result vc_c4_module_core(
+    double alpha_psii,
+    double ao,
+    double Cm,
+    double f_cyc,
+    double gamma_star,
+    double gbs,
+    double J,
+    double Kc,
+    double Ko,
+    double Kp,
+    double Om,
+    double Rd,
+    double Rm,
+    double Vcmax,
+    double Vpmax,
+    double Vpr,
+    double x_etr
+    ){
+
+    vc_c4_result out;
+
+    // enzyme limited rate
+    double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
+
+    linpoly A{0, 1};
+    linpoly Cs_e = Cm + (Vp_e - A -  Rm) / gbs;
+    linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
+    linpoly P_e = Vcmax * (Cs_e - gamma_star * Os);
+    linpoly Q_e = Cs_e + Kc * (1 + Os / Ko);
+
+    out.Ac = solve_quadratic_balance(P_e, Q_e, Rd);
+
+
+    double z = get_z(f_cyc);
+    double J_atp =  J * z ;
+    double Vp_j = 0.5 * J_atp * x_etr;
+    double Vjmax = (1  - x_etr) * J_atp;
+    linpoly Cs_j = Cm + (Vp_j -  A - Rm) / gbs;
+    linpoly P_j = Vjmax * (Cs_j - gamma_star * Os);
+    linpoly Q_j = 3 * Cs_j + 7 * gamma_star * Os;
+
+    out.Aj = solve_quadratic_balance(P_j, Q_j, Rd);
+    out.An = std::min(out.Ac, out.Aj);
+    return out;
 }
 
 
-double get_Aj(double){
-    return 0.;
-}
 
-} // end vc_c4_core
