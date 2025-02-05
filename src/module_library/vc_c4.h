@@ -28,13 +28,15 @@ class vc_c4 : public direct_module
           f_cyc{get_input(input_quantities, "f_cyc")},
           gamma_star{get_input(input_quantities, "gamma_star")},
           gbs{get_input(input_quantities, "gbs")},
-          J{get_input(input_quantities, "J")},
+          Jmax{get_input(input_quantities, "Jmax")},
           Kc{get_input(input_quantities, "Kc")},
           Ko{get_input(input_quantities, "Ko")},
           Kp{get_input(input_quantities, "Kp")},
           Om{get_input(input_quantities, "Om")},
+          Qabs{get_input(input_quantities, "Qabs")},
           Rd{get_input(input_quantities, "Rd")},
           Rm{get_input(input_quantities, "Rm")},
+          theta{get_input(input_quantities, "theta")},
           Vcmax{get_input(input_quantities, "Vcmax")},
           Vpmax{get_input(input_quantities, "Vpmax")},
           Vpr{get_input(input_quantities, "Vpr")},
@@ -58,11 +60,13 @@ class vc_c4 : public direct_module
     double const& f_cyc;
     double const& gamma_star;
     double const& gbs;
-    double const& J;
+    double const& Jmax;
     double const& Kc;
     double const& Ko;
     double const& Kp;
     double const& Om;
+    double const& Qabs;
+    double const& theta;
     double const& Rd;
     double const& Rm;
     double const& Vcmax;
@@ -88,13 +92,15 @@ string_vector vc_c4::get_inputs()
         "f_cyc",       // dimensionless
         "gamma_star",  // dimensionless ratio CO2 : O2 Pa
         "gbs",         // micromol / m^2 / s / Pa
-        "J",           // micromol / m^2 / s
+        "Jmax",        // micromol / m^2 / s
         "Kc",          // Pa
         "Ko",          // Pa
         "Kp",          // Pa
         "Om",          // Pa (O2 mesophyll)
+        "Qabs",        // micromol / m^2 / s
         "Rd",          // micromol / m^2 / s
         "Rm",          // micromol / m^2 / s
+        "theta",
         "Vcmax",       // micromol / m^2 / s
         "Vpmax",       // micromol / m^2 / s
         "Vpr",         // micromol / m^2 / s
@@ -115,24 +121,27 @@ void vc_c4::do_operation() const
 {
     // Make calculations here
 
-    vc_c4_result res = vc_c4_module_core(
+    vc_c4_result res = vc_c4_biochemical(
         alpha_psii,
         ao,
         Cm,
         f_cyc,
         gamma_star,
         gbs,
-        J,
+        Jmax,
         Kc,
         Ko,
         Kp,
         Om,
+        Qabs,
         Rd,
         Rm,
+        theta,
         Vcmax,
         Vpmax,
         Vpr,
         x_etr);
+
     // Use `update` to set outputs
     update(An_op, res.An);
     update(Ac_op, res.Ac);

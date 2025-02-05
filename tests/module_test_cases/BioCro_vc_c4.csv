@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,"description"
+Cm,Jmax,Kc,Ko,Kp,Om,Qabs,Rd,Rm,Vcmax,Vpmax,Vpr,alpha_psii,ao,f_cyc,gamma_star,gbs,theta,x_etr,Ac,Aj,An,NA
+150,247.689168262401,1210,292000,82,210000,595.34,1,0.5,40,200,800,0,0.047,0.3,0.000381679,0.003,0.7,0.4,36.3844620189006,34.9320638765051,34.9320638765051,"Based on von-caemmerer (2021)"

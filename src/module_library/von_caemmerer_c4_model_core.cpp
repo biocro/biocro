@@ -303,6 +303,11 @@ double get_z(double f_cyc){
     return ((3 - f_cyc)/(1 - f_cyc) ) / protons_per_atp;
 }
 
+double get_rho(double f_cyc){
+    return (1 - f_cyc)/(2 - f_cyc);
+}
+
+
 double solve_quadratic_balance(linpoly P, linpoly Q,  double Rd){
     // A = P / Q - Rd
     // P(A) - Q(A) * (A + Rd) = 0 (quadratic in A)
@@ -313,52 +318,27 @@ double solve_quadratic_balance(linpoly P, linpoly Q,  double Rd){
 }
 
 
-
-
-
-
-double get_Ac(double Cm, double Om, double gbs,
-    double alpha_psii, double ao, double gamma_star,
-    K_type<double> K, R_type<double> R, Vmax_type<double> V)
-{
-    double Vp = get_Vp(Cm, V.pmax, K.p, V.pr);
-    // Cs = c0 + c1 * A;
-    linpoly Cs{Cm + (Vp - R.m) / gbs, - 1/gbs};
-    // Os = o0 + o1 * A
-    linpoly Os{Om, alpha_psii / get_go(gbs, ao)};
-
-    // Ac = P(A)/Q(A) - Rd  (eq 10)
-    // P = P0 + P1 * A = Vcmax * (Cs - gamma_star * Os)
-    linpoly P = V.cmax * (Cs - gamma_star * Os);
-
-    // Q = Q0 + Q1 * A = Cs + Kc * (1 + Os / Ko)
-    linpoly Q = Cs + K.c * (1 + Os / K.o);
-
-    // the solution closer to zero is the correct solution
-    return solve_quadratic_balance(P, Q, R.d);
-
+double get_J(double Qabs, double Jmax, double theta){
+    return quadratic_root_minus(theta,  -(Qabs + Jmax), Qabs * Jmax);
 }
 
 
-double get_Aj(double J, double Cm, double Om, double gbs, double f_cyc, double alpha_psii, double ao, double gamma_star, R_type<double> R){
-    double x_etr = 0.4; // partitioning factor
-    double protons_per_atp = 4;
-    double z = ((3 - f_cyc)/(1 - f_cyc) ) / protons_per_atp;
-    double zJ = z * J;
-    // Cs = c0 + c1 * A;
-    linpoly Cs{Cm + (0.5 * zJ * x_etr   - R.m) / gbs, - 1/gbs};
-    // Os = o0 + o1 * A
-    linpoly Os{Om, alpha_psii / get_go(gbs, ao)};
 
-    // Ac = P(A)/Q(A) - Rd  (eq 10)
-    // P = P0 + P1 * A = Vcmax * (Cs - gamma_star * Os)
-    linpoly P = zJ * (1 - x_etr) * (Cs - gamma_star * Os);
+double solve_Ac(linpoly Cs, linpoly Os, double gamma_star,
+    double Kc, double Ko, double Rd, double Vcmax)
+{
 
-    // Q = Q0 + Q1 * A = Cs + Kc * (1 + Os / Ko)
+    linpoly P = Vcmax * (Cs - gamma_star * Os);
+    linpoly Q = Cs + Kc * (1 + Os / Ko);
+
+    return solve_quadratic_balance(P, Q, Rd);
+
+}
+
+double solve_Aj(linpoly Cs, linpoly Os, double Vjmax, double gamma_star, double Rd){
+    linpoly P = Vjmax * (Cs - gamma_star * Os);
     linpoly Q = 3 * Cs + 7 * gamma_star * Os;
-
-    // solve P(A)/Q(A) - Rd - A = 0 for A;
-    return solve_quadratic_balance(P, Q, R.d);
+    return solve_quadratic_balance(P, Q, Rd);
 }
 
 double check_Ac(
@@ -417,52 +397,137 @@ double check_Aj(
     return eq37(Aj, z * (1 - x_etr) * J, Cs, Os, gamma_star, Rd);
 }
 
-vc_c4_result vc_c4_module_core(
+template<typename T>
+struct electron_transport_type {
+    T alpha_psii;
+    T f_cyc;
+    T theta;
+    T x_etr;
+    T Jmax;
+};
+
+// template<typename T>
+// class vc_c4_biochemical__{
+//     T ao;
+//     T Cm;
+//     T Om;
+//     T Qabs;
+
+//     T gamma_star;
+//     T gbs;
+//     electron_transport_type<T> etr;
+//     K_type<T> K;
+//     R_type<T> R;
+//     Vmax_type<T> V;
+
+
+//     public:
+
+//     vc_c4_result assim(){
+//         vc_c4_result out;
+//         double J = get_J(Qabs, Jmax, theta);
+
+//         // enzyme limited rate
+//         double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
+
+//         linpoly A{0, 1};
+//         linpoly Cs_e = Cm + (Vp_e - A -  Rm) / gbs;
+//         linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
+//         out.Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
+//         // linpoly P_e = Vcmax * (Cs_e - gamma_star * Os);
+//         // linpoly Q_e = Cs_e + Kc * (1 + Os / Ko);
+
+//         // out.Ac = solve_quadratic_balance(P_e, Q_e, Rd);
+
+
+//         double z = get_z(f_cyc);
+//         double J_atp =  J * z ;
+//         double Vp_j = 0.5 * J_atp * x_etr;
+//         double Vjmax = (1  - x_etr) * J_atp;
+//         linpoly Cs_j = Cm + (Vp_j - A - Rm) / gbs;
+//         // linpoly P_j = Vjmax * (Cs_j - gamma_star * Os);
+//         // linpoly Q_j = 3 * Cs_j + 7 * gamma_star * Os;
+
+//         out.Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
+//         out.An = std::min(out.Ac, out.Aj);
+//         return out;
+//     }
+// };
+
+vc_c4_result vc_c4_biochemical(
     double alpha_psii,
     double ao,
     double Cm,
     double f_cyc,
     double gamma_star,
     double gbs,
-    double J,
+    double Jmax,
     double Kc,
     double Ko,
     double Kp,
     double Om,
+    double Qabs,
     double Rd,
     double Rm,
+    double theta,
     double Vcmax,
     double Vpmax,
     double Vpr,
     double x_etr
-    ){
-
+){
     vc_c4_result out;
+        double J = get_J(Qabs, Jmax, theta);
 
-    // enzyme limited rate
-    double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
+        // enzyme limited rate
+        double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
 
-    linpoly A{0, 1};
-    linpoly Cs_e = Cm + (Vp_e - A -  Rm) / gbs;
-    linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
-    linpoly P_e = Vcmax * (Cs_e - gamma_star * Os);
-    linpoly Q_e = Cs_e + Kc * (1 + Os / Ko);
+        linpoly A{0, 1};
+        linpoly Cs_e = Cm + (Vp_e - A -  Rm) / gbs;
+        linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
+        out.Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
+        // linpoly P_e = Vcmax * (Cs_e - gamma_star * Os);
+        // linpoly Q_e = Cs_e + Kc * (1 + Os / Ko);
 
-    out.Ac = solve_quadratic_balance(P_e, Q_e, Rd);
+        // out.Ac = solve_quadratic_balance(P_e, Q_e, Rd);
 
 
-    double z = get_z(f_cyc);
-    double J_atp =  J * z ;
-    double Vp_j = 0.5 * J_atp * x_etr;
-    double Vjmax = (1  - x_etr) * J_atp;
-    linpoly Cs_j = Cm + (Vp_j -  A - Rm) / gbs;
-    linpoly P_j = Vjmax * (Cs_j - gamma_star * Os);
-    linpoly Q_j = 3 * Cs_j + 7 * gamma_star * Os;
+        double z = get_z(f_cyc);
+        double J_atp =  J * z ;
+        double Vp_j = 0.5 * J_atp * x_etr;
+        double Vjmax = (1  - x_etr) * J_atp;
+        linpoly Cs_j = Cm + (Vp_j - A - Rm) / gbs;
+        // linpoly P_j = Vjmax * (Cs_j - gamma_star * Os);
+        // linpoly Q_j = 3 * Cs_j + 7 * gamma_star * Os;
 
-    out.Aj = solve_quadratic_balance(P_j, Q_j, Rd);
-    out.An = std::min(out.Ac, out.Aj);
-    return out;
+        out.Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
+        out.An = std::min(out.Ac, out.Aj);
+        return out;
 }
+
+// vc_c4_result vc_c4_biochemical(
+//     double alpha_psii,
+//     double ao,
+//     double Cm,
+//     double f_cyc,
+//     double gamma_star,
+//     double gbs,
+//     double Jmax,
+//     double Kc,
+//     double Ko,
+//     double Kp,
+//     double Om,
+//     double Qabs,
+//     double Rd,
+//     double Rm,
+//     double theta,
+//     double Vcmax,
+//     double Vpmax,
+//     double Vpr,
+//     double x_etr
+//     ){
+
+
+// }
 
 
 
