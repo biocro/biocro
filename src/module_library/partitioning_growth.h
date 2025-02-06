@@ -3,6 +3,30 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include <array>
+
+using container = std::array<std::reference_wrapper<const double>, 6>;
+
+
+std::array<std::string, 6> organs = {"root","stem","leaf","shell","grain", "rhizome"};
+
+container get_k_input(state_map const& xs) {
+    container out;
+    for (int i = 0; i < organs.size(); ++i) {
+        out[i] = xs["k" + organs[i]];
+    }
+    return out;
+}
+
+
+container get_net_assim_input(state_map const& xs) {
+    container out;
+    for (int i = 0; i < organs.size(); ++i) {
+        out[i] = xs["net_assimilation_rate" + organs[i]];
+    }
+    return out;
+}
+
 
 namespace standardBML
 {
@@ -70,18 +94,8 @@ class partitioning_growth : public differential_module
           // Get references to input quantities
           retrans{get_input(input_quantities, "retrans")},
           retrans_rhizome{get_input(input_quantities, "retrans_rhizome")},
-          kLeaf{get_input(input_quantities, "kLeaf")},
-          kStem{get_input(input_quantities, "kStem")},
-          kRoot{get_input(input_quantities, "kRoot")},
-          kRhizome{get_input(input_quantities, "kRhizome")},
-          kGrain{get_input(input_quantities, "kGrain")},
-          kShell{get_input(input_quantities, "kShell")},
-          net_assimilation_rate_leaf{get_input(input_quantities, "net_assimilation_rate_leaf")},
-          net_assimilation_rate_stem{get_input(input_quantities, "net_assimilation_rate_stem")},
-          net_assimilation_rate_root{get_input(input_quantities, "net_assimilation_rate_root")},
-          net_assimilation_rate_rhizome{get_input(input_quantities, "net_assimilation_rate_rhizome")},
-          net_assimilation_rate_grain{get_input(input_quantities, "net_assimilation_rate_grain")},
-          net_assimilation_rate_shell{get_input(input_quantities, "net_assimilation_rate_shell")},
+          ks{get_k_input(input_quantities)},
+          net_assimilation_rate{get_net_assim_input(input_quantities)},
           Leaf{get_input(input_quantities, "Leaf")},
           Stem{get_input(input_quantities, "Stem")},
           Root{get_input(input_quantities, "Root")},
@@ -104,18 +118,10 @@ class partitioning_growth : public differential_module
     // References to input quantities
     const double& retrans;
     const double& retrans_rhizome;
-    const double& kLeaf;
-    const double& kStem;
-    const double& kRoot;
-    const double& kRhizome;
-    const double& kGrain;
-    const double& kShell;
-    const double& net_assimilation_rate_leaf;
-    const double& net_assimilation_rate_stem;
-    const double& net_assimilation_rate_root;
-    const double& net_assimilation_rate_rhizome;
-    const double& net_assimilation_rate_grain;
-    const double& net_assimilation_rate_shell;
+
+    container<std::reference_wrapper<const double>> ks;
+    container<std::reference_wrapper<const double>> net_assimilation_rate;
+
     const double& Leaf;
     const double& Stem;
     const double& Root;
