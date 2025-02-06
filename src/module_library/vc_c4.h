@@ -41,6 +41,9 @@ class vc_c4 : public direct_module
           Vpmax{get_input(input_quantities, "Vpmax")},
           Vpr{get_input(input_quantities, "Vpr")},
           x_etr{get_input(input_quantities, "x_etr")},
+          leaf_absorptance{get_input(input_quantities, "leaf_absorptance")},
+          spectral_correction{get_input(input_quantities, "spectral_correction")},
+
 
           // Get pointers to output quantities
           An_op{get_op(output_quantities, "An")},
@@ -73,6 +76,8 @@ class vc_c4 : public direct_module
     double const& Vpmax;
     double const& Vpr;
     double const& x_etr;
+    double const& leaf_absorptance;
+    double const& spectral_correction;
 
     // Pointers to output quantities
     double* An_op;
@@ -104,7 +109,9 @@ string_vector vc_c4::get_inputs()
         "Vcmax",       // micromol / m^2 / s
         "Vpmax",       // micromol / m^2 / s
         "Vpr",         // micromol / m^2 / s
-        "x_etr"        // dimensionless
+        "x_etr",        // dimensionless
+        "leaf_absorptance",// dimensionless; light fraction absorbed by leaf
+        "spectral_correction", // dimensionless
     };
 }
 
@@ -121,7 +128,7 @@ void vc_c4::do_operation() const
 {
     // Make calculations here
 
-    vc_c4_result res = vc_c4_biochemical(
+    vc_c4_result res = vc_c4_biochemical_fun(
         alpha_psii,
         ao,
         Cm,
@@ -140,7 +147,9 @@ void vc_c4::do_operation() const
         Vcmax,
         Vpmax,
         Vpr,
-        x_etr);
+        x_etr,
+        leaf_absorptance,
+        spectral_correction);
 
     // Use `update` to set outputs
     update(An_op, res.An);

@@ -5,9 +5,10 @@
 #include <array>
 #include <numeric>
 #include "../framework/quadratic_root.h" //
+#include "linpoly.h"
 
 struct vc_c4_result { double Ac, Aj, An;};
-vc_c4_result vc_c4_biochemical(
+vc_c4_result vc_c4_biochemical_fun(
     double alpha_psii,
     double ao,
     double Cm,
@@ -19,14 +20,16 @@ vc_c4_result vc_c4_biochemical(
     double Ko,
     double Kp,
     double Om,
-    double Qabs,
+    double Qin,
     double Rd,
     double Rm,
     double theta,
     double Vcmax,
     double Vpmax,
     double Vpr,
-    double x_etr
+    double x_etr,
+    double leaf_absorptance,
+    double spectral_correction
     );
 
 #endif
