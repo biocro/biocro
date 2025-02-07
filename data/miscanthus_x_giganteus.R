@@ -59,6 +59,7 @@ miscanthus_x_giganteus <- list(
         Catm                        = 400,
         chil                        = 1,
         emissivity_sky              = 1,
+        grc_leaf                    = 0.02,
         grc_root                    = 0.03,
         grc_stem                    = 0.02,
         Gs_min                      = 1e-3,

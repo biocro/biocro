@@ -1,3 +1,3 @@
-input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,"description"
-LeafWS,canopy_assimilation_rate,kGrain,kLeaf,kRhizome,kRoot,kStem,grc_stem,grc_root,temp,net_assimilation_rate_grain,net_assimilation_rate_leaf,net_assimilation_rate_rhizome,net_assimilation_rate_root,net_assimilation_rate_stem,NA
-1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,"automatically-generated test case"
+input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,"description"
+LeafWS,canopy_assimilation_rate,grc_leaf,grc_root,grc_stem,kGrain,kLeaf,kRhizome,kRoot,kStem,temp,net_assimilation_rate_grain,net_assimilation_rate_leaf,net_assimilation_rate_rhizome,net_assimilation_rate_root,net_assimilation_rate_stem,NA
+1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,"automatically-generated test case"

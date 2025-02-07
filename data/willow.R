@@ -61,6 +61,7 @@ willow <- list(
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
+        grc_leaf                     = 0.02,
         grc_root                     = 0.03,
         grc_stem                     = 0.02,
         growth_respiration_fraction  = 0.3,

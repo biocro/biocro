@@ -78,6 +78,7 @@ class partitioning_growth_calculator : public direct_module
           kGrain{get_input(input_quantities, "kGrain")},
           canopy_assim{get_input(input_quantities, "canopy_assimilation_rate")},
           LeafWS{get_input(input_quantities, "LeafWS")},
+          grc_leaf{get_input(input_quantities, "grc_leaf")},
           grc_stem{get_input(input_quantities, "grc_stem")},
           grc_root{get_input(input_quantities, "grc_root")},
           temp{get_input(input_quantities, "temp")},
@@ -103,6 +104,7 @@ class partitioning_growth_calculator : public direct_module
     const double& kGrain;
     const double& canopy_assim;
     const double& LeafWS;
+    const double& grc_leaf;
     const double& grc_stem;
     const double& grc_root;
     const double& temp;
@@ -128,6 +130,7 @@ string_vector partitioning_growth_calculator::get_inputs()
         "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "LeafWS",                    // dimensionless
+        "grc_leaf",                  // dimensionless
         "grc_stem",                  // dimensionless
         "grc_root",                  // dimensionless
         "temp"                       // degrees C
@@ -150,7 +153,7 @@ void partitioning_growth_calculator::do_operation() const
     // Calculate the rate of new leaf production, accounting for water stress
     // and additional respiratory costs due to growth (Mg / ha / hr)
     double const net_assimilation_rate_leaf{
-        kLeaf > 0 ? resp(canopy_assim * kLeaf * LeafWS, grc_stem, temp) : 0};
+        kLeaf > 0 ? resp(canopy_assim * kLeaf * LeafWS, grc_leaf, temp) : 0};
 
     // Calculate the rate of new stem production, accounting for respiratory
     // costs (Mg / ha / hr)
