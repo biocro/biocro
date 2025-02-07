@@ -21,6 +21,7 @@
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
+#include "cumulative_transpiration.h"
 #include "development_index.h"
 #include "development_index_from_thermal_time.h"
 #include "example_model_mass_gain.h"
@@ -112,6 +113,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"cumulative_transpiration",                              &create_mc<cumulative_transpiration>},
      {"development_index",                                     &create_mc<development_index>},
      {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
