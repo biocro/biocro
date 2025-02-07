@@ -9,10 +9,15 @@ namespace standardBML
 /**
  * @class cumulative_respiration
  *
- * @brief Enables calculations of cumulative respiration costs, which will be
- * included in the simulation output as differential quantities called
- * ``'Leaf_mr'``, ``'Stem_mr'``, etc, where "mr" standard for "maintenance
- * respiration."
+ * @brief Enables calculations of cumulative respiration costs.
+ *
+ * Cumulative maintenance respiration will be included in the simulation output
+ * as differential quantities called ``'Leaf_mr'``, ``'Stem_mr'``, etc, where
+ * "mr" standard for "maintenance respiration."
+ *
+ * Cumulative growth respiration will be included in the simulation output
+ * as differential quantities called ``'Stem_gr'``, ``'Root_gr'``, etc, where
+ * "gr" standard for "growth respiration."
  *
  */
 class cumulative_respiration : public differential_module
@@ -30,6 +35,9 @@ class cumulative_respiration : public differential_module
           Rhizome_mrr{get_input(input_quantities, "Rhizome_mrr")},
           Grain_mrr{get_input(input_quantities, "Grain_mrr")},
           Shell_mrr{get_input(input_quantities, "Shell_mrr")},
+          Stem_grr{get_input(input_quantities, "Stem_grr")},
+          Root_grr{get_input(input_quantities, "Root_grr")},
+          Rhizome_grr{get_input(input_quantities, "Rhizome_grr")},
 
           // Get pointers to output quantities
           Leaf_mr_op{get_op(output_quantities, "Leaf_mr")},
@@ -37,7 +45,10 @@ class cumulative_respiration : public differential_module
           Root_mr_op{get_op(output_quantities, "Root_mr")},
           Rhizome_mr_op{get_op(output_quantities, "Rhizome_mr")},
           Grain_mr_op{get_op(output_quantities, "Grain_mr")},
-          Shell_mr_op{get_op(output_quantities, "Shell_mr")}
+          Shell_mr_op{get_op(output_quantities, "Shell_mr")},
+          Stem_gr_op{get_op(output_quantities, "Stem_gr")},
+          Root_gr_op{get_op(output_quantities, "Root_gr")},
+          Rhizome_gr_op{get_op(output_quantities, "Rhizome_gr")}
     {
     }
     static string_vector get_inputs();
@@ -52,6 +63,9 @@ class cumulative_respiration : public differential_module
     double const& Rhizome_mrr;
     double const& Grain_mrr;
     double const& Shell_mrr;
+    double const& Stem_grr;
+    double const& Root_grr;
+    double const& Rhizome_grr;
 
     // Pointers to output quantities
     double* Leaf_mr_op;
@@ -60,6 +74,9 @@ class cumulative_respiration : public differential_module
     double* Rhizome_mr_op;
     double* Grain_mr_op;
     double* Shell_mr_op;
+    double* Stem_gr_op;
+    double* Root_gr_op;
+    double* Rhizome_gr_op;
 
     // Main operation
     void do_operation() const;
@@ -73,7 +90,10 @@ string_vector cumulative_respiration::get_inputs()
         "Root_mrr",     // Mg / ha / hr
         "Rhizome_mrr",  // Mg / ha / hr
         "Grain_mrr",    // Mg / ha / hr
-        "Shell_mrr"     // Mg / ha / hr
+        "Shell_mrr",    // Mg / ha / hr
+        "Stem_grr",     // Mg / ha / hr
+        "Root_grr",     // Mg / ha / hr
+        "Rhizome_grr"   // Mg / ha / hr
     };
 }
 
@@ -85,7 +105,10 @@ string_vector cumulative_respiration::get_outputs()
         "Root_mr",     // Mg / ha / hr
         "Rhizome_mr",  // Mg / ha / hr
         "Grain_mr",    // Mg / ha / hr
-        "Shell_mr"     // Mg / ha / hr
+        "Shell_mr",    // Mg / ha / hr
+        "Stem_gr",     // Mg / ha / hr
+        "Root_gr",     // Mg / ha / hr
+        "Rhizome_gr"   // Mg / ha / hr
     };
 }
 
@@ -97,6 +120,9 @@ void cumulative_respiration::do_operation() const
     update(Rhizome_mr_op, Rhizome_mrr);  // Mg / ha / hr
     update(Grain_mr_op, Grain_mrr);      // Mg / ha / hr
     update(Shell_mr_op, Shell_mrr);      // Mg / ha / hr
+    update(Stem_gr_op, Stem_grr);        // Mg / ha / hr
+    update(Root_gr_op, Root_grr);        // Mg / ha / hr
+    update(Rhizome_gr_op, Rhizome_grr);  // Mg / ha / hr
 }
 
 }  // namespace standardBML
