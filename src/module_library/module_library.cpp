@@ -44,6 +44,7 @@
 #include "litter_cover.h"
 #include "magic_clock.h"
 #include "maintenance_respiration.h"
+#include "maintenance_respiration_calculator.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
@@ -138,6 +139,7 @@ creator_map standardBML::module_library::library_entries =
      {"litter_cover",                                          &create_mc<litter_cover>},
      {"magic_clock",                                           &create_mc<magic_clock>},
      {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
+     {"maintenance_respiration_calculator",                    &create_mc<maintenance_respiration_calculator>},
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},

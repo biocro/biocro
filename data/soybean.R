@@ -18,7 +18,8 @@ soybean <- list(
         canopy_photosynthesis = "BioCro:ten_layer_c3_canopy",
         "BioCro:ten_layer_canopy_integrator",
         partitioning_growth_calculator = "BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator",
-        "BioCro:senescence_coefficient_logistic"
+        "BioCro:senescence_coefficient_logistic",
+        "BioCro:maintenance_respiration_calculator"
     ),
     differential_modules = list(
         senescence = "BioCro:senescence_logistic",
@@ -198,7 +199,7 @@ soybean <- list(
         grc_stem                        = 0.02828,    # dimensionless, optimized. growth respiration coefficient
         grc_root                        = 0.00270,    # dimensionless, optimized
 
-        # maintenance respiration module
+        # maintenance_respiration_calculator module
         mrc_leaf                        = 0.00048836,    # kg / kg / hr maintenance respiration coefficient. optimized
         mrc_stem                        = 0.00048836,    # kg / kg / hr, assumed to be same as leaf
         mrc_root                        = 0.00001,       # kg / kg / hr, optimized

@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
+Grain,Leaf,Rhizome,Root,Shell,Stem,mrc_grain,mrc_leaf,mrc_root,mrc_stem,temp,Grain_mrr,Leaf_mrr,Rhizome_mrr,Root_mrr,Shell_mrr,Stem_mrr,NA
+1,1,1,1,1,1,1,1,1,1,1,0.1894645708138,0.1894645708138,0.1894645708138,0.1894645708138,0.1894645708138,0.1894645708138,"automatically-generated test case"
