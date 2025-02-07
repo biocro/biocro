@@ -1,0 +1,3 @@
+input,input,input,input,output,output,output,output,"description"
+canopy_assimilation_rate,canopy_gross_assimilation_rate,canopy_photorespiration_rate,canopy_transpiration_rate,canopy_assimilation,canopy_gross_assimilation,canopy_photorespiration,canopy_transpiration,NA
+1,1,1,1,1,1,1,1,"automatically-generated test case"

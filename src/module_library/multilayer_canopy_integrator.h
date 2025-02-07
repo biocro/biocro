@@ -54,7 +54,7 @@ class multilayer_canopy_integrator : public direct_module
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          canopy_gross_assimilation_rate_op{get_op(output_quantities, "canopy_gross_assimilation_rate")},
           canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
     {
     }
@@ -85,7 +85,7 @@ class multilayer_canopy_integrator : public direct_module
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
-    double* GrossAssim_op;
+    double* canopy_gross_assimilation_rate_op;
     double* canopy_photorespiration_rate_op;
 
     // Main operation
@@ -137,11 +137,11 @@ string_vector multilayer_canopy_integrator::get_inputs(int nlayers)
 string_vector multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
-        "canopy_assimilation_rate",     // Mg / ha / hr
-        "canopy_transpiration_rate",    // Mg / ha / hr
-        "canopy_conductance",           // mmol / m^2 / s
-        "GrossAssim",                   // Mg / ha / hr
-        "canopy_photorespiration_rate"  // Mg / ha / hr
+        "canopy_assimilation_rate",        // Mg / ha / hr
+        "canopy_transpiration_rate",       // Mg / ha / hr
+        "canopy_conductance",              // mmol / m^2 / s
+        "canopy_gross_assimilation_rate",  // Mg / ha / hr
+        "canopy_photorespiration_rate"     // Mg / ha / hr
     };
 }
 
@@ -210,7 +210,7 @@ void multilayer_canopy_integrator::run() const
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
 
-    update(GrossAssim_op, GrossAssim * cf);
+    update(canopy_gross_assimilation_rate_op, GrossAssim * cf);
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
 

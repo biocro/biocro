@@ -84,7 +84,7 @@ class c3_canopy : public direct_module
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          canopy_gross_assimilation_rate_op{get_op(output_quantities, "canopy_gross_assimilation_rate")},
           canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
     {
     }
@@ -163,7 +163,7 @@ class c3_canopy : public direct_module
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
-    double* GrossAssim_op;
+    double* canopy_gross_assimilation_rate_op;
     double* canopy_photorespiration_rate_op;
 
     // Main operation
