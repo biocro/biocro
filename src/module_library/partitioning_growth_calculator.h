@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "BioCro.h"  // for resp
+#include "respiration.h"  // for resp
 
 namespace standardBML
 {
@@ -152,23 +152,23 @@ void partitioning_growth_calculator::do_operation() const
 {
     // Calculate the rate of new leaf production, accounting for water stress
     // and additional respiratory costs due to growth (Mg / ha / hr)
-    double const net_assimilation_rate_leaf{
-        kLeaf > 0 ? resp(canopy_assim * kLeaf * LeafWS, grc_leaf, temp) : 0};
+    respiration_outputs const adjusted_rate_leaf{
+        resp(kLeaf > 0 ? canopy_assim * kLeaf * LeafWS : 0, grc_leaf, temp)};
 
     // Calculate the rate of new stem production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_stem{
-        kStem > 0 ? resp(canopy_assim * kStem, grc_stem, temp) : 0};
+    respiration_outputs const adjusted_rate_stem{
+        resp(kStem > 0 ? canopy_assim * kStem : 0, grc_stem, temp)};
 
     // Calculate the rate of new root production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_root{
-        kRoot > 0 ? resp(canopy_assim * kRoot, grc_root, temp) : 0};
+    respiration_outputs const adjusted_rate_root{
+        resp(kRoot > 0 ? canopy_assim * kRoot : 0, grc_root, temp)};
 
     // Calculate the rate of new rhizome production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_rhizome{
-        kRhizome > 0 ? resp(canopy_assim * kRhizome, grc_root, temp) : 0};
+    respiration_outputs const adjusted_rate_rhizome{
+        resp(kRhizome > 0 ? canopy_assim * kRhizome : 0, grc_root, temp)};
 
     // Calculate the rate of new grain production without any respiratory costs;
     // grain mass is never allowed to decrease (Mg / ha / hr)
@@ -176,10 +176,10 @@ void partitioning_growth_calculator::do_operation() const
         kGrain > 0 && canopy_assim > 0 ? canopy_assim * kGrain : 0};
 
     // Update the output quantity list
-    update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
-    update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
-    update(net_assimilation_rate_root_op, net_assimilation_rate_root);
-    update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
+    update(net_assimilation_rate_leaf_op, adjusted_rate_leaf.net_rate);
+    update(net_assimilation_rate_stem_op, adjusted_rate_stem.net_rate);
+    update(net_assimilation_rate_root_op, adjusted_rate_root.net_rate);
+    update(net_assimilation_rate_rhizome_op, adjusted_rate_rhizome.net_rate);
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 

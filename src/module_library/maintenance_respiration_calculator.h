@@ -113,7 +113,7 @@ string_vector maintenance_respiration_calculator::get_outputs()
 void maintenance_respiration_calculator::do_operation() const
 {
     // Define the reference temperature for the Q10 function
-    double Tref = 25.0;
+    double constexpr Tref = 25.0;  // degrees C
 
     // Calculate each maintenance respiration rate (mrr). We assume that
     // the rhizome has the same maintenance respiration coefficient (mrc) as

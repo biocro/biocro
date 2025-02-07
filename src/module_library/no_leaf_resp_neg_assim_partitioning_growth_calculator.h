@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "BioCro.h"  // for resp
+#include "respiration.h"  // for resp
 
 namespace standardBML
 {
@@ -155,18 +155,18 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 
     // Calculate the rate of new stem production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_stem{
-        kStem > 0 ? resp(canopy_assim * kStem, grc_stem, temp) : 0};
+    respiration_outputs const adjusted_rate_stem{
+        resp(kStem > 0 ? canopy_assim * kStem : 0, grc_stem, temp)};
 
     // Calculate the rate of new root production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_root{
-        kRoot > 0 ? resp(canopy_assim * kRoot, grc_root, temp) : 0};
+    respiration_outputs const adjusted_rate_root{
+        resp(kRoot > 0 ? canopy_assim * kRoot : 0, grc_root, temp)};
 
     // Calculate the rate of new rhizome production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double const net_assimilation_rate_rhizome{
-        kRhizome > 0 ? resp(canopy_assim * kRhizome, grc_root, temp) : 0};
+    respiration_outputs const adjusted_rate_rhizome{
+        resp(kRhizome > 0 ? canopy_assim * kRhizome : 0, grc_root, temp)};
 
     // Calculate the rate of new grain production without any respiratory costs
     // (Mg / ha / hr)
@@ -180,9 +180,9 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 
     // Update the output quantity list
     update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
-    update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
-    update(net_assimilation_rate_root_op, net_assimilation_rate_root);
-    update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
+    update(net_assimilation_rate_stem_op, adjusted_rate_stem.net_rate);
+    update(net_assimilation_rate_root_op, adjusted_rate_root.net_rate);
+    update(net_assimilation_rate_rhizome_op, adjusted_rate_rhizome.net_rate);
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
     update(net_assimilation_rate_shell_op, net_assimilation_rate_shell);
 }
