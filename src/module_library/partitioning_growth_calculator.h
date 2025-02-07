@@ -78,8 +78,8 @@ class partitioning_growth_calculator : public direct_module
           kGrain{get_input(input_quantities, "kGrain")},
           canopy_assim{get_input(input_quantities, "canopy_assimilation_rate")},
           LeafWS{get_input(input_quantities, "LeafWS")},
-          mrc1{get_input(input_quantities, "mrc1")},
-          mrc2{get_input(input_quantities, "mrc2")},
+          grc_stem{get_input(input_quantities, "grc_stem")},
+          grc_root{get_input(input_quantities, "grc_root")},
           temp{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
@@ -103,8 +103,8 @@ class partitioning_growth_calculator : public direct_module
     const double& kGrain;
     const double& canopy_assim;
     const double& LeafWS;
-    const double& mrc1;
-    const double& mrc2;
+    const double& grc_stem;
+    const double& grc_root;
     const double& temp;
 
     // Pointers to output quantities
@@ -128,8 +128,8 @@ string_vector partitioning_growth_calculator::get_inputs()
         "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "LeafWS",                    // dimensionless
-        "mrc1",                      // dimensionless
-        "mrc2",                      // dimensionless
+        "grc_stem",                  // dimensionless
+        "grc_root",                  // dimensionless
         "temp"                       // degrees C
     };
 }
@@ -150,22 +150,22 @@ void partitioning_growth_calculator::do_operation() const
     // Calculate the rate of new leaf production, accounting for water stress
     // and additional respiratory costs due to growth (Mg / ha / hr)
     double const net_assimilation_rate_leaf{
-        kLeaf > 0 ? resp(canopy_assim * kLeaf * LeafWS, mrc1, temp) : 0};
+        kLeaf > 0 ? resp(canopy_assim * kLeaf * LeafWS, grc_stem, temp) : 0};
 
     // Calculate the rate of new stem production, accounting for respiratory
     // costs (Mg / ha / hr)
     double const net_assimilation_rate_stem{
-        kStem > 0 ? resp(canopy_assim * kStem, mrc1, temp) : 0};
+        kStem > 0 ? resp(canopy_assim * kStem, grc_stem, temp) : 0};
 
     // Calculate the rate of new root production, accounting for respiratory
     // costs (Mg / ha / hr)
     double const net_assimilation_rate_root{
-        kRoot > 0 ? resp(canopy_assim * kRoot, mrc2, temp) : 0};
+        kRoot > 0 ? resp(canopy_assim * kRoot, grc_root, temp) : 0};
 
     // Calculate the rate of new rhizome production, accounting for respiratory
     // costs (Mg / ha / hr)
     double const net_assimilation_rate_rhizome{
-        kRhizome > 0 ? resp(canopy_assim * kRhizome, mrc2, temp) : 0};
+        kRhizome > 0 ? resp(canopy_assim * kRhizome, grc_root, temp) : 0};
 
     // Calculate the rate of new grain production without any respiratory costs;
     // grain mass is never allowed to decrease (Mg / ha / hr)

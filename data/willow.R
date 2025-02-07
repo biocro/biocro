@@ -61,6 +61,8 @@ willow <- list(
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
+        grc_root                     = 0.03,
+        grc_stem                     = 0.02,
         growth_respiration_fraction  = 0.3,
         Gs_min                       = 1e-3,
         Gstar_c                      = 19.02,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
@@ -121,8 +123,6 @@ willow <- list(
         lnfun                        = 0,
         longitude                    = -88,
         min_gbw_canopy               = 0.005,
-        mrc1                         = 0.02,
-        mrc2                         = 0.03,
         net_assimilation_rate_shell  = 0.0,
         nlayers                      = 10,
         O2                           = 210,
