@@ -3,7 +3,6 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "temperature_response_functions.h"  // for Q10_temprature_response
 
 namespace standardBML
 {

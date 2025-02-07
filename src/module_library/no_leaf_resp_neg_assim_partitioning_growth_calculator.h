@@ -150,32 +150,32 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 {
     // Calculate the rate of new leaf production, accounting for water stress
     // but not respiratory costs (Mg / ha / hr)
-    double net_assimilation_rate_leaf{
+    double const net_assimilation_rate_leaf{
         kLeaf > 0 ? canopy_assim * kLeaf * LeafWS : 0};
 
     // Calculate the rate of new stem production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double net_assimilation_rate_stem{
+    double const net_assimilation_rate_stem{
         kStem > 0 ? resp(canopy_assim * kStem, grc_stem, temp) : 0};
 
     // Calculate the rate of new root production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double net_assimilation_rate_root{
+    double const net_assimilation_rate_root{
         kRoot > 0 ? resp(canopy_assim * kRoot, grc_root, temp) : 0};
 
     // Calculate the rate of new rhizome production, accounting for respiratory
     // costs (Mg / ha / hr)
-    double net_assimilation_rate_rhizome{
+    double const net_assimilation_rate_rhizome{
         kRhizome > 0 ? resp(canopy_assim * kRhizome, grc_root, temp) : 0};
 
     // Calculate the rate of new grain production without any respiratory costs
     // (Mg / ha / hr)
-    double net_assimilation_rate_grain{
+    double const net_assimilation_rate_grain{
         kGrain > 0 ? canopy_assim * kGrain : 0};
 
     // Calculate the rate of new shell production without any respiratory costs
     // (Mg / ha / hr)
-    double net_assimilation_rate_shell{
+    double const net_assimilation_rate_shell{
         kShell > 0 ? canopy_assim * kShell : 0};
 
     // Update the output quantity list
