@@ -120,8 +120,11 @@ respiration_outputs resp(double base_rate, double grc, double temp)
 
     // Do not allow the net rate to become negative
     if (net_rate < 0) {
+        // Reset the net rate to 0
         net_rate = 0;
-        losses = -base_rate;
+
+        // If net_rate = 0, then base_rate - losses = 0, so losses = base_rate
+        losses = base_rate;
     }
 
     return respiration_outputs{
