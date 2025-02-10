@@ -9,7 +9,8 @@ namespace standardBML
 /**
  * @class carbon_assimilation_to_biomass
  *
- * @brief
+ * @brief Converts the canopy assimilation rate from a flux of CO2 molecules
+ * (micromol / m^2 / s) to a rate of dry biomass accumulation (Mg / ha / hr).
  *
  * ### Overivew
  *
@@ -45,18 +46,18 @@ namespace standardBML
  * All hexoses (e.g., glucose, fructose, galactose) all have the same molecular
  * formula C6H12O6, and thus the same molar mass (180 g / mol) and all consist
  * of 6 carbons, again ignoring any variation in isotope distribution.
- * Thus, they all have a carbon molar mass of about 30 g / mol this value.
- * Disaccharides consisting of two hexose unitssuch as sucrose, maltose, and
- * lactose all have the same molecular formula C12H22O11, therefore the same molar mass,
- * and thus the same carbon molar mass equal to 28.5 g/mol.
+ * Thus, they all have a carbon molar mass of about 30 g / mol.
+ * Disaccharides consisting of two hexose units such as sucrose, maltose, and
+ * lactose all have the same molecular formula C12H22O11, therefore the same
+ * molar mass, and thus the same carbon molar mass equal to 28.5 g/mol.
  * Polysaccharides such as starch, cellulose, and hemi-celluloses are
  * hexose polymers all have a formula of (C6H10O5)n for n monomers, and
  * thus they have a carbon molar mass of 27 g/mol.
  *
- * The larger molecules have large molar masses, but also typically a proportional
- * increase in the number of carbon atoms. It isn't particularly useful
- * to talk about molecules of a polymer, but the number of carbon atoms is
- * proportional to the mass of the polymer.
+ * The larger molecules have large molar masses, but also typically a
+ * proportional increase in the number of carbon atoms. It isn't particularly
+ * useful to talk about molecules of a polymer, but the number of carbon atoms
+ * is proportional to the mass of the polymer.
  *
  * The molar mass of a mixture of these substances is a weighted average of
  * of their individual molar masses. And therefore will generally be
@@ -77,9 +78,8 @@ namespace standardBML
  * prefixes. The following factor gives the correct conversion:
  *
  * (carbon molar mass) * (3600 s / hr) * (1e-6 mol / umol) *
- * (1e-3 Mg / kg) * (1e4 m^2 / ha)
- * = (carbon molar mass) * 3.6e-5 (s * mol * Mg * m^2) / (hr * micromol * g * ha)
- *
+ *   (1e-3 Mg / kg) * (1e4 m^2 / ha) = (carbon molar mass) *
+ *   3.6e-5 (s * mol * Mg * m^2) / (hr * micromol * g * ha)
  *
  * ### Generalization of CHO carbon molar mass
  *
@@ -94,14 +94,15 @@ namespace standardBML
  * Proteinogenic amino acids vary from 18 - 41 g / mol C.
  *
  * Mixtures of amino acids and carbohydrates will have a carbon molar mass
- * in this range, but given that carbohydrates are the largest fraction of plant biomass
- * the carbon molar mass of plant biomass will be close to 27 g / mol C as this
- * is the carbon molar mass of starch, cellulose, and hemi-celluloses.
+ * in this range, but given that carbohydrates are the largest fraction of plant
+ * biomass the carbon molar mass of plant biomass will be close to 27 g / mol C
+ * as this is the carbon molar mass of starch, cellulose, and hemi-celluloses.
  *
  * ### Measuring the CHO carbon molar mass of a tissue sample.
  *
- * The carbon molar mass \f$\kappa\f$ of a biomass sample of mass \f$m\f$ can be measured by identifying
- * the number of carbon moles \f$C\f$ contained in the sample:
+ * The carbon molar mass \f$\kappa\f$ of a biomass sample of mass \f$m\f$ can be
+ * measured by identifying the number of carbon moles \f$C\f$ contained in the
+ * sample:
  *
  * \f[
  *   \kappa = \frac{m}{C}
@@ -114,7 +115,6 @@ namespace standardBML
  * Where \f$\mu_C=12\f$ g/mol is the molar mass of carbon. Substituting yields:
  *
  * \f[ \kappa = \frac{\mu_C}{x} \f]
- *
  *
  */
 class carbon_assimilation_to_biomass : public direct_module
