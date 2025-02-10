@@ -59,7 +59,7 @@ willow <- list(
         beta_PSII                    = 0.5,
         Catm                         = 400,
         chil                         = 1,
-        CHO_carbon_molar_mass        = 30.026,   # g CHO / mol C (glucose)
+        dry_biomass_per_carbon       = 30.026,   # g CHO / mol C (glucose)
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
