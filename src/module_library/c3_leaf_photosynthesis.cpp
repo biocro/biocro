@@ -70,6 +70,7 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "leaf_temperature",  // degrees C
         "RHs",               // dimensionless from Pa / Pa
         "RH_canopy",         // dimensionless
+        "Rd_tl",             // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
         "TransR"             // mmol / m^2 / s
     };
@@ -154,6 +155,7 @@ void c3_leaf_photosynthesis::do_operation() const
     update(leaf_temperature_op, leaf_temperature);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
+    update(Rd_tl_op, photo.Rd);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
 }

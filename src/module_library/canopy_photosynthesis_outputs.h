@@ -11,6 +11,7 @@ struct canopy_photosynthesis_outputs {
     double canopy_transpiration_penman;    //!< P-M transpiration rate (mmol / m^2 / s)
     double canopy_transpiration_priestly;  //!< Priestly transpiration rate (mmol / m^2 / s)
     double GrossAssim;                     //!< Gross CO2 assimilation rate (Mg / ha / hr)
+    double Rd;                             //!< Rate of mitochondrial respiration (Mg / ha / hr)
     double Rp;                             //!< Rate of photorespiration (Mg / ha / hr)
     double Trans;                          //!< Transpiration rate (Mg / ha / hr)
 };

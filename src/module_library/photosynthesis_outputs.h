@@ -13,6 +13,7 @@ struct photosynthesis_outputs {
     double Gs;                 //!< Stomatal conductance to water vapor (mol / m^2 / s)
     double Cs;                 //!< CO2 concentration at the leaf surface (micromol / mol)
     double RHs;                //!< Relative humidity at the leaf surface (dimensionless)
+    double Rd;                 //!< Rate of mitochondrial respiration
     double Rp;                 //!< Rate of photorespiration (micromol / m^2 / s)
     int iterations;            //!< Number of iterations used by convergence loop
 };

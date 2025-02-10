@@ -78,11 +78,12 @@ string_vector c3_canopy::get_inputs()
 string_vector c3_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",        // Mg / ha / hr
-        "canopy_transpiration_rate",       // Mg / ha / hr
-        "canopy_conductance",              // mol / m^2 / s
-        "canopy_gross_assimilation_rate",  // Mg / ha / hr
-        "canopy_photorespiration_rate"     // Mg / ha / hr
+        "canopy_assimilation_rate",               // Mg / ha / hr
+        "canopy_transpiration_rate",              // Mg / ha / hr
+        "canopy_conductance",                     // mol / m^2 / s
+        "canopy_gross_assimilation_rate",         // Mg / ha / hr
+        "canopy_mitochondrial_respiration_rate",  // Mg / ha / hr
+        "canopy_photorespiration_rate"            // Mg / ha / hr
     };
 }
 
@@ -163,5 +164,6 @@ void c3_canopy::do_operation() const
     update(canopy_transpiration_rate_op, can_result.Trans);            // Mg / ha / hr
     update(canopy_conductance_op, can_result.canopy_conductance);      // mol / m^2 / s
     update(canopy_gross_assimilation_rate_op, can_result.GrossAssim);  // Mg / ha / hr
+    update(canopy_mitochondrial_respiration_rate_op, can_result.Rd);   // Mg / ha / hr
     update(canopy_photorespiration_rate_op, can_result.Rp);            // Mg / ha / hr
 }

@@ -144,6 +144,7 @@ photosynthesis_outputs c3photoC(
         /* .Gs = */ Gs,                             // mol / m^2 / s
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
+        /* .Rd = */ Rd,                             // micromol / m^2 / s
         /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
         /* .iterations = */ iterCounter             // not a physical quantity
     };

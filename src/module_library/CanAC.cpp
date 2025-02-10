@@ -87,6 +87,7 @@ canopy_photosynthesis_outputs CanAC(
 
     double CanopyA{0.0};             // micromol / m^2 / s
     double GCanopyA{0.0};            // micromol / m^2 / s
+    double canopy_rd{0.0};           // micromol / m^2 / s
     double canopy_rp{0.0};           // micromol / m^2 / s
     double CanopyT{0.0};             // mmol / m^2 / s
     double CanopyPe{0.0};            // mmol / m^2 / s
@@ -201,6 +202,7 @@ canopy_photosynthesis_outputs CanAC(
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
         GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
+        canopy_rd += Leafsun * direct_photo.Rd + Leafshade * diffuse_photo.Rd;                 // micromol / m^2 / s
         canopy_rp += Leafsun * direct_photo.Rp + Leafshade * diffuse_photo.Rp;                 // micromol / m^2 / s
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
@@ -228,6 +230,7 @@ canopy_photosynthesis_outputs CanAC(
     canopy_photosynthesis_outputs ans;
     ans.Assim = CanopyA * cf;                      // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
+    ans.Rd = canopy_rd * cf;                       // Mg / ha / hr
     ans.Rp = canopy_rp * cf;                       // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
