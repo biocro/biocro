@@ -8,6 +8,9 @@
   BioCro provides several functions for defining, modifying, and running module
   test cases. These functions together allow module developers to easily create
   regression tests that ensure the modules continue to function correctly.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \details{

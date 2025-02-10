@@ -133,7 +133,16 @@ check_run_biocro_inputs <- function(
     # The ode_solver must have certain required elements
     error_message <- append(
         error_message,
-        check_ode_solver(ode_solver)
+        check_required_elements(
+            list(ode_solver = ode_solver),
+            c(
+                'type',
+                'output_step_size',
+                'adaptive_rel_error_tol',
+                'adaptive_abs_error_tol',
+                'adaptive_max_steps'
+            )
+        )
     )
 
     return(error_message)

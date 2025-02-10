@@ -6,10 +6,11 @@ check_names <- function(args_to_check) {
     }
 }
 
-# Sends the error messages to the user in the proper format
+# Sends the error messages to the user in the proper format. Don't include the
+# call to `stop_and_send_error_messages` in the message itself.
 stop_and_send_error_messages <- function(error_messages) {
     if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
+        stop(paste(error_messages, collapse='  '), call. = FALSE)
     }
 }
 
@@ -325,27 +326,27 @@ is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
     return(all(is_zero))
 }
 
-# Check that the ode_solver list has the necessary elements
-check_ode_solver <- function(ode_solver) {
-    required_ode_solver_elements <- c(
-        'type',
-        'output_step_size',
-        'adaptive_rel_error_tol',
-        'adaptive_abs_error_tol',
-        'adaptive_max_steps'
-    )
+# Check that a list has the necessary elements
+check_required_elements <- function(args_to_check, required_element_names) {
+    check_names(args_to_check)
+    error_message <- character()
 
-    in_names <- required_ode_solver_elements %in% names(ode_solver)
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        in_names <- required_element_names %in% names(arg)
 
-    if (!all(in_names)) {
-        missing_names <- required_ode_solver_elements[!in_names]
+        if (!all(in_names)) {
+            missing_names <- required_element_names[!in_names]
 
-        paste0(
-            'The following required elements of `ode_solver` are not defined: ',
-            paste(missing_names, collapse = ', '),
-            '.'
-        )
-    } else {
-        character()
+            tmp_message <- sprintf(
+                "The following required elements of `%s` are not defined: %s.\n",
+                names(args_to_check)[i],
+                paste(missing_names, collapse = ', ')
+            )
+
+            error_message <- append(error_message, tmp_message)
+        }
     }
+
+    return(error_message)
 }
