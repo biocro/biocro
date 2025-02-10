@@ -152,7 +152,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et_direct.boundary_layer_conductance);
+                beta_PSII, et_direct.gbw_molecular);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -195,7 +195,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 atmospheric_pressure, o2, StomataWS,
                 electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII,
-                et_diffuse.boundary_layer_conductance);
+                et_diffuse.gbw_molecular);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

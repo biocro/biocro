@@ -155,7 +155,7 @@ canopy_photosynthesis_outputs CanAC(
                 RH, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
-                et_direct.boundary_layer_conductance);
+                et_direct.gbw_molecular);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -195,7 +195,7 @@ canopy_photosynthesis_outputs CanAC(
                 RH, vmax1, Alpha, Kparm,
                 theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
-                et_diffuse.boundary_layer_conductance);
+                et_diffuse.gbw_molecular);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

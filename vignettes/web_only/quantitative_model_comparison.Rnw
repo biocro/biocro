@@ -111,7 +111,7 @@ cat(
 doy_range <- c(142, 298)
 biomass_range <- c(-0.5, 6.5)
 ppfd_range <- c(-100, 1200)
-assim_range <- c(-2, 32)
+assim_range <- c(-2, 40)
 biomass_columns <- c('fractional_doy', 'Grain', 'Leaf', 'Root', 'Stem')
 @
 
@@ -345,8 +345,8 @@ which are included in the \texttt{par} list element). Here we pass the
 find the best value for \ar.
 
 <<alpha_rue_optimization>>=
-min_alpha <- 0.021
-max_alpha <- 0.031
+min_alpha <- 0.02
+max_alpha <- 0.05
 opt_par = optim(
     0.03,
     rue_fvcb_square_difference,
@@ -381,7 +381,7 @@ GUI-driven programs, which offer a limited and nonextendable number of choices
 for these algorithms.
 
 <<figure_s1,echo=FALSE,results=FALSE>>=
-alpha_rue_sequence = seq(min_alpha, max_alpha, by = 2.5e-4)
+alpha_rue_sequence = seq(min_alpha, max_alpha, by = 5e-4)
 differences = sapply(alpha_rue_sequence, rue_fvcb_square_difference)
 
 alpha_rue_optimization_plot <- xyplot(
@@ -1004,7 +1004,7 @@ biomass_catm_sensitivity_plot <- xyplot(
   auto = TRUE,
   grid = TRUE,
   xlim = doy_range,
-  ylim = c(-60, 60),
+  ylim = c(-0.1, 1.8),
   xlab = 'Day of year (2002)',
   ylab = 'dM / dCa / (M / Ca)'
 )
@@ -1165,7 +1165,7 @@ multiyear_biomass_plot <- xyplot(
   type = 'l',
   auto.key = list(space = 'top'),
   grid = TRUE,
-  ylim = c(7, 12),
+  ylim = c(8, 13),
   xlab = 'Year',
   ylab = 'Final biomass (Mg / ha)'
 )
@@ -1180,7 +1180,7 @@ multiyear_biomass_difference_plot <- xyplot(
   pch = 16,
   auto = TRUE,
   grid = TRUE,
-  ylim = c(-10, 10),
+  ylim = c(-15, 15),
   xlab = 'Atmospheric CO2 concentration (ppm)',
   ylab = '(M_RUE - M_FvCB) / M_FvCB (%)'
 )

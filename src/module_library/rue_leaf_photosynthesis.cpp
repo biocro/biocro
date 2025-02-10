@@ -168,7 +168,7 @@ void rue_leaf_photosynthesis::do_operation() const
             b0,                    // mol / m^2 / s
             b1,                    // dimensionless
             Catm * 1e-6,           // dimensionless from mol / mol
-            et.gbw                 // mol / m^2 / s
+            et.gbw_molecular       // mol / m^2 / s
         );
 
     // Update the outputs
@@ -181,5 +181,5 @@ void rue_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
-    update(gbw_op, et.gbw);
+    update(gbw_op, et.gbw_molecular);
 }

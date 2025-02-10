@@ -9,6 +9,9 @@
   correspond to particular inputs. The \code{test_module_library} function
   provides a way to run all test cases for all modules in a BioCro module
   library.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \usage{

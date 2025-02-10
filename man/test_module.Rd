@@ -21,6 +21,9 @@
 
   \code{cases_from_csv} helps define test cases for module testing by creating a
   list of test cases from a \code{csv} file.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \usage{

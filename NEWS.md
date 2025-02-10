@@ -122,13 +122,18 @@ be directly added to this file to describe the related changes.
 - Added a new function for generating C++ header files for new module classes:
   `module_write`
 
+- Added several functions to help with model regression tests:
+  `compare_model_output`, `model_test_case`, `run_model_test_cases`, and
+  `update_stored_model_results`. Previously, these were part of
+  `tests/testthat/crop_model_testing_helper_functions.R`.
+
 - The conversion of CO2 assimilation to biomass is no longer hard coded into
   the photosynthesis modules: c3CanAC, CanAC, multilayer_canopy_integrator, etc.
-  These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s
+  These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s.
   A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
   conversion. A new parameter `CHO_carbon_molar_mass` controls the conversion.
   All affected models have the same behavior as before if the new module is used
-  with `CHO_carbon_molar_mass = 30.026` g/mol. See module documentation for
+  with `CHO_carbon_molar_mass = 30.026` g / mol. See module documentation for
   details.
 
 ## OTHER CHANGES

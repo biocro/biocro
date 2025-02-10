@@ -120,12 +120,28 @@ check_run_biocro_inputs <- function(
         check_length(list(verbose=verbose))
     )
 
+    # Values of `time` should be sequential and separated by the `timestep`
     error_message <- append(
         error_message,
         check_time_is_sequential(
             drivers,
             differential_module_names,
             parameters
+        )
+    )
+
+    # The ode_solver must have certain required elements
+    error_message <- append(
+        error_message,
+        check_required_elements(
+            list(ode_solver = ode_solver),
+            c(
+                'type',
+                'output_step_size',
+                'adaptive_rel_error_tol',
+                'adaptive_abs_error_tol',
+                'adaptive_max_steps'
+            )
         )
     )
 
@@ -190,11 +206,11 @@ run_biocro <- function(
     )
 
     # Collect the ode_solver info
-    ode_solver_type <- ode_solver$type
-    ode_solver_output_step_size <- ode_solver$output_step_size
-    ode_solver_adaptive_rel_error_tol <- ode_solver$adaptive_rel_error_tol
-    ode_solver_adaptive_abs_error_tol <- ode_solver$adaptive_abs_error_tol
-    ode_solver_adaptive_max_steps <- ode_solver$adaptive_max_steps
+    ode_solver_type <- ode_solver[['type']]
+    ode_solver_output_step_size <- ode_solver[['output_step_size']]
+    ode_solver_adaptive_rel_error_tol <- ode_solver[['adaptive_rel_error_tol']]
+    ode_solver_adaptive_abs_error_tol <- ode_solver[['adaptive_abs_error_tol']]
+    ode_solver_adaptive_max_steps <- ode_solver[['adaptive_max_steps']]
 
     # C++ requires that all the variables have type `double`
     initial_values <- lapply(initial_values, as.numeric)

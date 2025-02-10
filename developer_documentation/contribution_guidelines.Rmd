@@ -228,6 +228,11 @@ found to be helpful.
      Instructions for running `R CMD check` locally can be found in
      ["Running R CMD check locally" section](#sec:local-r-cmd-check).
 
+     Note that `R CMD check` will stop checking the examples once it encounters
+     an error, so its list of problematic examples is not exhaustive. If there
+     is an issue with an example, fix it and rerun `R CMD check` again because
+     there may be additional errors in the examples.
+
   3. When `R CMD check` is passing locally, build _all_ the vignettes. Because
      of space limits imposed by CRAN, some of our vignettes are designated as
      "web only." Such vignettes are stored in the `vignettes/web_only` directoty
