@@ -3,19 +3,18 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "temperature_response_functions.h"  // for Q10_temprature_response
 
 namespace standardBML
 {
 /**
  * @class maintenance_respiration
  *
- * @brief Calculates the change in plant organ biomasses due to maintenance respiration.
+ * @brief Includes maintenance respiration losses in the rate of change of each
+ * organ biomass.
  *
- * The amount that each plant component respires is determined as a
- * percentage of its current biomass.
- * This ideas is from this paper:
- * (https://doi.org/10.1016/j.fcr.2010.07.007)
+ * This module is intended to be used along with the
+ * `maintenance_respiration_calculator` module; see that module for more
+ * information.
  */
 class maintenance_respiration : public differential_module
 {
@@ -26,17 +25,12 @@ class maintenance_respiration : public differential_module
         : differential_module{},
 
           // Get references to input quantities
-          Leaf{get_input(input_quantities, "Leaf")},
-          Stem{get_input(input_quantities, "Stem")},
-          Root{get_input(input_quantities, "Root")},
-          Rhizome{get_input(input_quantities, "Rhizome")},
-          Grain{get_input(input_quantities, "Grain")},
-          Shell{get_input(input_quantities, "Shell")},
-          temp{get_input(input_quantities, "temp")},
-          mrc_leaf{get_input(input_quantities, "mrc_leaf")},
-          mrc_stem{get_input(input_quantities, "mrc_stem")},
-          mrc_root{get_input(input_quantities, "mrc_root")},
-          mrc_grain{get_input(input_quantities, "mrc_grain")},
+          Leaf_mrr{get_input(input_quantities, "Leaf_mrr")},
+          Stem_mrr{get_input(input_quantities, "Stem_mrr")},
+          Root_mrr{get_input(input_quantities, "Root_mrr")},
+          Rhizome_mrr{get_input(input_quantities, "Rhizome_mrr")},
+          Grain_mrr{get_input(input_quantities, "Grain_mrr")},
+          Shell_mrr{get_input(input_quantities, "Shell_mrr")},
 
           // Get pointers to output quantities
           Leaf_op{get_op(output_quantities, "Leaf")},
@@ -53,17 +47,12 @@ class maintenance_respiration : public differential_module
 
    private:
     // References to input quantities
-    const double& Leaf;
-    const double& Stem;
-    const double& Root;
-    const double& Rhizome;
-    const double& Grain;
-    const double& Shell;
-    const double& temp;
-    const double& mrc_leaf;
-    const double& mrc_stem;
-    const double& mrc_root;
-    const double& mrc_grain;
+    const double& Leaf_mrr;
+    const double& Stem_mrr;
+    const double& Root_mrr;
+    const double& Rhizome_mrr;
+    const double& Grain_mrr;
+    const double& Shell_mrr;
 
     // Pointers to output quantities
     double* Leaf_op;
@@ -80,54 +69,35 @@ class maintenance_respiration : public differential_module
 string_vector maintenance_respiration::get_inputs()
 {
     return {
-        "Leaf",       // Mg / ha
-        "Stem",       // Mg / ha
-        "Root",       // Mg / ha
-        "Rhizome",    // Mg / ha
-        "Shell",      // Mg / ha
-        "Grain",      // Mg / ha
-        "temp",       // degree C
-        "mrc_leaf",   // kg / kg / hr
-        "mrc_stem",   // kg / kg / hr
-        "mrc_root",   // kg / kg / hr
-        "mrc_grain"   // kg / kg / hr
+        "Leaf_mrr",     // Mg / ha / hr
+        "Stem_mrr",     // Mg / ha / hr
+        "Root_mrr",     // Mg / ha / hr
+        "Rhizome_mrr",  // Mg / ha / hr
+        "Shell_mrr",    // Mg / ha / hr
+        "Grain_mrr"     // Mg / ha / hr
     };
 }
 
 string_vector maintenance_respiration::get_outputs()
 {
     return {
-        "Leaf",     // Mg / ha
-        "Stem",     // Mg / ha
-        "Root",     // Mg / ha
-        "Rhizome",  // Mg / ha
-        "Shell",    // Mg / ha
-        "Grain"     // Mg / ha
+        "Leaf",     // Mg / ha / hr
+        "Stem",     // Mg / ha / hr
+        "Root",     // Mg / ha / hr
+        "Rhizome",  // Mg / ha / hr
+        "Shell",    // Mg / ha / hr
+        "Grain"     // Mg / ha / hr
     };
 }
 
 void maintenance_respiration::do_operation() const
 {
-    double Tref = 25.0;  // reference temperature for the Q10 function
-
-    double dLeaf = -Leaf * mrc_leaf * Q10_temperature_response(temp, Tref);  // Mg / ha
-
-    double dStem = -Stem * mrc_stem * Q10_temperature_response(temp, Tref);
-
-    double dRoot = -Root * mrc_root * Q10_temperature_response(temp, Tref);
-    //assume rhizome has the same maintenance_respiration_coef as root
-    double dRhizome = -Rhizome * mrc_root * Q10_temperature_response(temp, Tref);
-
-    double dGrain = -Grain * mrc_grain * Q10_temperature_response(temp, Tref);
-    //assume shell has the same maintenance_respiration_coef as grain
-    double dShell = -Shell * mrc_grain * Q10_temperature_response(temp, Tref);  // Mg / ha
-
-    update(Leaf_op, dLeaf);        // Mg / ha
-    update(Stem_op, dStem);        // Mg / ha
-    update(Root_op, dRoot);        // Mg / ha
-    update(Rhizome_op, dRhizome);  // Mg / ha
-    update(Grain_op, dGrain);      // Mg / ha
-    update(Shell_op, dShell);      // Mg / ha
+    update(Leaf_op, -Leaf_mrr);        // Mg / ha / hr
+    update(Stem_op, -Stem_mrr);        // Mg / ha / hr
+    update(Root_op, -Root_mrr);        // Mg / ha / hr
+    update(Rhizome_op, -Rhizome_mrr);  // Mg / ha / hr
+    update(Grain_op, -Grain_mrr);      // Mg / ha / hr
+    update(Shell_op, -Shell_mrr);      // Mg / ha / hr
 }
 
 }  // namespace standardBML

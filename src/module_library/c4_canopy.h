@@ -70,6 +70,7 @@ class c4_canopy : public direct_module
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          canopy_mitochondrial_respiration_rate_op{get_op(output_quantities, "canopy_mitochondrial_respiration_rate")},
           canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
     {
     }
@@ -133,6 +134,7 @@ class c4_canopy : public direct_module
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
     double* GrossAssim_op;
+    double* canopy_mitochondrial_respiration_rate_op;
     double* canopy_photorespiration_rate_op;
 
     // Main operation
@@ -196,11 +198,12 @@ string_vector c4_canopy::get_inputs()
 string_vector c4_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate",     // Mg / ha / hr
-        "canopy_transpiration_rate",    // Mg / ha / hr
-        "canopy_conductance",           // mol / m^2 / s
-        "GrossAssim",                   // Mg / ha / hr
-        "canopy_photorespiration_rate"  // Mg / ha / hr
+        "canopy_assimilation_rate",               // Mg / ha / hr
+        "canopy_transpiration_rate",              // Mg / ha / hr
+        "canopy_conductance",                     // mol / m^2 / s
+        "GrossAssim",                             // Mg / ha / hr
+        "canopy_mitochondrial_respiration_rate",  // Mg / ha / hr
+        "canopy_photorespiration_rate"            // Mg / ha / hr
     };
 }
 
@@ -261,11 +264,12 @@ void c4_canopy::do_operation() const
         nlayers);
 
     // Update the parameter list
-    update(canopy_assimilation_rate_op, can_result.Assim);         // Mg / ha / hr
-    update(canopy_transpiration_rate_op, can_result.Trans);        // Mg / ha / hr
-    update(canopy_conductance_op, can_result.canopy_conductance);  // mol / m^2 / s
-    update(GrossAssim_op, can_result.GrossAssim);                  // Mg / ha / hr
-    update(canopy_photorespiration_rate_op, can_result.Rp);        // Mg / ha / hr
+    update(canopy_assimilation_rate_op, can_result.Assim);            // Mg / ha / hr
+    update(canopy_transpiration_rate_op, can_result.Trans);           // Mg / ha / hr
+    update(canopy_conductance_op, can_result.canopy_conductance);     // mol / m^2 / s
+    update(GrossAssim_op, can_result.GrossAssim);                     // Mg / ha / hr
+    update(canopy_mitochondrial_respiration_rate_op, can_result.Rd);  // Mg / ha / hr
+    update(canopy_photorespiration_rate_op, can_result.Rp);           // Mg / ha / hr
 }
 
 }  // namespace standardBML

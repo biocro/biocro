@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "BioCro.h"  // for resp
+#include "respiration.h"  // for resp
 
 namespace standardBML
 {
@@ -70,9 +70,9 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
           kRoot{get_input(input_quantities, "kRoot")},
           kRhizome{get_input(input_quantities, "kRhizome")},
           kGrain{get_input(input_quantities, "kGrain")},
-          canopy_assimilation_rate{get_input(input_quantities, "canopy_assimilation_rate")},
-          mrc1{get_input(input_quantities, "mrc1")},
-          mrc2{get_input(input_quantities, "mrc2")},
+          canopy_assim{get_input(input_quantities, "canopy_assimilation_rate")},
+          grc_stem{get_input(input_quantities, "grc_stem")},
+          grc_root{get_input(input_quantities, "grc_root")},
           temp{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
@@ -94,9 +94,9 @@ class no_leaf_resp_partitioning_growth_calculator : public direct_module
     const double& kRoot;
     const double& kRhizome;
     const double& kGrain;
-    const double& canopy_assimilation_rate;
-    const double& mrc1;
-    const double& mrc2;
+    const double& canopy_assim;
+    const double& grc_stem;
+    const double& grc_root;
     const double& temp;
 
     // Pointers to output quantities
@@ -119,8 +119,8 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
         "kRhizome",                  // dimensionless
         "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
-        "mrc1",                      // dimensionless
-        "mrc2",                      // dimensionless
+        "grc_stem",                  // dimensionless
+        "grc_root",                  // dimensionless
         "temp"                       // degrees C
     };
 }
@@ -138,68 +138,43 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
 
 void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 {
-    double net_assimilation_rate_leaf{0.0};
-    double net_assimilation_rate_stem{0.0};
-    double net_assimilation_rate_root{0.0};
-    double net_assimilation_rate_rhizome{0.0};
-    double net_assimilation_rate_grain{0.0};
+    // Calculate the rate of new leaf production, including _all_ losses due to
+    // photorespiration and Rd, but not accounting for water stress or any
+    // additional respiration (Mg / ha / hr)
+    double const net_assimilation_rate_leaf{
+        kLeaf <= 0         ? 0
+        : canopy_assim < 0 ? canopy_assim
+                           : canopy_assim * kLeaf};
 
-    // Determine the carbon flux to use for the non-leaf organs
-    double nonleaf_carbon_flux;
-    if (canopy_assimilation_rate < 0) {
-        nonleaf_carbon_flux = 0.0;
-    } else {
-        nonleaf_carbon_flux = canopy_assimilation_rate;
-    }
+    // Determine the carbon flux to use for the non-leaf organs (Mg / ha / hr)
+    double const nonleaf_carbon_flux{
+        canopy_assim > 0 ? canopy_assim : 0};
 
-    // Calculate the rate of new leaf production
-    if (kLeaf > 0) {
-        if (canopy_assimilation_rate < 0) {
-            // Assimilation is negative here, so this removes leaf mass
-            net_assimilation_rate_leaf = canopy_assimilation_rate;
-        } else {
-            net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf;
-        }
-    } else {
-        net_assimilation_rate_leaf = 0.0;
-    }
+    // Calculate the rate of new stem production, accounting for respiratory
+    // costs (Mg / ha / hr)
+    respiration_outputs const adjusted_rate_stem{
+        resp(kStem > 0 ? nonleaf_carbon_flux * kStem : 0, grc_stem, temp)};
 
-    // Calculate the rate of new stem production
-    if (kStem >= 0) {
-        net_assimilation_rate_stem = nonleaf_carbon_flux * kStem;
-        net_assimilation_rate_stem = resp(net_assimilation_rate_stem, mrc1, temp);
-    } else {
-        net_assimilation_rate_stem = 0.0;
-    }
+    // Calculate the rate of new root production, accounting for respiratory
+    // costs (Mg / ha / hr)
+    respiration_outputs const adjusted_rate_root{
+        resp(kRoot > 0 ? nonleaf_carbon_flux * kRoot : 0, grc_root, temp)};
 
-    // Calculate the rate of new root production
-    if (kRoot > 0) {
-        net_assimilation_rate_root = nonleaf_carbon_flux * kRoot;
-        net_assimilation_rate_root = resp(net_assimilation_rate_root, mrc2, temp);
-    } else {
-        net_assimilation_rate_root = 0.0;
-    }
+    // Calculate the rate of new rhizome production, accounting for respiratory
+    // costs (Mg / ha / hr)
+    respiration_outputs const adjusted_rate_rhizome{
+        resp(kRhizome > 0 ? nonleaf_carbon_flux * kRhizome : 0, grc_root, temp)};
 
-    // Calculate the rate of new rhizome production
-    if (kRhizome > 0) {
-        net_assimilation_rate_rhizome = nonleaf_carbon_flux * kRhizome;
-        net_assimilation_rate_rhizome = resp(net_assimilation_rate_rhizome, mrc2, temp);
-    } else {
-        net_assimilation_rate_rhizome = 0.0;
-    }
-
-    // Calculate the rate of grain production
-    if (kGrain > 0) {
-        net_assimilation_rate_grain = nonleaf_carbon_flux * kGrain;
-    } else {
-        net_assimilation_rate_grain = 0.0;
-    }
+    // Calculate the rate of new grain production without any respiratory costs
+    // (Mg / ha / hr)
+    double const net_assimilation_rate_grain{
+        kGrain > 0 ? nonleaf_carbon_flux * kGrain : 0};
 
     // Update the output quantity list
     update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
-    update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
-    update(net_assimilation_rate_root_op, net_assimilation_rate_root);
-    update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
+    update(net_assimilation_rate_stem_op, adjusted_rate_stem.net_rate);
+    update(net_assimilation_rate_root_op, adjusted_rate_root.net_rate);
+    update(net_assimilation_rate_rhizome_op, adjusted_rate_rhizome.net_rate);
     update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 

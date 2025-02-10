@@ -79,6 +79,7 @@ class c3_leaf_photosynthesis : public direct_module
           leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
           RHs_op{get_op(output_quantities, "RHs")},
           RH_canopy_op{get_op(output_quantities, "RH_canopy")},
+          Rd_tl_op{get_op(output_quantities, "Rd_tl")},
           Rp_op{get_op(output_quantities, "Rp")},
           TransR_op{get_op(output_quantities, "TransR")}
     {
@@ -147,6 +148,7 @@ class c3_leaf_photosynthesis : public direct_module
     double* leaf_temperature_op;
     double* RHs_op;
     double* RH_canopy_op;
+    double* Rd_tl_op;
     double* Rp_op;
     double* TransR_op;
 

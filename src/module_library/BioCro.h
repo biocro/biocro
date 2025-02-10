@@ -4,8 +4,6 @@
 #include <vector>
 #include "AuxBioCro.h"
 
-double resp(double comp, double mrc, double temp);
-
 ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
                      double wiltp, double soil_saturation_capacity, double soil_sand_content,
                      double Ks, double air_entry, double b);

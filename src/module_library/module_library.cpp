@@ -21,6 +21,8 @@
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
+#include "cumulative_canopy_gas_exchange.h"
+#include "cumulative_respiration.h"
 #include "development_index.h"
 #include "development_index_from_thermal_time.h"
 #include "example_model_mass_gain.h"
@@ -43,6 +45,7 @@
 #include "litter_cover.h"
 #include "magic_clock.h"
 #include "maintenance_respiration.h"
+#include "maintenance_respiration_calculator.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
@@ -112,6 +115,8 @@ creator_map standardBML::module_library::library_entries =
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"cumulative_canopy_gas_exchange",                        &create_mc<cumulative_canopy_gas_exchange>},
+     {"cumulative_respiration",                                &create_mc<cumulative_respiration>},
      {"development_index",                                     &create_mc<development_index>},
      {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
@@ -136,6 +141,7 @@ creator_map standardBML::module_library::library_entries =
      {"litter_cover",                                          &create_mc<litter_cover>},
      {"magic_clock",                                           &create_mc<magic_clock>},
      {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
+     {"maintenance_respiration_calculator",                    &create_mc<maintenance_respiration_calculator>},
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},
