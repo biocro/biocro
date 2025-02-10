@@ -289,8 +289,6 @@ vc_c4_result vc_c4_biochemical_fun(
         return out;
 }
 
-
-
 class electron_transport {
 
     double theta;
@@ -334,10 +332,7 @@ class vc_c4_biochemical {
 
     public:
 
-    double Ac;
-    double Aj;
-    double An;
-
+    vc_c4_result result;
 
     void update_assim(){
 
@@ -347,7 +342,7 @@ class vc_c4_biochemical {
         linpoly A{0, 1};
         linpoly Cs_e = Cm + (Vp_e - A - Rm) / gbs;
         linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
-        Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
+        result.Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
 
         double z = get_z(f_cyc);
         double J_atp = J(Qabs) * z;
@@ -355,8 +350,8 @@ class vc_c4_biochemical {
         double Vjmax = (1  - x_etr) * J_atp;
         linpoly Cs_j = Cm + (Vp_j - A - Rm) / gbs;
 
-        Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
-        An = std::min(Ac, Aj);
+        result.Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
+        result.An = std::min(result.Ac, result.Aj);
     }
 
     std::array<double, 2> solution_check(){
