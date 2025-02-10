@@ -154,7 +154,7 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs
         "net_assimilation_rate_rhizome",  // Mg / ha / hr
         "net_assimilation_rate_grain",    // Mg / ha / hr
         "net_assimilation_rate_shell",    // Mg / ha / hr
-        "net_assimilation_rate_nodule"    // Mg / ha / hr
+        "net_assimilation_rate_nodule",   // Mg / ha / hr
         "Stem_grr",                       // Mg / ha / hr
         "Root_grr",                       // Mg / ha / hr
         "Rhizome_grr"                     // Mg / ha / hr
