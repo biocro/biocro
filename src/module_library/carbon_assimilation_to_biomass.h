@@ -9,20 +9,43 @@ namespace standardBML
 /**
  * @class carbon_assimilation_to_biomass
  *
- * @brief
+ * @brief Converts the canopy assimilation rate from a flux of CO2 molecules
+ * to a rate of dry biomass accumulation.
  *
- * ### Overivew
+ * ### Overview
  *
  * Models of photosynthesis compute the rate of CO2 assimilation.
  * However, many BioCro modules require the rate at which photosynthesis
- * increases plant biomass. Unless a model computes different components
- * of plant biomass explicitly, the calculation is assumed to be a simple
- * conversion factor.
+ * increases plant biomass. Here, the latter rate is calculated from the former
+ * using
  *
- * ### How the conversion is computed
+ *   `biomass_accumulation_rate =
+ *      CO2_assimilation_rate * dry_biomass_per_carbon * cf`
  *
- * The conversion is based on the fact that plant
- * biomass is primarily composed of carbohydrates and the ratio of carbon
+ * where `biomass_accumulation_rate` is a rate of dry biomass accumulation
+ * (Mg / ha / hr), `CO2_assimilation_rate` is a flux of CO2 molecules
+ * (micromol / m^2 / s), `dry_biomass_per_carbon` is the amount of dry biomass
+ * accumulated per assimilated CO2 molecule (g / mol), and `cf` is an additional
+ * conversion factor accounting for SI prefixes and different units of land area
+ * and time.
+ *
+ * The value of `cf` can be found by noting that 1 hr = 3600 s, 1 mol = 1e-6
+ * micromol, 1 ha = 1e4 m^2, and 1 g = 1e-6 Mg:
+ *
+ *  `cf = 3600 * 1e-6 * 1e4 * 1e-6
+ *      = 3.6e-5 (s * mol * Mg * m^2) / (hr * micromol * g * ha)`
+ *
+ * The value of `dry_biomass_per_carbon` depends on the composition of the
+ * accumulated biomass, as described below.
+ *
+ * Note that by assuming that dry biomass is exactly proportional to number of
+ * carbon atoms, this model does not account for any inorganic molecules that
+ * may contribute to plant biomass, such as inorganic phosphate. However, in
+ * most situations this is not expected to lead to substantial errors.
+ *
+ * ### Dry biomass per carbon for carbohydrates
+ *
+ * Plant biomass is primarily composed of carbohydrates, and the ratio of carbon
  * to oxygen and hydrogen is nearly the same for all carbohydrates. Thus,
  * given a number of carbon atoms (i.e., moles of carbon), we can estimate
  * the carbon-hydrogen-oxygen mass (the CHO mass) which will account for
@@ -45,48 +68,32 @@ namespace standardBML
  * All hexoses (e.g., glucose, fructose, galactose) all have the same molecular
  * formula C6H12O6, and thus the same molar mass (180 g / mol) and all consist
  * of 6 carbons, again ignoring any variation in isotope distribution.
- * Thus, they all have a carbon molar mass of about 30 g / mol this value.
- * Disaccharides consisting of two hexose unitssuch as sucrose, maltose, and
- * lactose all have the same molecular formula C12H22O11, therefore the same molar mass,
- * and thus the same carbon molar mass equal to 28.5 g/mol.
+ * Thus, they all have a carbon molar mass of about 30 g / mol.
+ * Disaccharides consisting of two hexose units such as sucrose, maltose, and
+ * lactose all have the same molecular formula C12H22O11, therefore the same
+ * molar mass, and thus the same carbon molar mass equal to 28.5 g/mol.
  * Polysaccharides such as starch, cellulose, and hemi-celluloses are
  * hexose polymers all have a formula of (C6H10O5)n for n monomers, and
  * thus they have a carbon molar mass of 27 g/mol.
  *
- * The larger molecules have large molar masses, but also typically a proportional
- * increase in the number of carbon atoms. It isn't particularly useful
- * to talk about molecules of a polymer, but the number of carbon atoms is
- * proportional to the mass of the polymer.
+ * The larger molecules have large molar masses, but also typically a
+ * proportional increase in the number of carbon atoms. It isn't particularly
+ * useful to talk about molecules of a polymer, but the number of carbon atoms
+ * is proportional to the mass of the polymer.
  *
  * The molar mass of a mixture of these substances is a weighted average of
  * of their individual molar masses. And therefore will generally be
  * between 27 and 30 g / mol C.
  *
- * Thus, given any carbon molar mass \f$\kappa\f$, this module will convert
- * the CO2 assimilation rate in micromol C / m^2 land / s to a biomass
- * accumulation rate in Mg / Ha / hr.
+ * Thus, a common choice for `dry_biomass_per_carbon` is to use the value of
+ * \f$\kappa\f$ for monosaccharides. This choice is based on an assumption that
+ * dry biomass is predominantly composed of simple carbohydrates, and that the
+ * composition of plant biomass is fixed over time.
  *
- * Note again, the key assumption is that dry biomass is exactly
- * proportional to number of carbon atoms, and that this proportional is
- * fixed over time.
+ * ### Generalized dry biomass per carbon
  *
- * ### Conversion from square meters to hectares and seconds to hours.
- *
- * To convert micromol / m^2 / s into Mg / ha / hour, we also must
- * convert the units of time and land area as well as to shift the SI
- * prefixes. The following factor gives the correct conversion:
- *
- * (carbon molar mass) * (3600 s / hr) * (1e-6 mol / umol) *
- * (1e-3 Mg / kg) * (1e4 m^2 / ha)
- * = (carbon molar mass) * 3.6e-5 (s * mol * Mg * m^2) / (hr * micromol * g * ha)
- *
- *
- * ### Generalization of CHO carbon molar mass
- *
- * Note that if other elements are assumed to be in constant ratio with
- * carbon, then this conversion factor gives total biomass, not just
- * CHO mass. The `CHO_carbon_molar_mass` is the amount of dry biomass (grams)
- * per carbon (mol C).
+ * In reality, plants contain other elements and molecules besides
+ * carbohydrates, which influences the value `dry_biomass_per_carbon`.
  *
  * For instance, the amino acid glutamate has a carbon molar mass of 29.4
  * g / mol C. But every 5 mol C contributes 1 mol N. However, the carbon
@@ -94,14 +101,15 @@ namespace standardBML
  * Proteinogenic amino acids vary from 18 - 41 g / mol C.
  *
  * Mixtures of amino acids and carbohydrates will have a carbon molar mass
- * in this range, but given that carbohydrates are the largest fraction of plant biomass
- * the carbon molar mass of plant biomass will be close to 27 g / mol C as this
- * is the carbon molar mass of starch, cellulose, and hemi-celluloses.
+ * in this range, but given that carbohydrates are the largest fraction of plant
+ * biomass the carbon molar mass of plant biomass will be close to 27 g / mol C
+ * as this is the carbon molar mass of starch, cellulose, and hemi-celluloses.
  *
  * ### Measuring the CHO carbon molar mass of a tissue sample.
  *
- * The carbon molar mass \f$\kappa\f$ of a biomass sample of mass \f$m\f$ can be measured by identifying
- * the number of carbon moles \f$C\f$ contained in the sample:
+ * The carbon molar mass \f$\kappa\f$ of a biomass sample of mass \f$m\f$ can be
+ * measured by identifying the number of carbon moles \f$C\f$ contained in the
+ * sample:
  *
  * \f[
  *   \kappa = \frac{m}{C}
@@ -114,7 +122,6 @@ namespace standardBML
  * Where \f$\mu_C=12\f$ g/mol is the molar mass of carbon. Substituting yields:
  *
  * \f[ \kappa = \frac{\mu_C}{x} \f]
- *
  *
  */
 class carbon_assimilation_to_biomass : public direct_module
@@ -129,7 +136,7 @@ class carbon_assimilation_to_biomass : public direct_module
           canopy_assimilation_rate_CO2{get_input(input_quantities, "canopy_assimilation_rate_CO2")},
           GrossAssim_CO2{get_input(input_quantities, "GrossAssim_CO2")},
           canopy_photorespiration_rate_CO2{get_input(input_quantities, "canopy_photorespiration_rate_CO2")},
-          CHO_carbon_molar_mass{get_input(input_quantities, "CHO_carbon_molar_mass")},
+          dry_biomass_per_carbon{get_input(input_quantities, "dry_biomass_per_carbon")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -146,7 +153,7 @@ class carbon_assimilation_to_biomass : public direct_module
     double const& canopy_assimilation_rate_CO2;
     double const& GrossAssim_CO2;
     double const& canopy_photorespiration_rate_CO2;
-    double const& CHO_carbon_molar_mass;
+    double const& dry_biomass_per_carbon;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;
@@ -163,7 +170,7 @@ string_vector carbon_assimilation_to_biomass::get_inputs()
         "canopy_assimilation_rate_CO2",      // micromol CO2 / m^2 / s
         "GrossAssim_CO2",                    // micromol CO2 / m^2 / s
         "canopy_photorespiration_rate_CO2",  // micromol CO2 / m^2 / s
-        "CHO_carbon_molar_mass"              // g CHO / mol C
+        "dry_biomass_per_carbon"             // g biomass / mol C
     };
 }
 
@@ -186,7 +193,7 @@ void carbon_assimilation_to_biomass::do_operation() const
     constexpr double megagram_per_gram = 1e-6;
     constexpr double a = sec_per_hour * mol_per_micromol * square_meters_per_hectare * megagram_per_gram;
 
-    const double cf = CHO_carbon_molar_mass * a;
+    const double cf = dry_biomass_per_carbon * a;
 
     // Use `update` to set outputs
     update(canopy_assimilation_rate_op, canopy_assimilation_rate_CO2 * cf);

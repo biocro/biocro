@@ -139,7 +139,7 @@ soybean <- list(
         min_gbw_canopy              = 0.005,       # m / s
 
         # carbon_asismilation_to_biomass module
-        CHO_carbon_molar_mass = 30.026,
+        dry_biomass_per_carbon = 30.026,
 
         # stefan_boltzmann_longwave module
         emissivity_sky              = 1,
