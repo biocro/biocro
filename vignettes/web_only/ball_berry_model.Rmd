@@ -607,7 +607,7 @@ canres <- run_biocro(
         temp = T_ambient      # degrees C
         StomataWS = StomataWS # dimensionless
     }),
-    drivers = data.frame(time = 24 * (210 - 1) + 12) # noon on day 210 (July 29 for 2022)
+    drivers = data.frame(fractional_doy = 210.5) # noon on day 210 (July 29 for 2022)
 )
 
 # Extract canopy profiles

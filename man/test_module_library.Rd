@@ -69,7 +69,8 @@
 # then use `test_module_library` to test it. We will need to skip most of the
 # modules in the library, since we only have a test case for one of them.
 
-td <- tempdir()
+td <- file.path(tempdir(), 'module_test_cases')
+dir.create(td, showWarnings = FALSE)
 
 initialize_csv(
   'BioCro:thermal_time_linear',
