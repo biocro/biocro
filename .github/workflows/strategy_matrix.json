@@ -11,17 +11,17 @@
     },
     {
         "configName": "R 3.6.0 on Ubuntu",
-        "os": "ubuntu-20.04",
+        "os": "ubuntu-22.04",
         "r": "3.6.0"
     },
     {
         "configName": "R release version on Ubuntu",
-        "os": "ubuntu-20.04",
+        "os": "ubuntu-22.04",
         "r": "release"
     },
     {
         "configName": "R devel version on Ubuntu",
-        "os": "ubuntu-20.04",
+        "os": "ubuntu-22.04",
         "r": "devel",
         "http-user-agent": "release"
     },
