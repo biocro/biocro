@@ -34,6 +34,12 @@
 }
 
 \details{
+  For each CSV file in the specified directory, \code{test_module_library}
+  determines the corresponding module name and checks to make sure it is part of
+  the specified library. If there are test cases for modules not in the library,
+  \code{test_module_library} throws an error with a message containing the
+  "unexpected" module test cases.
+
   For each module in the specified library, \code{test_module_library} loads
   stored test cases from the specified directory and runs each test case,
   storing information about any test failures or other issues that may occur.
