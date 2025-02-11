@@ -155,7 +155,7 @@ miscanthus_x_giganteus <- list(
         soil_silt_content           = 0.34,
         soil_transmission           = 0.01,
         soil_wilting_point          = 0.2,
-        sowing_time                 = 0,
+        sowing_fractional_doy       = 0,
         specific_heat_of_air        = 1010,
         Sp_thermal_time_decay       = 0,
         tbase                       = 0,

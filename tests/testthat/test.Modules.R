@@ -17,10 +17,10 @@ test_that("all module inputs must be defined when calling `evaluate_module`", {
     expect_error(
         evaluate_module('BioCro:thermal_time_linear', list()),
         regexp = paste0(
-             "The `BioCro:thermal_time_linear` module requires `sowing_time` as an input quantity\n",
+             "The `BioCro:thermal_time_linear` module requires `fractional_doy` as an input quantity\n",
+             "  The `BioCro:thermal_time_linear` module requires `sowing_fractional_doy` as an input quantity\n",
              "  The `BioCro:thermal_time_linear` module requires `tbase` as an input quantity\n",
-             "  The `BioCro:thermal_time_linear` module requires `temp` as an input quantity\n",
-             "  The `BioCro:thermal_time_linear` module requires `time` as an input quantity\n"
+             "  The `BioCro:thermal_time_linear` module requires `temp` as an input quantity\n"
         )
     )
 })
