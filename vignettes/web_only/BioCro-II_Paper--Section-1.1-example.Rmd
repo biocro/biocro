@@ -218,8 +218,8 @@ xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hour
 
 ## Modules with `time` as an input
 
-The usual assumption in BioCro is that the `time` quantity represents
-the time, in hours, that has elapsed from the beginning of the year,
+The usual assumption in BioCro's crop growth models is that the `time` quantity
+represents the time, in hours, that has elapsed from the beginning of the year,
 not the number of seconds that have elapsed from the start of the simulation.
 
 It follows, then, that the way we have been using the `time` variable
@@ -231,10 +231,11 @@ is, a time value specifying a specific time of day on a specific day
 of the year (a date and time on the calendar).
 
 Thus, direct modules that rely on the usual meaning for time, such as
-`solar_position_michalsky`, could not be used as part of the system
+`BioCro:format_time`, could not be used as part of the system
 considered in the examples above.
 
-Yet, there is no great harm in using the `time` variable in this
-unconventional way, as long as we know what we are doing.
+Yet, there is no issue with using the `time` variable in this unconventional
+way, as long as we know what we are doing. In fact, other BioCro module
+libraries and models are free to use any time convention.
 
 ## References
