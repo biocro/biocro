@@ -20,6 +20,7 @@
 #include "c4_assimilation.h"
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
+#include "carbon_assimilation_to_biomass.h"
 #include "canopy_gbw_thornley.h"
 #include "development_index.h"
 #include "development_index_from_thermal_time.h"
@@ -111,6 +112,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_assimilation",                                       &create_mc<c4_assimilation>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
+     {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
      {"development_index",                                     &create_mc<development_index>},
      {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},

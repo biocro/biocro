@@ -208,16 +208,6 @@ canopy_photosynthesis_outputs CanAC(
         canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
     }
 
-    // For assimilation, we need to convert micromol / m^2 / s into
-    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
-    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
-    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
-    // conversion can be accomplished with the following factor:
-    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
-    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
-    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
-    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
-
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
     // the following conversion factor:
@@ -226,9 +216,9 @@ canopy_photosynthesis_outputs CanAC(
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
     canopy_photosynthesis_outputs ans;
-    ans.Assim = CanopyA * cf;                      // Mg / ha / hr
-    ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
-    ans.Rp = canopy_rp * cf;                       // Mg / ha / hr
+    ans.Assim = CanopyA;                           // micromol / m^2 / s
+    ans.GrossAssim = GCanopyA;                     // micromol / m^2 / s
+    ans.Rp = canopy_rp;                            // micromol / m^2 / s
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
     ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
     ans.canopy_transpiration_priestly = CanopyPr;  // mmol / m^2 / s
