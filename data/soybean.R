@@ -18,7 +18,8 @@ soybean <- list(
         canopy_photosynthesis = "BioCro:ten_layer_c3_canopy",
         "BioCro:ten_layer_canopy_integrator",
         partitioning_growth_calculator = "BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator",
-        "BioCro:senescence_coefficient_logistic"
+        "BioCro:senescence_coefficient_logistic",
+        "BioCro:carbon_assimilation_to_biomass"
     ),
     differential_modules = list(
         senescence = "BioCro:senescence_logistic",
@@ -136,6 +137,9 @@ soybean <- list(
 
         # canopy_gbw_thornley module
         min_gbw_canopy              = 0.005,       # m / s
+
+        # carbon_asismilation_to_biomass module
+        dry_biomass_per_carbon = 30.026,
 
         # stefan_boltzmann_longwave module
         emissivity_sky              = 1,

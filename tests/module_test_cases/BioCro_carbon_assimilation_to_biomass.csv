@@ -1,0 +1,3 @@
+input,input,input,input,output,output,output,"description"
+dry_biomass_per_carbon,GrossAssim_CO2,canopy_assimilation_rate_CO2,canopy_photorespiration_rate_CO2,GrossAssim,canopy_assimilation_rate,canopy_photorespiration_rate,NA
+1,1,1,1,3.6e-05,3.6e-05,3.6e-05,"automatically-generated test case"

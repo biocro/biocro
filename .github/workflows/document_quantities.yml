@@ -48,7 +48,7 @@ jobs:
         while read -r cmd
         do
           eval sudo $cmd
-        done < <(Rscript -e 'writeLines(unlist(sapply(c("xslt", "xml2", "stringi"), function(p) { remotes::system_requirements("ubuntu", "20.04", package = p) })))')
+        done < <(Rscript -e 'writeLines(unlist(sapply(c("xslt", "xml2", "stringi"), function(p) { remotes::system_requirements("ubuntu", "24.04", package = p) })))')
 
     # Currently, this should be a no-op since BioCro doesn't have any
     # dependencies.
