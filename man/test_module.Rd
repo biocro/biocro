@@ -119,7 +119,7 @@
 test_module(
   'BioCro:thermal_time_linear',
   case(
-    list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+    list(fractional_doy = 101, sowing_fractional_doy = 100, tbase = 20, temp = 44),
     list(TTc = 1.0),
     'temp above tbase'
   )
@@ -131,7 +131,7 @@ test_module(
 test_module(
   'BioCro:thermal_time_linear',
   case(
-    list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+    list(fractional_doy = 101, sowing_fractional_doy = 100, tbase = 20, temp = 44),
     list(TTc = 2.0),
     'temp above tbase'
   )

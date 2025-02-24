@@ -137,7 +137,7 @@
     require input quantities that are not actually used for any calculations;
     these "extraneous" parameters are identified in \code{data/soybean.R}.
 
-    \item The \code{sowing_time} input to the
+    \item The \code{sowing_fractional_doy} input to the
     \code{soybean_development_rate_calculator} module is set to 0 because
     Soybean-BioCro uses the weather data to set the sowing time. In other words,
     the weather data is truncated so it begins at the beggining of the simulation.

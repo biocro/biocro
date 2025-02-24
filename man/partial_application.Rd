@@ -189,7 +189,7 @@ hot_result_3 <- temperature_simulation(list(temp = ex_weather$temp + 2.0, Catm =
 # below that call `thermal_time_rate` all produce the same result.
 thermal_time_rate <- partial_evaluate_module(
   'BioCro:thermal_time_linear',
-  within(miscanthus_x_giganteus$parameters, {time = 1}),
+  within(miscanthus_x_giganteus$parameters, {fractional_doy = 1}),
   c("temp", "tbase")
 )
 rate_result_1 <- thermal_time_rate(c(25, 10))
