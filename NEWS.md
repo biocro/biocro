@@ -4,11 +4,10 @@ release.
 
 All changes related to a particular release should be collected under a heading
 specifying the version number of that release, such as
-"# CHANGES IN BioCro VERSION 2.0.0". The individual changes should be listed as
-bullet points and categorized under "## MAJOR CHANGES", "## MINOR CHANGES",
-or "## BUG FIXES" following the major.minor.patch structure of semantic
-versioning. When applicable, entries should include direct links to the relevant
-pull requests.
+"# Changes in BioCro Version 2.0.0". The individual changes should be listed as
+bullet points and categorized under "## Major Changes", "## Minor Changes",
+or "## Bug Fixes" following the major.minor.patch structure of semantic
+versioning, or variants of these such as "## Minor User-Facing Changes".
 
 To facilitate this, when a feature on a feature branch is completed and a pull
 request is being prepared, a new section should be added at the top of this file
@@ -25,7 +24,7 @@ merge conflict.)
 
 Finally, when a new release is made, "# UNRELEASED" should be replaced by a
 heading with the new version number, such as
-"# CHANGES IN BioCro VERSION 2.0.0". This section will combine the draft release
+"# Changes in BioCro Version 2.0.0". This section will combine the draft release
 notes for all features that have been added since the previous release.
 
 In the case of a hotfix, a short section headed by the new release number should
@@ -34,7 +33,7 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
-# MINOR USER-FACING CHANGES
+## Minor User-Facing Changes
 
 - Added maintenance respirations for each organ in a new module called
   `maintenance_respiration`. The maintenance respiration is modelled by removing
@@ -136,14 +135,14 @@ be directly added to this file to describe the related changes.
   with `dry_biomass_per_carbon = 30.026` g / mol. See module documentation for
   details.
 
-## OTHER CHANGES
+## Other Changes
 
 - Consolidated all temperature response functions into a single header file
   (`src/module_library/temperature_response_functions.h`) that now includes
   `arrhenius_exponential()`, `Q10_temperature_response()`,
   `johnson_eyring_williams_response()`, and `polynomial_response()`.
 
-# CHANGES IN BioCro VERSION 3.1.3
+# Changes in BioCro Version 3.1.3
 
 - This is the first version of BioCro to be accepted by CRAN! Most of the
   changes since version 3.1.0 were needed to comply with CRAN policies and
@@ -185,19 +184,19 @@ be directly added to this file to describe the related changes.
   - CRAN now only provides R versions 4.1.0 and above for Mac
   - The `deSolve` package cannot be built on Mac for R versions below 4.2.0
 
-# CHANGES IN BioCro VERSION 3.1.2
+# Changes in BioCro Version 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
   and replaced with std::vector.
 
-# CHANGES IN BioCro VERSION 3.1.1
+# Changes in BioCro Version 3.1.1
 
 - The package date in its DESCRIPTION file was updated to meet CRAN submission
   requirements (must be less than one month old)
 
-# CHANGES IN BioCro VERSION 3.1.0
+# Changes in BioCro Version 3.1.0
 
-## MINOR USER-FACING CHANGES
+## Minor User-Facing Changes
 
 - Another bug was corrected in `src/module_library/c3photoC.cpp`: The
   photorespiration value `Rp` is now calculated using the value of `Ci` from the
@@ -233,7 +232,7 @@ be directly added to this file to describe the related changes.
   `BioCro:solar_position_michalsky` and
   `BioCro:shortwave_atmospheric_scattering` modules.
 
-## OTHER CHANGES
+## Other Changes
 
 - All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
   The use of unqualified `abs` in `src/module_library/c3photoC.cpp` had been
@@ -295,15 +294,15 @@ be directly added to this file to describe the related changes.
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
 
-# CHANGES IN BioCro VERSION 3.0.2
+# Changes in BioCro Version 3.0.2
 
-## MINOR CHANGES
+## Minor Changes
 
 - This version adds several missing references to the main README.
 
-# CHANGES IN BioCro VERSION 3.0.1
+# Changes in BioCro Version 3.0.1
 
-## MINOR CHANGES
+## Minor Changes
 
 - This version pertains only to the GitHub documentation workflow.  It
   changes the publication location to the
@@ -315,9 +314,9 @@ be directly added to this file to describe the related changes.
   https://biocro.github.io/BioCro-documentation/<tag name>/pkgdown/,
   where <tag name> is the tag name for the new release.
 
-# CHANGES IN BioCro VERSION 3.0.0
+# Changes in BioCro Version 3.0.0
 
-## MAJOR CHANGES
+## Major Changes
 
 - This version introduces the concept of distinct module libraries, allowing
   users to develop modules in private and to create collections of related
@@ -351,7 +350,7 @@ be directly added to this file to describe the related changes.
   assembles and solves models. Associated with this change, the BioCro R package
   is now licensed under the MIT license. See `LICENSE.note` for details.
 
-## MINOR CHANGES
+## Minor Changes
 
 - The `soil_type_selector` module has been removed and replaced with a data
   object called `soil_parameters`. For crop models that previously set the
@@ -371,7 +370,7 @@ be directly added to this file to describe the related changes.
 - Many small improvements have been made to the documentation and the module
   code in `src/module_library`; these changes are too numerous to list here.
 
-## BUG FIXES
+## Bug Fixes
 
 - The elements of the `arg_names` input to `partial_run_biocro` can now be in
   any order; previously, they were required to be supplied in the same order as
@@ -386,9 +385,9 @@ be directly added to this file to describe the related changes.
   when accessing vector elements in the C++ function
   `dynamical_system::update_drivers`.
 
-# CHANGES IN BioCro VERSION 2.0.0
+# Changes in BioCro Version 2.0.0
 
-## MAJOR CHANGES
+## Major Changes
 
 - This version is a major update to the design of BioCro. In this version,
   subsets of a model are called _modules_. The design attempts to meet the
@@ -412,7 +411,7 @@ be directly added to this file to describe the related changes.
   can be obtained online from the _Articles_ menu at the
   [BioCro documentation website](https://biocro.github.io).
 
-# BioCro VERSION 0.951
+# BioCro Version 0.951
 
 - This is the last release of the original version of BioCro, which was first
   described in [Miguez et al., 2009](https://doi.org/10.1111/j.1757-1707.2009.01019.x)
