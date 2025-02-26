@@ -1,4 +1,4 @@
-useDynLib(BioCro, .registration = TRUE)
+useDynLib(BioCroMeso, .registration = TRUE)
 
 export(add_csv_row)
 export(add_time_to_weather_data)
