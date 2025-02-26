@@ -31,20 +31,19 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
-# UNRELEASED
+# Changes in BioCro version 3.2.0
 
 ## Minor User-Facing Changes
 
-- Added maintenance respirations for each organ in a new module called
-  `BioCro:maintenance_respiration`. The maintenance respiration is modelled by
-  removing
-  a fraction of dry biomasses. It removes a fraction of an organ by a constant
-  parameter called `mrc_*` (e.g., `mrc_leaf`) and also by a Q10-based
-  temperature response. This differs from the existing growth respirations that
-  are applied to stem and root. The growth respiration is often to scale the
-  carbon assimilation.
+- Added maintenance respiration for each organ in a new module called
+  `BioCro:maintenance_respiration`. Maintenance respiration is modelled by
+  removing a fraction of dry biomass. The fraction removed is determined by an
+  organ-specific "maintenance respiration coefficient" (such as `mrc_leaf`) and
+  follows a Q10 temperature response. This differs from the existing growth
+  respiration that is applied to the stem and root, and from a separate canopy
+  growth respiration that can be used to rescale the canopy assimilation rate.
 
-- Separated the specific leaf area calculations from the
+- Separated the specific leaf area (SLA) calculations from the
   `BioCro:parameter_calculator` module to enable alternate approaches to SLA.
   The original method is now available as the `BioCro:sla_linear` module, and a
   new logistic method has been added: `BioCro:sla_logistic`. The stored crop
@@ -75,10 +74,8 @@ be directly added to this file to describe the related changes.
     the `polynomial_response()` function input argument names.
 
 - Added a new vignette explaining key features of BioCro's multilayer canopy
-  model
-
-- Made several changes to `sunML()` and related functions to ensure the code
-  matches the model description in the vignette:
+  model, and made several changes to `sunML()` and related functions to ensure
+  that the code matches the model description in the vignette:
 
   - Stopped calculating and using the "average" incident PPFD and absorbed
     shortwave radiation for leaves in the canopy.
@@ -104,11 +101,12 @@ be directly added to this file to describe the related changes.
 
   - The `time` variable is now required to be sequential and evenly spaced,
     where the time interval must be equal to `timestep`. A consequence is that
-    `time` and `timestep` are expected to have the same units.
+    `time` and `timestep` must have the same units.
 
   - With this change, it was necessary to change the definition of `time` used
-    with the crop models. Now it is expected to be expressed as the number of
-    hours since midnight on January 1, rather than a fractional day of year.
+    with the crop models. Now it is expected to be expressed as the (fractional)
+    number of hours since midnight on January 1, rather than a fractional day of
+    year.
 
   - There is a new module for calculating `doy` and `hour` from `time`, called
     `BioCro:format_time`. This module ensures that `doy` always takes integer
@@ -133,14 +131,19 @@ be directly added to this file to describe the related changes.
   `tests/testthat/crop_model_testing_helper_functions.R`.
 
 - The conversion of CO2 assimilation to biomass is no longer hard coded into
-  the photosynthesis modules: `c3CanAC()`, `CanAC()`,
-  `BioCro:multilayer_canopy_integrator`, etc.
-  These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s.
-  A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
-  conversion. A new parameter `dry_biomass_per_carbon` controls the conversion.
-  All affected models have the same behavior as before if the new module is used
-  with `dry_biomass_per_carbon = 30.026` g / mol. See module documentation for
-  details.
+  the photosynthesis functions and modules, such as `c3CanAC()`, `CanAC()`,
+  and `BioCro:ten_layer_multilayer_canopy_integrator`.
+
+  - These functions and modules now produce canopy assimilation rates as
+    molecular fluxes (with units of micromol CO2 / m^2 / s).
+
+  - A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
+    conversion to rates of dry biomass acculumation (with units of
+    Mg / ha / hr). A new parameter `dry_biomass_per_carbon` controls the
+    conversion.
+
+  - All affected models have the same behavior as before if the new module is
+    used with `dry_biomass_per_carbon` set to 30.026 g / mol.
 
 ## Other Changes
 
@@ -179,7 +182,8 @@ be directly added to this file to describe the related changes.
 
 - Moved the included boost libraries from `inc` to `src/inc` since CRAN will not
   allow a nonstandard top-level directory. Some paths were shortened during
-  this move.
+  this move. The submodule repository was also renamed from `biocro/boost` to
+  `biocro/inc`.
 
 - Added the Boost organization to the authors as a copyright holder to comply
   with CRAN policies.
