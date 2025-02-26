@@ -178,8 +178,10 @@ been mitigated by designating most vignettes as "web only."
     version and to ensure an up-to-date changelog in `NEWS.md`; see the
     ["New Release" chapter](#new-release) for more details. A release branch
     should be branched off `develop`. When it's ready, it should first merged
-    into `main` via an approved pull request. Then, a second pull request should
-    be made to merge into `develop`. If there are no merge conflicts or test
+    into `develop` via an approved pull request. Then, a second pull request
+    should be made to merge into `main`. (If the first PR target is `main`, it
+    will be difficult to discern the minor changes in the release branch from
+    the other changes in `develop`.) If there are no merge conflicts or test
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
 
@@ -405,14 +407,16 @@ be achieved through the following steps:
    contents of `cran-comments.md` to make sure it accurately reflects the
    `R CMD check` notes.
 
-6. Make a pull request, requesting to merge the new branch into `main`. In
+6. Make a pull request, requesting to merge the new branch into `develop`. In
    general, follow the guidelines in the
    ["Pull Request Etiquette" chapter](#pr-etiquette). However, there is one
    extra requirement for a release branch: the branch should not be merged until
    the new version has been accepted by CRAN. Sometimes CRAN may have issues
-   with a new release, and it is better to address them _before_ bringing the
-   new version to `main`. The package maintainer is responsible for submitting
-   to CRAN, and the process consists of the following steps:
+   with a new release, and it is better to address them _before_ finalizing the
+   release. (Otherwise, there may be several releases in quick succession with
+   only minor or trivial changes between them; for example, BioCro versions
+   3.1.1 and 3.1.2.) The package maintainer is responsible for submitting to
+   CRAN, and the process consists of the following steps:
 
    1. Build the package with `R CMD build`[^compressing_vignettes].
 
@@ -435,8 +439,8 @@ be achieved through the following steps:
 
       - https://github.com/DavisVaughan/extrachecks
 
-7. When the new version is on CRAN, merge the release branch into `main` and
-   then `develop`.
+7. When the new version is on CRAN, merge the release branch into `develop` and
+   then `main`.
 
 ## Code style
 
