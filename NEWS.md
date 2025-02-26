@@ -36,7 +36,8 @@ be directly added to this file to describe the related changes.
 ## Minor User-Facing Changes
 
 - Added maintenance respirations for each organ in a new module called
-  `maintenance_respiration`. The maintenance respiration is modelled by removing
+  `BioCro:maintenance_respiration`. The maintenance respiration is modelled by
+  removing
   a fraction of dry biomasses. It removes a fraction of an organ by a constant
   parameter called `mrc_*` (e.g., `mrc_leaf`) and also by a Q10-based
   temperature response. This differs from the existing growth respirations that
@@ -54,7 +55,7 @@ be directly added to this file to describe the related changes.
   alternative to the `BioCro:thermal_time_development_rate_calculator`
   differential module.
 
-- C3 temperature response parameters are no longer hard-coded into `c3photoC`:
+- C3 temperature response parameters are no longer hard-coded into `c3photoC()`:
 
   - There are now specialized structs for the temperature response parameters
     (`c3_temperature_response_parameters`) and the temperature-dependent values
@@ -76,50 +77,55 @@ be directly added to this file to describe the related changes.
 - Added a new vignette explaining key features of BioCro's multilayer canopy
   model
 
-- Made several changes to `sunML` and related functions to ensure the code
+- Made several changes to `sunML()` and related functions to ensure the code
   matches the model description in the vignette:
 
   - Stopped calculating and using the "average" incident PPFD and absorbed
-    shortwave radiation for leaves in the canopy
+    shortwave radiation for leaves in the canopy.
 
   - Stopped using the "thick layer absorption" equation for determining the
     absorbed shortwave radiation within the canopy, replacing it with the thin
-    layer absorption equation
+    layer absorption equation.
 
-  - Used a simpler equation for calculating the fraction of sunlit leaves
+  - Used a simpler equation for calculating the fraction of sunlit leaves.
 
-  - Used the same absorptivity value for direct and diffuse light
+  - Used the same absorptivity value for direct and diffuse light.
 
   - Used separate leaf transmittance and reflectance values for PAR and NIR
     radiation within the canopy, rather than always assuming that light in the
     two bands are absorbed and scattered equally; in general, this caused a
-    reduction in the absorbed shortwave energy for all leaves
+    reduction in the absorbed shortwave energy for all leaves.
 
   - Started calculating absorptivity as `1 - R - T`, where `R` and `T` are the
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
 - Made several changes to BioCro's time handling:
+
   - The `time` variable is now required to be sequential and evenly spaced,
     where the time interval must be equal to `timestep`. A consequence is that
     `time` and `timestep` are expected to have the same units.
+
   - With this change, it was necessary to change the definition of `time` used
     with the crop models. Now it is expected to be expressed as the number of
     hours since midnight on January 1, rather than a fractional day of year.
+
   - There is a new module for calculating `doy` and `hour` from `time`, called
     `BioCro:format_time`. This module ensures that `doy` always takes integer
     values in the output from `run_biocro`.
+
   - In most cases, old scripts calling `run_biocro` will continue to function
     following these changes because `time` will be correctly computed from `doy`
     and `hour`, and `BioCro:format_time` will be automatically added to module
     lists.
+
   - The redefinition of `time` from days to hours may require changes to
     plotting commands or other operations using `time`. In most cases, instances
     of `time` in old scripts can be replaced by `fractional_doy`, which is
     equivalent to the definition of `time` used in previous versions of BioCro.
 
 - Added a new function for generating C++ header files for new module classes:
-  `module_write`
+  `module_write`.
 
 - Added several functions to help with model regression tests:
   `compare_model_output`, `model_test_case`, `run_model_test_cases`, and
@@ -127,7 +133,8 @@ be directly added to this file to describe the related changes.
   `tests/testthat/crop_model_testing_helper_functions.R`.
 
 - The conversion of CO2 assimilation to biomass is no longer hard coded into
-  the photosynthesis modules: c3CanAC, CanAC, multilayer_canopy_integrator, etc.
+  the photosynthesis modules: `c3CanAC()`, `CanAC()`,
+  `BioCro:multilayer_canopy_integrator`, etc.
   These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s.
   A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
   conversion. A new parameter `dry_biomass_per_carbon` controls the conversion.
@@ -150,29 +157,36 @@ be directly added to this file to describe the related changes.
 
 - Several changes have been made to reduce the package size from over 20 MB to
   less than 5 MB:
+
   - Crop model regression tests only store 1 of every 24 rows (one time point
-    from each day)
-  - The stored weather data has been rounded to 3 significant digits
-    - The `solar` values have been rounded to the nearest integer
-    - The `rh` values have been rounded to 2 significant digits
+    from each day).
+
+  - The stored weather data has been rounded to 3 or fewer significant digits:
+
+    - The `solar` values have been rounded to the nearest integer.
+
+    - The `rh` values have been rounded to 2 significant digits.
+
   - The stored crop model regression test data has been rounded to 5 significant
-    digits
+    digits.
+
   - All previously-existing vignettes were converted to "web only," meaning they
     will be available through the pkgdown website but not included with the
-    package itself
+    package itself.
+
   - A new vignette has been added (`BioCro.Rmd`) that simply redirects readers
-    to the documentation website
+    to the documentation website.
 
 - Moved the included boost libraries from `inc` to `src/inc` since CRAN will not
   allow a nonstandard top-level directory. Some paths were shortened during
   this move.
 
 - Added the Boost organization to the authors as a copyright holder to comply
-  with CRAN policies
+  with CRAN policies.
 
 - Addressed a `missing-field-initializers` warning from the compiler by
   explicitly setting `iterations` to 0 in the output from
-  `rue_leaf_photosynthesis`
+  `rue_leaf_photosynthesis`.
 
 - Addressed a mistake in `thermal_time_and_frost_senescence.h` where the leaf
   death rate due to frost had been unintentionally set to 0 in all conditions.
@@ -180,9 +194,11 @@ be directly added to this file to describe the related changes.
   of function declared with 'nodiscard' attribute" warning.
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
-  3.6.0 to 4.2.0
-  - CRAN now only provides R versions 4.1.0 and above for Mac
-  - The `deSolve` package cannot be built on Mac for R versions below 4.2.0
+  3.6.0 to 4.2.0.
+
+  - CRAN now only provides R versions 4.1.0 and above for Mac.
+
+  - The `deSolve` package cannot be built on Mac for R versions below 4.2.0.
 
 # Changes in BioCro Version 3.1.2
 
@@ -192,7 +208,7 @@ be directly added to this file to describe the related changes.
 # Changes in BioCro Version 3.1.1
 
 - The package date in its DESCRIPTION file was updated to meet CRAN submission
-  requirements (must be less than one month old)
+  requirements (must be less than one month old).
 
 # Changes in BioCro Version 3.1.0
 
@@ -392,19 +408,25 @@ be directly added to this file to describe the related changes.
 - This version is a major update to the design of BioCro. In this version,
   subsets of a model are called _modules_. The design attempts to meet the
   following goals:
+
   - Make it easier to reuse modules between species, such as the C3
     photosynthesis modules.
+
   - Make it easier to swap related modules for comparison, for example,
     comparing the Farquhar-von-Caemmerer-Berry model to a radiation use
     efficiency model.
+
   - Simplify parameter optimization and sensitivity analysis by providing an
     interface readily useable by common optimizers and similar functions.
 
 - More details can be found in the peer-reviewed publication in _in silico_
   Plants [Lochocki et al., 2022](https://doi.org/10.1093/insilicoplants/diac003)
   and in the vignettes included with the package:
+
   - _A Practical Guide to BioCro_
+
   - _Quantitative Comparison Between Two Photosynthesis Models_
+
   - _An Introduction to BioCro for Those Who Want to Add Models_
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
