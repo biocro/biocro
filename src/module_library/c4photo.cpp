@@ -140,6 +140,8 @@ photosynthesis_outputs c4photoC(
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .Rp = */ 0,                              // micromol / m^2 / s
+        /* .Mesophyll = */ 0,                       // micromol / m^2 / s
+        /* .Cc = */ 0,                              // micromol / m^2 / s
         /* .iterations = */ iterCounter             // not a physical quantity
     };
 }

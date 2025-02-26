@@ -14,6 +14,8 @@ struct photosynthesis_outputs {
     double Cs;                 //!< CO2 concentration at the leaf surface (micromol / mol)
     double RHs;                //!< Relative humidity at the leaf surface (dimensionless)
     double Rp;                 //!< Rate of photorespiration (micromol / m^2 / s)
+    double mesophyll_conductance;                 //
+    double Cc;                 //
     int iterations;            //!< Number of iterations used by convergence loop
 };
 

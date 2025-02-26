@@ -125,6 +125,8 @@ class c3_assimilation : public direct_module
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
           Rp_op{get_op(output_quantities, "Rp")},
+          mesophyll_conductance_op{get_op(output_quantities, "mesophyll_conductance")},
+          Cc_op{get_op(output_quantities, "Cc")},
           iterations_op{get_op(output_quantities, "iterations")}
     {
     }
@@ -185,6 +187,8 @@ class c3_assimilation : public direct_module
     double* GrossAssim_op;
     double* Assim_conductance_op;
     double* Rp_op;
+    double* mesophyll_conductance_op;
+    double* Cc_op;
     double* iterations_op;
 
     // Main operation
@@ -249,6 +253,8 @@ string_vector c3_assimilation::get_outputs()
         "GrossAssim",         // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
         "Rp",                 // micromol / m^2 / s
+        "mesophyll_conductance",                 // 
+        "Cc",                 // micromol / m^2 / s
         "iterations"          // not a physical quantity
     };
 }
@@ -311,6 +317,8 @@ void c3_assimilation::do_operation() const
     update(GrossAssim_op, c3_results.GrossAssim);
     update(Assim_conductance_op, c3_results.Assim_conductance);
     update(Rp_op, c3_results.Rp);
+    update(mesophyll_conductance_op, c3_results.mesophyll_conductance);
+    update(Cc_op, c3_results.Cc);
     update(iterations_op, c3_results.iterations);
 }
 

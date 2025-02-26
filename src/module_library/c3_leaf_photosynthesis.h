@@ -80,6 +80,8 @@ class c3_leaf_photosynthesis : public direct_module
           RHs_op{get_op(output_quantities, "RHs")},
           RH_canopy_op{get_op(output_quantities, "RH_canopy")},
           Rp_op{get_op(output_quantities, "Rp")},
+          mesophyll_conductance_op{get_op(output_quantities, "mesophyll_conductance")},
+          Cc_op{get_op(output_quantities, "Cc")},
           TransR_op{get_op(output_quantities, "TransR")}
     {
     }
@@ -148,6 +150,8 @@ class c3_leaf_photosynthesis : public direct_module
     double* RHs_op;
     double* RH_canopy_op;
     double* Rp_op;
+    double* mesophyll_conductance_op;
+    double* Cc_op;
     double* TransR_op;
 
     // Main operation

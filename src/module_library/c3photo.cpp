@@ -72,6 +72,8 @@ photosynthesis_outputs c3photoC(
     // Adjust Ball-Berry parameters in response to water stress
     double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
     double const b1_adj = StomWS * b1;
+    double const rwp = 1.0/1.35;
+    double const rch = 1.0/0.34;
 
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
@@ -79,6 +81,8 @@ photosynthesis_outputs c3photoC(
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
     double Ci{0.0};                     // micromol / mol     (initial guess)
+    double Cc{0.0};                     // micromol / mol     (initial guess)
+    double rm{0.0};                     // 
     double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
     double const Tol{0.01};             // micromol / m^2 / s
     int iterCounter{0};
@@ -129,6 +133,10 @@ photosynthesis_outputs c3photoC(
         Ci = Ca - co2_assimilation_rate *
                       (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
 
+	rm = rwp + rch * FvCB_res.Vc / co2_assimilation_rate;
+	Cc = Ci - co2_assimilation_rate * rm;
+	co2_assimilation_rate = FvCB_res.Vc * (1.0 - Gstar / Cc) - Rd;
+
         if (std::abs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
         }
@@ -145,6 +153,8 @@ photosynthesis_outputs c3photoC(
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        /* .mesophyll = */ 1.0/rm,                  //
+        /* .Cc = */ Cc,                             //
         /* .iterations = */ iterCounter             // not a physical quantity
     };
 }

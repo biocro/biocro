@@ -71,6 +71,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RHs",               // dimensionless from Pa / Pa
         "RH_canopy",         // dimensionless
         "Rp",                // micromol / m^2 / s
+        "mesophyll_conductance",                // 
+        "Cc",                // micromol / m^2 / s
         "TransR"             // mmol / m^2 / s
     };
 }
@@ -155,5 +157,7 @@ void c3_leaf_photosynthesis::do_operation() const
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(Rp_op, photo.Rp);
+    update(mesophyll_conductance_op, photo.mesophyll_conductance);
+    update(Cc_op, photo.Cc);
     update(TransR_op, et.TransR);
 }
