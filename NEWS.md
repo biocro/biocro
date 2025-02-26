@@ -145,12 +145,27 @@ be directly added to this file to describe the related changes.
   - All affected models have the same behavior as before if the new module is
     used with `dry_biomass_per_carbon` set to 30.026 g / mol.
 
+- The `soybean` model was re-parameterized following changes to module behavior.
+
 ## Other Changes
 
 - Consolidated all temperature response functions into a single header file
   (`src/module_library/temperature_response_functions.h`) that now includes
   `arrhenius_exponential()`, `Q10_temperature_response()`,
   `johnson_eyring_williams_response()`, and `polynomial_response()`.
+
+- The developer documentation was updated to include a section about pull
+  requests.
+
+## Bug fixes
+
+- Fixed incorrect `year` column values in the weather data.
+
+- Fixed a mistake where the CMI weather data for 2023 was a copy of the 2022
+  data.
+
+- The `ode_solver` input argument of `run_biocro` is now checked to ensure the
+  essential list elements are provided.
 
 # Changes in BioCro Version 3.1.3
 
