@@ -13,6 +13,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-7025-3906")),
     person("Edward B.", "Lochocki", role = 'aut',
            comment = c(ORCID = "0000-0002-4912-9783")),
+    person("Yufeng", "He", role = 'aut',
+           comment = c(ORCID = "0000-0001-9895-1880")),
     person("Scott W.", "Oswald", role = 'aut',
            comment = c(ORCID = "0000-0002-1906-0340")),
     person("Scott", "Rohde", role = 'aut',
