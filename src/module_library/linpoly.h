@@ -1,11 +1,11 @@
 #ifndef LINPOLY
 #define LINPOLY
 
-
+template<typename T>
 struct linpoly {
-    double c0, c1;
+    T c0, c1;
 
-    double operator()(double x) const {
+    T operator()(T x) const {
         return c0 + c1 * x;
     }
 
@@ -45,51 +45,60 @@ struct linpoly {
 
 };
 
-inline linpoly operator+(const linpoly& lhs, const double rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator+(const linpoly<T>& lhs, const T rhs){
+    linpoly<T> result = lhs;
     result += rhs;
     return result;
 }
 
-inline linpoly operator+(const double lhs, const linpoly& rhs){
+template<typename T>
+inline linpoly<T> operator+(const T lhs, const linpoly<T>& rhs){
     return rhs + lhs;
 }
 
-inline linpoly operator+(const linpoly& lhs, const linpoly& rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator+(const linpoly<T>& lhs, const linpoly<T>& rhs){
+    linpoly<T> result = lhs;
     result += rhs;
     return result;
 }
 
-inline linpoly operator-(const linpoly& lhs, const linpoly& rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator-(const linpoly<T>& lhs, const linpoly<T>& rhs){
+    linpoly<T> result = lhs;
     result -= rhs;
     return result;
 }
 
-inline linpoly operator-(const linpoly& lhs, const double rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator-(const linpoly<T>& lhs, const T rhs){
+    linpoly<T> result = lhs;
     result -= rhs;
     return result;
 }
 
-inline linpoly operator-(const double lhs, const linpoly& rhs){
-    linpoly result = rhs;
+template<typename T>
+inline linpoly<T> operator-(const T lhs, const linpoly<T>& rhs){
+    linpoly<T> result = rhs;
     result *= -1;
     result += lhs;
     return result;
 }
 
-inline linpoly operator*(const linpoly& lhs, const double rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator*(const linpoly<T>& lhs, const T rhs){
+    linpoly<T> result = lhs;
     result *= rhs;
     return result;
 }
 
-inline linpoly operator*(const double lhs, const linpoly& rhs){return rhs * lhs; }
+template<typename T>
+inline linpoly<T> operator*(const T lhs, const linpoly<T>& rhs){return rhs * lhs; }
 
-inline linpoly operator/(const linpoly& lhs, const double rhs){
-    linpoly result = lhs;
+template<typename T>
+inline linpoly<T> operator/(const linpoly<T>& lhs, const T rhs){
+    linpoly<T> result = lhs;
     result /= rhs;
     return result;
 }

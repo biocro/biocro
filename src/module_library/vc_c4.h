@@ -48,7 +48,9 @@ class vc_c4 : public direct_module
           // Get pointers to output quantities
           An_op{get_op(output_quantities, "An")},
           Ac_op{get_op(output_quantities, "Ac")},
-          Aj_op{get_op(output_quantities, "Aj")}
+          Aj_op{get_op(output_quantities, "Aj")},
+          As_op{get_op(output_quantities, "As")}
+
     {
     }
     static string_vector get_inputs();
@@ -83,6 +85,8 @@ class vc_c4 : public direct_module
     double* An_op;
     double* Ac_op;
     double* Aj_op;
+    double* As_op;
+
 
     // Main operation
     void do_operation() const;
@@ -120,7 +124,8 @@ string_vector vc_c4::get_outputs()
     return {
         "An",  // micromol / m^2 / s
         "Ac",  // micromol / m^2 / s
-        "Aj"   // micromol / m^2 / s
+        "Aj",  // micromol / m^2 / s
+        "As"   // micromol / m^2 / s
     };
 }
 
@@ -155,6 +160,7 @@ void vc_c4::do_operation() const
     update(An_op, res.An);
     update(Ac_op, res.Ac);
     update(Aj_op, res.Aj);
+    update(As_op, res.As);
 
 }
 

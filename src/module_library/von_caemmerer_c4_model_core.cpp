@@ -2,109 +2,30 @@
 
 
 
-
-// struct linpoly {
-//     double c0, c1;
-
-//     double operator()(double x) const {
-//         return c0 + c1 * x;
-//     }
-
-//     linpoly& operator+=(const double rhs){
-//         c0 += rhs;
-//         return *this;
-//     }
-
-//     linpoly& operator+=(const linpoly rhs){
-//         c0 += rhs.c0;
-//         c1 += rhs.c1;
-//         return *this;
-//     }
-
-//     linpoly& operator-=(const double rhs){
-//         c0 -= rhs;
-//         return *this;
-//     }
-
-//     linpoly& operator-=(const linpoly rhs){
-//         c0 -= rhs.c0;
-//         c1 -= rhs.c1;
-//         return *this;
-//     }
-
-//     linpoly& operator*=(const double rhs){
-//         c0 *= rhs;
-//         c1 *= rhs;
-//         return *this;
-//     }
-
-//     linpoly& operator/=(const double rhs){
-//         c0 /= rhs;
-//         c1 /= rhs;
-//         return *this;
-//     }
+// template<typename T>
+// class temperature_response {
 
 // };
 
-// inline linpoly operator+(const linpoly& lhs, const double rhs){
-//     linpoly result = lhs;
-//     result += rhs;
-//     return result;
-// }
+// class parameter {
 
-// inline linpoly operator+(const double lhs, const linpoly& rhs){
-//     return rhs + lhs;
-// }
+//     private:
+//         double ref_value;
+//         double ref_temp;
+//         TempDepend response;
 
-// inline linpoly operator+(const linpoly& lhs, const linpoly& rhs){
-//     linpoly result = lhs;
-//     result += rhs;
-//     return result;
-// }
+//     public:
+//         double operator()(double temp){
+//             response(temp, ref_temp)
+//         }
+// };
 
-// inline linpoly operator-(const linpoly& lhs, const linpoly& rhs){
-//     linpoly result = lhs;
-//     result -= rhs;
-//     return result;
-// }
-
-// inline linpoly operator-(const linpoly& lhs, const double rhs){
-//     linpoly result = lhs;
-//     result -= rhs;
-//     return result;
-// }
-
-// inline linpoly operator-(const double lhs, const linpoly& rhs){
-//     linpoly result = rhs;
-//     result *= -1;
-//     result += lhs;
-//     return result;
-// }
-
-// inline linpoly operator*(const linpoly& lhs, const double rhs){
-//     linpoly result = lhs;
-//     result *= rhs;
-//     return result;
-// }
-
-// inline linpoly operator*(const double lhs, const linpoly& rhs){return rhs * lhs; }
-
-// inline linpoly operator/(const linpoly& lhs, const double rhs){
-//     linpoly result = lhs;
-//     result /= rhs;
-//     return result;
-// }
-
-
-// double eq1(double A, double Vc, double Vo, double Rd){
-//     double rhs = Vc - 0.5 * Vo - Rd;
-//     return rhs - A;
-// }
-
-// double eq2(double Rd, double Rm, double Rs){
-//     double rhs = Rm + Rs;
-//     return rhs - Rd;
-// }
+template<typename T>
+T closest_to_zero(T a , T b) {
+    T amag = std::abs(a);
+    T bmag = std::abs(b);
+    return amag < bmag ? a : b;
+}
 
 double eq3(double A, double Vp, double L, double Rm){
     double rhs = Vp - L - Rm;
@@ -140,9 +61,7 @@ double get_reduced_Vc(double Cs, double Os, double Vcmax, double Kc, double Ko, 
     return num / denom;
 }
 
-double get_Cs(double A, double Cm, double Vp, double Rm, double gbs){
-    return Cm + (Vp - A - Rm) / gbs;
-}
+
 
 double check_Cs(double A, double Cm, double Vp, double Rm, double gbs){
     double Cs = get_Cs(A, Cm, Vp, Rm, gbs);
@@ -154,7 +73,13 @@ double get_go(double gbs, double ao){
     return gbs * ao;
 }
 
-double get_Os(double A, double Om, double alpha, double go){
+template<typename T, typename U>
+T get_Cs(T A, U Cm, U Vp, U Rm, U gbs){
+    return Cm + (Vp - A - Rm) / gbs;
+}
+
+template<typename T, typename U>
+T get_Os(T A, U Om, U alpha, U go){
     return alpha * (A / go) + Om;
 }
 
@@ -183,21 +108,18 @@ double get_rho(double f_cyc){
     return (1 - f_cyc)/(2 - f_cyc);
 }
 
-
 double solve_quadratic_balance(linpoly P, linpoly Q, double Rd){
     // A = P / Q - Rd
     // P(A) - Q(A) * (A + Rd) = 0 (quadratic in A)
-    double f0 = P.c0 - Q.c0  * Rd ;
-    double f1 = P.c1  -  Q.c0 - Rd * Q.c1;
+    double f0 = P.c0 - Q.c0 * Rd ;
+    double f1 = P.c1 - Q.c0 - Rd * Q.c1;
     double f2 = - Q.c1;
     return quadratic_root_minus(f2, f1, f0);
 }
 
-
 double get_J(double I2, double Jmax, double theta){
     return quadratic_root_minus(theta,  -(I2 + Jmax), I2 * Jmax);
 }
-
 
 template<typename T, typename U>
 T reduced_vc_num(T Cs, T Os, U gamma_star){
@@ -267,41 +189,44 @@ vc_c4_result vc_c4_biochemical_fun(
         double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
 
         linpoly A{0, 1};
-        linpoly Cs_e = Cm + (Vp_e - A -  Rm) / gbs;
-        linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
+        linpoly Cs_e = get_Cs(A, Cm, Vp_e, Rm, gbs);
+        linpoly Os = get_Os(A, Om, alpha_psii, get_go(gbs, ao));
         out.Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
-        // linpoly P_e = Vcmax * (Cs_e - gamma_star * Os);
-        // linpoly Q_e = Cs_e + Kc * (1 + Os / Ko);
-
-        // out.Ac = solve_quadratic_balance(P_e, Q_e, Rd);
-
 
         double z = get_z(f_cyc);
         double J_atp =  J * z ;
         double Vp_j = 0.5 * J_atp * x_etr;
         double Vjmax = (1  - x_etr) * J_atp;
-        linpoly Cs_j = Cm + (Vp_j - A - Rm) / gbs;
-        // linpoly P_j = Vjmax * (Cs_j - gamma_star * Os);
-        // linpoly Q_j = 3 * Cs_j + 7 * gamma_star * Os;
+        linpoly Cs_j = get_Cs(A, Cm, Vp_j, Rm, gbs);
+
 
         out.Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
         out.An = std::min(out.Ac, out.Aj);
+        out.As = closest_to_zero<double>(out.Ac, out.Aj);
         return out;
 }
 
 class electron_transport {
 
-    double theta;
-    double Jmax;
+
+    double _Jmax;
+    double _theta;
+    double _alpha;
 
     public:
+    electron_transport(double Jmax, double theta,
+        double f_cyc, double leaf_absorptance, double spectral_correction) :
+        _Jmax{Jmax}, _theta{theta},
+        _alpha{get_rho(f_cyc) * leaf_absorptance * spectral_correction}
+     {
+     }
 
-    double operator()(double I2) const {
-        return quadratic_root_minus(theta,  -(I2 + Jmax), I2 * Jmax);
+    double operator()(double incident_ppfd) const {
+        double I2 = incident_ppfd * _alpha;
+        return quadratic_root_minus(_theta,  -(I2 + _Jmax), I2 * _Jmax);
     }
 
 };
-
 
 class vc_c4_biochemical {
 
@@ -327,10 +252,13 @@ class vc_c4_biochemical {
     double Vpmax;
     double Vpr;
     double x_etr;
+    double z;
 
 
 
     public:
+
+
 
     vc_c4_result result;
 
@@ -357,28 +285,52 @@ class vc_c4_biochemical {
     std::array<double, 2> solution_check(){
         std::array<double, 2> out;
 
+        this->update_assim();
+
 
         double Vp = get_Vp(Cm, Vpmax, Kp, Vpr);
-        double Cs = Cm + (Vp - Ac - Rm)/gbs;
+        double Cs = Cm + (Vp - result.Ac - Rm)/gbs;
         double go = get_go(gbs, ao);
-        double Os = Om + alpha_psii * Ac / go;
+        double Os = Om + alpha_psii * result.Ac / go;
 
 
         double vc_num = reduced_vc_num(Cs, Os, gamma_star);
         double vc_denom = enzyme_limited_reduced_vc_denom(Cs, Os, Kc, Ko);
         double reduced_Vc = vc_num / vc_denom;
-        out[0] = reduced_Vc - Rd - Ac; // (equation 10)
+        out[0] = reduced_Vc - Rd - result.Aj; // (equation 10)
 
         double z = get_z(f_cyc);
         double J_atp = J(Qabs) * z;
         double Vp_j = 0.5 * J_atp * x_etr;
         double Vjmax = (1 - x_etr) * J_atp;
-        Cs = Cm + (Vp_j - Aj - Rm) / gbs;
-        Os = Om + alpha_psii * Aj  / go;
+        Cs = Cm + (Vp_j - result.Aj - Rm) / gbs;
+        Os = Om + alpha_psii * result.Aj  / go;
         vc_num = reduced_vc_num(Cs, Os, gamma_star);
         vc_denom = light_limited_reduced_vc_denom(Cs, Os, gamma_star);
         reduced_Vc = Vjmax * vc_num / vc_denom;
-        out[1] = reduced_Vc - Rd - Aj; // (equation 37)
+        out[1] = reduced_Vc - Rd - result.Aj; // (equation 37)
         return out;
     }
+
+    double assim(double Ci, double temp){
+        Cm = ;
+        // enzyme limited rate
+        double Vp_e = get_Vp(Cm, Vpmax, Kp, Vpr);
+
+        linpoly A{0, 1};
+        linpoly Cs_e = Cm + (Vp_e - A - Rm) / gbs;
+        linpoly Os = Om + (alpha_psii / get_go(gbs, ao)) * A;
+        result.Ac = solve_Ac(Cs_e, Os, gamma_star, Kc, Ko, Rd, Vcmax);
+
+        double J_atp = J(Qabs);
+        double Vp_j = 0.5 * J_atp * x_etr;
+        double Vjmax = (1  - x_etr) * J_atp;
+        linpoly Cs_j = Cm + (Vp_j - A - Rm) / gbs;
+
+        result.Aj = solve_Aj(Cs_j, Os, Vjmax, gamma_star, Rd);
+        result.An = std::min(result.Ac, result.Aj);
+
+    }
 };
+
+
