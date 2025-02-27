@@ -72,8 +72,8 @@ photosynthesis_outputs c3photoC(
     // Adjust Ball-Berry parameters in response to water stress
     double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
     double const b1_adj = StomWS * b1;
-    double const rwp = 1.0/1.35;
-    double const rch = 1.0/0.34;
+    double const rwp = 1.0/1.35; //bar m2 s mol-1
+    double const rch = 1.0/0.34; //bar m2 s mol-1
 
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;
@@ -101,7 +101,7 @@ photosynthesis_outputs c3photoC(
             conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
         FvCB_res = FvCB_assim(
-            Ci,
+            Cc,
             Gstar,
             J,
             Kc,
@@ -133,9 +133,13 @@ photosynthesis_outputs c3photoC(
         Ci = Ca - co2_assimilation_rate *
                       (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
 
+        // Update Cc after Ci?
 	rm = rwp + rch * FvCB_res.Vc / co2_assimilation_rate;
+        //When An<=0, stomata typically close, raising Ci and reducing CO₂ efflux.
+        // Vc =0, so rm=rwp. Otherwise, we may get negative rm
+        if (co2_assimilation_rate<=0.0) rm = rwp ;  
 	Cc = Ci - co2_assimilation_rate * rm;
-	co2_assimilation_rate = FvCB_res.Vc * (1.0 - Gstar / Cc) - Rd;
+//	co2_assimilation_rate = FvCB_res.Vc * (1.0 - Gstar / Cc) - Rd;
 
         if (std::abs(OldAssim - co2_assimilation_rate) < Tol) {
             break;
