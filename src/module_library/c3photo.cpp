@@ -30,7 +30,9 @@ photosynthesis_outputs c3photoC(
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
-    double const gbw                           // mol / m^2 / s
+    double const gbw,                          // mol / m^2 / s
+    double const rwp,                          // bar m2 s mol-1 
+    double const rch                           // bar m2 s mol-1 
 )
 {
     // Calculate values of key parameters at leaf temperature
@@ -72,8 +74,6 @@ photosynthesis_outputs c3photoC(
     // Adjust Ball-Berry parameters in response to water stress
     double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
     double const b1_adj = StomWS * b1;
-    double const rwp = 1.0/1.35; //bar m2 s mol-1
-    double const rch = 1.0/0.34; //bar m2 s mol-1
 
     // Initialize variables before running fixed point iteration in a loop
     FvCB_outputs FvCB_res;

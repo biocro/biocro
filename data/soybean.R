@@ -78,6 +78,8 @@ soybean <- list(
         vmax1                       = 110,         # Bernacchi et. al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
         alphab1                     = 0,           # not used in Soybean-BioCro, but must be defined
         alpha1                      = 0,           # not used in Soybean-BioCro, but must be defined
+        rwp 			    = 1.0/1.35,    # bar m2 s mol-1,https://doi.org/10.1111/j.1365-3040.2012.02538.x
+        rch 		            = 1.0/0.34,    # bar m2 s mol-1,https://doi.org/10.1111/j.1365-3040.2012.02538.x 
 
         # soybean_development_rate_calculator module
         maturity_group              = 3,           # dimensionless; soybean cultivar maturity group

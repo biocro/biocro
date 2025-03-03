@@ -28,6 +28,8 @@ class c3_canopy : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
+          rwp{get_input(input_quantities, "rwp")},
+          rch{get_input(input_quantities, "rch")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           Gstar_c{get_input(input_quantities, "Gstar_c")},
@@ -107,6 +109,8 @@ class c3_canopy : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw_canopy;
+    double const& rwp;
+    double const& rch;
     double const& growth_respiration_fraction;
     double const& Gs_min;
     double const& Gstar_c;

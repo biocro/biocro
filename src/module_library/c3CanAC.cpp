@@ -23,6 +23,8 @@ canopy_photosynthesis_outputs c3CanAC(
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
     double gbw_canopy,                   // m / s
+    double rwp,                          // bar m2 s mol-1  
+    double rch,                          // bar m2 s mol-1
     double growth_respiration_fraction,  // dimensionless
     double Gs_min,                       // mol / m^2 / s
     double heightf,                      // m^(-1)
@@ -129,7 +131,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                beta_PSII, gbw_guess,rwp,rch)
                 .Gs;  // mol / m^2 / s
 
         energy_balance_outputs et_direct = leaf_energy_balance(
@@ -152,7 +154,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et_direct.gbw_molecular);
+                beta_PSII, et_direct.gbw_molecular,rwp,rch);
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -171,7 +173,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS,
                 electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                beta_PSII, gbw_guess,rwp,rch)
                 .Gs;  // mol / m^2 / s
 
         energy_balance_outputs et_diffuse = leaf_energy_balance(
@@ -195,7 +197,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 atmospheric_pressure, o2, StomataWS,
                 electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII,
-                et_diffuse.gbw_molecular);
+                et_diffuse.gbw_molecular,rwp,rch);
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

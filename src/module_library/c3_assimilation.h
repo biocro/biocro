@@ -82,6 +82,8 @@ class c3_assimilation : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw{get_input(input_quantities, "gbw")},
+          rwp{get_input(input_quantities, "rwp")},
+          rch{get_input(input_quantities, "rch")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           Gstar_c{get_input(input_quantities, "Gstar_c")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
@@ -144,6 +146,8 @@ class c3_assimilation : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw;
+    double const& rwp;
+    double const& rch;
     double const& Gs_min;
     double const& Gstar_c;
     double const& Gstar_Ea;
@@ -206,6 +210,8 @@ string_vector c3_assimilation::get_inputs()
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
         "gbw",                          // mol / m^2 / s
+        "rwp",                          // bar m2 s mol-1  
+        "rch",                          // bar m2 s mol-1  
         "Gs_min",                       // mol / m^2 / s
         "Gstar_c",                      // dimensionless
         "Gstar_Ea",                     // J / mol
@@ -306,7 +312,9 @@ void c3_assimilation::do_operation() const
         electrons_per_carboxylation,
         electrons_per_oxygenation,
         beta_PSII,
-        gbw);
+        gbw,
+        rwp,
+        rch);
 
     // Update the output quantity list
     update(Assim_op, c3_results.Assim);

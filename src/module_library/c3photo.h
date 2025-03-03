@@ -24,7 +24,9 @@ photosynthesis_outputs c3photoC(
     double const electrons_per_carboxylation,
     double const electrons_per_oxygenation,
     double const beta_PSII,
-    double const gbw);
+    double const gbw,
+    double const rwp,
+    double const rch);
 
 double solc(double LeafT);
 double solo(double LeafT);

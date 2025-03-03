@@ -19,6 +19,8 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
+        "rwp",                          // bar m2 s mol-1  
+        "rch",                          // bar m2 s mol-1
         "Gs_min",                       // mol / m^2 / s
         "Gstar_c",                      // dimensionless
         "Gstar_Ea",                     // J / mol
@@ -65,6 +67,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "EPenman",           // mmol / m^2 / s
         "EPriestly",         // mmol / m^2 / s
         "gbw",               // mol / m^2 / s
+        "rwp",               // mol / m^2 / s
+        "rch",               // mol / m^2 / s
         "GrossAssim",        // micromol / m^2 /s
         "Gs",                // mol / m^2 / s
         "leaf_temperature",  // degrees C
@@ -115,7 +119,7 @@ void c3_leaf_photosynthesis::do_operation() const
             rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, StomataWS,
             electrons_per_carboxylation,
-            electrons_per_oxygenation, beta_PSII, gbw_guess)
+            electrons_per_oxygenation, beta_PSII, gbw_guess,rwp,rch)
             .Gs;  // mol / m^2 / s
 
     // Calculate a new value for leaf temperature using the estimate for
@@ -142,7 +146,7 @@ void c3_leaf_photosynthesis::do_operation() const
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             StomataWS,
             electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-            et.gbw_molecular);
+            et.gbw_molecular,rwp,rch);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

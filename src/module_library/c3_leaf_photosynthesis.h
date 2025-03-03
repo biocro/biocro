@@ -30,6 +30,8 @@ class c3_leaf_photosynthesis : public direct_module
           b1{get_input(input_quantities, "b1")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
           Catm{get_input(input_quantities, "Catm")},
+          rwp{get_input(input_quantities, "rwp")},
+          rch{get_input(input_quantities, "rch")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
@@ -100,6 +102,8 @@ class c3_leaf_photosynthesis : public direct_module
     double const& b1;
     double const& beta_PSII;
     double const& Catm;
+    double const& rwp;
+    double const& rch;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw_canopy;

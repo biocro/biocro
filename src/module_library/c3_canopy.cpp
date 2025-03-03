@@ -21,6 +21,8 @@ string_vector c3_canopy::get_inputs()
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
+        "rwp",                          // bar m2 s mol-1  
+        "rch",                          // bar m2 s mol-1
         "growth_respiration_fraction",  // dimensionless
         "Gs_min",                       // mol / m^2 / s
         "Gstar_c",                      // dimensionless
@@ -129,6 +131,8 @@ void c3_canopy::do_operation() const
         electrons_per_carboxylation,
         electrons_per_oxygenation,
         gbw_canopy,
+        rwp,
+        rch,
         growth_respiration_fraction,
         Gs_min,
         heightf,
