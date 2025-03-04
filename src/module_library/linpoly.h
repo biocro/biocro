@@ -1,6 +1,9 @@
 #ifndef LINPOLY
 #define LINPOLY
 
+#include <array>
+
+
 template<typename T>
 struct linpoly {
     T c0, c1;

@@ -108,14 +108,11 @@ class vc_c4_biochemical {
     vc_c4_biochemical() {}
 
     vc_c4_result get_assim(double Qi, double Ci, double temp) const;
-    double assim(double Qi, double Ci, double temp) const;
+    double assim(double Ci, double Ci, double temp) const;
 
 };
 
 
-class electron_transport {
-
-};
 
 template<typename response_type = constant_response>
 class temp_parameter {
