@@ -1,5 +1,7 @@
 #include <cmath>                             // for pow, sqrt, std::abs
 #include <algorithm>                         // for std::min
+#include <stdexcept>
+#include <limits>
 #include "ball_berry_gs.h"                   // for ball_berry_gs
 #include "FvCB_assim.h"                      // for FvCB_assim
 #include "conductance_limited_assim.h"       // for conductance_limited_assim
@@ -9,6 +11,125 @@
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
+
+
+
+inline bool is_close(double x, double y, double atol, double rtol){
+    return std::abs(x - y) <= atol + rtol * std::abs(y);
+}
+
+inline bool is_zero(double x, double atol){
+    return std::abs(x) <= atol;
+}
+
+struct secant_output {
+    double solution;
+    int iterations;
+};
+
+template<typename F>
+secant_output find_root_secant_method(
+    F fun, double x0, double x1,
+    int max_iter = 100,
+    double atol = std::numeric_limits<double>::epsilon(),
+    double rtol = std::numeric_limits<double>::epsilon()
+){
+
+    // check inputs for trivial solutions
+    double y0 = fun(x0);
+    if (is_zero(y0, atol)) { return secant_output{x0, 0}; }
+
+    // guesses should be different
+    if (is_close(x1, x0, atol, rtol)) {
+        throw std::runtime_error(
+            "Within tolerance, x0 == x1. Initial guesses should be distinct. ");
+    }
+
+    double y1 = fun(x1);
+    if (is_zero(y1, atol)) { return secant_output{x1, 0}; }
+
+    double x2;
+    for (int n = 0; n < max_iter; ++n){
+
+        double delta_y = y1 - y0;
+        if (is_zero(delta_y, atol)) {
+            throw std::runtime_error("Encountered secant = zero.");
+        }
+
+        // secant formula
+        x2 = (y1 * x0 - y0 * x1)/delta_y;
+        double y2 = fun(x2);
+
+        // check convergence
+        if (is_zero(y2, atol)) {
+            return secant_output{x2, n};
+        }
+
+        // update
+        x0 = x1;
+        x1 = x2;
+        y0 = y1;
+        y1 = y2;
+    }
+
+    throw std::runtime_error("Secant method exceeded max iterations.");
+}
+
+
+struct Ci_balance {
+    double Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation,
+            Ca,
+            RH,
+            b0_adj,
+            b1_adj,
+            gbw,
+            Tleaf,
+            Tambient,
+            dr_boundary,
+            dr_stomata;
+
+
+    double operator()(double Ci) {
+        FvCB_outputs FvCB_res = FvCB_assim(
+            Ci,
+            Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation);
+
+        stomata_outputs BB_res = ball_berry_gs(
+            FvCB_res.An * 1e-6,
+            Ca * 1e-6,
+            RH,
+            b0_adj,
+            b1_adj,
+            gbw,
+            Tleaf,
+            Tambient);
+
+        double g_total = 1/(dr_boundary / gbw + dr_stomata / BB_res.gsw);
+        return g_total * ( Ca - Ci) - FvCB_res.An;
+
+    }
+};
+
 
 photosynthesis_outputs c3photoC(
     c3_temperature_response_parameters const tr_param,
@@ -74,30 +195,41 @@ photosynthesis_outputs c3photoC(
     double const b1_adj = StomWS * b1;
 
     // Initialize variables before running fixed point iteration in a loop
-    FvCB_outputs FvCB_res;
-    stomata_outputs BB_res;
+
     double an_conductance{};            // micromol / m^2 / s
     double Gs{1e3};                     // mol / m^2 / s      (initial guess)
-    double Ci{0.0};                     // micromol / mol     (initial guess)
+    //double Ci{0.0};                     // micromol / mol     (initial guess)
     double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
     double const Tol{0.01};             // micromol / m^2 / s
     int iterCounter{0};
     int max_iter{1000};
 
-    // Run iteration loop
-    while (iterCounter < max_iter) {
-        double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
+    Ci_balance ci_fun{
+            Gstar,
+            J,
+            Kc,
+            Ko,
+            Oi,
+            Rd,
+            TPU,
+            Vcmax,
+            alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation,
+            Ca,
+            RH,
+            b0_adj,
+            b1_adj,
+            gbw,
+            Tleaf,
+            Tambient,
+            dr_boundary,
+            dr_stomata
+    };
 
-        // The net CO2 assimilation is the smaller of the biochemistry-limited
-        // and conductance-limited rates. This will prevent the calculated Ci
-        // value from ever being < 0. This seems to be an important restriction
-        // to prevent numerical errors during the convergence loop, but does not
-        // actually limit the net assimilation rate if the loop converges.
-        an_conductance =
-            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
-
-        FvCB_res = FvCB_assim(
-            Ci,
+    secant_output Ci = find_root_secant_method(ci_fun, Gstar, Ca, 100, 1e-12, 1e-12);
+    FvCB_outputs FvCB_res = FvCB_assim(
+            Ci.solution,
             Gstar,
             J,
             Kc,
@@ -110,9 +242,7 @@ photosynthesis_outputs c3photoC(
             electrons_per_carboxylation,
             electrons_per_oxygenation);
 
-        co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
-
-        BB_res = ball_berry_gs(
+    stomata_outputs BB_res = ball_berry_gs(
             co2_assimilation_rate * 1e-6,
             Ca * 1e-6,
             RH,
@@ -122,30 +252,17 @@ photosynthesis_outputs c3photoC(
             Tleaf,
             Tambient);
 
-        Gs = BB_res.gsw;  // mol / m^2 / s
-
-        // Calculate Ci using the total conductance across the boundary layer
-        // and stomata
-        Ci = Ca - co2_assimilation_rate *
-                      (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
-
-        if (std::abs(OldAssim - co2_assimilation_rate) < Tol) {
-            break;
-        }
-
-        ++iterCounter;
-    }
-
+    an_conductance = conductance_limited_assim(Ca, gbw, BB_res.gsw);
     return photosynthesis_outputs{
-        /* .Assim = */ co2_assimilation_rate,       // micromol / m^2 / s
+        /* .Assim = */ FvCB_res.An,       // micromol / m^2 / s
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
-        /* .Ci = */ Ci,                             // micromol / mol
+        /* .Ci = */ Ci.solution,                             // micromol / mol
         /* .GrossAssim = */ FvCB_res.Vc,            // micromol / m^2 / s
-        /* .Gs = */ Gs,                             // mol / m^2 / s
+        /* .Gs = */ BB_res.gsw,                             // mol / m^2 / s
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
-        /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
-        /* .iterations = */ iterCounter             // not a physical quantity
+        /* .Rp = */ FvCB_res.Vc * Gstar / Ci.solution,       // micromol / m^2 / s
+        /* .iterations = */ Ci.iterations             // not a physical quantity
     };
 }
 
