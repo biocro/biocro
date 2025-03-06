@@ -415,32 +415,39 @@ be achieved through the following steps:
    with a new release, and it is better to address them _before_ finalizing the
    release. (Otherwise, there may be several releases in quick succession with
    only minor or trivial changes between them; for example, BioCro versions
-   3.1.1 and 3.1.2.) The package maintainer is responsible for submitting to
-   CRAN, and the process consists of the following steps:
-
-   1. Build the package with `R CMD build`[^compressing_vignettes].
-
-   2. Attach the resulting `.tar.gz` file to the form here:
-      https://cran.r-project.org/submit.html.
-
-   3. Paste the contents of `cran-comments.md` in the form's comments box.
-
-   4. Submit, cross fingers, and wait. BioCro's online testing system should
-      catch most issues before reaching this point, but sometimes CRAN starts
-      enforcing rules that are not clearly explained anywhere or not checked
-      by `R CMD check`. If any issues are found by CRAN, address them and try
-      again.
-
-      Official and semi-official lists of CRAN requirements can be found at:
-
-      - https://cran.r-project.org/web/packages/policies.html
-
-      - https://r-pkgs.org/release.html#release
-
-      - https://github.com/DavisVaughan/extrachecks
+   3.1.1 and 3.1.2.) See the ["Submitting to CRAN" chapter](#cran-submission)
+   for instructions.
 
 7. When the new version is on CRAN, merge the release branch into `develop` and
    then `main`.
+
+### Submitting a new version of BioCro to CRAN {#cran-submission}
+
+The package maintainer is responsible for submitting to CRAN, and the process
+consists of the following steps:
+
+1. Build the package with `R CMD build`[^compressing_vignettes].
+
+2. Attach the resulting `.tar.gz` file to the form here:
+   https://cran.r-project.org/submit.html.
+
+3. Paste the contents of `cran-comments.md` in the form's comments box.
+
+4. Submit, cross fingers, and wait. If any issues are found by CRAN, address
+   them and try again.
+
+BioCro's online testing system should catch most issues before reaching this
+point, but sometimes CRAN starts enforcing rules that are not clearly explained
+anywhere or not checked by `R CMD check`. The most up-to-date description of
+CRAN's requirements can be obtained from the following official and
+semi-official sources, which each offer a different perspective on CRAN
+submission:
+
+ - https://cran.r-project.org/web/packages/policies.html
+
+ - https://r-pkgs.org/release.html#release
+
+ - https://github.com/DavisVaughan/extrachecks
 
 ## Code style
 
