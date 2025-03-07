@@ -1,6 +1,6 @@
 Package: BioCro
-Version: 3.1.3
-Date: 2024-04-22
+Version: 3.2.0
+Date: 2025-02-25
 Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
     that facilitates modularity in model building and allows users to harness
@@ -13,6 +13,10 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-7025-3906")),
     person("Edward B.", "Lochocki", role = 'aut',
            comment = c(ORCID = "0000-0002-4912-9783")),
+    person("Yufeng", "He", role = 'aut',
+           comment = c(ORCID = "0000-0001-9895-1880")),
+    person("Scott W.", "Oswald", role = 'aut',
+           comment = c(ORCID = "0000-0002-1906-0340")),
     person("Scott", "Rohde", role = 'aut',
            comment = c(ORCID = "0000-0001-9030-0936")),
     person("Deepak", "Jaiswal", role = 'aut',

@@ -75,6 +75,11 @@ dependencies, see, for example, Russ Cox's article [Our Software
 Dependency Problem] and Bill Sourour's article [Code dependencies are
 the devil].
 
+[^compressing_vignettes]: If a package contains large vignette files,
+`R CMD check` may produce an error about overly large documentation. In this
+case, it can be helpful to specify `--compact-vignettes=both` when calling
+`R CMD build`. Previously this was an important issue for BioCro, but it has
+been mitigated by designating most vignettes as "web only."
 
 <!-- main text -->
 
@@ -91,7 +96,7 @@ the devil].
  members of the group also have diverse backgrounds and likely can
  give valuable design insights.
 
-### Follow BioCro's git branching structure
+### Follow BioCro's git branching structure {#branch-structure}
 
 * In general, BioCro development follows the [git-flow][] branching model, where
   there are two permanent branches (`main` and `develop`) and three types of
@@ -170,14 +175,17 @@ the devil].
     new version of the package, a release branch is used to move the changes
     from `develop` to `main`. Release branches should not include substantive
     changes; rather, a release branch is primarily used to increment the package
-    version and to ensure an up-to-date changelog in `NEWS.md`. A release branch
+    version and to ensure an up-to-date changelog in `NEWS.md`; see the
+    ["New Release" chapter](#new-release) for more details. A release branch
     should be branched off `develop`. When it's ready, it should first merged
-    into `main` via an approved pull request. Then, a second pull request should
-    be made to merge into `develop`. If there are no merge conflicts or test
+    into `develop` via an approved pull request. Then, a second pull request
+    should be made to merge into `main`. (If the first PR target is `main`, it
+    will be difficult to discern the minor changes in the release branch from
+    the other changes in `develop`.) If there are no merge conflicts or test
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
 
-### Etiquette for pull requests
+### Etiquette for pull requests {#pr-etiquette}
 
 We have several conventions when making and reviewing pull requests that are
 designed to make the process as efficient as possible, and to minimize any
@@ -372,6 +380,83 @@ discuss the following questions:
    to changes in its dependencies?
 
 3. Which BioCro features will be added or lost?
+
+### Releasing a new version of BioCro {#new-release}
+
+When releasing a new version of BioCro, it is essential to make sure that
+`NEWS.md` is up to date and that the new version is acceptable to CRAN. This can
+be achieved through the following steps:
+
+1. Choose the next version number; our conventions for semantic versioning are
+   described in `NEWS.md`.
+
+2. Make a new release branch whose name is formatted as `release-vX.Y.X`, where
+   `X.Y.Z` is the new version number, as described in the
+   ["Branching Structure" chapter](#branch-structure).
+
+3. Update the `DESCRIPTION` file with the new release date (set to today's
+   date), the new version number, and any necessary changes to the author list.
+
+4. Change the `UNRELEASED` header in `NEWS.md` to the new version number, and
+   check the contents of this section to ensure it is clear and complete. It may
+   be helpful to look through the list of completed pull requests on GitHub to
+   check for any important changes that may have been missed.
+
+5. Run `R CMD check` to see any NOTEs that are reported; see the
+   ["Running R CMD check chapter"](#r-cmd-check) for instructions. Check the
+   contents of `cran-comments.md` to make sure it accurately reflects the
+   `R CMD check` notes.
+
+6. Make a pull request, requesting to merge the new branch into `develop`. In
+   general, follow the guidelines in the
+   ["Pull Request Etiquette" chapter](#pr-etiquette). However, there is one
+   extra requirement for a release branch: the branch should not be merged until
+   the new version has been accepted by CRAN. Sometimes CRAN may have issues
+   with a new release, and it is better to address them _before_ finalizing the
+   release. (Otherwise, there may be several releases in quick succession with
+   only minor or trivial changes between them; for example, BioCro versions
+   3.1.1 and 3.1.2.) See the ["Submitting to CRAN" chapter](#cran-submission)
+   for instructions.
+
+7. When the new version is on CRAN, merge the release branch into `develop` and
+   then `main`.
+
+### Submitting a new version of BioCro to CRAN {#cran-submission}
+
+The package maintainer is responsible for submitting to CRAN, and the process
+consists of the following steps:
+
+1. Build the package with `R CMD build`[^compressing_vignettes] using the
+   current release version.
+
+2. Test the resulting `.tar.gz` file using `R CMD check --as-cran` using the
+   current release version and the current development version on Linux and
+   Windows. GitHub actions run this for R current Windows and Linux, and R
+   devel Linux, so only R devel Windows needs to be checked locally.
+
+3. Attach the resulting `.tar.gz` file to the form here:
+   https://cran.r-project.org/submit.html.
+
+4. Paste the contents of `cran-comments.md` in the form's comments box.
+
+5. Submit, cross fingers, and wait. If any issues are found by CRAN, address
+   them and try again. If the checks fail only from permissible NOTES, such as
+   using C++11, reply to the email indicating the justification, for example,
+   we use a library that uses C++11. You can restate what is in
+   `cran-comments.md`.
+
+BioCro's online testing system should catch most issues before reaching this
+point, but sometimes CRAN starts enforcing rules that are not clearly explained
+anywhere or not checked by `R CMD check`. The most up-to-date description of
+CRAN's requirements can be obtained from the following official and
+semi-official sources, which each offer a different perspective on CRAN
+submission:
+
+ - https://cran.r-project.org/web/packages/policies.html
+
+ - https://r-pkgs.org/release.html#release
+
+ - https://github.com/DavisVaughan/extrachecks
 
 ## Code style
 

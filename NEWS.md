@@ -4,11 +4,10 @@ release.
 
 All changes related to a particular release should be collected under a heading
 specifying the version number of that release, such as
-"# CHANGES IN BioCro VERSION 2.0.0". The individual changes should be listed as
-bullet points and categorized under "## MAJOR CHANGES", "## MINOR CHANGES",
-or "## BUG FIXES" following the major.minor.patch structure of semantic
-versioning. When applicable, entries should include direct links to the relevant
-pull requests.
+"# Changes in BioCro Version 2.0.0". The individual changes should be listed as
+bullet points and categorized under "## Major Changes", "## Minor Changes",
+or "## Bug Fixes" following the major.minor.patch structure of semantic
+versioning, or variants of these such as "## Minor User-Facing Changes".
 
 To facilitate this, when a feature on a feature branch is completed and a pull
 request is being prepared, a new section should be added at the top of this file
@@ -25,26 +24,26 @@ merge conflict.)
 
 Finally, when a new release is made, "# UNRELEASED" should be replaced by a
 heading with the new version number, such as
-"# CHANGES IN BioCro VERSION 2.0.0". This section will combine the draft release
+"# Changes in BioCro Version 2.0.0". This section will combine the draft release
 notes for all features that have been added since the previous release.
 
 In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
-# UNRELEASED
+# Changes in BioCro version 3.2.0
 
-# MINOR USER-FACING CHANGES
+## Minor User-Facing Changes
 
-- Added maintenance respirations for each organ in a new module called
-  `maintenance_respiration`. The maintenance respiration is modelled by removing
-  a fraction of dry biomasses. It removes a fraction of an organ by a constant
-  parameter called `mrc_*` (e.g., `mrc_leaf`) and also by a Q10-based
-  temperature response. This differs from the existing growth respirations that
-  are applied to stem and root. The growth respiration is often to scale the
-  carbon assimilation.
+- Added maintenance respiration for each organ in a new module called
+  `BioCro:maintenance_respiration`. Maintenance respiration is modelled by
+  removing a fraction of dry biomass. The fraction removed is determined by an
+  organ-specific "maintenance respiration coefficient" (such as `mrc_leaf`) and
+  follows a Q10 temperature response. This differs from the existing growth
+  respiration that is applied to the stem and root, and from a separate canopy
+  growth respiration that can be used to rescale the canopy assimilation rate.
 
-- Separated the specific leaf area calculations from the
+- Separated the specific leaf area (SLA) calculations from the
   `BioCro:parameter_calculator` module to enable alternate approaches to SLA.
   The original method is now available as the `BioCro:sla_linear` module, and a
   new logistic method has been added: `BioCro:sla_logistic`. The stored crop
@@ -55,7 +54,7 @@ be directly added to this file to describe the related changes.
   alternative to the `BioCro:thermal_time_development_rate_calculator`
   differential module.
 
-- C3 temperature response parameters are no longer hard-coded into `c3photoC`:
+- C3 temperature response parameters are no longer hard-coded into `c3photoC()`:
 
   - There are now specialized structs for the temperature response parameters
     (`c3_temperature_response_parameters`) and the temperature-dependent values
@@ -75,52 +74,56 @@ be directly added to this file to describe the related changes.
     the `polynomial_response()` function input argument names.
 
 - Added a new vignette explaining key features of BioCro's multilayer canopy
-  model
-
-- Made several changes to `sunML` and related functions to ensure the code
-  matches the model description in the vignette:
+  model, and made several changes to `sunML()` and related functions to ensure
+  that the code matches the model description in the vignette:
 
   - Stopped calculating and using the "average" incident PPFD and absorbed
-    shortwave radiation for leaves in the canopy
+    shortwave radiation for leaves in the canopy.
 
   - Stopped using the "thick layer absorption" equation for determining the
     absorbed shortwave radiation within the canopy, replacing it with the thin
-    layer absorption equation
+    layer absorption equation.
 
-  - Used a simpler equation for calculating the fraction of sunlit leaves
+  - Used a simpler equation for calculating the fraction of sunlit leaves.
 
-  - Used the same absorptivity value for direct and diffuse light
+  - Used the same absorptivity value for direct and diffuse light.
 
   - Used separate leaf transmittance and reflectance values for PAR and NIR
     radiation within the canopy, rather than always assuming that light in the
     two bands are absorbed and scattered equally; in general, this caused a
-    reduction in the absorbed shortwave energy for all leaves
+    reduction in the absorbed shortwave energy for all leaves.
 
   - Started calculating absorptivity as `1 - R - T`, where `R` and `T` are the
     leaf reflectance and transmittance coefficients, respectively. This ensures
     that the constraint `A + R + T = 1` is always satisfied.
 
 - Made several changes to BioCro's time handling:
+
   - The `time` variable is now required to be sequential and evenly spaced,
     where the time interval must be equal to `timestep`. A consequence is that
-    `time` and `timestep` are expected to have the same units.
+    `time` and `timestep` must have the same units.
+
   - With this change, it was necessary to change the definition of `time` used
-    with the crop models. Now it is expected to be expressed as the number of
-    hours since midnight on January 1, rather than a fractional day of year.
+    with the crop models. Now it is expected to be expressed as the (fractional)
+    number of hours since midnight on January 1, rather than a fractional day of
+    year.
+
   - There is a new module for calculating `doy` and `hour` from `time`, called
     `BioCro:format_time`. This module ensures that `doy` always takes integer
     values in the output from `run_biocro`.
+
   - In most cases, old scripts calling `run_biocro` will continue to function
     following these changes because `time` will be correctly computed from `doy`
     and `hour`, and `BioCro:format_time` will be automatically added to module
     lists.
+
   - The redefinition of `time` from days to hours may require changes to
     plotting commands or other operations using `time`. In most cases, instances
     of `time` in old scripts can be replaced by `fractional_doy`, which is
     equivalent to the definition of `time` used in previous versions of BioCro.
 
 - Added a new function for generating C++ header files for new module classes:
-  `module_write`
+  `module_write`.
 
 - Added several functions to help with model regression tests:
   `compare_model_output`, `model_test_case`, `run_model_test_cases`, and
@@ -128,22 +131,43 @@ be directly added to this file to describe the related changes.
   `tests/testthat/crop_model_testing_helper_functions.R`.
 
 - The conversion of CO2 assimilation to biomass is no longer hard coded into
-  the photosynthesis modules: c3CanAC, CanAC, multilayer_canopy_integrator, etc.
-  These modules now produce canopy assimilation rates in micromol CO2 / m^2 / s.
-  A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
-  conversion. A new parameter `dry_biomass_per_carbon` controls the conversion.
-  All affected models have the same behavior as before if the new module is used
-  with `dry_biomass_per_carbon = 30.026` g / mol. See module documentation for
-  details.
+  the photosynthesis functions and modules, such as `c3CanAC()`, `CanAC()`,
+  and `BioCro:ten_layer_multilayer_canopy_integrator`.
 
-## OTHER CHANGES
+  - These functions and modules now produce canopy assimilation rates as
+    molecular fluxes (with units of micromol CO2 / m^2 / s).
+
+  - A new module called `BioCro:carbon_assimilation_to_biomass` now performs the
+    conversion to rates of dry biomass acculumation (with units of
+    Mg / ha / hr). A new parameter `dry_biomass_per_carbon` controls the
+    conversion.
+
+  - All affected models have the same behavior as before if the new module is
+    used with `dry_biomass_per_carbon` set to 30.026 g / mol.
+
+- The `soybean` model was re-parameterized following changes to module behavior.
+
+## Other Changes
 
 - Consolidated all temperature response functions into a single header file
   (`src/module_library/temperature_response_functions.h`) that now includes
   `arrhenius_exponential()`, `Q10_temperature_response()`,
   `johnson_eyring_williams_response()`, and `polynomial_response()`.
 
-# CHANGES IN BioCro VERSION 3.1.3
+- The developer documentation was updated to include a section about pull
+  requests.
+
+## Bug fixes
+
+- Fixed incorrect `year` column values in the weather data.
+
+- Fixed a mistake where the CMI weather data for 2023 was a copy of the 2022
+  data.
+
+- The `ode_solver` input argument of `run_biocro` is now checked to ensure the
+  essential list elements are provided.
+
+# Changes in BioCro Version 3.1.3
 
 - This is the first version of BioCro to be accepted by CRAN! Most of the
   changes since version 3.1.0 were needed to comply with CRAN policies and
@@ -151,29 +175,37 @@ be directly added to this file to describe the related changes.
 
 - Several changes have been made to reduce the package size from over 20 MB to
   less than 5 MB:
+
   - Crop model regression tests only store 1 of every 24 rows (one time point
-    from each day)
-  - The stored weather data has been rounded to 3 significant digits
-    - The `solar` values have been rounded to the nearest integer
-    - The `rh` values have been rounded to 2 significant digits
+    from each day).
+
+  - The stored weather data has been rounded to 3 or fewer significant digits:
+
+    - The `solar` values have been rounded to the nearest integer.
+
+    - The `rh` values have been rounded to 2 significant digits.
+
   - The stored crop model regression test data has been rounded to 5 significant
-    digits
+    digits.
+
   - All previously-existing vignettes were converted to "web only," meaning they
     will be available through the pkgdown website but not included with the
-    package itself
+    package itself.
+
   - A new vignette has been added (`BioCro.Rmd`) that simply redirects readers
-    to the documentation website
+    to the documentation website.
 
 - Moved the included boost libraries from `inc` to `src/inc` since CRAN will not
   allow a nonstandard top-level directory. Some paths were shortened during
-  this move.
+  this move. The submodule repository was also renamed from `biocro/boost` to
+  `biocro/inc`.
 
 - Added the Boost organization to the authors as a copyright holder to comply
-  with CRAN policies
+  with CRAN policies.
 
 - Addressed a `missing-field-initializers` warning from the compiler by
   explicitly setting `iterations` to 0 in the output from
-  `rue_leaf_photosynthesis`
+  `rue_leaf_photosynthesis`.
 
 - Addressed a mistake in `thermal_time_and_frost_senescence.h` where the leaf
   death rate due to frost had been unintentionally set to 0 in all conditions.
@@ -181,23 +213,25 @@ be directly added to this file to describe the related changes.
   of function declared with 'nodiscard' attribute" warning.
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
-  3.6.0 to 4.2.0
-  - CRAN now only provides R versions 4.1.0 and above for Mac
-  - The `deSolve` package cannot be built on Mac for R versions below 4.2.0
+  3.6.0 to 4.2.0.
 
-# CHANGES IN BioCro VERSION 3.1.2
+  - CRAN now only provides R versions 4.1.0 and above for Mac.
+
+  - The `deSolve` package cannot be built on Mac for R versions below 4.2.0.
+
+# Changes in BioCro Version 3.1.2
 
 - Variable-length arrays were eliminated from the module library code
   and replaced with std::vector.
 
-# CHANGES IN BioCro VERSION 3.1.1
+# Changes in BioCro Version 3.1.1
 
 - The package date in its DESCRIPTION file was updated to meet CRAN submission
-  requirements (must be less than one month old)
+  requirements (must be less than one month old).
 
-# CHANGES IN BioCro VERSION 3.1.0
+# Changes in BioCro Version 3.1.0
 
-## MINOR USER-FACING CHANGES
+## Minor User-Facing Changes
 
 - Another bug was corrected in `src/module_library/c3photoC.cpp`: The
   photorespiration value `Rp` is now calculated using the value of `Ci` from the
@@ -233,7 +267,7 @@ be directly added to this file to describe the related changes.
   `BioCro:solar_position_michalsky` and
   `BioCro:shortwave_atmospheric_scattering` modules.
 
-## OTHER CHANGES
+## Other Changes
 
 - All instances of `fabs` or unqualified `abs` have been replaced by `std::abs`.
   The use of unqualified `abs` in `src/module_library/c3photoC.cpp` had been
@@ -295,15 +329,15 @@ be directly added to this file to describe the related changes.
   `Rf_error` and `Rprintf` without a format specifier; a format specifier of
   `"%s"` should always be used when printing the value of a string variable.
 
-# CHANGES IN BioCro VERSION 3.0.2
+# Changes in BioCro Version 3.0.2
 
-## MINOR CHANGES
+## Minor Changes
 
 - This version adds several missing references to the main README.
 
-# CHANGES IN BioCro VERSION 3.0.1
+# Changes in BioCro Version 3.0.1
 
-## MINOR CHANGES
+## Minor Changes
 
 - This version pertains only to the GitHub documentation workflow.  It
   changes the publication location to the
@@ -315,9 +349,9 @@ be directly added to this file to describe the related changes.
   https://biocro.github.io/BioCro-documentation/<tag name>/pkgdown/,
   where <tag name> is the tag name for the new release.
 
-# CHANGES IN BioCro VERSION 3.0.0
+# Changes in BioCro Version 3.0.0
 
-## MAJOR CHANGES
+## Major Changes
 
 - This version introduces the concept of distinct module libraries, allowing
   users to develop modules in private and to create collections of related
@@ -351,7 +385,7 @@ be directly added to this file to describe the related changes.
   assembles and solves models. Associated with this change, the BioCro R package
   is now licensed under the MIT license. See `LICENSE.note` for details.
 
-## MINOR CHANGES
+## Minor Changes
 
 - The `soil_type_selector` module has been removed and replaced with a data
   object called `soil_parameters`. For crop models that previously set the
@@ -371,7 +405,7 @@ be directly added to this file to describe the related changes.
 - Many small improvements have been made to the documentation and the module
   code in `src/module_library`; these changes are too numerous to list here.
 
-## BUG FIXES
+## Bug Fixes
 
 - The elements of the `arg_names` input to `partial_run_biocro` can now be in
   any order; previously, they were required to be supplied in the same order as
@@ -386,33 +420,39 @@ be directly added to this file to describe the related changes.
   when accessing vector elements in the C++ function
   `dynamical_system::update_drivers`.
 
-# CHANGES IN BioCro VERSION 2.0.0
+# Changes in BioCro Version 2.0.0
 
-## MAJOR CHANGES
+## Major Changes
 
 - This version is a major update to the design of BioCro. In this version,
   subsets of a model are called _modules_. The design attempts to meet the
   following goals:
+
   - Make it easier to reuse modules between species, such as the C3
     photosynthesis modules.
+
   - Make it easier to swap related modules for comparison, for example,
     comparing the Farquhar-von-Caemmerer-Berry model to a radiation use
     efficiency model.
+
   - Simplify parameter optimization and sensitivity analysis by providing an
     interface readily useable by common optimizers and similar functions.
 
 - More details can be found in the peer-reviewed publication in _in silico_
   Plants [Lochocki et al., 2022](https://doi.org/10.1093/insilicoplants/diac003)
   and in the vignettes included with the package:
+
   - _A Practical Guide to BioCro_
+
   - _Quantitative Comparison Between Two Photosynthesis Models_
+
   - _An Introduction to BioCro for Those Who Want to Add Models_
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
   can be obtained online from the _Articles_ menu at the
   [BioCro documentation website](https://biocro.github.io).
 
-# BioCro VERSION 0.951
+# BioCro Version 0.951
 
 - This is the last release of the original version of BioCro, which was first
   described in [Miguez et al., 2009](https://doi.org/10.1111/j.1757-1707.2009.01019.x)
