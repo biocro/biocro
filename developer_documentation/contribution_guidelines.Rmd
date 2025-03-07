@@ -430,7 +430,9 @@ consists of the following steps:
    current release version.
 
 2. Test the resulting `.tar.gz` file using `R CMD check --as-cran` using the
-   current release version and the current development version.
+   current release version and the current development version on Linux and
+   Windows. GitHub actions run this for R current Windows and Linux, and R
+   devel Linux, so only R devel Windows needs to be checked locally.
 
 3. Attach the resulting `.tar.gz` file to the form here:
    https://cran.r-project.org/submit.html.
@@ -438,7 +440,10 @@ consists of the following steps:
 4. Paste the contents of `cran-comments.md` in the form's comments box.
 
 5. Submit, cross fingers, and wait. If any issues are found by CRAN, address
-   them and try again.
+   them and try again. If the checks fail only from permissible NOTES, such as
+   using C++11, reply to the email indicating the justification, for example,
+   we use a library that uses C++11. You can restate what is in
+   `cran-comments.md`.
 
 BioCro's online testing system should catch most issues before reaching this
 point, but sometimes CRAN starts enforcing rules that are not clearly explained
