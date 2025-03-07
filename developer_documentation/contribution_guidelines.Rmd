@@ -426,14 +426,18 @@ be achieved through the following steps:
 The package maintainer is responsible for submitting to CRAN, and the process
 consists of the following steps:
 
-1. Build the package with `R CMD build`[^compressing_vignettes].
+1. Build the package with `R CMD build`[^compressing_vignettes] using the
+   current release version.
 
-2. Attach the resulting `.tar.gz` file to the form here:
+2. Test the resulting `.tar.gz` file using `R CMD check --as-cran` using the
+   current release version and the current development version.
+
+3. Attach the resulting `.tar.gz` file to the form here:
    https://cran.r-project.org/submit.html.
 
-3. Paste the contents of `cran-comments.md` in the form's comments box.
+4. Paste the contents of `cran-comments.md` in the form's comments box.
 
-4. Submit, cross fingers, and wait. If any issues are found by CRAN, address
+5. Submit, cross fingers, and wait. If any issues are found by CRAN, address
    them and try again.
 
 BioCro's online testing system should catch most issues before reaching this
