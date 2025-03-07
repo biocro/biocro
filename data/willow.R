@@ -1,11 +1,17 @@
 willow <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:leaf_water_stress_exponential",
+        specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c3_canopy",
+        "BioCro:carbon_assimilation_to_biomass",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
         partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
     ),
@@ -43,26 +49,33 @@ willow <- list(
         TTc                         = 0
     ),
     parameters = list(
-        absorptivity_par             = 0.8,
         alpha1                       = 0,
         alphab1                      = 0,
         atmospheric_pressure         = 101325,
         atmospheric_scattering       = 0.3,
-        atmospheric_transmittance    = 0.6, # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
+        atmospheric_transmittance    = 0.6,      # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Pg 173
         b0                           = 0.08,
         b1                           = 5,
         beta_PSII                    = 0.5,
         Catm                         = 400,
         chil                         = 1,
+        dry_biomass_per_carbon       = 30.026,   # g CHO / mol C (glucose)
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
+        emissivity_sky               = 1,
         growth_respiration_fraction  = 0.3,
         Gs_min                       = 1e-3,
-        heightf                      = 3,
+        Gstar_c                      = 19.02,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Gstar_Ea                     = 37.83e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        heightf                      = 3,        # LAI of 6 when canopy is 2 m tall
         hydrDist                     = 0,
         iSp                          = 1.1,
         jmax                         = 180,
-        kd                           = 0.37,
+        Jmax_c                       = 17.57,    # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        Jmax_Ea                      = 43.54e3,  # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        k_diffuse                    = 0.37,
+        Kc_c                         = 38.05,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Kc_Ea                        = 79.43e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         kGrain1                      = 0,
         kGrain2                      = 0,
         kGrain3                      = 0,
@@ -75,6 +88,8 @@ willow <- list(
         kLeaf4                       = 0.15,
         kLeaf5                       = 1e-05,
         kLeaf6                       = 1e-06,
+        Ko_c                         = 20.30,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Ko_Ea                        = 36.38e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         kpLN                         = 0.2,
         kRhizome1                    = -8e-04,
         kRhizome2                    = 0.007,
@@ -96,15 +111,18 @@ willow <- list(
         kStem5                       = 0.7,
         kStem6                       = 0.7,
         lat                          = 40,
+        leaf_reflectance_nir         = 0.42,     # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_par         = 0.09,     # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_nir       = 0.42,     # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_par       = 0.04,     # Soybean values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         LeafN                        = 2,
         LeafN_0                      = 2,
-        leaf_reflectance             = 0.2,
-        leaf_transmittance           = 0.2,
+        leafwidth                    = 0.01,
         lnb0                         = -5,
         lnb1                         = 18,
         lnfun                        = 0,
         longitude                    = -88,
-        minimum_gbw                  = 0.08,
+        min_gbw_canopy               = 0.005,
         mrc1                         = 0.02,
         mrc2                         = 0.03,
         net_assimilation_rate_shell  = 0.0,
@@ -114,7 +132,12 @@ willow <- list(
         par_energy_fraction          = 0.5,
         phi1                         = 0.01,
         phi2                         = 2,
+        phi_PSII_0                   = 0.352,    # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        phi_PSII_1                   = 0.022,    # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        phi_PSII_2                   = -3.4e-4,  # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         Rd                           = 1.1,
+        Rd_c                         = 18.72,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Rd_Ea                        = 46.39e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         remobilization_fraction      = 0.6,
         retrans                      = 0.9,
         retrans_rhizome              = 1.0,
@@ -126,8 +149,8 @@ willow <- list(
         seneRoot                     = 5500,
         seneStem                     = 5500,
         soil_air_entry               = -2.6,
-        soil_bulk_density            = 1.35,
         soil_b_coefficient           = 5.2,
+        soil_bulk_density            = 1.35,
         soil_clay_content            = 0.34,
         soil_clod_size               = 0.04,
         soil_depth1                  = 0.0,
@@ -141,20 +164,28 @@ willow <- list(
         soil_silt_content            = 0.34,
         soil_transmission            = 0.01,
         soil_wilting_point           = 0.2,
-        sowing_time                  = 0,
-        specific_heat_of_air         = 1010,
+        sowing_fractional_doy        = 0,
         Sp_thermal_time_decay        = 0,
+        specific_heat_of_air         = 1010,
         tbase                        = 0,
         Tfrosthigh                   = 5,
         Tfrostlow                    = 0,
-        theta                        = 0.7,
+        theta_0                      = 0.7,      # Probably Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        theta_1                      = 0.018,    # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
+        theta_2                      = -3.7e-4,  # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         timestep                     = 1,
         tp1                          = 250,
         tp2                          = 350,
         tp3                          = 900,
         tp4                          = 1200,
         tp5                          = 3939,
+        Tp_c                         = 19.77399, # Chosen so that Tp_norm = 1 at 25 degrees C
+        Tp_Ha                        = 62.99e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
+        Tp_Hd                        = 182.14e3, # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
+        Tp_S                         = 0.588e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         tpu_rate_max                 = 23,
+        Vcmax_c                      = 26.35,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Vcmax_Ea                     = 65.33e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         vmax1                        = 100,
         vmax_n_intercept             = 0,
         windspeed_height             = 5,

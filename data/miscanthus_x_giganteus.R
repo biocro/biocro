@@ -1,13 +1,19 @@
 miscanthus_x_giganteus <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:leaf_water_stress_exponential",
+        specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c4_canopy",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
-        partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
+        partitioning_growth_calculator = "BioCro:partitioning_growth_calculator",
+        "BioCro:carbon_assimilation_to_biomass"
     ),
     differential_modules = list(
         senescence = "BioCro:thermal_time_senescence",
@@ -43,7 +49,6 @@ miscanthus_x_giganteus <- list(
         TTc                         = 0
     ),
     parameters = list(
-        absorptivity_par            = 0.8,
         alpha1                      = 0.04,
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
@@ -54,12 +59,13 @@ miscanthus_x_giganteus <- list(
         beta                        = 0.93,
         Catm                        = 400,
         chil                        = 1,
-        et_equation                 = 0,
+        dry_biomass_per_carbon      = 30.026, # g CHO / mol C (glucose)
+        emissivity_sky              = 1,
         Gs_min                      = 1e-3,
-        heightf                     = 3,
+        heightf                     = 1.33, # LAI of 4 when canopy is 3 m tall
         hydrDist                    = 0,
         iSp                         = 1.7,
-        kd                          = 0.1,
+        k_diffuse                   = 0.1,
         kGrain1                     = 0,
         kGrain2                     = 0,
         kGrain3                     = 0,
@@ -94,15 +100,17 @@ miscanthus_x_giganteus <- list(
         kStem5                      = 0.63,
         kStem6                      = 0.63,
         lat                         = 40,
+        leaf_reflectance_nir        = 0.38, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_reflectance_par        = 0.09, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_nir      = 0.45, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
+        leaf_transmittance_par      = 0.04, # Corn values from Table 7-1 from Norman & Arkebauer (1991) https://doi.org/10.2134/agronmonogr31.c7
         LeafN                       = 2,
         LeafN_0                     = 2,
         leafwidth                   = 0.04,
-        leaf_reflectance            = 0.2,
-        leaf_transmittance          = 0.2,
         lnfun                       = 0,
         longitude                   = -88,
         lowerT                      = 3,
-        minimum_gbw                 = 0.34,
+        min_gbw_canopy              = 0.005,
         mrc1                        = 0.02,
         mrc2                        = 0.03,
         nalphab0                    = 0.02367,
@@ -134,8 +142,8 @@ miscanthus_x_giganteus <- list(
         seneRoot                    = 4000,
         seneStem                    = 3500,
         soil_air_entry              = -2.6,
-        soil_bulk_density           = 1.35,
         soil_b_coefficient          = 5.2,
+        soil_bulk_density           = 1.35,
         soil_clay_content           = 0.34,
         soil_clod_size              = 0.04,
         soil_depth1                 = 0.0,
@@ -149,9 +157,9 @@ miscanthus_x_giganteus <- list(
         soil_silt_content           = 0.34,
         soil_transmission           = 0.01,
         soil_wilting_point          = 0.2,
-        sowing_time                 = 0,
-        specific_heat_of_air        = 1010,
+        sowing_fractional_doy       = 0,
         Sp_thermal_time_decay       = 0,
+        specific_heat_of_air        = 1010,
         tbase                       = 0,
         theta                       = 0.83,
         timestep                    = 1,
@@ -163,6 +171,7 @@ miscanthus_x_giganteus <- list(
         upperT                      = 37.5,
         vmax1                       = 39,
         vmax_n_intercept            = 0,
+        windspeed_height            = 10, # for SURFRAD
         wsFun                       = 2
     )
 )

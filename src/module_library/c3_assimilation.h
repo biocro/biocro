@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 #include "c3photo.h"
 
 namespace standardBML
@@ -73,26 +74,47 @@ class c3_assimilation : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          Qabs{get_input(input_quantities, "Qabs")},
-          Tleaf{get_input(input_quantities, "Tleaf")},
-          Tambient{get_input(input_quantities, "temp")},
-          rh{get_input(input_quantities, "rh")},
-          vmax1{get_input(input_quantities, "vmax1")},
-          jmax{get_input(input_quantities, "jmax")},
-          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
-          Rd{get_input(input_quantities, "Rd")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
-          Gs_min{get_input(input_quantities, "Gs_min")},
+          beta_PSII{get_input(input_quantities, "beta_PSII")},
           Catm{get_input(input_quantities, "Catm")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          O2{get_input(input_quantities, "O2")},
-          theta{get_input(input_quantities, "theta")},
-          StomataWS{get_input(input_quantities, "StomataWS")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
-          beta_PSII{get_input(input_quantities, "beta_PSII")},
           gbw{get_input(input_quantities, "gbw")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
+          jmax{get_input(input_quantities, "jmax")},
+          Jmax_c{get_input(input_quantities, "Jmax_c")},
+          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
+          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_Ea{get_input(input_quantities, "Kc_Ea")},
+          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_Ea{get_input(input_quantities, "Ko_Ea")},
+          O2{get_input(input_quantities, "O2")},
+          phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
+          phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
+          phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
+          Qabs{get_input(input_quantities, "Qabs")},
+          Rd{get_input(input_quantities, "Rd")},
+          Rd_c{get_input(input_quantities, "Rd_c")},
+          Rd_Ea{get_input(input_quantities, "Rd_Ea")},
+          rh{get_input(input_quantities, "rh")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          Tambient{get_input(input_quantities, "temp")},
+          theta_0{get_input(input_quantities, "theta_0")},
+          theta_1{get_input(input_quantities, "theta_1")},
+          theta_2{get_input(input_quantities, "theta_2")},
+          Tleaf{get_input(input_quantities, "Tleaf")},
+          Tp_c{get_input(input_quantities, "Tp_c")},
+          Tp_Ha{get_input(input_quantities, "Tp_Ha")},
+          Tp_Hd{get_input(input_quantities, "Tp_Hd")},
+          Tp_S{get_input(input_quantities, "Tp_S")},
+          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
+          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
+          vmax1{get_input(input_quantities, "vmax1")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
@@ -112,26 +134,47 @@ class c3_assimilation : public direct_module
 
    private:
     // References to input quantities
-    double const& Qabs;
-    double const& Tleaf;
-    double const& Tambient;
-    double const& rh;
-    double const& vmax1;
-    double const& jmax;
-    double const& tpu_rate_max;
-    double const& Rd;
+    double const& atmospheric_pressure;
     double const& b0;
     double const& b1;
-    double const& Gs_min;
+    double const& beta_PSII;
     double const& Catm;
-    double const& atmospheric_pressure;
-    double const& O2;
-    double const& theta;
-    double const& StomataWS;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& beta_PSII;
     double const& gbw;
+    double const& Gs_min;
+    double const& Gstar_c;
+    double const& Gstar_Ea;
+    double const& jmax;
+    double const& Jmax_c;
+    double const& Jmax_Ea;
+    double const& Kc_c;
+    double const& Kc_Ea;
+    double const& Ko_c;
+    double const& Ko_Ea;
+    double const& O2;
+    double const& phi_PSII_0;
+    double const& phi_PSII_1;
+    double const& phi_PSII_2;
+    double const& Qabs;
+    double const& Rd;
+    double const& Rd_c;
+    double const& Rd_Ea;
+    double const& rh;
+    double const& StomataWS;
+    double const& Tambient;
+    double const& theta_0;
+    double const& theta_1;
+    double const& theta_2;
+    double const& Tleaf;
+    double const& Tp_c;
+    double const& Tp_Ha;
+    double const& Tp_Hd;
+    double const& Tp_S;
+    double const& tpu_rate_max;
+    double const& Vcmax_c;
+    double const& Vcmax_Ea;
+    double const& vmax1;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -151,26 +194,47 @@ class c3_assimilation : public direct_module
 string_vector c3_assimilation::get_inputs()
 {
     return {
-        "Qabs",                         // micromol / m^2 / s
-        "Tleaf",                        // degrees C
-        "temp",                         // degrees C
-        "rh",                           // dimensionless
-        "vmax1",                        // micromol / m^2 / s
-        "jmax",                         // micromol / m^2 / s
-        "tpu_rate_max",                 // micromol / m^2 / s
-        "Rd",                           // micromol / m^2 / s
+        "atmospheric_pressure",         // Pa
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
-        "Gs_min",                       // mol / m^2 / s
+        "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
         "Catm",                         // micromol / mol
-        "atmospheric_pressure",         // Pa
-        "O2",                           // millimol / mol
-        "theta",                        // dimensionless
-        "StomataWS",                    // dimensionless
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
-        "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
-        "gbw"                           // mol / m^2 / s
+        "gbw",                          // mol / m^2 / s
+        "Gs_min",                       // mol / m^2 / s
+        "Gstar_c",                      // dimensionless
+        "Gstar_Ea",                     // J / mol
+        "jmax",                         // micromol / m^2 / s
+        "Jmax_c",                       // dimensionless
+        "Jmax_Ea",                      // J / mol
+        "Kc_c",                         // dimensionless
+        "Kc_Ea",                        // J / mol
+        "Ko_c",                         // dimensionless
+        "Ko_Ea",                        // J / mol
+        "O2",                           // millimol / mol
+        "phi_PSII_0",                   // dimensionless
+        "phi_PSII_1",                   // (degrees C)^(-1)
+        "phi_PSII_2",                   // (degrees C)^(-2)
+        "Qabs",                         // micromol / m^2 / s
+        "Rd",                           // micromol / m^2 / s
+        "Rd_c",                         // dimensionless
+        "Rd_Ea",                        // J / mol
+        "rh",                           // dimensionless
+        "StomataWS",                    // dimensionless
+        "temp",                         // degrees C
+        "theta_0",                      // dimensionless
+        "theta_1",                      // (degrees C)^(-1)
+        "theta_2",                      // (degrees C)^(-2)
+        "Tleaf",                        // degrees C
+        "Tp_c",                         // dimensionless
+        "Tp_Ha",                        // J / mol
+        "Tp_Hd",                        // J / mol
+        "Tp_S",                         // J / K / mol
+        "tpu_rate_max",                 // micromol / m^2 / s
+        "Vcmax_c",                      // dimensionless
+        "Vcmax_Ea",                     // J / mol
+        "vmax1"                         // micromol / m^2 / s
     };
 }
 
@@ -178,7 +242,7 @@ string_vector c3_assimilation::get_outputs()
 {
     return {
         "Assim",              // micromol / m^2 / s
-        "Gs",                 // millimol / m^2 / s
+        "Gs",                 // mol / m^2 / s
         "Cs",                 // micromol / m^2 / s
         "RHs",                // dimensionless from Pa / Pa
         "Ci",                 // micromol / mol
@@ -191,7 +255,33 @@ string_vector c3_assimilation::get_outputs()
 
 void c3_assimilation::do_operation() const
 {
+    // Combine temperature response parameters
+    c3_temperature_response_parameters const tr_param{
+        Gstar_c,
+        Gstar_Ea,
+        Jmax_c,
+        Jmax_Ea,
+        Kc_c,
+        Kc_Ea,
+        Ko_c,
+        Ko_Ea,
+        phi_PSII_0,
+        phi_PSII_1,
+        phi_PSII_2,
+        Rd_c,
+        Rd_Ea,
+        theta_0,
+        theta_1,
+        theta_2,
+        Tp_c,
+        Tp_Ha,
+        Tp_Hd,
+        Tp_S,
+        Vcmax_c,
+        Vcmax_Ea};
+
     photosynthesis_outputs c3_results = c3photoC(
+        tr_param,
         Qabs,
         Tleaf,
         Tambient,
@@ -206,7 +296,6 @@ void c3_assimilation::do_operation() const
         Catm,
         atmospheric_pressure,
         O2,
-        theta,
         StomataWS,
         electrons_per_carboxylation,
         electrons_per_oxygenation,

@@ -66,7 +66,7 @@ class grimm_soybean_flowering_calculator : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          sowing_time{get_input(input_quantities, "sowing_time")},
+          sowing_fractional_doy{get_input(input_quantities, "sowing_fractional_doy")},
           grimm_physiological_age{get_input(input_quantities, "grimm_physiological_age")},
           grimm_juvenile_T0{get_input(input_quantities, "grimm_juvenile_T0")},
           grimm_juvenile_T1{get_input(input_quantities, "grimm_juvenile_T1")},
@@ -78,7 +78,7 @@ class grimm_soybean_flowering_calculator : public direct_module
           grimm_N_min{get_input(input_quantities, "grimm_N_min")},
           grimm_N_opt{get_input(input_quantities, "grimm_N_opt")},
           grimm_flowering_threshold{get_input(input_quantities, "grimm_flowering_threshold")},
-          time{get_input(input_quantities, "time")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
           temp{get_input(input_quantities, "temp")},
           day_length{get_input(input_quantities, "day_length")},
 
@@ -95,7 +95,7 @@ class grimm_soybean_flowering_calculator : public direct_module
 
    private:
     // References to input quantities
-    double const& sowing_time;
+    double const& sowing_fractional_doy;
     double const& grimm_physiological_age;
     double const& grimm_juvenile_T0;
     double const& grimm_juvenile_T1;
@@ -107,7 +107,7 @@ class grimm_soybean_flowering_calculator : public direct_module
     double const& grimm_N_min;
     double const& grimm_N_opt;
     double const& grimm_flowering_threshold;
-    double const& time;
+    double const& fractional_doy;
     double const& temp;
     double const& day_length;
 
@@ -124,7 +124,7 @@ class grimm_soybean_flowering_calculator : public direct_module
 string_vector grimm_soybean_flowering_calculator::get_inputs()
 {
     return {
-        "sowing_time",                  // days
+        "sowing_fractional_doy",        // days
         "grimm_physiological_age",      // physiological days
         "grimm_juvenile_T0",            // degrees C
         "grimm_juvenile_T1",            // degrees C
@@ -136,7 +136,7 @@ string_vector grimm_soybean_flowering_calculator::get_inputs()
         "grimm_N_min",                  // hours
         "grimm_N_opt",                  // hours
         "grimm_flowering_threshold",    // physiological days
-        "time",                         // days
+        "fractional_doy",               // days
         "temp",                         // degrees C
         "day_length"                    // hours
     };
@@ -162,7 +162,7 @@ void grimm_soybean_flowering_calculator::do_operation() const
     double rate_normalized = 0.0;              // dimensionless
     double temperature_rate_normalized = 0.0;  // dimensionless
     double photoperiod_rate_normalized = 0.0;  // dimensionless
-    if (time < sowing_time) {
+    if (fractional_doy < sowing_fractional_doy) {
         // The plant has not been sowed yet, so it can't grow
         rate_normalized = 0.0;
     } else if (grimm_physiological_age < grimm_juvenile_pd_threshold) {

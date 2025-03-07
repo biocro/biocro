@@ -65,10 +65,9 @@ class multilayer_canopy_properties : public direct_module
           // Get references to input quantities
           par_incident_direct{get_input(input_quantities, "par_incident_direct")},
           par_incident_diffuse{get_input(input_quantities, "par_incident_diffuse")},
-          absorptivity_par{get_input(input_quantities, "absorptivity_par")},
           lai{get_input(input_quantities, "lai")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
-          kd{get_input(input_quantities, "kd")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
           chil{get_input(input_quantities, "chil")},
           heightf{get_input(input_quantities, "heightf")},
           windspeed{get_input(input_quantities, "windspeed")},
@@ -77,21 +76,22 @@ class multilayer_canopy_properties : public direct_module
           lnfun{get_input(input_quantities, "lnfun")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
-          leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
+          leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
+          leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
+          leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
 
           // Get pointers to output quantities
           sunlit_fraction_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")},
+          sunlit_incident_nir_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_incident_nir")},
           sunlit_incident_ppfd_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")},
           sunlit_absorbed_ppfd_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_ppfd")},
           sunlit_absorbed_shortwave_ops{get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_shortwave")},
           shaded_fraction_ops{get_multilayer_op(output_quantities, nlayers, "shaded_fraction")},
+          shaded_incident_nir_ops{get_multilayer_op(output_quantities, nlayers, "shaded_incident_nir")},
           shaded_incident_ppfd_ops{get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")},
           shaded_absorbed_ppfd_ops{get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_ppfd")},
           shaded_absorbed_shortwave_ops{get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_shortwave")},
-          average_incident_ppfd_ops{get_multilayer_op(output_quantities, nlayers, "average_incident_ppfd")},
-          average_absorbed_shortwave_ops{get_multilayer_op(output_quantities, nlayers, "average_absorbed_shortwave")},
-          incident_ppfd_scattered_ops{get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")},
           height_ops{get_multilayer_op(output_quantities, nlayers, "height")},
           windspeed_ops{get_multilayer_op(output_quantities, nlayers, "windspeed")},
           LeafN_ops{get_multilayer_op(output_quantities, nlayers, "LeafN")},
@@ -106,10 +106,9 @@ class multilayer_canopy_properties : public direct_module
     // References to input parameters
     double const& par_incident_direct;
     double const& par_incident_diffuse;
-    double const& absorptivity_par;
     double const& lai;
     double const& cosine_zenith_angle;
-    double const& kd;
+    double const& k_diffuse;
     double const& chil;
     double const& heightf;
     double const& windspeed;
@@ -118,21 +117,22 @@ class multilayer_canopy_properties : public direct_module
     double const& lnfun;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    double const& leaf_transmittance;
-    double const& leaf_reflectance;
+    double const& leaf_transmittance_nir;
+    double const& leaf_transmittance_par;
+    double const& leaf_reflectance_nir;
+    double const& leaf_reflectance_par;
 
     // Pointers to output parameters
     std::vector<double*> const sunlit_fraction_ops;
+    std::vector<double*> const sunlit_incident_nir_ops;
     std::vector<double*> const sunlit_incident_ppfd_ops;
     std::vector<double*> const sunlit_absorbed_ppfd_ops;
     std::vector<double*> const sunlit_absorbed_shortwave_ops;
     std::vector<double*> const shaded_fraction_ops;
+    std::vector<double*> const shaded_incident_nir_ops;
     std::vector<double*> const shaded_incident_ppfd_ops;
     std::vector<double*> const shaded_absorbed_ppfd_ops;
     std::vector<double*> const shaded_absorbed_shortwave_ops;
-    std::vector<double*> const average_incident_ppfd_ops;
-    std::vector<double*> const average_absorbed_shortwave_ops;
-    std::vector<double*> const incident_ppfd_scattered_ops;
     std::vector<double*> const height_ops;
     std::vector<double*> const windspeed_ops;
     std::vector<double*> const LeafN_ops;

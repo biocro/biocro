@@ -1,5 +1,5 @@
 input,input,input,input,input,input,input,output,"description"
-sowing_time,tbase,temp,time,tmax,topt_lower,topt_upper,TTc,NA
+sowing_fractional_doy,tbase,temp,fractional_doy,tmax,topt_lower,topt_upper,TTc,NA
 100,20,10,101,38,26,32,0,"temp below tbase"
 100,20,20,101,38,26,32,0,"temp equal to tbase"
 100,20,23,101,38,26,32,0.125,"temp between tbase and topt_lower"

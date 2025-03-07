@@ -21,6 +21,9 @@
 
   \code{cases_from_csv} helps define test cases for module testing by creating a
   list of test cases from a \code{csv} file.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \usage{
@@ -116,7 +119,7 @@
 test_module(
   'BioCro:thermal_time_linear',
   case(
-    list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+    list(fractional_doy = 101, sowing_fractional_doy = 100, tbase = 20, temp = 44),
     list(TTc = 1.0),
     'temp above tbase'
   )
@@ -128,7 +131,7 @@ test_module(
 test_module(
   'BioCro:thermal_time_linear',
   case(
-    list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+    list(fractional_doy = 101, sowing_fractional_doy = 100, tbase = 20, temp = 44),
     list(TTc = 2.0),
     'temp above tbase'
   )

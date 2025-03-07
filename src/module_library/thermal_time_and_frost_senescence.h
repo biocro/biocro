@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include <cmath>
 
 namespace standardBML
 {
@@ -105,7 +106,7 @@ class thermal_time_and_frost_senescence : public differential_module
           Leaf{get_input(input_quantities, "Leaf")},
           leafdeathrate{get_input(input_quantities, "leafdeathrate")},
           lat{get_input(input_quantities, "lat")},
-          time{get_input(input_quantities, "time")},
+          doy{get_input(input_quantities, "doy")},
           temp{get_input(input_quantities, "temp")},
           Tfrostlow{get_input(input_quantities, "Tfrostlow")},
           Tfrosthigh{get_input(input_quantities, "Tfrosthigh")},
@@ -162,7 +163,7 @@ class thermal_time_and_frost_senescence : public differential_module
     double const& Leaf;
     double const& leafdeathrate;
     double const& lat;
-    double const& time;
+    double const& doy;
     double const& temp;
     double const& Tfrostlow;
     double const& Tfrosthigh;
@@ -210,7 +211,7 @@ string_vector thermal_time_and_frost_senescence::get_inputs()
         "Leaf",                          // Mg / ha
         "leafdeathrate",                 // percent
         "lat",                           // degrees
-        "time",                          // days
+        "doy",                           // days
         "temp",                          // degrees C
         "Tfrostlow",                     // degrees C
         "Tfrosthigh",                    // degrees C
@@ -283,7 +284,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // linearly with temperature.
     bool const sene_started = TTc >= seneLeaf;
     bool const in_north = lat >= 0.0;
-    bool const late_year = time >= 180.0;
+    bool const late_year = doy >= 180;
     bool const in_winter = (in_north && late_year) || (!in_north && !late_year);
 
     double const base_frost_death_rate =

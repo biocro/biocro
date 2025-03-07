@@ -1,14 +1,7 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs.
 
-There were 3 NOTEs:
-
-- > checking CRAN incoming feasibility ... NOTE
-  > Maintainer: 'McGrath Justin M. <jmcgrath@illinois.edu>'
-  >
-  > New submission
-
-  BioCro is a new submission.
+There were 2 NOTEs:
 
 - > checking C++ specification ... NOTE
   > Specified C++11: please drop specification unless essential

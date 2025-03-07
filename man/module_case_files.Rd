@@ -22,6 +22,9 @@
 
   \code{update_csv_cases} helps define cases for module testing by updating the
   expected output values for each case stored in a module's csv file.
+
+  Note that \emph{module tests} are distinct from the \emph{model tests}
+  described in \code{\link{model_testing}}.
 }
 
 \usage{
@@ -147,7 +150,7 @@ writeLines(readLines(file.path(td, 'BioCro_thermal_time_linear.csv')))
 add_csv_row(
   'BioCro:thermal_time_linear',
   td,
-  list(time = 101, sowing_time = 100, tbase = 20, temp = 44),
+  list(fractional_doy = 101, sowing_fractional_doy = 100, tbase = 20, temp = 44),
   'temp above tbase'
 )
 

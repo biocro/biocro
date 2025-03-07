@@ -14,6 +14,7 @@ bibliography: references/BioCro.bibtex
 ---
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
+  error = FALSE,
   collapse = TRUE,
   cache = TRUE,
   autodep = TRUE
@@ -118,7 +119,7 @@ Note that the timestep value given in the parameters is in seconds.
 **But also note that almost all differential modules in the BioCro
 library assume that timestep values are given in hours!**
 
-If a timestep value is given in seconds rather than in hours, three
+If a timestep value is given in seconds rather than in hours, two
 important things must be kept in mind:
 
 1. _All_ differential modules used in the simulation must assume that
@@ -126,10 +127,7 @@ the timestep value is given in seconds.  Another way of saying this is
 that the outputs of the differential modules used should represent the
 rate of change of the output quantities *per second*.
 
-2. In almost all cases, the output columns "doy", "hour", and possibly
-"time" won't make sense and (if not filtered out) should be ignored.
-
-3. In almost all cases, no module having `time` as input should be
+2. In almost all cases, no module having `time` as input should be
 used.  (See below for further discussion.)
 
 The same precepts apply, _mutatis mutandi_, to any other timestep
@@ -137,10 +135,11 @@ units one may wish to use.
 
 As always, the difference in time between any row _n_ in the _drivers_
 dataframe and the row _n + 1_ that immediately follows it should be
-equal to "timestep" (in whatever units _timestep_ has been given).
+equal to "timestep" (in whatever units _timestep_ has been given). BioCro
+will check this is the case, and raise an error if not.
 
 
-## First modification: 24 hour simulation
+## A modification: 24 hour simulation
 
 Although in the paper it is stated that "Light intensity is given as a
 table of values at every second in a 24-h period,", the period here is
@@ -171,13 +170,12 @@ becomes non-zero; at noon, when the flux Q is highest; at dusk, when
 the rate of mass accumulation again drops to zero; and at the end of
 the simulation, when the final leaf and root mass are known.
 
-As noted above, the values in the result for `doy` and `hour` are
-nonsensical in the context of this example and so we have filtered
-them out (along with `ncalls`, which is not of particular interest).
+Note that the tabular result showed below omits some columns from the
+result, such as `ncalls`, which is not of particular interest here.
 And the values in the `time` column should be interpreted as the
 number of elapsed seconds from solar midnight (not the number of
-(fractional) days that have elapsed since midnight at the start of
-December 31, which is the correct interpretation in a "normal" BioCro
+(fractional) hours that have elapsed since midnight at the start of
+January 1, which is the correct interpretation in a "normal" BioCro
 simulation).
 
 ```{r, 24-hour-version}
@@ -218,104 +216,26 @@ xyplot(Q ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)"
 xyplot(Leaf ~ time / 3600, data = result, xlim = c(0, 24), xlab = "time (in hours)", ylab = "Leaf (kg)")
 ```
 
-## Second modification: Changing the time specification from seconds to days
+## Modules with `time` as an input
 
-The usual assumption in BioCro is that the `time` quantity represents
-the time, in days, from the beginning of the year, not the number of
-seconds that have elapsed from the start of the simulation.  (More
-precisely, the integral part of the `time` value should be the day of
-the year, counting from one, and the fractional part should be the
-portion of the day that has elapsed since midnight at the begining of
-that day.  Thus `time = 4.25` would occur at 6 a.m. on January 4.)
+The usual assumption in BioCro's crop growth models is that the `time` quantity
+represents the time, in hours, that has elapsed from the beginning of the year,
+not the number of seconds that have elapsed from the start of the simulation.
 
 It follows, then, that the way we have been using the `time` variable
 in the previous examples in inconsistent with the usual interpretation
 of time in two respects: First, the units were in seconds rather than
-days.  Second, the time represented the amount of time elapsed from
+days. Second, the time represented the amount of time elapsed from
 the beginning of the simulation rather than an "absolute" time, that
 is, a time value specifying a specific time of day on a specific day
-of the year.  (There is no great harm in using the `time` variable in
-this unconventional way of the previous examples, as long as we know
-what we are doing and as long as we aren't using any modules that
-assume the _conventional_ interpretation of the `time` variable.  In
-fact, in simulations such as these ones, the result table is arguably
-more readable when we have our time value in seconds or hours rather
-than in days.)
+of the year (a date and time on the calendar).
 
-The first of these inconsistencies is easily remedied by rescaling the
-time values so that instead of running from 0 to 86400 (seconds), they
-run from from 0 to 1 (days): we simply divide each former time value
-by 86400.  Now, the value of `time` increases by 1/86400 (of a day!)
-from row to row (an amount still corresponding to one second):
+Thus, direct modules that rely on the usual meaning for time, such as
+`BioCro:format_time`, could not be used as part of the system
+considered in the examples above.
 
-```{r, consistent-durations, fig.show="hold", out.width="50%"}
-light_intensity <- data.frame(
-    time = times/86400,
-    Q = Q(times)
-)
-
-result <- run_biocro(
-    initial_values,
-    parameters,
-    light_intensity,
-    'BioCro:example_model_mass_gain',
-    'BioCro:example_model_partitioning'
-)
-
-cable(result[1:4,]) # beginning
-cable(result[seq(21591, 21661, 10),]) # around dawn
-cable(result[43199:43203,]) # around mid day
-cable(result[seq(64741, 64811, 10),]) # around dusk
-cable(result[86398:86401,]) # end
-
-xyplot(Q ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Q (mol / m^2 / s)")
-
-xyplot(Leaf ~ 24 * time, data = result, xlim = c(0, 24), xlab = "hour", ylab = "Leaf (kg)")
-```
-
-## Third modification: Making the `time` variable consistent with a reasonable time of year
-
-The simulation just shown takes care of making the time step
-consistent with the time duration represented by the time column in
-its usual interpretation.  But the `time` value of 0 corresponds (in
-the conventional BioCro interpretation) to midnight at the start of
-December 31, and this is not consistent with a sun passing directly
-overhead during the course of a 12 hour day, even at an equatorial
-location.  We may remedy this by shifting the time values forward by
-79 days to the time of the March equinox.  Now time represents not
-just a duration in days, but more precisely, it represents the number
-of (fractional) days that have elapsed since midnight at the start of
-December 31 of the previous year.  Direct modules that rely on this
-meaning for time, such as `solar_position_michalsky`, could now be
-used if we wished.  (But we still can not mix in derivative modules,
-such as the thermal time modules, that use `time` as input, since
-these, unlike the `example_model_partitioning` module we are using,
-assume the timestep value to be in hours, not seconds.)
-
-```{r, realistic-time-of-year, fig.show="hold", out.width="50%"}
-light_intensity <- data.frame(
-    time = times/86400 + 79,
-    Q = Q(times)
-)
-
-result <- run_biocro(
-    initial_values,
-    parameters,
-    light_intensity,
-    'BioCro:example_model_mass_gain',
-    'BioCro:example_model_partitioning'
-)
-
-
-cable(result[1:4,]) # beginning
-cable(result[seq(21591, 21661, 10),]) # around dawn
-cable(result[43199:43203,]) # around mid day
-cable(result[seq(64741, 64811, 10),]) # around dusk
-cable(result[86398:86401,]) # end
-
-xyplot(Q ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Q (mol / m^2 / s)")
-
-xyplot(Leaf ~ 24 * (time - 79), data = result, xlim = c(0, 24), xlab = "hour of the 79th day of the year\n(March 20)", ylab = "Leaf (kg)")
-```
+Yet, there is no issue with using the `time` variable in this unconventional
+way, as long as we know what we are doing. In fact, other BioCro module
+libraries and models are free to use any time convention.
 
 ## References

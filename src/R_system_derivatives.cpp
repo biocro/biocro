@@ -32,7 +32,7 @@ extern "C" {
  *  @param [in] direct_mc_vec An R vector of pointers to module wrapper objects
  *              representing the direct modules
  *
- *  @param [in] differential_module_names An R vector of pointers to module
+ *  @param [in] differential_mc_vec An R vector of pointers to module
  *              wrapper objects representing the differential modules
  *
  *  @return An R list of named elements representing the derivatives of the

@@ -9,6 +9,7 @@ raw_weather <- weather
 # Round all values to 3 significant figures
 weather <- lapply(raw_weather, function(wd) {
     for (cn in colnames(wd)) {
+        if(cn=="year") next
         wd[[cn]] <- signif(wd[[cn]], digits = 3)
     }
     wd

@@ -21,44 +21,43 @@ class c4_leaf_photosynthesis : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
-          ambient_temperature{get_input(input_quantities, "temp")},
-          rh{get_input(input_quantities, "rh")},
-          vmax1{get_input(input_quantities, "vmax1")},
+          absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           alpha1{get_input(input_quantities, "alpha1")},
-          kparm{get_input(input_quantities, "kparm")},
-          theta{get_input(input_quantities, "theta")},
-          beta{get_input(input_quantities, "beta")},
-          Rd{get_input(input_quantities, "Rd")},
+          ambient_temperature{get_input(input_quantities, "temp")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
-          Gs_min{get_input(input_quantities, "Gs_min")},
-          StomataWS{get_input(input_quantities, "StomataWS")},
+          beta{get_input(input_quantities, "beta")},
           Catm{get_input(input_quantities, "Catm")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          upperT{get_input(input_quantities, "upperT")},
-          lowerT{get_input(input_quantities, "lowerT")},
-          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
-          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
-          windspeed{get_input(input_quantities, "windspeed")},
+          gbw_canopy{get_input(input_quantities, "gbw_canopy")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
+          kparm{get_input(input_quantities, "kparm")},
           leafwidth{get_input(input_quantities, "leafwidth")},
-          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
-          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
-          et_equation{get_input(input_quantities, "et_equation")},
+          lowerT{get_input(input_quantities, "lowerT")},
+          Rd{get_input(input_quantities, "Rd")},
+          rh{get_input(input_quantities, "rh")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          theta{get_input(input_quantities, "theta")},
+          upperT{get_input(input_quantities, "upperT")},
+          vmax1{get_input(input_quantities, "vmax1")},
+          windspeed{get_input(input_quantities, "windspeed")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
-          Rp_op{get_op(output_quantities, "Rp")},
           Ci_op{get_op(output_quantities, "Ci")},
-          Gs_op{get_op(output_quantities, "Gs")},
           Cs_op{get_op(output_quantities, "Cs")},
-          RHs_op{get_op(output_quantities, "RHs")},
-          TransR_op{get_op(output_quantities, "TransR")},
           EPenman_op{get_op(output_quantities, "EPenman")},
           EPriestly_op{get_op(output_quantities, "EPriestly")},
+          gbw_op{get_op(output_quantities, "gbw")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Gs_op{get_op(output_quantities, "Gs")},
           leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
-          gbw_op{get_op(output_quantities, "gbw")}
+          RHs_op{get_op(output_quantities, "RHs")},
+          RH_canopy_op{get_op(output_quantities, "RH_canopy")},
+          Rp_op{get_op(output_quantities, "Rp")},
+          TransR_op{get_op(output_quantities, "TransR")}
     {
     }
     static string_vector get_inputs();
@@ -67,44 +66,43 @@ class c4_leaf_photosynthesis : public direct_module
 
    private:
     // References to input quantities
-    double const& incident_ppfd;
-    double const& ambient_temperature;
-    double const& rh;
-    double const& vmax1;
+    double const& absorbed_longwave;
+    double const& absorbed_shortwave;
     double const& alpha1;
-    double const& kparm;
-    double const& theta;
-    double const& beta;
-    double const& Rd;
+    double const& ambient_temperature;
+    double const& atmospheric_pressure;
     double const& b0;
     double const& b1;
-    double const& Gs_min;
-    double const& StomataWS;
+    double const& beta;
     double const& Catm;
-    double const& atmospheric_pressure;
-    double const& upperT;
-    double const& lowerT;
-    double const& average_absorbed_shortwave;
-    double const& absorbed_shortwave;
-    double const& windspeed;
+    double const& gbw_canopy;
+    double const& Gs_min;
+    double const& incident_ppfd;
+    double const& kparm;
     double const& leafwidth;
-    double const& specific_heat_of_air;
-    double const& minimum_gbw;
-    double const& et_equation;
+    double const& lowerT;
+    double const& Rd;
+    double const& rh;
+    double const& StomataWS;
+    double const& theta;
+    double const& upperT;
+    double const& vmax1;
+    double const& windspeed;
 
     // Pointers to output quantities
     double* Assim_op;
-    double* GrossAssim_op;
-    double* Rp_op;
     double* Ci_op;
-    double* Gs_op;
     double* Cs_op;
-    double* RHs_op;
-    double* TransR_op;
     double* EPenman_op;
     double* EPriestly_op;
-    double* leaf_temperature_op;
     double* gbw_op;
+    double* GrossAssim_op;
+    double* Gs_op;
+    double* leaf_temperature_op;
+    double* RHs_op;
+    double* RH_canopy_op;
+    double* Rp_op;
+    double* TransR_op;
 
     // Main operation
     void do_operation() const;

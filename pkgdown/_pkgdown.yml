@@ -50,6 +50,10 @@ navbar:
         href: articles/web_only/thick_layer_absorption.html
       - text: Using the Ball-Berry Model (HTML)
         href: articles/web_only/ball_berry_model.html
+      - text: Multi-layer Canopy Photosynthesis Models (HTML)
+        href: articles/web_only/canopy_photosynthesis.html
+      - text: Energy Balance, Leaf Temperature, and Transpiration (HTML)
+        href: articles/web_only/energy_balance.html
     doxygen_docs:
       text: C++ Library
       menu:

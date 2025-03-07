@@ -75,6 +75,20 @@
     \code{betaSeneStem}. It was also necessary to add a new direct module to the
     model definition: \code{BioCro:leaf_water_stress_exponential}. This module
     calculates the fractional reduction in leaf growth rate due to water stress.
+
+    \item \emph{2024-09-12}: Several changes have been made: (1) The
+    \code{mrc1} and \code{mrc2} were renamed to \code{grc_stem} and
+    \code{grc_root}, respectively. These two parameters are used to scale the
+    assimilate rate, which is commonly called growth respiration coefficient (grc).
+    (2) A new module, \code{BioCro:maintenance_respiration}, has been added to
+    account for maintenance respiration during the biomass partitioning. This
+    module removes a fraction from each organ by a constant parameter called \code{mrc_*}
+    (e.g., \code{mrc_leaf}) and also by a temperature-dependent Q10 scaling factor.
+    Among these \code{mrc_*} parameters, \code{mrc_leaf} and \code{mrc_stem} are set
+    equal to represent maintenance respiration for the shoot, while \code{mrc_grain}
+    is assigned a negligible value to prevent grain biomass reduction at the season end.
+    No decreasing trends have been seen in the observed data. (3) Parameter optimizations
+    against the 2002-2006 biomass datasets were performed to accommodate these changes.
   }
 
   Whenever a reparameterization is made, this list should be updated, and any
@@ -123,10 +137,16 @@
     require input quantities that are not actually used for any calculations;
     these "extraneous" parameters are identified in \code{data/soybean.R}.
 
-    \item The \code{sowing_time} input to the
+    \item The \code{sowing_fractional_doy} input to the
     \code{soybean_development_rate_calculator} module is set to 0 because
     Soybean-BioCro uses the weather data to set the sowing time. In other words,
-    the weather data is truncated so it begins at the sowing date.
+    the weather data is truncated so it begins at the beggining of the simulation.
+
+    \item Leaf reflectance and transmittance in the PAR band are estimated from
+    [\doi{10.2134/agronmonogr31.c7}],
+    [\doi{10.2134/agronj1971.00021962006300010038x}],
+    and [\doi{10.2134/agronj1991.00021962008300030026x}]. Reflectance and
+    transmittance in the NIR band are from [\doi{10.2134/agronmonogr31.c7}].
   }
 }
 

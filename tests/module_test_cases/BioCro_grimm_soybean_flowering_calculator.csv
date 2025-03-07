@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,"description"
-day_length,grimm_N_min,grimm_N_opt,grimm_T_min,grimm_T_opt,grimm_flowering_threshold,grimm_juvenile_T0,grimm_juvenile_T1,grimm_juvenile_T2,grimm_juvenile_T3,grimm_juvenile_pd_threshold,grimm_physiological_age,sowing_time,temp,time,grimm_flowering,grimm_rate,grimm_rate_photoperiod,grimm_rate_temperature,NA
+day_length,grimm_N_min,grimm_N_opt,grimm_T_min,grimm_T_opt,grimm_flowering_threshold,grimm_juvenile_T0,grimm_juvenile_T1,grimm_juvenile_T2,grimm_juvenile_T3,grimm_juvenile_pd_threshold,grimm_physiological_age,sowing_fractional_doy,temp,fractional_doy,grimm_flowering,grimm_rate,grimm_rate_photoperiod,grimm_rate_temperature,NA
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0.0416666666666667,0.0416666666666667,0.0416666666666667,"automatically-generated test case"

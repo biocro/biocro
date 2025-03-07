@@ -19,6 +19,7 @@ pkgdown:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  error = FALSE,
   collapse = TRUE,
   comment = "#>",
   fig.width = 5,
@@ -294,7 +295,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = "An (micromol / m^2 / s)",
-    ylab = "Stomatal conductance (mmol / m^2 / s)",
+    ylab = "Stomatal conductance (mol / m^2 / s)",
     main = paste(
         "Ball-Berry model with T_leaf =", Tleaf,
         "\nand different T_ambient"
@@ -387,7 +388,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = "Absorbed PPFD (micromol / m^2 / s)",
-    ylab = "Stomatal conductance to H2O (mmol / m^2 / s)",
+    ylab = "Stomatal conductance to H2O (mol / m^2 / s)",
     main = "Ball-Berry + FvCB models for\ndifferent humidities"
 )
 ```
@@ -448,20 +449,31 @@ From these calculations:
 # Set the absorbed photosynthetically active light (in micromol / m^2 / s)
 absorbed_ppfd <- 1000
 
-# Determine the total absorbed light energy (in J / m^2 / s)
-absorbed_energy <-
+# Determine the total absorbed shortwave light energy (in J / m^2 / s)
+absorbed_shortwave <-
     absorbed_ppfd * soybean$parameters$par_energy_content /
         soybean$parameters$par_energy_fraction
+
+# Set the air temperature
+air_temperature = 30
+
+# Determine the absorbed longwave light energy (in J / m^2 / s)
+absorbed_longwave <- evaluate_module(
+    'BioCro:stefan_boltzmann_longwave',
+    list(temp = air_temperature, emissivity_sky = 1)
+)$absorbed_longwave
 
 aci <- module_response_curve(
     'BioCro:c3_leaf_photosynthesis',
     within(soybean$parameters, {
-        StomataWS = 1 # dimensionless
-        temp = 30     # degrees C
-        windspeed = 3 # m / s
-        height = 0.8  # m
+        StomataWS = 1          # dimensionless
+        temp = air_temperature # degrees C
+        windspeed = 3          # m / s
+        height = 0.8           # m
+        gbw_canopy = 0.2       # m / s
         absorbed_ppfd = absorbed_ppfd
-        average_absorbed_shortwave = absorbed_energy
+        absorbed_shortwave = absorbed_shortwave
+        absorbed_longwave = absorbed_longwave
     }),
     expand.grid(
         Catm = seq(100, 1800, by = 5), # micromol / mol
@@ -484,7 +496,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = 'Intercellular CO2 concentration (micromol / mol)',
-    ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
+    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
 )
 ```
@@ -579,6 +591,9 @@ canres <- run_biocro(
         'BioCro:solar_position_michalsky',
         'BioCro:shortwave_atmospheric_scattering',
         'BioCro:incident_shortwave_from_ground_par',
+        'BioCro:height_from_lai',
+        'BioCro:canopy_gbw_thornley',
+        'BioCro:stefan_boltzmann_longwave',
         'BioCro:ten_layer_canopy_properties',
         'BioCro:ten_layer_c3_canopy'
     ),
@@ -592,7 +607,7 @@ canres <- run_biocro(
         temp = T_ambient      # degrees C
         StomataWS = StomataWS # dimensionless
     }),
-    drivers = data.frame(time = 210.5) # noon on day 210 (July 29 for 2022)
+    drivers = data.frame(fractional_doy = 210.5) # noon on day 210 (July 29 for 2022)
 )
 
 # Extract canopy profiles
@@ -607,6 +622,12 @@ canopy_profiles_list <- lapply(
 
         rhs_column_names <- grep(
             paste0(leaf_class, '_RHs_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
+        rh_canopy_column_names <- grep(
+            paste0(leaf_class, '_RH_canopy_layer_[0-9]'),
             colnames(canres),
             value = TRUE
         )
@@ -629,14 +650,22 @@ canopy_profiles_list <- lapply(
             value = TRUE
         )
 
+        gbw_column_names <- grep(
+            paste0(leaf_class, '_gbw_layer_[0-9]'),
+            colnames(canres),
+            value = TRUE
+        )
+
         data.frame(
             type = leaf_class,
             layer = seq(0, 9),
             Cs = as.numeric(canres[cs_column_names]),
             RHs = as.numeric(canres[rhs_column_names]),
+            RH_canopy = as.numeric(canres[rh_canopy_column_names]),
             gsw = as.numeric(canres[gsw_column_names]),
             tl = as.numeric(canres[tl_column_names]),
-            A = as.numeric(canres[a_column_names])
+            A = as.numeric(canres[a_column_names]),
+            gbw = as.numeric(canres[gbw_column_names])
         )
     }
 )
@@ -664,20 +693,21 @@ xyplot(
 ```
 
 ```{r hs-layer}
-#| fig.cap = "$h_s$ vs canopy layer for sunlit and shaded leaves as predicted by
-#|   the coupled Ball-Berry + FvCB + energy balance model with soybean parameter
-#|   values."
+#| fig.cap = "Relative humidities at the leaf surface (RHs) and just outside the
+#|   leaf boundary layer (RH_canopy) plotted against canopy layer for sunlit and
+#|   shaded leaves as predicted by the coupled Ball-Berry + FvCB + energy
+#|   balance model with soybean parameter values."
 
 # Plot the RHs profiles
 xyplot(
-    RHs ~ layer,
+    RHs + RH_canopy ~ layer,
     group = type,
     data = canopy_profiles,
     type = 'l',
-    auto.key = list(space = 'right'),
+    auto.key = list(space = 'top'),
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Relative humidity at leaf surface (micromol / mol)',
+    ylab = 'Relative humidity (micromol / mol)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```
@@ -696,7 +726,7 @@ xyplot(
     auto.key = list(space = 'right'),
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Stomatal conductance to H2O (mmol / m^2 / s)',
+    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```
@@ -735,6 +765,25 @@ xyplot(
     grid = TRUE,
     xlab = 'Canopy layer (0 is top, 9 is bottom)',
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
+    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+)
+```
+
+```{r gbw-layer}
+#| fig.cap = "$g_{bw}$ vs canopy layer for sunlit and shaded leaves as predicted
+#|   by the coupled Ball-Berry + FvCB + energy balance model with soybean
+#|   parameter values."
+
+# Plot the assimilation profiles
+xyplot(
+    gbw ~ layer,
+    group = type,
+    data = canopy_profiles,
+    type = 'l',
+    auto.key = list(space = 'right'),
+    grid = TRUE,
+    xlab = 'Canopy layer (0 is top, 9 is bottom)',
+    ylab = 'Boundary layer conductance to H2O (mol / m^2 / s)',
     main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
 )
 ```
@@ -789,7 +838,7 @@ bb1_result <- do.call(rbind, bb1_result_list)
 
 # Plot soybean biomass values for different values of the Ball-Berry slope
 xyplot(
-    Leaf + Stem + Root + Grain ~ time,
+    Leaf + Stem + Root + Grain ~ fractional_doy,
     group = b1,
     data = bb1_result,
     type = 'l',

@@ -4,8 +4,9 @@ add_time_to_weather_data <- function(drivers)
         "hour" %in% names(drivers) &&
         !"time" %in% names(drivers))
     {
-        day_fraction <- drivers$hour / 24.0
-        drivers$time <- drivers$doy + day_fraction
+        drivers$time <- 24 * (drivers$doy - 1) + drivers$hour
+        drivers$doy  <- NULL
+        drivers$hour <- NULL
     }
 
     drivers

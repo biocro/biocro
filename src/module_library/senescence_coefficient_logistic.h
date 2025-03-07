@@ -34,7 +34,7 @@ namespace standardBML
  * - \f$ \beta_i \f$ : `betaSene<plant organ>`
  * - \f$ x \f$ : `DVI`
  *
- * where <plant organ> is one of {Leaf, Stem, Root, Rhizome}.
+ * where `<plant organ>` is either `Leaf`, `Stem`, `Root`, or `Rhizome`.
  *
  * See Matthews et al. for more description of how this module was used in
  * Soybean-BioCro and for details on the parameter fitting to identify the

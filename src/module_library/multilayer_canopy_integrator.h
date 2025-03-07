@@ -1,6 +1,7 @@
 #ifndef MULTILAYER_CANOPY_INTEGRATOR_H
 #define MULTILAYER_CANOPY_INTEGRATOR_H
 
+#include <cmath>  // for fabs
 #include "../framework/state_map.h"
 #include "../framework/module.h"
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
@@ -50,11 +51,11 @@ class multilayer_canopy_integrator : public direct_module
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
 
           // Get pointers to output quantities
-          canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
+          canopy_assimilation_rate_CO2_op{get_op(output_quantities, "canopy_assimilation_rate_CO2")},
           canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
-          canopy_photorespiration_rate_op{get_op(output_quantities, "canopy_photorespiration_rate")}
+          GrossAssim_CO2_op{get_op(output_quantities, "GrossAssim_CO2")},
+          canopy_photorespiration_rate_CO2_op{get_op(output_quantities, "canopy_photorespiration_rate_CO2")}
     {
     }
 
@@ -81,11 +82,11 @@ class multilayer_canopy_integrator : public direct_module
     double const& growth_respiration_fraction;
 
     // Pointers to output quantities
-    double* canopy_assimilation_rate_op;
+    double* canopy_assimilation_rate_CO2_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
-    double* GrossAssim_op;
-    double* canopy_photorespiration_rate_op;
+    double* GrossAssim_CO2_op;
+    double* canopy_photorespiration_rate_CO2_op;
 
     // Main operation
     virtual void do_operation() const;
@@ -136,11 +137,11 @@ string_vector multilayer_canopy_integrator::get_inputs(int nlayers)
 string_vector multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
-        "canopy_assimilation_rate",     // Mg / ha / hr
-        "canopy_transpiration_rate",    // Mg / ha / hr
-        "canopy_conductance",           // mmol / m^2 / s
-        "GrossAssim",                   // Mg / ha / hr
-        "canopy_photorespiration_rate"  // Mg / ha / hr
+        "canopy_assimilation_rate_CO2",     // micromol CO2 / m^2 / s
+        "canopy_transpiration_rate",        // Mg / ha / hr
+        "canopy_conductance",               // mmol / m^2 / s
+        "GrossAssim_CO2",                   // micromol CO2 / m^2 / s
+        "canopy_photorespiration_rate_CO2"  // micromol CO2 / m^2 / s
     };
 }
 
@@ -184,17 +185,11 @@ void multilayer_canopy_integrator::run() const
     // Note: this was originally only done for the C3 canopy
     // Note: it seems like this should not be necessary since the assimilation
     //   model includes respiration
-    canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
+    double const growth_respiration =
+        growth_respiration_fraction * fabs(canopy_assimilation_rate);  // micromol / m^2 / s
 
-    // For assimilation, we need to convert micromol / m^2 / s into
-    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
-    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
-    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
-    // conversion can be accomplished with the following factor:
-    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
-    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
-    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
-    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
+    canopy_assimilation_rate =
+        canopy_assimilation_rate - growth_respiration;  // micromol / m^2 / s
 
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
@@ -203,15 +198,15 @@ void multilayer_canopy_integrator::run() const
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
+    update(canopy_assimilation_rate_CO2_op, canopy_assimilation_rate);
 
-    update(GrossAssim_op, GrossAssim * cf);
-
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
+    update(GrossAssim_CO2_op, GrossAssim);
 
     update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
     update(canopy_conductance_op, canopy_conductance);
+
+    update(canopy_photorespiration_rate_CO2_op, canopy_photorespiration_rate);
 }
 
 ////////////////////////////////////////

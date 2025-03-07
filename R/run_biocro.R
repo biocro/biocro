@@ -120,10 +120,51 @@ check_run_biocro_inputs <- function(
         check_length(list(verbose=verbose))
     )
 
+    # Values of `time` should be sequential and separated by the `timestep`
+    error_message <- append(
+        error_message,
+        check_time_is_sequential(
+            drivers,
+            differential_module_names,
+            parameters
+        )
+    )
+
+    # The ode_solver must have certain required elements
+    error_message <- append(
+        error_message,
+        check_required_elements(
+            list(ode_solver = ode_solver),
+            c(
+                'type',
+                'output_step_size',
+                'adaptive_rel_error_tol',
+                'adaptive_abs_error_tol',
+                'adaptive_max_steps'
+            )
+        )
+    )
 
     return(error_message)
 }
 
+# A helping function for making convenient alterations when weather data is
+# supplied
+adapt_weather_data <- function(drivers, direct_module_names) {
+    if ('doy' %in% names(drivers) && 'hour' %in% names(drivers)) {
+        drivers <- add_time_to_weather_data(drivers)
+
+        if (!'BioCro:format_time' %in% unlist(direct_module_names)) {
+            direct_module_names <-
+                append(direct_module_names, 'BioCro:format_time')
+        }
+    }
+
+    list(
+        direct_module_names = direct_module_names,
+        drivers = drivers
+    )
+}
 
 run_biocro <- function(
     initial_values = list(),
@@ -135,6 +176,11 @@ run_biocro <- function(
     verbose = FALSE
 )
 {
+    # Make sure weather data is properly handled
+    adapted <- adapt_weather_data(drivers, direct_module_names)
+    drivers <- adapted$drivers
+    direct_module_names <- adapted$direct_module_names
+
     # Check over the inputs arguments for possible issues
     error_messages <- check_run_biocro_inputs(
         initial_values,
@@ -146,10 +192,7 @@ run_biocro <- function(
         verbose
     )
 
-    send_error_messages(error_messages)
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
+    stop_and_send_error_messages(error_messages)
 
     # Make module creators from the specified names and libraries
     direct_module_creators <- sapply(
@@ -163,11 +206,11 @@ run_biocro <- function(
     )
 
     # Collect the ode_solver info
-    ode_solver_type <- ode_solver$type
-    ode_solver_output_step_size <- ode_solver$output_step_size
-    ode_solver_adaptive_rel_error_tol <- ode_solver$adaptive_rel_error_tol
-    ode_solver_adaptive_abs_error_tol <- ode_solver$adaptive_abs_error_tol
-    ode_solver_adaptive_max_steps <- ode_solver$adaptive_max_steps
+    ode_solver_type <- ode_solver[['type']]
+    ode_solver_output_step_size <- ode_solver[['output_step_size']]
+    ode_solver_adaptive_rel_error_tol <- ode_solver[['adaptive_rel_error_tol']]
+    ode_solver_adaptive_abs_error_tol <- ode_solver[['adaptive_abs_error_tol']]
+    ode_solver_adaptive_max_steps <- ode_solver[['adaptive_max_steps']]
 
     # C++ requires that all the variables have type `double`
     initial_values <- lapply(initial_values, as.numeric)
@@ -197,10 +240,6 @@ run_biocro <- function(
         verbose
     ))
 
-    # Make sure doy and hour are properly defined
-    result$doy = floor(result$time)
-    result$hour = 24.0*(result$time - result$doy)
-
     # Sort the columns by name
     result <- result[,sort(names(result))]
 
@@ -219,7 +258,11 @@ partial_run_biocro <- function(
     verbose = FALSE
 )
 {
-    # Check over the inputs arguments for possible issues
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
+    # The inputs to this function have the same requirements as the `run_biocro`
+    # inputs with the same names
     error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
@@ -228,6 +271,8 @@ partial_run_biocro <- function(
         differential_module_names,
         ode_solver
     )
+
+    stop_and_send_error_messages(error_messages)
 
     arg_list = list(
         initial_values = initial_values,
@@ -280,7 +325,7 @@ partial_run_biocro <- function(
         )
     }
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Make a function that calls run_biocro with new values for the quantities
     # specified in arg_names

@@ -12,8 +12,6 @@ namespace standardBML
  * @brief Calculates hourly plant development rate based on thermal time ranges
  * of emergence, vegetative, and reproductive growth stages.
  *
- * This module is designed to be used with the `development_index module`.
- *
  * Based on growth rate functions from Osborne et al. and uses the following
  * `DVI` ranges:
  *
@@ -33,6 +31,16 @@ namespace standardBML
  * thermal time for each of the above three growth stages (`TTemr`, `TTveg`,
  * and `TTrep`).
  *
+ * This module is intended to be used along with the `development_index` module,
+ * and it is particularly useful for modeling soybean growth, since it can
+ * easily be swapped with the `soybean_development_rate_calculator` module to
+ * compare thermal and photothermal development. However, this module specifies
+ * a linear thermal time equation identical to the one implemented by the
+ * `thermal_time_linear` module, and cannot represent other thermal time
+ * equations, such as the one implemented in the `thermal_time_bilinear` module.
+ * For more flexibility regarding thermal time calculations, an alternative
+ * approach is to use the `development_index_from_thermal_time` module instead.
+ * See that module's documentation for more information.
  *
  * ### References:
  *
@@ -49,8 +57,8 @@ class thermal_time_development_rate_calculator : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          time{get_input(input_quantities, "time")},
-          sowing_time{get_input(input_quantities, "sowing_time")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
+          sowing_fractional_doy{get_input(input_quantities, "sowing_fractional_doy")},
           DVI{get_input(input_quantities, "DVI")},
           temp{get_input(input_quantities, "temp")},
           tbase{get_input(input_quantities, "tbase")},
@@ -69,8 +77,8 @@ class thermal_time_development_rate_calculator : public direct_module
 
    private:
     // Pointers to input quantities
-    double const& time;
-    double const& sowing_time;
+    double const& fractional_doy;
+    double const& sowing_fractional_doy;
     double const& DVI;
     double const& temp;
     double const& tbase;
@@ -88,14 +96,14 @@ class thermal_time_development_rate_calculator : public direct_module
 string_vector thermal_time_development_rate_calculator::get_inputs()
 {
     return {
-        "time",         // days
-        "sowing_time",  // days
-        "DVI",          // dimensionless, development index
-        "temp",         // degrees C
-        "tbase",        // degrees C, base temperature
-        "TTemr",        // degrees C * days, thermal time from sowing to emergence
-        "TTveg",        // degrees C * days, thermal time of vegetative states
-        "TTrep"         // degrees C * days, thermal time of reproductive states
+        "fractional_doy",         // days
+        "sowing_fractional_doy",  // days
+        "DVI",                    // dimensionless, development index
+        "temp",                   // degrees C
+        "tbase",                  // degrees C, base temperature
+        "TTemr",                  // degrees C * days, thermal time from sowing to emergence
+        "TTveg",                  // degrees C * days, thermal time of vegetative states
+        "TTrep"                   // degrees C * days, thermal time of reproductive states
     };
 }
 
@@ -113,7 +121,7 @@ void thermal_time_development_rate_calculator::do_operation() const
     double temp_diff = temp - tbase;              // degrees C
     temp_diff = (temp_diff > 0) ? temp_diff : 0;  // if temp < tbase, temp_diff = 0
 
-    if (time < sowing_time) {
+    if (fractional_doy < sowing_fractional_doy) {
         // The seeds haven't been sown yet, so no development should occur
         development_rate = 0;  // day^-1
     } else if (DVI < -1) {

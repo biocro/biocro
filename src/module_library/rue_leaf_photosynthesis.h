@@ -101,7 +101,7 @@ namespace standardBML
  *
  *  - It uses the Ball-Berry model to calculate stomatal conductance from `A_n`.
  *
- *  - It uses the `c3EvapoTrans()` function to handle transpiration and
+ *  - It uses the `leaf_energy_balance()` function to handle transpiration and
  *    determine leaf temperature.
  *
  *  However, it is important to note that assimilation and stomatal conductance
@@ -134,19 +134,21 @@ class rue_leaf_photosynthesis : public direct_module
         : direct_module{},
 
           // Get references to input parameters
-          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
+          absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           alpha_rue{get_input(input_quantities, "alpha_rue")},
-          temp{get_input(input_quantities, "temp")},
-          rh{get_input(input_quantities, "rh")},
-          Rd{get_input(input_quantities, "Rd")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           Catm{get_input(input_quantities, "Catm")},
-          average_absorbed_shortwave{get_input(input_quantities, "average_absorbed_shortwave")},
-          windspeed{get_input(input_quantities, "windspeed")},
+          gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           height{get_input(input_quantities, "height")},
-          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
-          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
+          incident_ppfd{get_input(input_quantities, "incident_ppfd")},
+          leafwidth{get_input(input_quantities, "leafwidth")},
+          Rd{get_input(input_quantities, "Rd")},
+          rh{get_input(input_quantities, "rh")},
+          temp{get_input(input_quantities, "temp")},
+          windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
@@ -168,19 +170,21 @@ class rue_leaf_photosynthesis : public direct_module
 
    private:
     // References to input parameters
-    double const& incident_ppfd;
+    double const& absorbed_longwave;
+    double const& absorbed_shortwave;
     double const& alpha_rue;
-    double const& temp;
-    double const& rh;
-    double const& Rd;
+    double const& atmospheric_pressure;
     double const& b0;
     double const& b1;
     double const& Catm;
-    double const& average_absorbed_shortwave;
-    double const& windspeed;
+    double const& gbw_canopy;
     double const& height;
-    double const& specific_heat_of_air;
-    double const& minimum_gbw;
+    double const& incident_ppfd;
+    double const& leafwidth;
+    double const& Rd;
+    double const& rh;
+    double const& temp;
+    double const& windspeed;
     double const& windspeed_height;
 
     // Pointers to output parameters
