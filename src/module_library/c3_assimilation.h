@@ -123,7 +123,7 @@ class c3_assimilation : public direct_module
           RHs_op{get_op(output_quantities, "RHs")},
           Ci_op{get_op(output_quantities, "Ci")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
-          Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
+          Assim_check_op{get_op(output_quantities, "Assim_check")},
           Rp_op{get_op(output_quantities, "Rp")},
           iterations_op{get_op(output_quantities, "iterations")}
     {
@@ -183,7 +183,7 @@ class c3_assimilation : public direct_module
     double* RHs_op;
     double* Ci_op;
     double* GrossAssim_op;
-    double* Assim_conductance_op;
+    double* Assim_check_op;
     double* Rp_op;
     double* iterations_op;
 
@@ -241,15 +241,15 @@ string_vector c3_assimilation::get_inputs()
 string_vector c3_assimilation::get_outputs()
 {
     return {
-        "Assim",              // micromol / m^2 / s
-        "Gs",                 // mol / m^2 / s
-        "Cs",                 // micromol / m^2 / s
-        "RHs",                // dimensionless from Pa / Pa
-        "Ci",                 // micromol / mol
-        "GrossAssim",         // micromol / m^2 / s
-        "Assim_conductance",  // micromol / m^2 / s
-        "Rp",                 // micromol / m^2 / s
-        "iterations"          // not a physical quantity
+        "Assim",        // micromol / m^2 / s
+        "Gs",           // mol / m^2 / s
+        "Cs",           // micromol / m^2 / s
+        "RHs",          // dimensionless from Pa / Pa
+        "Ci",           // micromol / mol
+        "GrossAssim",   // micromol / m^2 / s
+        "Assim_check",  // micromol / m^2 / s
+        "Rp",           // micromol / m^2 / s
+        "iterations"    // not a physical quantity
     };
 }
 
@@ -309,7 +309,7 @@ void c3_assimilation::do_operation() const
     update(RHs_op, c3_results.RHs);
     update(Ci_op, c3_results.Ci);
     update(GrossAssim_op, c3_results.GrossAssim);
-    update(Assim_conductance_op, c3_results.Assim_conductance);
+    update(Assim_check_op, c3_results.Assim_check);
     update(Rp_op, c3_results.Rp);
     update(iterations_op, c3_results.iterations);
 }
