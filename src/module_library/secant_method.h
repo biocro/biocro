@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-// HELPER FUNCTION DECLARATIONS
+// Helper function declarations
 inline bool is_close(double x, double y, double atol, double rtol);
 inline bool is_zero(double x, double atol);
 /**
@@ -70,7 +70,6 @@ struct secant_parameters {
  *
  * \f[ x_{n+1} = x_n - y_n \left(\frac{x_n - x_{n-1}}{y_n - y_{n-1}}\right)\f]
  *
- * This formula can be rearranged into
  * Under ideal conditions, this method approaches the rate of convergence
  * achieved in Newton's method. The same pathologies can also frustrate it.
  *
@@ -101,7 +100,7 @@ template <typename F>
 double find_root_secant_method(
     F fun, double x0, double x1, secant_parameters& par)
 {
-    // check inputs for trivial solutions
+    // Check inputs for trivial solutions
     double y0 = fun(x0);
     if (is_zero(y0, par.atol)) {
         par.counter = 0;
@@ -109,13 +108,13 @@ double find_root_secant_method(
         return x0;
     }
 
-    // guesses should be different
+    // Guesses should be different
     if (is_close(x1, x0, par.atol, par.rtol)) {
         throw std::runtime_error(
             "Within tolerance, x0 == x1. Initial guesses should be distinct. ");
     }
 
-    // check second solution
+    // Check second solution
     double y1 = fun(x1);
     if (is_zero(y1, par.atol)) {
         par.counter = 0;
@@ -126,11 +125,11 @@ double find_root_secant_method(
     for (size_t n = 1; n <= par.max_iter; ++n) {
         double secant_slope = (y1 - y0) / (x1 - x0);
 
-        // SECANT UPDATE FORMULA;
+        // Secant Update Formula
         double x2 = x1 - y1 / secant_slope;
 
-        // STOP IF DIVIDE BY ZERO GENERATES NOT FINITE VALUE
-        // shouldn't occur, except when y1 == y0 but x1 != x0
+        // Stop if divide by generates non finite value
+        // Shouldn't occur, except when y1 == y0 but x1 != x0
         if (not std::isfinite(x2)) {
             par.counter = n;
             par.check = y1;
@@ -139,22 +138,22 @@ double find_root_secant_method(
 
         double y2 = fun(x2);
 
-        // TEST CONVERGENCE
-        // if y2 == 0, then x2 is a root
+        // Test convergence
+        // If y2 == 0, then x2 is a root
         if (is_zero(y2, par.atol)) {
             par.counter = n;
             par.check = y2;
             return x2;
         }
-        // if no improvement in guesses, then terminate
-        // prevents x1 == x0
+        // If no improvement in guesses, then terminate
+        // Prevents x1 == x0
         if (is_close(x1, x2, par.atol, par.rtol)) {
             par.counter = n;
             par.check = y2;
             return x2;
         }
 
-        // UPDATE
+        // Update
         x0 = x1;
         x1 = x2;
         y0 = y1;
@@ -166,7 +165,7 @@ double find_root_secant_method(
     return x1;
 }
 
-// HELPER FUNCTION DEFINITIONS
+// Helper function definitions
 inline bool is_close(double x, double y, double atol, double rtol)
 {
     return std::abs(x - y) <= atol + rtol * std::abs(y);
