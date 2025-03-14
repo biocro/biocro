@@ -115,8 +115,14 @@ stomata_outputs ball_berry_gs(
     const double Cs = ambient_c -
                       (dr_boundary / gbw) * assimilation;  // mol / mol.
 
-    if (Cs < 0.0) {
-        throw std::range_error("Thrown in ball_berry_gs: Cs is less than 0.");
+    if (Cs <= 0.0) {
+        // Stomatal conductance becomes infinite as Cs -> 0.0
+        double inf = std::numeric_limits<double>::infinity();
+        return stomata_outputs{
+            /* .cs = */ 0,    // micromol / mol
+            /* .hs = */ 0,    // dimensionless
+            /* .gsw = */ inf  // mol / m^2 / s
+        };
     }
 
     // Calculate some variables that will be used in later equations

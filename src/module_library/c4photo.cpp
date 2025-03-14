@@ -4,6 +4,7 @@
 #include "../framework/constants.h"       // for dr_stomata, dr_boundary
 #include "../framework/quadratic_root.h"  // for quadratic_root_min
 #include "c4photo.h"
+#include "secant_method.h"
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
@@ -59,19 +60,8 @@ photosynthesis_outputs c4photoC(
     double const bb0_adj = StomaWS * bb0 + Gs_min * (1.0 - StomaWS);
     double const bb1_adj = StomaWS * bb1;
 
-    // Initialize loop variables. Here we make an initial guess that
-    // Ci = 0.4 * Ca.
-    stomata_outputs BB_res;
-    double InterCellularCO2{0.4 * Ca_pa};  // Pa
-    double Assim{};                        // micromol / m^2 / s
-    double Gs{1e3};                        // mol / m^2 / s
-    double an_conductance{};               // micromol / m^2 / s
-
-    // Start the loop
-    double OldAssim = 0.0, Tol = 0.1, diff;
-    int iterCounter = 0;
-    int constexpr max_iterations = 50;
-    do {
+    // Function to compute the biochemical assimilation rate.
+    auto collatz_assim = [&](double InterCellularCO2) {
         // Collatz 1992. Appendix B. Quadratic coefficients from Equation 3B.
         double kT_IC_P = kT * InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / m^2 / s
         double a = beta;
@@ -81,23 +71,24 @@ photosynthesis_outputs c4photoC(
         // Calculate the smaller of the two quadratic roots, as mentioned
         // following Equation 3B in Collatz 1992.
         double gross_assim = quadratic_root_min(a, b, c);  // micromol / m^2 / s
+        return gross_assim - RT;
+    };
 
-        Assim = gross_assim - RT;  // micromole / m^2 / s.
+    // Initialize loop variables. These will be updated as a side effect
+    // during the secant method's iterations.
+    // Here we make an initial guess that Ci = 0.4 * Ca.
+    stomata_outputs BB_res;
+    double InterCellularCO2{0.4 * Ca_pa};  // Pa
+    double Assim{};                        // micromol / m^2 / s
+    double Gs{};                           // mol / m^2 / s
 
-        // The net CO2 assimilation is the smaller of the biochemistry-limited
-        // and conductance-limited rates. This will prevent the calculated Ci
-        // value from ever being < 0. This seems to be an important restriction
-        // to prevent numerical errors during the convergence loop, but does not
-        // actually limit the net assimilation rate if the loop converges.
-        an_conductance =
-            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
-
-        Assim = std::min(
-            Assim,
-            an_conductance);  // micromol / m^2 / s
-
+    // This lambda function equals zero
+    // only if assim satisfies both collatz assim and Ball Berry model
+    auto check_assim_rate = [&](double assim) {
+        // If assim is correct, then Ball Berry gives the correct
+        // CO2 at leaf surface (Cs) and correct stomatal conductance
         BB_res = ball_berry_gs(
-            Assim * 1e-6,
+            assim * 1e-6,
             Ca * 1e-6,
             relative_humidity,
             bb0_adj,
@@ -108,38 +99,35 @@ photosynthesis_outputs c4photoC(
 
         Gs = BB_res.gsw;  // mol / m^2 / s
 
-        // If it has gone through this many iterations, the convergence is not
-        // stable. This convergence is inapproriate for high water stress
-        // conditions, so use the minimum gs to try to get a stable system.
-        if (iterCounter > max_iterations - 10) {
-            Gs = bb0;  // mol / m^2 / s
-        }
-
+        // Using the value of stomatal conductance,
         // Calculate Ci using the total conductance across the boundary
         // layer and stomata
         InterCellularCO2 =
             Ca_pa - atmospheric_pressure * (Assim * 1e-6) *
                         (dr_boundary / gbw + dr_stomata / Gs);  // Pa
 
-        diff = std::abs(OldAssim - Assim);  // micromole / m^2 / s
+        double check = collatz_assim(InterCellularCO2) - assim;
+        return check;  // equals zero if correct
+    };
 
-        OldAssim = Assim;  // micromole / m^2 / s
-
-    } while (diff >= Tol && ++iterCounter < max_iterations);
-    //if (iterCounter > 49)
-    //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / atmospheric_pressure * 1e6, Assim, Gs, leaf_temperature);
-
+    secant_parameters secpar;
+    // Initial guesses for the secant method
+    double A0 = collatz_assim(Ca_pa);
+    double A1 = collatz_assim(InterCellularCO2);
+    Assim = find_root_secant_method(
+        check_assim_rate, A0, A1, secpar);
+    // unit change
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
     return photosynthesis_outputs{
-        /* .Assim = */ Assim,                       // micromol / m^2 /s
-        /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
-        /* .Ci = */ Ci,                             // micromol / mol
-        /* .GrossAssim = */ Assim + RT,             // micromol / m^2 / s
-        /* .Gs = */ Gs,                             // mol / m^2 / s
-        /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
-        /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
-        /* .Rp = */ 0,                              // micromol / m^2 / s
-        /* .iterations = */ iterCounter             // not a physical quantity
+        /* .Assim = */ Assim,               // micromol / m^2 /s
+        /* .Assim_cehck = */ secpar.check,  // micromol / m^2 / s
+        /* .Ci = */ Ci,                     // micromol / mol
+        /* .GrossAssim = */ Assim + RT,     // micromol / m^2 / s
+        /* .Gs = */ Gs,                     // mol / m^2 / s
+        /* .Cs = */ BB_res.cs,              // micromol / m^2 / s
+        /* .RHs = */ BB_res.hs,             // dimensionless from Pa / Pa
+        /* .Rp = */ 0,                      // micromol / m^2 / s
+        /* .iterations = */ secpar.counter  // not a physical quantity
     };
 }

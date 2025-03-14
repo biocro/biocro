@@ -1,11 +1,12 @@
-#include <cmath>                             // for pow, sqrt, std::abs
-#include <algorithm>                         // for std::min
-#include "ball_berry_gs.h"                   // for ball_berry_gs
-#include "FvCB_assim.h"                      // for FvCB_assim
-#include "conductance_limited_assim.h"       // for conductance_limited_assim
-#include "c3_temperature_response.h"         // for c3_temperature_response
-#include "../framework/constants.h"          // for dr_stomata, dr_boundary
+#include <cmath>                        // for pow, sqrt, std::abs
+#include <algorithm>                    // for std::min
+#include "ball_berry_gs.h"              // for ball_berry_gs
+#include "FvCB_assim.h"                 // for FvCB_assim
+#include "conductance_limited_assim.h"  // for conductance_limited_assim
+#include "c3_temperature_response.h"    // for c3_temperature_response
+#include "../framework/constants.h"     // for dr_stomata, dr_boundary
 #include "c3photo.h"
+#include "secant_method.h"
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
@@ -74,46 +75,19 @@ photosynthesis_outputs c3photoC(
     double const b1_adj = StomWS * b1;
 
     // Initialize variables before running fixed point iteration in a loop
+    // these are updated as a side effect in the secant method iterations
     FvCB_outputs FvCB_res;
     stomata_outputs BB_res;
-    double an_conductance{};            // micromol / m^2 / s
-    double Gs{1e3};                     // mol / m^2 / s      (initial guess)
-    double Ci{0.0};                     // micromol / mol     (initial guess)
-    double co2_assimilation_rate{0.0};  // micromol / m^2 / s (initial guess)
-    double const Tol{0.01};             // micromol / m^2 / s
-    int iterCounter{0};
-    int max_iter{1000};
+    double Gs{1e3};  // mol / m^2 / s      (initial guess)
+    double Ci{0.0};  // micromol / mol     (initial guess)
 
-    // Run iteration loop
-    while (iterCounter < max_iter) {
-        double OldAssim = co2_assimilation_rate;  // micromol / m^2 / s
-
-        // The net CO2 assimilation is the smaller of the biochemistry-limited
-        // and conductance-limited rates. This will prevent the calculated Ci
-        // value from ever being < 0. This seems to be an important restriction
-        // to prevent numerical errors during the convergence loop, but does not
-        // actually limit the net assimilation rate if the loop converges.
-        an_conductance =
-            conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
-
-        FvCB_res = FvCB_assim(
-            Ci,
-            Gstar,
-            J,
-            Kc,
-            Ko,
-            Oi,
-            Rd,
-            TPU,
-            Vcmax,
-            alpha_TPU,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation);
-
-        co2_assimilation_rate = std::min(FvCB_res.An, an_conductance);  // micromol / m^2 / s
-
+    // this lambda function equals zero
+    // only if assim satisfies both FvCB and Ball Berry model
+    auto check_assim_rate = [&](double assim) {
+        // If assim is correct, then Ball Berry gives the correct
+        // CO2 at leaf surface (Cs) and correct stomatal conductance
         BB_res = ball_berry_gs(
-            co2_assimilation_rate * 1e-6,
+            assim * 1e-6,
             Ca * 1e-6,
             RH,
             b0_adj,
@@ -124,28 +98,47 @@ photosynthesis_outputs c3photoC(
 
         Gs = BB_res.gsw;  // mol / m^2 / s
 
+        // Using the value of stomatal conductance,
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
-        Ci = Ca - co2_assimilation_rate *
+        Ci = Ca - assim *
                       (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mol
 
-        if (std::abs(OldAssim - co2_assimilation_rate) < Tol) {
-            break;
-        }
+        // Using Ci compute the assim under the FvCB
+        FvCB_res = FvCB_assim(
+            Ci, Gstar, J, Kc, Ko, Oi, Rd, TPU, Vcmax, alpha_TPU,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation);
 
-        ++iterCounter;
+        return FvCB_res.An - assim;  // equals zero if correct
+    };
+
+    // compute upper bound as guess
+    double assim_ub = FvCB_assim(
+                          Ca, Gstar, J, Kc, Ko, Oi, Rd, TPU, Vcmax, alpha_TPU,
+                          electrons_per_carboxylation,
+                          electrons_per_oxygenation)
+                          .An;
+    if (assim_ub < 0) {
+        assim_ub = 0;
     }
+    assim_ub = std::min(Ca * gbw / dr_boundary, assim_ub);
+
+    secant_parameters secpar;
+    double co2_assim_rate =
+        find_root_secant_method(
+            check_assim_rate, Rd, assim_ub, secpar);
 
     return photosynthesis_outputs{
-        /* .Assim = */ co2_assimilation_rate,       // micromol / m^2 / s
-        /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
-        /* .Ci = */ Ci,                             // micromol / mol
-        /* .GrossAssim = */ FvCB_res.Vc,            // micromol / m^2 / s
-        /* .Gs = */ Gs,                             // mol / m^2 / s
-        /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
-        /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
-        /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
-        /* .iterations = */ iterCounter             // not a physical quantity
+        /* .Assim = */ co2_assim_rate,         // micromol / m^2 / s
+        /* .Assim_check = */ secpar.check,     // micromol / m^2 / s
+        /* .Ci = */ Ci,                        // micromol / mol
+        /* .GrossAssim = */ FvCB_res.Vc,       // micromol / m^2 / s
+        /* .Gs = */ Gs,                        // mol / m^2 / s
+        /* .Cs = */ BB_res.cs,                 // micromol / m^2 / s
+        /* .RHs = */ BB_res.hs,                // dimensionless from Pa / Pa
+        /* .Rp = */ FvCB_res.Vc * Gstar / Ci,  // micromol / m^2 / s
+        /* .iterations = */ secpar.counter     // not a physical quantity
     };
 }
 
