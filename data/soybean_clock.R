@@ -1,5 +1,6 @@
 soybean_clock <- list(
     direct_modules = list(
+        "BioCro:format_time",
         "BioCro:light_from_solar",
         "BioCro:oscillator_clock_calculator"
     ),

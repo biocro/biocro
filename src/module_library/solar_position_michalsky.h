@@ -104,7 +104,7 @@ class solar_position_michalsky : public direct_module
           // Get references to input quantities
           lat{get_input(input_quantities, "lat")},
           longitude{get_input(input_quantities, "longitude")},
-          time{get_input(input_quantities, "time")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
           time_zone_offset{get_input(input_quantities, "time_zone_offset")},
           year{get_input(input_quantities, "year")},
 
@@ -132,7 +132,7 @@ class solar_position_michalsky : public direct_module
     // References to input quantities
     double const& lat;
     double const& longitude;
-    double const& time;
+    double const& fractional_doy;
     double const& time_zone_offset;
     double const& year;
 
@@ -160,7 +160,7 @@ string_vector solar_position_michalsky::get_inputs()
     return {
         "lat",               // degrees (North is positive)
         "longitude",         // degrees (East is positive)
-        "time",              // time expressed as a fractional day of year
+        "fractional_doy",    // days
         "time_zone_offset",  // the offset of the time zone relative to UTC
         "year"               // a year between 1950 and 2050
     };
@@ -177,8 +177,8 @@ string_vector solar_position_michalsky::get_outputs()
         "solar_ep",             // degrees
         "solar_ra",             // degrees
         "solar_dec",            // degrees
-        "gmst",                 // hours
-        "lmst",                 // hours
+        "gmst",                 // hr
+        "lmst",                 // hr
         "lha",                  // degrees
         "solar_zenith_angle",   // degrees
         "solar_azimuth_angle"   // degrees
@@ -197,9 +197,9 @@ void solar_position_michalsky::do_operation() const
     double constexpr jd_ref_2000 = 2451545.0;  // Julian date at noon on 1 January 2000 (UTC)
 
     // Unpack the doy and hour in UTC
-    double time_utc = time - time_zone_offset / hr_per_day;     // days
-    double const doy_utc = floor(time_utc);                     // days
-    double const hour_utc = hr_per_day * (time_utc - doy_utc);  // hours
+    double const fractional_doy_utc = fractional_doy - time_zone_offset / hr_per_day;  // days
+    double const doy_utc = std::floor(fractional_doy_utc / hr_per_day);                // days
+    double const hour_utc = hr_per_day * (fractional_doy_utc - doy_utc);               // hr
 
     // Calculate the Julian date
     double const delta = year - 1949.0;

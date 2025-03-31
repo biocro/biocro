@@ -1,5 +1,6 @@
 soybean <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
@@ -17,7 +18,8 @@ soybean <- list(
         canopy_photosynthesis = "BioCro:ten_layer_c3_canopy",
         "BioCro:ten_layer_canopy_integrator",
         partitioning_growth_calculator = "BioCro:no_leaf_resp_neg_assim_partitioning_growth_calculator",
-        "BioCro:senescence_coefficient_logistic"
+        "BioCro:senescence_coefficient_logistic",
+        "BioCro:carbon_assimilation_to_biomass"
     ),
     differential_modules = list(
         senescence = "BioCro:senescence_logistic",
@@ -92,7 +94,7 @@ soybean <- list(
         Tmin_R1R7                   = 0.0,         # degrees C; Setiyono et al., 2007, Table 2
         Topt_R1R7                   = 21.5,        # degrees C; Setiyono et al., 2007, Table 2
         Tmax_R1R7                   = 38.7,        # degrees C; Setiyono et al., 2007, Table 2
-        sowing_time                 = 0,           # Soybean-BioCro uses the weather data to set the sowing time
+        sowing_fractional_doy       = 0,           # Soybean-BioCro uses the weather data to set the sowing time
 
         # partitioning_coefficient_logistic module
         alphaLeaf                   = 23.8895,
@@ -135,6 +137,9 @@ soybean <- list(
 
         # canopy_gbw_thornley module
         min_gbw_canopy              = 0.005,       # m / s
+
+        # carbon_asismilation_to_biomass module
+        dry_biomass_per_carbon = 30.026,
 
         # stefan_boltzmann_longwave module
         emissivity_sky              = 1,

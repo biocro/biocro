@@ -22,7 +22,8 @@ chapter on contributing to BioCro.  -->
         "Docker and Reproducibility" {target="_blank"}
 [Reproducible analysis and Research Transparency]: https://reproducible-analysis-workshop.readthedocs.io/en/latest/index.html
         "Reproducible analysis and Research Transparency" {target="_blank"}
-
+[Advanced R (1e) Style Guide]: http://adv-r.had.co.nz/Style.html
+        "Advanced R (1e) style guide" {target="_blank"}
 
 [Solar Position module]: `r params$biocro_root`/src/module_library/solar_position_michalsky.h "Source code for the Solar Position module" {target="_blank"}
 
@@ -74,6 +75,11 @@ dependencies, see, for example, Russ Cox's article [Our Software
 Dependency Problem] and Bill Sourour's article [Code dependencies are
 the devil].
 
+[^compressing_vignettes]: If a package contains large vignette files,
+`R CMD check` may produce an error about overly large documentation. In this
+case, it can be helpful to specify `--compact-vignettes=both` when calling
+`R CMD build`. Previously this was an important issue for BioCro, but it has
+been mitigated by designating most vignettes as "web only."
 
 <!-- main text -->
 
@@ -90,7 +96,7 @@ the devil].
  members of the group also have diverse backgrounds and likely can
  give valuable design insights.
 
-### Follow BioCro's git branching structure
+### Follow BioCro's git branching structure {#branch-structure}
 
 * In general, BioCro development follows the [git-flow][] branching model, where
   there are two permanent branches (`main` and `develop`) and three types of
@@ -169,12 +175,130 @@ the devil].
     new version of the package, a release branch is used to move the changes
     from `develop` to `main`. Release branches should not include substantive
     changes; rather, a release branch is primarily used to increment the package
-    version and to ensure an up-to-date changelog in `NEWS.md`. A release branch
+    version and to ensure an up-to-date changelog in `NEWS.md`; see the
+    ["New Release" chapter](#new-release) for more details. A release branch
     should be branched off `develop`. When it's ready, it should first merged
-    into `main` via an approved pull request. Then, a second pull request should
-    be made to merge into `develop`. If there are no merge conflicts or test
+    into `develop` via an approved pull request. Then, a second pull request
+    should be made to merge into `main`. (If the first PR target is `main`, it
+    will be difficult to discern the minor changes in the release branch from
+    the other changes in `develop`.) If there are no merge conflicts or test
     failures, this second request can be merged without any additional approval.
     When both merges are complete, the release branch should be deleted.
+
+### Etiquette for pull requests {#pr-etiquette}
+
+We have several conventions when making and reviewing pull requests that are
+designed to make the process as efficient as possible, and to minimize any
+issues introduced by new code. These have been used in many PRs and have been
+found to be helpful.
+
+* **Single ownership of each PR:** If multiple people are making changes to the
+  same code, there is a potential for conflicting changes to occur. While git
+  provides a way to resolve such conflicts, it is better to avoid causing them
+  in the first place. A simple way to prevent most of these conflicts is to
+  treat each branch and PR as having a single "owner" who is in charge of making
+  all commits. There are a few consequences of this approach:
+
+  - Pull request reviewers should suggest changes, not commit changes directly
+    to the PR branch. If a reviewers wishes to contribute specific code changes,
+    it is better to make them in a new branch and create a secondary PR to merge
+    the changes into the original PR.
+
+  - Pull request owners should either implement the suggested changes or give a
+    short explanation for why they have chosen not to.
+
+  - Once one or more reviewers have indicated their approval, it is the
+    responsibility of the pull request owner to finalize the PR by merging it
+    and deleting the branch.
+
+* **Submitted code should work:** It takes time and effort to produce a
+  thoughtful review of a pull request, so requests to review a PR should
+  generally only be made for working code. In a BioCro context, "working" code
+  means that `R CMD check` does not produce any errors and that all the
+  vignettes can be built. See the ["Running R CMD check" chapter](#r-cmd-check)
+  for more information. While this does not guarantee that the new code achieves
+  its goals, is fully documented, or follows the coding style guidelines, it is
+  nevertheless a minimum requirement for any code to be incorporated into
+  BioCro. The following is a thorough workflow that should ensure submitted code
+  is working:
+
+  1. Run the regression tests locally. The tests don't take much time to run, so
+     this is a good way to get fast feedback.
+
+     Instructions for running the regression tests locally can be found in the
+     ["Running the _testthat_ Tests" chapter](#running-testthat).
+
+  2. When all the regression tests are passing, run `R CMD check` locally. This
+     takes longer than just running the regression tests, but it will also make
+     sure that all code in the examples (and some of the vignettes) is able to
+     run, which sometimes turns up more issues.
+
+     Instructions for running `R CMD check` locally can be found in
+     ["Running R CMD check locally" section](#sec:local-r-cmd-check).
+
+     Note that `R CMD check` will stop checking the examples once it encounters
+     an error, so its list of problematic examples is not exhaustive. If there
+     is an issue with an example, fix it and rerun `R CMD check` again because
+     there may be additional errors in the examples.
+
+  3. When `R CMD check` is passing locally, build _all_ the vignettes. Because
+     of space limits imposed by CRAN, some of our vignettes are designated as
+     "web only." Such vignettes are stored in the `vignettes/web_only` directoty
+     and are not checked by `R CMD check`. They can be built manually on a
+     case-by-case basis from within R by using `tools::build_vignette`, or all
+     at once by running `pkgdown::build_site()` in an R session whose working
+     directory is set to the root directory of the BioCro repository. See the
+     ["Building package vignettes" section](#sec:building-vignettes) for more
+     information.
+
+  4. When `R CMD check` is passing locally and the vignettes can all be built
+     locally, make a PR, but don't assign any reviewers. Making the PR will
+     cause the workflow tests to run, which includes running `R CMD check` on
+     several operating systems and versions of R, and building all the vignettes
+     as part of the package documentation. This step takes the most time, but is
+     important because sometimes an issue will appear that didn't occur locally
+     on your own operating system or version of R.
+
+  5. When the online checks have passed, then assign reviewers to begin the
+     review process.
+
+  Doing this will ensure that there are no basic issues when reviewers begin to
+  look at the code. It may seem like a hassle, but it saves time in the long
+  run. Even when the exact workflow above is not followed, the online tests can
+  still be extremely helpful to a PR owner or reviewer:
+
+  - It is possible to see whether the checks have passed by looking at the list
+    of current PRs, where a red X next to a PR name indicates failure and a
+    green check mark indicates success.
+
+  - When the tests have failed, more details can be found in the "Checks" tab of
+    the PR web site. This will include the exact error messages, which are the
+    starting point for troubleshooting.
+
+Of course, the conventions above are not hard rules, and there may be situations
+where it is acceptable, or even necessary, to deviate from them. The following
+is a (non-exhaustive) list of situations where these conventions could be
+modified:
+
+* A PR owner may give clear permission to another developer to make direct code
+  changes. This may be in response to a reviewer asking to make changes.
+
+* Sometimes the online tests will fail due to an issue with the testing setup
+  itself. In that case it might not be necessary for them to pass. However, in
+  this scenario, it is important for at least one developer to ensure that
+  `R CMD check` passes locally.
+
+* Although it is ideal to only submit working code, sometimes this is not
+  possible for a variety of reasons. If you are working on new code and wish to
+  discuss it but there are `R CMD check` errors, this can be accomplished via a
+  PR, a draft PR, a GitHub issue, or a GitHub discussion. The best approach may
+  vary with the particular situation. Regardless of which approach is taken, it
+  is essential to acknowledge the `R CMD check` issue and be clear about the
+  type of feedback or discussion you are requesting.
+
+* Sometimes a working PR may begin failing `R CMD check` after the author has
+  made code changes in response to reviewer feedback. This is normal; the new
+  problems and their solutions will simply become part of the PR discussion.
 
 ### Making large modifications to BioCro
 
@@ -257,9 +381,87 @@ discuss the following questions:
 
 3. Which BioCro features will be added or lost?
 
+### Releasing a new version of BioCro {#new-release}
+
+When releasing a new version of BioCro, it is essential to make sure that
+`NEWS.md` is up to date and that the new version is acceptable to CRAN. This can
+be achieved through the following steps:
+
+1. Choose the next version number; our conventions for semantic versioning are
+   described in `NEWS.md`.
+
+2. Make a new release branch whose name is formatted as `release-vX.Y.X`, where
+   `X.Y.Z` is the new version number, as described in the
+   ["Branching Structure" chapter](#branch-structure).
+
+3. Update the `DESCRIPTION` file with the new release date (set to today's
+   date), the new version number, and any necessary changes to the author list.
+
+4. Change the `UNRELEASED` header in `NEWS.md` to the new version number, and
+   check the contents of this section to ensure it is clear and complete. It may
+   be helpful to look through the list of completed pull requests on GitHub to
+   check for any important changes that may have been missed.
+
+5. Run `R CMD check` to see any NOTEs that are reported; see the
+   ["Running R CMD check chapter"](#r-cmd-check) for instructions. Check the
+   contents of `cran-comments.md` to make sure it accurately reflects the
+   `R CMD check` notes.
+
+6. Make a pull request, requesting to merge the new branch into `develop`. In
+   general, follow the guidelines in the
+   ["Pull Request Etiquette" chapter](#pr-etiquette). However, there is one
+   extra requirement for a release branch: the branch should not be merged until
+   the new version has been accepted by CRAN. Sometimes CRAN may have issues
+   with a new release, and it is better to address them _before_ finalizing the
+   release. (Otherwise, there may be several releases in quick succession with
+   only minor or trivial changes between them; for example, BioCro versions
+   3.1.1 and 3.1.2.) See the ["Submitting to CRAN" chapter](#cran-submission)
+   for instructions.
+
+7. When the new version is on CRAN, merge the release branch into `develop` and
+   then `main`.
+
+### Submitting a new version of BioCro to CRAN {#cran-submission}
+
+The package maintainer is responsible for submitting to CRAN, and the process
+consists of the following steps:
+
+1. Build the package with `R CMD build`[^compressing_vignettes] using the
+   current release version.
+
+2. Test the resulting `.tar.gz` file using `R CMD check --as-cran` using the
+   current release version and the current development version on Linux and
+   Windows. GitHub actions run this for R current Windows and Linux, and R
+   devel Linux, so only R devel Windows needs to be checked locally.
+
+3. Attach the resulting `.tar.gz` file to the form here:
+   https://cran.r-project.org/submit.html.
+
+4. Paste the contents of `cran-comments.md` in the form's comments box.
+
+5. Submit, cross fingers, and wait. If any issues are found by CRAN, address
+   them and try again. If the checks fail only from permissible NOTES, such as
+   using C++11, reply to the email indicating the justification, for example,
+   we use a library that uses C++11. You can restate what is in
+   `cran-comments.md`.
+
+BioCro's online testing system should catch most issues before reaching this
+point, but sometimes CRAN starts enforcing rules that are not clearly explained
+anywhere or not checked by `R CMD check`. The most up-to-date description of
+CRAN's requirements can be obtained from the following official and
+semi-official sources, which each offer a different perspective on CRAN
+submission:
+
+ - https://cran.r-project.org/web/packages/policies.html
+
+ - https://r-pkgs.org/release.html#release
+
+ - https://github.com/DavisVaughan/extrachecks
+
 ## Code style
 
-(Most of what is discussed here pertains specifically to code for the BioCro C++ library.)
+(Most of what is discussed here pertains specifically to code for the BioCro C++
+library.)
 
 ### Scientific considerations
 
@@ -371,7 +573,9 @@ discuss the following questions:
   issue.
 
 ### General coding considerations
-* Do not use C-style arrays. Use an appropriate data type from the standard library instead.
+* Do not use C-style arrays. Use an appropriate data type from the standard
+  library instead.
+
 * Use cmath, not math.h, for common mathematical functions.
 
 * Be careful with **using**-directives (e.g. `using namespace std`) in
@@ -483,7 +687,8 @@ For example,
     chunks, unless exceeding 80 columns significantly increases
     readability and does not hide information.
 
-* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters.
+* Do not include trailing whitespace, i.e., whitespace characters preceding
+  newline characters.
 
 * Each file should end with a newline character (i.e. a terminal endline).
 
@@ -498,8 +703,8 @@ For example,
   [formatting conventions][aspects of coding and design] that are
   informative, particularly regarding the use of code comments.
 
-For tools to help with formatting code, see the section
-\@ref(formatting-tools).
+For tools to help with formatting code, see the
+["Formatting Tools" section](#formatting-tools).
 
 ### R-specific coding advice
 
@@ -521,6 +726,27 @@ For tools to help with formatting code, see the section
   `[`). Many guides for optimizing loop performance are available
   online, such as [Strategies to Speedup R Code][] and [Why loops are
   slow in R][].
+
+* Generally our R code follows the [Advanced R (1e) Style Guide][] with the
+  exception of indentation, where we use 4 spaces rather than 2.
+
+  * Put a space after control statements (such as `if` or `for`), but do not
+    put a space after other function names (such as `function`, `return`, or
+    `sqrt`). For example:
+
+    ```R
+    myfun <- function(x) {
+        y <- if (x == 1) {
+            2
+        } else {
+            sqrt(x)
+        }
+
+        return(y)
+    }
+    ```
+
+    (Yes, in R, `function` is a function.)
 
 ---
 

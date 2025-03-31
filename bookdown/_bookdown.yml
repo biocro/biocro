@@ -22,12 +22,15 @@ rmd_files: [
     # 3. Running tests
     "../tests/README.md",
 
-    # 4. Adding Boost
+    # 4. Running R CMD check
+    "../developer_documentation/running_r_cmd_check.Rmd",
+
+    # 5. Adding Boost
     "../src/inc/adding_the_boost_libraries.md",
 
-    # 5. The Update Documentation workflow
+    # 6. The Update Documentation workflow
     "../.github/workflows/README.md",
 
-    # 6. The Doxygen Docker action
+    # 7. The Doxygen Docker action
     "../.github/actions/doxygen-action/README.md"
 ]

@@ -151,6 +151,28 @@ test_that("element names are not repeated", {
     )
 })
 
+test_that("all key ode_solver elements must be provided", {
+    typo_ode_solver <- list(
+        type = "boost_rkck54",
+        output_step_siz = 1,
+        adpative_rel_error_tol = 1e-4,
+        adpative_abs_error_tol= 1e-4,
+        adpative_max_steps= 200
+    )
+
+    expect_error(
+        with(CROP, {run_biocro(
+            initial_values,
+            parameters,
+            WEATHER,
+            direct_modules,
+            differential_modules,
+            typo_ode_solver
+        )}),
+        'The following required elements of `ode_solver` are not defined: output_step_size, adaptive_rel_error_tol, adaptive_abs_error_tol, adaptive_max_steps.'
+    )
+})
+
 test_that("All modules must exist", {
     # TO-DO: move this test to a module-library-specific testing file
 

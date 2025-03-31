@@ -60,8 +60,8 @@ class soybean_development_rate_calculator : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          time{get_input(input_quantities, "time")},
-          sowing_time{get_input(input_quantities, "sowing_time")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
+          sowing_fractional_doy{get_input(input_quantities, "sowing_fractional_doy")},
           maturity_group{get_input(input_quantities, "maturity_group")},
           DVI{get_input(input_quantities, "DVI")},
           day_length{get_input(input_quantities, "day_length")},
@@ -89,8 +89,8 @@ class soybean_development_rate_calculator : public direct_module
 
    private:
     // References to input quantities
-    double const& time;
-    double const& sowing_time;
+    double const& fractional_doy;
+    double const& sowing_fractional_doy;
     double const& maturity_group;
     double const& DVI;
     double const& day_length;
@@ -118,24 +118,24 @@ class soybean_development_rate_calculator : public direct_module
 string_vector soybean_development_rate_calculator::get_inputs()
 {
     return {
-        "time",             // days
-        "sowing_time",      // days
-        "maturity_group",   // dimensionless; maturity group of soybean cultivar
-        "DVI",              // dimensionless; development index, see Osborne et al. 2015
-        "day_length",       // hours
-        "temp",             // degrees C
-        "Tbase_emr",        // degrees C; base temp for thermal time from sowing to emergence
-        "TTemr_threshold",  // degrees C * days; accumulated thermal time for emergence
-        "Rmax_emrV0",       // day^-1
-        "Tmin_emrV0",       // degrees C
-        "Topt_emrV0",       // degrees C
-        "Tmax_emrV0",       // degrees C
-        "Tmin_R0R1",        // degrees C
-        "Topt_R0R1",        // degrees C
-        "Tmax_R0R1",        // degrees C
-        "Tmin_R1R7",        // degrees C
-        "Topt_R1R7",        // degrees C
-        "Tmax_R1R7",        // degrees C
+        "fractional_doy",         // days
+        "sowing_fractional_doy",  // days
+        "maturity_group",         // dimensionless; maturity group of soybean cultivar
+        "DVI",                    // dimensionless; development index, see Osborne et al. 2015
+        "day_length",             // hours
+        "temp",                   // degrees C
+        "Tbase_emr",              // degrees C; base temp for thermal time from sowing to emergence
+        "TTemr_threshold",        // degrees C * days; accumulated thermal time for emergence
+        "Rmax_emrV0",             // day^-1
+        "Tmin_emrV0",             // degrees C
+        "Topt_emrV0",             // degrees C
+        "Tmax_emrV0",             // degrees C
+        "Tmin_R0R1",              // degrees C
+        "Topt_R0R1",              // degrees C
+        "Tmax_R0R1",              // degrees C
+        "Tmin_R1R7",              // degrees C
+        "Topt_R1R7",              // degrees C
+        "Tmax_R1R7",              // degrees C
     };
 }
 
@@ -150,7 +150,7 @@ void soybean_development_rate_calculator::do_operation() const
 {
     double soybean_development_rate;  // day^-1
 
-    if (time < sowing_time) {
+    if (fractional_doy < sowing_fractional_doy) {
         // The seeds haven't been sown yet, so no development should occur
         soybean_development_rate = 0;  // day^-1
     } else if (DVI < -1) {

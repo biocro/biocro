@@ -1068,10 +1068,9 @@ In the C++ interface to the BioCro library, there is only one required
 user-facing time-related variable---namely, the quantity `timestep`,
 which must be provided as one (and possibly the only) of the
 parameters when setting up a system.[^timestep_parameter] (In the R
-interface, there are always three additional quantities---`doy`,
-`hour`, and `time`---which always come into play when we set up or run
-a system.  These are artifacts of certain aspects of the R interface
-and are subject to revision, and we will mostly ignore them here.)
+interface, it is also necessary to provide `time` as part of the drivers
+when setting up or running a system; `time` can be supplied implicitly
+by providing values of `doy` and `hour`.)
 
 The `timestep` quantity, however, gives rise to an implicit quantity,
 the _elapsed time_, that corresponds well with the _time_ variable as
@@ -1871,7 +1870,8 @@ meaningless.
 
 A formal requirement of the R interface (but not of the C++ interface)
 is that the set of driver variables either contains `time` or contains
-both `doy` and `hour`.  All three variables show up in the output.
+both `doy` and `hour`.  In the latter case, `time` will automatically
+be calculated from `doy` and `hour`.
 
 ```{r}
 library(BioCro)
@@ -1884,11 +1884,15 @@ constant and even though it is not a system variable.
 
 Note also that if `time` is a driver, it dominates: `doy` and `hour`
 (if present) are overwritten.  If `time` is not present, both `doy`
-and `hour` must be; if only one is, we get obscure error:
+and `hour` must be; if only one is, `time` cannot be calculated and we get an
+error:
 
-```
-  Error in floor(result$time) :
-    non-numeric argument to mathematical function
+```{r, error = TRUE}
+run_biocro(
+    parameters = list(timestep=1),
+    differential_module_names = 'BioCro:harmonic_oscillator',
+    drivers = data.frame(doy=80)
+)
 ```
 
 ## A system having a differential variable but no differential module

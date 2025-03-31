@@ -19,9 +19,7 @@ namespace standardBML
  * photosynthesis, along with simple 1D gas diffusion, define a set of coupled
  * equations with three unknowns: net assimilation, intercellular CO2
  * concetration, and stomatal conductance. This function attempts to numerically
- * determine these unknowns using a fixed-point iteration method. Beware: the
- * code often fails to find the true solution, and some parts of the models are
- * implemented incorrectly.
+ * determine these unknowns using the secant method.
  *
  * See the original WIMOVAC paper for a description of the assimilation model
  * and additional citations: [Humphries, S. W. & Long, S. P. Bioinformatics
@@ -30,37 +28,38 @@ namespace standardBML
  * ### BioCro module implementation
  *
  * In BioCro, we use the following names for this model's input quantities:
- * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
- * - ``'Tleaf'`` for the leaf temperature
- * - ``'temp'`` for the ambient temperature
- * - ``'rh'`` for the atmospheric relative humidity
- * - ``'vmax'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'alpha'`` for the initial slope of the photosynthetic light response
- * - ``'kparm'`` for the initial slope of the photosynthetic CO2 response
- * - ``'theta'`` for the first quadratic mixing parameter
- * - ``'beta'`` for the second quandratic mixing parameter
- * - ``'Rd'`` for the respiration rate at 25 degrees C
+ * - ``'atmospheric_pressure'`` for the local atmospheric pressure
  * - ``'b0'`` for the Ball-Berry intercept
  * - ``'b1'`` for the Ball-Berry slope
- * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
- * - ``'StomataWS'`` for the water stress factor
+ * - ``'beta'`` for the second quandratic mixing parameter
  * - ``'Catm'`` for the atmospheric CO2 concentration
- * - ``'atmospheric_pressure'`` for the local atmospheric pressure
- * - ``'upperT'`` for the high temperature cutoff for rubisco activity
- * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
  * - ``'gbw'`` for the boundary layer conductance to water vapor. For an
  *   isolated leaf, this should be the leaf boundary layer conductance; for a
  *   leaf within a canopy, this should be the total conductance including the
  *   leaf and canopy boundary layer conductances.
+ * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
+ * - ``'kparm'`` for the initial slope of the photosynthetic CO2 response
+ * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
+ * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
+ * - ``'Rd'`` for the respiration rate at 25 degrees C
+ * - ``'rh'`` for the atmospheric relative humidity
+ * - ``'StomataWS'`` for the water stress factor
+ * - ``'temp'`` for the ambient temperature
+ * - ``'theta'`` for the first quadratic mixing parameter
+ * - ``'Tleaf'`` for the leaf temperature
+ * - ``'upperT'`` for the high temperature cutoff for rubisco activity
+ * - ``'vmax'`` for the rubisco carboxylation rate at 25 degrees C
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
- * - ``'Gs'`` for the stomatal conductance for H2O
- * - ``'Cs'`` for the CO2 concentration at the leaf surface
- * - ``'RHs'`` for the relative humidity at the leaf surface
- * - ``'Ci'`` for the intercellular CO2 concentration
- * - ``'GrossAssim'`` for the gross CO2 assimilation rate
+ * - ``'Assim_check'`` for an indicator of whether the loop converged
  * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
+ * - ``'Ci'`` for the intercellular CO2 concentration
+ * - ``'Cs'`` for the CO2 concentration at the leaf surface
+ * - ``'GrossAssim'`` for the gross CO2 assimilation rate
+ * - ``'Gs'`` for the stomatal conductance for H2O
+ * - ``'RHs'`` for the relative humidity at the leaf surface
  * - ``'Rp'`` for the rate of photorespiration
  * - ``'iterations'`` for the number of iterations required for the convergence loop
  */
@@ -73,34 +72,35 @@ class c4_assimilation : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          Qp{get_input(input_quantities, "Qp")},
-          Tleaf{get_input(input_quantities, "Tleaf")},
-          Tambient{get_input(input_quantities, "temp")},
-          rh{get_input(input_quantities, "rh")},
-          vmax{get_input(input_quantities, "vmax")},
           alpha{get_input(input_quantities, "alpha")},
-          kparm{get_input(input_quantities, "kparm")},
-          theta{get_input(input_quantities, "theta")},
-          beta{get_input(input_quantities, "beta")},
-          Rd{get_input(input_quantities, "Rd")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
-          Gs_min{get_input(input_quantities, "Gs_min")},
-          StomataWS{get_input(input_quantities, "StomataWS")},
+          beta{get_input(input_quantities, "beta")},
           Catm{get_input(input_quantities, "Catm")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          upperT{get_input(input_quantities, "upperT")},
-          lowerT{get_input(input_quantities, "lowerT")},
           gbw{get_input(input_quantities, "gbw")},
+          Gs_min{get_input(input_quantities, "Gs_min")},
+          kparm{get_input(input_quantities, "kparm")},
+          lowerT{get_input(input_quantities, "lowerT")},
+          Qp{get_input(input_quantities, "Qp")},
+          Rd{get_input(input_quantities, "Rd")},
+          rh{get_input(input_quantities, "rh")},
+          StomataWS{get_input(input_quantities, "StomataWS")},
+          Tambient{get_input(input_quantities, "temp")},
+          theta{get_input(input_quantities, "theta")},
+          Tleaf{get_input(input_quantities, "Tleaf")},
+          upperT{get_input(input_quantities, "upperT")},
+          vmax{get_input(input_quantities, "vmax")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
-          Gs_op{get_op(output_quantities, "Gs")},
-          Cs_op{get_op(output_quantities, "Cs")},
-          RHs_op{get_op(output_quantities, "RHs")},
-          Ci_op{get_op(output_quantities, "Ci")},
-          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Assim_check_op{get_op(output_quantities, "Assim_check")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
+          Ci_op{get_op(output_quantities, "Ci")},
+          Cs_op{get_op(output_quantities, "Cs")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")},
+          Gs_op{get_op(output_quantities, "Gs")},
+          RHs_op{get_op(output_quantities, "RHs")},
           Rp_op{get_op(output_quantities, "Rp")},
           iterations_op{get_op(output_quantities, "iterations")}
     {
@@ -111,34 +111,35 @@ class c4_assimilation : public direct_module
 
    private:
     // References to input quantities
-    double const& Qp;
-    double const& Tleaf;
-    double const& Tambient;
-    double const& rh;
-    double const& vmax;
     double const& alpha;
-    double const& kparm;
-    double const& theta;
-    double const& beta;
-    double const& Rd;
+    double const& atmospheric_pressure;
     double const& b0;
     double const& b1;
-    double const& Gs_min;
-    double const& StomataWS;
+    double const& beta;
     double const& Catm;
-    double const& atmospheric_pressure;
-    double const& upperT;
-    double const& lowerT;
     double const& gbw;
+    double const& Gs_min;
+    double const& kparm;
+    double const& lowerT;
+    double const& Qp;
+    double const& Rd;
+    double const& rh;
+    double const& StomataWS;
+    double const& Tambient;
+    double const& theta;
+    double const& Tleaf;
+    double const& upperT;
+    double const& vmax;
 
     // Pointers to output quantities
     double* Assim_op;
-    double* Gs_op;
-    double* Cs_op;
-    double* RHs_op;
-    double* Ci_op;
-    double* GrossAssim_op;
+    double* Assim_check_op;
     double* Assim_conductance_op;
+    double* Ci_op;
+    double* Cs_op;
+    double* GrossAssim_op;
+    double* Gs_op;
+    double* RHs_op;
     double* Rp_op;
     double* iterations_op;
 
@@ -149,25 +150,25 @@ class c4_assimilation : public direct_module
 string_vector c4_assimilation::get_inputs()
 {
     return {
-        "Qp",                    // micromol / m^2 / s
-        "Tleaf",                 // degrees C
-        "temp",                  // degrees C
-        "rh",                    // dimensionless
-        "vmax",                  // micromol / m^2 / s
         "alpha",                 // mol / mol
-        "kparm",                 // mol / mol
-        "theta",                 // dimensionless
-        "beta",                  // dimensionless
-        "Rd",                    // micromol / m^2 / s
+        "atmospheric_pressure",  // Pa
         "b0",                    // mol / m^2 / s
         "b1",                    // dimensionless
-        "Gs_min",                // mol / m^2 / s
-        "StomataWS",             // dimensionless
+        "beta",                  // dimensionless
         "Catm",                  // micromol / mol
-        "atmospheric_pressure",  // Pa
-        "upperT",                // degrees C
+        "gbw",                   // mol / m^2 / s
+        "Gs_min",                // mol / m^2 / s
+        "kparm",                 // mol / mol
         "lowerT",                // degrees C
-        "gbw"                    // mol / m^2 / s
+        "Qp",                    // micromol / m^2 / s
+        "Rd",                    // micromol / m^2 / s
+        "rh",                    // dimensionless
+        "StomataWS",             // dimensionless
+        "temp",                  // degrees C
+        "theta",                 // dimensionless
+        "Tleaf",                 // degrees C
+        "upperT",                // degrees C
+        "vmax"                   // micromol / m^2 / s
     };
 }
 
@@ -175,12 +176,13 @@ string_vector c4_assimilation::get_outputs()
 {
     return {
         "Assim",              // micromol / m^2 / s
-        "Gs",                 // mol / m^2 / s
-        "Cs",                 // micromol / m^2 / s
-        "RHs",                // dimensionless from Pa / Pa
-        "Ci",                 // micromol / mol
-        "GrossAssim",         // micromol / m^2 / s
+        "Assim_check",        // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
+        "Ci",                 // micromol / mol
+        "Cs",                 // micromol / m^2 / s
+        "GrossAssim",         // micromol / m^2 / s
+        "Gs",                 // mol / m^2 / s
+        "RHs",                // dimensionless from Pa / Pa
         "Rp",                 // micromol / m^2 / s
         "iterations"          // not a physical quantity
     };
@@ -211,12 +213,13 @@ void c4_assimilation::do_operation() const
 
     // Update the output quantity list
     update(Assim_op, c4_results.Assim);
-    update(Gs_op, c4_results.Gs);
-    update(Cs_op, c4_results.Cs);
-    update(RHs_op, c4_results.RHs);
-    update(Ci_op, c4_results.Ci);
-    update(GrossAssim_op, c4_results.GrossAssim);
+    update(Assim_check_op, c4_results.Assim_check);
     update(Assim_conductance_op, c4_results.Assim_conductance);
+    update(Ci_op, c4_results.Ci);
+    update(Cs_op, c4_results.Cs);
+    update(GrossAssim_op, c4_results.GrossAssim);
+    update(Gs_op, c4_results.Gs);
+    update(RHs_op, c4_results.RHs);
     update(Rp_op, c4_results.Rp);
     update(iterations_op, c4_results.iterations);
 }

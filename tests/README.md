@@ -4,7 +4,7 @@
     https://github.com/biocro/biocro/actions/workflows/R-CMD-check.yaml
     "BioCro R-CMD-check workflow runs" {target="_blank"}
 
-# Running the _testthat_ Tests
+# Running the _testthat_ Tests {#running-testthat}
 
 ## Requirements
 
@@ -38,12 +38,11 @@ Rscript -e "devtools::test()"
 
 This will test against the _source_ code; it does not expect BioCro to
 be installed.  Note that this _source code_ test will compile or
-recompile the C++ code if necessary.  See the [source-code testing
-section](#sec:testing-local) (Section \@ref(sec:testing-local)) for
-details.
+recompile the C++ code if necessary.  See the
+["Source-Code Testing" section](#sec:testing-local) for details.
 
 
-## Continuous integration workflow; why run tests manually?
+## Continuous integration workflow; why run tests manually? {#sec:ci-tests}
 
 BioCro's _testthat_ test suite is automatically run on GitHub as part
 of the _R-CMD-check_ workflow every time a BioCro developer makes or
@@ -84,15 +83,13 @@ install any of its tests.)
 
 ### Running the test suite on the installed version of BioCro {#sec:test-installed}
 
-As explained in the [tl;dr] section above (Section \@ref(sec:TLDR)),
-the easiest way to run the tests against an installed version of the
-BioCro package is to move to the _tests_ directory within the BioCro
-source code directory tree and run
+As explained in the ["TL;DR" section](#sec:TLDR) above, the easiest way to run
+the tests against an installed version of the BioCro package is to move to the
+_tests_ directory within the BioCro source code directory tree and run
 
 ```sh
 Rscript testthat.R
 ```
-
 
 Alternatively, the tests may be run inside an R session as follows:
 
@@ -237,8 +234,9 @@ reporters.
 
 #### Method 2 {-}
 
-This uses the `test_check` function we used earlier (see Section
-\@ref(sec:switching-reporters)), but with a "filter" option.
+This uses the `test_check` function we used earlier (see the
+["Switching Reporters" section](#sec:switching-reporters), but with a "filter"
+option.
 
 1. Start an R session.
 
@@ -280,7 +278,7 @@ xfun::in_dir('<path to tests directory>',
 ### Running an individual test file against the package source code
 
 Again, the `test_local` function is used.  The method is exactly the
-same as specified above in section \@ref(sec:testing-local) except
+same as specified above in the ["Testing Local" section](#sec:test_local) except
 that a _filter_ option is used to limit testing to matching files (see
 [Method 2] in the previous section).
 

@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,output,output,"description"
-dawn_a,dawn_b,day_tracker,dusk_a,dusk_b,kick_strength,light,night_tracker,ref_a,ref_b,time,dawn_kick,dawn_phase,dawn_radius,day_length,dusk_kick,dusk_phase,dusk_radius,night_length,ref_phase,ref_radius,sunrise,sunset,NA
-1,1,1,1,1,1,1,1,1,1,1,1,0.785398163397448,1.4142135623731,0,0,0.785398163397448,1.4142135623731,0,0.785398163397448,1.4142135623731,21,21,"automatically-generated test case"
+dawn_a,dawn_b,day_tracker,dusk_a,dusk_b,kick_strength,light,night_tracker,ref_a,ref_b,hour,dawn_kick,dawn_phase,dawn_radius,day_length,dusk_kick,dusk_phase,dusk_radius,night_length,ref_phase,ref_radius,sunrise,sunset,NA
+1,1,1,1,1,1,1,1,1,1,24,1,0.785398163397448,1.4142135623731,0,0,0.785398163397448,1.4142135623731,0,0.785398163397448,1.4142135623731,21,21,"automatically-generated test case"

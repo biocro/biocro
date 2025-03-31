@@ -1,4 +1,4 @@
-## Building package vignettes
+## Building package vignettes {#sec:build-vignettes}
 
 ### Required software
 
@@ -36,40 +36,59 @@ options:
   install.packages('devtools')
   ```
 
-### Build procedure
+### Building all vignettes at once
 
-The following instructions assume that the root of the BioCro source
-tree is a directory named `biocro`.
+The simplest (but not fastest) way to build _all_ the vignettes is to
+use the `pkgdown` package.
 
-- Build the package by running `R CMD build biocro` from the command line in
-  the directory containing `biocro`. This includes building the vignettes.
+From an R session running in the root directory of the BioCro source
+tree, type `pkgdown::build_site()`. This will build a local copy of
+the BioCro documentation web site, incuding all vignettes in the
+`vignettes/web_only` directory. (The `bookdown` book will not
+automatically be built, however.)
 
-- Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where `xxx` is the
-  version number.
+This method doesn't require that BioCro be installed. But it installs
+BioCro in a temporary location and then builds _all_ the vignettes and
+help pages, and thus it can be somewhat time consuming.
 
-- The vignettes should now be available as HTML or PDF files located
-  in `path_to_rlib/BioCro/doc`, where `path_to_rlib` is the path to
-  your R library directory.  An easy way to pull up an index to the
-  vignettes in a web browser is to run the command
-  `browseVignettes('BioCro')` in an R session.
+### Building individual vignettes
+
+From an R session running in `biocro/vignettes`, type
+`tools::buildVignette(XXX)`, where `XXX` is the name of the
+particular vignette you wish to build.  (It should have extension
+`.Rnw` or `.Rmd`.)  The resulting PDF or HTML file will appear in
+`biocro/vignettes`.
+
+This method is relatively fast and so is especially useful if you
+are writing a new vignette or revising an existing one. It also enables
+vignettes in `vignettes/web_only` to be built. If the vignette being
+built uses any BioCro code, there must be a version of BioCro installed.
 
 ### Alternative options
 
-Here are some alternative methods of building vignettes that don't
-require re-installing BioCro.
+Here are some alternative methods of building vignettes. The following
+instructions assume that the root of the BioCro source tree is a
+directory named `biocro`.
 
-- From an R session running in `biocro/vignettes`, type
-  `tools::buildVignette(XXX)`, where `XXX` is the name of the
-  particular vignette you wish to build.  (It should have extension
-  `.Rnw` or `.Rmd`.)  The resulting PDF or HTML file will appear in
-  `biocro/vignettes`.
+- Using `R CMD build`:
 
-  This method is relatively fast and so is especially useful if you
-  are writing a new vignette or revising an existing one.  If the
-  vignette being built uses any BioCro code, there must be a version
-  of BioCro installed.
+  - Build the package by running `R CMD build biocro` from the command line in
+    the directory containing `biocro`. This includes building the vignettes, but
+    will exclude any in `vignettes/web_only`, because this directory has been
+    added to BioCro's `.Rbuildignore` file.
 
-- From an R session running in any directory of the BioCro source
+  - Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where `xxx` is the
+    version number.
+
+  - The vignettes should now be available as HTML or PDF files located
+    in `path_to_rlib/BioCro/doc`, where `path_to_rlib` is the path to
+    your R library directory.  An easy way to pull up an index to the
+    vignettes in a web browser is to run the command
+    `browseVignettes('BioCro')` in an R session.
+
+- Using `devtools`:
+
+  From an R session running in any directory of the BioCro source
   tree, type `devtools::build_vignettes()`.  (Alternatively, start R
   from anywhere and pass the path to BioCro source tree as the first
   ("`pkg`") argument to `build_vignettes()`.)  This method will modify
@@ -77,9 +96,11 @@ require re-installing BioCro.
   resulting HTML and PDF files will appear in the `doc` directory,
   which will be created if it doesn't already exist.
 
-  This method doesn't require that BioCro be installed.  But it builds
-  and installs BioCro in a temporary location and then builds _all_
-  the vignettes, and thus it can be somewhat time consuming.
-  Moreover, by default it gives very little indication of build
-  progress, and so it may be useful to override this default and set
-  `quiet = FALSE` in the function argument list.
+  This method doesn't require that BioCro be installed. But it builds
+  and installs BioCro in a temporary location, and thus it can be
+  somewhat time consuming. Moreover, by default it gives very little
+  indication of build progress, and so it may be useful to override
+  this default and set `quiet = FALSE` in the function argument list.
+  Note that `devtools::build-vignettes()` follows the same procedure
+  as `R CMD build`, so it will not build any vignettes in
+  `vignettes/web_only`.

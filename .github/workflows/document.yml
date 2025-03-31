@@ -201,8 +201,8 @@ jobs:
 
     - name: 11. Upload artifact containing documentation
       if: always() # Even if some steps fail, at least try to make a documentation artifact.
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v4.4.3
       with:
-        name: biocro-documentation
+        name: biocro-documentation-${{ env.VERSION }}
         path: biocro-docs-from-${{ env.VERSION }}.tgz
         retention-days: 3

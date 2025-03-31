@@ -20,12 +20,13 @@
 #include "c4_assimilation.h"
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
+#include "carbon_assimilation_to_biomass.h"
 #include "canopy_gbw_thornley.h"
 #include "development_index.h"
 #include "development_index_from_thermal_time.h"
 #include "example_model_mass_gain.h"
 #include "example_model_partitioning.h"
-#include "fake_solar.h"
+#include "format_time.h"
 #include "FvCB.h"
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
@@ -110,12 +111,13 @@ creator_map standardBML::module_library::library_entries =
      {"c4_assimilation",                                       &create_mc<c4_assimilation>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
+     {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
      {"development_index",                                     &create_mc<development_index>},
      {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
      {"example_model_partitioning",                            &create_mc<example_model_partitioning>},
-     {"fake_solar",                                            &create_mc<fake_solar>},
+     {"format_time",                                           &create_mc<format_time>},
      {"FvCB",                                                  &create_mc<FvCB>},
      {"golden_ratio_hyperbola",                                &create_mc<golden_ratio_hyperbola>},
      {"grimm_soybean_flowering",                               &create_mc<grimm_soybean_flowering>},

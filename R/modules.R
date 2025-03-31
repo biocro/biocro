@@ -67,7 +67,7 @@ check_out_module <- function(module_name) {
         )
     }
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Extract the module library name and the local module name from the
     # fully-qualified module name string
@@ -133,7 +133,7 @@ module_info <- function(module_name, verbose = TRUE)
         ))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Check out the module
     module_creator <- lapply(module_name, check_out_module)
@@ -208,7 +208,7 @@ evaluate_module <- function(module_name, input_quantities)
     error_messages <-
         check_module_input_quantities(module_name, input_quantities)
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Check out the module
     module_creator <- lapply(module_name, check_out_module)
@@ -266,7 +266,7 @@ partial_evaluate_module <- function(
         check_module_input_quantities(module_name, input_quantities)
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Truncate the `input_quantities` list to only include quantities that are
     # actually required by the module
@@ -345,7 +345,7 @@ module_response_curve <- function(
         check_distinct_names(list(varying_quantities = varying_quantities))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Use `partial_evaluate_module` to create a function that calls the module
     # with the appropriate inputs
@@ -379,7 +379,7 @@ quantity_list_from_names <- function(quantity_names)
         check_strings(list(quantity_names = quantity_names))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     stats::setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
 }

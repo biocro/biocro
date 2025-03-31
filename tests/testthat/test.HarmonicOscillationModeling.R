@@ -81,7 +81,7 @@ debug_view <- function(ob) {
 
 differential_modules <- "BioCro:harmonic_oscillator"
 direct_modules <- "BioCro:harmonic_energy"
-drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+drivers <- data.frame(time = seq(from=0, by=1, length=MAX_INDEX))
 default_ode_solver <- list(type='boost_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-7, adaptive_abs_error_tol=1e-7, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
@@ -132,7 +132,6 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
 
     ## add useful columns to the resulting data frame:
-    result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
 

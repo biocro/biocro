@@ -328,14 +328,49 @@ update_csv_cases <- function(module_name, directory)
     paste0("Updated case file `", module_case_file_path(module_name, directory), "`")
 }
 
+# A helping function that determines fully-qualified module names from the test
+# case CSV files in a directory
+module_names_from_case_directory <- function(library_name, directory) {
+    csv_files <- list.files(directory, '[Cc][Ss][Vv]$')
+
+    module_names <- sapply(csv_files, function(fn) {
+        # Get the un-qualified module name
+        mn <- gsub(paste0(library_name, '_'), '', tools::file_path_sans_ext(fn))
+
+        # Add the library name with proper formatting
+        paste0(library_name, ':', mn)
+    })
+
+    module_names
+}
+
 test_module_library <- function(
     library_name,
     directory,
     modules_to_skip = c()
 )
 {
+    # Get the module names associated with the test cases in the directory
+    directory_module_names <-
+        module_names_from_case_directory(library_name, directory)
+
     # Get the names of all the modules in the library
     module_names <- get_all_modules(library_name)
+
+    # Make sure all the test cases are for modules in this library
+    if (!all(directory_module_names %in% module_names)) {
+        extra_modules <-
+            directory_module_names[!directory_module_names %in% module_names]
+
+        msg <- paste0(
+            'Found test cases in the `', directory,
+            '` directory for modules that are not in the `', library_name,
+            '` module library: ',
+            paste(extra_modules, collapse = ', ')
+        )
+
+        stop(msg)
+    }
 
     # Append the library name to the modules we should skip
     modules_to_skip <- module_paste(library_name, modules_to_skip)

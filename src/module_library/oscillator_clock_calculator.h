@@ -11,21 +11,23 @@ namespace standardBML
 class oscillator_clock_calculator : public direct_module
 {
    public:
-    oscillator_clock_calculator(state_map const& input_quantities, state_map* output_quantities)
+    oscillator_clock_calculator(
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : direct_module{},
 
           // Get pointers to input quantities
-          time_ip{get_ip(input_quantities, "time")},
-          kick_strength_ip{get_ip(input_quantities, "kick_strength")},
-          night_tracker_ip{get_ip(input_quantities, "night_tracker")},
-          day_tracker_ip{get_ip(input_quantities, "day_tracker")},
-          light_ip{get_ip(input_quantities, "light")},
-          dawn_b_ip{get_ip(input_quantities, "dawn_b")},
-          dawn_a_ip{get_ip(input_quantities, "dawn_a")},
-          dusk_b_ip{get_ip(input_quantities, "dusk_b")},
-          dusk_a_ip{get_ip(input_quantities, "dusk_a")},
-          ref_b_ip{get_ip(input_quantities, "ref_b")},
-          ref_a_ip{get_ip(input_quantities, "ref_a")},
+          hour{get_input(input_quantities, "hour")},
+          kick_strength{get_input(input_quantities, "kick_strength")},
+          night_tracker{get_input(input_quantities, "night_tracker")},
+          day_tracker{get_input(input_quantities, "day_tracker")},
+          light{get_input(input_quantities, "light")},
+          dawn_b{get_input(input_quantities, "dawn_b")},
+          dawn_a{get_input(input_quantities, "dawn_a")},
+          dusk_b{get_input(input_quantities, "dusk_b")},
+          dusk_a{get_input(input_quantities, "dusk_a")},
+          ref_b{get_input(input_quantities, "ref_b")},
+          ref_a{get_input(input_quantities, "ref_a")},
 
           // Get pointers to output quantities
           dawn_kick_op{get_op(output_quantities, "dawn_kick")},
@@ -47,18 +49,18 @@ class oscillator_clock_calculator : public direct_module
     static std::string get_name() { return "oscillator_clock_calculator"; }
 
    private:
-    // Pointers to input quantities
-    const double* time_ip;
-    const double* kick_strength_ip;
-    const double* night_tracker_ip;
-    const double* day_tracker_ip;
-    const double* light_ip;
-    const double* dawn_b_ip;
-    const double* dawn_a_ip;
-    const double* dusk_b_ip;
-    const double* dusk_a_ip;
-    const double* ref_b_ip;
-    const double* ref_a_ip;
+    // References to input quantities
+    double const& hour;
+    double const& kick_strength;
+    double const& night_tracker;
+    double const& day_tracker;
+    double const& light;
+    double const& dawn_b;
+    double const& dawn_a;
+    double const& dusk_b;
+    double const& dusk_a;
+    double const& ref_b;
+    double const& ref_a;
 
     // Pointers to output quantities
     double* dawn_kick_op;
@@ -81,34 +83,36 @@ class oscillator_clock_calculator : public direct_module
 string_vector oscillator_clock_calculator::get_inputs()
 {
     return {
-        "time",
-        "kick_strength",
-        "night_tracker",
-        "day_tracker",
-        "light",
-        "dawn_b",
-        "dawn_a",
-        "dusk_b",
-        "dusk_a",
-        "ref_b",
-        "ref_a"};
+        "hour",           // hr
+        "kick_strength",  // dimensionless
+        "night_tracker",  // dimensionless
+        "day_tracker",    // dimensionless
+        "light",          // dimensionless
+        "dawn_b",         // dimensionless
+        "dawn_a",         // dimensionless
+        "dusk_b",         // dimensionless
+        "dusk_a",         // dimensionless
+        "ref_b",          // dimensionless
+        "ref_a"           // dimensionless
+    };
 }
 
 string_vector oscillator_clock_calculator::get_outputs()
 {
     return {
-        "dawn_kick",
-        "dusk_kick",
-        "dawn_phase",
-        "dusk_phase",
-        "ref_phase",
-        "dawn_radius",
-        "dusk_radius",
-        "ref_radius",
-        "day_length",
-        "night_length",
-        "sunrise",
-        "sunset"};
+        "dawn_kick",     // dimensionless
+        "dusk_kick",     // dimensionless
+        "dawn_phase",    // dimensionless
+        "dusk_phase",    // dimensionless
+        "ref_phase",     // dimensionless
+        "dawn_radius",   // dimensionless
+        "dusk_radius",   // dimensionless
+        "ref_radius",    // dimensionless
+        "day_length",    // hr
+        "night_length",  // hr
+        "sunrise",       // hr
+        "sunset"         // hr
+    };
 }
 
 /// This is like atan2 but with a range of [0, 2pi) instead of (-pi, pi]: When
@@ -130,20 +134,6 @@ void oscillator_clock_calculator::do_operation() const
 
     using math_constants::pi;
 
-    // Get the current time value
-    const double time = *time_ip;
-    const double hour = 24.0 * (time - floor(time));
-
-    // Get the current light value
-    const double light = *light_ip;
-
-    // Get the current state of the night and day trackers
-    const double night_tracker = *night_tracker_ip;
-    const double day_tracker = *day_tracker_ip;
-
-    // Get the kick strength
-    const double kick_strength = *kick_strength_ip;
-
     // Calculate the kicks
     // The dawn kick is created by taking the night tracker value during
     //  the day, which is just a short decay portion
@@ -151,14 +141,6 @@ void oscillator_clock_calculator::do_operation() const
     //  the night, which is just a short decay portion
     const double dawn_kick = light * kick_strength * night_tracker;
     const double dusk_kick = (1.0 - light) * kick_strength * day_tracker;
-
-    // Get the current state of the dawn and dusk tracking oscillators
-    const double dawn_b = *dawn_b_ip;
-    const double dawn_a = *dawn_a_ip;
-    const double dusk_b = *dusk_b_ip;
-    const double dusk_a = *dusk_a_ip;
-    const double ref_b = *ref_b_ip;
-    const double ref_a = *ref_a_ip;
 
     // Calculate the dawn phase angle, which is zero around dawn and increases
     // throughout the day.

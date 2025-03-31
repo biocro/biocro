@@ -1,3 +1,3 @@
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,"description"
-DVI,Rmax_emrV0,TTemr_threshold,Tbase_emr,Tmax_R0R1,Tmax_R1R7,Tmax_emrV0,Tmin_R0R1,Tmin_R1R7,Tmin_emrV0,Topt_R0R1,Topt_R1R7,Topt_emrV0,day_length,maturity_group,sowing_time,temp,time,development_rate_per_hour,NA
+DVI,Rmax_emrV0,TTemr_threshold,Tbase_emr,Tmax_R0R1,Tmax_R1R7,Tmax_emrV0,Tmin_R0R1,Tmin_R1R7,Tmin_emrV0,Topt_R0R1,Topt_R1R7,Topt_emrV0,day_length,maturity_group,sowing_fractional_doy,temp,fractional_doy,development_rate_per_hour,NA
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,"automatically-generated test case"

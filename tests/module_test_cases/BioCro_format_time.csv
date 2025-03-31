@@ -1,0 +1,5 @@
+input,output,output,output,"description"
+time,doy,fractional_doy,hour,NA
+1,1,1.04166666666667,1,"automatically-generated test case"
+30,2,2.25,6,"more than one day"
+123.45,6,6.14375,3.45,"fractional time"

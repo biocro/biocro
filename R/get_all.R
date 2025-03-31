@@ -17,7 +17,7 @@ get_all_modules <- function(library_name) {
         check_strings(list(library_name = library_name))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Try to find the internal get_all_modules function
     library_func <- tryCatch(
@@ -56,7 +56,7 @@ get_all_quantities <- function(library_name) {
         check_strings(list(library_name = library_name))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     # Try to find the internal get_all_quantities function
     library_func <- tryCatch(

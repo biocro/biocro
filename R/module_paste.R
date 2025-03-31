@@ -23,7 +23,7 @@ module_paste <- function(lib_name, local_module_names) {
         ))
     )
 
-    send_error_messages(error_messages)
+    stop_and_send_error_messages(error_messages)
 
     full_module_names <- stats::setNames(
         paste0(lib_name, ':', local_module_names),

@@ -86,11 +86,11 @@ To generate documentation for the C/C++ code, we use
 
 ### Use cases for generating the Doxygen documentation {#sec:use-cases}
 
-As mentioned in Section \@ref(sec:when-to-generate-docs), developers
-should rarely need to generate documentation themselves since all of
-the documentation is regularly generated and published on-line.  But
-there are cases where it makes sense to "do it yourself."  For
-Doxygen, these include:
+As mentioned in the
+["When to Generate Documentation" section](#sec:when-to-generate-docs),
+developers should rarely need to generate documentation themselves since all of
+the documentation is regularly generated and published on-line. But there are
+cases where it makes sense to "do it yourself." For Doxygen, these include:
 
 #. You are altering the code or documentation of a particular C++
    source file, and you want to check that changes you make show up
@@ -106,12 +106,12 @@ Doxygen, these include:
 #. You prefer a different presentation style for the documentation
    than is used in the on-line version.
 
-Use Cases 2 and 3 are best addressed using the simple methods of
-Section \@ref(sec:running-doxygen).  Use Case 1 is greatly facilitated
-by speeding up Doxygen using the methods discussed in Section
-\@ref(sec:speeding-up-doxygen).  Lastly, Use Case 4, which requires a
-more extensive knowledge of Doxygen, is discussed in Section
-\@ref(sec:customizing-doxygen).
+Use Cases 2 and 3 are best addressed using the simple methods of the
+["Running Doxygen" section](#sec:running-doxygen). Use Case 1 is greatly
+facilitated by speeding up Doxygen using the methods discussed in the
+["Speeding up Doxygen" section](#sec:speeding-up-doxygen). Lastly, Use Case 4,
+which requires a more extensive knowledge of Doxygen, is discussed in the
+["Customizing Doxygen" section](#sec:customizing-doxygen).
 
 **If none of these use cases apply to you, you most likely can simply
 use the [on-line documentation][on-line version] (follow the _C++
@@ -242,8 +242,8 @@ program components.  You can speed up Doxygen tremendously by
 disabling the generation of these graphs.  **This is particularly
 recommended if you are tweaking the documentation of some source code
 and want to quickly see how your changes affect the rendered
-documentation** (see the first use case in Section
-\@ref(sec:use-cases)).
+documentation** (see the first use case in the
+["Use-Cases" section](#sec:use-cases)).
 
 To disable generation of graphs:
 
@@ -301,13 +301,12 @@ related documentation of those program entities.)
 
 ### Doxygen for power users: Customizing Doxygen builds {#sec:customizing-doxygen}
 
-This section addresses Use Case 4 of Section \@ref(sec:use-cases).
+This section addresses Use Case 4 of the ["Use-Cases" section](#sec:use-cases).
 
-As we saw in Section \@ref(sec:speeding-up-doxygen), we can customize
-Doxygen runs by adding settings to the file
-`doxygen/customizations/Doxyfile`.  For example, adding `HAVE_DOT =
-NO` to this file will override the setting `HAVE_DOT = YES` contained
-in `doxygen/Doxyfile`.
+As we saw in the ["Speeding Up Doxygen" section](#sec:speeding-up-doxygen), we
+can customize Doxygen runs by adding settings to the file
+`doxygen/customizations/Doxyfile`. For example, adding `HAVE_DOT = NO` to this
+file will override the setting `HAVE_DOT = YES` contained in `doxygen/Doxyfile`.
 
 Doxygen offers dozens of settings that allow one to customize the
 generated documentation according to one's preferences.  We will
@@ -317,7 +316,8 @@ Doxygen documentation.
 
 INPUT
 
-: We saw this setting in Section \@ref(sec:speeding-up-doxygen), where
+: We saw this setting in the
+  ["Speeding Up Doxygen" section](#sec:speeding-up-doxygen), where
   we used it to override the default setting (which looks at _all_ of
   the C++ source files) in order to concentrate on a particular file.
   This vastly reduced Doxygen's running time.

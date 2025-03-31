@@ -1,5 +1,6 @@
 willow <- list(
     direct_modules = list(
+        "BioCro:format_time",
         stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:leaf_water_stress_exponential",
         specific_leaf_area = "BioCro:sla_linear",
@@ -10,6 +11,7 @@ willow <- list(
         "BioCro:canopy_gbw_thornley",
         "BioCro:stefan_boltzmann_longwave",
         canopy_photosynthesis = "BioCro:c3_canopy",
+        "BioCro:carbon_assimilation_to_biomass",
         partitioning_coefficients = "BioCro:partitioning_coefficient_selector",
         partitioning_growth_calculator = "BioCro:partitioning_growth_calculator"
     ),
@@ -57,6 +59,7 @@ willow <- list(
         beta_PSII                    = 0.5,
         Catm                         = 400,
         chil                         = 1,
+        dry_biomass_per_carbon       = 30.026,   # g CHO / mol C (glucose)
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
@@ -161,7 +164,7 @@ willow <- list(
         soil_silt_content            = 0.34,
         soil_transmission            = 0.01,
         soil_wilting_point           = 0.2,
-        sowing_time                  = 0,
+        sowing_fractional_doy        = 0,
         Sp_thermal_time_decay        = 0,
         specific_heat_of_air         = 1010,
         tbase                        = 0,

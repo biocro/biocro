@@ -72,11 +72,12 @@ photosynthesis_outputs rue_photo(
 
     return photosynthesis_outputs{
         /* .Assim = */ an * 1e6,                          // micromol / m^2 / s
+        /* .Assim_check */ 0,                             // micromol / m^2 / s
         /* .Assim_conductance = */ an_conductance * 1e6,  // micromol / m^2 / s
         /* .Ci = */ ci * 1e6,                             // micromol / mol
+        /* .Cs = */ BB_res.cs,                            // micromol / m^2 / s
         /* .GrossAssim = */ ag * 1e6,                     // micromol / m^2 / s
         /* .Gs = */ gs,                                   // mol / m^2 / s
-        /* .Cs = */ BB_res.cs,                            // micromol / m^2 / s
         /* .RHs = */ BB_res.hs,                           // dimensionless from Pa / Pa
         /* .Rp = */ 0.0,                                  // micromol / m^2 / s
         /* .iterations = */ 0                             // not a physical quantity
@@ -168,7 +169,7 @@ void rue_leaf_photosynthesis::do_operation() const
             b0,                    // mol / m^2 / s
             b1,                    // dimensionless
             Catm * 1e-6,           // dimensionless from mol / mol
-            et.gbw                 // mol / m^2 / s
+            et.gbw_molecular       // mol / m^2 / s
         );
 
     // Update the outputs
@@ -181,5 +182,5 @@ void rue_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
-    update(gbw_op, et.gbw);
+    update(gbw_op, et.gbw_molecular);
 }

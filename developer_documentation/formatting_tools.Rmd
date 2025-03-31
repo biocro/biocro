@@ -24,7 +24,8 @@ ruin manually-aligned tables.
 
 The best time to reformat a file is immediately before (or possibly
 immediately after) making substantive changes to the code in the file.
-But, as mentioned in Section \@ref(general-coding-considerations),
+But, as mentioned in the
+["General Coding Considerations" section](#general-coding-considerations),
 **sweeping formatting changes should be made in a separate commit**,
 separate from any substantive changes made to the code.  This way,
 changes to the functioning of the code won't be obscured by changes to

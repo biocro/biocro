@@ -76,8 +76,8 @@ class thermal_time_linear : public differential_module
         : differential_module{},
 
           // Get references to input quantities
-          time{get_input(input_quantities, "time")},
-          sowing_time{get_input(input_quantities, "sowing_time")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
+          sowing_fractional_doy{get_input(input_quantities, "sowing_fractional_doy")},
           temp{get_input(input_quantities, "temp")},
           tbase{get_input(input_quantities, "tbase")},
 
@@ -91,8 +91,8 @@ class thermal_time_linear : public differential_module
 
    private:
     // References to input quantities
-    double const& time;
-    double const& sowing_time;
+    double const& fractional_doy;
+    double const& sowing_fractional_doy;
     double const& temp;
     double const& tbase;
 
@@ -106,10 +106,10 @@ class thermal_time_linear : public differential_module
 string_vector thermal_time_linear::get_inputs()
 {
     return {
-        "time",         // days
-        "sowing_time",  // days
-        "temp",         // degrees C
-        "tbase"         // degrees C
+        "fractional_doy",         // days
+        "sowing_fractional_doy",  // days
+        "temp",                   // degrees C
+        "tbase"                   // degrees C
     };
 }
 
@@ -123,9 +123,10 @@ string_vector thermal_time_linear::get_outputs()
 void thermal_time_linear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double const rate_per_day = time < sowing_time ? 0.0
-                                : temp <= tbase    ? 0.0
-                                                   : temp - tbase;  // degrees C
+    double const rate_per_day =
+        fractional_doy < sowing_fractional_doy ? 0.0
+        : temp <= tbase                        ? 0.0
+                                               : temp - tbase;  // degrees C
 
     // Convert to an hourly rate
     double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr

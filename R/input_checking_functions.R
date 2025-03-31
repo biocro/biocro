@@ -1,15 +1,16 @@
 # Checks whether `args_to_check` has names. The other checking functions require
 # names to give useful error messages.
 check_names <- function(args_to_check) {
-    if(is.null(names(args_to_check))) {
+    if (is.null(names(args_to_check))) {
         stop(paste0("`", substitute(args_to_check), "` must have names"))
     }
 }
 
-# Sends the error messages to the user in the proper format
-send_error_messages <- function(error_messages) {
+# Sends the error messages to the user in the proper format. Don't include the
+# call to `stop_and_send_error_messages` in the message itself.
+stop_and_send_error_messages <- function(error_messages) {
     if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
+        stop(paste(error_messages, collapse='  '), call. = FALSE)
     }
 }
 
@@ -270,5 +271,82 @@ check_boolean <- function(args_to_check) {
             error_message <- append(error_message, tmp_message)
         }
     }
+    return(error_message)
+}
+
+# Checks that the `time` variable is ordered, increasing, and evenly
+# spaced, up to tolerance for inexact floating point arithmetic.
+check_time_is_sequential <- function(
+    drivers,
+    differential_modules,
+    parameters,
+    rtol = sqrt(.Machine$double.eps)
+)
+{
+    # only checked if differential modules are present
+    if (length(differential_modules) == 0) {
+        return(character())
+    }
+
+    no_time_variable <- !('time' %in% names(drivers))
+    if (no_time_variable) {
+        return("No `time` variable found in the `drivers` dataframe.")
+    }
+
+    time <- drivers[['time']]
+    if (is.unsorted(time)) {
+        return("`time` variable is not increasing.")
+    }
+
+    if (length(time) < 2) {
+        # automatic pass because >2 rows are needed to check the spacing.
+        return(character())
+    }
+
+    timestep <- parameters[['timestep']]
+
+    if (!is_evenly_spaced(time, timestep, rtol)) {
+        return("The `time` variable is not spaced by `timestep`.")
+    }
+
+    return(character())
+}
+
+# check if a vector is evenly spaced.
+is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
+
+    if (is.null(by)){
+        second_diff = diff(x, differences = 2)
+        is_zero = abs(second_diff) < rtol
+    } else {
+        first_diff = diff(x, differences = 1) - by
+        is_zero = abs(first_diff) < rtol
+    }
+
+    return(all(is_zero))
+}
+
+# Check that a list has the necessary elements
+check_required_elements <- function(args_to_check, required_element_names) {
+    check_names(args_to_check)
+    error_message <- character()
+
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        in_names <- required_element_names %in% names(arg)
+
+        if (!all(in_names)) {
+            missing_names <- required_element_names[!in_names]
+
+            tmp_message <- sprintf(
+                "The following required elements of `%s` are not defined: %s.\n",
+                names(args_to_check)[i],
+                paste(missing_names, collapse = ', ')
+            )
+
+            error_message <- append(error_message, tmp_message)
+        }
+    }
+
     return(error_message)
 }
