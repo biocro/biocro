@@ -48,27 +48,27 @@ test_that("c3photoC is sensitive to changes in vcmax", {
     )
 
     # Get net assimilation for Vcmax_at_25 = 100 micromol / m^2 / s
-    inputs$Vcmax_at_25 = 100
+    inputs$Vcmax_at_25 <- 100
     a_100 <- evaluate_module("BioCro:c3_assimilation", inputs)$Assim
 
     # Get net assimilation for Vcmax_at_25 = 10 micromol / m^2 / s
-    inputs$Vcmax_at_25 = 10
+    inputs$Vcmax_at_25 <- 10
     a_10 <- evaluate_module("BioCro:c3_assimilation", inputs)$Assim
 
     # The two values should be different
     expect_false(a_100 == a_10)
 })
 
-test_that('c3photoC produces self-consistent outputs', {
+test_that("c3photoC produces self-consistent outputs", {
     # Run c3photoC with a range of Qabs and Catm values
     c3photo_res <- module_response_curve(
-        'BioCro:c3_assimilation',
+        "BioCro:c3_assimilation",
         within(soybean$parameters, {
-            StomataWS = 1
-            Tleaf = 32
-            gbw = 1.2
-            rh = 0.7
-            temp = 30
+            StomataWS <- 1
+            Tleaf <- 32
+            gbw <- 1.2
+            rh <- 0.7
+            temp <- 30
         }),
         expand.grid(
             Qabs = seq(0, 900, by = 150),
@@ -80,10 +80,10 @@ test_that('c3photoC produces self-consistent outputs', {
     # same assimilation rates. First, we will need to calculate values of key
     # parameters at leaf temperature.
     c3_parameters_inputs <-
-        module_info('BioCro:c3_parameters', verbose = FALSE)$inputs
+        module_info("BioCro:c3_parameters", verbose = FALSE)$inputs
 
     c3_parameters_res <- module_response_curve(
-        'BioCro:c3_parameters',
+        "BioCro:c3_parameters",
         list(),
         c3photo_res[, c3_parameters_inputs]
     )
@@ -93,7 +93,7 @@ test_that('c3photoC produces self-consistent outputs', {
     # would be better to make these functions available to the user via modules
     # instead.
     solo <- function(LeafT) {
-        (0.047 - 0.0013087 * LeafT + 2.5603e-05 * LeafT^2 - 2.1441e-07 * LeafT^3) / 0.026934;
+        (0.047 - 0.0013087 * LeafT + 2.5603e-05 * LeafT^2 - 2.1441e-07 * LeafT^3) / 0.026934
     }
 
     Oi <- c3photo_res$O2 * solo(c3photo_res$Tleaf)
@@ -115,7 +115,7 @@ test_that('c3photoC produces self-consistent outputs', {
 
     # Now we can run the FvCB model
     fvcb_res <- module_response_curve(
-        'BioCro:FvCB',
+        "BioCro:FvCB",
         list(
             alpha_TPU = 0 # hard-coded to 0 in c3photoC
         ),
@@ -158,7 +158,7 @@ test_that('c3photoC produces self-consistent outputs', {
         Catm / (1.37 / gbw + 1.6 / Gs)
     })
 
-    skip('conductance-limited assim values are not consistent; skipping for now')
+    skip("conductance-limited assim values are not consistent; skipping for now")
 
     expect_equal(
         conductance_limited_assim,
@@ -168,7 +168,7 @@ test_that('c3photoC produces self-consistent outputs', {
     # We can also check to see if the Ball-Berry model agrees with the output
     # from c3photoC
     bb_res <- module_response_curve(
-        'BioCro:ball_berry',
+        "BioCro:ball_berry",
         list(),
         data.frame(
             net_assimilation_rate = c3photo_res$Assim,

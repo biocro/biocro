@@ -6,20 +6,18 @@ module_write <- function(
     outputs,
     output_equations = NULL,
     input_units = NULL,
-    output_units = NULL
-)
-{
-    module_name_caps    <- toupper(module_name)
+    output_units = NULL) {
+    module_name_caps <- toupper(module_name)
     module_library_caps <- toupper(module_library)
 
     # check for duplicate inputs
-    if(anyDuplicated(inputs)){
+    if (anyDuplicated(inputs)) {
         e <- simpleError("Duplicate inputs detected.")
         stop(e)
     }
 
     # check for duplicate outputs
-    if(anyDuplicated(outputs)){
+    if (anyDuplicated(outputs)) {
         e <- simpleError("Duplicate outputs detected.")
         stop(e)
     }
@@ -27,7 +25,7 @@ module_write <- function(
     # check input unit length
     not_null <- !is.null(input_units)
     inputs_not_same_length <- length(inputs) != length(input_units)
-    if (inputs_not_same_length && not_null){
+    if (inputs_not_same_length && not_null) {
         e <- simpleError("The arguments `inputs` and `input_units` do not have the same length.")
         stop(e)
     }
@@ -35,59 +33,59 @@ module_write <- function(
     # check output unit length
     not_null <- !is.null(output_units)
     outputs_not_same_length <- length(outputs) != length(output_units)
-    if (outputs_not_same_length && not_null){
+    if (outputs_not_same_length && not_null) {
         e <- simpleError("The arguments `outputs` and `output_units` do not have the same length.")
         stop(e)
     }
 
     # check for spaces
-    if (any(grepl(' ', inputs))) {
+    if (any(grepl(" ", inputs))) {
         e <- simpleError("The values of `inputs` cannot have any spaces in them.")
         stop(e)
     }
 
-    if (any(grepl(' ', outputs))) {
+    if (any(grepl(" ", outputs))) {
         e <- simpleError("The values of `outputs` cannot have any spaces in them.")
         stop(e)
     }
 
     # check for starting numbers
-    if (any(grepl('^[[:digit:]]', inputs))) {
+    if (any(grepl("^[[:digit:]]", inputs))) {
         e <- simpleError("The values of `inputs` cannot start with a number.")
         stop(e)
     }
 
-    if (any(grepl('^[[:digit:]]', outputs))) {
+    if (any(grepl("^[[:digit:]]", outputs))) {
         e <- simpleError("The values of `outputs` cannot start with a number.")
         stop(e)
     }
 
     # get customized parts of C++ code
     input_field <- make_input_initializations(inputs)
-    input_ptr   <- make_input_reference_list(inputs)
-    input_get   <- make_get(inputs, input_units)
+    input_ptr <- make_input_reference_list(inputs)
+    input_get <- make_get(inputs, input_units)
 
     output_field <- make_output_initializations(outputs)
-    output_ptr   <- make_output_pointer_list(outputs)
-    output_get   <- make_get(outputs, output_units)
+    output_ptr <- make_output_pointer_list(outputs)
+    output_get <- make_get(outputs, output_units)
 
     update_template <- make_update_template(outputs, output_equations)
 
     # fill in header template (defined below)
     sprintf(
         module_header_template,
-        module_name,         # %1
-        module_library,      # %2
-        module_type,         # %3
-        module_name_caps,    # %4
+        module_name, # %1
+        module_library, # %2
+        module_type, # %3
+        module_name_caps, # %4
         module_library_caps, # %5
-        input_field,         # %6
-        input_ptr,           # %7
-        input_get,           # %8
-        output_field,        # %9
-        output_ptr,          # %10
-        output_get,          # %11
-        update_template      # %12
+        input_field, # %6
+        input_ptr, # %7
+        input_get, # %8
+        output_field, # %9
+        output_ptr, # %10
+        output_get, # %11
+        update_template # %12
     )
 }
 
@@ -165,37 +163,39 @@ void %1$s::do_operation() const
 indent <- "    "
 
 endl_initializer_list <- paste0("\n  ", indent, indent)
-endl_class_members    <- paste0("\n", indent)
-endl_get              <- paste0("\n", indent, indent)
-endl_do_operation     <- paste0("\n", indent)
+endl_class_members <- paste0("\n", indent)
+endl_get <- paste0("\n", indent, indent)
+endl_do_operation <- paste0("\n", indent)
 
 # helping functions for generating C++ code
-make_input_initializations <- function(x){
+make_input_initializations <- function(x) {
     paste0(x, "{get_input(input_quantities, \"", x, "\")},",
-        collapse = endl_initializer_list)
+        collapse = endl_initializer_list
+    )
 }
 
-make_output_initializations <- function(x){
+make_output_initializations <- function(x) {
     paste0(x, "_op{get_op(output_quantities, \"", x, "\")}",
-        collapse = paste0(',', endl_initializer_list))
+        collapse = paste0(",", endl_initializer_list)
+    )
 }
 
 make_input_reference_list <- function(x) {
-    paste0('double const& ', x, ';', collapse = endl_class_members)
+    paste0("double const& ", x, ";", collapse = endl_class_members)
 }
 
 make_output_pointer_list <- function(x) {
-    paste0('double* ', x, '_op;', collapse = endl_class_members)
+    paste0("double* ", x, "_op;", collapse = endl_class_members)
 }
 
 make_get <- function(x, units = NULL) {
     qnames_string <- paste0('\"', x, '\"')
 
-    comma_string <- rep_len(',', length(x))
-    comma_string[length(x)] <- ' '
+    comma_string <- rep_len(",", length(x))
+    comma_string[length(x)] <- " "
 
     units_string <- if (is.null(units)) {
-        paste(indent, indent, '// Put', x, 'units here')
+        paste(indent, indent, "// Put", x, "units here")
     } else {
         paste(indent, indent, "//", units)
     }
@@ -203,10 +203,10 @@ make_get <- function(x, units = NULL) {
     paste0(qnames_string, comma_string, units_string, collapse = endl_get)
 }
 
-make_update_template <- function(x, y = NULL){
-    if (is.null(y)){
-        paste0('update(', x, '_op, 0);', collapse = endl_do_operation)
+make_update_template <- function(x, y = NULL) {
+    if (is.null(y)) {
+        paste0("update(", x, "_op, 0);", collapse = endl_do_operation)
     } else {
-        paste0('update(', x, '_op,', y, ');', collapse = endl_do_operation)
+        paste0("update(", x, "_op,", y, ");", collapse = endl_do_operation)
     }
 }

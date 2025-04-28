@@ -4,9 +4,7 @@ validate_dynamical_system_inputs <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    verbose = TRUE
-)
-{
+    verbose = TRUE) {
     # Make sure weather data is properly handled
     adapted <- adapt_weather_data(drivers, direct_module_names)
     drivers <- adapted$drivers

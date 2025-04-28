@@ -10,7 +10,7 @@ check_names <- function(args_to_check) {
 # call to `stop_and_send_error_messages` in the message itself.
 stop_and_send_error_messages <- function(error_messages) {
     if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '), call. = FALSE)
+        stop(paste(error_messages, collapse = "  "), call. = FALSE)
     }
 }
 
@@ -25,7 +25,7 @@ check_element_names <- function(args_to_check) {
         if (length(arg) > 1 && is.null(names(arg))) {
             error_message <- append(
                 error_message,
-                sprintf('`%s` must have names.\n', names(args_to_check)[i])
+                sprintf("`%s` must have names.\n", names(args_to_check)[i])
             )
         }
     }
@@ -46,16 +46,18 @@ check_distinct_names <- function(args_to_check) {
 
         # Find any duplicated names and their associated values
         arg_names <- names(arg)
-        dup <- duplicated(arg_names, incomparables = '')
+        dup <- duplicated(arg_names, incomparables = "")
         dup_names <- unique(arg_names[dup])
-        dup_values <- lapply(dup_names, function(n) {arg[arg_names == n]})
+        dup_values <- lapply(dup_names, function(n) {
+            arg[arg_names == n]
+        })
 
         if (length(dup_values) > 0) {
             # Indicate that some duplicated names were detected
             error_message <- append(
                 error_message,
                 sprintf(
-                    '`%s` contains multiple instances of some quantities:\n',
+                    "`%s` contains multiple instances of some quantities:\n",
                     names(args_to_check)[i]
                 )
             )
@@ -65,7 +67,7 @@ check_distinct_names <- function(args_to_check) {
                 error_message <- append(
                     error_message,
                     sprintf(
-                        '  `%s` takes the following values:\n',
+                        "  `%s` takes the following values:\n",
                         dup_names[j]
                     )
                 )
@@ -108,7 +110,7 @@ check_list <- function(args_to_check) {
         if (!is.list(arg)) {
             error_message <- append(
                 error_message,
-                sprintf('`%s` must be a list.\n', names(args_to_check)[i])
+                sprintf("`%s` must be a list.\n", names(args_to_check)[i])
             )
         }
     }
@@ -123,10 +125,10 @@ check_vector <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        if (length(arg) > 0 && (!is.vector(arg) || 'list' %in% class(arg))) {
+        if (length(arg) > 0 && (!is.vector(arg) || "list" %in% class(arg))) {
             error_message <- append(
                 error_message,
-                sprintf('`%s` must be a vector.\n', names(args_to_check)[i])
+                sprintf("`%s` must be a vector.\n", names(args_to_check)[i])
             )
         }
     }
@@ -144,7 +146,7 @@ check_data_frame <- function(args_to_check) {
         if (!is.data.frame(arg)) {
             error_message <- append(
                 error_message,
-                sprintf('`%s` must be a data frame.\n', names(args_to_check)[i])
+                sprintf("`%s` must be a data frame.\n", names(args_to_check)[i])
             )
         }
     }
@@ -164,7 +166,7 @@ check_element_length <- function(args_to_check) {
             tmp_message <- sprintf(
                 "The following `%s` members have lengths other than 1, but all members must have a length of exactly 1: %s.\n",
                 names(args_to_check)[i],
-                paste(names(item_lengths)[which(item_lengths != 1)], collapse=', ')
+                paste(names(item_lengths)[which(item_lengths != 1)], collapse = ", ")
             )
             error_message <- append(error_message, tmp_message)
         }
@@ -182,7 +184,7 @@ check_length <- function(args_to_check) {
         if (length(args_to_check[[i]]) != 1) {
             error_message <- append(
                 error_message,
-                sprintf('`%s` must have length 1.\n', names(args_to_check)[i])
+                sprintf("`%s` must have length 1.\n", names(args_to_check)[i])
             )
         }
     }
@@ -198,12 +200,14 @@ check_numeric <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        is_numeric <- sapply(arg, function(x) {is.numeric(x) || all(is.na(x))})
+        is_numeric <- sapply(arg, function(x) {
+            is.numeric(x) || all(is.na(x))
+        })
         if (!all(is_numeric)) {
             tmp_message <- sprintf(
                 "The following `%s` members are not numeric or NA, but all members must be numeric or NA: %s.\n",
                 names(args_to_check)[i],
-                paste(names(is_numeric)[which(!is_numeric)], collapse=', ')
+                paste(names(is_numeric)[which(!is_numeric)], collapse = ", ")
             )
             error_message <- append(error_message, tmp_message)
         }
@@ -224,7 +228,7 @@ check_strings <- function(args_to_check) {
             tmp_message <- sprintf(
                 "The following `%s` members are not strings, but all members must be strings: %s.\n",
                 names(args_to_check)[i],
-                paste(arg[which(!is_character)], collapse=', ')
+                paste(arg[which(!is_character)], collapse = ", ")
             )
             error_message <- append(error_message, tmp_message)
         }
@@ -240,12 +244,12 @@ check_pointers <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        is_pointer <- sapply(arg, class) == 'externalptr'
+        is_pointer <- sapply(arg, class) == "externalptr"
         if (!all(is_pointer)) {
             tmp_message <- sprintf(
                 "The following `%s` members are not externalptrs, but all members must be externalptrs: %s.\n",
                 names(args_to_check)[i],
-                paste(arg[which(!is_pointer)], collapse=', ')
+                paste(arg[which(!is_pointer)], collapse = ", ")
             )
             error_message <- append(error_message, tmp_message)
         }
@@ -266,7 +270,7 @@ check_boolean <- function(args_to_check) {
             tmp_message <- sprintf(
                 "The following `%s` members are not booleans, but all members must be booleans: %s.\n",
                 names(args_to_check)[i],
-                paste(arg[which(!is_boolean)], collapse=', ')
+                paste(arg[which(!is_boolean)], collapse = ", ")
             )
             error_message <- append(error_message, tmp_message)
         }
@@ -280,20 +284,18 @@ check_time_is_sequential <- function(
     drivers,
     differential_modules,
     parameters,
-    rtol = sqrt(.Machine$double.eps)
-)
-{
+    rtol = sqrt(.Machine$double.eps)) {
     # only checked if differential modules are present
     if (length(differential_modules) == 0) {
         return(character())
     }
 
-    no_time_variable <- !('time' %in% names(drivers))
+    no_time_variable <- !("time" %in% names(drivers))
     if (no_time_variable) {
         return("No `time` variable found in the `drivers` dataframe.")
     }
 
-    time <- drivers[['time']]
+    time <- drivers[["time"]]
     if (is.unsorted(time)) {
         return("`time` variable is not increasing.")
     }
@@ -303,7 +305,7 @@ check_time_is_sequential <- function(
         return(character())
     }
 
-    timestep <- parameters[['timestep']]
+    timestep <- parameters[["timestep"]]
 
     if (!is_evenly_spaced(time, timestep, rtol)) {
         return("The `time` variable is not spaced by `timestep`.")
@@ -313,14 +315,13 @@ check_time_is_sequential <- function(
 }
 
 # check if a vector is evenly spaced.
-is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
-
-    if (is.null(by)){
-        second_diff = diff(x, differences = 2)
-        is_zero = abs(second_diff) < rtol
+is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)) {
+    if (is.null(by)) {
+        second_diff <- diff(x, differences = 2)
+        is_zero <- abs(second_diff) < rtol
     } else {
-        first_diff = diff(x, differences = 1) - by
-        is_zero = abs(first_diff) < rtol
+        first_diff <- diff(x, differences = 1) - by
+        is_zero <- abs(first_diff) < rtol
     }
 
     return(all(is_zero))
@@ -341,7 +342,7 @@ check_required_elements <- function(args_to_check, required_element_names) {
             tmp_message <- sprintf(
                 "The following required elements of `%s` are not defined: %s.\n",
                 names(args_to_check)[i],
-                paste(missing_names, collapse = ', ')
+                paste(missing_names, collapse = ", ")
             )
 
             error_message <- append(error_message, tmp_message)

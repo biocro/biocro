@@ -1,4 +1,4 @@
-MAX_INDEX <- 100    # changing this value is not recommended
+MAX_INDEX <- 100 # changing this value is not recommended
 DEBUG_PRINT <- FALSE
 DEBUG_PRINT_EXTRA <- FALSE
 
@@ -9,8 +9,7 @@ DEBUG_PRINT_EXTRA <- FALSE
 # MAX_INDEX and the supplied output_step_size), which may occur if the numerical
 # ode_solver ignores output_step_size or if it encounters a problem that
 # requires it to abort the integration.
-final_position <- function(ode_solver)
-{
+final_position <- function(ode_solver) {
     result <- run_biocro(
         initial_values = list(
             position = 0.0,
@@ -22,8 +21,8 @@ final_position <- function(ode_solver)
             timestep = 1.0
         ),
         drivers = data.frame(
-            doy=rep(0, MAX_INDEX),
-            hour=seq(from=0, by=1, length=MAX_INDEX)
+            doy = rep(0, MAX_INDEX),
+            hour = seq(from = 0, by = 1, length = MAX_INDEX)
         ),
         direct_module_names = c(),
         differential_module_names = "BioCro:harmonic_oscillator",
@@ -72,7 +71,7 @@ bad_adaptive_max_steps <- 1
 
 # Specify settings to use with the homemade Euler numerical ode_solver
 homemade_euler_ode_solver_default <- list(
-    type = 'homemade_euler',
+    type = "homemade_euler",
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -80,7 +79,7 @@ homemade_euler_ode_solver_default <- list(
 )
 
 homemade_euler_ode_solver_small_step <- list(
-    type = 'homemade_euler',
+    type = "homemade_euler",
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -89,7 +88,7 @@ homemade_euler_ode_solver_small_step <- list(
 
 # Specify settings to use with the ODEINT Euler numerical ode_solver
 odeint_euler_ode_solver_default <- list(
-    type = 'boost_euler',
+    type = "boost_euler",
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -97,7 +96,7 @@ odeint_euler_ode_solver_default <- list(
 )
 
 odeint_euler_ode_solver_small_step <- list(
-    type = 'boost_euler',
+    type = "boost_euler",
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -106,7 +105,7 @@ odeint_euler_ode_solver_small_step <- list(
 
 # Specify settings to use with the RK4 numerical ode_solver
 rk4_ode_solver_default <- list(
-    type = 'boost_rk4',
+    type = "boost_rk4",
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -114,7 +113,7 @@ rk4_ode_solver_default <- list(
 )
 
 rk4_ode_solver_small_step <- list(
-    type = 'boost_rk4',
+    type = "boost_rk4",
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -123,7 +122,7 @@ rk4_ode_solver_small_step <- list(
 
 # Specify settings to use with the RKCK54 numerical ode_solver
 rkck54_ode_solver_bad <- list(
-    type = 'boost_rkck54',
+    type = "boost_rkck54",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -131,7 +130,7 @@ rkck54_ode_solver_bad <- list(
 )
 
 rkck54_ode_solver_better_rel <- list(
-    type = 'boost_rkck54',
+    type = "boost_rkck54",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = better_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -139,7 +138,7 @@ rkck54_ode_solver_better_rel <- list(
 )
 
 rkck54_ode_solver_better_abs <- list(
-    type = 'boost_rkck54',
+    type = "boost_rkck54",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = better_default_adaptive_abs_error_tol,
@@ -147,7 +146,7 @@ rkck54_ode_solver_better_abs <- list(
 )
 
 rkck54_ode_solver_error <- list(
-    type = 'boost_rkck54',
+    type = "boost_rkck54",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -156,7 +155,7 @@ rkck54_ode_solver_error <- list(
 
 # Specify settings to use with the RSNBRK numerical ode_solver
 rsnbrk_ode_solver_bad <- list(
-    type = 'boost_rosenbrock',
+    type = "boost_rosenbrock",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -164,7 +163,7 @@ rsnbrk_ode_solver_bad <- list(
 )
 
 rsnbrk_ode_solver_better_rel <- list(
-    type = 'boost_rosenbrock',
+    type = "boost_rosenbrock",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = better_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -172,7 +171,7 @@ rsnbrk_ode_solver_better_rel <- list(
 )
 
 rsnbrk_ode_solver_better_abs <- list(
-    type = 'boost_rosenbrock',
+    type = "boost_rosenbrock",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = better_default_adaptive_abs_error_tol,
@@ -180,7 +179,7 @@ rsnbrk_ode_solver_better_abs <- list(
 )
 
 rsnbrk_ode_solver_best <- list(
-    type = 'boost_rosenbrock',
+    type = "boost_rosenbrock",
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = best_adaptive_rel_error_tol,
     adaptive_abs_error_tol = best_adaptive_abs_error_tol,
@@ -188,7 +187,7 @@ rsnbrk_ode_solver_best <- list(
 )
 
 rsnbrk_ode_solver_error <- list(
-    type = 'boost_rosenbrock',
+    type = "boost_rosenbrock",
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,

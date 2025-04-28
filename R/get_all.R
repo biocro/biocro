@@ -22,7 +22,7 @@ get_all_modules <- function(library_name) {
     # Try to find the internal get_all_modules function
     library_func <- tryCatch(
         {
-            function_from_package(library_name, 'get_all_modules_internal')
+            function_from_package(library_name, "get_all_modules_internal")
         },
         error = function(cond) {
             stop(paste0(
@@ -61,7 +61,7 @@ get_all_quantities <- function(library_name) {
     # Try to find the internal get_all_quantities function
     library_func <- tryCatch(
         {
-            function_from_package(library_name, 'get_all_quantities_internal')
+            function_from_package(library_name, "get_all_quantities_internal")
         },
         error = function(cond) {
             stop(paste0(
@@ -77,13 +77,12 @@ get_all_quantities <- function(library_name) {
 
     # The C++ code returns local module names, but here we want the
     # fully-qualified module names
-    all_quantities[['module_name']] <-
-        module_paste(library_name, all_quantities[['module_name']])
+    all_quantities[["module_name"]] <-
+        module_paste(library_name, all_quantities[["module_name"]])
 
     all_quantities
 }
 
-get_all_ode_solvers <- function()
-{
-	.Call(R_get_all_ode_solvers)
+get_all_ode_solvers <- function() {
+    .Call(R_get_all_ode_solvers)
 }

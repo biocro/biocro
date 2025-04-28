@@ -10,9 +10,7 @@ check_model_test_case_inputs <- function(
     quantities_to_ignore,
     row_interval,
     digits,
-    relative_tolerance
-)
-{
+    relative_tolerance) {
     error_message <- character()
 
     # The model_definition should be a list
@@ -33,7 +31,7 @@ check_model_test_case_inputs <- function(
 
     # The drivers should not be empty
     if (length(drivers) == 0) {
-        error_message <- append(error_message, 'The drivers cannot be empty')
+        error_message <- append(error_message, "The drivers cannot be empty")
     }
 
     # The test_case_name, directory, and quantities_to_ignore should be vectors or
@@ -90,11 +88,11 @@ check_model_test_case_inputs <- function(
         check_required_elements(
             list(model_definition = model_definition),
             c(
-                'initial_values',
-                'parameters',
-                'direct_modules',
-                'differential_modules',
-                'ode_solver'
+                "initial_values",
+                "parameters",
+                "direct_modules",
+                "differential_modules",
+                "ode_solver"
             )
         )
     )
@@ -107,13 +105,11 @@ model_test_case <- function(
     model_definition,
     drivers,
     check_outputs,
-    directory = '.',
+    directory = ".",
     quantities_to_ignore = character(),
     row_interval = 24,
     digits = 5,
-    relative_tolerance = 1e-3
-)
-{
+    relative_tolerance = 1e-3) {
     # Check over the inputs arguments for possible issues
     error_messages <- check_model_test_case_inputs(
         test_case_name,
@@ -132,16 +128,16 @@ model_test_case <- function(
     # Define the model test case
     list(
         test_case_name = test_case_name,
-        initial_values = model_definition[['initial_values']],
-        parameters = model_definition[['parameters']],
+        initial_values = model_definition[["initial_values"]],
+        parameters = model_definition[["parameters"]],
         drivers = drivers,
-        direct_modules = model_definition[['direct_modules']],
-        differential_modules = model_definition[['differential_modules']],
-        ode_solver = model_definition[['ode_solver']],
+        direct_modules = model_definition[["direct_modules"]],
+        differential_modules = model_definition[["differential_modules"]],
+        ode_solver = model_definition[["ode_solver"]],
         check_outputs = check_outputs,
         stored_result_file = file.path(
             directory,
-            paste0(test_case_name, '_simulation.csv')
+            paste0(test_case_name, "_simulation.csv")
         ),
         quantities_to_ignore = quantities_to_ignore,
         row_interval = row_interval,
@@ -156,12 +152,12 @@ model_test_case <- function(
 run_model_simulation <- function(mtc) {
     # Run the model
     simulation_result <- run_biocro(
-        mtc[['initial_values']],
-        mtc[['parameters']],
-        mtc[['drivers']],
-        mtc[['direct_modules']],
-        mtc[['differential_modules']],
-        mtc[['ode_solver']]
+        mtc[["initial_values"]],
+        mtc[["parameters"]],
+        mtc[["drivers"]],
+        mtc[["direct_modules"]],
+        mtc[["differential_modules"]],
+        mtc[["ode_solver"]]
     )
 
     # Store the number of rows in the result
@@ -169,7 +165,7 @@ run_model_simulation <- function(mtc) {
 
     # Only keep a subset of the rows
     row_to_keep <-
-        seq(1, nrow(simulation_result), by = mtc[['row_interval']])
+        seq(1, nrow(simulation_result), by = mtc[["row_interval"]])
 
     simulation_result <- simulation_result[row_to_keep, ]
 
@@ -177,7 +173,7 @@ run_model_simulation <- function(mtc) {
     for (cn in colnames(simulation_result)) {
         if (is.numeric(simulation_result[[cn]])) {
             simulation_result[[cn]] <-
-                signif(simulation_result[[cn]], digits = mtc[['digits']])
+                signif(simulation_result[[cn]], digits = mtc[["digits"]])
         }
     }
 
@@ -188,12 +184,12 @@ run_model_simulation <- function(mtc) {
 # function will return a descriptive message. Otherwise, it will return a data
 # frame of the stored test results.
 get_stored_result <- function(mtc) {
-    stored_result_file <- mtc[['stored_result_file']]
+    stored_result_file <- mtc[["stored_result_file"]]
 
     if (!file.exists(stored_result_file)) {
         msg <- paste0(
-            'Stored result file `', stored_result_file,
-            '` does not exist.'
+            "Stored result file `", stored_result_file,
+            "` does not exist."
         )
         return(msg)
     } else {
@@ -221,12 +217,12 @@ compare_model_output <- function(mtc, columns_to_keep = NULL) {
     }
 
     # Restrict columns to avoid problems with `rbind`
-    new_result  <- new_result[, columns_to_keep]
+    new_result <- new_result[, columns_to_keep]
     stored_result <- stored_result[, columns_to_keep]
 
     # Add version info
-    new_result[['version']]    <- 'new'
-    stored_result[['version']] <- 'stored'
+    new_result[["version"]] <- "new"
+    stored_result[["version"]] <- "stored"
 
     return(rbind(new_result, stored_result))
 }
@@ -238,10 +234,10 @@ update_stored_model_results <- function(mtc) {
     # Save it as a csv file
     utils::write.csv(
         plant_result,
-        file = mtc[['stored_result_file']],
+        file = mtc[["stored_result_file"]],
         quote = FALSE,
-        eol = '\n',
-        na = '',
+        eol = "\n",
+        na = "",
         row.names = FALSE
     )
 }
@@ -252,18 +248,18 @@ update_stored_model_results <- function(mtc) {
 test_model <- function(mtc) {
     # Check the model for validity
     model_valid <- validate_dynamical_system_inputs(
-        mtc[['initial_values']],
-        mtc[['parameters']],
-        mtc[['drivers']],
-        mtc[['direct_modules']],
-        mtc[['differential_modules']],
+        mtc[["initial_values"]],
+        mtc[["parameters"]],
+        mtc[["drivers"]],
+        mtc[["direct_modules"]],
+        mtc[["differential_modules"]],
         verbose = FALSE
     )
 
     if (!model_valid) {
         msg <- paste0(
-            'The `', mtc[['test_case_name']],
-            '` simulation does not have a valid definition.'
+            "The `", mtc[["test_case_name"]],
+            "` simulation does not have a valid definition."
         )
         return(msg)
     }
@@ -273,14 +269,14 @@ test_model <- function(mtc) {
         run_model_simulation(mtc),
         error = function(cond) {
             paste0(
-                'The `', mtc[['test_case_name']],
-                '` simulation produced an error message: ', cond
+                "The `", mtc[["test_case_name"]],
+                "` simulation produced an error message: ", cond
             )
         },
         warning = function(cond) {
             paste0(
-                'The `', mtc[['test_case_name']],
-                '` simulation produced a warning message: ', cond
+                "The `", mtc[["test_case_name"]],
+                "` simulation produced a warning message: ", cond
             )
         }
     )
@@ -290,7 +286,7 @@ test_model <- function(mtc) {
     }
 
     # Optionally compare the new results to stored results
-    if (mtc[['check_outputs']]) {
+    if (mtc[["check_outputs"]]) {
         # Get the stored result, if it exists
         stored_result <- get_stored_result(mtc)
 
@@ -299,14 +295,14 @@ test_model <- function(mtc) {
         }
 
         # Make sure the number of rows has not changed
-        new_nrow    <- new_result[1, 'nrow']
-        stored_nrow <- stored_result[1, 'nrow']
+        new_nrow <- new_result[1, "nrow"]
+        stored_nrow <- stored_result[1, "nrow"]
 
         if (stored_nrow != new_nrow) {
             msg <- paste0(
-                'The `', mtc[['test_case_name']],
-                '` simulation result has ', new_nrow, ' rows, but the saved ',
-                'result has ', stored_nrow, ' rows.'
+                "The `", mtc[["test_case_name"]],
+                "` simulation result has ", new_nrow, " rows, but the saved ",
+                "result has ", stored_nrow, " rows."
             )
 
             return(msg)
@@ -318,17 +314,17 @@ test_model <- function(mtc) {
         unexpected_columns <- !colnames(new_result) %in% colnames(stored_result)
         if (any(unexpected_columns)) {
             msg <- paste0(
-                'The `', mtc[['test_case_name']],
-                '` simulation result contains columns that are not in ',
-                'the saved result. Is this intentional? Extra columns: ',
-                paste(colnames(new_result)[unexpected_columns], collapse = ', '),
-                '.'
+                "The `", mtc[["test_case_name"]],
+                "` simulation result contains columns that are not in ",
+                "the saved result. Is this intentional? Extra columns: ",
+                paste(colnames(new_result)[unexpected_columns], collapse = ", "),
+                "."
             )
             warning(msg, call. = FALSE)
         }
 
         # Remove any ignored columns from the stored result
-        col_to_keep <- !colnames(stored_result) %in% mtc[['quantities_to_ignore']]
+        col_to_keep <- !colnames(stored_result) %in% mtc[["quantities_to_ignore"]]
         stored_result <- stored_result[, col_to_keep]
 
         # Make sure all the columns in the stored result are in the new
@@ -336,11 +332,11 @@ test_model <- function(mtc) {
         missing_columns <- !colnames(stored_result) %in% colnames(new_result)
         if (any(missing_columns)) {
             msg <- paste0(
-                'The `', mtc[['test_case_name']],
-                '` simulation result is missing required columns from ',
-                'the saved result: ',
-                paste(colnames(stored_result)[missing_columns], collapse = ', '),
-                '.'
+                "The `", mtc[["test_case_name"]],
+                "` simulation result is missing required columns from ",
+                "the saved result: ",
+                paste(colnames(stored_result)[missing_columns], collapse = ", "),
+                "."
             )
             return(msg)
         }
@@ -351,18 +347,18 @@ test_model <- function(mtc) {
                 all.equal(
                     as.numeric(stored_result[[cn]]),
                     as.numeric(new_result[[cn]]),
-                    tolerance = mtc[['relative_tolerance']]
+                    tolerance = mtc[["relative_tolerance"]]
                 )
             )
         })
 
         if (any(!values_equal)) {
             msg <- paste0(
-                'The new `', mtc[['test_case_name']],
-                '` simulation result does not agree with the stored result ',
-                'for the following columns: ',
-                paste(colnames(stored_result)[!values_equal], collapse = ', '),
-                '.'
+                "The new `", mtc[["test_case_name"]],
+                "` simulation result does not agree with the stored result ",
+                "for the following columns: ",
+                paste(colnames(stored_result)[!values_equal], collapse = ", "),
+                "."
             )
             return(msg)
         }
@@ -382,11 +378,11 @@ run_model_test_cases <- function(model_test_cases) {
     if (length(test_result) > 0) {
         test_result <- append(
             paste(
-                'Problems occurred while testing models:'
+                "Problems occurred while testing models:"
             ),
             test_result
         )
-        stop(paste(test_result, collapse = '\n  '), call. = FALSE)
+        stop(paste(test_result, collapse = "\n  "), call. = FALSE)
     }
 
     return(TRUE)

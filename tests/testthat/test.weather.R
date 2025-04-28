@@ -1,9 +1,9 @@
-test_that('Years in weather data are correct', {
+test_that("Years in weather data are correct", {
     # Check the CMI weather
     years_from_names <- as.numeric(names(weather))
 
     years_from_df <- sapply(weather, function(x) {
-        as.numeric(x[1, 'year'])
+        as.numeric(x[1, "year"])
     })
 
     names(years_from_df) <- NULL
@@ -17,7 +17,7 @@ test_that('Years in weather data are correct', {
     soybean_years_from_names <- as.numeric(names(soybean_weather))
 
     soybean_years_from_df <- sapply(soybean_weather, function(x) {
-        as.numeric(x[1, 'year'])
+        as.numeric(x[1, "year"])
     })
 
     names(soybean_years_from_df) <- NULL
@@ -28,7 +28,7 @@ test_that('Years in weather data are correct', {
     )
 })
 
-test_that('Years of weather data are all different', {
+test_that("Years of weather data are all different", {
     # Check the CMI weather
     weather_names <- names(weather)
 

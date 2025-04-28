@@ -5,11 +5,11 @@
 ## screening out these cases as not suitable for the model or possibly by
 ## adjusting the error tolerance in such cases.
 
-DEBUG_TEST <- FALSE    # Change this to TRUE to get useful output for debugging these tests.
+DEBUG_TEST <- FALSE # Change this to TRUE to get useful output for debugging these tests.
 
 NUMBER_OF_TRIALS <- 10 # number of different sets of parameters and initial conditions to test
-MAX_INDEX <- 100       # how long to run the simulation
-SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
+MAX_INDEX <- 100 # how long to run the simulation
+SAMPLE_SIZE <- 5 # number of time points to test in each simulation result
 
 # The default tolerance factor used in the third edition of testthat for
 # expect_equal is very tight, so we need to modify it here
@@ -81,15 +81,15 @@ debug_view <- function(ob) {
 
 differential_modules <- "BioCro:harmonic_oscillator"
 direct_modules <- "BioCro:harmonic_energy"
-drivers <- data.frame(time = seq(from=0, by=1, length=MAX_INDEX))
-default_ode_solver <- list(type='boost_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-7, adaptive_abs_error_tol=1e-7, adaptive_max_steps=200)
+drivers <- data.frame(time = seq(from = 0, by = 1, length = MAX_INDEX))
+default_ode_solver <- list(type = "boost_rkck54", output_step_size = 1, adaptive_rel_error_tol = 1e-7, adaptive_abs_error_tol = 1e-7, adaptive_max_steps = 200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
 run_trial <- function(initial_position, initial_velocity, mass, spring_constant, ode_solver, trial_description) {
-    initial_values <- list(position=initial_position, velocity=initial_velocity)
-    parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
+    initial_values <- list(position = initial_position, velocity = initial_velocity)
+    parameters <- list(mass = mass, spring_constant = spring_constant, timestep = 1)
 
 
     debug_print(initial_values)
@@ -101,11 +101,16 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     angular_frequency <- sqrt(spring_constant / mass)
     # arbitrarily set the phase to zero if the mass isn't moving:
     phase <- if (initial_velocity == 0) {
-                 if (initial_position > 0) pi/2
-                 else if (initial_position < 0) -pi/2
-                 else 0
-             }
-             else atan(initial_position * angular_frequency / initial_velocity) + (if (initial_velocity < 0) pi else 0)
+        if (initial_position > 0) {
+            pi / 2
+        } else if (initial_position < 0) {
+            -pi / 2
+        } else {
+            0
+        }
+    } else {
+        atan(initial_position * angular_frequency / initial_velocity) + (if (initial_velocity < 0) pi else 0)
+    }
 
     ## compute the total energy, which doesn't depend on time:
     total_energy <- 0.5 * spring_constant * amplitude^2
@@ -125,8 +130,8 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
     expected_position_deriv <- initial_velocity
     expected_velocity_deriv <- -spring_constant * initial_position / mass
-    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = TOLERANCE)
-    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = TOLERANCE)
+    expect_equal(initial_derivative[[1]][["position"]], expected_position_deriv, tolerance = TOLERANCE)
+    expect_equal(initial_derivative[[1]][["velocity"]], expected_velocity_deriv, tolerance = TOLERANCE)
 
     ## try out the ode_solver
     result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
@@ -147,10 +152,9 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     }
 
 
-	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
+    overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep = "")
 
     test_that(overall_description, {
-
         expect_true(class(result) == "data.frame") # sanity check
 
         sample <- sample(1:MAX_INDEX, SAMPLE_SIZE) # randomly choose a number of points in the evolution of the system to test
@@ -181,8 +185,7 @@ run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_const
 ## repeatability, since this test sometimes picks particularly nasty parameters
 set.seed(1234)
 
-for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
-
+for (trial_number in seq(length = NUMBER_OF_TRIALS)) {
     ## randomly select parameter values and initial values:
     initial_position <- runif(1, -100, 100)[1]
     initial_velocity <- runif(1, -100, 100)[1]
@@ -195,8 +198,8 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
 ## test each ode_solver method using a really weak spring (so the Euler methods still work)
 all_ode_solver_types <- get_all_ode_solvers()
 for (ode_solver_type in all_ode_solver_types) {
-	ode_solver <- default_ode_solver
-	ode_solver$type <- ode_solver_type
-	description <- paste("using the ", ode_solver_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 1e-6, ode_solver, description)
+    ode_solver <- default_ode_solver
+    ode_solver$type <- ode_solver_type
+    description <- paste("using the ", ode_solver_type, " method", sep = "")
+    run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 1e-6, ode_solver, description)
 }

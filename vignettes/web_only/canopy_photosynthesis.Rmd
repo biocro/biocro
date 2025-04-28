@@ -20,12 +20,12 @@ pkgdown:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  error = FALSE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 5,
-  fig.height = 5,
-  fig.align = "center"
+    error = FALSE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 5,
+    fig.height = 5,
+    fig.align = "center"
 )
 ```
 
@@ -369,31 +369,31 @@ library(BioCro)
 library(lattice)
 
 # Set inputs
-zenith_angle  <- 40   # degrees
-LAI           <- 3    # dimensionless
-total_ppfd    <- 2000 # micromol / m^2 / s
-beam_fraction <- 0.8  # dimensionless
-windspeed     <- 2.0  # m / s
+zenith_angle <- 40 # degrees
+LAI <- 3 # dimensionless
+total_ppfd <- 2000 # micromol / m^2 / s
+beam_fraction <- 0.8 # dimensionless
+windspeed <- 2.0 # m / s
 
 # Calculate total PAR energy just above the canopy
 total_par <- total_ppfd * soybean$parameters$par_energy_content
 
 # Run the ten-layer canopy properties module
 canopy_properties <- evaluate_module(
-    'BioCro:ten_layer_canopy_properties',
+    "BioCro:ten_layer_canopy_properties",
     within(soybean$parameters, {
-        cosine_zenith_angle = cos(zenith_angle * pi / 180)
-        lai = LAI
-        par_incident_diffuse = total_par * (1 - beam_fraction)
-        par_incident_direct = total_par * beam_fraction
-        windspeed = windspeed
+        cosine_zenith_angle <- cos(zenith_angle * pi / 180)
+        lai <- LAI
+        par_incident_diffuse <- total_par * (1 - beam_fraction)
+        par_incident_direct <- total_par * beam_fraction
+        windspeed <- windspeed
     })
 )
 
 # Make a helping function for extracting subsets of the results
 canopy_profile <- function(basename, reslist) {
     vnames <- grep(
-        paste0(basename, '_layer_[0-9]'),
+        paste0(basename, "_layer_[0-9]"),
         names(reslist),
         value = TRUE
     )
@@ -408,16 +408,16 @@ First we can plot the fractions of sunlit and shaded leaves.
 
 ```{r}
 # Plot sunlit and shaded fractions
-f_sunlit <- canopy_profile('sunlit_fraction', canopy_properties)
-f_shaded <- canopy_profile('shaded_fraction', canopy_properties)
+f_sunlit <- canopy_profile("sunlit_fraction", canopy_properties)
+f_shaded <- canopy_profile("shaded_fraction", canopy_properties)
 
 xyplot(
     f_sunlit + f_shaded ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Fraction of leaves',
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Fraction of leaves",
     ylim = c(0, 1)
 )
 ```
@@ -427,19 +427,19 @@ the total incident PPFD just above the top of the canopy.
 
 ```{r}
 # Plot incident light levels
-Q_sunlit <- canopy_profile('sunlit_incident_ppfd', canopy_properties)
-Q_shaded <- canopy_profile('shaded_incident_ppfd', canopy_properties)
-Q_above  <- rep_len(total_ppfd, length(nlayer))
+Q_sunlit <- canopy_profile("sunlit_incident_ppfd", canopy_properties)
+Q_shaded <- canopy_profile("shaded_incident_ppfd", canopy_properties)
+Q_above <- rep_len(total_ppfd, length(nlayer))
 
 xyplot(
     Q_sunlit + Q_shaded + Q_above ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
     cex = c(1, 1, 0),
     lty = c(1, 1, 2),
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Incident PPFD (micromol / m^2 / s)',
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Incident PPFD (micromol / m^2 / s)",
     ylim = c(0, 2100)
 )
 ```
@@ -448,16 +448,16 @@ We can also plot absorbed shortwave energy for leaves within the canopy.
 
 ```{r}
 # Plot absorbed shortwave energy
-I_abs_sunlit <- canopy_profile('sunlit_absorbed_shortwave', canopy_properties)
-I_abs_shaded <- canopy_profile('shaded_absorbed_shortwave', canopy_properties)
+I_abs_sunlit <- canopy_profile("sunlit_absorbed_shortwave", canopy_properties)
+I_abs_shaded <- canopy_profile("shaded_absorbed_shortwave", canopy_properties)
 
 xyplot(
     I_abs_sunlit + I_abs_shaded ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Absorbed shortwave energy (J / m^2 / s)',
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Absorbed shortwave energy (J / m^2 / s)",
     ylim = c(0, 500)
 )
 ```
@@ -467,7 +467,9 @@ through the canopy.
 
 ```{r}
 # Calculate absorptivity in the PAR band
-absorptivity_par <- with(soybean$parameters, {1 - leaf_transmittance_par - leaf_reflectance_par})
+absorptivity_par <- with(soybean$parameters, {
+    1 - leaf_transmittance_par - leaf_reflectance_par
+})
 
 # Calculate absorbed PAR energy
 par_abs_sunlit <- Q_sunlit * soybean$parameters$par_energy_content * absorptivity_par
@@ -480,11 +482,11 @@ shaded_par_fraction <- par_abs_shaded / I_abs_shaded
 # Plot the fractions
 xyplot(
     sunlit_par_fraction + shaded_par_fraction ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Fraction of absorbed light energy from PAR photons',
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Fraction of absorbed light energy from PAR photons",
     ylim = c(0, 1)
 )
 ```
@@ -501,18 +503,20 @@ a few different temperatures.
 ```{r}
 # Simulate an A-Q curve
 aq_curve <- module_response_curve(
-    'BioCro:c3_assimilation',
+    "BioCro:c3_assimilation",
     within(soybean$parameters, {
-        StomataWS = 1
-        gbw = 1.2
-        rh = 0.6
+        StomataWS <- 1
+        gbw <- 1.2
+        rh <- 0.6
     }),
     within(
         expand.grid(
             Tleaf = seq(15, 40, by = 5),
             Qabs = seq(0, total_ppfd * absorptivity_par, by = 5)
         ),
-        {temp = Tleaf}
+        {
+            temp <- Tleaf
+        }
     )
 )
 
@@ -524,11 +528,11 @@ xyplot(
     Assim ~ Qin,
     group = Tleaf,
     data = aq_curve,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Qin (micromol / m^2 / s)',
-    ylab = 'Leaf-level CO2 assimilation rate (micromol / m^2 / s)',
+    xlab = "Qin (micromol / m^2 / s)",
+    ylab = "Leaf-level CO2 assimilation rate (micromol / m^2 / s)",
     ylim = c(-5, 30)
 )
 ```
@@ -539,7 +543,7 @@ we will use an air temperature of 25 degrees C.
 ```{r}
 # Get boundary layer conductance
 gbw_canopy <- evaluate_module(
-    'BioCro:canopy_gbw_thornley',
+    "BioCro:canopy_gbw_thornley",
     c(soybean$parameters, list(
         canopy_height = LAI / soybean$parameters$heightf,
         windspeed = windspeed
@@ -550,33 +554,33 @@ gbw_canopy <- evaluate_module(
 air_temperature <- 25
 
 absorbed_longwave <- evaluate_module(
-    'BioCro:stefan_boltzmann_longwave',
+    "BioCro:stefan_boltzmann_longwave",
     list(temp = air_temperature, emissivity_sky = soybean$parameters$emissivity_sky)
 )$absorbed_longwave
 
 # Calculate canopy assimilation rates
 canopy_assimilation <- evaluate_module(
-    'BioCro:ten_layer_c3_canopy',
+    "BioCro:ten_layer_c3_canopy",
     within(c(soybean$parameters, canopy_properties), {
-        StomataWS = 1
-        rh = 0.6
-        temp = air_temperature
-        gbw_canopy = gbw_canopy
-        absorbed_longwave = absorbed_longwave
+        StomataWS <- 1
+        rh <- 0.6
+        temp <- air_temperature
+        gbw_canopy <- gbw_canopy
+        absorbed_longwave <- absorbed_longwave
     })
 )
 
 # Plot canopy assimilation rates
-Assim_sunlit <- canopy_profile('sunlit_Assim', canopy_assimilation)
-Assim_shaded <- canopy_profile('shaded_Assim', canopy_assimilation)
+Assim_sunlit <- canopy_profile("sunlit_Assim", canopy_assimilation)
+Assim_shaded <- canopy_profile("shaded_Assim", canopy_assimilation)
 
 xyplot(
     Assim_sunlit + Assim_shaded ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Net CO2 assimilation rate (micromol / m^2 / s)",
     ylim = c(0, 25)
 )
 ```
@@ -586,16 +590,16 @@ temperature.
 
 ```{r}
 # Plot canopy leaf temperatures
-Tleaf_sunlit <- canopy_profile('sunlit_leaf_temperature', canopy_assimilation)
-Tleaf_shaded <- canopy_profile('shaded_leaf_temperature', canopy_assimilation)
+Tleaf_sunlit <- canopy_profile("sunlit_leaf_temperature", canopy_assimilation)
+Tleaf_shaded <- canopy_profile("shaded_leaf_temperature", canopy_assimilation)
 
 xyplot(
     Tleaf_sunlit + Tleaf_shaded ~ nlayer,
-    type = 'b',
+    type = "b",
     pch = 16,
-    auto.key = list(space = 'top'),
-    xlab = 'Canopy layer',
-    ylab = 'Leaf temperature (degrees C)'
+    auto.key = list(space = "top"),
+    xlab = "Canopy layer",
+    ylab = "Leaf temperature (degrees C)"
 )
 ```
 
@@ -603,10 +607,10 @@ We can also see the total canopy assimilation rate (in units of Mg / ha / hr):
 
 ```{r}
 canopy_totals <- evaluate_module(
-    'BioCro:ten_layer_canopy_integrator',
+    "BioCro:ten_layer_canopy_integrator",
     within(c(canopy_properties, canopy_assimilation), {
-        growth_respiration_fraction = 0
-        lai = LAI
+        growth_respiration_fraction <- 0
+        lai <- LAI
     })
 )
 

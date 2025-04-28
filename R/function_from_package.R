@@ -5,7 +5,7 @@
 # that represent BioCro module libraries.
 function_from_package <- function(library_name, function_name) {
     if (!requireNamespace(library_name, quietly = TRUE)) {
-        stop('There is no package called `', library_name, '`')
+        stop("There is no package called `", library_name, "`")
     }
 
     tryCatch(

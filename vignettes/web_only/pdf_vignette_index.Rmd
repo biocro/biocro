@@ -7,46 +7,41 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, include = FALSE}
-
-
 ## Make a path that includes where pkgdown installed BioCro:
 
-rpath <- paste(.libPaths(), collapse = ':')
+rpath <- paste(.libPaths(), collapse = ":")
 
 
 
 ## Nonce function for processing all the Rnw files:
 
 compile_rnw_file <- function(rnw_filename) {
-    system2('R', args = c('CMD', 'Sweave', rnw_filename),
-                 env = c(paste0('R_LIBS=', rpath)) # pass the expanded R
-                                                   # path (which includes
-                                                   # the location of the
-                                                   # just-built BioCro
-                                                   # package) in the
-                                                   # environment
+    system2("R",
+        args = c("CMD", "Sweave", rnw_filename),
+        env = c(paste0("R_LIBS=", rpath)) # pass the expanded R
+        # path (which includes
+        # the location of the
+        # just-built BioCro
+        # package) in the
+        # environment
     )
 
-    tex_filename <- paste0(tools::file_path_sans_ext(rnw_filename), '.tex')
+    tex_filename <- paste0(tools::file_path_sans_ext(rnw_filename), ".tex")
 
-    if (requireNamespace('tinytex', quietly = TRUE)) {
-
+    if (requireNamespace("tinytex", quietly = TRUE)) {
         # If TinyTeX is installed, tinytex::pdflatex will install
         # needed LaTeX packages automatically.
 
         tinytex::pdflatex(tex_filename)
-
     } else {
-
         tools::texi2pdf(tex_filename)
-
     }
 }
 
 
-compile_rnw_file('a_practical_guide_to_biocro.Rnw')
-compile_rnw_file('quantitative_model_comparison.Rnw')
-compile_rnw_file('an_introduction_to_biocro.Rnw')
+compile_rnw_file("a_practical_guide_to_biocro.Rnw")
+compile_rnw_file("quantitative_model_comparison.Rnw")
+compile_rnw_file("an_introduction_to_biocro.Rnw")
 
 ## Build the dynamical_systems.Rmd vignette using the output format
 ## specified in its preamble (namely, PDF).  (pkgdown builds Rmd
@@ -54,7 +49,7 @@ compile_rnw_file('an_introduction_to_biocro.Rnw')
 ## specification in their preambles and just builds an HTML version
 ## instead of the PDF version that we want.  So we have to call the
 ## builder manually to get the PDF version.)
-tools::buildVignette('dynamical_systems.Rmd')
+tools::buildVignette("dynamical_systems.Rmd")
 ```
 
 <!--

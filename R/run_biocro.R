@@ -8,9 +8,7 @@ check_run_biocro_inputs <- function(
     direct_module_names = list(),
     differential_module_names = list(),
     ode_solver = BioCro::default_ode_solvers$homemade_euler,
-    verbose = FALSE
-)
-{
+    verbose = FALSE) {
     error_message <- character()
 
     # The initial_values, parameters, and ode_solver should be lists
@@ -18,9 +16,9 @@ check_run_biocro_inputs <- function(
         error_message,
         check_list(
             list(
-                initial_values=initial_values,
-                parameters=parameters,
-                ode_solver=ode_solver
+                initial_values = initial_values,
+                parameters = parameters,
+                ode_solver = ode_solver
             )
         )
     )
@@ -28,7 +26,7 @@ check_run_biocro_inputs <- function(
     # The drivers should be a data frame
     error_message <- append(
         error_message,
-        check_data_frame(list(drivers=drivers))
+        check_data_frame(list(drivers = drivers))
     )
 
     # The drivers should not be empty
@@ -42,10 +40,10 @@ check_run_biocro_inputs <- function(
         error_message,
         check_element_names(
             list(
-                initial_values=initial_values,
-                parameters=parameters,
-                drivers=drivers,
-                ode_solver=ode_solver
+                initial_values = initial_values,
+                parameters = parameters,
+                drivers = drivers,
+                ode_solver = ode_solver
             )
         )
     )
@@ -56,11 +54,11 @@ check_run_biocro_inputs <- function(
         error_message,
         check_element_length(
             list(
-                initial_values=initial_values,
-                parameters=parameters,
-                direct_module_names=direct_module_names,
-                differential_module_names=differential_module_names,
-                ode_solver=ode_solver
+                initial_values = initial_values,
+                parameters = parameters,
+                direct_module_names = direct_module_names,
+                differential_module_names = differential_module_names,
+                ode_solver = ode_solver
             )
         )
     )
@@ -72,12 +70,12 @@ check_run_biocro_inputs <- function(
         error_message,
         check_distinct_names(
             list(
-                initial_values=initial_values,
-                parameters=parameters,
-                drivers=drivers,
-                direct_module_names=direct_module_names,
-                differential_module_names=differential_module_names,
-                ode_solver=ode_solver
+                initial_values = initial_values,
+                parameters = parameters,
+                drivers = drivers,
+                direct_module_names = direct_module_names,
+                differential_module_names = differential_module_names,
+                ode_solver = ode_solver
             )
         )
     )
@@ -88,10 +86,10 @@ check_run_biocro_inputs <- function(
         error_message,
         check_numeric(
             list(
-                initial_values=initial_values,
-                parameters=parameters,
-                drivers=drivers,
-                ode_solver_other_than_type=ode_solver[!(names(ode_solver) == 'type')]
+                initial_values = initial_values,
+                parameters = parameters,
+                drivers = drivers,
+                ode_solver_other_than_type = ode_solver[!(names(ode_solver) == "type")]
             )
         )
     )
@@ -102,9 +100,9 @@ check_run_biocro_inputs <- function(
         error_message,
         check_strings(
             list(
-                direct_module_names=direct_module_names,
-                differential_module_names=differential_module_names,
-                ode_solver_type=ode_solver['type']
+                direct_module_names = direct_module_names,
+                differential_module_names = differential_module_names,
+                ode_solver_type = ode_solver["type"]
             )
         )
     )
@@ -112,12 +110,12 @@ check_run_biocro_inputs <- function(
     # Verbose should be a boolean with one element
     error_message <- append(
         error_message,
-        check_boolean(list(verbose=verbose))
+        check_boolean(list(verbose = verbose))
     )
 
     error_message <- append(
         error_message,
-        check_length(list(verbose=verbose))
+        check_length(list(verbose = verbose))
     )
 
     # Values of `time` should be sequential and separated by the `timestep`
@@ -136,11 +134,11 @@ check_run_biocro_inputs <- function(
         check_required_elements(
             list(ode_solver = ode_solver),
             c(
-                'type',
-                'output_step_size',
-                'adaptive_rel_error_tol',
-                'adaptive_abs_error_tol',
-                'adaptive_max_steps'
+                "type",
+                "output_step_size",
+                "adaptive_rel_error_tol",
+                "adaptive_abs_error_tol",
+                "adaptive_max_steps"
             )
         )
     )
@@ -151,12 +149,12 @@ check_run_biocro_inputs <- function(
 # A helping function for making convenient alterations when weather data is
 # supplied
 adapt_weather_data <- function(drivers, direct_module_names) {
-    if ('doy' %in% names(drivers) && 'hour' %in% names(drivers)) {
+    if ("doy" %in% names(drivers) && "hour" %in% names(drivers)) {
         drivers <- add_time_to_weather_data(drivers)
 
-        if (!'BioCro:format_time' %in% unlist(direct_module_names)) {
+        if (!"BioCro:format_time" %in% unlist(direct_module_names)) {
             direct_module_names <-
-                append(direct_module_names, 'BioCro:format_time')
+                append(direct_module_names, "BioCro:format_time")
         }
     }
 
@@ -173,9 +171,7 @@ run_biocro <- function(
     direct_module_names = list(),
     differential_module_names = list(),
     ode_solver = BioCro::default_ode_solvers$homemade_euler,
-    verbose = FALSE
-)
-{
+    verbose = FALSE) {
     # Make sure weather data is properly handled
     adapted <- adapt_weather_data(drivers, direct_module_names)
     drivers <- adapted$drivers
@@ -206,11 +202,11 @@ run_biocro <- function(
     )
 
     # Collect the ode_solver info
-    ode_solver_type <- ode_solver[['type']]
-    ode_solver_output_step_size <- ode_solver[['output_step_size']]
-    ode_solver_adaptive_rel_error_tol <- ode_solver[['adaptive_rel_error_tol']]
-    ode_solver_adaptive_abs_error_tol <- ode_solver[['adaptive_abs_error_tol']]
-    ode_solver_adaptive_max_steps <- ode_solver[['adaptive_max_steps']]
+    ode_solver_type <- ode_solver[["type"]]
+    ode_solver_output_step_size <- ode_solver[["output_step_size"]]
+    ode_solver_adaptive_rel_error_tol <- ode_solver[["adaptive_rel_error_tol"]]
+    ode_solver_adaptive_abs_error_tol <- ode_solver[["adaptive_abs_error_tol"]]
+    ode_solver_adaptive_max_steps <- ode_solver[["adaptive_max_steps"]]
 
     # C++ requires that all the variables have type `double`
     initial_values <- lapply(initial_values, as.numeric)
@@ -250,7 +246,7 @@ run_biocro <- function(
     ))
 
     # Sort the columns by name
-    result <- result[,sort(names(result))]
+    result <- result[, sort(names(result))]
 
     # Return the result
     return(result)
@@ -264,9 +260,7 @@ partial_run_biocro <- function(
     differential_module_names = list(),
     ode_solver = BioCro::default_ode_solvers$homemade_euler,
     arg_names,
-    verbose = FALSE
-)
-{
+    verbose = FALSE) {
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
@@ -283,7 +277,7 @@ partial_run_biocro <- function(
 
     stop_and_send_error_messages(error_messages)
 
-    arg_list = list(
+    arg_list <- list(
         initial_values = initial_values,
         parameters = parameters,
         drivers = drivers,
@@ -293,7 +287,7 @@ partial_run_biocro <- function(
         verbose = verbose
     )
 
-    df = data.frame(
+    df <- data.frame(
         control = character(),
         arg_name = character(),
         index = numeric(),
@@ -303,13 +297,13 @@ partial_run_biocro <- function(
     for (i in seq_len(3)) {
         if (length(names(arg_list[[i]])) > 0) {
             for (j in seq_along(arg_list[[i]])) {
-                df = rbind(
+                df <- rbind(
                     df,
                     data.frame(
                         control = names(arg_list)[i],
                         arg_name = names(arg_list[[i]])[j],
                         index = seq_along(arg_list[[i]][[j]]),
-                        stringsAsFactors=FALSE
+                        stringsAsFactors = FALSE
                     )
                 )
             }
@@ -324,11 +318,11 @@ partial_run_biocro <- function(
     controls <-
         do.call(rbind, lapply(arg_names, function(an) df[df$arg_name %in% an, ]))
 
-    missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
+    missing_arg <- arg_names[which(!arg_names %in% df$arg_name)]
     if (length(missing_arg) > 0) {
         error_messages <- append(
             error_messages, sprintf(
-                '`%s` from `arg_names` is not in the `initial_values`, `parameters`, or `drivers`',
+                "`%s` from `arg_names` is not in the `initial_values`, `parameters`, or `drivers`",
                 missing_arg
             )
         )
@@ -338,8 +332,7 @@ partial_run_biocro <- function(
 
     # Make a function that calls run_biocro with new values for the quantities
     # specified in arg_names
-    function(x)
-    {
+    function(x) {
         if (!is.null(names(x))) {
             if (length(names(x)) != length(arg_names) || !all(names(x) %in% arg_names) || !all(arg_names %in% names(x))) {
                 msg <- paste0(
@@ -367,11 +360,11 @@ partial_run_biocro <- function(
             stop(msg)
         }
 
-        temp_arg_list = arg_list
+        temp_arg_list <- arg_list
 
         for (i in seq_along(x)) {
-            c_row = controls[i, ]
-            temp_arg_list[[c_row$control]][[c_row$arg_name]][c_row$index] = x[i]
+            c_row <- controls[i, ]
+            temp_arg_list[[c_row$control]][[c_row$arg_name]][c_row$index] <- x[i]
         }
 
         do.call(run_biocro, temp_arg_list)

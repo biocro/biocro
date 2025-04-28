@@ -27,8 +27,8 @@ oscillator_model <- list(
         spring_constant = 0.5,
         timestep = 1
     ),
-    direct_modules = 'BioCro:harmonic_energy',
-    differential_modules = 'BioCro:harmonic_oscillator',
+    direct_modules = "BioCro:harmonic_energy",
+    differential_modules = "BioCro:harmonic_oscillator",
     ode_solver = default_ode_solvers$boost_rkck54
 )
 
@@ -38,116 +38,136 @@ oscillator_drivers <- data.frame(
 )
 
 example_test_case <- model_test_case(
-    'harmonic_oscillator',
+    "harmonic_oscillator",
     oscillator_model,
     oscillator_drivers,
     TRUE,
-    file.path('..', 'test_data'),
+    file.path("..", "test_data"),
     row_interval = 10
 )
 
 # Run tests
-test_that('definitions must be valid', {
-    expect_error(
-        run_model_test_cases(
-            list(
-                within(example_test_case, {parameters = list()})
-            )
-        ),
-        'The `harmonic_oscillator` simulation does not have a valid definition.'
-    )
-})
-
-test_that('missing files are detected', {
-    expect_error(
-        run_model_test_cases(
-            list(
-                within(example_test_case, {stored_result_file = 'fake_file.csv'})
-            )
-        ),
-        'Stored result file `fake_file.csv` does not exist.'
-    )
-})
-
-test_that('simulation must run to completion', {
-    expect_error(
-        run_model_test_cases(
-            list(
-                within(example_test_case, {drivers = drivers[seq_len(3), ]})
-            )
-        ),
-        'The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows.'
-    )
-})
-
-test_that('separate errors are reported for each model', {
-    bad_cases <- list(
-        within(example_test_case, {parameters = list()}),
-        within(example_test_case, {stored_result_file = 'fake_file.csv'}),
-        within(example_test_case, {drivers = drivers[seq_len(3), ]})
-    )
-
-    expect_error(
-        run_model_test_cases(bad_cases),
-        'The `harmonic_oscillator` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows.'
-    )
-})
-
-test_that('warning occurs for extra columns in new results', {
-    expect_warning(
-        run_model_test_cases(
-            list(
-                within(example_test_case, {drivers$new_column <- 3})
-            )
-        ),
-        'The `harmonic_oscillator` simulation result contains columns that are not in the saved result. Is this intentional? Extra columns: new_column.',
-        fixed = TRUE
-    )
-})
-
-test_that('new result must include all stored columns', {
+test_that("definitions must be valid", {
     expect_error(
         run_model_test_cases(
             list(
                 within(example_test_case, {
-                    parameters$mass = drivers$mass[1]
-                    drivers$mass = NULL
+                    parameters <- list()
                 })
             )
         ),
-        'The `harmonic_oscillator` simulation result is missing required columns from the saved result: mass.'
+        "The `harmonic_oscillator` simulation does not have a valid definition."
     )
 })
 
-test_that('new values must agree with old values', {
+test_that("missing files are detected", {
     expect_error(
         run_model_test_cases(
             list(
-                within(example_test_case, {drivers$mass = 2})
+                within(example_test_case, {
+                    stored_result_file <- "fake_file.csv"
+                })
             )
         ),
-        'The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:'
-    )
-
-    expect_error(
-        run_model_test_cases(
-            list(
-                within(example_test_case, {parameters$spring_constant = parameters$spring_constant * 1.1})
-            )
-        ),
-        'The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:'
+        "Stored result file `fake_file.csv` does not exist."
     )
 })
 
-test_that('results can be stored and loaded', {
+test_that("simulation must run to completion", {
+    expect_error(
+        run_model_test_cases(
+            list(
+                within(example_test_case, {
+                    drivers <- drivers[seq_len(3), ]
+                })
+            )
+        ),
+        "The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows."
+    )
+})
+
+test_that("separate errors are reported for each model", {
+    bad_cases <- list(
+        within(example_test_case, {
+            parameters <- list()
+        }),
+        within(example_test_case, {
+            stored_result_file <- "fake_file.csv"
+        }),
+        within(example_test_case, {
+            drivers <- drivers[seq_len(3), ]
+        })
+    )
+
+    expect_error(
+        run_model_test_cases(bad_cases),
+        "The `harmonic_oscillator` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows."
+    )
+})
+
+test_that("warning occurs for extra columns in new results", {
+    expect_warning(
+        run_model_test_cases(
+            list(
+                within(example_test_case, {
+                    drivers$new_column <- 3
+                })
+            )
+        ),
+        "The `harmonic_oscillator` simulation result contains columns that are not in the saved result. Is this intentional? Extra columns: new_column.",
+        fixed = TRUE
+    )
+})
+
+test_that("new result must include all stored columns", {
+    expect_error(
+        run_model_test_cases(
+            list(
+                within(example_test_case, {
+                    parameters$mass <- drivers$mass[1]
+                    drivers$mass <- NULL
+                })
+            )
+        ),
+        "The `harmonic_oscillator` simulation result is missing required columns from the saved result: mass."
+    )
+})
+
+test_that("new values must agree with old values", {
+    expect_error(
+        run_model_test_cases(
+            list(
+                within(example_test_case, {
+                    drivers$mass <- 2
+                })
+            )
+        ),
+        "The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:"
+    )
+
+    expect_error(
+        run_model_test_cases(
+            list(
+                within(example_test_case, {
+                    parameters$spring_constant <- parameters$spring_constant * 1.1
+                })
+            )
+        ),
+        "The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:"
+    )
+})
+
+test_that("results can be stored and loaded", {
     model_with_tempfile <-
-        within(example_test_case, {stored_result_file = tempfile()})
+        within(example_test_case, {
+            stored_result_file <- tempfile()
+        })
 
     expect_silent(
         update_stored_model_results(model_with_tempfile)
     )
 
-    col_to_keep <- c('time', 'position', 'velocity', 'kinetic_energy', 'spring_energy')
+    col_to_keep <- c("time", "position", "velocity", "kinetic_energy", "spring_energy")
 
     compare_crop_output <- expect_silent(
         compare_model_output(model_with_tempfile, col_to_keep)
@@ -158,7 +178,7 @@ test_that('results can be stored and loaded', {
     )
 
     expect_equal(
-        sort(unique(compare_crop_output[['version']])),
-        c('new', 'stored')
+        sort(unique(compare_crop_output[["version"]])),
+        c("new", "stored")
     )
 })

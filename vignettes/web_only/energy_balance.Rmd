@@ -20,12 +20,12 @@ pkgdown:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  error = FALSE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 5,
-  fig.height = 5,
-  fig.align = "center"
+    error = FALSE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 5,
+    fig.height = 5,
+    fig.align = "center"
 )
 ```
 
@@ -476,7 +476,7 @@ library(lattice)
 BioCro's leaf-level energy balance model:
 ```{r}
 transpiration_res <- module_response_curve(
-    'BioCro:leaf_evapotranspiration',
+    "BioCro:leaf_evapotranspiration",
     list(
         absorbed_shortwave = 250,
         atmospheric_pressure = 101325,
@@ -497,31 +497,31 @@ xyplot(
     TransR ~ windspeed,
     group = Gs,
     data = transpiration_res,
-    type = 'l',
+    type = "l",
     auto = TRUE,
-    xlab = 'Wind speed (m / s)',
-    ylab = 'Transpiration rate (mmol / m^2 / s)',
+    xlab = "Wind speed (m / s)",
+    ylab = "Transpiration rate (mmol / m^2 / s)",
     ylim = c(0, 5),
-    main = 'Transpiration rate for different\nstomatal conductances (mol / m^2 / s)'
+    main = "Transpiration rate for different\nstomatal conductances (mol / m^2 / s)"
 )
 
 xyplot(
     leaf_temperature ~ windspeed,
     group = Gs,
     data = transpiration_res,
-    type = 'l',
+    type = "l",
     auto = TRUE,
-    xlab = 'Wind speed (m / s)',
-    ylab = 'Leaf temperature (degrees C)',
+    xlab = "Wind speed (m / s)",
+    ylab = "Leaf temperature (degrees C)",
     ylim = c(0, 100),
-    main = 'Leaf temperature for different\nstomatal conductances (mol / m^2 / s)'
+    main = "Leaf temperature for different\nstomatal conductances (mol / m^2 / s)"
 )
 ```
 
 BioCro's model for canopy boundary layer conductance:
 ```{r}
 canopy_gbw_res <- module_response_curve(
-    'BioCro:canopy_gbw_thornley',
+    "BioCro:canopy_gbw_thornley",
     list(
         min_gbw_canopy = 0,
         windspeed_height = 10
@@ -536,19 +536,19 @@ xyplot(
     gbw_canopy ~ windspeed,
     group = canopy_height,
     data = canopy_gbw_res,
-    type = 'l',
+    type = "l",
     auto = TRUE,
-    xlab = 'Wind speed (m / s)',
-    ylab = 'Canopy boundary layer conductance (m / s)',
+    xlab = "Wind speed (m / s)",
+    ylab = "Canopy boundary layer conductance (m / s)",
     ylim = c(0, 0.02),
-    main = 'Canopy gbw for different canopy heights'
+    main = "Canopy gbw for different canopy heights"
 )
 ```
 
 BioCro's model for leaf boundary layer conductance:
 ```{r}
 leaf_gbw_res <- module_response_curve(
-    'BioCro:leaf_gbw_nikolov',
+    "BioCro:leaf_gbw_nikolov",
     list(
         air_pressure = 101325,
         leafwidth = 0.1,
@@ -566,12 +566,12 @@ xyplot(
     gbw_leaf ~ windspeed,
     group = Gs,
     data = leaf_gbw_res,
-    type = 'l',
+    type = "l",
     auto = TRUE,
-    xlab = 'Wind speed (m / s)',
-    ylab = 'Leaf boundary layer conductance (m / s)',
+    xlab = "Wind speed (m / s)",
+    ylab = "Leaf boundary layer conductance (m / s)",
     ylim = c(0, 0.02),
-    main = 'Leaf gbw for different stomatal conductances\n(Gs; mol / m^2 / s)'
+    main = "Leaf gbw for different stomatal conductances\n(Gs; mol / m^2 / s)"
 )
 ```
 

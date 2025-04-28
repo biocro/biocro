@@ -18,18 +18,16 @@ get_growing_season_climate <- function(climate, threshold_temperature = 0) {
 # This function returns the first and last days as a two-element numeric vector.
 guess_growing_season_start_and_end_doy <- function(
     climate,
-    threshold_temperature
-)
-{
+    threshold_temperature) {
     early_season_cold_days <-
-        climate[with(climate, doy <= 183 & temp <= threshold_temperature), 'doy']
+        climate[with(climate, doy <= 183 & temp <= threshold_temperature), "doy"]
 
-    day1 = max(c(early_season_cold_days, 90))
+    day1 <- max(c(early_season_cold_days, 90))
 
     late_season_cold_days <-
-        climate[with(climate, doy > 183 & temp <= threshold_temperature), 'doy']
+        climate[with(climate, doy > 183 & temp <= threshold_temperature), "doy"]
 
-    dayn = min(c(late_season_cold_days, 330))
+    dayn <- min(c(late_season_cold_days, 330))
 
     return(c(day1, dayn))
 }

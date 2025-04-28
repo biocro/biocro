@@ -34,10 +34,10 @@
 ## the tests to make sure they all pass.
 
 # Choose default weather
-WEATHER <- BioCro::get_growing_season_climate(BioCro::weather$'2005')
+WEATHER <- BioCro::get_growing_season_climate(BioCro::weather$"2005")
 
 # Specify the testing directory
-TEST_DIR <- file.path('..', 'test_data')
+TEST_DIR <- file.path("..", "test_data")
 
 # Define lists of species-specific variables to ignore.
 MISCANTHUS_X_GIGANTEUS_IGNORE <- c(
@@ -87,9 +87,9 @@ SOYBEAN_IGNORE <- c(
 
 # Define the models to test
 PLANT_TESTING_INFO <- list(
-    BioCro::model_test_case('miscanthus_x_giganteus', BioCro::miscanthus_x_giganteus, WEATHER,                        TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
-    BioCro::model_test_case('willow',                 BioCro::willow,                 WEATHER,                        TRUE, TEST_DIR, WILLOW_IGNORE),                 # INDEX = 2
-    BioCro::model_test_case('soybean',                BioCro::soybean,                BioCro::soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                 # INDEX = 3
+    BioCro::model_test_case("miscanthus_x_giganteus", BioCro::miscanthus_x_giganteus, WEATHER, TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
+    BioCro::model_test_case("willow", BioCro::willow, WEATHER, TRUE, TEST_DIR, WILLOW_IGNORE), # INDEX = 2
+    BioCro::model_test_case("soybean", BioCro::soybean, BioCro::soybean_weather$"2002", TRUE, TEST_DIR, SOYBEAN_IGNORE) # INDEX = 3
 )
 
 # Run all the tests

@@ -2,9 +2,7 @@ system_derivatives <- function(
     parameters = list(),
     drivers,
     direct_module_names = list(),
-    differential_module_names = list()
-)
-{
+    differential_module_names = list()) {
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
@@ -36,8 +34,7 @@ system_derivatives <- function(
     drivers <- lapply(drivers, as.numeric)
 
     # Create a function that returns a derivative
-    function(t, differential_quantities, parms)
-    {
+    function(t, differential_quantities, parms) {
         # Note: parms is required by LSODES but we aren't using it here. We
         # don't need to do any format checking here because LSODES will have
         # already done it.

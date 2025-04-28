@@ -15,7 +15,6 @@
 % at the global level, as in the R-CMD-check GitHub workflow.
 
 <<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
-
 ## Versions of knitr before 1.39 used the color package, but we want
 ## to use xcolor instead (together with the "dvipsnames" option), so
 ## we use a hook to do a substitution.  (This hook is a no-op for
@@ -23,7 +22,7 @@
 ## used by the Rnw file.)
 
 knitr::knit_hooks$set(document = function(x) {
-  sub('\\usepackage[]{color}', '\\usepackage[dvipsnames]{xcolor}', x, fixed = TRUE)
+    sub("\\usepackage[]{color}", "\\usepackage[dvipsnames]{xcolor}", x, fixed = TRUE)
 })
 
 ## Version 1.39 of knitr *does* use the xcolor package, but we still
@@ -31,8 +30,7 @@ knitr::knit_hooks$set(document = function(x) {
 ## is a no-op for knitr versions before 1.39, assuming the xcolor
 ## package is not explicitly used by the Rnw file.)
 
-knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
-
+knitr::opts_knit$set(latex.options.xcolor = "dvipsnames")
 @
 
 \documentclass{article}
@@ -187,37 +185,40 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 % Set things up for R evaluation:
 <<preliminaries,echo=FALSE>>=
-knitr::opts_chunk$set(error=FALSE) # do stop on errors so we can immediately
-                                   # identify problems with the vignette code
+knitr::opts_chunk$set(error = FALSE) # do stop on errors so we can immediately
+# identify problems with the vignette code
 @
 
 <<loading_libraries,echo=FALSE>>=
-library(BioCro, quietly=TRUE)
-library(lattice, quietly=TRUE)
+library(BioCro, quietly = TRUE)
+library(lattice, quietly = TRUE)
 @
 
 
 <<version_info,echo=FALSE,comment=''>>=
 # Show the current commit hash and the date of that commit.
 cat(
-  paste0(
-    system2('git',
-            args = c('show',
-                     '-s',
-                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD"'
-                    ),
+    paste0(
+        system2("git",
+            args = c(
+                "show",
+                "-s",
+                '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD"'
+            ),
             stdout = TRUE
+        ),
+        sep = "",
+        collapse = "\n"
     ),
-    sep = '',
-    collapse = '\n'
-  ),
-  "\nBranch:",
-  system2('git',
-          args = c('branch',
-                   '--show-current'),
-          stdout = TRUE
-  ),
-  "\n"
+    "\nBranch:",
+    system2("git",
+        args = c(
+            "branch",
+            "--show-current"
+        ),
+        stdout = TRUE
+    ),
+    "\n"
 )
 @
 
@@ -528,7 +529,7 @@ use the following:
 <<list_function>>=
 # The list() function takes any number of key=value pairs, separated
 # by commas.
-example_initial_values = list(Stem = 3, Leaf = 5)
+example_initial_values <- list(Stem = 3, Leaf = 5)
 
 # The str() function prints useful information about any object.
 str(example_initial_values)
@@ -607,12 +608,13 @@ In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
 <<drivers_example>>=
-example_drivers = data.frame(
-            year = c(2005, 2005),
-            doy = c(1, 1),
-            hour = c(0, 1),
-            solar = c(0, 0),
-            temp = c(4.04, 3.03))
+example_drivers <- data.frame(
+    year = c(2005, 2005),
+    doy = c(1, 1),
+    hour = c(0, 1),
+    solar = c(0, 0),
+    temp = c(4.04, 3.03)
+)
 print(example_drivers)
 @
 
@@ -627,7 +629,7 @@ provided as one means of subsetting climate data.\footnote{The
 2005 showing the first few rows of the growing season:
 
 <<weather2005>>=
-head(get_growing_season_climate(weather$'2005'))
+head(get_growing_season_climate(weather$"2005"))
 @
 
 \subsubsection{Function output}
@@ -661,16 +663,18 @@ development of a crop as follows:
 
 % Run the code to validate it, but don't show the figure.
 <<Gro_example, fig.show='hide'>>=
-result <- with(miscanthus_x_giganteus, {run_biocro(
-  initial_values,
-  parameters,
-  get_growing_season_climate(weather$'2005'),
-  direct_modules,
-  differential_modules,
-  ode_solver
-)})
-xyplot(Stem + Leaf + Root ~ TTc, data=result)  # `xyplot` requires the lattice package.
-                                               # The output is not shown here.
+result <- with(miscanthus_x_giganteus, {
+    run_biocro(
+        initial_values,
+        parameters,
+        get_growing_season_climate(weather$"2005"),
+        direct_modules,
+        differential_modules,
+        ode_solver
+    )
+})
+xyplot(Stem + Leaf + Root ~ TTc, data = result) # `xyplot` requires the lattice package.
+# The output is not shown here.
 @
 
 \section{Modifying the BioCro code}

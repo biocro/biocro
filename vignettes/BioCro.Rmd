@@ -9,12 +9,12 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  error = FALSE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 6,
-  fig.height = 5,
-  fig.align = "center"
+    error = FALSE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 6,
+    fig.height = 5,
+    fig.align = "center"
 )
 ```
 
@@ -37,16 +37,18 @@ variables, and sets of modules to run. It returns the results in a data frame.
 library(BioCro)
 library(lattice)
 
-result <- with(soybean, {run_biocro(
-  initial_values,
-  parameters,
-  soybean_weather$'2002',
-  direct_modules,
-  differential_modules,
-  ode_solver
-)})
+result <- with(soybean, {
+    run_biocro(
+        initial_values,
+        parameters,
+        soybean_weather$"2002",
+        direct_modules,
+        differential_modules,
+        ode_solver
+    )
+})
 
-xyplot(Stem + Leaf ~ TTc, data = result, type='l', auto = TRUE)
+xyplot(Stem + Leaf ~ TTc, data = result, type = "l", auto = TRUE)
 ```
 
 There are parameters and modules for soybean (_Glycine max_), miscanthus

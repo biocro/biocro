@@ -1875,8 +1875,8 @@ be calculated from `doy` and `hour`.
 
 ```{r}
 library(BioCro)
-run_biocro(parameters = list(timestep=1), drivers = data.frame(time=45.625))
-run_biocro(parameters = list(timestep=1), drivers = data.frame(doy=80, hour=14.25))
+run_biocro(parameters = list(timestep = 1), drivers = data.frame(time = 45.625))
+run_biocro(parameters = list(timestep = 1), drivers = data.frame(doy = 80, hour = 14.25))
 ```
 
 Note that `ncalls` always shows up in the output data frame, even though it is
@@ -1889,9 +1889,9 @@ error:
 
 ```{r, error = TRUE}
 run_biocro(
-    parameters = list(timestep=1),
-    differential_module_names = 'BioCro:harmonic_oscillator',
-    drivers = data.frame(doy=80)
+    parameters = list(timestep = 1),
+    differential_module_names = "BioCro:harmonic_oscillator",
+    drivers = data.frame(doy = 80)
 )
 ```
 
@@ -1906,9 +1906,11 @@ differential module are assumed to have a derivative of zero; that is,
 they are constant.  This system exhibits such a case.
 
 ```{r}
-run_biocro(initial_values = list(x = 52),
-           parameters = list(timestep=1),
-           drivers = data.frame(time=0:4))
+run_biocro(
+    initial_values = list(x = 52),
+    parameters = list(timestep = 1),
+    drivers = data.frame(time = 0:4)
+)
 ```
 
 ## An _off-label_ use of `run_biocro`
@@ -1932,15 +1934,19 @@ using five calls to `run_biocro` with drivers having a single row, but
 doing it in one call is more convenient.
 
 ```{r}
-result <- run_biocro(parameters = list(timestep=1),
-                     drivers = data.frame(doy = c(355, 172, 80, 80, 80),
-                                          hour = 12,
-                                          time_zone_offset = -6,
-                                          year = 2022,
-                                          lat = c(40, 40, 40, 0, 89),
-                                          longitude = -88),
-                     direct_module_names = 'BioCro:solar_position_michalsky')
-result[c('lat', 'longitude', 'doy', 'hour', 'cosine_zenith_angle')]
+result <- run_biocro(
+    parameters = list(timestep = 1),
+    drivers = data.frame(
+        doy = c(355, 172, 80, 80, 80),
+        hour = 12,
+        time_zone_offset = -6,
+        year = 2022,
+        lat = c(40, 40, 40, 0, 89),
+        longitude = -88
+    ),
+    direct_module_names = "BioCro:solar_position_michalsky"
+)
+result[c("lat", "longitude", "doy", "hour", "cosine_zenith_angle")]
 ```
 
 ## A system having only drivers (and the obligatory `timestep` parameter)
@@ -1951,17 +1957,21 @@ driver variables that aren't time related.  Like all systems not
 having any modules, it doesn't really _do_ anything.
 
 ```{r}
-result <- run_biocro(parameters = list(timestep=1),
-                     drivers = weather$`2005`[1000:1010,])
-result[c('year', 'doy', 'hour', 'precip', 'rh', 'solar', 'temp', 'windspeed')]
+result <- run_biocro(
+    parameters = list(timestep = 1),
+    drivers = weather$`2005`[1000:1010, ]
+)
+result[c("year", "doy", "hour", "precip", "rh", "solar", "temp", "windspeed")]
 ```
 
 The weather information this run displays could just as easily be
 displayed using
 
 ```{r, eval=FALSE}
-weather$`2005`[1000:1010,
-               c('year', 'doy', 'hour', 'precip', 'rh', 'solar', 'temp', 'windspeed')]
+weather$`2005`[
+    1000:1010,
+    c("year", "doy", "hour", "precip", "rh", "solar", "temp", "windspeed")
+]
 ```
 
 # References

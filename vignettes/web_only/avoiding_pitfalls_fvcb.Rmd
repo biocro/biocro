@@ -20,12 +20,12 @@ pkgdown:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  error = FALSE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 5,
-  fig.height = 5,
-  fig.align = "center"
+    error = FALSE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 5,
+    fig.height = 5,
+    fig.align = "center"
 )
 ```
 
@@ -304,13 +304,12 @@ possible that a crossover between limiting processes may not occur (see Figure
 # microbar) and is unlikely to be realistically achievable; 0 means that a
 # crossover occurs at a reasonable value.
 crossover <- function(
-    J,    # micromol / m^2 / s
+    J, # micromol / m^2 / s
     Vcmax # micromol / m^2 / s
-)
-{
-    Kc <- 259     # microbar
-    O <- 200      # mbar
-    Ko <- 179     # mbar
+    ) {
+    Kc <- 259 # microbar
+    O <- 200 # mbar
+    Ko <- 179 # mbar
     Gstar <- 38.6 # microbar
 
     jv <- J / (4 * Vcmax) # dimensionless
@@ -334,9 +333,9 @@ z_cc <- matrix(nrow = length(j_seq), ncol = length(v_seq))
 
 # Fill in the matrix
 for (i in seq_along(j_seq)) {
-  for (j in seq_along(v_seq)) {
-    z_cc[i,j] <- crossover(j_seq[i], v_seq[j])
-  }
+    for (j in seq_along(v_seq)) {
+        z_cc[i, j] <- crossover(j_seq[i], v_seq[j])
+    }
 }
 
 # Make the image
@@ -344,7 +343,7 @@ cc_image <- list(x = j_seq, y = v_seq, z = z_cc)
 
 # Make a custom image plotting function
 plot_image <- function(F_image, ...) {
-    cols <- c('#F2CEE6', '#FFFFFF', '#7798AB')
+    cols <- c("#F2CEE6", "#FFFFFF", "#7798AB")
     breaks <- c(-10, -0.5, 0.5, 10)
     image(
         F_image,
@@ -358,8 +357,8 @@ plot_image <- function(F_image, ...) {
 # Plot the image
 plot_image(
     cc_image,
-    xlab = 'J (micromol / m^2 / s)',
-    ylab = 'Vcmax (micromol / m^2 / s)'
+    xlab = "J (micromol / m^2 / s)",
+    ylab = "Vcmax (micromol / m^2 / s)"
 )
 ```
 
@@ -564,30 +563,29 @@ FvCB model:
 
 ```{r}
 fvcb_model <- function(
-  C,     # microbar
-  Vcmax, # micromol / m^2 / s
-  Kc,    # microbar
-  O,     # mbar
-  Ko,    # mbar
-  J,     # micromol / m^2 / s
-  Gstar, # microbar
-  Tp,    # micromol / m^2 / s
-  alpha, # dimensionless
-  RL     # micromol / m^2 / s
-)
-{
-  Wc <- Vcmax * C / (C + Kc * (1 + O / Ko))
+    C, # microbar
+    Vcmax, # micromol / m^2 / s
+    Kc, # microbar
+    O, # mbar
+    Ko, # mbar
+    J, # micromol / m^2 / s
+    Gstar, # microbar
+    Tp, # micromol / m^2 / s
+    alpha, # dimensionless
+    RL # micromol / m^2 / s
+    ) {
+    Wc <- Vcmax * C / (C + Kc * (1 + O / Ko))
 
-  Wj <- J * C / (4 * C + 8 * Gstar)
+    Wj <- J * C / (4 * C + 8 * Gstar)
 
-  Wp <- 3 * Tp * C / (C - Gstar * (1 + 3 * alpha))
-  Wp[C <= Gstar * (1 + 3 * alpha)] <- Inf
+    Wp <- 3 * Tp * C / (C - Gstar * (1 + 3 * alpha))
+    Wp[C <= Gstar * (1 + 3 * alpha)] <- Inf
 
-  Vc <- pmin(Wc, Wj, Wp)
+    Vc <- pmin(Wc, Wj, Wp)
 
-  An <- (1 - Gstar / C) * Vc - RL
+    An <- (1 - Gstar / C) * Vc - RL
 
-  list(Wc = Wc, Wj = Wj, Wp = Wp, Vc = Vc, An = An)
+    list(Wc = Wc, Wj = Wj, Wp = Wp, Vc = Vc, An = An)
 }
 ```
 
@@ -597,27 +595,26 @@ to become limiting at low $C$:
 
 ```{r}
 pseudo_fvcb_model <- function(
-  C,     # microbar
-  Vcmax, # micromol / m^2 / s
-  Kc,    # microbar
-  O,     # mbar
-  Ko,    # mbar
-  J,     # micromol / m^2 / s
-  Gstar, # microbar
-  Tp,    # micromol / m^2 / s
-  alpha, # dimensionless
-  RL     # micromol / m^2 / s
-)
-{
-  Ac <- Vcmax * (C - Gstar) / (C + Kc * (1 + O / Ko)) - RL
+    C, # microbar
+    Vcmax, # micromol / m^2 / s
+    Kc, # microbar
+    O, # mbar
+    Ko, # mbar
+    J, # micromol / m^2 / s
+    Gstar, # microbar
+    Tp, # micromol / m^2 / s
+    alpha, # dimensionless
+    RL # micromol / m^2 / s
+    ) {
+    Ac <- Vcmax * (C - Gstar) / (C + Kc * (1 + O / Ko)) - RL
 
-  Aj <- J * (C - Gstar) / (4 * C + 8 * Gstar) - RL
+    Aj <- J * (C - Gstar) / (4 * C + 8 * Gstar) - RL
 
-  Ap <- 3 * Tp * (C - Gstar) / (C - Gstar * (1 + 3 * alpha)) - RL
+    Ap <- 3 * Tp * (C - Gstar) / (C - Gstar * (1 + 3 * alpha)) - RL
 
-  An <- pmin(Ac, Aj, Ap)
+    An <- pmin(Ac, Aj, Ap)
 
-  list(Ac = Ac, Aj = Aj, Ap = Ap, An = An)
+    list(Ac = Ac, Aj = Aj, Ap = Ap, An = An)
 }
 ```
 
@@ -634,124 +631,122 @@ library(lattice)
 # Make a function that runs both versions of the model across a range of C
 # values and then plots the results
 fvcb_compare <- function(
-  Vcmax, # micromol / m^2 / s
-  Kc,    # microbar
-  O,     # mbar
-  Ko,    # mbar
-  J,     # micromol / m^2 / s
-  Gstar, # microbar
-  Tp,    # micromol / m^2 / s
-  alpha, # dimensionless
-  RL,    # micromol / m^2 / s
-  plot_type
-)
-{
-  C_seq <- seq(1, 1000, by = 2)
+    Vcmax, # micromol / m^2 / s
+    Kc, # microbar
+    O, # mbar
+    Ko, # mbar
+    J, # micromol / m^2 / s
+    Gstar, # microbar
+    Tp, # micromol / m^2 / s
+    alpha, # dimensionless
+    RL, # micromol / m^2 / s
+    plot_type) {
+    C_seq <- seq(1, 1000, by = 2)
 
-  fvcb_model_res <- fvcb_model(
-    C_seq,
-    Vcmax,
-    Kc,
-    O,
-    Ko,
-    J,
-    Gstar,
-    Tp,
-    alpha,
-    RL
-  )
-
-  pseudo_fvcb_model_res <- pseudo_fvcb_model(
-    C_seq,
-    Vcmax,
-    Kc,
-    O,
-    Ko,
-    J,
-    Gstar,
-    Tp,
-    alpha,
-    RL
-  )
-
-  clim <- c(0, 1000)
-  alim <- c(-20, 50)
-
-  colors <- c(
-    "#000000",
-    "#66C2A5",
-    "#FC8D62",
-    "#8DA0CB",
-    "#E78AC3"
-  )
-
-  if (plot_type == 1) {
-    xyplot(
-      An + Vc + Wc + Wj + Wp ~ C_seq,
-      data = fvcb_model_res,
-      type = 'l',
-      lty = c(1, 1, 2, 2, 2),
-      lwd = c(3, 3, 2, 2, 2),
-      par.settings = list(
-        superpose.line = list(col = colors),
-        superpose.symbol = list(col = colors)
-      ),
-      grid = TRUE,
-      xlim = clim,
-      ylim = alim,
-      auto.key = list(
-        lines = TRUE,
-        points = FALSE
-      ),
-      xlab = 'C (microbar)',
-      ylab = 'Rates (micromol / m^2 / s)',
-      main = 'FvCB Model'
+    fvcb_model_res <- fvcb_model(
+        C_seq,
+        Vcmax,
+        Kc,
+        O,
+        Ko,
+        J,
+        Gstar,
+        Tp,
+        alpha,
+        RL
     )
-  } else if (plot_type == 2) {
-    xyplot(
-      An + Ac + Aj + Ap ~ C_seq,
-      data = pseudo_fvcb_model_res,
-      type = 'l',
-      lty = c(1, 2, 2, 2),
-      lwd = c(3, 2, 2, 2),
-      par.settings = list(
-        superpose.line = list(col = colors),
-        superpose.symbol = list(col = colors)
-      ),
-      grid = TRUE,
-      xlim = clim,
-      ylim = alim,
-      auto.key = list(
-        lines = TRUE,
-        points = FALSE
-      ),
-      xlab = 'C (microbar)',
-      ylab = 'Rates (micromol / m^2 / s)',
-      main = 'Pseudo-FvCB Model'
+
+    pseudo_fvcb_model_res <- pseudo_fvcb_model(
+        C_seq,
+        Vcmax,
+        Kc,
+        O,
+        Ko,
+        J,
+        Gstar,
+        Tp,
+        alpha,
+        RL
     )
-  } else if (plot_type == 3) {
-    xyplot(
-      fvcb_model_res$An + pseudo_fvcb_model_res$An ~ C_seq,
-      type = 'l',
-      lty = c(1, 2),
-      lwd = c(3, 2),
-      par.settings = list(
-        superpose.line = list(col = colors),
-        superpose.symbol = list(col = colors)
-      ),
-      grid = TRUE,
-      xlim = clim,
-      ylim = alim,
-      xlab = 'C (microbar)',
-      ylab = 'An (micromol / m^2 / s)',
-      main = 'FvCB vs. Pseudo-FvCB Models',
-      auto.key = list(
-        text = c('FvCB model', 'Pseudo-FvCB model'),
-        lines = TRUE,
-        points = FALSE
-      )
+
+    clim <- c(0, 1000)
+    alim <- c(-20, 50)
+
+    colors <- c(
+        "#000000",
+        "#66C2A5",
+        "#FC8D62",
+        "#8DA0CB",
+        "#E78AC3"
     )
-  }
+
+    if (plot_type == 1) {
+        xyplot(
+            An + Vc + Wc + Wj + Wp ~ C_seq,
+            data = fvcb_model_res,
+            type = "l",
+            lty = c(1, 1, 2, 2, 2),
+            lwd = c(3, 3, 2, 2, 2),
+            par.settings = list(
+                superpose.line = list(col = colors),
+                superpose.symbol = list(col = colors)
+            ),
+            grid = TRUE,
+            xlim = clim,
+            ylim = alim,
+            auto.key = list(
+                lines = TRUE,
+                points = FALSE
+            ),
+            xlab = "C (microbar)",
+            ylab = "Rates (micromol / m^2 / s)",
+            main = "FvCB Model"
+        )
+    } else if (plot_type == 2) {
+        xyplot(
+            An + Ac + Aj + Ap ~ C_seq,
+            data = pseudo_fvcb_model_res,
+            type = "l",
+            lty = c(1, 2, 2, 2),
+            lwd = c(3, 2, 2, 2),
+            par.settings = list(
+                superpose.line = list(col = colors),
+                superpose.symbol = list(col = colors)
+            ),
+            grid = TRUE,
+            xlim = clim,
+            ylim = alim,
+            auto.key = list(
+                lines = TRUE,
+                points = FALSE
+            ),
+            xlab = "C (microbar)",
+            ylab = "Rates (micromol / m^2 / s)",
+            main = "Pseudo-FvCB Model"
+        )
+    } else if (plot_type == 3) {
+        xyplot(
+            fvcb_model_res$An + pseudo_fvcb_model_res$An ~ C_seq,
+            type = "l",
+            lty = c(1, 2),
+            lwd = c(3, 2),
+            par.settings = list(
+                superpose.line = list(col = colors),
+                superpose.symbol = list(col = colors)
+            ),
+            grid = TRUE,
+            xlim = clim,
+            ylim = alim,
+            xlab = "C (microbar)",
+            ylab = "An (micromol / m^2 / s)",
+            main = "FvCB vs. Pseudo-FvCB Models",
+            auto.key = list(
+                text = c("FvCB model", "Pseudo-FvCB model"),
+                lines = TRUE,
+                points = FALSE
+            )
+        )
+    }
 }
 ```
 
@@ -763,15 +758,15 @@ chosen here is approximately the atmospheric partial pressure of O~2~.
 
 ```{r}
 defaults <- list(
-  Vcmax = 100,  # micromol / m^2 / s
-  Kc = 259,     # microbar
-  O = 200,      # mbar
-  Ko = 179,     # mbar
-  J = 170,      # micromol / m^2 / s
-  Gstar = 38.6, # microbar
-  Tp = 11.8,    # micromol / m^2 / s
-  alpha = 0,    # dimensionless
-  RL = 1        # micromol / m^2 / s
+    Vcmax = 100, # micromol / m^2 / s
+    Kc = 259, # microbar
+    O = 200, # mbar
+    Ko = 179, # mbar
+    J = 170, # micromol / m^2 / s
+    Gstar = 38.6, # microbar
+    Tp = 11.8, # micromol / m^2 / s
+    alpha = 0, # dimensionless
+    RL = 1 # micromol / m^2 / s
 )
 ```
 
@@ -796,15 +791,21 @@ where carboxylation is RuBP-saturated in the FvCB model but assimilation is
 RuBP-regeneration-limited in the pseudo-FvCB model.
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {plot_type = 1}))
+do.call(fvcb_compare, within(defaults, {
+    plot_type <- 1
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {plot_type = 2}))
+do.call(fvcb_compare, within(defaults, {
+    plot_type <- 2
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {plot_type = 3}))
+do.call(fvcb_compare, within(defaults, {
+    plot_type <- 3
+}))
 ```
 
 ## Bright Conditions, $\alpha = 0.5$
@@ -819,15 +820,27 @@ and sudden dip in net assimilation in the pseudo-FvCB model near $C$ = 100
 $\mu$bar.
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {alpha = 0.5; Tp = 10; plot_type = 1}))
+do.call(fvcb_compare, within(defaults, {
+    alpha <- 0.5
+    Tp <- 10
+    plot_type <- 1
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {alpha = 0.5; Tp = 10; plot_type = 2}))
+do.call(fvcb_compare, within(defaults, {
+    alpha <- 0.5
+    Tp <- 10
+    plot_type <- 2
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {alpha = 0.5; Tp = 10; plot_type = 3}))
+do.call(fvcb_compare, within(defaults, {
+    alpha <- 0.5
+    Tp <- 10
+    plot_type <- 3
+}))
 ```
 
 ## Dim Conditions, $\alpha = 0$
@@ -838,15 +851,24 @@ respect to the bright conditions: carboxylation is RuBP-regeneration-limited in
 the FvCB model but assimilation is RuBP-saturated in the pseudo-FvCB model.
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {J = 10; plot_type = 1}))
+do.call(fvcb_compare, within(defaults, {
+    J <- 10
+    plot_type <- 1
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {J = 10; plot_type = 2}))
+do.call(fvcb_compare, within(defaults, {
+    J <- 10
+    plot_type <- 2
+}))
 ```
 
 ```{r, echo = FALSE}
-do.call(fvcb_compare, within(defaults, {J = 10; plot_type = 3}))
+do.call(fvcb_compare, within(defaults, {
+    J <- 10
+    plot_type <- 3
+}))
 ```
 
 # Final Remarks

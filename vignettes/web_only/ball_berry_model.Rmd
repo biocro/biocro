@@ -20,12 +20,12 @@ pkgdown:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  error = FALSE,
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 5,
-  fig.height = 5,
-  fig.align = "center"
+    error = FALSE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 5,
+    fig.height = 5,
+    fig.align = "center"
 )
 ```
 
@@ -266,20 +266,20 @@ while $C_s$ does not (Figure \@ref(fig:cs-an)).
 
 ```{r}
 # Choose a leaf temperature
-Tleaf = 25 # degrees C
+Tleaf <- 25 # degrees C
 
 # Run the model for different An and Tambient
 bb_rc <- module_response_curve(
-  'BioCro:ball_berry',
-  within(soybean$parameters, {
-    gbw = 1.2                # mol / m^2 / s
-    leaf_temperature = Tleaf # degress C
-    rh = 0.7                 # dimensionless
-  }),
-  expand.grid(
-    net_assimilation_rate = seq(-5, 40, length.out = 201), # micromol / m^2 / s
-    temp = seq(Tleaf - 6, Tleaf + 6, by = 2)               # degrees C
-  )
+    "BioCro:ball_berry",
+    within(soybean$parameters, {
+        gbw <- 1.2 # mol / m^2 / s
+        leaf_temperature <- Tleaf # degress C
+        rh <- 0.7 # dimensionless
+    }),
+    expand.grid(
+        net_assimilation_rate = seq(-5, 40, length.out = 201), # micromol / m^2 / s
+        temp = seq(Tleaf - 6, Tleaf + 6, by = 2) # degrees C
+    )
 )
 ```
 
@@ -292,8 +292,8 @@ xyplot(
     leaf_stomatal_conductance ~ net_assimilation_rate,
     group = temp,
     data = bb_rc,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
     xlab = "An (micromol / m^2 / s)",
     ylab = "Stomatal conductance (mol / m^2 / s)",
@@ -313,8 +313,8 @@ xyplot(
     hs ~ net_assimilation_rate,
     group = temp,
     data = bb_rc,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
     xlab = "An (micromol / m^2 / s)",
     ylab = "Relative humidity at leaf surface (dimensionless)",
@@ -334,8 +334,8 @@ xyplot(
     cs ~ net_assimilation_rate,
     group = temp,
     data = bb_rc,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
     xlab = "An (micromol / m^2 / s)",
     ylab = "CO2 concentration at leaf surface (micromol / mol)",
@@ -362,17 +362,17 @@ plateaus at high light levels (Figures \@ref(fig:gsw-qabs) and
 ```{r}
 # Run the model for different Qabs and rh
 lrc <- module_response_curve(
-  'BioCro:c3_assimilation',
-  within(soybean$parameters, {
-    StomataWS = 1 # dimensionless
-    Tleaf = 30    # degrees C
-    gbw = 1.2     # mol / m^2 / s
-    temp = 28     # degrees C
-  }),
-  expand.grid(
-    Qabs = seq(0, 1000, by = 5), # micromol / m^2 / s
-    rh = c(0.2, 0.4, 0.6, 0.8)   # dimensionless
-  )
+    "BioCro:c3_assimilation",
+    within(soybean$parameters, {
+        StomataWS <- 1 # dimensionless
+        Tleaf <- 30 # degrees C
+        gbw <- 1.2 # mol / m^2 / s
+        temp <- 28 # degrees C
+    }),
+    expand.grid(
+        Qabs = seq(0, 1000, by = 5), # micromol / m^2 / s
+        rh = c(0.2, 0.4, 0.6, 0.8) # dimensionless
+    )
 )
 ```
 
@@ -385,8 +385,8 @@ xyplot(
     Gs ~ Qabs,
     group = rh,
     data = lrc,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
     xlab = "Absorbed PPFD (micromol / m^2 / s)",
     ylab = "Stomatal conductance to H2O (mol / m^2 / s)",
@@ -403,8 +403,8 @@ xyplot(
     Assim ~ Qabs,
     group = rh,
     data = lrc,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
     xlab = "Absorbed PPFD (micromol / m^2 / s)",
     ylab = "Net CO2 assimilation rate (micromol / m^2 / s)",
@@ -456,29 +456,29 @@ absorbed_shortwave <-
         soybean$parameters$par_energy_fraction
 
 # Set the air temperature
-air_temperature = 30
+air_temperature <- 30
 
 # Determine the absorbed longwave light energy (in J / m^2 / s)
 absorbed_longwave <- evaluate_module(
-    'BioCro:stefan_boltzmann_longwave',
+    "BioCro:stefan_boltzmann_longwave",
     list(temp = air_temperature, emissivity_sky = 1)
 )$absorbed_longwave
 
 aci <- module_response_curve(
-    'BioCro:c3_leaf_photosynthesis',
+    "BioCro:c3_leaf_photosynthesis",
     within(soybean$parameters, {
-        StomataWS = 1          # dimensionless
-        temp = air_temperature # degrees C
-        windspeed = 3          # m / s
-        height = 0.8           # m
-        gbw_canopy = 0.2       # m / s
-        absorbed_ppfd = absorbed_ppfd
-        absorbed_shortwave = absorbed_shortwave
-        absorbed_longwave = absorbed_longwave
+        StomataWS <- 1 # dimensionless
+        temp <- air_temperature # degrees C
+        windspeed <- 3 # m / s
+        height <- 0.8 # m
+        gbw_canopy <- 0.2 # m / s
+        absorbed_ppfd <- absorbed_ppfd
+        absorbed_shortwave <- absorbed_shortwave
+        absorbed_longwave <- absorbed_longwave
     }),
     expand.grid(
         Catm = seq(100, 1800, by = 5), # micromol / mol
-        rh = c(0.4, 0.6, 0.8)          # dimensionless
+        rh = c(0.4, 0.6, 0.8) # dimensionless
     )
 )
 ```
@@ -493,12 +493,12 @@ xyplot(
     Gs ~ Ci,
     group = rh,
     data = aci,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Intercellular CO2 concentration (micromol / mol)',
-    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
-    main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
+    xlab = "Intercellular CO2 concentration (micromol / mol)",
+    ylab = "Stomatal conductance to H2O (mol / m^2 / s)",
+    main = "Ball-Berry + FvCB + energy balance\nfor different humidities"
 )
 ```
 
@@ -512,12 +512,12 @@ xyplot(
     Assim ~ Ci,
     group = rh,
     data = aci,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Intercellular CO2 concentration (micromol / mol)',
-    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
-    main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
+    xlab = "Intercellular CO2 concentration (micromol / mol)",
+    ylab = "Net CO2 assimilation rate (micromol / m^2 / s)",
+    main = "Ball-Berry + FvCB + energy balance\nfor different humidities"
 )
 ```
 
@@ -531,12 +531,12 @@ xyplot(
     leaf_temperature ~ Ci,
     group = rh,
     data = aci,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Intercellular CO2 concentration (micromol / mol)',
-    ylab = 'Leaf temperature (degrees C)',
-    main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
+    xlab = "Intercellular CO2 concentration (micromol / mol)",
+    ylab = "Leaf temperature (degrees C)",
+    main = "Ball-Berry + FvCB + energy balance\nfor different humidities"
 )
 ```
 
@@ -550,12 +550,12 @@ xyplot(
     Ci ~ Catm,
     group = rh,
     data = aci,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Ambient CO2 concentration (micromol / mol)',
-    ylab = 'Intercellular CO2 concentration (micromol / mol)',
-    main = 'Ball-Berry + FvCB + energy balance\nfor different humidities'
+    xlab = "Ambient CO2 concentration (micromol / mol)",
+    ylab = "Intercellular CO2 concentration (micromol / mol)",
+    main = "Ball-Berry + FvCB + energy balance\nfor different humidities"
 )
 ```
 
@@ -583,76 +583,76 @@ we observe the following trends:
 
 ```{r}
 # Run canopy modules
-RH_a <- 0.8     # dimensionless; ambient relative humidity
+RH_a <- 0.8 # dimensionless; ambient relative humidity
 T_ambient <- 30 # degrees C; ambient air temperature
-StomataWS <- 1  # no water stress
+StomataWS <- 1 # no water stress
 
 canres <- run_biocro(
     direct_module_names = c(
-        'BioCro:solar_position_michalsky',
-        'BioCro:shortwave_atmospheric_scattering',
-        'BioCro:incident_shortwave_from_ground_par',
-        'BioCro:height_from_lai',
-        'BioCro:canopy_gbw_thornley',
-        'BioCro:stefan_boltzmann_longwave',
-        'BioCro:ten_layer_canopy_properties',
-        'BioCro:ten_layer_c3_canopy'
+        "BioCro:solar_position_michalsky",
+        "BioCro:shortwave_atmospheric_scattering",
+        "BioCro:incident_shortwave_from_ground_par",
+        "BioCro:height_from_lai",
+        "BioCro:canopy_gbw_thornley",
+        "BioCro:stefan_boltzmann_longwave",
+        "BioCro:ten_layer_canopy_properties",
+        "BioCro:ten_layer_c3_canopy"
     ),
     parameters = within(soybean$parameters, {
-        year = 2022
-        time_zone_offset = -6 # CDT
-        solar = 1500          # micromol / m^2 / s
-        lai = 3               # dimensionless
-        rh = RH_a             # dimensionless
-        windspeed = 2         # m / s
-        temp = T_ambient      # degrees C
-        StomataWS = StomataWS # dimensionless
+        year <- 2022
+        time_zone_offset <- -6 # CDT
+        solar <- 1500 # micromol / m^2 / s
+        lai <- 3 # dimensionless
+        rh <- RH_a # dimensionless
+        windspeed <- 2 # m / s
+        temp <- T_ambient # degrees C
+        StomataWS <- StomataWS # dimensionless
     }),
     drivers = data.frame(fractional_doy = 210.5) # noon on day 210 (July 29 for 2022)
 )
 
 # Extract canopy profiles
 canopy_profiles_list <- lapply(
-    c('sunlit', 'shaded'),
+    c("sunlit", "shaded"),
     function(leaf_class) {
         cs_column_names <- grep(
-            paste0(leaf_class, '_Cs_layer_[0-9]'),
+            paste0(leaf_class, "_Cs_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         rhs_column_names <- grep(
-            paste0(leaf_class, '_RHs_layer_[0-9]'),
+            paste0(leaf_class, "_RHs_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         rh_canopy_column_names <- grep(
-            paste0(leaf_class, '_RH_canopy_layer_[0-9]'),
+            paste0(leaf_class, "_RH_canopy_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         gsw_column_names <- grep(
-            paste0(leaf_class, '_Gs_layer_[0-9]'),
+            paste0(leaf_class, "_Gs_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         tl_column_names <- grep(
-            paste0(leaf_class, '_leaf_temperature_layer_[0-9]'),
+            paste0(leaf_class, "_leaf_temperature_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         a_column_names <- grep(
-            paste0(leaf_class, '_Assim_layer_[0-9]'),
+            paste0(leaf_class, "_Assim_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
 
         gbw_column_names <- grep(
-            paste0(leaf_class, '_gbw_layer_[0-9]'),
+            paste0(leaf_class, "_gbw_layer_[0-9]"),
             colnames(canres),
             value = TRUE
         )
@@ -684,12 +684,12 @@ xyplot(
     Cs ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'CO2 concentration at leaf surface (micromol / mol)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "CO2 concentration at leaf surface (micromol / mol)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -704,12 +704,12 @@ xyplot(
     RHs + RH_canopy ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'top'),
+    type = "l",
+    auto.key = list(space = "top"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Relative humidity (micromol / mol)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "Relative humidity (micromol / mol)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -723,12 +723,12 @@ xyplot(
     gsw ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Stomatal conductance to H2O (mol / m^2 / s)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "Stomatal conductance to H2O (mol / m^2 / s)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -742,12 +742,12 @@ xyplot(
     tl ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Leaf temperature (degrees C)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "Leaf temperature (degrees C)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -761,12 +761,12 @@ xyplot(
     A ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "Net CO2 assimilation rate (micromol / m^2 / s)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -780,12 +780,12 @@ xyplot(
     gbw ~ layer,
     group = type,
     data = canopy_profiles,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Canopy layer (0 is top, 9 is bottom)',
-    ylab = 'Boundary layer conductance to H2O (mol / m^2 / s)',
-    main = 'Ball-Berry + FvCB + energy balance\nwithin a soybean canopy'
+    xlab = "Canopy layer (0 is top, 9 is bottom)",
+    ylab = "Boundary layer conductance to H2O (mol / m^2 / s)",
+    main = "Ball-Berry + FvCB + energy balance\nwithin a soybean canopy"
 )
 ```
 
@@ -811,21 +811,25 @@ final seed mass (called `Grain` here) to increase (Figure
 ```{r}
 # Use partial application to create a function that runs a soybean simulation
 # for a given value of the Ball-Berry slope
-bb1_func <- with(soybean, {partial_run_biocro(
-    initial_values,
-    parameters,
-    soybean_weather[['2002']],
-    direct_modules,
-    differential_modules,
-    ode_solver,
-    'b1' # the name of the parameter we wish to vary
-)})
+bb1_func <- with(soybean, {
+    partial_run_biocro(
+        initial_values,
+        parameters,
+        soybean_weather[["2002"]],
+        direct_modules,
+        differential_modules,
+        ode_solver,
+        "b1" # the name of the parameter we wish to vary
+    )
+})
 
 # Run the soybean model for several different slope values
 bb1_result_list <- lapply(
     seq(soybean$parameters$b1 - 3, soybean$parameters$b1 + 3, by = 1.5),
     function(x) {
-        within(bb1_func(x), {b1 = x})
+        within(bb1_func(x), {
+            b1 <- x
+        })
     }
 )
 
@@ -842,12 +846,12 @@ xyplot(
     Leaf + Stem + Root + Grain ~ fractional_doy,
     group = b1,
     data = bb1_result,
-    type = 'l',
-    auto.key = list(space = 'right'),
+    type = "l",
+    auto.key = list(space = "right"),
     grid = TRUE,
-    xlab = 'Day of year (2002)',
-    ylab = 'Biomass (Mg / ha)',
-    main = 'Testing different soybean Ball-Berry slope values'
+    xlab = "Day of year (2002)",
+    ylab = "Biomass (Mg / ha)",
+    main = "Testing different soybean Ball-Berry slope values"
 )
 ```
 
