@@ -69,3 +69,16 @@ the base directory of BioCro, provides a method for standardizing
 settings across different text editors. While some editors have native
 support, others require a plugin. See the [EditorConfig
 website][EditorConfig] for more details.
+
+### The `styler` R package
+
+We use an R package called `styler` to help ensure consistent style across our
+R code. An R script is included within BioCro that uses `styler` to format the
+code with appropriate settings.
+
+To run the script, call the following command from an R session running in the
+BioCro R package root directory:
+
+```R
+source('script/apply_styler.R')
+```
