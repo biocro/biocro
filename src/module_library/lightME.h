@@ -1,3 +1,6 @@
+#ifndef LIGHT_MODEL_H
+#define LIGHT_MODEL_H
+
 struct Light_model {
     double direct_transmittance;   //!< Atmospheric transmittance to direct radiation (dimensionless)
     double diffuse_transmittance;  //!< Atmospheric transmittance to diffuse radiation (dimensionless)
@@ -10,3 +13,5 @@ Light_model lightME(
     double atmospheric_pressure,
     double atmospheric_transmittance,
     double atmospheric_scattering);
+
+#endif
