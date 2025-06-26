@@ -2,16 +2,15 @@ library(BioCro)
 library(ggplot2)
 
 
-f <- exp(-seq(0, 3, length.out = 10))
-f <- f/sum(f)
-names(f) <- paste0("leaf_n_profile_", 0:9)
-u <- 0:10/10
-names(u) <- paste0("vcmax_n_fraction_", 0:9)
+f <- rep(0.1, 10)
+names(f) <- paste0("jmax_fraction_", 0:9)
+g <- rep(0.1, 10)
+names(g) <- paste0("vcmax_fraction_", 0:9)
 
-params <- c(soybean$parameters, as.list(u), as.list(f))
+params <- c(soybean$parameters, as.list(f), as.list(g))
 
 params <- within(params, {
-    StomataWS<-0
+    StomataWS <- 0
     leaf_n_relative <- 2
     lai <- 3
     leaf_width <- 0
@@ -55,3 +54,5 @@ result <- run_biocro(
 ) 
 
 ggplot(baseline, aes(solar, canopy_assimilation_molar_flux)) + geom_point() + geom_point(data=result, mapping = aes(x=solar,y=canopy_assimilation_molar_flux), color = 'red') + theme_bw()
+
+sum(result$canopy_assimilation_molar_flux)

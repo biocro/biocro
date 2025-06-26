@@ -99,8 +99,8 @@ class c3_canopy : public direct_module
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
           windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
-          leaf_n_profile{get_profile(input_quantities, "leaf_n_profile")},
-        vcmax_n_fraction{get_profile(input_quantities, "vcmax_n_fraction")},
+          jmax_fraction{get_profile(input_quantities, "jmax_fraction")},
+          vcmax_fraction{get_profile(input_quantities, "vcmax_fraction")},
 
 
           // Get pointers to output quantities
@@ -180,8 +180,8 @@ class c3_canopy : public direct_module
     double const& windspeed_height;
 
 
-    std::vector<const double*> leaf_n_profile;
-    std::vector<const double*> vcmax_n_fraction;
+    std::vector<const double*> jmax_fraction;
+    std::vector<const double*> vcmax_fraction;
 
 
     // Pointers to output quantities
@@ -263,8 +263,8 @@ string_vector c3_canopy::get_inputs()
 
     for (size_t i = 0; i < nlayers__; ++i) {
 
-        out.push_back("vcmax_n_fraction_" + std::to_string(i));
-        out.push_back("leaf_n_profile_" + std::to_string(i));
+        out.push_back("vcmax_fraction_" + std::to_string(i));
+        out.push_back("jmax_fraction_" + std::to_string(i));
     }
     return out;
 }
@@ -353,16 +353,14 @@ void c3_canopy::do_operation() const
 
     double gbw_guess{1.2};  // mol / m^2 / s
 
-    double nclass = 2 * nlayers__ ;
     for (size_t i = 0; i < nlayers__; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         size_t current_layer = nlayers__ - 1 - i;
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
-        double u = *vcmax_n_fraction[current_layer];
-        double f = *leaf_n_profile[current_layer];
-        double Vcmax_at_25_ = Vcmax_at_25  * nclass * leaf_n_relative * u * f;
-        double Jmax_at_25_ = Jmax_at_25  * nclass * leaf_n_relative * (1 - u) * f;
+
+        double Vcmax_at_25_ = Vcmax_at_25  * nlayers * (*vcmax_fraction[current_layer]);
+        double Jmax_at_25_ = Jmax_at_25  * nlayers * (*jmax_fraction[current_layer]);
 
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
