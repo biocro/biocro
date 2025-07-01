@@ -71,7 +71,6 @@ class c3_canopy : public direct_module
           leaf_reflectance_par{get_input(input_quantities, "leaf_reflectance_par")},
           leaf_transmittance_nir{get_input(input_quantities, "leaf_transmittance_nir")},
           leaf_transmittance_par{get_input(input_quantities, "leaf_transmittance_par")},
-          leaf_n_relative{get_input(input_quantities, "leaf_n_relative")},
           leaf_width{get_input(input_quantities, "leaf_width")},
           O2{get_input(input_quantities, "O2")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
@@ -150,7 +149,6 @@ class c3_canopy : public direct_module
     double const& leaf_reflectance_par;
     double const& leaf_transmittance_nir;
     double const& leaf_transmittance_par;
-    double const& leaf_n_relative;
     double const& leaf_width;
     double const& O2;
     double const& par_energy_content;
@@ -359,8 +357,8 @@ void c3_canopy::do_operation() const
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
 
-        double Vcmax_at_25_ = Vcmax_at_25  * nlayers * (*vcmax_fraction[current_layer]);
-        double Jmax_at_25_ = Jmax_at_25  * nlayers * (*jmax_fraction[current_layer]);
+        double Vcmax_at_25_ = Vcmax_at_25  * nlayers__ * (*vcmax_fraction[current_layer]);
+        double Jmax_at_25_ = Jmax_at_25  * nlayers__ * (*jmax_fraction[current_layer]);
 
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
