@@ -130,6 +130,7 @@ FvCB_outputs FvCB_assim(
 {
     // Initialize
     FvCB_outputs result;
+    result.RL = RL;
 
     // Calculate rates
     if (Ci <= 0.0) {
@@ -190,6 +191,7 @@ FvCB_outputs FvCB_assim(
         result.Wj = Wj;                 // micromol / m^2 / s
         result.Wp = Wp;                 // micromol / m^2 / s
     }
+    result.Rp = Result.Vc * Gstar / Ci;
 
     return result;
 }

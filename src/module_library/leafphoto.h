@@ -178,52 +178,158 @@ inline double solo(
 }
 
 struct leaf_photo {
+    struct param_t {
+        c3_param_at_tleaf c3_param;
+
+    };
+
     struct result_t {
-        double Assim;       //!< Net CO2 assimilation rate (micromol / m^2 / s)
+        double assim;       //!< Net CO2 assimilation rate (micromol / m^2 / s)
         double Ci;          //!< CO2 concentration in intercellular spaces (micromol / mol)
         double Cs;          //!< CO2 concentration at the leaf surface (micromol / mol)
-        double GrossAssim;  //!< Gross CO2 assimilation rate (micromol / m^2 / s)
+        double gross_assim;  //!< Gross CO2 assimilation rate (micromol / m^2 / s)
         double Gs;          //!< Stomatal conductance to water vapor (mol / m^2 / s)
         double RHs;         //!< Relative humidity at the leaf surface (dimensionless)
         double RL;          //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
         double Rp;          //!< Rate of photorespiration (micromol / m^2 / s)
+        double gbw;            //!< Total boundary layer conductance to water vapor, for mass fluxes (m / s)
+        double gbw_canopy;     //!< Canopy boundary layer conductance to water vapor, for mass fluxes (m / s)
+        double gbw_leaf;       //!< Leaf boundary layer conductance to water vapor, for mass fluxes (m / s)
+        double gbw_molecular;  //!< Total boundary layer conductance to water vapor, for molecular fluxes (mol / m^2 / s)
+        double gsw;            //!< Stomatal conductance to water vapor, for mass fluxes (m / s)
+        double transpiration;         //!< Transpiration rate (mmol / m^2 / s)
+
     };
 
-    result_t out;
-    FvCB_outputs FvCB_res;
-    stomata_outputs BB_res;
+    struct env_t {
+        double temp;
+        double co2;
+    };
 
-    double ci_balance(double Ci, double temp_leaf)
-    {
+    FvCB_outputs photo;
+    stomata_outputs stomata;
+
+    env_t ambient;
+    env_t residual;
+    result_t out;
+
+
+
+    env_t& balance(env_t leaf){
+        // Calculate values of key parameters at leaf temperature
+        c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, leaf.temp);
+
+        double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
+        double const Gstar = c3_param.Gstar;                     // micromol / mol
+        double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;     // micromol / m^2 / s
+        double const Kc = c3_param.Kc;                           // micromol / mol
+        double const Ko = c3_param.Ko;                           // mmol / mol
+        double const RL = RL_at_25 * c3_param.RL_norm;           // micromol / m^2 / s
+        double const theta = c3_param.theta;                     // dimensionless
+        double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
+        double const Vcmax = Vcmax_at_25 * c3_param.Vcmax_norm;  // micromol / m^2 / s
+
+        // The variable that we call `I2` here has been described as "the useful
+        // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
+        // maximum fraction of incident quanta that could be utilized in electron
+        // transport" (Bernacchi et al. (2003)). Here we calculate its value using
+        // Equation 3 from Bernacchi et al. (2003), except that we have replaced the
+        // factor `Q * alpha_leaf` (the product of the incident PPFD `Q` and the
+        // leaf absorptance) with the absorbed PPFD, as this is clearly the intended
+        // meaning of the `Q * alpha_leaf` factor. See also Equation 8 from the
+        // original FvCB paper, where `J` (equivalent to our `I2`) is proportional
+        // to the absorbed PPFD rather than the incident PPFD.
+        if (absorbed_ppfd < 0) throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
+        double I2 = absorbed_ppfd * dark_adapted_phi_PSII * beta_PSII;  // micromol / m^2 / s
+
+        double const J =
+            (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4.0 * theta * I2 * Jmax)) /
+            (2.0 * theta);  // micromol / m^2 / s
+
+        double const Oi = O2 * solo(leaf.temp);  // mmol / mol
+
+        // The alpha constant for calculating Ap is from Eq. 2.26, von Caemmerer, S.
+        // Biochemical models of leaf photosynthesis.
+        double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
+
+        // Adjust Ball-Berry parameters in response to water stress
+        double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
+        double const b1_adj = StomWS * b1;
+
+
         // Using Ci compute the assim under the FvCB
-        FvCB_res = FvCB_assim(
+        photo = FvCB_assim(
             Ci, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
             electrons_per_carboxylation,
             electrons_per_oxygenation);
-        out.Assim = FvCB_res.An;
+
         // If assim is correct, then Ball Berry gives the correct
         // CO2 at leaf surface (Cs) and correct stomatal conductance
-        BB_res = ball_berry_gs(
-            Assim * 1e-6,
-            Ca * 1e-6,
+        stomata = ball_berry_gs(
+            photo.An * 1e-6,
+            ambient.co2 * 1e-6,
             RH,
             b0_adj,
             b1_adj,
-            gbw,
-            temp_leaf,
-            Tambient);
+            gbw_molar,
+            leaf.temp,
+            ambient.temp);
 
-        Gs = BB_res.gsw;  // mol / m^2 / s
 
         // Using the value of stomatal conductance,
         // Calculate Ci using the total conductance across the boundary layer
         // and stomata
-        double Gt = 1 / (dr_boundary / gbw + dr_stomata / Gs);  // micromol / mircromol / m^2 / s
+        double gtc = 1 / (dr_boundary / gbw + dr_stomata / BB_res.gsw);  // micromol / mircromol / m^2 / s
 
-        return Gt * (Ca - Ci) - Assim;  // equals zero if correct
+        residual.co2 = gtc * (ambient.co2 - leaf.co2) - Assim;  // equals zero if correct
+
+        // Get water vapor and air properties based on the air temperature
+        const double c_p = TempToCp(air_temperature);                                        // J / kg / K
+        const double lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
+
+        const double rho_ta = dry_air_density(air_temperature, air_pressure);                // kg / m^3
+        const double s = TempToSFS(air_temperature);                                         // kg / m^3 / K
+
+        // Get the pyschrometric parameter
+        const double gamma = rho_ta * c_p / lambda;  // kg / m^3 / K
+
+        const double p_w_sat_air = saturation_vapor_pressure(air_temperature);               // Pa
+        double p_w_air = p_w_sat_air * relative_humidity;  // Pa
+        double p_w_leaf = saturation_vapor_pressure(ambient.temp); //Pa
+        double vapor_pressure_diff = p_w_leaf - p_w_air; //Pa
+
+        // Get total absorbed light energy (longwave and shortwave)
+        double absorbed_radiation = absorbed_shortwave_energy + absorbed_longwave_energy;  // J / m^2 / s
+        // stefan-boltzmann law for blackbody radiation
+
+        double blackbody = physical_constants::stefan_boltzmann *
+                pow(conversion_constants::celsius_to_kelvin + leaf.temp, 4);  // J / m^2 / s
+                // Get stomatal conductance to water vapor as a mass conductance
+
+        double mv_tl = molar_volume(leaf.temp, air_pressure);  // m^3 / mol
+        double gsw_mass = stomata.gsw * mv_tl;                    // m / s
+        // Get leaf boundary layer conductance to water vapor
+        double delta_temp = leaf.temp - ambient.temp;
+        double gbw_leaf_mass = leaf_boundary_layer_conductance_nikolov(
+            ambient.temp,
+            delta_temp,
+            p_w_air,
+            gsw_mass,
+            leaf_width,
+            wind_speed,
+            air_pressure);  // m / s
+
+        // Get the boundary layer conductance and total conductance to water
+        // vapor
+        double gbw_mass = 1.0 / (1.0 / gbw_leaf_mass + 1.0 / gbw_canopy);  // m / s
+        double gw_mass  = 1.0 / (1.0 / gsw_mass + 1.0 / gbw_mass);               // m / s
+
+        double conduction = (rho_ta * c_p * gbw_mass) * delta_temp;
+        out.transpiration = gw_mass * vapor_pressure_diff;
+        double latent_heat_flux = lambda * transpiration;
+
+        residual.temp = absorbed_radiation - blackbody - conduction - latent_heat_flux;
+        return residual;
     }
 
-    double heat_balance(double temp_leaf)
-    {
-    }
 };

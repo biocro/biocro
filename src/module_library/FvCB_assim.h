@@ -13,6 +13,9 @@ struct FvCB_outputs {
     double Wc;  //!< Rubisco-limited RuBP carboxylation rate (micromol / m^2 / s)
     double Wj;  //!< RuBP-regeneration-limited RuBP carboxylation rate (micromol / m^2 / s)
     double Wp;  //!< TPU-limited RuBP carboxylation rate (micromol / m^2 / s)
+    double RL;  //!< Light respiration rate micromol / m^2 / s
+    double Rp;  //!< Photorespiration rate micromol / m^2 / s
+
 };
 
 FvCB_outputs FvCB_assim(
