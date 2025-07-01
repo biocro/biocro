@@ -132,7 +132,7 @@ FvCB_outputs FvCB_assim(
     FvCB_outputs result;
 
     // Calculate rates
-    if (Ci == 0.0) {
+    if (Ci <= 0.0) {
         // RuBP-saturated net assimilation rate when Ci is 0
         double Ac0 =
             -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - RL;  // micromol / m^2 / s

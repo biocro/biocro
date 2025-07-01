@@ -4,7 +4,7 @@
 #include "photosynthesis_outputs.h"  // for photosynthesis_outputs
 
 photosynthesis_outputs c4photoC(
-    double const Qp,
+    double Qp,
     double const leaf_temperature,
     double const ambient_temperature,
     double const relative_humidity,
