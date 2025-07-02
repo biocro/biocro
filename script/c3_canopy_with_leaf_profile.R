@@ -50,6 +50,32 @@ result <- run_biocro(
     differential_module_names = soybean$differential_modules
 ) 
 
+
+sample_objective_function_graph <- function(n, mu, sd, drivers){
+    z <- rnorm(n * 20)
+    par <- mu  + sd * matrix(z, 20, n)
+    par <- abs(par)
+    par[1:10,] <- par[1:10,]/apply(par[1:10,],2, sum)
+    par[11:20,] <- par[11:20,]/apply(par[11:20, ],2, sum)
+    
+    flow <- partial_run_biocro(
+        initial_values = soybean$initial_values,
+        parameters = params,
+        drivers = drivers,
+        direct_module_names = soybean_direct,
+        differential_module_names = soybean$differential_modules,
+        arg_names = kronecker(c("jmax_fraction_", "vcmax_fraction_"), 0:9, paste0)
+    )
+    
+    objective_function <- function(x){
+        out <- flow_by_jv(x)
+        n <- nrow(out)
+        -out[n,'Grain'] # sum(x^2)
+    }
+    
+    data.frame(par = t(par), obj = apply(par, 2, objective_function))    
+}
+
 optimize <- function(drivers, par0=rep(0.1, 20)){
     print(drivers[['year']][1])
     flow <- partial_run_biocro(
@@ -120,13 +146,16 @@ cut_weather_data <- function(data, start_doy = 150, end_doy = 270, days = NULL){
     data[idx,]
 }
 
+
 t1 <- Sys.time()
-short_weather <- lapply(weather, cut_weather_data)
-test <- lapply(short_weather, optimize)
-# soyweather_result <- lapply(soybean_weather, optimize)
+growing_season <- lapply(weather, cut_weather_data)
+# soybean_weather_result <- lapply(soybean_weather, optimize)
+weather_result <- lapply(growing_season, optimize)
 t2 <- Sys.time()
 t2-t1
-# 
+save(weather_result,file=".rdata")
+
+# save(soyweather_result, file=".rdata")
 # flow_by_jv <- partial_run_biocro(
 #     initial_values = soybean$initial_values,
 #     parameters = params,
