@@ -33,7 +33,7 @@ baseline <- run_biocro(
 )
 
 # plot baseline 
-plt <- ggplot(baseline,aes(time, Grain)) + geom_line()
+plt <- ggplot(baseline,aes(time, Leaf)) + geom_line()
 plt 
 
 soybean_direct <- append(
@@ -50,37 +50,117 @@ result <- run_biocro(
     differential_module_names = soybean$differential_modules
 ) 
 
-flow_by_jv <- partial_run_biocro(
-    initial_values = soybean$initial_values,
-    parameters = params,
-    drivers = soybean_weather[['2006']],
-    direct_module_names = soybean_direct,
-    differential_module_names = soybean$differential_modules,
-    arg_names = kronecker(c("jmax_fraction_", "vcmax_fraction_"), 0:9, paste0)
-)
-objective_function <- function(x){
-    out <- flow_by_jv(x)
-    n <- nrow(out)
-    -out[n,'Grain']
-}
-equality_constraint <- function(x){
-    c(sum(x[1:10]), sum(x[11:20])) - 1
-}
-par <- rep(0.1, 20)
-objective_function(par)
-equality_constraint((par))
-opt <- nloptr::nloptr(
-    x0 = par,
-    eval_f = objective_function,
-    eval_g_eq = equality_constraint,
-    lb = rep(0, 20),
-    opts = list(
+optimize <- function(drivers, par0=rep(0.1, 20)){
+    print(drivers[['year']][1])
+    flow <- partial_run_biocro(
+        initial_values = soybean$initial_values,
+        parameters = params,
+        drivers = drivers,
+        direct_module_names = soybean_direct,
+        differential_module_names = soybean$differential_modules,
+        arg_names = kronecker(c("jmax_fraction_", "vcmax_fraction_"), 0:9, paste0)
+    )    
+    
+    objective_function <- function(x){
+        out <- flow_by_jv(x)
+        n <- nrow(out)
+        -out[n,'Grain'] # sum(x^2)
+    }
+    
+    equality_constraint <- function(x){
+        c(sum(x[1:10]), sum(x[11:20])) - 1
+    }
+    
+    lb <- rep(0, 20)
+    
+    opts <- list(
         algorithm = "NLOPT_LN_COBYLA",
-        maxeval = 200,
-        print_level = 3)
-)
+        maxeval = 3000,
+        xtol_rel = 1.0e-4,
+        xtol_abs = 1e-7,
+        maxtime = 600,
+        print_level = 3
+    )
+    
+    sol <- nloptr::nloptr(
+        x0 = par0,
+        eval_f = objective_function,
+        eval_g_eq = equality_constraint,
+        lb = lb,
+        opts = opts   
+    )
+    
+    return(sol)
+}
 
-result <- flow_by_jv(opt$solution)
-plt + geom_line(data=result, mapping = aes(x=time,y=Grain), color = 'red') + theme_bw()
-by_height <- data.frame(height = rep(0:9, 2), param = rep(c("jmax", "vcmax") ,each= 10) , value = opt$solution)
-lattice::xyplot(value ~ height, group = param , by_height, type=c('l','p'), grid=T, xlab= "Layer", ylab = "Fraction", auto.key=TRUE)
+process_optimizations <- function(result){
+    msgs <- lapply(result, function(x)x$message)
+    ys <- names(result)
+    nyear <- length(ys)
+    years <- rep(ys, each=20)
+    
+    Jmax <- params$Jmax_at_25
+    Vcmax <- params$Vcmax_at_25 
+    
+    df= data.frame(
+        layer = rep(0:9, 2 * nyear), 
+        year = years,
+        param = rep(rep(c("Jmax", "Vcmax"), each = 10), nyear),
+        fraction = lapply(result, \(x){x$solution}) |> unlist()
+        )
+    df['value'] <-  10 * rep(rep( c(Jmax,Vcmax), each=10), nyear) *  df[['fraction']]
+    list(messages = msgs, results = df )
+}
+
+cut_weather_data <- function(data, start_doy = 150, end_doy = 270, days = NULL){
+    if(!is.null(days)){
+        end_doy <- start_doy + days
+    }
+    idx <- (data[['doy']] >= start_doy) & (data[['doy']] <= end_doy)
+    data[idx,]
+}
+
+t1 <- Sys.time()
+short_weather <- lapply(weather, cut_weather_data)
+test <- lapply(short_weather, optimize)
+# soyweather_result <- lapply(soybean_weather, optimize)
+t2 <- Sys.time()
+t2-t1
+# 
+# flow_by_jv <- partial_run_biocro(
+#     initial_values = soybean$initial_values,
+#     parameters = params,
+#     drivers = soybean_weather[['2006']],
+#     direct_module_names = soybean_direct,
+#     differential_module_names = soybean$differential_modules,
+#     arg_names = kronecker(c("jmax_fraction_", "vcmax_fraction_"), 0:9, paste0)
+# )
+
+# 
+# opt <- nloptr::nloptr(
+#     x0 = par,
+#     eval_f = objective_function,
+#     eval_g_eq = equality_constraint,
+#     lb = rep(0, 20),
+#     opts = list(
+#         algorithm = "NLOPT_LN_COBYLA",
+#         # algorithm = "NLOPT_GN_ISRES",
+#         # algorithm = "NLOPT_LN_AUGLAG_EQ",
+#         # local_opts = list(algorithm = "NLOPT_LN_COBYLA",
+#         #                   maxeval = 2000,
+#         #                   xtol_rel   = 1.0e-7
+#         # ),
+#         maxeval = 2000,
+#         xtol_rel   = 1.0e-6,
+#         print_level = 3)
+# )
+# 
+# result <- flow_by_jv(opt$solution)
+plt + geom_line(data=result, mapping = aes(x=time,y=Leaf), color = 'red') + theme_bw()
+
+ggplot(soyres$results, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
+# cmat <- rbind(rep(c(1,0),each=10), rep(c(0,1), each=10))
+# opt <- stats::constrOptim(par, objective_function, ui = cmat, ci = rep(1,2))
+
+
+
