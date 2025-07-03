@@ -1,7 +1,7 @@
 #ifndef C3_CANOPY_H
 #define C3_CANOPY_H
 
-#include <cmath>                      // For floor
+#include <cmath>  // For floor
 #include <vector>
 #include <string>
 
@@ -10,12 +10,12 @@
 #include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 #include "c3_temperature_response.h"  // for c3_temperature_response_parameters
-#include "BioCro.h"                  // for WINDprof
-#include "c3photo.h"                 // for c3photoC
-#include "leaf_energy_balance.h"     // for leaf_energy_balance
-#include "lightME.h"                 // for lightME
-#include "respiration.h"             // for growth_resp
-#include "sunML.h"                   // for sunML
+#include "BioCro.h"                   // for WINDprof
+#include "c3photo.h"                  // for c3photoC
+#include "leaf_energy_balance.h"      // for leaf_energy_balance
+#include "lightME.h"                  // for lightME
+#include "respiration.h"              // for growth_resp
+#include "sunML.h"                    // for sunML
 #include "c3CanAC.h"
 
 namespace standardBML
@@ -23,11 +23,12 @@ namespace standardBML
 
 const size_t nlayers__ = 10;
 
-std::vector<const double*> get_profile( state_map const&input_quantities, std::string variable){
+std::vector<const double*> get_profile(state_map const& input_quantities, std::string variable)
+{
     std::vector<const double*> out;
     out.reserve(nlayers__);
     for (size_t i = 0; i < nlayers__; ++i)
-        out.emplace_back( get_ip(input_quantities, variable + "_" + std::to_string(i) ) );
+        out.emplace_back(get_ip(input_quantities, variable + "_" + std::to_string(i)));
     return out;
 }
 
@@ -100,7 +101,6 @@ class c3_canopy : public direct_module
           windspeed_height{get_input(input_quantities, "windspeed_height")},
           jmax_fraction{get_profile(input_quantities, "jmax_fraction")},
           vcmax_fraction{get_profile(input_quantities, "vcmax_fraction")},
-
 
           // Get pointers to output quantities
           canopy_assimilation_molar_flux_op{get_op(output_quantities, "canopy_assimilation_molar_flux")},
@@ -177,10 +177,8 @@ class c3_canopy : public direct_module
     double const& windspeed;
     double const& windspeed_height;
 
-
     std::vector<const double*> jmax_fraction;
     std::vector<const double*> vcmax_fraction;
-
 
     // Pointers to output quantities
     double* canopy_assimilation_molar_flux_op;
@@ -224,43 +222,41 @@ string_vector c3_canopy::get_inputs()
         "Kc_Ea",                        // J / mol
         "Ko_c",                         // dimensionless
         "Ko_Ea",                        // J / mol
-        "lai",                     // dimensionless
-        "leaf_reflectance_nir",    // dimensionless
-        "leaf_reflectance_par",    // dimensionless
-        "leaf_transmittance_nir",  // dimensionless
-        "leaf_transmittance_par",  // dimensionless
-        "leaf_n_relative",      //dimensionless
-        "leaf_width",            // m
-        "O2",                   // mmol / mol
-        "par_energy_content",   // J / micromol
-        "par_energy_fraction",  // dimensionless
-        "phi_PSII_0",           // dimensionless
-        "phi_PSII_1",           // (degrees C)^(-1)
-        "phi_PSII_2",           // (degrees C)^(-2)
-        "rh",                   // dimensionless
-        "RL_at_25",             // micromol / m^2 / s
-        "RL_c",                 // dimensionless
-        "RL_Ea",                // J / mol
-        "solar",                // micromol / m^2 / s
-        "StomataWS",            // dimensionless
-        "temp",                 // degrees C
-        "theta_0",              // dimensionless
-        "theta_1",              // (degrees C)^(-1)
-        "theta_2",              // (degrees C)^(-2)
-        "Tp_at_25",             // micromol / m^2 / s
-        "Tp_c",                 // dimensionless
-        "Tp_Ha",                // J / mol
-        "Tp_Hd",                // J / mol
-        "Tp_S",                 // J / K / mol
-        "Vcmax_at_25",          // micromol / m^2 / s
-        "Vcmax_c",              // dimensionless
-        "Vcmax_Ea",             // J / mol
-        "windspeed",            // m / s
-        "windspeed_height"      // m
+        "lai",                          // dimensionless
+        "leaf_reflectance_nir",         // dimensionless
+        "leaf_reflectance_par",         // dimensionless
+        "leaf_transmittance_nir",       // dimensionless
+        "leaf_transmittance_par",       // dimensionless
+        "leaf_width",                   // m
+        "O2",                           // mmol / mol
+        "par_energy_content",           // J / micromol
+        "par_energy_fraction",          // dimensionless
+        "phi_PSII_0",                   // dimensionless
+        "phi_PSII_1",                   // (degrees C)^(-1)
+        "phi_PSII_2",                   // (degrees C)^(-2)
+        "rh",                           // dimensionless
+        "RL_at_25",                     // micromol / m^2 / s
+        "RL_c",                         // dimensionless
+        "RL_Ea",                        // J / mol
+        "solar",                        // micromol / m^2 / s
+        "StomataWS",                    // dimensionless
+        "temp",                         // degrees C
+        "theta_0",                      // dimensionless
+        "theta_1",                      // (degrees C)^(-1)
+        "theta_2",                      // (degrees C)^(-2)
+        "Tp_at_25",                     // micromol / m^2 / s
+        "Tp_c",                         // dimensionless
+        "Tp_Ha",                        // J / mol
+        "Tp_Hd",                        // J / mol
+        "Tp_S",                         // J / K / mol
+        "Vcmax_at_25",                  // micromol / m^2 / s
+        "Vcmax_c",                      // dimensionless
+        "Vcmax_Ea",                     // J / mol
+        "windspeed",                    // m / s
+        "windspeed_height"              // m
     };
 
     for (size_t i = 0; i < nlayers__; ++i) {
-
         out.push_back("vcmax_fraction_" + std::to_string(i));
         out.push_back("jmax_fraction_" + std::to_string(i));
     }
@@ -339,7 +335,6 @@ void c3_canopy::do_operation() const
     std::vector<double> wind_speed_profile(nlayers__);
     WINDprof(windspeed, lai, wind_speed_profile);  // Modifies wind_speed_profile
 
-
     double CanopyA{0.0};             // micromol / m^2 / s
     double GCanopyA{0.0};            // micromol / m^2 / s
     double canopy_rp{0.0};           // micromol / m^2 / s
@@ -357,9 +352,8 @@ void c3_canopy::do_operation() const
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
 
-        double Vcmax_at_25_ = Vcmax_at_25  * nlayers__ * (*vcmax_fraction[current_layer]);
-        double Jmax_at_25_ = Jmax_at_25  * nlayers__ * (*jmax_fraction[current_layer]);
-
+        double Vcmax_at_25_ = Vcmax_at_25 * (*vcmax_fraction[current_layer]);
+        double Jmax_at_25_ = Jmax_at_25 * (*jmax_fraction[current_layer]);
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -469,17 +463,15 @@ void c3_canopy::do_operation() const
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     double constexpr cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-
     // Update the output quantity list
-    update(canopy_assimilation_molar_flux_op, CanopyA - whole_plant_gr);                      // micromol / m^2 / s
+    update(canopy_assimilation_molar_flux_op, CanopyA - whole_plant_gr);   // micromol / m^2 / s
     update(canopy_conductance_op, canopy_conductance);                     // mol / m^2 / s
-    update(canopy_gross_assimilation_molar_flux_op, GCanopyA);           // micromol / m^2 / s
-    update(canopy_non_photorespiratory_CO2_release_rate_op, canopy_RL);           // micromol / m^2 / s
-    update(canopy_photorespiration_molar_flux_op, canopy_rp);                     // micromol / m^2 / s
-    update(canopy_transpiration_rate_op,  CanopyT * cf2);                           // Mg / ha / hr
+    update(canopy_gross_assimilation_molar_flux_op, GCanopyA);             // micromol / m^2 / s
+    update(canopy_non_photorespiratory_CO2_release_rate_op, canopy_RL);    // micromol / m^2 / s
+    update(canopy_photorespiration_molar_flux_op, canopy_rp);              // micromol / m^2 / s
+    update(canopy_transpiration_rate_op, CanopyT * cf2);                   // Mg / ha / hr
     update(whole_plant_growth_respiration_molar_flux_op, whole_plant_gr);  // micromol / m^2 / s
 }
-
 
 }  // namespace standardBML
 #endif
