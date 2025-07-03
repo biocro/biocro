@@ -53,7 +53,7 @@ optimize <- function(weather_data, par0=rep(1, 20), model){
     -out[n,'Grain']  # +  1e-2 * sum(c^2)
   }
   
-  equality_constraint <- function(x){
+  no_exchange_constraint <- function(x){
     
     list(
       constraints = c(
@@ -65,6 +65,11 @@ optimize <- function(weather_data, par0=rep(1, 20), model){
     # sum(x) - 20
   }
   
+  
+  exchange_constraint <- function(x){
+     sum(x) - 20
+  }
+  
   lb <- rep(0, 20)
   
   opts <- list(
@@ -72,14 +77,13 @@ optimize <- function(weather_data, par0=rep(1, 20), model){
     maxeval = 3000,
     xtol_rel = 1.0e-6,
     xtol_abs = 1e-7,
-    # maxtime = 600,
     print_level = 3
   )
   
   sol <- nloptr::nloptr(
     x0 = par0,
     eval_f = objective_function,
-    eval_g_eq = equality_constraint,
+    eval_g_eq = no_exchange_constraint,
     lb = lb,
     opts = opts   
   )
@@ -96,15 +100,16 @@ cut_weather_data <- function(data, start_doy = 150, end_doy = 270, days = NULL){
 }
 
 model <- create_soybean_model()
-
+model$parameters <- within(model$parameters, Catm <- 2 * Catm)
+  
 cl <- parallel::makeCluster(getOption("cl.cores", 4))
 t1 <- Sys.time()
 #soybean_weather_result <- lapply(soybean_weather, optimize, model=model)
-soybean_weather_result <- parallel::parLapply(cl, BioCro::soybean_weather, optimize, model=model)
+soybean_weather_result_high_co2 <- parallel::parLapply(cl, BioCro::soybean_weather, optimize, model=model)
 t2 <- Sys.time()
 parallel::stopCluster(cl)
 t2-t1
-save(soybean_weather_result,file="soybean_weather_result.rdata")
+save(soybean_weather_result_high_co2, file="soybean_weather_result_high_co2.rdata")
 
 # 
 # growing_season <- lapply(weather, cut_weather_data)

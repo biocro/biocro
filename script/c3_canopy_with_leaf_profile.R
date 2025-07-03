@@ -86,8 +86,9 @@ get_ratio <- function(result){
 load(file="weather_result.rdata")
 load(file="biocro/script/soybean_weather_result.rdata")
 
-load(file="biocro/script/soybean_weather_result_par.rdata")
+load(file="biocro/script/soybean_weather_result_exchange.rdata")
 
+load(file="biocro/script/soybean_weather_result_high_co2.rdata")
 
 res <- process_optimizations(soybean_weather_result)
 
@@ -95,7 +96,8 @@ plt + geom_line(data=result, mapping = aes(x=time,y=Leaf), color = 'red') + them
 
 qlt <- ggplot(soyres_neldermead$results, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
 ggplot(res, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
-
+ggplot(resex, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
+ggplot(resd, aes(layer, value, color = exchange)) + geom_point() + geom_line() + theme_bw() +facet_grid(cols = vars(param),rows=vars(year))
 
 
 
