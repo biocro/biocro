@@ -102,6 +102,7 @@ t1 <- Sys.time()
 #soybean_weather_result <- lapply(soybean_weather, optimize, model=model)
 soybean_weather_result <- parallel::parLapply(cl, BioCro::soybean_weather, optimize, model=model)
 t2 <- Sys.time()
+parallel::stopCluster(cl)
 t2-t1
 save(soybean_weather_result,file="soybean_weather_result.rdata")
 
