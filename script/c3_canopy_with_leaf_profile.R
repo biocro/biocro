@@ -40,7 +40,7 @@ result <- run_biocro(
 ) 
 
 process_optimizations <- function(result){
-    msgs <- lapply(result, function(x)x$message)
+   
     ys <- names(result)
     nyear <- length(ys)
     years <- rep(ys, each=20)
@@ -56,7 +56,7 @@ process_optimizations <- function(result){
         )
     
     df['value'] <-rep(rep( c(Jmax,Vcmax), each=10), nyear) *  df[['fraction']]
-    list(messages = msgs, results = df )
+    df
 }
 
 
@@ -83,14 +83,18 @@ get_ratio <- function(result){
 
 
 
-read(file="weather_result.rdata")
-read(file="soybean_weather_result.rdata")
+load(file="weather_result.rdata")
+load(file="biocro/script/soybean_weather_result.rdata")
 
+load(file="biocro/script/soybean_weather_result_par.rdata")
+
+
+res <- process_optimizations(soybean_weather_result)
 
 plt + geom_line(data=result, mapping = aes(x=time,y=Leaf), color = 'red') + theme_bw()
 
 qlt <- ggplot(soyres_neldermead$results, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
-ggplot(s, aes(layer, value, color = method)) + geom_point() + geom_line() + theme_bw() + facet_grid(rows=vars(year), cols = vars(param)) + labs(y="micromol / m^2 / s")
+ggplot(res, aes(layer, value, color = year)) + geom_point() + geom_line() + theme_bw() + facet_grid(cols = vars(param)) + labs(y="micromol / m^2 / s")
 
 
 
