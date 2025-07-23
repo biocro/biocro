@@ -3,7 +3,7 @@
 #include "root_onedim.h"               // for root_finder
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure
 #include "boundary_layer_conductance.h"
-
+#include <iomanip>
 /**
  *  @brief Calculates the conductance for water vapor flow from the leaf across
  *  its boundary layer using a model described in Nikolov, Massman, and
@@ -108,7 +108,7 @@ double leaf_boundary_layer_conductance_nikolov(
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_gbv_free,
-        0,   // first guess
+        0.0001,   // first guess
         0,   // lower bound of initial bracket
         0.5  // upper bound of initial bracket
     );
@@ -116,8 +116,8 @@ double leaf_boundary_layer_conductance_nikolov(
     // Throw exception if not converged
     if (!root_algorithm::is_successful(result.flag)) {
         throw std::runtime_error(
-            "gbv_free solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+           root_algorithm::error_message(result,  "gbv_free solver reports failed convergence with termination flag")
+        );
     }
 
     // Get final value

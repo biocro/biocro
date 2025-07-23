@@ -4,6 +4,8 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 /**
  * A C++ library for solving 1D equations.
@@ -73,6 +75,7 @@ struct result_t {
     size_t iteration;
     Flag flag;
 };
+inline std::string error_message(const result_t& r, std::string prefix);
 
 /**
  * @class root_finder
@@ -1251,6 +1254,18 @@ std::string flag_message(Flag flag)
         default:
             return "Flag not recognized.";
     }
+}
+
+std::string error_message(const result_t& r, std::string prefix = ""){
+    std::stringstream out;
+    out << prefix << ":\n  ";
+    out << flag_message(r.flag) << "\n    ";
+    out << "Flag = " << static_cast<int>(r.flag) << "\n    ";
+    out << std::setprecision(20);
+    out << "Root = " << r.root << "\n    ";
+    out << "Residual = " << r.residual << "\n    ";
+    out << "Iteration = " << r.iteration << '\n';
+    return out.str();
 }
 
 }  // namespace root_algorithm
