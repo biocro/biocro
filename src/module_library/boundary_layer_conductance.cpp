@@ -3,7 +3,7 @@
 #include "root_onedim.h"               // for root_finder
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure
 #include "boundary_layer_conductance.h"
-#include <iomanip>
+
 /**
  *  @brief Calculates the conductance for water vapor flow from the leaf across
  *  its boundary layer using a model described in Nikolov, Massman, and
