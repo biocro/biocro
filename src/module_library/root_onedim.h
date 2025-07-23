@@ -205,17 +205,12 @@ inline std::string error_message(const result_t& r, std::string prefix);
  */
 template <typename Method>
 struct root_finder : public Method {
-    size_t max_iterations;
-    double _abs_tol;
-    double _rel_tol;
+    size_t max_iterations = 100;
+    double _abs_tol = 1e-12;
+    double _rel_tol = 1e-12;
 
-    root_finder() : max_iterations{100},
-                    _abs_tol{1e-10},
-                    _rel_tol{1e-8} {}
-
-    root_finder(size_t max_iter) : max_iterations{max_iter},
-                                   _abs_tol{1e-10},
-                                   _rel_tol{1e-8} {}
+    root_finder() = default;
+    root_finder(size_t max_iter) : max_iterations{max_iter}  {}
     root_finder(size_t max_iter, double abs_tol, double rel_tol)
         : max_iterations{max_iter},
           _abs_tol{abs_tol},
@@ -281,6 +276,7 @@ struct root_finder : public Method {
  * more slowly for non-simple roots (roots of multiplicity greater than 1).
  */
 struct secant {
+
     struct state {
         Flag flag;
         graph_t last;
