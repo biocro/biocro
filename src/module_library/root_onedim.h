@@ -204,24 +204,23 @@ inline std::string error_message(const result_t& r, std::string prefix);
  *
  */
 template <typename Method>
-struct root_finder : public Method {
+struct root_finder {
+    Method method;
     size_t max_iterations = 100;
-    double _abs_tol = 1e-12;
-    double _rel_tol = 1e-12;
+    double atol = 1e-12;
+    constexpr double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
 
     root_finder() = default;
-    root_finder(size_t max_iter) : max_iterations{max_iter}  {}
-    root_finder(size_t max_iter, double abs_tol, double rel_tol)
-        : max_iterations{max_iter},
-          _abs_tol{abs_tol},
-          _rel_tol{rel_tol} {}
+    root_finder(size_t max_iter) : max_iterations{max_iter} {}
+    root_finder(size_t max_iter, double abs_tol)
+        : max_iterations{max_iter}, atol{abs_tol} {}
 
     using state = typename Method::state;
 
     template <typename F, typename... Args>
     result_t solve(F&& func, Args&&... args)
     {
-        state s = Method::initialize(
+        state s = method.initialize(
             std::forward<F>(func), std::forward<Args>(args)...,
             _abs_tol, _rel_tol);
 
@@ -230,9 +229,9 @@ struct root_finder : public Method {
                 return make_result(s, i);
             }
 
-            s = Method::iterate(std::forward<F>(func), s, _abs_tol, _rel_tol);
+            s = method.iterate(std::forward<F>(func), s, _abs_tol, _rel_tol);
 
-            s = Method::check_convergence(s, _abs_tol, _rel_tol);
+            s = method.check_convergence(s, _abs_tol, _rel_tol);
         }
 
         s.flag = Flag::max_iterations;
@@ -246,9 +245,14 @@ struct root_finder : public Method {
     }
 
    private:
+    inline double tol(double x)
+    {
+        return dbl_eps * x + atol;
+    }
+
     inline result_t make_result(const state& s, size_t iteration)
     {
-        return result_t{Method::root(s), Method::residual(s), iteration, s.flag};
+        return result_t{method.root(s), method.residual(s), iteration, s.flag};
     }
 };
 
@@ -276,7 +280,6 @@ struct root_finder : public Method {
  * more slowly for non-simple roots (roots of multiplicity greater than 1).
  */
 struct secant {
-
     struct state {
         Flag flag;
         graph_t last;
@@ -298,14 +301,14 @@ struct secant {
     }
 
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline state& iterate(F&& fun, state& s)
     {
         auto& best = s.best;
         auto& last = s.last;
         double r = best.y / last.y;
         double p = (best.x - last.x) * r;
         double q = 1 - r;
-        if (is_zero(q, abs_tol)) {
+        if (q == 0) {
             s.flag = Flag::division_by_zero;
             return s;
         }
@@ -315,14 +318,14 @@ struct secant {
         return s;
     }
 
-    inline state& check_convergence(state& s, double abs_tol, double rel_tol)
+    inline state& check_convergence(state& s, double tol)
     {
-        if (is_zero(s.best.y, abs_tol)) {
+        if (is_zero(s.best.y, tol)) {
             s.flag = Flag::residual_zero;
             return s;
         }
 
-        if (is_close(s.last.x, s.best.x, abs_tol, rel_tol)) {
+        if (is_close(s.last.x, s.best.x, tol)) {
             s.flag = Flag::delta_root_zero;
             return s;
         }
@@ -551,7 +554,7 @@ struct steffensen : public one_step_method {
         double& x = s.x;
         double& y = s.y;
         double g = fun(x + y) / y - 1;
-        if (is_zero(g, abs_tol)) {
+        if (g == 0.0) {
             s.flag = Flag::division_by_zero;
             return s;
         }
@@ -1178,12 +1181,9 @@ struct dekker_newton : public contrapoint {
 
 // Helper function definitions.
 
-inline bool is_close(double x, double y, double tol, double rtol)
+inline bool is_close(double x, double y, double tol)
 {
-    using std::abs;
-    using std::max;
-    double norm = max(abs(x), abs(y));
-    return abs(x - y) <= max(tol, rtol * norm);
+    return is_zero(x - y, tol);
 }
 
 inline bool is_zero(double x, double tol)
@@ -1252,7 +1252,8 @@ std::string flag_message(Flag flag)
     }
 }
 
-std::string error_message(const result_t& r, std::string prefix = ""){
+std::string error_message(const result_t& r, std::string prefix = "")
+{
     std::stringstream out;
     out << prefix << ":\n  ";
     out << flag_message(r.flag) << "\n    ";
