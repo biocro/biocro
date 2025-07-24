@@ -17,10 +17,7 @@ namespace root_algorithm
 /**
  * @brief Used to hold points `(x, f(x))` on the graph of the function.
  */
-struct graph_t {
-    double x;
-    double y;
-};
+
 
 // Helper function declarations
 inline bool is_close(
@@ -30,8 +27,7 @@ inline bool same_signs(double x, double y);            // true if sign(x) == sig
 inline bool opposite_signs(double x, double y);        // true if sign(x) != sign(y)
 inline bool smaller(double x, double y);               // true if |x| < |y|
 inline bool is_between(double x, double a, double b);  // true if `x` is `[a,b]`
-inline double get_midpoint(const graph_t& a, const graph_t& b);
-inline double get_secant_update(const graph_t& a, const graph_t& b);
+
 
 // For error handling. These flags indicate the reason for termination.
 enum class Flag {
@@ -43,14 +39,11 @@ enum class Flag {
     invalid_bracket,
     division_by_zero,
     halley_no_cross,
-    bracket_fixed_point
+    bracket_fixed_point,
+    singularity,
+    non_finite_root
 };
 
-template <typename T>
-inline bool is_valid(T x)
-{
-    return x.flag == Flag::valid;
-}
 inline bool is_successful(Flag flag);
 inline std::string flag_message(Flag flag);
 
@@ -207,35 +200,27 @@ template <typename Method>
 struct root_finder {
     Method method;
     size_t max_iterations = 100;
-    double atol = 1e-12;
-    constexpr double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
 
     root_finder() = default;
     root_finder(size_t max_iter) : max_iterations{max_iter} {}
-    root_finder(size_t max_iter, double abs_tol)
-        : max_iterations{max_iter}, atol{abs_tol} {}
-
-    using state = typename Method::state;
+    root_finder(size_t max_iter, double abs_tol) : method{abs_tol}, max_iterations{max_iter} {}
 
     template <typename F, typename... Args>
     result_t solve(F&& func, Args&&... args)
     {
-        state s = method.initialize(
-            std::forward<F>(func), std::forward<Args>(args)...,
-            _abs_tol, _rel_tol);
+        method.initialize(std::forward<F>(func), std::forward<Args>(args)...);
 
         for (size_t i = 0; i < (max_iterations + 1); ++i) {
-            if (!is_valid(s)) {
-                return make_result(s, i);
+            if (method.flag() != Flag::valid) {
+                return make_result(i);
             }
 
-            s = method.iterate(std::forward<F>(func), s, _abs_tol, _rel_tol);
-
-            s = method.check_convergence(s, _abs_tol, _rel_tol);
+            method.iterate(std::forward<F>(func));
+            method.check_convergence();
         }
 
-        s.flag = Flag::max_iterations;
-        return make_result(s, max_iterations);
+        method.set_flag(Flag::max_iterations);
+        return make_result(max_iterations);
     }
 
     template <typename F, typename... Args>
@@ -245,18 +230,105 @@ struct root_finder {
     }
 
    private:
-    inline double tol(double x)
+
+    inline result_t make_result(size_t iteration)
     {
-        return dbl_eps * x + atol;
+        return result_t{method.root(), method.residual(), iteration, method.flag()};
     }
 
-    inline result_t make_result(const state& s, size_t iteration)
-    {
-        return result_t{method.root(s), method.residual(s), iteration, s.flag};
-    }
 };
 
-// Householder and multistep methods
+struct method_base {
+
+    struct graph_t {
+        double x;
+        double y;
+    };
+
+        double atol = 1e-12;
+        double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
+        Flag _flag;
+
+        method_base(double a) : atol{a} {}
+
+        inline bool is_zero(double x){
+            return std::abs(x) <= atol;
+        }
+
+        inline bool is_zero(const graph_t& a){
+            return std::abs(a.y) <= atol;
+        }
+
+        inline bool is_close(const graph_t& a, const graph_t& b)
+        {
+
+            return std::hypot(a.x - b.x, a.y - b.y) <= get_tol(get_midpoint(a, b));
+        }
+
+        inline bool is_divide_by_zero(double x){
+            bool _is_zero = is_zero(x);
+            if (_is_zero){
+                set_flag(Flag::division_by_zero);
+            }
+            return _is_zero;
+        }
+
+        inline bool is_same_sign(double x, double y) {
+            return x * y > 0;
+        }
+
+        inline bool is_same_sign(const graph_t& a, const graph_t& b){
+            return is_same_sign(a.y, b.y);
+        }
+
+        inline bool is_opposite_sign(double x, double y){
+            return x * y < 0;
+        }
+
+        inline bool is_opposite_sign(const graph_t& a, const graph_t& b)
+        {
+            return is_opposite_sign(a.y, b.y);
+        }
+
+        inline bool smaller(double x, double y)
+        {
+            return std::abs(x) < std::abs(y);
+        }
+
+        inline bool is_between(double x, double a, double b)
+        {
+            return ((x >= a) && (x <= b)) || ((x <= a) && (x >= b));
+        }
+
+
+        inline double get_midpoint(const graph_t& a, const graph_t& b)
+        {
+            return 0.5 * (a.x + b.x);
+        }
+
+        inline double get_secant_update(const graph_t& a, const graph_t& b)
+        {
+            double r = b.y / a.y;
+            double p = (b.x - a.x) * r;
+            double q = 1 - r;
+            if (is_divide_by_zero(q)) {return b.x;}
+            return b.x + p / q;
+        }
+
+        Flag flag(){
+            return _flag;
+        }
+
+        void set_flag(Flag f){
+            _flag = f;
+        }
+
+        inline double get_tol(double x){
+            return dbl_eps * std::abs(x) + atol;
+        }
+
+};
+
 
 /**
  * @brief Secant Method. Provide two initial guesses for root.
@@ -279,83 +351,129 @@ struct root_finder {
  * the secant method to diverge or converge slowly. The second method also converges
  * more slowly for non-simple roots (roots of multiplicity greater than 1).
  */
-struct secant {
-    struct state {
-        Flag flag;
-        graph_t last;
-        graph_t best;
-    };
+struct secant : method_base {
+
+    graph_t last;
+    graph_t best;
+
+    secant(double atol) : method_base{atol} {}
 
     template <typename F>
-    inline state initialize(F&& fun, double x0, double x1, double abs_tol, double rel_tol)
+    inline secant& initialize(F&& fun, double x0, double x1)
     {
-        graph_t first = {x0, fun(x0)};
-        graph_t second = {x1, fun(x1)};
-        if (is_zero(first.y, abs_tol)) {
-            return state{Flag::residual_zero, second, first};
+        last = {x0, fun(x0)};
+        best = {x1, fun(x1)};
+
+        if (is_zero(last)) {
+            std::swap(last, best);
+            set_flag(Flag::residual_zero);
+            return *this;
         }
-        if (is_zero(second.y, abs_tol)) {
-            return state{Flag::residual_zero, first, second};
+
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
-        return state{Flag::valid, first, second};
+
+        set_flag(Flag::valid);
+        return *this;
     }
 
     template <typename F>
-    inline state& iterate(F&& fun, state& s)
+    inline secant& iterate(F&& fun)
     {
-        auto& best = s.best;
-        auto& last = s.last;
-        double r = best.y / last.y;
-        double p = (best.x - last.x) * r;
-        double q = 1 - r;
-        if (q == 0) {
-            s.flag = Flag::division_by_zero;
-            return s;
-        }
-        last = best;
-        best.x += p / q;
+        std::swap(last, best);
+        best.x = get_secant_update(last, best);
         best.y = fun(best.x);
-        return s;
+        return *this;
     }
 
-    inline state& check_convergence(state& s, double tol)
+    inline secant& check_convergence()
     {
-        if (is_zero(s.best.y, tol)) {
-            s.flag = Flag::residual_zero;
-            return s;
+
+        if (is_zero(root())) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        if (is_close(s.last.x, s.best.x, tol)) {
-            s.flag = Flag::delta_root_zero;
-            return s;
+        if (!std::isfinite(root())){
+            set_flag(Flag::non_finite_root);
+            return *this;
         }
 
-        return s;
+        if (is_close(last, best)) {
+            set_flag(Flag::delta_root_zero);
+            return *this;
+        }
+
+        return *this;
     }
 
-    inline double root(const state& s)
+    inline double root()
     {
-        return s.best.x;
+        return best.x;
     }
 
-    inline double residual(const state& s)
+    inline double residual()
     {
-        return s.best.y;
+        return best.y;
     }
 };
 
+
+// Householder methods
+struct one_step_method : method_base {
+
+    graph_t best;
+
+    template <typename F>
+    inline one_step_method& initialize(F&& fun, double x0)
+    {
+        best = {x0, fun(x0)};
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
+        }
+        set_flag(Flag::valid);
+        return *this;
+    }
+
+    inline one_step_method& check_convergence()
+    {
+
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
+        }
+
+        if (!std::isfinite(root())){
+            set_flag(Flag::non_finite_root);
+        }
+
+        return *this;
+    }
+
+    inline double root()
+    {
+        return best.x;
+    }
+
+    inline double residual()
+    {
+        return best.y;
+    }
+};
 /**
  * @brief Fixed Point Method. Provide one initial guesses for root.
  *
  * @details WARNING: Do not use unless you know what you're doing.
  *
- * The fixed point iteration assumes that `f` is defined as
- * `f(x) = g(x) - x` and that `g` has a fixed point which is the desired root.
+ * The fixed point iteration assumes that repeated application of `f` converges
+ * to a fixed point such that `f(x) = x`.
  *
- * This method iterates the following function:
- * \f[x \mapsto x + f(x) = g(x) \f]
+ * This method tests for convergence by checking `|f(x) - x| < tol`.
  *
- * If `g` has a fixed point and if `g` is a contraction mapping `|g'(x)| < 1` for
+ * If `f` has a fixed point and if `f` is a contraction mapping `|f'(x)| < 1` for
  * all `x` in a neighborhood of the fixed point, then the sequence of iterates will
  * converge to the fixed point.
  *
@@ -363,89 +481,44 @@ struct secant {
  * for the CO2 concentrations, this method is provided for cross version comparisons.
  * However, its use is not recommended as all other methods are safer and faster!
  */
-struct fixed_point {
-    struct state {
-        Flag flag;
-        double x;
-        double y;
-    };
+struct fixed_point : one_step_method {
 
     template <typename F>
-    inline state initialize(F&& fun, double x0, double abs_tol, double rel_tol)
+    inline fixed_point& initialize(F&& fun, double x0)
     {
-        state s{Flag::valid, x0, fun(x0)};
-        if (is_zero(s.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
+        best = {x0, fun(x0)};
+        if (is_zero(best.y - best.x)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
-        return s;
+        set_flag(Flag::valid);
+        return *this;
     }
 
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
-    {
-        s.x += s.y;  // x + f(x) <-> x = g(x) if f(x) = g(x) - x
-        s.y = fun(s.x);
-        return s;
+    inline fixed_point& iterate(F&& fun){
+        best.y = fun(best.x);
+        return *this;
     }
 
-    inline state& check_convergence(state& s, double abs_tol, double rel_tol)
+    inline fixed_point& check_convergence()
     {
-        if (is_zero(s.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-            return s;
+
+        if (is_zero(best.y - best.x)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        return s;
+        if (!std::isfinite(best.x)){
+            set_flag(Flag::non_finite_root);
+        }
+
+        return *this;
     }
 
-    inline double root(const state& s)
-    {
-        return s.x;
-    }
 
-    inline double residual(const state& s)
-    {
-        return s.y;
-    }
 };
 
-// Householder methods
-// methods common to newton, halley, etc.
-struct one_step_method {
-    struct state {
-        Flag flag;
-        double x;
-        double y;
-    };
-
-    template <typename F>
-    state initialize(F&& fun, double x0, double abs_tol, double rel_tol)
-    {
-        double y0 = fun(x0);
-        if (is_zero(y0, abs_tol)) {
-            return state{Flag::residual_zero, x0, fun(x0)};
-        }
-        return state{Flag::valid, x0, fun(x0)};
-    }
-
-    inline state& check_convergence(state& s, double abs_tol, double rel_tol)
-    {
-        if (is_zero(s.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-        }
-        return s;
-    }
-
-    inline double root(const state& s)
-    {
-        return s.x;
-    }
-
-    inline double residual(const state& s)
-    {
-        return s.y;
-    }
-};
 
 /**
  * @brief Newton's Method. Provide a function object with `double derivative(double x)`
@@ -466,20 +539,20 @@ struct one_step_method {
  * use the secant method, rather than approximate the first derivative.
  *
  */
-struct newton : public one_step_method {
+struct newton : one_step_method {
+
+    //newton(double atol) : one_step_method(atol) {}
+
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline newton& iterate(F&& fun)
     {
-        double& x = s.x;
-        double& y = s.y;
-        double slope = fun.derivative(x);
-        if (is_zero(slope, abs_tol)) {
-            s.flag = Flag::division_by_zero;
-            return s;
+        double slope = fun.derivative(best.x);
+        if (is_divide_by_zero(slope)) {
+            return *this;
         }
-        x -= y / slope;
-        y = fun(x);
-        return s;
+        best.x -= best.y / slope;
+        best.y = fun(best.x);
+        return *this;
     }
 };
 
@@ -505,28 +578,23 @@ struct newton : public one_step_method {
  * quadratic of the Taylor series, using the Newton step to select a root of the
  * quadratic.
  */
-struct halley : public one_step_method {
+struct halley : one_step_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline halley& iterate(F&& fun)
     {
-        double& x = s.x;
-        double& y = s.y;
+        double& x = best.x;
+        double& y = best.y;
         double df = fun.derivative(x);
-        if (is_zero(df, abs_tol)) {
-            s.flag = Flag::division_by_zero;
-            return s;
+        if (is_divide_by_zero(df)){
+            return *this;
         }
         double df2 = fun.second_derivative(x);
         double a = y / df;
         double b = df2 / (2 * df);
         b *= a;
-        if (is_close(b, 1, abs_tol, rel_tol)) {
-            s.flag = Flag::halley_no_cross;
-            return s;
-        }
         x -= a / (1. - b);  // division by zero Only if no solution
         y = fun(x);
-        return s;
+        return *this;
     }
 };
 
@@ -547,20 +615,15 @@ struct halley : public one_step_method {
  * of convergence per function call is higher for the secant method.
  *
  */
-struct steffensen : public one_step_method {
+struct steffensen : one_step_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline steffensen& iterate(F&& fun)
     {
-        double& x = s.x;
-        double& y = s.y;
-        double g = fun(x + y) / y - 1;
-        if (g == 0.0) {
-            s.flag = Flag::division_by_zero;
-            return s;
-        }
-        x -= y / g;
-        y = fun(x);
-        return s;
+        double g = fun(best.x + best.y) / best.y - 1;
+        if (is_divide_by_zero(g)) {return *this;}
+        best.x -= best.y / g;
+        best.y = fun(best.x);
+        return *this;
     }
 };
 
@@ -578,96 +641,100 @@ struct steffensen : public one_step_method {
  * reaching the absolute tolerance. The `rel_tol` is only used to determine
  * whether or not the bracket of zero-width contains a zero, by testing continuity.
  */
-struct bracket_method {
-    struct state {
-        Flag flag;
-        graph_t left;
-        graph_t right;
-        graph_t proposal;
-    };
+struct bracket_method : method_base {
+
+    graph_t left;
+    graph_t right;
+    graph_t proposal;
+
 
     template <typename F>
-    state initialize(F&& fun, double a, double b, double abs_tol, double rel_tol)
+    bracket_method& initialize(F&& fun, double a, double b)
     {
-        state s;
-        s.left.x = a;
-        s.right.x = b;
-        s.left.y = fun(a);
-        s.right.y = fun(b);
-        s.proposal = s.left;
-        s.flag = Flag::valid;
+        left = {a, fun(a)};
+        right = {b , fun(b)};
+        proposal = left;
 
-        if (is_zero(s.left.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-            return s;
+        if (is_zero(left)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        if (is_zero(s.right.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-            s.proposal = s.right;
-            return s;
+        if (is_zero(right)) {
+            set_flag(Flag::residual_zero);
+            proposal = right;
+            return *this;
         }
 
-        if (same_signs(s.left.y, s.right.y)) {
-            s.flag = Flag::invalid_bracket;
-            return s;
+        if (is_same_sign(left, right)) {
+            set_flag(Flag::invalid_bracket);
+            return *this;
         }
 
-        return s;
+        set_flag(Flag::valid);
+        return *this;
     }
 
-    inline state& check_convergence(state& s, double abs_tol, double rel_tol)
+    inline bracket_method& check_convergence()
     {
-        bool zero_found = is_zero(s.proposal.y, abs_tol);
-        if (zero_found) {
-            s.flag = Flag::residual_zero;
-            return s;
+
+        if (is_zero(proposal)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        if (is_close(s.left.x, s.right.x, abs_tol, rel_tol)) {
-            s.flag = Flag::bracket_width_zero;
-            return s;
+        if (!std::isfinite(root())){
+            set_flag(Flag::non_finite_root);
+            return *this;
         }
 
-        return s;
+        if (is_bracket_width_zero()) {
+            set_flag(Flag::singularity);
+            return *this;
+        }
+
+        return *this;
     }
 
-    inline double root(const state& s)
+    inline double root()
     {
-        return s.proposal.x;
+        return proposal.x;
     }
 
-    inline double residual(const state& s)
+    inline double residual()
     {
-        return s.proposal.y;
+        return proposal.y;
     }
 
-    inline state& update_bracket(state& s)
+    inline bracket_method& update_bracket()
     {
-        if (same_signs(s.left.y, s.proposal.y)) {
-            s.left = s.proposal;
+        if (is_same_sign(left, proposal)) {
+            left = proposal;
         } else {
-            s.right = s.proposal;
+            right = proposal;
         }
-        return s;
+        return *this;
     }
 
     template <typename F>
-    inline state& midpoint_proposal(F&& fun, state& s)
+    inline bracket_method& midpoint_proposal(F&& fun)
     {
-        // division is safe if bracket is valid
-        s.proposal.x = get_midpoint(s.left, s.right);
-        s.proposal.y = fun(s.proposal.x);
-        return s;
+        proposal.x = get_midpoint(left, right);
+        proposal.y = fun(proposal.x);
+        return *this;
     }
 
     template <typename F>
-    inline state& secant_proposal(F&& fun, state& s)
+    inline bracket_method& secant_proposal(F&& fun)
     {
         // division is safe if bracket is valid
-        s.proposal.x = get_secant_update(s.left, s.right);
-        s.proposal.y = fun(s.proposal.x);
-        return s;
+        proposal.x = get_secant_update(left, right);
+        proposal.y = fun(proposal.x);
+        return *this;
+    }
+
+    inline double is_bracket_width_zero(){
+        return std::abs(left.x - right.x) <= dbl_eps * proposal.x;
     }
 };
 
@@ -707,11 +774,11 @@ struct bracket_method {
  */
 struct bisection : public bracket_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline bisection& iterate(F&& fun)
     {
-        s = midpoint_proposal(std::forward<F>(fun), s);
-        s = update_bracket(s);
-        return s;
+        midpoint_proposal(std::forward<F>(fun));
+        update_bracket();
+        return *this;
     }
 };
 
@@ -746,11 +813,11 @@ struct bisection : public bracket_method {
  */
 struct regula_falsi : public bracket_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline regula_falsi& iterate(F&& fun)
     {
-        s = secant_proposal(std::forward<F>(fun), s);
-        s = update_bracket(s);
-        return s;
+        secant_proposal(std::forward<F>(fun));
+        update_bracket();
+        return *this;
     }
 };
 
@@ -785,26 +852,22 @@ struct regula_falsi : public bracket_method {
  *   Cambridge University Press. https://numerical.recipes/book.html
  *
  */
-struct ridder : public bracket_method {
+struct ridder : bracket_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline ridder& iterate(F&& fun)
     {
-        s = midpoint_proposal(std::forward<F>(fun), s);
+        midpoint_proposal(std::forward<F>(fun));
 
-        double d = s.proposal.x - s.left.x;
-        double a = s.proposal.y / s.left.y;
-        double b = s.right.y / s.left.y;
+        double d = proposal.x - left.x;
+        double a = proposal.y / left.y;
+        double b = right.y / left.y;
         double denom = a * a - b;
-        if (is_zero(denom, abs_tol)) {
-            // is this state possible ? fall back to bisection
-            s.flag = Flag::division_by_zero;
-            return s;
-        }
+        if (is_divide_by_zero(denom)) {return *this; }
 
-        s.proposal.x += d * a / std::sqrt(denom);
-        s.proposal.y = fun(s.proposal.x);
-        s = update_bracket(s);
-        return s;
+        proposal.x += d * a / std::sqrt(denom);
+        proposal.y = fun(proposal.x);
+        update_bracket();
+        return *this;
     }
 };
 
@@ -812,16 +875,16 @@ struct ridder : public bracket_method {
  * @brief Not a method. Illinois-type methods use the update bracket defined here.
  * See the documentation of the `illinois` method for details.
  */
-struct illinois_type : public bracket_method {
-    inline state& update_bracket(state& s, double gamma)
+struct illinois_type :  bracket_method {
+    inline illinois_type& update_bracket(double gamma)
     {
-        if (opposite_signs(s.proposal.y, s.right.y)) {
-            s.left = s.right;
+        if (is_opposite_sign(proposal, right)) {
+            left = right;
         } else {
-            s.left.y *= gamma;
+            left.y *= gamma;
         }
-        s.right = s.proposal;
-        return s;
+        right = proposal;
+        return *this;
     }
 };
 
@@ -870,11 +933,11 @@ struct illinois_type : public bracket_method {
 struct illinois : public illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline illinois& iterate(F&& fun)
     {
-        s = secant_proposal(std::forward<F>(fun), s);
-        s = update_bracket(s, 0.5);
-        return s;
+        secant_proposal(std::forward<F>(fun));
+        update_bracket(0.5);
+        return *this;
     }
 };
 
@@ -906,13 +969,11 @@ struct illinois : public illinois_type {
 struct pegasus : public illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline pegasus& iterate(F&& fun)
     {
-        s = secant_proposal(std::forward<F>(fun), s);
-        s = update_bracket(
-            s,
-            s.right.y / (s.right.y + s.proposal.y));
-        return s;
+        secant_proposal(std::forward<F>(fun));
+        update_bracket(right.y / (right.y + proposal.y));
+        return *this;
     }
 };
 
@@ -940,13 +1001,13 @@ struct pegasus : public illinois_type {
 struct anderson_bjorck : public illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline anderson_bjorck& iterate(F&& fun)
     {
-        s = secant_proposal(std::forward<F>(fun), s);
-        double m0 = (s.proposal.y - s.right.y) / (s.proposal.x - s.right.x);
-        double m1 = (s.right.y - s.left.y) / (s.right.x - s.left.x);
-        s = update_bracket(s, m0 / m1);
-        return s;
+        secant_proposal(std::forward<F>(fun));
+        double m0 = (proposal.y - right.y) / (proposal.x - right.x);
+        double m1 = (right.y - left.y) / (right.x - left.x);
+        update_bracket(m0 / m1);
+        return *this;
     }
 };
 
@@ -1191,35 +1252,6 @@ inline bool is_zero(double x, double tol)
     return std::abs(x) <= tol;
 }
 
-inline bool same_signs(double x, double y)
-{
-    return x * y > 0;
-}
-
-inline bool opposite_signs(double x, double y)
-{
-    return x * y < 0;
-}
-
-inline bool smaller(double x, double y)
-{
-    return std::abs(x) < std::abs(y);
-}
-
-inline bool is_between(double x, double a, double b)
-{
-    return ((x >= a) && (x <= b)) || ((x <= a) && (x >= b));
-}
-
-inline double get_midpoint(const graph_t& a, const graph_t& b)
-{
-    return 0.5 * (a.x + b.x);
-}
-
-inline double get_secant_update(const graph_t& a, const graph_t& b)
-{
-    return (b.y * a.x - a.y * b.x) / (b.y - a.y);
-}
 
 inline bool is_successful(Flag flag)
 {
@@ -1234,7 +1266,7 @@ std::string flag_message(Flag flag)
         case Flag::delta_root_zero:
             return "Change in guess is zero. Slow improvement";
         case Flag::bracket_width_zero:
-            return "Bracket width is zero. Could be singularity";
+            return "Bracket width is zero.";
         case Flag::invalid_bracket:
             return "Bracket is invalid; Function has same signs at both endpoints.";
         case Flag::max_iterations:
@@ -1247,6 +1279,10 @@ std::string flag_message(Flag flag)
             return "Bracket stopped shrinking.";
         case Flag::valid:
             return "Valid state, but convergence not reached. Normally not a termination.";
+        case Flag::singularity:
+            return "Singularity or jump discontinuity detected.";
+        case Flag::non_finite_root:
+            return "Root is non-finite: inf, -inf, NaN; ensure function is total & pure";
         default:
             return "Flag not recognized.";
     }
