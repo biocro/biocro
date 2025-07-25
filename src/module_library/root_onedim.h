@@ -20,11 +20,8 @@ enum class Flag {
     valid,  // don't terminate
     residual_zero,
     delta_root_zero,
-    bracket_width_zero,
     max_iterations,
     invalid_bracket,
-    division_by_zero,
-    bracket_fixed_point,
     singularity,
     non_finite_root,
     repeated_guess
@@ -271,14 +268,6 @@ struct method_base {
         return std::abs(x - y) <= dbl_eps * norm;
     }
 
-    // inline bool is_divide_by_zero(double x)
-    // {
-    //     bool _is_zero = is_zero(x);
-    //     if (_is_zero) {
-    //         set_flag(Flag::division_by_zero);
-    //     }
-    //     return _is_zero;
-    // }
 
     inline bool is_same_sign(double x, double y)
     {
@@ -322,17 +311,8 @@ struct method_base {
 
     inline double get_secant_update(const graph_t& a, const graph_t& b)
     {
-        return (a.x * b.y - b.x * a.y)/(b.y - a.y);
+        return (a.x * b.y - b.x * a.y) / (b.y - a.y);
     }
-
-    // inline double get_secant_update_safe(const graph_t& a, const graph_t& b)
-    // {
-    //     double delta_y = b.y - a.y;
-    //     if(is_divide_by_zero(delta_y)){
-    //         return b.x;
-    //     }
-    //     return (a.x * b.y - b.x * a.y)/delta_y;
-    //     }
 
     Flag flag()
     {
@@ -513,6 +493,33 @@ struct fixed_point : one_point_method {
         best.y = fun(best.x);
         return *this;
     }
+
+
+    inline fixed_point& check_convergence()
+    {
+        if (flag() != Flag::valid){
+            return *this;
+        }
+
+        if (is_zero(best.y - best.x)) {
+            set_flag(Flag::residual_zero);
+            return *this;
+        }
+
+        if (!std::isfinite(best.x)) {
+            set_flag(Flag::non_finite_root);
+            return *this;
+        }
+
+        if (is_close(last.x, best.x)) {
+            set_flag(Flag::delta_root_zero);
+            return *this;
+        }
+
+        return *this;
+    }
+
+
 
 };
 
