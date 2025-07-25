@@ -18,7 +18,6 @@ namespace root_algorithm
  * @brief Used to hold points `(x, f(x))` on the graph of the function.
  */
 
-
 // Helper function declarations
 inline bool is_close(
     double x, double y, double tol, double rtol);      // true if x == y
@@ -27,7 +26,6 @@ inline bool same_signs(double x, double y);            // true if sign(x) == sig
 inline bool opposite_signs(double x, double y);        // true if sign(x) != sign(y)
 inline bool smaller(double x, double y);               // true if |x| < |y|
 inline bool is_between(double x, double a, double b);  // true if `x` is `[a,b]`
-
 
 // For error handling. These flags indicate the reason for termination.
 enum class Flag {
@@ -230,105 +228,114 @@ struct root_finder {
     }
 
    private:
-
     inline result_t make_result(size_t iteration)
     {
         return result_t{method.root(), method.residual(), iteration, method.flag()};
     }
-
 };
 
 struct method_base {
-
     struct graph_t {
         double x;
         double y;
     };
 
-        double atol = 1e-12;
-        double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
-        Flag _flag;
+    double atol = 1e-12;
+    double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
+    Flag _flag;
 
-        method_base(double a) : atol{a} {}
+    method_base(double a) : atol{a} {}
 
-        inline bool is_zero(double x){
-            return std::abs(x) <= atol;
+    inline bool is_zero(double x)
+    {
+        return std::abs(x) <= atol;
+    }
+
+    inline bool is_zero(const graph_t& a)
+    {
+        return std::abs(a.y) <= atol;
+    }
+
+    inline bool is_close(const graph_t& a, const graph_t& b)
+    {
+        return std::hypot(a.x - b.x, a.y - b.y) <= get_tol(get_midpoint(a, b));
+    }
+
+    inline bool is_divide_by_zero(double x)
+    {
+        bool _is_zero = is_zero(x);
+        if (_is_zero) {
+            set_flag(Flag::division_by_zero);
         }
+        return _is_zero;
+    }
 
-        inline bool is_zero(const graph_t& a){
-            return std::abs(a.y) <= atol;
+    inline bool is_same_sign(double x, double y)
+    {
+        return x * y > 0;
+    }
+
+    inline bool is_same_sign(const graph_t& a, const graph_t& b)
+    {
+        return is_same_sign(a.y, b.y);
+    }
+
+    inline bool is_opposite_sign(double x, double y)
+    {
+        return x * y < 0;
+    }
+
+    inline bool is_opposite_sign(const graph_t& a, const graph_t& b)
+    {
+        return is_opposite_sign(a.y, b.y);
+    }
+
+    inline bool smaller(double x, double y)
+    {
+        return std::abs(x) < std::abs(y);
+    }
+
+    inline bool is_between(double x, double a, double b)
+    {
+        return ((x >= a) && (x <= b)) || ((x <= a) && (x >= b));
+    }
+
+    inline double get_midpoint(const graph_t& a, const graph_t& b)
+    {
+        return 0.5 * (a.x + b.x);
+    }
+
+    inline double get_secant_update(const graph_t& a, const graph_t& b)
+    {
+        double r = b.y / a.y;
+        double p = (b.x - a.x) * r;
+        double q = 1 - r;
+        if (is_divide_by_zero(q)) {
+            return b.x;
         }
+        return b.x + p / q;
+    }
 
-        inline bool is_close(const graph_t& a, const graph_t& b)
-        {
+    inline double is_bracket_width_zero(const graph_t& left, const graph_t& right, double norm)
+    {
+        return std::abs(left.x - right.x) <= dbl_eps * norm;
+    }
 
-            return std::hypot(a.x - b.x, a.y - b.y) <= get_tol(get_midpoint(a, b));
-        }
+    Flag flag()
+    {
+        return _flag;
+    }
 
-        inline bool is_divide_by_zero(double x){
-            bool _is_zero = is_zero(x);
-            if (_is_zero){
-                set_flag(Flag::division_by_zero);
-            }
-            return _is_zero;
-        }
+    void set_flag(Flag f)
+    {
+        _flag = f;
+    }
 
-        inline bool is_same_sign(double x, double y) {
-            return x * y > 0;
-        }
-
-        inline bool is_same_sign(const graph_t& a, const graph_t& b){
-            return is_same_sign(a.y, b.y);
-        }
-
-        inline bool is_opposite_sign(double x, double y){
-            return x * y < 0;
-        }
-
-        inline bool is_opposite_sign(const graph_t& a, const graph_t& b)
-        {
-            return is_opposite_sign(a.y, b.y);
-        }
-
-        inline bool smaller(double x, double y)
-        {
-            return std::abs(x) < std::abs(y);
-        }
-
-        inline bool is_between(double x, double a, double b)
-        {
-            return ((x >= a) && (x <= b)) || ((x <= a) && (x >= b));
-        }
-
-
-        inline double get_midpoint(const graph_t& a, const graph_t& b)
-        {
-            return 0.5 * (a.x + b.x);
-        }
-
-        inline double get_secant_update(const graph_t& a, const graph_t& b)
-        {
-            double r = b.y / a.y;
-            double p = (b.x - a.x) * r;
-            double q = 1 - r;
-            if (is_divide_by_zero(q)) {return b.x;}
-            return b.x + p / q;
-        }
-
-        Flag flag(){
-            return _flag;
-        }
-
-        void set_flag(Flag f){
-            _flag = f;
-        }
-
-        inline double get_tol(double x){
-            return dbl_eps * std::abs(x) + atol;
-        }
-
+    inline double get_tol(double x)
+    {
+        return dbl_eps * std::abs(x) + atol;
+    }
 };
-
 
 /**
  * @brief Secant Method. Provide two initial guesses for root.
@@ -352,7 +359,6 @@ struct method_base {
  * more slowly for non-simple roots (roots of multiplicity greater than 1).
  */
 struct secant : method_base {
-
     graph_t last;
     graph_t best;
 
@@ -390,13 +396,12 @@ struct secant : method_base {
 
     inline secant& check_convergence()
     {
-
         if (is_zero(root())) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (!std::isfinite(root())){
+        if (!std::isfinite(root())) {
             set_flag(Flag::non_finite_root);
             return *this;
         }
@@ -420,10 +425,8 @@ struct secant : method_base {
     }
 };
 
-
 // Householder methods
 struct one_step_method : method_base {
-
     graph_t best;
 
     template <typename F>
@@ -440,13 +443,12 @@ struct one_step_method : method_base {
 
     inline one_step_method& check_convergence()
     {
-
         if (is_zero(best)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (!std::isfinite(root())){
+        if (!std::isfinite(root())) {
             set_flag(Flag::non_finite_root);
         }
 
@@ -482,7 +484,6 @@ struct one_step_method : method_base {
  * However, its use is not recommended as all other methods are safer and faster!
  */
 struct fixed_point : one_step_method {
-
     template <typename F>
     inline fixed_point& initialize(F&& fun, double x0)
     {
@@ -496,29 +497,26 @@ struct fixed_point : one_step_method {
     }
 
     template <typename F>
-    inline fixed_point& iterate(F&& fun){
+    inline fixed_point& iterate(F&& fun)
+    {
         best.y = fun(best.x);
         return *this;
     }
 
     inline fixed_point& check_convergence()
     {
-
         if (is_zero(best.y - best.x)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (!std::isfinite(best.x)){
+        if (!std::isfinite(best.x)) {
             set_flag(Flag::non_finite_root);
         }
 
         return *this;
     }
-
-
 };
-
 
 /**
  * @brief Newton's Method. Provide a function object with `double derivative(double x)`
@@ -540,8 +538,7 @@ struct fixed_point : one_step_method {
  *
  */
 struct newton : one_step_method {
-
-    //newton(double atol) : one_step_method(atol) {}
+    // newton(double atol) : one_step_method(atol) {}
 
     template <typename F>
     inline newton& iterate(F&& fun)
@@ -585,7 +582,7 @@ struct halley : one_step_method {
         double& x = best.x;
         double& y = best.y;
         double df = fun.derivative(x);
-        if (is_divide_by_zero(df)){
+        if (is_divide_by_zero(df)) {
             return *this;
         }
         double df2 = fun.second_derivative(x);
@@ -620,7 +617,9 @@ struct steffensen : one_step_method {
     inline steffensen& iterate(F&& fun)
     {
         double g = fun(best.x + best.y) / best.y - 1;
-        if (is_divide_by_zero(g)) {return *this;}
+        if (is_divide_by_zero(g)) {
+            return *this;
+        }
         best.x -= best.y / g;
         best.y = fun(best.x);
         return *this;
@@ -642,17 +641,15 @@ struct steffensen : one_step_method {
  * whether or not the bracket of zero-width contains a zero, by testing continuity.
  */
 struct bracket_method : method_base {
-
     graph_t left;
     graph_t right;
     graph_t proposal;
-
 
     template <typename F>
     bracket_method& initialize(F&& fun, double a, double b)
     {
         left = {a, fun(a)};
-        right = {b , fun(b)};
+        right = {b, fun(b)};
         proposal = left;
 
         if (is_zero(left)) {
@@ -677,18 +674,17 @@ struct bracket_method : method_base {
 
     inline bracket_method& check_convergence()
     {
-
         if (is_zero(proposal)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (!std::isfinite(root())){
+        if (!std::isfinite(root())) {
             set_flag(Flag::non_finite_root);
             return *this;
         }
 
-        if (is_bracket_width_zero()) {
+        if (is_bracket_width_zero(left, right, proposal.x)) {
             set_flag(Flag::singularity);
             return *this;
         }
@@ -731,10 +727,6 @@ struct bracket_method : method_base {
         proposal.x = get_secant_update(left, right);
         proposal.y = fun(proposal.x);
         return *this;
-    }
-
-    inline double is_bracket_width_zero(){
-        return std::abs(left.x - right.x) <= dbl_eps * proposal.x;
     }
 };
 
@@ -862,7 +854,9 @@ struct ridder : bracket_method {
         double a = proposal.y / left.y;
         double b = right.y / left.y;
         double denom = a * a - b;
-        if (is_divide_by_zero(denom)) {return *this; }
+        if (is_divide_by_zero(denom)) {
+            return *this;
+        }
 
         proposal.x += d * a / std::sqrt(denom);
         proposal.y = fun(proposal.x);
@@ -875,7 +869,7 @@ struct ridder : bracket_method {
  * @brief Not a method. Illinois-type methods use the update bracket defined here.
  * See the documentation of the `illinois` method for details.
  */
-struct illinois_type :  bracket_method {
+struct illinois_type : bracket_method {
     inline illinois_type& update_bracket(double gamma)
     {
         if (is_opposite_sign(proposal, right)) {
@@ -930,7 +924,7 @@ struct illinois_type :  bracket_method {
  *   computing the root of an equation". BIT. 11 (2): 168–174.
  *   doi:10.1007/BF01934364
  */
-struct illinois : public illinois_type {
+struct illinois : illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
     inline illinois& iterate(F&& fun)
@@ -966,7 +960,7 @@ struct illinois : public illinois_type {
  * - Dowell, M., Jarratt, P. The “Pegasus” method for computing the root of an
  *   equation. BIT 12, 503–508 (1972). https://doi.org/10.1007/BF01932959
  */
-struct pegasus : public illinois_type {
+struct pegasus : illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
     inline pegasus& iterate(F&& fun)
@@ -998,7 +992,7 @@ struct pegasus : public illinois_type {
  *   of nonlinear equations." Technical Report, University of Essex Press.
  *
  */
-struct anderson_bjorck : public illinois_type {
+struct anderson_bjorck : illinois_type {
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
     inline anderson_bjorck& iterate(F&& fun)
@@ -1011,106 +1005,99 @@ struct anderson_bjorck : public illinois_type {
     }
 };
 
-struct contrapoint {
-    struct state {
-        Flag flag;
-        graph_t contrapoint;
-        graph_t last;
-        graph_t best;
+struct contrapoint_method : method_base {
+    graph_t contrapoint;
+    graph_t last;
+    graph_t best;
 
-        double midpoint;
-        double proposal;
-    };
+    double midpoint;
+    double proposal;
 
     template <typename F>
-    state initialize(F&& fun, double a, double b, double abs_tol, double rel_tol)
+    inline contrapoint_method& initialize(F&& fun, double a, double b)
     {
-        state s;
-        s.contrapoint.x = a;
-        s.best.x = b;
-        s.contrapoint.y = fun(a);
-        s.best.y = fun(b);
-        if (smaller(s.contrapoint.y, s.best.y)) {
-            std::swap(s.best, s.contrapoint);
+        contrapoint.x = a;
+        best.x = b;
+        contrapoint.y = fun(a);
+        best.y = fun(b);
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(best, contrapoint);
         }
 
-        s.last = s.best;
-        s.flag = Flag::valid;
+        last = best;
 
-        if (is_zero(s.best.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-            return s;
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        if (same_signs(s.best.y, s.contrapoint.y)) {
-            s.flag = Flag::invalid_bracket;
-            return s;
+        if (is_same_sign(best, contrapoint)) {
+            set_flag(Flag::invalid_bracket);
+            return *this;
         }
 
-        return s;
+        set_flag(Flag::valid);
+        return *this;
     }
 
     template <typename F>
-    state initialize(F&& fun, double best, double last, double contrapoint, double abs_tol, double rel_tol)
+    inline contrapoint_method& initialize(F&& fun, double x0, double a, double b)
     {
-        state s;
+        best.x = x0;
+        best.y = fun(x0);
 
-        s.best.x = best;
-        s.best.y = fun(best);
+        last.x = a;
+        last.y = fun(a);
 
-        s.last.x = last;
-        s.last.y = fun(last);
+        contrapoint.x = b;
+        contrapoint.y = fun(b);
 
-        s.contrapoint.x = contrapoint;
-        s.contrapoint.y = fun(contrapoint);
-
-        if (same_signs(s.best.y, s.contrapoint.y)) {
-            if (same_signs(s.best.y, s.last.y)) {
-                s.flag = Flag::invalid_bracket;
-                return s;
+        if (is_same_sign(best, contrapoint)) {
+            if (is_same_sign(best, last)) {
+                set_flag(Flag::invalid_bracket);
+                return *this;
             }
 
-            std::swap(s.last, s.contrapoint);
+            std::swap(last, contrapoint);
         }
 
-        if (smaller(s.contrapoint.y, s.best.y)) {
-            std::swap(s.best, s.contrapoint);
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(best, contrapoint);
         }
 
-        s.flag = Flag::valid;
-
-        if (is_zero(s.best.y, abs_tol)) {
-            s.flag = Flag::residual_zero;
-            return s;
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        return s;
+        set_flag(Flag::valid);
+
+        return *this;
     }
 
-    inline state& check_convergence(state& s, double abs_tol, double rel_tol)
+    inline contrapoint_method& check_convergence()
     {
-        bool zero_found = is_zero(s.best.y, abs_tol);
-        if (zero_found) {
-            s.flag = Flag::residual_zero;
-            return s;
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        if (is_close(s.contrapoint.x, s.best.x, abs_tol, rel_tol)) {
-            s.flag = Flag::bracket_width_zero;
-            return s;
+        if (is_bracket_width_zero(best, contrapoint, best.x)) {
+            set_flag(Flag::singularity);
+            return *this;
         }
 
-        return s;
+        return *this;
     }
 
-    inline double root(const state& s)
+    inline double root()
     {
-        return s.best.x;
+        return best.x;
     }
 
-    inline double residual(const state& s)
+    inline double residual()
     {
-        return s.best.y;
+        return best.y;
     }
 };
 
@@ -1150,32 +1137,32 @@ struct contrapoint {
  *   the Fundamental Theorem of Algebra, London: Wiley-Interscience,
  *   ISBN 978-0-471-20300-1
  */
-struct dekker : public contrapoint {
+struct dekker : contrapoint_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline dekker& iterate(F&& fun)
     {
-        s.proposal = get_secant_update(s.last, s.best);
-        s.midpoint = get_midpoint(s.contrapoint, s.best);
+        proposal = get_secant_update(last, best);
+        midpoint = get_midpoint(contrapoint, best);
 
         // s.last not needed now;
-        std::swap(s.best, s.last);
+        std::swap(best, last);
 
-        if (is_between(s.proposal, s.last.x, s.midpoint)) {
-            s.best.x = s.proposal;
+        if (is_between(proposal, last.x, midpoint)) {
+            best.x = proposal;
         } else {
-            s.best.x = s.midpoint;
+            best.x = midpoint;
         }
-        s.best.y = fun(s.best.x);
+        best.y = fun(best.x);
 
-        if (opposite_signs(s.last.y, s.best.y)) {
-            s.contrapoint = s.last;
-        }
-
-        if (smaller(s.contrapoint.y, s.best.y)) {
-            std::swap(s.contrapoint, s.best);
+        if (is_opposite_sign(last, best)) {
+            contrapoint = last;
         }
 
-        return s;
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(contrapoint, best);
+        }
+
+        return *this;
     }
 };
 
@@ -1210,48 +1197,37 @@ struct dekker : public contrapoint {
  *   the Fundamental Theorem of Algebra, London: Wiley-Interscience,
  *   ISBN 978-0-471-20300-1
  */
-struct dekker_newton : public contrapoint {
+struct dekker_newton : contrapoint_method {
     template <typename F>
-    inline state& iterate(F&& fun, state& s, double abs_tol, double rel_tol)
+    inline dekker_newton& iterate(F&& fun)
     {
         // newton update
-        s.proposal = s.best.x - s.best.y / fun.derivative(s.best.x);
-        s.midpoint = get_midpoint(s.contrapoint, s.best);
+        proposal = best.x - best.y / fun.derivative(best.x);
+        midpoint = get_midpoint(contrapoint, best);
 
-        // s.last not needed now;
-        std::swap(s.best, s.last);
+        // last not needed now;
+        std::swap(best, last);
 
-        if (is_between(s.proposal, s.last.x, s.midpoint)) {
-            s.best.x = s.proposal;
+        if (is_between(proposal, last.x, midpoint)) {
+            best.x = proposal;
         } else {
-            s.best.x = s.midpoint;
+            best.x = midpoint;
         }
-        s.best.y = fun(s.best.x);
+        best.y = fun(best.x);
 
-        if (opposite_signs(s.last.y, s.best.y)) {
-            s.contrapoint = s.last;
-        }
-
-        if (smaller(s.contrapoint.y, s.best.y)) {
-            std::swap(s.contrapoint, s.best);
+        if (opposite_signs(last.y, best.y)) {
+            contrapoint = last;
         }
 
-        return s;
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(contrapoint, best);
+        }
+
+        return *this;
     }
 };
 
 // Helper function definitions.
-
-inline bool is_close(double x, double y, double tol)
-{
-    return is_zero(x - y, tol);
-}
-
-inline bool is_zero(double x, double tol)
-{
-    return std::abs(x) <= tol;
-}
-
 
 inline bool is_successful(Flag flag)
 {
