@@ -174,7 +174,7 @@ energy_balance_outputs leaf_energy_balance(
     // offset
     double constexpr delta_temp = 0.5;  // degrees C
 
-    root_algorithm::root_finder<root_algorithm::secant> solver{500, 1e-12};
+    root_algorithm::root_finder<root_algorithm::secant> solver(500, 1e-12);
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_temp,
@@ -182,10 +182,9 @@ energy_balance_outputs leaf_energy_balance(
         air_temperature + delta_temp);
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
-        throw std::runtime_error(
-            "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+    if (!result.success) {
+        throw std::runtime_error(root_algorithm::error_message(result,
+            "leaf_temperature solver reports failed convergence with termination flag:\n    " ));
     }
 
     // Get final value

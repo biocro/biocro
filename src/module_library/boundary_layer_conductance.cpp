@@ -100,7 +100,7 @@ double leaf_boundary_layer_conductance_nikolov(
         return gbv_free - new_gbv_free;  // m / s
     };
 
-    // Run the Dekker method; check_leaf_gbv_free is always positive for
+    // Run Dekker's method; check_leaf_gbv_free is always positive for
     // gbv_free = 0, but it is difficult to find a finite value where
     // check_leaf_gbv_free is guaranteed to be negative; here we just use a
     // very large value and hope for the best.
@@ -114,7 +114,7 @@ double leaf_boundary_layer_conductance_nikolov(
     );
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
+    if (!result.success) {
         throw std::runtime_error(
             root_algorithm::error_message(result, "gbv_free solver reports failed convergence with termination flag"));
     }

@@ -150,7 +150,7 @@ photosynthesis_outputs c3photoC(
         Ca - A_min * (dr_boundary / gbw + dr_stomata / b0_adj);  // micromol / mol
 
     // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver{100, 1e-12};
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12);
     root_algorithm::result_t result = solver.solve(
         check_assim_rate,
         0.718 * Ca,
@@ -158,10 +158,9 @@ photosynthesis_outputs c3photoC(
         Ci_max * 1.01);
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
-        throw std::runtime_error(
-            "Ci solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+    if (!result.success) {
+        throw std::runtime_error(root_algorithm::error_message(result,
+            "Ci solver reports failed convergence with termination flag:\n    "));
     }
 
     // Get final values

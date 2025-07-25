@@ -137,7 +137,7 @@ photosynthesis_outputs c4photoC(
                     (dr_boundary / gbw + dr_stomata / bb0_adj);  // Pa
 
     // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver{100, 1e-12};
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12);
     root_algorithm::result_t result = solver.solve(
         check_assim_rate,
         0.5 * Ca_pa,
@@ -145,10 +145,9 @@ photosynthesis_outputs c4photoC(
         Ci_max * 1.01);
 
     // throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
+    if (!result.success) {
         throw std::runtime_error(
-            "Ci solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            root_algorithm::error_message(result, "Ci solver reports failed convergence with termination flag:\n    "));
     }
 
     // Get final values
