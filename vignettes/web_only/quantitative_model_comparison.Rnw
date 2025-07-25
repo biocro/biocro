@@ -111,7 +111,7 @@ cat(
 doy_range <- c(142, 298)
 biomass_range <- c(-0.5, 6.5)
 ppfd_range <- c(-100, 1200)
-assim_range <- c(-2, 40)
+assim_range <- c(-10, 30)
 biomass_columns <- c('fractional_doy', 'Grain', 'Leaf', 'Root', 'Stem')
 @
 
@@ -345,8 +345,8 @@ which are included in the \texttt{par} list element). Here we pass the
 find the best value for \ar.
 
 <<alpha_rue_optimization>>=
-min_alpha <- 0.02
-max_alpha <- 0.05
+min_alpha <- 0.01
+max_alpha <- 0.03
 opt_par = optim(
     0.03,
     rue_fvcb_square_difference,
@@ -473,15 +473,15 @@ pdf_print(biomass_comparison_2002_plot, 'biomass_comparison_2002_plot.pdf')
 \section{Comparing assimilation values in 2002}
 
 Additional insight into the agreement between the models can be gained by
-examining the relationship between gross \cotwo\ assimilation rates ($A_g$) and
+examining the relationship between net \cotwo\ assimilation rates ($A_n$) and
 incident light intensity ($Q$) at the leaf level throughout the entire growing
 season. The BioCro multilayer canopy photosynthesis modules store these values
 for each layer (0-9) and leaf class (sunlit and shaded) in quantities with
 names that specify layer number as a suffix and class as a prefix added to the
-base names of \texttt{incident\_ppfd} ($Q$) and \texttt{GrossAssim} ($A_g$),
+base names of \texttt{incident\_ppfd} ($Q$) and \texttt{Assim} ($A_n$),
 for example \texttt{sunlit\_incident\_ppfd\_layer\_0} and
-\texttt{shaded\_GrossAssim\_layer\_9}. To help with plotting, it is beneficial
-to first extract all the ($Q$, $A_g$) pairs from each layer and leaf class in
+\texttt{shaded\_Assim\_layer\_9}. To help with plotting, it is beneficial
+to first extract all the ($Q$, $A_n$) pairs from each layer and leaf class in
 the output of a BioCro simulation; here we make a helping function to
 accomplish this.
 
@@ -494,14 +494,14 @@ extract_aq_scatter <- function(biocro_output) {
   )
 
   assim_column_names <- grep(
-    '(sunlit|shaded)_GrossAssim_layer_[0-9]',
+    '(sunlit|shaded)_Assim_layer_[0-9]',
     names(biocro_output),
     value=TRUE
   )
 
   aq_scatter <- data.frame(
     incident_ppfd = unlist(biocro_output[light_column_names]),
-    gross_assimilation = unlist(biocro_output[assim_column_names]),
+    net_assimilation = unlist(biocro_output[assim_column_names]),
     row.names = NULL
   )
 
@@ -509,13 +509,13 @@ extract_aq_scatter <- function(biocro_output) {
 }
 @
 
-Now it is possible to produce scatter plots of ($Q$, $A_g$) values for each
+Now it is possible to produce scatter plots of ($Q$, $A_n$) values for each
 model during 2002 (Figures \ref{fig_fvcb_aq_scatter_plot} and
 \ref{fig_rue_aq_scatter_plot}; these two figures are combined to form Figure 4b
 in the BioCro II paper). Note: because the canopy model uses ten layers and two
-leaf classes, there are twenty ($Q$, $A_g$) pairs per time point; because the
+leaf classes, there are twenty ($Q$, $A_n$) pairs per time point; because the
 crop's state is stored at hourly intervals over a growing season that lasts
-for 137 days, there are 3,288 time points, yielding 65,760 ($Q$, $A_g$) pairs in
+for 137 days, there are 3,288 time points, yielding 65,760 ($Q$, $A_n$) pairs in
 total for each simulation. Plotting all of these points results in very large
 files, so, to reduce the size of the vignette PDF, here we only plot a subset of
 the points.
@@ -534,14 +534,14 @@ points_to_plot <- seq(
 )
 
 fvcb_aq_scatter_plot <- xyplot(
-    gross_assimilation ~ incident_ppfd,
+    net_assimilation ~ incident_ppfd,
     data = fvcb_aq_scatter_2002[points_to_plot,],
     type = 'p',
     pch = 16,
     xlim = ppfd_range,
     ylim = assim_range,
     xlab = 'Incident PPFD (micromol / m^2 / s)',
-    ylab = 'Gross CO2 assimilation rate (micromol / m^2 / s)',
+    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
     main = '(Ag, Q) scatter plot from the FvCB model in 2002'
 )
@@ -549,14 +549,14 @@ fvcb_aq_scatter_plot <- xyplot(
 pdf_print(fvcb_aq_scatter_plot, 'fvcb_aq_scatter_plot.pdf')
 
 rue_aq_scatter_plot <- xyplot(
-    gross_assimilation ~ incident_ppfd,
+    net_assimilation ~ incident_ppfd,
     data = rue_aq_scatter_2002[points_to_plot,],
     type = 'p',
     pch = 16,
     xlim = ppfd_range,
     ylim = assim_range,
     xlab = 'Incident PPFD (micromol / m^2 / s)',
-    ylab = 'Gross CO2 assimilation rate (micromol / m^2 / s)',
+    ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
     main = '(Ag, Q) scatter plot from the RUE model in 2002'
 )
@@ -568,7 +568,7 @@ pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
   \begin{center}
     \includegraphics[width=0.5\textwidth]{fvcb_aq_scatter_plot.pdf}
     \caption{
-      $A_g$ versus $Q$ for soybean leaves in each canopy layer (0-9) and class
+      $A_n$ versus $Q$ for soybean leaves in each canopy layer (0-9) and class
       (sunlit or shaded) as calculated during 2002 using the FvCB photosynthesis
       model.
     }
@@ -580,7 +580,7 @@ pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
   \begin{center}
     \includegraphics[width=0.5\textwidth]{rue_aq_scatter_plot.pdf}
     \caption{
-      $A_g$ versus $Q$ for soybean leaves in each canopy layer (0-9) and class
+      $A_n$ versus $Q$ for soybean leaves in each canopy layer (0-9) and class
       (sunlit or shaded) as calculated during 2002 using the RUE photosynthesis
       model.
     }
@@ -677,7 +677,7 @@ c = \frac{df / dx}{f(x_0) / x_0}
 \end{equation}
 
 In this function, the \texttt{evaluate\_module} BioCro function is used to
-calculate the gross assimilation rate for different values of the independent
+calculate the net assimilation rate for different values of the independent
 variable specified by \texttt{varname}; in other words, \texttt{varname} is $x$
 and the \texttt{BioCro:c3\_leaf\_photosynthesis} module defines $f(x)$.
 
@@ -691,20 +691,20 @@ assim_sensitivity <- function(
   module <- 'BioCro:c3_leaf_photosynthesis'
 
   var_center <- base_inputs[[varname]]
-  gross_assim_center <- evaluate_module(module, base_inputs)$GrossAssim
+  net_assim_center <- evaluate_module(module, base_inputs)$Assim
 
   neg_inputs <- base_inputs
   neg_var <- base_inputs[[varname]] * (1 - relative_perturbation)
   neg_inputs[[varname]] <- neg_var
-  gross_assim_neg <- evaluate_module(module, neg_inputs)$GrossAssim
+  net_assim_neg <- evaluate_module(module, neg_inputs)$Assim
 
   pos_inputs <- base_inputs
   pos_var <- base_inputs[[varname]] * (1 + relative_perturbation)
   pos_inputs[[varname]] <- pos_var
-  gross_assim_pos <- evaluate_module(module, pos_inputs)$GrossAssim
+  net_assim_pos <- evaluate_module(module, pos_inputs)$Assim
 
-  dadx = (gross_assim_pos - gross_assim_neg) / (pos_var - neg_var)
-  return(dadx / (gross_assim_center / var_center))
+  dadx = (net_assim_pos - net_assim_neg) / (pos_var - neg_var)
+  return(dadx / (net_assim_center / var_center))
 }
 @
 
@@ -757,7 +757,7 @@ pdf_print(fvcb_light_curve_sensitivity_plot, 'fvcb_light_curve_sensitivity_plot.
   \begin{center}
     \includegraphics[width=0.5\textwidth]{fvcb_light_curve_sensitivity_plot.pdf}
     \caption{
-      Normalized sensitivity coeffficients characterizing the response of $A_g$
+      Normalized sensitivity coeffficients characterizing the response of $A_n$
       to several inputs in the FvCB photosynthesis model.
     }
     \label{fig_fvcb_light_curve_sensitivity_plot}
@@ -1165,7 +1165,7 @@ multiyear_biomass_plot <- xyplot(
   type = 'l',
   auto.key = list(space = 'top'),
   grid = TRUE,
-  ylim = c(8, 13),
+  ylim = c(5, 13),
   xlab = 'Year',
   ylab = 'Final biomass (Mg / ha)'
 )
@@ -1180,7 +1180,7 @@ multiyear_biomass_difference_plot <- xyplot(
   pch = 16,
   auto = TRUE,
   grid = TRUE,
-  ylim = c(-15, 15),
+  ylim = c(-10, 90),
   xlab = 'Atmospheric CO2 concentration (ppm)',
   ylab = '(M_RUE - M_FvCB) / M_FvCB (%)'
 )

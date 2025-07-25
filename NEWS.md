@@ -132,6 +132,9 @@ be directly added to this file to describe the related changes.
   growth and maintenance respiration:
   `BioCro:total_growth_and_maintenance_respiration`.
 
+- Simplified the radiation use efficiency (RUE) model such that net CO2
+  assimilation is directly proportional to the incident quantum flux of photons.
+
 - Altered `test_module` (and hence `test_module_library`) so that new module
   outputs produce a warning but don't cause an error on their own.
 
