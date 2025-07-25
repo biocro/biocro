@@ -192,8 +192,6 @@ struct root_finder {
     size_t max_iterations = 100;
     Method method;
 
-    root_finder() = default;
-    root_finder(size_t max_iter) : max_iterations{max_iter} {}
     root_finder(size_t max_iter, double abs_tol) : max_iterations{max_iter}, method{abs_tol} {}
 
     template <typename F, typename... Args>
@@ -1044,7 +1042,6 @@ struct contrapoint_method : method_base {
     double midpoint;
     double proposal;
 
-    contrapoint_method() = default;
     contrapoint_method(double a) : method_base(a) {}
 
     template <typename F>
