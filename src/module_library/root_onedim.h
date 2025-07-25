@@ -201,7 +201,7 @@ struct root_finder {
 
     root_finder() = default;
     root_finder(size_t max_iter) : max_iterations{max_iter} {}
-    root_finder(size_t max_iter, double abs_tol) : method{abs_tol}, max_iterations{max_iter} {}
+    root_finder(size_t max_iter, double abs_tol) : max_iterations{max_iter}, method(abs_tol) {}
 
     template <typename F, typename... Args>
     result_t solve(F&& func, Args&&... args)
@@ -244,7 +244,7 @@ struct method_base {
     double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
     Flag _flag;
 
-    method_base(double a) : atol{a} {}
+    method_base(double a) : atol(a) {}
 
     inline bool is_zero(double x)
     {
@@ -361,8 +361,6 @@ struct method_base {
 struct secant : method_base {
     graph_t last;
     graph_t best;
-
-    secant(double atol) : method_base{atol} {}
 
     template <typename F>
     inline secant& initialize(F&& fun, double x0, double x1)
