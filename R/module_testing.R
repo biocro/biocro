@@ -501,3 +501,9 @@ test_module_library <- function(
 
     return(invisible(NULL))
 }
+
+
+run_module_test <- function(module_name, directory){
+    cs <- cases_from_csv(module_name, directory)
+    lapply(cs, function(x)test_module(module_name, x))
+}
