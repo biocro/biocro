@@ -14,7 +14,6 @@
 namespace root_algorithm
 {
 
-
 // For error handling. These flags indicate the reason for termination.
 enum class Flag {
     valid,  // don't terminate
@@ -22,6 +21,7 @@ enum class Flag {
     delta_root_zero,
     max_iterations,
     invalid_bracket,
+    bracket_width_zero,
     singularity,
     non_finite_root,
     repeated_guess
@@ -188,7 +188,6 @@ inline std::string error_message(const result_t& r, std::string prefix);
  */
 template <typename Method>
 struct root_finder {
-
     size_t max_iterations = 100;
     Method method;
 
@@ -199,16 +198,15 @@ struct root_finder {
     {
         method.initialize(std::forward<F>(func), std::forward<Args>(args)...);
 
+        std::cout << std::setprecision(20);
+
         for (size_t i = 0; i < (max_iterations + 1); ++i) {
             if (method.flag() != Flag::valid) {
                 return make_result(i);
             }
-            // std::cout << std::setprecision(20);
+
             // std::cout << "Iteration: " << i << "\n  ";
-            // std::cout << "root     = " << method.root() << "\n  ";
-            // std::cout << "residual = " << method.residual() << '\n';
-
-
+            // method.print();
             method.iterate(std::forward<F>(func));
             method.check_convergence();
         }
@@ -229,8 +227,9 @@ struct root_finder {
         return result_t{method.root(), method.residual(), iteration, method.flag(), is_successful(method.flag())};
     }
 
-    inline bool is_successful(Flag flag){
-        return flag == Flag::residual_zero;
+    inline bool is_successful(Flag flag)
+    {
+        return flag == Flag::residual_zero || flag == Flag::bracket_width_zero;
     }
 };
 
@@ -258,14 +257,9 @@ struct method_base {
 
     inline bool is_close(double x, double y)
     {
-        return std::abs(x - y) <= atol + dbl_eps * std::abs(0.5*(x+y));
+        double norm = std::min(std::abs(x), std::abs(y));
+        return std::abs(x - y) <= 0.125 * atol + 2 * dbl_eps * (norm + 1);
     }
-
-    inline bool is_close(double x, double y, double norm)
-    {
-        return std::abs(x - y) <= dbl_eps * norm;
-    }
-
 
     inline bool is_same_sign(double x, double y)
     {
@@ -330,7 +324,6 @@ struct method_base {
 
 // Householder methods
 struct two_point_method : method_base {
-
     two_point_method(double atol) : method_base{atol}, last{}, best{} {}
 
     graph_t last;
@@ -339,7 +332,7 @@ struct two_point_method : method_base {
     template <typename F>
     inline two_point_method& initialize(F&& fun, double x0, double x1)
     {
-        if (is_close(x0, x1)){
+        if (is_close(x0, x1)) {
             set_flag(Flag::repeated_guess);
             return *this;
         }
@@ -364,7 +357,7 @@ struct two_point_method : method_base {
 
     inline two_point_method& check_convergence()
     {
-        if (flag() != Flag::valid){
+        if (flag() != Flag::valid) {
             return *this;
         }
 
@@ -378,7 +371,7 @@ struct two_point_method : method_base {
             return *this;
         }
 
-        if (is_close(last.x, best.x)) {
+        if (is_close(best.x, last.x)) {
             set_flag(Flag::delta_root_zero);
             return *this;
         }
@@ -439,7 +432,6 @@ struct one_point_method : two_point_method {
 struct secant : two_point_method {
     secant(double atol) : two_point_method{atol} {}
 
-
     template <typename F>
     inline secant& iterate(F&& fun)
     {
@@ -448,7 +440,6 @@ struct secant : two_point_method {
         best.y = fun(best.x);
         return *this;
     }
-
 };
 
 /**
@@ -475,8 +466,10 @@ struct fixed_point : one_point_method {
     template <typename F>
     inline fixed_point& initialize(F&& fun, double x0)
     {
-        best = {x0, fun(x0)};
-        if (is_zero(best.y - best.x)) {
+        last.x = x0;
+        best.x = fun(x0);
+        best.y = best.x - last.x;
+        if (is_zero(best.y)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -488,18 +481,14 @@ struct fixed_point : one_point_method {
     inline fixed_point& iterate(F&& fun)
     {
         last = best;
-        best.y = fun(best.x);
+        best.x = fun(best.x);
+        best.y = best.x - last.x;
         return *this;
     }
 
-
     inline fixed_point& check_convergence()
     {
-        if (flag() != Flag::valid){
-            return *this;
-        }
-
-        if (is_zero(best.y - best.x)) {
+        if (is_zero(best.y)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -509,16 +498,8 @@ struct fixed_point : one_point_method {
             return *this;
         }
 
-        if (is_close(last.x, best.x)) {
-            set_flag(Flag::delta_root_zero);
-            return *this;
-        }
-
         return *this;
     }
-
-
-
 };
 
 /**
@@ -581,7 +562,7 @@ struct newton : one_point_method {
  * quadratic.
  */
 struct halley : one_point_method {
-    halley(double a) : one_point_method {a} {}
+    halley(double a) : one_point_method{a} {}
 
     template <typename F>
     inline halley& iterate(F&& fun)
@@ -622,7 +603,7 @@ struct halley : one_point_method {
  *
  */
 struct steffensen : one_point_method {
-    steffensen(double a) : one_point_method {a} {}
+    steffensen(double a) : one_point_method{a} {}
 
     template <typename F>
     inline steffensen& iterate(F&& fun)
@@ -699,8 +680,17 @@ struct bracket_method : method_base {
             return *this;
         }
 
-        if (is_close(left.x, right.x, proposal.x)) {
-            set_flag(Flag::singularity);
+        if (is_close(left.x, right.x)) {
+            double s0, s1;
+
+            s0 = (proposal.y - left.y) / (proposal.x - left.x);
+            s1 = (right.y - proposal.y) / (right.x - proposal.x);
+
+            if (is_close(s0, s1)) {
+                set_flag(Flag::bracket_width_zero);
+            } else {
+                set_flag(Flag::singularity);
+            }
             return *this;
         }
 
@@ -720,9 +710,9 @@ struct bracket_method : method_base {
     inline bracket_method& update_bracket()
     {
         if (is_same_sign(left, proposal)) {
-            left = proposal;
+            std::swap(left, proposal);
         } else {
-            right = proposal;
+            std::swap(right, proposal);
         }
         return *this;
     }
@@ -742,6 +732,13 @@ struct bracket_method : method_base {
         proposal.x = get_secant_update(left, right);
         proposal.y = fun(proposal.x);
         return *this;
+    }
+
+    inline void print()
+    {
+        std::cout << left.x << ", " << left.y << "\n  ";
+        std::cout << right.x << ", " << right.y << "\n  ";
+        std::cout << proposal.x << ", " << proposal.y << "\n  ";
     }
 };
 
@@ -864,7 +861,6 @@ struct regula_falsi : bracket_method {
  *
  */
 struct ridder : bracket_method {
-
     ridder(double a) : bracket_method{a} {}
 
     template <typename F>
@@ -986,7 +982,7 @@ struct illinois : illinois_type {
  *   equation. BIT 12, 503–508 (1972). https://doi.org/10.1007/BF01932959
  */
 struct pegasus : illinois_type {
-    pegasus(double a ) : illinois_type{a} {}
+    pegasus(double a) : illinois_type{a} {}
 
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
@@ -1020,7 +1016,7 @@ struct pegasus : illinois_type {
  *
  */
 struct anderson_bjorck : illinois_type {
-    anderson_bjorck(double a ) : illinois_type{a} {}
+    anderson_bjorck(double a) : illinois_type{a} {}
 
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
@@ -1051,13 +1047,14 @@ struct contrapoint_method : method_base {
         best.x = b;
         contrapoint.y = fun(a);
         best.y = fun(b);
-        if (smaller(contrapoint.y, best.y)) {
-            std::swap(best, contrapoint);
+
+        // check for zeros
+        if (is_zero(best)) {
+            set_flag(Flag::residual_zero);
+            return *this;
         }
 
-        last = best;
-
-        if (is_zero(best)) {
+        if (is_zero(contrapoint)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -1067,6 +1064,12 @@ struct contrapoint_method : method_base {
             return *this;
         }
 
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(best, contrapoint);
+        }
+
+        // contrapoint so that secant method is well defined on first iteration.
+        last = contrapoint;
         set_flag(Flag::valid);
         return *this;
     }
@@ -1113,8 +1116,18 @@ struct contrapoint_method : method_base {
             return *this;
         }
 
-        if (is_close(best.x, contrapoint.x, best.x)) {
-            set_flag(Flag::singularity);
+        if (is_close(best.x, contrapoint.x)) {
+            double s0, s1;
+
+            s0 = (best.y - last.y) / (best.x - last.x);
+            s1 = (best.y - contrapoint.y) / (best.x - contrapoint.x);
+
+            if (is_close(s0, s1)) {
+                set_flag(Flag::bracket_width_zero);
+            } else {
+                set_flag(Flag::singularity);
+            }
+
             return *this;
         }
 
@@ -1171,23 +1184,30 @@ struct contrapoint_method : method_base {
 struct dekker : contrapoint_method {
     dekker(double a) : contrapoint_method{a} {}
 
+    inline void print()
+    {
+        std::cout << best.x << ", " << best.y << "\n  ";
+        std::cout << contrapoint.x << ", " << contrapoint.y << "\n  ";
+        std::cout << last.x << ", " << last.y << "\n  ";
+    }
+
     template <typename F>
     inline dekker& iterate(F&& fun)
     {
         proposal = get_secant_update(last, best);
         midpoint = get_midpoint(contrapoint, best);
 
-        // s.last not needed now;
-        std::swap(best, last);
+        last = best;
 
-        if (is_between(proposal, last.x, midpoint)) {
+        if (is_between(proposal, best.x, midpoint)) {
             best.x = proposal;
         } else {
+            std::cout << " Bisection\n";
             best.x = midpoint;
         }
         best.y = fun(best.x);
 
-        if (is_opposite_sign(last, best)) {
+        if (is_same_sign(best, contrapoint)) {
             contrapoint = last;
         }
 
@@ -1231,7 +1251,6 @@ struct dekker : contrapoint_method {
  *   ISBN 978-0-471-20300-1
  */
 struct dekker_newton : contrapoint_method {
-
     dekker_newton(double a) : contrapoint_method{a} {}
     template <typename F>
     inline dekker_newton& iterate(F&& fun)
@@ -1271,33 +1290,35 @@ std::string flag_message(Flag flag)
             return "Residual is zero.";
         case Flag::delta_root_zero:
             return "No change in the sequence of iterates but `residual` is not zero. "
-            "Either method's iteration is stuck at a fixed point, or improvement is very small slow. "
-            "If `residual` is small, try a small increase in the tolerance. Otherwise, try a different method.";
+                   "Either method's iteration is stuck at a fixed point, or improvement is very small slow. "
+                   "If `residual` is small, try a small increase in the tolerance. Otherwise, try a different method.";
         case Flag::repeated_guess:
             return "Every guess must be distinct for this method. If guesses are chosen automatically, "
-            "then guesses might be equal for some inputs; try adding a small constant to one of them.";
+                   "then guesses might be equal for some inputs; try adding a small constant to one of them.";
         case Flag::invalid_bracket:
             return "Bracket is invalid; Function has same signs at both endpoints. "
-            "Warning: automatically chosen endpoints might beequal for certain inputs, "
-            "try adding a small constant to an endpoint.";
+                   "Warning: automatically chosen endpoints might beequal for certain inputs, "
+                   "try adding a small constant to an endpoint.";
         case Flag::max_iterations:
             return "Reached the maximum number of iterations."
-            "If `root` is reasonably and `residual` is small, try increasing `max_iterations` "
-            "or increase tolerance by 2x or 10x. Otherwise, try improving the starting guesses "
-            "or try a different method.";
+                   "If `root` is reasonably and `residual` is small, try increasing `max_iterations` "
+                   "or increase tolerance by 2x or 10x. Otherwise, try improving the starting guesses "
+                   "or try a different method.";
         case Flag::valid:
             return "Valid state, but convergence not reached. "
-            "Indicates a programming error in the `root_algorithm` library.";
+                   "Indicates a programming error in the `root_algorithm` library.";
+        case Flag::bracket_width_zero:
+            return "Bracket width is zero, and ";
         case Flag::singularity:
             return "Singularity or jump discontinuity detected. "
-            "Bracket's width shrank below tolerance `2 * eps` without getting `residual = 0`. "
-            "If `residual` is small, then failure is a false alarm. Otherwise, ensure no "
-            "programming errors in the function (possible cause of singularities) and that "
-            "the function possesses a root to find.";
+                   "Bracket's width shrank below tolerance `2 * eps` without getting `residual = 0`. "
+                   "If `residual` is small, then failure is a false alarm. Otherwise, ensure no "
+                   "programming errors in the function (possible cause of singularities) and that "
+                   "the function possesses a root to find.";
         case Flag::non_finite_root:
             return "Root is non-finite: inf, -inf, NaN."
-            "Either function returned non-finite value or `division by zero` in method, "
-            "possibly due to encountering a flat region of the function's domain.";
+                   "Either function returned non-finite value or `division by zero` in method, "
+                   "possibly due to encountering a flat region of the function's domain.";
         default:
             return "Flag not recognized. Indicates a programming error in the `root_algorithm` library.";
     }

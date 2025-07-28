@@ -5,8 +5,8 @@
 #include "../framework/state_map.h"
 #include "root_onedim.h"
 
-#include <functional>  // for std::function
-#include <map>
+// #include <functional>  // for std::function
+// #include <map>
 namespace standardBML
 {
 
@@ -59,19 +59,14 @@ struct root_test_function {
     }
 };
 
-
-
-struct fixed_point_test
-{
+struct fixed_point_test {
     double epsilon;
     double answer;
 
-
     double operator()(double x)
     {
-        return epsilon * (x - answer);
+        return answer + epsilon * (x - answer);
     }
-
 };
 
 /**
@@ -223,7 +218,6 @@ string_vector root_onedim_test::get_inputs()
         "answer",
         "max_iterations",
         "abs_tol",
-        "rel_tol",
         "lower_bracket",
         "upper_bracket",
         "single_guess"};
