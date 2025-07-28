@@ -265,8 +265,12 @@ struct method_base {
 
     inline bool is_x_close(const graph_t& a, const graph_t& b)
     {
-        double norm = std::abs(a.x);
-        return std::abs(a.x - b.x) <= 2 * dbl_eps * norm + xtol;
+        return is_x_close(a.x, b.x);
+    }
+
+    inline bool is_lipschitz_continuous(const graph_t& a, const graph_t& b) {
+        bool y_is_small = std::min(std::abs(a.y), std::abs(b.y)) < 1;
+        return y_is_small && (std::abs(a.y - b.y) <= std::abs(a.x - b.x) / xtol);
     }
 
     inline bool is_same_sign(double x, double y)
@@ -289,12 +293,12 @@ struct method_base {
         return is_opposite_sign(a.y, b.y);
     }
 
-    inline bool smaller(double x, double y)
+    inline bool is_smaller(double x, double y)
     {
         return std::abs(x) < std::abs(y);
     }
 
-    inline bool smaller(const graph_t& a, const graph_t& b)
+    inline bool is_smaller(const graph_t& a, const graph_t& b)
     {
         return std::abs(a.y) < std::abs(b.y);
     }
@@ -570,7 +574,7 @@ struct newton : one_point_method {
  * quadratic.
  */
 struct halley : one_point_method {
-    halley(double xyol, double ytol) : one_point_method{xtol, ytol} {}
+    halley(double xtol, double ytol) : one_point_method{xtol, ytol} {}
 
     template <typename F>
     inline halley& iterate(F&& fun)
@@ -689,12 +693,8 @@ struct bracket_method : method_base {
         }
 
         if (is_x_close(left.x, right.x)) {
-            double s0, s1;
 
-            s0 = (proposal.y - left.y) / (proposal.x - left.x);
-            s1 = (right.y - proposal.y) / (right.x - proposal.x);
-
-            if (is_x_close(s0, s1)) {
+            if (is_lipschitz_continuous(left, right)) {
                 set_flag(Flag::bracket_width_zero);
             } else {
                 set_flag(Flag::singularity);
@@ -1072,7 +1072,7 @@ struct contrapoint_method : method_base {
             return *this;
         }
 
-        if (smaller(contrapoint.y, best.y)) {
+        if (is_smaller(contrapoint.y, best.y)) {
             std::swap(best, contrapoint);
         }
 
@@ -1103,7 +1103,7 @@ struct contrapoint_method : method_base {
             std::swap(last, contrapoint);
         }
 
-        if (smaller(contrapoint.y, best.y)) {
+        if (is_smaller(contrapoint.y, best.y)) {
             std::swap(best, contrapoint);
         }
 
@@ -1125,7 +1125,11 @@ struct contrapoint_method : method_base {
         }
 
         if (is_x_close(best, contrapoint)) {
-            set_flag(Flag::singularity);
+            if (is_lipschitz_continuous(best, contrapoint)){
+                set_flag(Flag::bracket_width_zero);
+            } else{
+                set_flag(Flag::singularity);
+            }
             return *this;
         }
 
@@ -1208,7 +1212,7 @@ struct dekker : contrapoint_method {
             contrapoint = last;
         }
 
-        if (smaller(contrapoint, best)) {
+        if (is_smaller(contrapoint, best)) {
             std::swap(contrapoint, best);
         }
 
@@ -1271,7 +1275,7 @@ struct dekker_newton : contrapoint_method {
             contrapoint = last;
         }
 
-        if (smaller(contrapoint, best)) {
+        if (is_smaller(contrapoint, best)) {
             std::swap(contrapoint, best);
         }
 
@@ -1285,40 +1289,42 @@ std::string flag_message(Flag flag)
 {
     switch (flag) {
         case Flag::residual_zero:
-            return "Residual is zero.";
+            return "Residual is zero (`residual < ytol`). ";
         case Flag::delta_root_zero:
             return "No change in the sequence of iterates but `residual` is not zero. "
                    "Either method's iteration is stuck at a fixed point, or improvement is very small slow. "
-                   "If `residual` is small, try a small increase in the tolerance. Otherwise, try a different method.";
+                   "If `residual` is small, try increasing `ytol` or decreasing `xtol`. Otherwise, try a different method. ";
         case Flag::repeated_guess:
             return "Every guess must be distinct for this method. If guesses are chosen automatically, "
-                   "then guesses might be equal for some inputs; try adding a small constant to one of them.";
+                   "then guesses might be equal for some inputs; try adding a small constant to one of them. ";
         case Flag::invalid_bracket:
             return "Bracket is invalid; Function has same signs at both endpoints. "
-                   "Warning: automatically chosen endpoints might beequal for certain inputs, "
-                   "try adding a small constant to an endpoint.";
+                   "Warning: automatically chosen endpoints may be equal for certain inputs, "
+                   "try adding a small constant to an endpoint. ";
         case Flag::max_iterations:
-            return "Reached the maximum number of iterations."
+            return "Reached the maximum number of iterations. "
                    "If `root` is reasonably and `residual` is small, try increasing `max_iterations` "
-                   "or increase tolerance by 2x or 10x. Otherwise, try improving the starting guesses "
-                   "or try a different method.";
+                   "or increasing `xtol` and `ytol` by 2x or 10x. Otherwise, try improving the starting guesses "
+                   "or try a different method. ";
         case Flag::valid:
             return "Valid state, but convergence not reached. "
-                   "Indicates a programming error in the `root_algorithm` library.";
+                   "Should not be returned under normal circumstances. "
+                   "Indicates a programming error in the `root_algorithm` library. ";
         case Flag::bracket_width_zero:
-            return "Bracket width is zero, and ";
+            return "Bracket width is zero (below `xtol`) although `residual > ytol`. Passed continuity check: lipschitz-constant < `1/xtol` ";
         case Flag::singularity:
-            return "Singularity or jump discontinuity detected. "
-                   "Bracket's width shrank below tolerance `2 * eps` without getting `residual = 0`. "
-                   "If `residual` is small, then failure is a false alarm. Otherwise, ensure no "
-                   "programming errors in the function (possible cause of singularities) and that "
-                   "the function possesses a root to find.";
+            return "Probable singularity or jump discontinuity detected. "
+                   "Bracket's width is zero and continuity check failed.  "
+                   "If `residual` is small, then failure is a false alarm. "
+                   "Either increase `ytol` or decrease `xtol`, or manually except the error. "
+                   "Otherwise, ensure no programming errors in the function (possible cause of singularities) and that "
+                   "the function possesses a root to find. ";
         case Flag::non_finite_root:
             return "Root is non-finite: inf, -inf, NaN."
                    "Either function returned non-finite value or `division by zero` in method, "
-                   "possibly due to encountering a flat region of the function's domain.";
+                   "possibly due to encountering a flat region of the function's domain. ";
         default:
-            return "Flag not recognized. Indicates a programming error in the `root_algorithm` library.";
+            return "Flag not recognized. Indicates a programming error in the `root_algorithm` library. ";
     }
 }
 std::string error_message(const result_t& r, std::string prefix = "")
