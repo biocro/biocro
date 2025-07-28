@@ -104,7 +104,7 @@ double leaf_boundary_layer_conductance_nikolov(
     // gbv_free = 0, but it is difficult to find a finite value where
     // check_leaf_gbv_free is guaranteed to be negative; here we just use a
     // very large value and hope for the best.
-    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12);
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12, 1e-11);
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_gbv_free,

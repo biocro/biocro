@@ -191,14 +191,15 @@ struct root_finder {
     size_t max_iterations = 100;
     Method method;
 
-    root_finder(size_t max_iter, double abs_tol) : max_iterations{max_iter}, method{abs_tol} {}
+    root_finder(size_t max_iter, double abs_tol) : max_iterations{max_iter}, method{abs_tol, abs_tol} {}
+    root_finder(size_t max_iter, double xtol, double ytol) : max_iterations{max_iter}, method{xtol, ytol} {}
 
     template <typename F, typename... Args>
     result_t solve(F&& func, Args&&... args)
     {
         method.initialize(std::forward<F>(func), std::forward<Args>(args)...);
 
-        std::cout << std::setprecision(20);
+        // std::cout << std::setprecision(20);
 
         for (size_t i = 0; i < (max_iterations + 1); ++i) {
             if (method.flag() != Flag::valid) {
@@ -239,26 +240,33 @@ struct method_base {
         double y;
     };
 
-    double atol = 1e-12;
+    double xtol = 1e-12;
+    double ytol = 1e-12;
     double dbl_eps = 2 * std::numeric_limits<double>::epsilon();
     Flag _flag;
 
-    method_base(double a) : atol{a}, dbl_eps{}, _flag{} {}
+    method_base(double x, double y) : xtol{x}, ytol{y}, dbl_eps{}, _flag{} {}
 
-    inline bool is_zero(double x)
+    inline bool is_y_zero(double y)
     {
-        return std::abs(x) <= atol;
+        return std::abs(y) <= ytol;
     }
 
-    inline bool is_zero(const graph_t& a)
+    inline bool is_y_zero(const graph_t& a)
     {
-        return std::abs(a.y) <= atol;
+        return is_y_zero(a.y);
     }
 
-    inline bool is_close(double x, double y)
+    inline bool is_x_close(double x, double y)
     {
-        double norm = std::min(std::abs(x), std::abs(y));
-        return std::abs(x - y) <= 0.125 * atol + 2 * dbl_eps * (norm + 1);
+        double norm = std::abs(x);
+        return std::abs(x - y) <= 2 * dbl_eps * norm + xtol;
+    }
+
+    inline bool is_x_close(const graph_t& a, const graph_t& b)
+    {
+        double norm = std::abs(a.x);
+        return std::abs(a.x - b.x) <= 2 * dbl_eps * norm + xtol;
     }
 
     inline bool is_same_sign(double x, double y)
@@ -318,13 +326,13 @@ struct method_base {
 
     inline double get_tol(double x)
     {
-        return dbl_eps * std::abs(x) + atol;
+        return dbl_eps * std::abs(x) + xtol;
     }
 };
 
 // Householder methods
 struct two_point_method : method_base {
-    two_point_method(double atol) : method_base{atol}, last{}, best{} {}
+    two_point_method(double xtol, double ytol) : method_base{xtol, ytol}, last{}, best{} {}
 
     graph_t last;
     graph_t best;
@@ -332,7 +340,7 @@ struct two_point_method : method_base {
     template <typename F>
     inline two_point_method& initialize(F&& fun, double x0, double x1)
     {
-        if (is_close(x0, x1)) {
+        if (is_x_close(x0, x1)) {
             set_flag(Flag::repeated_guess);
             return *this;
         }
@@ -340,13 +348,13 @@ struct two_point_method : method_base {
         last = {x0, fun(x0)};
         best = {x1, fun(x1)};
 
-        if (is_zero(last)) {
+        if (is_y_zero(last)) {
             std::swap(last, best);
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (is_zero(best)) {
+        if (is_y_zero(best)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -361,7 +369,7 @@ struct two_point_method : method_base {
             return *this;
         }
 
-        if (is_zero(best.y)) {
+        if (is_y_zero(best.y) && is_x_close(best.x, last.x)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -371,7 +379,7 @@ struct two_point_method : method_base {
             return *this;
         }
 
-        if (is_close(best.x, last.x)) {
+        if (is_x_close(best.x, last.x)) {
             set_flag(Flag::delta_root_zero);
             return *this;
         }
@@ -391,14 +399,14 @@ struct two_point_method : method_base {
 };
 
 struct one_point_method : two_point_method {
-    one_point_method(double atol) : two_point_method{atol} {}
+    one_point_method(double xtol, double ytol) : two_point_method{xtol, ytol} {}
 
     template <typename F>
     inline one_point_method& initialize(F&& fun, double x0)
     {
         best = {x0, fun(x0)};
 
-        if (is_zero(best)) {
+        if (is_y_zero(best)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -430,7 +438,7 @@ struct one_point_method : two_point_method {
  * more slowly for non-simple roots (roots of multiplicity greater than 1).
  */
 struct secant : two_point_method {
-    secant(double atol) : two_point_method{atol} {}
+    secant(double xtol, double ytol) : two_point_method{xtol, ytol} {}
 
     template <typename F>
     inline secant& iterate(F&& fun)
@@ -461,7 +469,7 @@ struct secant : two_point_method {
  * However, its use is not recommended as all other methods are safer and faster!
  */
 struct fixed_point : one_point_method {
-    fixed_point(double atol) : one_point_method{atol} {}
+    fixed_point(double xtol, double ytol) : one_point_method{xtol, ytol} {}
 
     template <typename F>
     inline fixed_point& initialize(F&& fun, double x0)
@@ -469,7 +477,7 @@ struct fixed_point : one_point_method {
         last.x = x0;
         best.x = fun(x0);
         best.y = best.x - last.x;
-        if (is_zero(best.y)) {
+        if (is_y_zero(best.y)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -488,7 +496,7 @@ struct fixed_point : one_point_method {
 
     inline fixed_point& check_convergence()
     {
-        if (is_zero(best.y)) {
+        if (is_y_zero(best.y)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -522,7 +530,7 @@ struct fixed_point : one_point_method {
  *
  */
 struct newton : one_point_method {
-    newton(double atol) : one_point_method(atol) {}
+    newton(double xtol, double ytol) : one_point_method(xtol, ytol) {}
 
     template <typename F>
     inline newton& iterate(F&& fun)
@@ -562,7 +570,7 @@ struct newton : one_point_method {
  * quadratic.
  */
 struct halley : one_point_method {
-    halley(double a) : one_point_method{a} {}
+    halley(double xyol, double ytol) : one_point_method{xtol, ytol} {}
 
     template <typename F>
     inline halley& iterate(F&& fun)
@@ -603,7 +611,7 @@ struct halley : one_point_method {
  *
  */
 struct steffensen : one_point_method {
-    steffensen(double a) : one_point_method{a} {}
+    steffensen(double xtol, double ytol) : one_point_method{xtol, ytol} {}
 
     template <typename F>
     inline steffensen& iterate(F&& fun)
@@ -639,7 +647,7 @@ struct bracket_method : method_base {
     graph_t right;
     graph_t proposal;
 
-    bracket_method(double a) : method_base{a} {}
+    bracket_method(double xtol, double ytol) : method_base{xtol, ytol} {}
 
     template <typename F>
     bracket_method& initialize(F&& fun, double a, double b)
@@ -648,12 +656,12 @@ struct bracket_method : method_base {
         right = {b, fun(b)};
         proposal = left;
 
-        if (is_zero(left)) {
+        if (is_y_zero(left)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (is_zero(right)) {
+        if (is_y_zero(right)) {
             set_flag(Flag::residual_zero);
             proposal = right;
             return *this;
@@ -670,7 +678,7 @@ struct bracket_method : method_base {
 
     inline bracket_method& check_convergence()
     {
-        if (is_zero(proposal)) {
+        if (is_y_zero(proposal)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -680,13 +688,13 @@ struct bracket_method : method_base {
             return *this;
         }
 
-        if (is_close(left.x, right.x)) {
+        if (is_x_close(left.x, right.x)) {
             double s0, s1;
 
             s0 = (proposal.y - left.y) / (proposal.x - left.x);
             s1 = (right.y - proposal.y) / (right.x - proposal.x);
 
-            if (is_close(s0, s1)) {
+            if (is_x_close(s0, s1)) {
                 set_flag(Flag::bracket_width_zero);
             } else {
                 set_flag(Flag::singularity);
@@ -734,12 +742,12 @@ struct bracket_method : method_base {
         return *this;
     }
 
-    inline void print()
-    {
-        std::cout << left.x << ", " << left.y << "\n  ";
-        std::cout << right.x << ", " << right.y << "\n  ";
-        std::cout << proposal.x << ", " << proposal.y << "\n  ";
-    }
+    // inline void print()
+    // {
+    //     std::cout << left.x << ", " << left.y << "\n  ";
+    //     std::cout << right.x << ", " << right.y << "\n  ";
+    //     std::cout << proposal.x << ", " << proposal.y << "\n  ";
+    // }
 };
 
 /**
@@ -777,7 +785,7 @@ struct bracket_method : method_base {
  *   Cambridge University Press. https://numerical.recipes/book.html
  */
 struct bisection : bracket_method {
-    bisection(double a) : bracket_method{a} {}
+    bisection(double xtol, double ytol) : bracket_method{xtol, ytol} {}
 
     template <typename F>
     inline bisection& iterate(F&& fun)
@@ -818,7 +826,7 @@ struct bisection : bracket_method {
  *
  */
 struct regula_falsi : bracket_method {
-    regula_falsi(double a) : bracket_method{a} {}
+    regula_falsi(double xtol, double ytol) : bracket_method{xtol, ytol} {}
 
     template <typename F>
     inline regula_falsi& iterate(F&& fun)
@@ -861,7 +869,7 @@ struct regula_falsi : bracket_method {
  *
  */
 struct ridder : bracket_method {
-    ridder(double a) : bracket_method{a} {}
+    ridder(double xtol, double ytol) : bracket_method{xtol, ytol} {}
 
     template <typename F>
     inline ridder& iterate(F&& fun)
@@ -888,7 +896,7 @@ struct ridder : bracket_method {
  * See the documentation of the `illinois` method for details.
  */
 struct illinois_type : bracket_method {
-    illinois_type(double a) : bracket_method{a} {}
+    illinois_type(double xtol, double ytol) : bracket_method{xtol, ytol} {}
 
     inline illinois_type& update_bracket(double gamma)
     {
@@ -945,7 +953,7 @@ struct illinois_type : bracket_method {
  *   doi:10.1007/BF01934364
  */
 struct illinois : illinois_type {
-    illinois(double a) : illinois_type{a} {}
+    illinois(double xtol, double ytol) : illinois_type{xtol, ytol} {}
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
     inline illinois& iterate(F&& fun)
@@ -982,7 +990,7 @@ struct illinois : illinois_type {
  *   equation. BIT 12, 503–508 (1972). https://doi.org/10.1007/BF01932959
  */
 struct pegasus : illinois_type {
-    pegasus(double a) : illinois_type{a} {}
+    pegasus(double xtol, double ytol) : illinois_type{xtol, ytol} {}
 
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
@@ -1016,7 +1024,7 @@ struct pegasus : illinois_type {
  *
  */
 struct anderson_bjorck : illinois_type {
-    anderson_bjorck(double a) : illinois_type{a} {}
+    anderson_bjorck(double xtol, double ytol) : illinois_type{xtol, ytol} {}
 
     // does not preserve left and right. Treats right as best guess.
     template <typename F>
@@ -1038,7 +1046,7 @@ struct contrapoint_method : method_base {
     double midpoint;
     double proposal;
 
-    contrapoint_method(double a) : method_base(a) {}
+    contrapoint_method(double xtol, double ytol) : method_base(xtol, ytol) {}
 
     template <typename F>
     inline contrapoint_method& initialize(F&& fun, double a, double b)
@@ -1049,12 +1057,12 @@ struct contrapoint_method : method_base {
         best.y = fun(b);
 
         // check for zeros
-        if (is_zero(best)) {
+        if (is_y_zero(best)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (is_zero(contrapoint)) {
+        if (is_y_zero(contrapoint)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -1099,7 +1107,7 @@ struct contrapoint_method : method_base {
             std::swap(best, contrapoint);
         }
 
-        if (is_zero(best)) {
+        if (is_y_zero(best)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
@@ -1111,23 +1119,13 @@ struct contrapoint_method : method_base {
 
     inline contrapoint_method& check_convergence()
     {
-        if (is_zero(best)) {
+        if (is_y_zero(best) && is_x_close(best, last)) {
             set_flag(Flag::residual_zero);
             return *this;
         }
 
-        if (is_close(best.x, contrapoint.x)) {
-            double s0, s1;
-
-            s0 = (best.y - last.y) / (best.x - last.x);
-            s1 = (best.y - contrapoint.y) / (best.x - contrapoint.x);
-
-            if (is_close(s0, s1)) {
-                set_flag(Flag::bracket_width_zero);
-            } else {
-                set_flag(Flag::singularity);
-            }
-
+        if (is_x_close(best, contrapoint)) {
+            set_flag(Flag::singularity);
             return *this;
         }
 
@@ -1182,14 +1180,14 @@ struct contrapoint_method : method_base {
  *   ISBN 978-0-471-20300-1
  */
 struct dekker : contrapoint_method {
-    dekker(double a) : contrapoint_method{a} {}
+    dekker(double xtol, double ytol) : contrapoint_method{xtol, ytol} {}
 
-    inline void print()
-    {
-        std::cout << best.x << ", " << best.y << "\n  ";
-        std::cout << contrapoint.x << ", " << contrapoint.y << "\n  ";
-        std::cout << last.x << ", " << last.y << "\n  ";
-    }
+    // inline void print()
+    // {
+    //     std::cout << best.x << ", " << best.y << "\n  ";
+    //     std::cout << contrapoint.x << ", " << contrapoint.y << "\n  ";
+    //     std::cout << last.x << ", " << last.y << "\n  ";
+    // }
 
     template <typename F>
     inline dekker& iterate(F&& fun)
@@ -1202,7 +1200,6 @@ struct dekker : contrapoint_method {
         if (is_between(proposal, best.x, midpoint)) {
             best.x = proposal;
         } else {
-            std::cout << " Bisection\n";
             best.x = midpoint;
         }
         best.y = fun(best.x);
@@ -1251,7 +1248,8 @@ struct dekker : contrapoint_method {
  *   ISBN 978-0-471-20300-1
  */
 struct dekker_newton : contrapoint_method {
-    dekker_newton(double a) : contrapoint_method{a} {}
+    dekker_newton(double xtol, double ytol) : contrapoint_method{xtol, ytol} {}
+
     template <typename F>
     inline dekker_newton& iterate(F&& fun)
     {
