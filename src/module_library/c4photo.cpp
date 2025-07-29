@@ -137,7 +137,7 @@ photosynthesis_outputs c4photoC(
                     (dr_boundary / gbw + dr_stomata / bb0_adj);  // Pa
 
     // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12, 1e-14);
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12, 1e-10);
     root_algorithm::result_t result = solver.solve(
         check_assim_rate,
         0.5 * Ca_pa,
