@@ -174,7 +174,7 @@ energy_balance_outputs leaf_energy_balance(
     // offset
     double constexpr delta_temp = 0.5;  // degrees C
 
-    root_algorithm::root_finder<root_algorithm::secant> solver(500, 1e-10, 1e-12);
+    root_algorithm::root_finder<root_algorithm::secant> solver(500, 1e-10, 1e-14);
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_temp,
