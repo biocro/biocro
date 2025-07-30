@@ -150,7 +150,7 @@ photosynthesis_outputs c3photoC(
         Ca - A_min * (dr_boundary / gbw + dr_stomata / b0_adj);  // micromol / mol
 
     // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-12, 1e-10);
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-14, 1e-12);
     root_algorithm::result_t result = solver.solve(
         check_assim_rate,
         0.718 * Ca,

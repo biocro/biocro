@@ -268,11 +268,6 @@ struct method_base {
         return is_x_close(a.x, b.x);
     }
 
-    inline bool is_lipschitz_continuous(const graph_t& a, const graph_t& b) {
-        bool y_is_small = std::min(std::abs(a.y), std::abs(b.y)) < 1;
-        return y_is_small && (std::abs(a.y - b.y) <= std::abs(a.x - b.x) / xtol);
-    }
-
     inline bool is_same_sign(double x, double y)
     {
         return x * y > 0;
@@ -693,12 +688,7 @@ struct bracket_method : method_base {
         }
 
         if (is_x_close(left.x, right.x)) {
-
-            if (is_lipschitz_continuous(left, right)) {
-                set_flag(Flag::bracket_width_zero);
-            } else {
-                set_flag(Flag::singularity);
-            }
+            set_flag(Flag::bracket_width_zero);
             return *this;
         }
 
@@ -1125,11 +1115,7 @@ struct contrapoint_method : method_base {
         }
 
         if (is_x_close(best, contrapoint)) {
-            if (is_lipschitz_continuous(best, contrapoint)){
-                set_flag(Flag::bracket_width_zero);
-            } else{
-                set_flag(Flag::singularity);
-            }
+            set_flag(Flag::bracket_width_zero);
             return *this;
         }
 

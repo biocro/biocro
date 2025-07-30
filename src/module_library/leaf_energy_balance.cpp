@@ -172,12 +172,13 @@ energy_balance_outputs leaf_energy_balance(
 
     // Run the secant method, with starting guesses of air_temperature +/- an
     // offset
-    double constexpr delta_temp = 0.5;  // degrees C
+    double constexpr delta_temp = 50;  // degrees C
 
-    root_algorithm::root_finder<root_algorithm::secant> solver(500, 1e-12, 1e-10);
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-14, 1e-12);
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_temp,
+        air_temperature,
         air_temperature - delta_temp,
         air_temperature + delta_temp);
 
