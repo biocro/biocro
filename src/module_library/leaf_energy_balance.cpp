@@ -68,16 +68,17 @@ double calculate_gbw_leaf(
 double check_leaf_temp(
     double const air_pressure,          // Pa
     double const air_temperature,       // degrees C
-    double const Delta_rho,             // kg / m^3
+    double const relative_humidity,     // dimensionless
+    double const c_p,                   // kg / m^3 / K
     double const epsilon_s,             // dimensionless
-    double const gamma,                 // kg / m^3 / K
     double const gbw_canopy,            // m / s
     double const J_a,                   // J / m^2 / s
     double const lambda,                // J / kg
     double const leaf_temperature,      // degrees C
     double const leaf_width,            // m
-    double const s,                     // kg / m^3 / K
+    double const rho_w_air,             // kg / m^3
     double const stomatal_conductance,  // mol / m^2 / s
+    double const vp_air,                // Pa
     double const wind_speed             // m / s
 )
 {
@@ -94,17 +95,31 @@ double check_leaf_temp(
 
     // Get the boundary layer conductance and total conductance to water
     // vapor
-    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);  // m / s
-    double const gw = sequential_conductance(gsw, gbw);               // m / s
+    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);             // m / s
+    double const gw = sequential_conductance(gsw, gbw);                          // m / s
+    double const molar_gw = g_to_molecular(air_pressure, gw, leaf_temperature);  // mol / m^2 / s
 
-    // Get the new leaf temperature using the Penman-Monteith equation
-    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);
-    double const pm_top = Phi_N / gw - lambda * Delta_rho;              // J / m^3
-    double const pm_bottom = lambda * (s + gamma * (1.0 + gbw / gsw));  // J / m^3 / K
+    // radiation input
+    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);  // W / m^2
 
-    double const leaf_temperature_new = air_temperature + pm_top / pm_bottom;  // degrees C
+    // conduction with air
+    double const temp_diff = (leaf_temperature - air_temperature);
+    double constexpr gha_coef = 0.135;
+    double const gha_forced = gha_coef * std::sqrt(wind_speed / leaf_width);  // m / s
+    double const gha_free = 0.050 * std::pow(std::abs(temp_diff) / leaf_width, 0.25);
+    double const thermal_conductance = c_p * rho_w_air * std::max(gha_free, gha_forced);
+    double const conduction = thermal_conductance * temp_diff;  // W / m^2
 
-    return leaf_temperature - leaf_temperature_new;  // degrees C
+    // latent heat flux
+    using physical_constants::molar_mass_of_water;
+    double vp_leaf = saturation_vapor_pressure(leaf_temperature);  // Pa
+
+    double const vpd = vp_leaf - vp_air;                                                 // Pa
+    double const molar_transpiration = molar_gw * vpd / air_pressure;                    // mol / m^2 / s
+    double const latent_heat_flux = lambda * molar_mass_of_water * molar_transpiration;  // W / m^2
+
+    // eqn 14.1 in Campbell & Norman
+    return Phi_N - conduction - latent_heat_flux;  // W / m^2
 }
 
 /**
@@ -164,7 +179,7 @@ energy_balance_outputs leaf_energy_balance(
     double const lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
     double const p_w_sat_air = saturation_vapor_pressure(air_temperature);               // Pa
     double const rho_ta = dry_air_density(air_temperature, air_pressure);                // kg / m^3
-    double const s = TempToSFS(air_temperature);                                         // kg / m^3 / K
+    double const s = TempToSFS(air_temperature);
 
     // Get the pyschrometric parameter
     double const gamma = rho_ta * c_p / lambda;  // kg / m^3 / K
@@ -181,6 +196,7 @@ energy_balance_outputs leaf_energy_balance(
 
     double const Delta_rho = rho_w_sat - rho_w_air;  // kg / m^3
 
+    double vp_air = saturation_vapor_pressure(air_temperature) * relative_humidity;  // Pa
     // Get total absorbed light energy (longwave and shortwave)
     double const J_a = absorbed_shortwave_energy + absorbed_longwave_energy;  // J / m^2 / s
 
@@ -189,19 +205,20 @@ energy_balance_outputs leaf_energy_balance(
     // function must be found.
     auto check_leaf_temp_partial = [=](double const leaf_temperature) {
         return check_leaf_temp(
-            air_pressure,          // Pa
-            air_temperature,       // degrees C
-            Delta_rho,             // kg / m^3
-            epsilon_s,             // dimensionless
-            gamma,                 // kg / m^3 / K
-            gbw_canopy,            // m / s
-            J_a,                   // J / m^2 / s
-            lambda,                // J / kg
-            leaf_temperature,      // degrees C
-            leaf_width,            // m
-            s,                     // kg / m^3 / K
+            air_pressure,       // Pa
+            air_temperature,    // degrees C
+            relative_humidity,  // kg / m^3
+            c_p,
+            epsilon_s,         // dimensionless
+            gbw_canopy,        // m / s
+            J_a,               // J / m^2 / s
+            lambda,            // J / kg
+            leaf_temperature,  // degrees C
+            leaf_width,        // m
+            rho_w_air,
             stomatal_conductance,  // mol / m^2 / s
-            wind_speed             // m / s
+            vp_air,
+            wind_speed  // m / s
         );
     };
 
@@ -221,7 +238,7 @@ energy_balance_outputs leaf_energy_balance(
     if (!root_algorithm::is_successful(result.flag)) {
         throw std::runtime_error(
             "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            root_algorithm::flag_message(result.flag) + "\nresidual = " + std::to_string(result.residual));
     }
 
     // Get final value

@@ -23,16 +23,17 @@ struct energy_balance_outputs {
 double check_leaf_temp(
     double const air_pressure,          // Pa
     double const air_temperature,       // degrees C
-    double const Delta_rho,             // kg / m^3
+    double const relative_humidity,     // dimensionless
+    double const c_p,                   // kg / m^3 / K
     double const epsilon_s,             // dimensionless
-    double const gamma,                 // kg / m^3 / K
     double const gbw_canopy,            // m / s
     double const J_a,                   // J / m^2 / s
     double const lambda,                // J / kg
     double const leaf_temperature,      // degrees C
     double const leaf_width,            // m
-    double const s,                     // kg / m^3 / K
+    double const rho_w_air,             // kg / m^3
     double const stomatal_conductance,  // mol / m^2 / s
+    double const vp_air,                // Pa
     double const wind_speed             // m / s
 );
 

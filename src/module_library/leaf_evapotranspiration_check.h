@@ -132,20 +132,22 @@ void leaf_evapotranspiration_check::do_operation() const
     // Get total absorbed light energy (longwave and shortwave)
     double const J_a = absorbed_shortwave + absorbed_longwave;  // J / m^2 / s
 
+    double vp_air = saturation_vapor_pressure(temp) * rh;  // Pa
     // Get the temperature difference
     double const leaf_temp_check = check_leaf_temp(
         atmospheric_pressure,
         temp,
-        Delta_rho,
+        rh,
+        c_p,
         epsilon_s,
-        gamma,
         gbw_canopy,
         J_a,
         lambda,
         leaf_temperature,
         leafwidth,
-        s,
+        rho_w_air,
         Gs,
+        vp_air,
         windspeed);
 
     update(leaf_temp_check_op, leaf_temp_check);
