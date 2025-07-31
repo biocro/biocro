@@ -5,8 +5,8 @@
 #include "../framework/state_map.h"
 #include "root_onedim.h"
 
-#include <functional>  // for std::function
-#include <map>
+// #include <functional>  // for std::function
+// #include <map>
 namespace standardBML
 {
 
@@ -59,6 +59,16 @@ struct root_test_function {
     }
 };
 
+struct fixed_point_test {
+    double epsilon;
+    double answer;
+
+    double operator()(double x)
+    {
+        return answer + epsilon * (x - answer);
+    }
+};
+
 /**
  * @brief Function object for Kepler's equation. Kepler's equation relates
  * the mean anomaly \f$y\f$ to the eccentric anomaly \f$x\f$ of an elliptical orbit of
@@ -82,6 +92,9 @@ struct root_test_function {
  * For test purposes, we compute `y` from `x=1` so that correct root is known. If
  * any root solving method returns something other than `x=1`, then it has failed
  * to find a root, or it has converged to a different root.
+ *
+ * The fixed_point test is special since that method identifies fixed points using
+ * iteration of the passed function.
  *
  * Every method returns the `root`, `residual`, and `iteration` as well as a `flag`
  * indicating the reason for termination. If a method is functioning correctly,
@@ -126,7 +139,6 @@ class root_onedim_test : public direct_module
           answer{get_input(input_quantities, "answer")},
           max_iterations{get_input(input_quantities, "max_iterations")},
           abs_tol{get_input(input_quantities, "abs_tol")},
-          rel_tol{get_input(input_quantities, "rel_tol")},
           lower_bracket{get_input(input_quantities, "lower_bracket")},
           upper_bracket{get_input(input_quantities, "upper_bracket")},
           single_guess{get_input(input_quantities, "single_guess")},
@@ -158,7 +170,6 @@ class root_onedim_test : public direct_module
     const double& answer;
     const double& max_iterations;
     const double& abs_tol;
-    const double& rel_tol;
     const double& lower_bracket;
     const double& upper_bracket;
     const double& single_guess;
@@ -207,7 +218,6 @@ string_vector root_onedim_test::get_inputs()
         "answer",
         "max_iterations",
         "abs_tol",
-        "rel_tol",
         "lower_bracket",
         "upper_bracket",
         "single_guess"};
@@ -237,55 +247,55 @@ void root_onedim_test::do_operation() const
     root_test_function test{ecc, answer};
     size_t iter = static_cast<size_t>(max_iterations);
 
-    result = root_finder<secant>(iter, abs_tol, rel_tol)
+    result = root_finder<secant>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(secant_result, result);
 
-    result = root_finder<fixed_point>(iter, abs_tol, rel_tol)
-                 .solve(test, single_guess);
+    result = root_finder<fixed_point>(iter, abs_tol)
+                 .solve(fixed_point_test{ecc, answer}, single_guess);
     update_result(fixed_point_result, result);
 
-    result = root_finder<newton>(iter, abs_tol, rel_tol)
+    result = root_finder<newton>(iter, abs_tol)
                  .solve(test, single_guess);
     update_result(newton_result, result);
 
-    result = root_finder<halley>(iter, abs_tol, rel_tol)
+    result = root_finder<halley>(iter, abs_tol)
                  .solve(test, single_guess);
     update_result(halley_result, result);
 
-    result = root_finder<steffensen>(iter, abs_tol, rel_tol)
+    result = root_finder<steffensen>(iter, abs_tol)
                  .solve(test, single_guess);
     update_result(steffensen_result, result);
 
-    result = root_finder<bisection>(iter, abs_tol, rel_tol)
+    result = root_finder<bisection>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(bisection_result, result);
 
-    result = root_finder<regula_falsi>(iter, abs_tol, rel_tol)
+    result = root_finder<regula_falsi>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(regula_falsi_result, result);
 
-    result = root_finder<ridder>(iter, abs_tol, rel_tol)
+    result = root_finder<ridder>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(ridder_result, result);
 
-    result = root_finder<illinois>(iter, abs_tol, rel_tol)
+    result = root_finder<illinois>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(illinois_result, result);
 
-    result = root_finder<pegasus>(iter, abs_tol, rel_tol)
+    result = root_finder<pegasus>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(pegasus_result, result);
 
-    result = root_finder<anderson_bjorck>(iter, abs_tol, rel_tol)
+    result = root_finder<anderson_bjorck>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(anderson_bjorck_result, result);
 
-    result = root_finder<dekker>(iter, abs_tol, rel_tol)
+    result = root_finder<dekker>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_result, result);
 
-    result = root_finder<dekker_newton>(iter, abs_tol, rel_tol)
+    result = root_finder<dekker_newton>(iter, abs_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_newton_result, result);
 }

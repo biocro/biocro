@@ -53,7 +53,8 @@
   \code{\link{initialize_csv}} or modified by \code{\link{add_csv_row}} or
   \code{\link{update_csv_cases}}. Such files can be read from R using
   \code{\link{cases_from_csv}}, and the resulting case objects can be passed to
-  \code{\link{test_module}}.
+  \code{\link{test_module}}. The convenience function \code{\link{run_module_test}}
+  loads a module's stored test cases and passes them to \code{\link{test_module}}.
 
   Although it is possible, directly editing the case files is not recommended
   since \code{\link{initialize_csv}}, \code{\link{add_csv_row}}, and

@@ -74,14 +74,14 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
 
         ## Uncomment this when debugging test failures to visually check whether
         ## the difference is real
-        #dev.new()
-        #print(lattice::xyplot(
+        # dev.new()
+        # print(lattice::xyplot(
         #    total_carbon_use + canopy_gross_assimilation ~ fractional_doy,
         #    data = soybean_res,
         #    type = 'l',
         #    auto = TRUE,
         #    main = partitioning_calculator
-        #))
+        # ))
 
         # Check that all CO2 loss rates are non-negative
         with(soybean_res, {

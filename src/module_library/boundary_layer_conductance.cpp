@@ -171,24 +171,34 @@ double leaf_boundary_layer_conductance_nikolov(
         return gbv_free - new_gbv_free;  // m / s
     };
 
-    // Run the Dekker method; check_leaf_gbv_free is always positive for
+    // Run Dekker's method; check_leaf_gbv_free is always positive for
     // gbv_free = 0, but it is difficult to find a finite value where
     // check_leaf_gbv_free is guaranteed to be negative; here we just use a
     // very large value and hope for the best.
-    root_algorithm::root_finder<root_algorithm::dekker> solver{500, 1e-12, 1e-12};
+    root_algorithm::root_finder<root_algorithm::dekker> solver(100, 1e-14, 1e-12);
 
     root_algorithm::result_t result = solver.solve(
         check_leaf_gbv_free,
-        1e-4,  // first guess
-        0,     // lower bound of initial bracket
-        0.5    // upper bound of initial bracket
+        0.001,  // first guess
+        0,      // lower bound of initial bracket
+        0.5     // upper bound of initial bracket
     );
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful_relaxed(result.flag)) {
+    if (!result.success) {
+        std::stringstream out;
+        out << std::setprecision(20) << '\n';
+        // out << solver.method.left.x << ", " << solver.method.left.y << '\n';
+        // out << solver.method.right.x << ", " << solver.method.right.y << '\n';
+        // out << solver.method.proposal.x << ", " << solver.method.proposal.y << '\n';
+
+        out << solver.method.best.x << ", " << solver.method.best.y << '\n';
+        out << solver.method.contrapoint.x << ", " << solver.method.contrapoint.y << '\n';
+        out << solver.method.last.x << ", " << solver.method.last.y << '\n';
+
         throw std::runtime_error(
-            "gbv_free solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+
+            root_algorithm::error_message(result, "gbv_free solver reports failed convergence\n" + out.str()));
     }
 
     // Get final value
