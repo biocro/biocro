@@ -62,7 +62,7 @@ void c4_leaf_photosynthesis::do_operation() const
     const double initial_stomatal_conductance =
         c4photoC(
             incident_ppfd, ambient_temperature, ambient_temperature,
-            rh, Vcmax_at_25, alpha1, kparm, theta, beta,
+            rh, Vcmax_at_25, kparm, theta, beta,
             RL_at_25, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
             upperT, lowerT, gbw_guess)
             .Gs;  // mol / m^2 / s
@@ -86,7 +86,7 @@ void c4_leaf_photosynthesis::do_operation() const
     const photosynthesis_outputs photo =
         c4photoC(
             incident_ppfd, leaf_temperature, ambient_temperature,
-            rh, Vcmax_at_25, alpha1, kparm,
+            rh, Vcmax_at_25, kparm,
             theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
             atmospheric_pressure, upperT, lowerT,
             et.gbw_molecular);

@@ -195,12 +195,12 @@ string_vector c4_assimilation::get_outputs()
 void c4_assimilation::do_operation() const
 {
     photosynthesis_outputs c4_results = c4photoC(
-        Qp,
+        alpha * Qp,
         Tleaf,
         Tambient,
         rh,
         Vcmax_at_25,
-        alpha,
+        // alpha,
         kparm,
         theta,
         beta,

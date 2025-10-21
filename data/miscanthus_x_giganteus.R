@@ -49,7 +49,7 @@ miscanthus_x_giganteus <- list(
         TTc                         = 0
     ),
     parameters = list(
-        alpha1                      = 0.04,
+        alpha1                      = 0.04/(1 - 0.04 - 0.09), # (1 - leaf_transmittance_par - leaf_reflectance_par)
         alphab1                     = 0,
         atmospheric_pressure        = 101325,
         atmospheric_scattering      = 0.3,

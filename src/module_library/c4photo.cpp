@@ -20,12 +20,12 @@ using physical_constants::dr_stomata;
 
 */
 photosynthesis_outputs c4photoC(
-    double const Qp,                    // micromol / m^2 / s
-    double const leaf_temperature,      // degrees C
-    double const ambient_temperature,   // degrees C
-    double const relative_humidity,     // dimensionless from Pa / Pa
-    double const Vcmax_at_25,           // micromol / m^2 / s
-    double const alpha,                 // mol / mol
+    double const absorbed_ppfd,        // micromol / m^2 / s
+    double const leaf_temperature,     // degrees C
+    double const ambient_temperature,  // degrees C
+    double const relative_humidity,    // dimensionless from Pa / Pa
+    double const Vcmax_at_25,          // micromol / m^2 / s
+    // double const alpha,                 // mol / mol
     double const kparm,                 // mol / m^2 / s
     double const theta,                 // dimensionless
     double const beta,                  // dimensionless
@@ -45,7 +45,7 @@ photosynthesis_outputs c4photoC(
     double const inf = std::numeric_limits<double>::infinity();
 
     // Check inputs
-    if (Qp < 0) {
+    if (absorbed_ppfd < 0) {
         throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
     }
 
@@ -66,8 +66,8 @@ photosynthesis_outputs c4photoC(
     double const RT = Rtn / Rtd;                                         // micromol / m^2 / s
 
     // Collatz 1992. Appendix B. Quadratic coefficients from Equation 2B.
-    double const b0 = VT * alpha * Qp;
-    double const b1 = -(VT + alpha * Qp);
+    double const b0 = VT * absorbed_ppfd;
+    double const b1 = -(VT + absorbed_ppfd);
     double const b2 = theta;
 
     // Calculate the smaller of the two quadratic roots, as mentioned following

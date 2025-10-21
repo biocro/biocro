@@ -119,15 +119,16 @@ canopy_photosynthesis_outputs CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_dir = light_profile.sunlit_incident_ppfd[current_layer];       // micromol / m^2 / s
+        double i_dir = light_profile.sunlit_absorbed_ppfd[current_layer];       // micromol / m^2 / s
         double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
         double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless. Fraction of LAI that is sunlit.
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
+        double absorbed_ppfd = Alpha * i_dir;
 
         double direct_gsw_estimate =
             c4photoC(
-                i_dir, ambient_temperature, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
+                absorbed_ppfd, ambient_temperature, ambient_temperature,
+                RH, Vcmax_at_25, Kparm,
                 theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
@@ -148,8 +149,8 @@ canopy_photosynthesis_outputs CanAC(
 
         photosynthesis_outputs direct_photo =
             c4photoC(
-                i_dir, leaf_temperature_dir, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
+                absorbed_ppfd, leaf_temperature_dir, ambient_temperature,
+                RH, Vcmax_at_25, Kparm,
                 theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 et_direct.gbw_molecular);
@@ -159,15 +160,16 @@ canopy_photosynthesis_outputs CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_diff = light_profile.shaded_incident_ppfd[current_layer];       // micromol / m^2 / s
+        double i_diff = light_profile.shaded_absorbed_ppfd[current_layer];       // micromol / m^2 / s
         double j_diff = light_profile.shaded_absorbed_shortwave[current_layer];  // J / m^2 / s
         double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless. Fraction of LAI that is shaded.
-        double Leafshade = LAIc * pLeafshade;                                    // dimensionless
+        double Leafshade = LAIc * pLeafshade;                                    // dimensionelss
+        double diffuse_absorbed_ppfd = Alpha * i_diff;
 
         double diffuse_gsw_estimate =
             c4photoC(
-                i_diff, ambient_temperature, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
+                diffuse_absorbed_ppfd, ambient_temperature, ambient_temperature,
+                RH, Vcmax_at_25, Kparm,
                 theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
@@ -188,8 +190,8 @@ canopy_photosynthesis_outputs CanAC(
 
         photosynthesis_outputs diffuse_photo =
             c4photoC(
-                i_diff, leaf_temperature_diff, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
+                diffuse_absorbed_ppfd, leaf_temperature_diff, ambient_temperature,
+                RH, Vcmax_at_25, Kparm,
                 theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                 atmospheric_pressure, upperT, lowerT,
                 et_diffuse.gbw_molecular);
