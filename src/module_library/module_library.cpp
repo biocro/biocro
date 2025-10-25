@@ -42,6 +42,7 @@
 #include "leaf_evapotranspiration_check.h"
 #include "leaf_gbw_campbell.h"
 #include "leaf_gbw_nikolov.h"
+#include "leaf_heat_balance_module.h"
 #include "leaf_shape_factor.h"
 #include "leaf_water_stress_exponential.h"
 #include "light_from_solar.h"
@@ -143,6 +144,7 @@ creator_map standardBML::module_library::library_entries =
      {"leaf_evapotranspiration_check",                         &create_mc<leaf_evapotranspiration_check>},
      {"leaf_gbw_campbell",                                     &create_mc<leaf_gbw_campbell>},
      {"leaf_gbw_nikolov",                                      &create_mc<leaf_gbw_nikolov>},
+     {"leaf_heat_balance",                                     &create_mc<leaf_heat_balance_module>},
      {"leaf_shape_factor",                                     &create_mc<leaf_shape_factor>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
      {"light_from_solar",                                      &create_mc<light_from_solar>},
