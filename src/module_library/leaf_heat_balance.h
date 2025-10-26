@@ -65,27 +65,23 @@ struct leaf_heat_balance {
     );
 
     // solve heat balance equation, using root_finding
-    void solve();
-    // extract results
-    energy_balance_outputs make_result();
+    root_finding::result_t solve() const;
+    // extract results, given the correct value of leaf_temperature
+    energy_balance_outputs make_result(root_finding::result_t const& result) const;
 
     // leaf heat balance based on:
     // Equation 14.1, pg 224 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
     double heat_balance(double const& leaf_temperature) const;
     double blackbody_radiation(double const& leaf_temperature) const;
-    double sensible_heat_flux(double const& leaf_temperature) const;
-    double latent_heat_flux(double const& leaf_temperature) const;
-    double leaf_transpiration(double const& leaf_temperature) const;
-    double heat_conductance(double const& delta_temp) const;
-    double water_vapor_conductance(double const& delta_temp) const;
+    double sensible_heat_flux(double const& leaf_temperature, double const& _water_vapor_conductance) const;
+    double latent_heat_flux(double const& _leaf_transpiration) const;
+    double leaf_transpiration(double const& leaf_temperature, double const& _water_vapor_conductance) const;
+    double heat_conductance(double const& _water_vapor_conductance) const;
+    double water_vapor_conductance(double const& leaf_temperature) const;
 
    private:
-    root_finding::dekker _equation_solver;
-    root_finding::result_t _equation_solver_result;
-    // intermediate values computed from input but don't depend on `leaf_temperature`
-    // these can be computed once to avoid recomputing during iteration
-
-    // double _specific_latent_heat_water;
+    // equation_solver must be mutable as it has internal that it manages.
+    mutable root_finding::dekker _equation_solver{100, 1e-12, 1e-12};
 };
 
 #endif

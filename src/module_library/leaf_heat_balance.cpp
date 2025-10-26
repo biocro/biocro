@@ -30,44 +30,42 @@ leaf_heat_balance::leaf_heat_balance(
 {
 }
 
-void leaf_heat_balance::solve()
+root_finding::result_t leaf_heat_balance::solve() const
 {
     // Run Dekker's method
-    double constexpr delta_temp = 50;  // degrees C
 
-    _equation_solver_result = _equation_solver.solve(
+    root_finding::result_t _result = _equation_solver.solve(
         [this](double x) { return this->heat_balance(x); },
-        air_temperature + 0.9 * delta_temp,  // guess
-        air_temperature - delta_temp,        // lower
-        air_temperature + delta_temp         // upper
+        air_temperature,                                                     // guess
+        air_temperature - 20,                                                // lower
+        air_temperature + 30 / (1 + stomatal_conductance_water_vapor / 0.5)  // upper
     );
 
     // Throw exception if not converged
-    if (!root_finding::is_successful(_equation_solver_result.flag)) {
+    if (!root_finding::is_successful(_result.flag)) {
         throw std::runtime_error(
             "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_finding::flag_message(_equation_solver_result.flag));
+            root_finding::flag_message(_result.flag));
     }
+
+    return _result;
 }
 
-energy_balance_outputs leaf_heat_balance::make_result()
+energy_balance_outputs leaf_heat_balance::make_result(root_finding::result_t const& result) const
 {
     // Get final value
-    double const leaf_temperature = _equation_solver_result.root;  // degrees C
+    double leaf_temperature = result.root;  // deg C
 
-    double E = leaf_transpiration(leaf_temperature);
-    double B = blackbody_radiation(leaf_temperature);
-    double H = sensible_heat_flux(leaf_temperature);
-    double L = latent_heat_flux(leaf_temperature);
+    double vapor_cond = water_vapor_conductance(leaf_temperature);
+    double E = leaf_transpiration(leaf_temperature, vapor_cond);
+    double B = blackbody_radiation(leaf_temperature);             // J / m^2 / s
+    double H = sensible_heat_flux(leaf_temperature, vapor_cond);  // J / m^2 / s
+    double L = latent_heat_flux(E);                               // J / m^2 / s
 
     // Calculate additional outputs
     double const gsw = g_to_mass(air_pressure, stomatal_conductance_water_vapor, leaf_temperature);  // m / s
     double const gbw_molecular = water_vapor_conductance(leaf_temperature);                          // mol / m^2 / s
-
-    double const gbw_leaf = g_to_mass(air_pressure, gbw_molecular, leaf_temperature);  // mol / m^2 / s
-
-    // Relative humidity just outside the leaf boundary layer
-    // double const RH_canopy = (rho_w_air + E / gbw_canopy) / rho_w_sat;  // dimensionless
+    double const gbw_leaf = g_to_mass(air_pressure, gbw_molecular, leaf_temperature);                // mol / m^2 / s
 
     return energy_balance_outputs{
         /* Deltat = */ leaf_temperature - air_temperature,                 // degrees C
@@ -77,22 +75,24 @@ energy_balance_outputs leaf_heat_balance::make_result()
         /* gbw = */ 0,                                                     // m / s
         /* gbw_canopy = */ canopy_boundary_layer_conductance_water_vapor,  // m / s
         /* gbw_leaf = */ gbw_leaf,                                         // m / s
-        /* gbw_molecular = */ water_vapor_conductance(leaf_temperature),   // mol / m^2 / s
+        /* gbw_molecular = */ vapor_cond,                                  // mol / m^2 / s
         /* gsw = */ gsw,                                                   // m / s
         /* H = */ H,                                                       // J / m^2 / s
-        /* leaf_temp_check = */ _equation_solver_result.residual,          // degrees C
+        /* leaf_temp_check = */ result.residual,                           // degrees C
         /* PhiN = */ absorbed_radiation - B,                               // J / m^2 / s
         /* RH_canopy = */ 0,                                               // dimensionless
         /* storage = */ absorbed_radiation - B - H - L,                    // J / m^2 / s
         /* TransR = */ 1e3 * E,                                            // mmol / m^2 / s
-        /* iterations = */ _equation_solver_result.iteration               // not a physical quantity
+        /* iterations = */ result.iteration                                // not a physical quantity
     };
 }
 
 // Equation 14.1, pg 224 of Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
 double leaf_heat_balance::heat_balance(double const& leaf_temperature) const
 {
-    return absorbed_radiation - blackbody_radiation(leaf_temperature) - sensible_heat_flux(leaf_temperature) - latent_heat_flux(leaf_temperature);  // J / m^2 / s
+    double vapor_cond = water_vapor_conductance(leaf_temperature);
+    double E = leaf_transpiration(leaf_temperature, vapor_cond);
+    return absorbed_radiation - blackbody_radiation(leaf_temperature) - sensible_heat_flux(leaf_temperature, vapor_cond) - latent_heat_flux(E);  // J / m^2 / s
 }
 
 // Stefan Boltzmann Law
@@ -105,38 +105,38 @@ double leaf_heat_balance::blackbody_radiation(double const& leaf_temperature) co
     return leaf_emissivity * stefan_boltzmann * std::pow(temp, 4);  // J / m^2 / s
 }
 
-double leaf_heat_balance::sensible_heat_flux(double const& leaf_temperature) const
+double leaf_heat_balance::sensible_heat_flux(double const& leaf_temperature, double const& _water_vapor_conductance) const
 {
     using physical_constants::molar_mass_of_dry_air;
     const double cp = molar_mass_of_dry_air * TempToCp(air_temperature);  // J / mol
 
     double delta_temp = leaf_temperature - air_temperature;
-    return cp * heat_conductance(leaf_temperature) * (delta_temp);
+    return cp * heat_conductance(_water_vapor_conductance) * (delta_temp);
 }
 
-double leaf_heat_balance::latent_heat_flux(double const& leaf_temperature) const
+double leaf_heat_balance::latent_heat_flux(double const& _leaf_transpiration) const
 {
     using physical_constants::molar_mass_of_water;                                       // kg /mol
     double const lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
 
-    return lambda * molar_mass_of_water * leaf_transpiration(leaf_temperature);  // J / m^2 / s
+    return lambda * molar_mass_of_water * _leaf_transpiration;  // J / m^2 / s
 }
 
-double leaf_heat_balance::leaf_transpiration(double const& leaf_temperature) const
+double leaf_heat_balance::leaf_transpiration(double const& leaf_temperature, double const& _water_vapor_conductance) const
 {
     double vp_air = relative_humidity * saturation_vapor_pressure(air_temperature);  // Pa
 
     // assuming leaf's interior has relative humidity = 1
-    double vp_leaf = saturation_vapor_pressure(leaf_temperature);                          // Pa
-    return water_vapor_conductance(leaf_temperature) * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
+    double vp_leaf = saturation_vapor_pressure(leaf_temperature);         // Pa
+    return _water_vapor_conductance * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
 }
 
-double leaf_heat_balance::heat_conductance(double const& leaf_temperature) const
+double leaf_heat_balance::heat_conductance(double const& _water_vapor_conductance) const
 {
     // from Table 7.6 on pg. 109 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
     // using the forced convection; ratio is almost the same for free convection (I think the numbers in the table are rounded)
     constexpr double heat_to_vapor_conductance_ratio = 0.135 / 0.147;
-    return heat_to_vapor_conductance_ratio * water_vapor_conductance(leaf_temperature);  // mol / m^2 / s
+    return heat_to_vapor_conductance_ratio * _water_vapor_conductance;  // mol / m^2 / s
 }
 
 double leaf_heat_balance::water_vapor_conductance(double const& leaf_temperature) const

@@ -148,8 +148,8 @@ void leaf_heat_balance_module::do_operation() const
         windspeed);
     // Get canopy boundary layer conductance to water vapor
 
-    _leaf_heat_balance.solve();
-    energy_balance_outputs result = _leaf_heat_balance.make_result();
+    root_finding::result_t res = _leaf_heat_balance.solve();
+    energy_balance_outputs result = _leaf_heat_balance.make_result(res);
 
     update(EPenman_op, result.EPenman);
     update(EPriestly_op, result.EPriestly);

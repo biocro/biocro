@@ -129,8 +129,8 @@ void c3_leaf_photosynthesis_test::do_operation() const
         rh,
         initial_stomatal_conductance,
         windspeed);
-    _heat_equation.solve();
-    const energy_balance_outputs et = _heat_equation.make_result();
+    root_finding::result_t result = _heat_equation.solve();
+    const energy_balance_outputs et = _heat_equation.make_result(result);
 
     double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
 
