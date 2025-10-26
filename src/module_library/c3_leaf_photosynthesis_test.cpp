@@ -119,8 +119,17 @@ void c3_leaf_photosynthesis_test::do_operation() const
 
     // Calculate a new value for leaf temperature using the estimate for
     // stomatal conductance
-
-    _heat_equation.solve(initial_stomatal_conductance);
+    leaf_heat_balance _heat_equation(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        initial_stomatal_conductance,
+        windspeed);
+    _heat_equation.solve();
     const energy_balance_outputs et = _heat_equation.make_result();
 
     double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C

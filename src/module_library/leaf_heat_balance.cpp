@@ -127,8 +127,8 @@ double leaf_heat_balance::leaf_transpiration(double const& leaf_temperature) con
     double vp_air = relative_humidity * saturation_vapor_pressure(air_temperature);  // Pa
 
     // assuming leaf's interior has relative humidity = 1
-    double vp_leaf = saturation_vapor_pressure(leaf_temperature);                 // Pa
-    return stomatal_conductance_water_vapor * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
+    double vp_leaf = saturation_vapor_pressure(leaf_temperature);                          // Pa
+    return water_vapor_conductance(leaf_temperature) * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
 }
 
 double leaf_heat_balance::heat_conductance(double const& leaf_temperature) const

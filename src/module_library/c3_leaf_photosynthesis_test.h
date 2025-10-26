@@ -21,15 +21,15 @@ class c3_leaf_photosynthesis_test : public direct_module
         : direct_module{},
 
           // Get references to input quantities
-          _heat_equation(
-              get_input(input_quantities, "absorbed_longwave"),
-              get_input(input_quantities, "absorbed_shortwave"),
-              get_input(input_quantities, "atmospheric_pressure"),
-              get_input(input_quantities, "temp"),
-              get_input(input_quantities, "gbw_canopy"),
-              get_input(input_quantities, "leafwidth"),
-              get_input(input_quantities, "rh"),
-              get_input(input_quantities, "windspeed")),
+          //   _heat_equation(
+          //       get_input(input_quantities, "absorbed_longwave"),
+          //       get_input(input_quantities, "absorbed_shortwave"),
+          //       get_input(input_quantities, "atmospheric_pressure"),
+          //       get_input(input_quantities, "temp"),
+          //       get_input(input_quantities, "gbw_canopy"),
+          //       get_input(input_quantities, "leafwidth"),
+          //       get_input(input_quantities, "rh"),
+          //       get_input(input_quantities, "windspeed")),
           absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
           absorbed_ppfd{get_input(input_quantities, "absorbed_ppfd")},
           absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
@@ -99,7 +99,7 @@ class c3_leaf_photosynthesis_test : public direct_module
 
    private:
     // References to input quantities
-    volatile leaf_heat_balance _heat_equation;
+    // leaf_heat_balance _heat_equation;
     double const& absorbed_longwave;
     double const& absorbed_ppfd;
     double const& absorbed_shortwave;
