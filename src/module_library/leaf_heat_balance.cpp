@@ -111,7 +111,7 @@ double leaf_heat_balance::sensible_heat_flux(double const& leaf_temperature, dou
     const double cp = molar_mass_of_dry_air * TempToCp(air_temperature);  // J / mol
 
     double delta_temp = leaf_temperature - air_temperature;
-    return cp * heat_conductance(_water_vapor_conductance) * (delta_temp);
+    return cp * heat_conductance(leaf_temperature) * (delta_temp);
 }
 
 double leaf_heat_balance::latent_heat_flux(double const& _leaf_transpiration) const
@@ -131,18 +131,33 @@ double leaf_heat_balance::leaf_transpiration(double const& leaf_temperature, dou
     return _water_vapor_conductance * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
 }
 
-double leaf_heat_balance::heat_conductance(double const& _water_vapor_conductance) const
+double leaf_heat_balance::heat_conductance(double const& leaf_temperature) const
 {
-    // from Table 7.6 on pg. 109 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
-    // using the forced convection; ratio is almost the same for free convection (I think the numbers in the table are rounded)
+    double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // mol / m^2 / s
+    // convert to a heat transfer conductance
     constexpr double heat_to_vapor_conductance_ratio = 0.135 / 0.147;
-    return heat_to_vapor_conductance_ratio * _water_vapor_conductance;  // mol / m^2 / s
+    double const gbh_canopy = heat_to_vapor_conductance_ratio * gbv_canopy;
+    // from Table 7.6 on pg. 109 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
+    // Set constants
+    double constexpr coef_forced = 0.135;
+    double constexpr coef_free = 0.05;
+
+    // Calculate conductances
+    double const gbh_forced = coef_forced * std::sqrt(wind_speed / leaf_width);                                     // mol / m^2 / s
+    double const gbh_free = coef_free * std::pow(std::abs(leaf_temperature - air_temperature) / leaf_width, 0.25);  // mol / m^2 / s
+
+    // The overall conductance is the larger one
+    double const gbh_leaf = std::max(gbh_forced, gbh_free);  // mol / m^2 / s
+
+    // using the forced convection; ratio is almost the same for free convection (I think the numbers in the table are rounded)
+    double const gth = sequential_conductance(gbh_leaf, gbh_canopy);  // mol/ m^2 / s
+
+    return gth;  // mol / m^2 / s
 }
 
 double leaf_heat_balance::water_vapor_conductance(double const& leaf_temperature) const
 {
-    // Get stomatal conductance to water vapor as a mass conductance
-    double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // m / s
+    double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // mol / m^2 / s
 
     // Set constants
     double constexpr coef_forced = 0.147;
