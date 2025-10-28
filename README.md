@@ -101,6 +101,29 @@ Please see the contribution guidelines before submitting changes.
 These may be found in Chapter One of the _Developer's Manual_ on the
 [public BioCro Documentation web site](https://biocro.org).
 
+#### Pull Request Checklist
+
+Pull requests should merge to the branch `develop` and not `main`.
+Steps to complete before submitting a pull request:
+
+1. Add unit tests (e.g., module tests) for new.
+2. Install the code (check that BioCro compiles).
+3. Run local unit tests. If tests fail, fix bugs.
+  ```
+  cd biocro/tests
+  rscript --vanilla testthat.r
+  cd ../..
+  ```
+4. Run `R CMD build` and then `R CMD check` on the tarball:
+  ```
+  R CMD build --compact-vignettes=both biocro
+  R CMD check --as-cran BioCro_X.Y.Z.tar.gz
+  ```
+  `X.Y.Z` will the version number. Flags `--compact-vignettes=both` and `--as-cran`
+  are recommended but not required. This check is also performed online via
+  Github actions, but usually faster to run locally.
+5. Submit pull request.
+
 ### Software Documentation
 
 See the [public BioCro Documentation web
