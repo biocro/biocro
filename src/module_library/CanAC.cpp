@@ -64,12 +64,12 @@ canopy_photosynthesis_outputs CanAC(
 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
-    struct Light_profile light_profile = sunML(
+    CanopyLightModel canopy_light_model{
         q_dir,
         q_diff,
         chil,
         cosine_zenith_angle,
-        1.0,
+        1,
         k_diffuse,
         LAI,
         leaf_reflectance_nir,
@@ -77,10 +77,9 @@ canopy_photosynthesis_outputs CanAC(
         leaf_transmittance_nir,
         leaf_transmittance_par,
         par_energy_content,
-        par_energy_fraction,
-        nlayers);
+        par_energy_fraction};
 
-    double LAIc = LAI / nlayers;  // dimensionless
+    double lai_per_layer = LAI / nlayers;  // dimensionless
 
     std::vector<double> wind_speed_profile(nlayers);
     WINDprof(WindSpeed, LAI, wind_speed_profile);  // Modifies wind_speed_profile
@@ -98,7 +97,7 @@ canopy_photosynthesis_outputs CanAC(
     double canopy_conductance{0.0};  // mmol / m^2 / s
 
     double gbw_guess{1.2};  // mol / m^2 / s
-
+    LightProfile light_profile;
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -113,16 +112,17 @@ canopy_photosynthesis_outputs CanAC(
         }
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
-
+        double cumulative_lai = (0.5 + i) * lai_per_layer;            // midpoint rule
+        light_profile = canopy_light_model.get_light_profile(cumulative_lai);
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_dir = light_profile.sunlit_incident_ppfd[current_layer];       // micromol / m^2 / s
-        double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless. Fraction of LAI that is sunlit.
-        double Leafsun = LAIc * pLeafsun;                                       // dimensionless
+        double i_dir = light_profile.sunlit_incident_ppfd;       // micromol / m^2 / s
+        double j_dir = light_profile.sunlit_absorbed_shortwave;  // J / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction;         // dimensionless. Fraction of LAI that is sunlit.
+        double Leafsun = lai_per_layer * pLeafsun;               // dimensionless
 
         double direct_gsw_estimate =
             c4photoC(
@@ -159,10 +159,10 @@ canopy_photosynthesis_outputs CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_diff = light_profile.shaded_incident_ppfd[current_layer];       // micromol / m^2 / s
-        double j_diff = light_profile.shaded_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless. Fraction of LAI that is shaded.
-        double Leafshade = LAIc * pLeafshade;                                    // dimensionless
+        double i_diff = light_profile.shaded_incident_ppfd;       // micromol / m^2 / s
+        double j_diff = light_profile.shaded_absorbed_shortwave;  // J / m^2 / s
+        double pLeafshade = light_profile.shaded_fraction;        // dimensionless. Fraction of LAI that is shaded.
+        double Leafshade = lai_per_layer * pLeafshade;            // dimensionless
 
         double diffuse_gsw_estimate =
             c4photoC(

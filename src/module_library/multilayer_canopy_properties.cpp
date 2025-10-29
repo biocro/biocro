@@ -67,9 +67,9 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
-        "height",                   // m
-        "windspeed",                // m / s
-        "LeafN",                    // mmol / m^2 (?)
+        "height",     // m
+        "windspeed",  // m / s
+        "LeafN",      // mmol / m^2 (?)
     };
 }
 
@@ -107,7 +107,7 @@ void multilayer_canopy_properties::run() const
     // that the `sunML` function expects input expects PPFD values, so we must
     // convert photosynthetically active radiation (PAR) to PPFD using the
     // energy content of light in the PAR band
-    struct Light_profile light_profile = sunML(
+    CanopyLightModel canopy_light_model(
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
         chil,
@@ -120,8 +120,7 @@ void multilayer_canopy_properties::run() const
         leaf_transmittance_nir,
         leaf_transmittance_par,
         par_energy_content,
-        par_energy_fraction,
-        nlayers);
+        par_energy_fraction);
 
     // Calculate windspeed throughout the canopy
     vector<double> wind_speed_profile(nlayers);
@@ -137,20 +136,23 @@ void multilayer_canopy_properties::run() const
     }
 
     // Update layer-dependent outputs
+    LightProfile light_profile;
     for (int i = 0; i < nlayers; ++i) {
-        update(sunlit_fraction_ops[i], light_profile.sunlit_fraction[i]);
-        update(sunlit_incident_nir_ops[i], light_profile.sunlit_incident_nir[i]);
-        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit_incident_ppfd[i]);
-        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit_absorbed_ppfd[i]);
-        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit_absorbed_shortwave[i]);
+        double cumulative_lai = (0.5 + i) * lai / nlayers;  // midpoint rule
+        light_profile = canopy_light_model.get_light_profile(cumulative_lai);
+        update(sunlit_fraction_ops[i], light_profile.sunlit_fraction);
+        update(sunlit_incident_nir_ops[i], light_profile.sunlit_incident_nir);
+        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit_incident_ppfd);
+        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit_absorbed_ppfd);
+        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit_absorbed_shortwave);
 
-        update(shaded_fraction_ops[i], light_profile.shaded_fraction[i]);
-        update(shaded_incident_nir_ops[i], light_profile.shaded_incident_nir[i]);
-        update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd[i]);
-        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded_absorbed_ppfd[i]);
-        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave[i]);
+        update(shaded_fraction_ops[i], light_profile.shaded_fraction);
+        update(shaded_incident_nir_ops[i], light_profile.shaded_incident_nir);
+        update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd);
+        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded_absorbed_ppfd);
+        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave);
 
-        update(height_ops[i], light_profile.height[i]);
+        update(height_ops[i], light_profile.height);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);
     }

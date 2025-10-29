@@ -1,21 +1,20 @@
 #ifndef SUNML_H
 #define SUNML_H
+// #include "AuxBioCro.h"  // for MAXLAY
 
-#include "AuxBioCro.h"  // for MAXLAY
-
-struct Light_profile {
+struct LightProfile {
     double canopy_direct_transmission_fraction;  // dimensionless
-    double height[MAXLAY];                       // m
-    double shaded_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double shaded_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double shaded_fraction[MAXLAY];              // dimensionless
-    double shaded_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double shaded_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double sunlit_fraction[MAXLAY];              // dimensionless
-    double sunlit_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double sunlit_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
+    double height;                               // m
+    double shaded_absorbed_ppfd;                 // micromol / (m^2 leaf) / s
+    double shaded_absorbed_shortwave;            // J / (m^2 leaf) / s
+    double shaded_fraction;                      // dimensionless
+    double shaded_incident_nir;                  // J / (m^2 leaf) / s
+    double shaded_incident_ppfd;                 // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_ppfd;                 // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_shortwave;            // J / (m^2 leaf) / s
+    double sunlit_fraction;                      // dimensionless
+    double sunlit_incident_nir;                  // J / (m^2 leaf) / s
+    double sunlit_incident_ppfd;                 // micromol / (m^2 leaf) / s
 };
 
 double thin_layer_absorption(
@@ -71,21 +70,58 @@ double shaded_radiation(
     double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
-Light_profile sunML(
-    double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
-    double ambient_ppfd_diffuse,    // micromol / m^2 / s
-    double chil,                    // dimensionless from m^2 / m^2
-    double cosine_zenith_angle,     // dimensionless
-    double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
-    double k_diffuse,               // dimensionless
-    double lai,                     // dimensionless from m^2 / m^2
-    double leaf_reflectance_nir,    // dimensionless
-    double leaf_reflectance_par,    // dimensionless
-    double leaf_transmittance_nir,  // dimensionless
-    double leaf_transmittance_par,  // dimensionless
-    double par_energy_content,      // J / micromol
-    double par_energy_fraction,     // dimensionless
-    int nlayers                     // dimensionless
-);
+struct CanopyLightModel {
+    const double ambient_ppfd_beam;       // micromol / (m^2 beam) / s
+    const double ambient_ppfd_diffuse;    // micromol / m^2 / s
+    const double chil;                    // dimensionless from m^2 / m^2
+    const double cosine_zenith_angle;     // dimensionless
+    const double heightf;                 // m^-1 from m^2 leaf / m^2 ground / m height
+    const double k_diffuse;               // dimensionless
+    const double lai;                     // dimensionless from m^2 / m^2
+    const double leaf_reflectance_nir;    // dimensionless
+    const double leaf_reflectance_par;    // dimensionless
+    const double leaf_transmittance_nir;  // dimensionless
+    const double leaf_transmittance_par;  // dimensionless
+    const double par_energy_content;      // J / micromol
+    const double par_energy_fraction;     // dimensionless
+
+    LightProfile get_light_profile(double cumulative_lai) const;
+
+    CanopyLightModel(
+        double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
+        double ambient_ppfd_diffuse,    // micromol / m^2 / s
+        double chil,                    // dimensionless from m^2 / m^2
+        double cosine_zenith_angle,     // dimensionless
+        double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+        double k_diffuse,               // dimensionless
+        double lai,                     // dimensionless from m^2 / m^2
+        double leaf_reflectance_nir,    // dimensionless
+        double leaf_reflectance_par,    // dimensionless
+        double leaf_transmittance_nir,  // dimensionless
+        double leaf_transmittance_par,  // dimensionless
+        double par_energy_content,      // J / micromol
+        double par_energy_fraction      // dimensionless
+
+    );
+
+    // computed during initialization by constructor
+    const double absorptance_nir;
+    const double absorptance_par;
+    double k1;
+    double k_direct;
+    double canopy_direct_transmission_fraction;  // dimensionless
+
+    // Calculate the ambient direct PPFD through a surface parallel to the ground
+    double ambient_ppfd_beam_ground;  // micromol / (m^2 ground) / s
+
+    // Calculate the ambient direct PPFD through a unit area of leaf surface
+    double ambient_ppfd_beam_leaf;  // micromol / (m^2 leaf) / s
+
+    // Calculate related NIR energy fluxes
+    double ambient_nir_beam;         // J / (m^2 beam) / s
+    double ambient_nir_beam_ground;  // J / (m^2 ground) / s
+    double ambient_nir_diffuse;      // J / (m^2 ground) / s
+    double ambient_nir_beam_leaf;
+};
 
 #endif

@@ -65,7 +65,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    const Light_profile light_profile = sunML(
+    const CanopyLightModel canopy_light_model{
         q_dir,
         q_diff,
         chil,
@@ -78,10 +78,9 @@ canopy_photosynthesis_outputs c3CanAC(
         leaf_transmittance_nir,
         leaf_transmittance_par,
         par_energy_content,
-        par_energy_fraction,
-        nlayers);
+        par_energy_fraction};
 
-    double const LAIc = LAI / nlayers;  // dimensionless
+    double const lai_per_layer = LAI / nlayers;  // dimensionless
 
     std::vector<double> wind_speed_profile(nlayers);
     WINDprof(WindSpeed, LAI, wind_speed_profile);  // Modifies wind_speed_profile
@@ -99,7 +98,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double canopy_conductance{0.0};  // mmol / m^2 / s
 
     double gbw_guess{1.2};  // mol / m^2 / s
-
+    LightProfile light_profile;
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -110,16 +109,17 @@ canopy_photosynthesis_outputs c3CanAC(
         }
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
-
+        double cumulative_lai = (0.5 + i) * lai_per_layer;            // midpoint rule
+        light_profile = canopy_light_model.get_light_profile(cumulative_lai);
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];    // micromol / m^2 / s
-        double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless
-        double Leafsun = LAIc * pLeafsun;                                       // dimensionless
+        double iabs_dir = light_profile.sunlit_absorbed_ppfd;    // micromol / m^2 / s
+        double j_dir = light_profile.sunlit_absorbed_shortwave;  // J / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction;         // dimensionless
+        double Leafsun = lai_per_layer * pLeafsun;               // dimensionless
 
         double direct_gsw_estimate =
             c3photoC(
@@ -158,10 +158,10 @@ canopy_photosynthesis_outputs c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];    // micromol / m^2 /s
-        double j_diff = light_profile.shaded_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless
-        double Leafshade = LAIc * pLeafshade;                                    // dimensionless
+        double iabs_diff = light_profile.shaded_absorbed_ppfd;    // micromol / m^2 /s
+        double j_diff = light_profile.shaded_absorbed_shortwave;  // J / m^2 / s
+        double pLeafshade = light_profile.shaded_fraction;        // dimensionless
+        double Leafshade = lai_per_layer * pLeafshade;            // dimensionless
 
         double diffuse_gsw_estimate =
             c3photoC(
