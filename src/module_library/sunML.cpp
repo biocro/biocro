@@ -407,7 +407,7 @@ double shaded_radiation(
  *          the canopy, including several photon flux densities and
  *          the relative fractions of shaded and sunlit leaves
  */
-CanopyLightModel::CanopyLightModel(
+CanopyLight::CanopyLight(
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2
@@ -486,7 +486,15 @@ CanopyLightModel::CanopyLightModel(
 
     // Calculate the ambient direct PPFD through a surface parallel to the ground
     ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
+                                                                         // Calculate related NIR energy fluxes
+    ambient_nir_beam = nir_from_ppfd(
+        ambient_ppfd_beam, par_energy_content, par_energy_fraction);  // J / (m^2 beam) / s
 
+    ambient_nir_beam_ground = nir_from_ppfd(
+        ambient_ppfd_beam_ground, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
+
+    ambient_nir_diffuse = nir_from_ppfd(
+        ambient_ppfd_diffuse, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
     // For values of cosine_zenith_angle close to or less than 0, in place
     // of the calculations above, we want to use the limits of the above
     // expressions as cosine_zenith_angle approaches 0 from the right:
@@ -499,39 +507,20 @@ CanopyLightModel::CanopyLightModel(
         ambient_nir_beam_leaf = nir_from_ppfd(
             ambient_ppfd_beam_leaf, par_energy_content, par_energy_fraction);  // J / (m^2 leaf) / s
     }
-    // Calculate related NIR energy fluxes
-    ambient_nir_beam = nir_from_ppfd(
-        ambient_ppfd_beam, par_energy_content, par_energy_fraction);  // J / (m^2 beam) / s
-
-    ambient_nir_beam_ground = nir_from_ppfd(
-        ambient_ppfd_beam_ground, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
-
-    ambient_nir_diffuse = nir_from_ppfd(
-        ambient_ppfd_diffuse, par_energy_content, par_energy_fraction);  // J / (m^2 ground) / s
 }
 
-LightProfile CanopyLightModel::get_light_profile(double cumulative_lai) const
+LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
 {
     // Start to fill in the light profile values
     LightProfile light_profile;
-    light_profile.canopy_direct_transmission_fraction = canopy_direct_transmission_fraction;
 
     // Calculate the PPFD incident on shaded leaves
-    double shaded_ppfd = shaded_radiation(
-        ambient_ppfd_beam_ground, ambient_ppfd_diffuse,
-        k_direct, k_diffuse,
-        absorptance_par, cumulative_lai);  // micromol / m^2 / s
+    double shaded_ppfd;  // micromol / m^2 / s
 
     // Calculate the NIR incident on shaded leaves
-    double shaded_nir = shaded_radiation(
-        ambient_nir_beam_ground, ambient_nir_diffuse,
-        k_direct, k_diffuse,
-        absorptance_nir, cumulative_lai);  // J / m^2 / s
-
-    // Calculate the fraction of sunlit and shaded leaves in this canopy
-    // layer using Equation 15.22.
-    double sunlit_fraction = std::exp(-k_direct * cumulative_lai);  // dimensionless
-    double shaded_fraction = 1 - sunlit_fraction;                   // dimensionless
+    double shaded_nir;  // J / m^2 / s
+    double sunlit_fraction;
+    double shaded_fraction;
 
     // For values of cosine_zenith_angle close to or less than 0, in place
     // of the calculations above, we want to use the limits of the above
@@ -539,8 +528,23 @@ LightProfile CanopyLightModel::get_light_profile(double cumulative_lai) const
     if (cosine_zenith_angle <= 1E-10) {
         shaded_ppfd = ambient_ppfd_diffuse * std::exp(-k_diffuse * cumulative_lai);
         shaded_nir = ambient_nir_diffuse * std::exp(-k_diffuse * cumulative_lai);
+        // Calculate the fraction of sunlit and shaded leaves in this canopy
+        // layer using Equation 15.22.
         sunlit_fraction = 0;
         shaded_fraction = 1;
+    } else {
+        shaded_ppfd = shaded_radiation(
+            ambient_ppfd_beam_ground, ambient_ppfd_diffuse,
+            k_direct, k_diffuse,
+            absorptance_par, cumulative_lai);
+        shaded_nir = shaded_radiation(
+            ambient_nir_beam_ground, ambient_nir_diffuse,
+            k_direct, k_diffuse,
+            absorptance_nir, cumulative_lai);
+        // Calculate the fraction of sunlit and shaded leaves in this canopy
+        // layer using Equation 15.22.
+        sunlit_fraction = std::exp(-k_direct * cumulative_lai);
+        shaded_fraction = 1 - sunlit_fraction;
     }
 
     // Store values of incident PPFD

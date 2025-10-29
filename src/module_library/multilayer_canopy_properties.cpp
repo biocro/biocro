@@ -107,7 +107,7 @@ void multilayer_canopy_properties::run() const
     // that the `sunML` function expects input expects PPFD values, so we must
     // convert photosynthetically active radiation (PAR) to PPFD using the
     // energy content of light in the PAR band
-    CanopyLightModel canopy_light_model(
+    CanopyLight canopy_light_model(
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
         chil,
@@ -122,23 +122,18 @@ void multilayer_canopy_properties::run() const
         par_energy_content,
         par_energy_fraction);
 
-    // Calculate windspeed throughout the canopy
-    vector<double> wind_speed_profile(nlayers);
-    WINDprof(windspeed, lai, wind_speed_profile);  // Modifies wind_speed_profile
-
-    // Calculate leaf nitrogen throughout the canopy
-    vector<double> leafN_profile(nlayers);
-    LNprof(LeafN, lai, kpLN, leafN_profile);  // Modifies leafN_profile
-
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {
         throw std::logic_error("Thrown by the multilayer_canopy_properties module: lnfun != 0 is not yet supported.");
     }
 
     // Update layer-dependent outputs
+    double lai_per_layer = lai / nlayers;
     LightProfile light_profile;
+
     for (int i = 0; i < nlayers; ++i) {
-        double cumulative_lai = (0.5 + i) * lai / nlayers;  // midpoint rule
+        double cumulative_lai = (0.5 + i) * lai_per_layer;  // midpoint rule
+
         light_profile = canopy_light_model.get_light_profile(cumulative_lai);
         update(sunlit_fraction_ops[i], light_profile.sunlit_fraction);
         update(sunlit_incident_nir_ops[i], light_profile.sunlit_incident_nir);
@@ -153,12 +148,15 @@ void multilayer_canopy_properties::run() const
         update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave);
 
         update(height_ops[i], light_profile.height);
-        update(windspeed_ops[i], wind_speed_profile[i]);
-        update(LeafN_ops[i], leafN_profile[i]);
+
+        // windspeed is evaluated at top of layer, not midpoint
+        double cumulative_lai_at_top = i * lai_per_layer;
+        update(windspeed_ops[i], wind_speed_profile(cumulative_lai_at_top, windspeed));
+        update(LeafN_ops[i], leaf_nitrogen_profile(cumulative_lai_at_top, LeafN, kpLN));
     }
 
     // Update other outputs
-    update(canopy_direct_transmission_fraction_op, light_profile.canopy_direct_transmission_fraction);
+    update(canopy_direct_transmission_fraction_op, canopy_light_model.canopy_direct_transmission_fraction);
 }
 
 ////////////////////////////////////////

@@ -65,7 +65,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    const CanopyLightModel canopy_light_model{
+    const CanopyLight canopy_light_model{
         q_dir,
         q_diff,
         chil,
@@ -82,12 +82,6 @@ canopy_photosynthesis_outputs c3CanAC(
 
     double const lai_per_layer = LAI / nlayers;  // dimensionless
 
-    std::vector<double> wind_speed_profile(nlayers);
-    WINDprof(WindSpeed, LAI, wind_speed_profile);  // Modifies wind_speed_profile
-
-    std::vector<double> leafN_profile(nlayers);
-    LNprof(leafN, LAI, kpLN, leafN_profile);  // Modifies leafN_profile
-
     double CanopyA{0.0};             // micromol / m^2 / s
     double GCanopyA{0.0};            // micromol / m^2 / s
     double canopy_rp{0.0};           // micromol / m^2 / s
@@ -100,16 +94,13 @@ canopy_photosynthesis_outputs c3CanAC(
     double gbw_guess{1.2};  // mol / m^2 / s
     LightProfile light_profile;
     for (int i = 0; i < nlayers; ++i) {
+        double cumulative_lai = (0.5 + i) * lai_per_layer;  // midpoint rule
+        double cumulative_lai_at_top = i * lai_per_layer;   // windspeed is evaluated at top of layer, not midpoint
+
         // Calculations that are the same for sunlit and shaded leaves
-        int current_layer = nlayers - 1 - i;
-        double leafN_lay = leafN_profile[current_layer];
+        double leafN_lay = leaf_nitrogen_profile(cumulative_lai_at_top, leafN, kpLN);
 
-        if (lnfun != 0) {
-            Vcmax_at_25 = leafN_lay * lnb1 + lnb0;
-        }
-
-        double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
-        double cumulative_lai = (0.5 + i) * lai_per_layer;            // midpoint rule
+        double layer_wind_speed = wind_speed_profile(cumulative_lai_at_top, WindSpeed);  // m/s
         light_profile = canopy_light_model.get_light_profile(cumulative_lai);
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use

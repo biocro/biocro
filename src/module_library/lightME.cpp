@@ -1,6 +1,6 @@
 #include "lightME.h"
 #include "../framework/constants.h"  // for atmospheric_pressure_at_sea_level
-
+#include <cmath>
 using physical_constants::atmospheric_pressure_at_sea_level;
 
 /**
@@ -70,8 +70,8 @@ Light_model lightME(
     // approaches 0 (which is 0).
     double const direct_transmittance =
         cosine_zenith_angle <= 0 ? 0
-                                 : pow(atmospheric_transmittance,
-                                       (pressure_ratio / cosine_zenith_angle));
+                                 : std::pow(atmospheric_transmittance,
+                                            (pressure_ratio / cosine_zenith_angle));
 
     // Equation 11.13 from Campbell & Norman, solving for
     // diffuse_transmittance = S_p / S_p0 (dimensionless).

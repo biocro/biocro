@@ -1,20 +1,19 @@
 #ifndef SUNML_H
 #define SUNML_H
-// #include "AuxBioCro.h"  // for MAXLAY
 
 struct LightProfile {
-    double canopy_direct_transmission_fraction;  // dimensionless
-    double height;                               // m
-    double shaded_absorbed_ppfd;                 // micromol / (m^2 leaf) / s
-    double shaded_absorbed_shortwave;            // J / (m^2 leaf) / s
-    double shaded_fraction;                      // dimensionless
-    double shaded_incident_nir;                  // J / (m^2 leaf) / s
-    double shaded_incident_ppfd;                 // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_ppfd;                 // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_shortwave;            // J / (m^2 leaf) / s
-    double sunlit_fraction;                      // dimensionless
-    double sunlit_incident_nir;                  // J / (m^2 leaf) / s
-    double sunlit_incident_ppfd;                 // micromol / (m^2 leaf) / s
+    // double canopy_direct_transmission_fraction;  // dimensionless
+    double height;                     // m
+    double shaded_absorbed_ppfd;       // micromol / (m^2 leaf) / s
+    double shaded_absorbed_shortwave;  // J / (m^2 leaf) / s
+    double shaded_fraction;            // dimensionless
+    double shaded_incident_nir;        // J / (m^2 leaf) / s
+    double shaded_incident_ppfd;       // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_ppfd;       // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_shortwave;  // J / (m^2 leaf) / s
+    double sunlit_fraction;            // dimensionless
+    double sunlit_incident_nir;        // J / (m^2 leaf) / s
+    double sunlit_incident_ppfd;       // micromol / (m^2 leaf) / s
 };
 
 double thin_layer_absorption(
@@ -70,7 +69,7 @@ double shaded_radiation(
     double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
-struct CanopyLightModel {
+struct CanopyLight {
     const double ambient_ppfd_beam;       // micromol / (m^2 beam) / s
     const double ambient_ppfd_diffuse;    // micromol / m^2 / s
     const double chil;                    // dimensionless from m^2 / m^2
@@ -87,7 +86,7 @@ struct CanopyLightModel {
 
     LightProfile get_light_profile(double cumulative_lai) const;
 
-    CanopyLightModel(
+    CanopyLight(
         double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
         double ambient_ppfd_diffuse,    // micromol / m^2 / s
         double chil,                    // dimensionless from m^2 / m^2
