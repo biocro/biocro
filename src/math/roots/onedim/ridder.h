@@ -50,8 +50,7 @@ struct ridder : public root_finding_method<ridder> {
         double a = proposal.y / left.y;
         double b = right.y / left.y;
         double denom = a * a - b;
-        if (is_zero(denom)) {
-            // is this state possible ? fall back to bisection
+        if (!std::isfinite(denom)) {
             flag = Flag::division_by_zero;
             return false;
         }

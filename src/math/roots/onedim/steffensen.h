@@ -43,7 +43,7 @@ struct steffensen : public root_finding_method<steffensen> {
     bool iterate(F&& fun)
     {
         double g = fun(current.x + current.y) / current.y - 1;
-        if (is_zero(g)) {
+        if (!std::isfinite(g)) {
             flag = Flag::division_by_zero;
             return false;
         }

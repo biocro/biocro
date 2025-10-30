@@ -45,7 +45,7 @@ struct newton : public root_finding_method<newton> {
     bool iterate(F&& fun)
     {
         double slope = fun.derivative(current.x);
-        if (is_zero(slope)) {
+        if (!std::isfinite(slope)) {
             flag = Flag::division_by_zero;
             return false;
         }

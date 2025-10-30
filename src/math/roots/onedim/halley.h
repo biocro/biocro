@@ -48,7 +48,7 @@ struct halley : public root_finding_method<halley> {
     bool iterate(F&& fun)
     {
         double df = fun.derivative(current.x);
-        if (is_zero(df)) {
+        if (!std::isfinite(df)) {
             flag = Flag::division_by_zero;
             return false;
         }
@@ -60,7 +60,7 @@ struct halley : public root_finding_method<halley> {
             flag = Flag::halley_no_cross;
             return false;
         }
-        current.x -= a / (1. - b);  // division by zero Only if no solution
+        current.x -= a / (1 - b);  // division by zero Only if no solution
         current.y = fun(current.x);
         return true;
     }

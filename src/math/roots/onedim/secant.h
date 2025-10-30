@@ -53,16 +53,14 @@ struct secant : public root_finding_method<secant> {
     template <typename F>
     bool iterate(F&& fun)
     {
-        double r = best.y / last.y;
-        double p = (best.x - last.x) * r;
-        double q = 1 - r;
-        if (is_zero(q)) {
+        double x = get_secant_update(best, last);
+        if (!std::isfinite(x)) {
             flag = Flag::division_by_zero;
             return false;
         }
         last = best;
-        best.x += p / q;
-        best.y = fun(best.x);
+        best.x = x;
+        best.y = fun(x);
         return true;
     }
 
