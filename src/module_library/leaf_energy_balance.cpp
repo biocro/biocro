@@ -1,10 +1,10 @@
-#include <cmath>                         // for pow, std::abs
-#include "../framework/constants.h"      // for stefan_boltzmann,
-                                         // celsius_to_kelvin, molar_mass_of_water
-#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "conductance_helpers.h"         // for g_to_mass, g_to_molecular, sequential_conductance
-#include "root_onedim.h"                 // for root_finder
-#include "water_and_air_properties.h"    // for TempToCp, dry_air_density, etc
+#include <cmath>                          // for pow, std::abs
+#include "../framework/constants.h"       // for stefan_boltzmann,
+                                          // celsius_to_kelvin, molar_mass_of_water
+#include "boundary_layer_conductance.h"   // for leaf_boundary_layer_conductance_nikolov
+#include "conductance_helpers.h"          // for g_to_mass, g_to_molecular, sequential_conductance
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "water_and_air_properties.h"     // for TempToCp, dry_air_density, etc
 #include "leaf_energy_balance.h"
 
 /**
@@ -208,9 +208,9 @@ energy_balance_outputs leaf_energy_balance(
     // Run Dekker's method
     double constexpr delta_temp = 50;  // degrees C
 
-    root_algorithm::root_finder<root_algorithm::dekker> solver{500, 1e-12, 1e-12};
+    root_finding::dekker solver{500, 1e-12, 1e-12};
 
-    root_algorithm::result_t result = solver.solve(
+    root_finding::result_t result = solver.solve(
         check_leaf_temp_partial,
         air_temperature + 0.9 * delta_temp,  // guess
         air_temperature - delta_temp,        // lower
@@ -218,10 +218,10 @@ energy_balance_outputs leaf_energy_balance(
     );
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful_relaxed(result.flag)) {
+    if (!root_finding::is_successful(result.flag)) {
         throw std::runtime_error(
             "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            root_finding::flag_message(result.flag));
     }
 
     // Get final value

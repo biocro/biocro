@@ -1,0 +1,3 @@
+input,input,input,input,input,output,output,output,output,output,"description"
+abs_tol,guess_1,guess_2,max_iterations,rel_tol,iter,x1,x2,y1,y2,NA
+1e-10,2,3,50,1e-10,8,1.00000000000024,0.999999999999842,1.58206781009085e-13,-8.1379347705024e-14,"Simple linear/quadratic system."

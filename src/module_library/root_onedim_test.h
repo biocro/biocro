@@ -1,12 +1,26 @@
 #ifndef ROOT_ONEDIM_TEST_H
 #define ROOT_ONEDIM_TEST_H
+#include <functional>  // for std::function
+#include <map>         // std::map
+#include <cmath>       // std::sin
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "root_onedim.h"
 
-#include <functional>  // for std::function
-#include <map>
+#include "../math/roots/onedim/secant.h"
+#include "../math/roots/onedim/bisection.h"
+#include "../math/roots/onedim/regula_falsi.h"
+#include "../math/roots/onedim/ridder.h"
+#include "../math/roots/onedim/illinois.h"
+#include "../math/roots/onedim/pegasus.h"
+#include "../math/roots/onedim/newton.h"
+#include "../math/roots/onedim/halley.h"
+#include "../math/roots/onedim/steffensen.h"
+#include "../math/roots/onedim/fixed_point.h"
+#include "../math/roots/onedim/dekker.h"
+#include "../math/roots/onedim/dekker_newton.h"
+#include "../math/roots/onedim/anderson_bjorck.h"
+
 namespace standardBML
 {
 
@@ -56,6 +70,18 @@ struct root_test_function {
     double second_derivative(double x)
     {
         return epsilon * std::sin(x);
+    }
+};
+
+struct fixed_point_test_function {
+    double epsilon;
+    double answer;
+
+    fixed_point_test_function(double ep, double a) : epsilon{ep}, answer{a} {}
+
+    double operator()(double x)
+    {
+        return answer + epsilon * std::sin(x - answer);
     }
 };
 
@@ -191,7 +217,7 @@ class root_onedim_test : public direct_module
     }
 
     void inline update_result(
-        const result& r, root_algorithm::result_t& result) const
+        const result& r, root_finding::result_t& result) const
     {
         update(r.root_op, result.root);
         update(r.residual_op, result.residual);
@@ -232,60 +258,62 @@ string_vector root_onedim_test::get_outputs()
 void root_onedim_test::do_operation() const
 {
     // Collect inputs and make calculations
-    using namespace root_algorithm;
+    using namespace root_finding;
     result_t result;
     root_test_function test{ecc, answer};
+
+    fixed_point_test_function fix_pt_test{ecc, answer};
     size_t iter = static_cast<size_t>(max_iterations);
 
-    result = root_finder<secant>(iter, abs_tol, rel_tol)
+    result = secant(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(secant_result, result);
 
-    result = root_finder<fixed_point>(iter, abs_tol, rel_tol)
-                 .solve(test, single_guess);
+    result = fixed_point(iter, abs_tol, rel_tol)
+                 .solve(fix_pt_test, single_guess);
     update_result(fixed_point_result, result);
 
-    result = root_finder<newton>(iter, abs_tol, rel_tol)
+    result = newton(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
     update_result(newton_result, result);
 
-    result = root_finder<halley>(iter, abs_tol, rel_tol)
+    result = halley(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
     update_result(halley_result, result);
 
-    result = root_finder<steffensen>(iter, abs_tol, rel_tol)
+    result = steffensen(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
     update_result(steffensen_result, result);
 
-    result = root_finder<bisection>(iter, abs_tol, rel_tol)
+    result = bisection(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(bisection_result, result);
 
-    result = root_finder<regula_falsi>(iter, abs_tol, rel_tol)
+    result = regula_falsi(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(regula_falsi_result, result);
 
-    result = root_finder<ridder>(iter, abs_tol, rel_tol)
+    result = ridder(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(ridder_result, result);
 
-    result = root_finder<illinois>(iter, abs_tol, rel_tol)
+    result = illinois(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(illinois_result, result);
 
-    result = root_finder<pegasus>(iter, abs_tol, rel_tol)
+    result = pegasus(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(pegasus_result, result);
 
-    result = root_finder<anderson_bjorck>(iter, abs_tol, rel_tol)
+    result = anderson_bjorck(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(anderson_bjorck_result, result);
 
-    result = root_finder<dekker>(iter, abs_tol, rel_tol)
+    result = dekker(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_result, result);
 
-    result = root_finder<dekker_newton>(iter, abs_tol, rel_tol)
+    result = dekker_newton(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_newton_result, result);
 }

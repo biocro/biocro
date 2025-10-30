@@ -1,18 +1,17 @@
-#include <algorithm>                    // for std::min
-#include <cmath>                        // for pow, sqrt
-#include <limits>                       // for std::numeric_limits
-#include "../framework/constants.h"     // for dr_stomata, dr_boundary
-#include "ball_berry_gs.h"              // for ball_berry_gs
-#include "c3_temperature_response.h"    // for c3_temperature_response
-#include "conductance_helpers.h"        // for sequential_conductance
-#include "conductance_limited_assim.h"  // for conductance_limited_assim
-#include "FvCB_assim.h"                 // for FvCB_assim
-#include "root_onedim.h"                // for root_finder
+#include <algorithm>                      // for std::min
+#include <cmath>                          // for pow, sqrt
+#include <limits>                         // for std::numeric_limits
+#include "../framework/constants.h"       // for dr_stomata, dr_boundary
+#include "ball_berry_gs.h"                // for ball_berry_gs
+#include "c3_temperature_response.h"      // for c3_temperature_response
+#include "conductance_helpers.h"          // for sequential_conductance
+#include "conductance_limited_assim.h"    // for conductance_limited_assim
+#include "FvCB_assim.h"                   // for FvCB_assim
+#include "../math/roots/onedim/dekker.h"  // for dekker
 #include "c3photo.h"
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
-
 /*
 
   The secant method is used to solve for assimilation, Ci, and stomatal conductance,
@@ -150,18 +149,19 @@ photosynthesis_outputs c3photoC(
         Ca - A_min * (dr_boundary / gbw + dr_stomata / b0_adj);  // micromol / mol
 
     // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver{500, 1e-12, 1e-12};
-    root_algorithm::result_t result = solver.solve(
+    using namespace root_finding;
+    dekker solve{500, 1e-12, 1e-12};
+    result_t result = solve(
         check_assim_rate,
         0.718 * Ca,
         0,
         Ci_max * 1.01);
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
+    if (!is_successful(result.flag)) {
         throw std::runtime_error(
             "Ci solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            flag_message(result.flag));
     }
 
     // Get final values

@@ -5,7 +5,7 @@
 #include "ball_berry_gs.h"                // for ball_berry_gs
 #include "conductance_helpers.h"          // for sequential_conductance
 #include "conductance_limited_assim.h"    // for conductance_limited_assim
-#include "root_onedim.h"                  // for root_finder
+#include "../math/roots/onedim/dekker.h"  // for dekker
 #include "c4photo.h"
 
 using physical_constants::dr_boundary;
@@ -132,23 +132,25 @@ photosynthesis_outputs c4photoC(
     };
 
     // Max possible Ci value
+
     double const Ci_max =
         Ca_pa + 1e-6 * atmospheric_pressure * RT *
                     (dr_boundary / gbw + dr_stomata / bb0_adj);  // Pa
+    // Run the dekker method
+    using namespace root_finding;
+    dekker solver(500, 1e-12, 1e-12);
+    result_t result = solver.solve(
 
-    // Run the Dekker method
-    root_algorithm::root_finder<root_algorithm::dekker> solver{500, 1e-12, 1e-12};
-    root_algorithm::result_t result = solver.solve(
         check_assim_rate,
         0.5 * Ca_pa,
         0,
         Ci_max * 1.01);
 
     // throw exception if not converged
-    if (!root_algorithm::is_successful(result.flag)) {
+    if (!is_successful(result.flag)) {
         throw std::runtime_error(
             "Ci solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            flag_message(result.flag));
     }
 
     // Get final values

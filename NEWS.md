@@ -35,11 +35,22 @@ be directly added to this file to describe the related changes.
 
 ## Minor User-Facing Changes
 
+- A simple multidimensional root solving library has been added. See header
+  file `src/math/roots/multidim/zeros.h` for example usage. Currently, only one
+  method is available: Broyden's method. This library is intended to support
+  models requiring equation solving.
+
+- BioCro's 1D root solving library has been moved to `src/math/roots/onedim` in
+  anticipation that it will be moved to the `biocro/framework` repository. The
+  code was refactored, but this refactoring has small changes for client code.
+  See the header file  `src/math/roots/onedim/roots.h` for example usage
+  and a list of available methods.
+
 - Added a module `daylength_calculator` which compute day length from solar position.
 
 - Added custom C++ library for the numerical approximation of the zeros of real
-  valued 1D functions. See the header file `roots_onedim.h` for example usage,
-  and list of available methods.
+  valued 1D functions. See the header file ~~`roots_onedim.h`~~
+  `src/math/roots/onedim/roots.h` for example usage and a list of available methods.
 
 - Swapped fixed point iteration for the Dekker method in Ci calculation. To
   incorporate the effect of stomatal conductance, the Ball-Berry and FvCB model

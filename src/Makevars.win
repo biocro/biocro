@@ -10,7 +10,7 @@
 
 PKG_CPPFLAGS+=-I../src/inc -DR_NO_REMAP
 
-SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp)
+SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp math/roots/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 

@@ -1,8 +1,8 @@
-#include <cmath>                       // for std::max, std::min, pow, log
-#include "../framework/constants.h"    // for celsius_to_kelvin
-#include "conductance_helpers.h"       // for g_to_mass
-#include "root_onedim.h"               // for root_finder
-#include "water_and_air_properties.h"  // for saturation_vapor_pressure
+#include <cmath>                          // for std::max, std::min, pow, log
+#include "../framework/constants.h"       // for celsius_to_kelvin
+#include "conductance_helpers.h"          // for g_to_mass
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "water_and_air_properties.h"     // for saturation_vapor_pressure
 #include "boundary_layer_conductance.h"
 
 /**
@@ -175,9 +175,9 @@ double leaf_boundary_layer_conductance_nikolov(
     // gbv_free = 0, but it is difficult to find a finite value where
     // check_leaf_gbv_free is guaranteed to be negative; here we just use a
     // very large value and hope for the best.
-    root_algorithm::root_finder<root_algorithm::dekker> solver{500, 1e-12, 1e-12};
+    root_finding::dekker solver(500, 1e-12, 1e-12);
 
-    root_algorithm::result_t result = solver.solve(
+    root_finding::result_t result = solver.solve(
         check_leaf_gbv_free,
         1e-4,  // first guess
         0,     // lower bound of initial bracket
@@ -185,10 +185,10 @@ double leaf_boundary_layer_conductance_nikolov(
     );
 
     // Throw exception if not converged
-    if (!root_algorithm::is_successful_relaxed(result.flag)) {
+    if (!root_finding::is_successful(result.flag)) {
         throw std::runtime_error(
             "gbv_free solver reports failed convergence with termination flag:\n    " +
-            root_algorithm::flag_message(result.flag));
+            root_finding::flag_message(result.flag));
     }
 
     // Get final value
