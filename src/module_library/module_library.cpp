@@ -11,7 +11,6 @@
 #include "aba_decay.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
-#include "broyden_test.h"
 #include "buck_swvp.h"
 #include "bucket_soil_drainage.h"
 #include "c3_assimilation.h"
@@ -74,7 +73,6 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
-#include "root_onedim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -104,6 +102,10 @@
 #include "two_layer_soil_profile.h"
 #include "varying_Jmax25.h"
 #include "water_vapor_properties_from_air_temperature.h"
+
+// modules for test
+#include "test_modules/broyden_test.h"
+#include "test_modules/root_onedim_test.h"
 
 creator_map standardBML::module_library::library_entries =
 {
