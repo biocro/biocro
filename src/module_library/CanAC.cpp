@@ -9,7 +9,7 @@
 #include "sunML.h"                   // for sunML
 #include "CanAC.h"
 
-canopy_photosynthesis_outputs CanAC(
+CanopyPhotosynthesis CanAC(
     const nitroParms& nitroP,
     double absorbed_longwave,  // J / m^2 / s
     double Alpha,
@@ -80,15 +80,15 @@ canopy_photosynthesis_outputs CanAC(
         par_energy_fraction};
 
     double lai_per_layer = LAI / nlayers;  // dimensionless
-
-    double CanopyA{0.0};             // micromol / m^2 / s
-    double GCanopyA{0.0};            // micromol / m^2 / s
-    double canopy_rp{0.0};           // micromol / m^2 / s
-    double canopy_RL{0.0};           // micromol / m^2 / s
-    double CanopyT{0.0};             // mmol / m^2 / s
-    double CanopyPe{0.0};            // mmol / m^2 / s
-    double CanopyPr{0.0};            // mmol / m^2 / s
-    double canopy_conductance{0.0};  // mmol / m^2 / s
+    CanopyPhotosynthesis canopy(0);
+//    double CanopyA{0.0};             // micromol / m^2 / s
+//    double GCanopyA{0.0};            // micromol / m^2 / s
+//    double canopy_rp{0.0};           // micromol / m^2 / s
+//    double canopy_RL{0.0};           // micromol / m^2 / s
+//    double CanopyT{0.0};             // mmol / m^2 / s
+//    double CanopyPe{0.0};            // mmol / m^2 / s
+//    double CanopyPr{0.0};            // mmol / m^2 / s
+//    double canopy_conductance{0.0};  // mmol / m^2 / s
 
     double gbw_guess{1.2};  // mol / m^2 / s
     LightProfile light_profile;
@@ -183,37 +183,26 @@ canopy_photosynthesis_outputs CanAC(
                 et_diffuse.gbw_molecular);
 
         // Combine sunlit and shaded leaves
-        CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
-        CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
-        GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
-        canopy_rp += Leafsun * direct_photo.Rp + Leafshade * diffuse_photo.Rp;                 // micromol / m^2 / s
-        canopy_RL += Leafsun * direct_photo.RL + Leafshade * diffuse_photo.RL;                 // micromol / m^2 / s
+        canopy.assim += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
+        canopy.transpiration += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
+        canopy.carboxylation += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
+        canopy.photorespiration += Leafsun * direct_photo.Rp + Leafshade * diffuse_photo.Rp;                 // micromol / m^2 / s
+        canopy.leaf_respiration += Leafsun * direct_photo.RL + Leafshade * diffuse_photo.RL;                 // micromol / m^2 / s
 
-        CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
-        CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
-        canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
+        canopy.penman += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
+        canopy.priestly += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
+        canopy.stomatal_vapor_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
     }
 
     // Calculate the rate of whole-plant growth respiration
-    double const whole_plant_gr =
-        growth_resp(CanopyA, growth_respiration_fraction);  // micromol / m^2 / s
-
+    canopy.whole_plant_growth_respiration = growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s
+    canopy.assim -= canopy.whole_plant_growth_respiration;
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
     // the following conversion factor:
     // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
-    const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
-
-    return canopy_photosynthesis_outputs{
-        /* .Assim = */ CanopyA - whole_plant_gr,          // micromol / m^2 / s
-        /* .canopy_conductance = */ canopy_conductance,   // mol / m^2 / s
-        /* .canopy_transpiration_penman = */ CanopyPe,    // mmol / m^2 / s
-        /* .canopy_transpiration_priestly = */ CanopyPr,  // mmol / m^2 / s
-        /* .GrossAssim = */ GCanopyA,                     // micromol / m^2 / s
-        /* .RL = */ canopy_RL,                            // micromol / m^2 / s
-        /* .Rp = */ canopy_rp,                            // micromol / m^2 / s
-        /* .Trans = */ CanopyT * cf2,                     // Mg / ha / hr
-        /* .whole_plant_gr = */ whole_plant_gr            // micromol / m^2 / s
-    };
+    double constexpr cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
+    canopy.transpiration *= cf2;
+    return canopy;
 }

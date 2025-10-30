@@ -4,7 +4,7 @@
 #include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 #include "c3_temperature_response.h"        // for c3_temperature_response_parameters
 
-canopy_photosynthesis_outputs c3CanAC(
+CanopyPhotosynthesis c3CanAC(
     c3_temperature_response_parameters const tr_param,
     double absorbed_longwave,            // J / m^2 / s
     double ambient_temperature,          // degrees C

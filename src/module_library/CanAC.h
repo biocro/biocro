@@ -4,7 +4,7 @@
 #include "AuxBioCro.h"                      // for nitroParms
 #include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 
-canopy_photosynthesis_outputs CanAC(
+CanopyPhotosynthesis CanAC(
     const nitroParms& nitroP,
     double absorbed_longwave,  // J / m^2 / s
     double Alpha,

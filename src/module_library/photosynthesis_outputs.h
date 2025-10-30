@@ -19,4 +19,12 @@ struct photosynthesis_outputs {
     size_t iterations;         //!< Number of iterations used by convergence loop
 };
 
+
+// CarbonPathway = C3, C4, CAM (or different models thereof)
+//template<typename CarbonPathway>
+//struct LeafPhotosynthesis { };
+    
+
+
+
 #endif
