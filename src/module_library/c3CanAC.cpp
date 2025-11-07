@@ -7,6 +7,7 @@
 #include "respiration.h"             // for growth_resp
 #include "sunML.h"                   // for sunML
 #include "c3CanAC.h"
+#include "canopy_photosynthesis_outputs.h" // for CanopyPhotosynthesis
 
 CanopyPhotosynthesis c3CanAC(
     c3_temperature_response_parameters const tr_param,
@@ -188,6 +189,7 @@ CanopyPhotosynthesis c3CanAC(
                 et_diffuse.gbw_molecular);
 
         // Combine sunlit and shaded leaves
+//        canopy += Leafsun * direct_photo  + Leafshade * diffuse_photo;
         canopy.assim += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
         canopy.transpiration += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
         canopy.carboxylation += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s

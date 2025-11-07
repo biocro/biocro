@@ -8,6 +8,7 @@
 //#include "respiration.h"             // for growth_resp
 //#include "sunML.h"                   // for LightProfile, CanopyLight
 //
+
 /**
  * @brief A simple structure for holding the output of canopy photosynthesis
  * calculations.
@@ -22,7 +23,8 @@ struct CanopyPhotosynthesis {
     double photorespiration;                //!< Rate of photorespiration (micromol / m^2 / s)
     double transpiration;                   //!< Transpiration rate (Mg / ha / hr)
     double whole_plant_growth_respiration;  //!< Whole-plant growth respiration rate (micromol / m^2 / s)
-    
+   
+ CanopyPhotosynthesis() = default;  
     CanopyPhotosynthesis(double val) : assim{val},
                                        stomatal_vapor_conductance{val},
                                        penman{val},
@@ -32,7 +34,51 @@ struct CanopyPhotosynthesis {
                                        photorespiration{val},
                                        transpiration{val},
                                        whole_plant_growth_respiration{val} {}
+
+    CanopyPhotosynthesis& operator+=(const CanopyPhotosynthesis& rhs)
+    {
+        assim += rhs.assim;
+        stomatal_vapor_conductance += rhs.stomatal_vapor_conductance;
+        penman += rhs.penman;
+        priestly += rhs.priestly;
+        carboxylation += rhs.carboxylation;
+        leaf_respiration += rhs.leaf_respiration;
+        photorespiration += rhs.photorespiration;
+        transpiration += rhs.transpiration;
+        return *this;
+    }
+    
+    CanopyPhotosynthesis& operator*=(double scalar){
+        assim *= scalar;
+        stomatal_vapor_conductance *= scalar;
+        penman *= scalar;
+        priestly *= scalar;
+        carboxylation *= scalar;
+        leaf_respiration *= scalar;
+        photorespiration *= scalar;
+        transpiration *= scalar;
+        return *this;
+    }
+
 };
+
+inline CanopyPhotosynthesis operator+(const CanopyPhotosynthesis& lhs, const CanopyPhotosynthesis& rhs) {
+    CanopyPhotosynthesis out = lhs;
+    out += rhs;
+    return out;
+}
+
+inline CanopyPhotosynthesis operator*(const CanopyPhotosynthesis& lhs, double scalar) {
+    CanopyPhotosynthesis out = lhs;
+    out *= scalar;
+    return out;
+}
+
+inline CanopyPhotosynthesis operator*(double scalar, const CanopyPhotosynthesis& rhs) {
+    CanopyPhotosynthesis out = rhs;
+    out *= scalar;
+    return out;
+}
 
 //
 //template<typename PhotoFunc>
