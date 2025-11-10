@@ -38,7 +38,7 @@ root_finding::result_t leaf_heat_balance::solve() const
         [this](double x) { return this->heat_balance(x); },
         air_temperature,                                                     // guess
         air_temperature - 20,                                                // lower
-        air_temperature + 30 / (1 + stomatal_conductance_water_vapor / 0.5)  // upper
+        air_temperature + 15 / (1 + stomatal_conductance_water_vapor / 0.5)  // upper
     );
 
     // Throw exception if not converged
