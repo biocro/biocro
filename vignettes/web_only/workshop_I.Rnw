@@ -31,7 +31,6 @@ knitr::knit_hooks$set(document = function(x) {
 ## package is not explicitly used by the Rnw file.)
 
 knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
-
 @
 
 \documentclass[10pt,letterpaper,oneside]{article}
@@ -91,6 +90,16 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 % (see https://www.sascha-frank.com/Fonts/Helvetica.html)
 \renewcommand\familydefault{\sfdefault}
 
+\newcommand{\runcode}{\textbf{Code to run in R}:}
+\newcommand{\expectedoutput}{\textbf{Expected output}:}
+\newcommand{\exercise}{\textbf{Exercise}:}
+
+\newcommand{\runcodeNI}{\noindent \runcode} %% runcode with noindent
+\newcommand{\expectedoutputNI}{\noindent \expectedoutput} %% expectedoutput with noindent
+\newcommand{\exerciseNI}{\noindent \exercise} %% exercise with noindent
+
+\newcommand{\nooutput}{\medskip There shouldn't be any output from this code. \medskip}
+
 \begin{document}
 
 \maketitle
@@ -124,7 +133,6 @@ if (compareVersion(expected_version, installed_version) != 0) {
     ' is installed; this may cause unexpected errors to occur.'
   )
 }
-
 @
 
 <<version_info,echo=FALSE,comment=''>>=
@@ -169,8 +177,23 @@ cat(
   other new developments.
 
   \item To use the workshop on your own, try running the code snippets on your
-  machine, and complete the exercises to test your understanding.
+  machine, and complete the exercises to test your understanding. Look out for
+  the following \textbf{bold} phrases:
+  \begin{itemize}
+    \item \runcode\ This will come before a code snippet that can be copied
+    from this document and pasted into the R terminal. You should try running
+    this code.
+
+    \item \expectedoutput\ This will come after a code snippet, and will show
+    the expected output from the code. Use this to check whether you have
+    successfully run the code.
+
+    \item \exercise\ This will be a suggestion for a task you should be able to
+    complete, and will usually be based on a previous code snippet.
+  \end{itemize}
 \end{itemize}
+
+\newpage
 
 \subsection{Essential information about BioCro}
 
@@ -206,6 +229,8 @@ cat(
   \item All BioCro documentation can be accessed at \url{https://biocro.org}.
 \end{itemize}
 
+\newpage
+
 \subsection{What do we mean by modular modeling?}
 
 \begin{itemize}
@@ -222,11 +247,16 @@ cat(
   \item Named sets of equations provide a way to easily select and reuse pieces
   of models, and they are a central feature of BioCro that allows us to avoid
   these issues.
+
+  \item A more detailed description of BioCro's approach to modular modeling can
+  be found in Section \ref{sec_modular}.
 \end{itemize}
 
 \begin{center}
   \includegraphics[width=\textwidth]{workshop_I/biocro_framework.pdf}
 \end{center}
+
+\newpage
 
 \subsection{How did we get here?}
 
@@ -244,6 +274,8 @@ cat(
   Lochocki, Yufeng He, Scott Oswald, Scott Rohde, Deepak Jaiswal, Megan
   Matthews, Fernando Miguez, and Steve Long.
 \end{itemize}
+
+\newpage
 
 \subsection{What does BioCro enable us to do? \label{sec_biocro_enable}}
 
@@ -288,6 +320,8 @@ cat(
   \includegraphics[width=\textwidth]{workshop_I/biocro_cartoon.pdf}
 \end{center}
 
+\newpage
+
 \subsection{What we'll be covering today}
 
 \begin{itemize}
@@ -323,17 +357,35 @@ cat(
 
 For this workshop, we will be using the BioCro R package, the \texttt{lattice}
 package (which provides tools for creating plots), and the \texttt{nloptr}
-package (which provides tools for optimization). They can be loaded as follows:
+package (which provides tools for optimization). We will load them now before
+moving on to the examples.
+
+\medskip \runcodeNI
+
+<<eval = FALSE>>=
+<<loading_packages>>
+@
+
+\expectedoutputNI
+
+\medskip
+
+\nooutput
+
+\noindent If you see a warning about the version of BioCro, or if any of the
+packages are not available, make sure the latest version of each package is
+installed using the following code.
+
+\medskip
+
+\runcodeNI
 
 <<eval=FALSE>>=
-# Make sure packages are installed. `BioCro`, `lattice` and `nloptr` are
-# available from CRAN, so they can be installed from the remote package
-# repository.
+# Make sure packages are installed
 install.packages('BioCro')
 install.packages('lattice')
 install.packages('nloptr')
-
-<<loading_packages>>
+install.packages('deSolve')
 @
 
 \newpage
@@ -382,11 +434,34 @@ install.packages('nloptr')
 \end{itemize}
 
 \noindent Here we use \texttt{module\_info} to obtain basic information about a
-very simple module from the standard module library:
+very simple module from the standard module library.
 
-<<module_info>>=
+\medskip
+
+\runcodeNI
+
+<<module_info, eval = FALSE>>=
 module_info('BioCro:total_biomass')
 @
+
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<module_info>>
+@
+
+\exerciseNI
+
+\medskip
+
+Type \texttt{?module\_info} in R to access the help page for this function, and
+then try changing the value of the optional input argument (\texttt{verbose}).
+
+\noindent Note that the \texttt{?} command can be applied to all functions
+mentioned in this workshop, and the help pages are a key resource for
+understanding how to use each function.
+
+\newpage
 
 \subsection{Getting a list of all modules}
 
@@ -401,14 +476,33 @@ module_info('BioCro:total_biomass')
 \end{itemize}
 
 \noindent Here we use \texttt{get\_all\_modules} to view a list of all modules
-in the standard module library:
+in the standard module library.
 
-<<viewing_all_modules,eval=FALSE>>=
-View(get_all_modules('BioCro'))
+\medskip
+
+\runcodeNI
+
+<<viewing_all_modules, eval = FALSE>>=
+print(get_all_modules('BioCro'))
 @
 
-\noindent \textbf{Exercise}: Pick another module from the list, such as
-\texttt{BioCro:c3\_assimilation}, and get its basic information.
+\expectedoutputNI
+
+\medskip
+
+The output is too long to reproduce here, but it should be a list of many
+module names, each prefixed by \texttt{BioCro}.
+
+\medskip
+
+\exerciseNI
+
+\medskip
+
+Pick another module from the list, such as \texttt{BioCro:c3\_assimilation}, and
+get its basic information.
+
+\newpage
 
 \subsection{Getting more information about a module}
 
@@ -454,6 +548,8 @@ View(get_all_modules('BioCro'))
   documentation at the moment.
 \end{itemize}
 
+\newpage
+
 \subsection{Evaluating modules \label{sec_run_module}}
 
 \subsubsection{Evaluating a module once}
@@ -470,7 +566,7 @@ View(get_all_modules('BioCro'))
 \noindent For example, we can run the \texttt{c3\_assimilation} module using
 default soybean values for most of its inputs using the following command, which
 also specifies the values of a few module inputs that are not included in the
-default soybean values:
+default soybean values.
 
 % For the next several function examples, we should explicitly describe
 % the arguments. Here, module_name and input_quantities. Also, since this is the
@@ -478,7 +574,11 @@ default soybean values:
 % evaluate_module can be accessed. Also show how additional info can be found in
 % the Practical Guide.
 
-<<running_a_module>>=
+\medskip
+
+\runcodeNI
+
+<<running_a_module, eval = FALSE>>=
 evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
@@ -492,8 +592,19 @@ evaluate_module(
 )
 @
 
-\noindent \textbf{Exercise}: Try changing some of the input values or running a
-different module.
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<running_a_module>>
+@
+
+\exerciseNI
+
+\medskip
+
+Try changing some of the input values or running a different module.
+
+\newpage
 
 \subsubsection{Calculating and viewing a module response curve \label{sec_response_curve}}
 
@@ -514,9 +625,13 @@ different module.
 \end{itemize}
 
 \noindent For example, we can calculate a light response curve using the
-\texttt{c3\_assimilation} module:
+\texttt{c3\_assimilation} module.
 
 % Here explain module_name, fixed_quantities, varying_quantities.
+
+\medskip
+
+\runcodeNI
 
 <<c3_light_response_curve>>=
 light_response_curve <- module_response_curve(
@@ -532,11 +647,19 @@ light_response_curve <- module_response_curve(
 )
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent The return value is a data frame (an R structure equivalent to a
 table), and the response of net assimilation to absorbed light intensity can be
-plotted from it as follows:
+plotted from it.
 
-<<light_response_curve_plot>>=
+\medskip
+
+\runcodeNI
+
+<<light_response_curve_plot, eval = FALSE>>=
 light_response_curve_plot <- xyplot(
   Assim ~ Qabs,
   data = light_response_curve,
@@ -548,16 +671,26 @@ light_response_curve_plot <- xyplot(
 print(light_response_curve_plot)
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<light_response_curve_plot>>
+@
+
 \noindent The output from \texttt{module\_response\_curve} includes \emph{all}
 of the module's outputs, so we could also plot the response of another output
 using the same data frame.
 
-\bigskip
+\medskip
 
-\noindent \textbf{Exercise}: Try plotting the response of stomatal conductance
-(\texttt{Gs}) to light intensity.
+\exerciseNI
 
-\bigskip
+\medskip
+
+Try plotting the response of stomatal conductance (\texttt{Gs}) to light
+intensity.
+
+\medskip
 
 \noindent For another example demonstrating how to calculate multiple response
 curves at once, see Section \ref{sec_multi_response}.
@@ -591,10 +724,14 @@ curves at once, see Section \ref{sec_multi_response}.
 \end{itemize}
 
 \noindent For example, we can run a soybean growth model using weather data from
-Champaign, Illinois during 2002 with the following command:
+Champaign, Illinois during 2002.
 
 % Here explain the various "equation" parameters and ode_solver, and mention
 % that much more information can be found in the Practical Guide.
+
+\medskip
+
+\runcodeNI
 
 <<soybean_simulation>>=
 soybean_result <- run_biocro(
@@ -607,12 +744,20 @@ soybean_result <- run_biocro(
 )
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent As with \texttt{module\_response\_curve}, the return value from
 \texttt{run\_biocro} is a data frame. We can view it directly as a table, or
 plot some of its columns against each other. Here we plot the calculated biomass
-values against time:
+values against time.
 
-<<soybean_simulation_plot>>=
+\medskip
+
+\runcodeNI
+
+<<soybean_simulation_plot, eval = FALSE>>=
 soybean_biomass_2002_plot <- xyplot(
   Leaf + Stem + Root + Grain ~ fractional_doy,
   data = soybean_result,
@@ -625,11 +770,25 @@ soybean_biomass_2002_plot <- xyplot(
 print(soybean_biomass_2002_plot)
 @
 
-\noindent \textbf{Exercise}: Try plotting the soybean biomass against its
-developmental index (the \texttt{DVI} column) instead of time, or try plotting
-some other outputs like LAI (the \texttt{lai} column), canopy assimilation rate
-(the \texttt{canopy\_assimilation\_rate} column), or the degree of water stress
-(the \texttt{StomataWS} column).
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<soybean_simulation_plot>>
+@
+
+\medskip
+
+\exerciseNI
+
+\medskip
+
+Try plotting the soybean biomass against its developmental index (the
+\texttt{DVI} column) instead of time, or try plotting some other outputs like
+LAI (the \texttt{lai} column), canopy assimilation rate (the
+\texttt{canopy\_assimilation\_rate} column), or the degree of water stress (the
+\texttt{StomataWS} column).
+
+\newpage
 
 \subsection{Components of a typical BioCro crop growth model}
 
@@ -656,10 +815,24 @@ some other outputs like LAI (the \texttt{lai} column), canopy assimilation rate
   all modules in Soybean-BioCro.
 \end{itemize}
 
-<<soybean_modules>>=
+\medskip
+
+\runcodeNI
+
+<<soybean_modules, eval = FALSE>>=
+cat('Direct modules used in the soybean model:\n')
 cat(as.character(soybean$direct_modules), sep = '\n')
+cat('\nDifferential modules used in the soybean model:\n')
 cat(as.character(soybean$differential_modules), sep = '\n')
 @
+
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<soybean_modules>>
+@
+
+\newpage
 
 \subsection{Brief overview of the Soybean-BioCro modules}
 
@@ -830,6 +1003,8 @@ examined using the methods described previously (Section \ref{sec_modules}).
   optimization.
 \end{itemize}
 
+\newpage
+
 \subsection{Maximizing soybean assimilation \label{sec_optimize_module}}
 
 \begin{itemize}
@@ -845,9 +1020,13 @@ examined using the methods described previously (Section \ref{sec_modules}).
 
 \noindent Here we show how to generate a suitable function from the
 \texttt{BioCro:c3\_assimilation} module. The first step is to indentify leaf
-temperature as an independent input and fix the other module input values:
+temperature as an independent input and fix the other module input values.
 
-<<partial_evaluate_module_p1>>=
+\medskip
+
+\runcodeNI
+
+<<partial_evaluate_module_p1, eval = FALSE>>=
 c3_tleaf <- partial_evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {
@@ -864,11 +1043,21 @@ c3_tleaf <- partial_evaluate_module(
 str(c3_tleaf(27))
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<partial_evaluate_module_p1>>
+@
+
 \noindent The new \texttt{c3\_tleaf} function accepts the required input, but it
 returns much more information than we need. Here we create a simple ``wrapper''
-for this function that extracts only the net assimilation output:
+for this function that extracts only the net assimilation output.
 
-<<partial_evaluate_module_p2>>=
+\medskip
+
+\runcodeNI
+
+<<partial_evaluate_module_p2, eval = FALSE>>=
 c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
 
 # We can run the module using a leaf temperature of 27 degrees C, only returning
@@ -876,13 +1065,23 @@ c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
 c3_assim_from_tleaf(27)
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<partial_evaluate_module_p2>>
+@
+
 \noindent Now we can pass this function to \texttt{optim}, with one small
 modification: \texttt{optim} actually \emph{minimizes} the value of the function
 passed to it, so if we want to \emph{maximize} net assimilation, we need to
 rephrase the problem as minimizing the negative of the value of net
-assimilation:
+assimilation.
 
-<<finding_optimal_temperature>>=
+\medskip
+
+\runcodeNI
+
+<<finding_optimal_temperature, eval = FALSE>>=
 optim_result <- optim(
   25,                                    # initial guess for optimal temperature
   function(x) {-c3_assim_from_tleaf(x)}, # rephrase to a minimization
@@ -895,9 +1094,17 @@ optim_result <- optim(
 optim_result$par
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<finding_optimal_temperature>>
+@
+
 \noindent For a more advanced example where net assimilation is maximized under
 multiple conditions to calculate an optimal temperature curve, see Section
 \ref{sec_advanced_maximization}.
+
+\newpage
 
 \subsection{Parameterizing a model using measured data \label{sec_optimize_simulation}}
 
@@ -954,7 +1161,11 @@ multiple conditions to calculate an optimal temperature curve, see Section
 \noindent The sorghum model is stored in a \texttt{.dat} file and the data is
 stored in \texttt{.csv} files. These can be downloaded from the
 \href{https://github.com/biocro/biocro/tree/main/vignettes/web_only}{BioCro GitHub page}.
-Then, they can be loaded into the R workspace as follows:
+Then, they can be loaded into the R workspace.
+
+\medskip
+
+\runcodeNI
 
 <<load_sorghum_data>>=
 source('sorghum.dat')
@@ -989,22 +1200,34 @@ sorghum_test_res <- with(sorghum, {run_biocro(
 @
 
 \noindent If the data files are not in your current working directory, it may be
-easier to use these commands, which will open up interactive file browsers:
+easier to use these commands, which will open up interactive file browsers.
 
-<<load_sorghum_flexible,eval=FALSE>>=
+\medskip
+
+\runcodeNI
+
+<<load_sorghum_flexible, eval = FALSE>>=
 source(file.choose())              # Navigate to 'sorghum.dat'
 climate <- read.csv(file.choose()) # Navigate to 'sorghum_climate.csv'
 yield <- read.csv(file.choose())   # Navigate to 'sorghum_yield.csv'
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent Next, we'll create a function that runs a sorghum growth simulation
 using the weather data but accepts only \texttt{iSp} as an input; this can be
 accomplished using \texttt{partial\_run\_biocro}. When comparing to the measured
 data, we'll need the above-ground dry yield; this isn't included in the typical
-simulation output, but can be calculated afterwards:
+simulation output, but can be calculated afterwards.
+
+\medskip
+
+\runcodeNI
 
 <<sorghum_partial_function>>=
-partial_function = function(x) {
+partial_function <- function(x) {
   f = with(sorghum, {partial_run_biocro(
     initial_values,
     parameters,
@@ -1020,12 +1243,20 @@ partial_function = function(x) {
 }
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent Now \texttt{partial\_function} accepts a vector of the two values, but
 it still returns all of the model output rather than a single value to minimize.
-We can use it to calculate $\chi^2$ by wrapping another function around it:
+We can use it to calculate $\chi^2$ by wrapping another function around it.
+
+\medskip
+
+\runcodeNI
 
 <<sorghum_minimization_function>>=
-to_minimize = function(x) {
+to_minimize <- function(x) {
   # Get results from the model and then pull out times at which there are
   # observed data. Use tryCatch to ensure that bad parameters do not completely
   # prevent the optimization from running.
@@ -1058,11 +1289,19 @@ to_minimize = function(x) {
 }
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent Now we can perform the optimization; we'll also wrap the call to the
-optimizer in \texttt{system.time} so we can see how long it takes to run:
+optimizer in \texttt{system.time} so we can see how long it takes to run.
+
+\medskip
+
+\runcodeNI
 
 <<sorghum_optimization>>=
-opts = list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
+opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
 system.time({
   nlresult = nloptr(
     x0=unlist(sorghum$parameters$iSp),
@@ -1075,11 +1314,19 @@ system.time({
 setNames(nlresult$solution, 'iSp')
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent Now we can check the result. In this plot, LAI values are shown in
 blue while above-ground biomass is shown in black. Measured values are shown as
 circles, while simulated output is shown as smooth lines.
 
-<<sorghum_optimizer_check>>=
+\medskip
+
+\runcodeNI
+
+<<sorghum_optimizer_check, eval = FALSE>>=
 r = partial_function(nlresult$solution)
 plot(above_ground_dry_yield ~ doy_time, yield, xlim=c(4000, 7000), ylim=c(0, 25))
 lines(above_ground_dry_yield ~ doy_time, r)
@@ -1087,39 +1334,92 @@ points(lai ~ doy_time, yield, col='blue')
 lines(lai ~ doy_time, r, col='blue')
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<sorghum_optimizer_check>>
+@
+
 \noindent For a simpler (but less realistic) example of parameterization, see
 Section \ref{sec_simple_parameterization}.
 
-\bigskip
+\medskip
 
-\noindent \textbf{That's the end of the structured part of the workshop!} With
-any remaining time that might be left, you can participate in the soybean
-challenge (Section \ref{sec_challenge}), try out some of the examples in
-Section \ref{sec_additional_examples}, try something on your own, or ask any
-other questions you might have.
+\newpage
+
+\subsection{What comes next}
+
+\textbf{That's the end of the structured part of the workshop!} With any
+remaining time that might be left, you can:
+\begin{itemize}
+  \item Participate in the soybean challenge (Section \ref{sec_challenge}).
+
+  \item Try out some of the additional examples (Section
+  \ref{sec_additional_examples}).
+
+  \item Try working on your own modeling ideas.
+
+  \item Ask any other questions you might have.
+
+  \item Learn more about BioCro's approach to modular modeling (Section
+  \ref{sec_modular}).
+
+  \item Read one of the articles on the BioCro web site
+  (\url{https://biocro.org})
+\end{itemize}
 
 \newpage
 
 \section{The soybean challenge \label{sec_challenge}}
 
 One way to test your BioCro knowledge is to try to maximize soybean yield. As in
-Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002:
+Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002.
+
+\medskip
+
+\runcodeNI
 
 <<eval=FALSE>>=
 <<soybean_simulation>>
 @
 
-\noindent Then, the final pod biomass can be extracted as follows:
+\expectedoutputNI
 
-<<>>=
+\nooutput
+
+\noindent Then, the final pod biomass can be extracted.
+
+\medskip
+
+\runcodeNI
+
+<<soybean_final_yield, eval = FALSE>>=
 soybean_result$Grain[nrow(soybean_result)]
 @
 
-\noindent Your task is to increase that value! For example, you could try
-increasing a photosynthesis parameter like $V_{c,max}$, which is represented in
-the soybean model as \texttt{Vcmax\_at\_25}:
+\expectedoutputNI
 
-<<soybean_vmax>>=
+<<echo = FALSE>>=
+<<soybean_final_yield>>
+@
+
+\exerciseNI
+
+\medskip
+
+Your task is to increase that value!
+
+\medskip
+
+\noindent For example, you could try increasing a photosynthesis parameter like
+$V_{c,max}$, which is represented in the soybean model as
+\texttt{Vcmax\_at\_25}.
+
+\medskip
+
+\runcodeNI
+
+<<soybean_vmax, eval = FALSE>>=
 soybean_result_new <- run_biocro(
   soybean$initial_values,
   within(soybean$parameters, {Vcmax_at_25 = 200}),
@@ -1132,8 +1432,14 @@ soybean_result_new <- run_biocro(
 soybean_result_new$Grain[nrow(soybean_result)]
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<soybean_vmax>>
+@
+
 \noindent Any approach is allowed! If you think you have a way to get a super
-high yield, email your code to
+high yield and would like to share it, email your code to
 \href{mailto:eloch@illinois.edu}{eloch@illinois.edu} and
 \href{mailto:jmcgrath@illinois.edu}{jmcgrath@illinois.edu}. Interesting
 approaches will be showcased on the BioCro website (with your permission).
@@ -1145,13 +1451,21 @@ approaches will be showcased on the BioCro website (with your permission).
 \subsection{Swapping a model component}
 
 In Section \ref{sec_simulate_one_year}, we ran a default Soybean-BioCro
-simulation for weather data from 2002:
+simulation for weather data from 2002.
+
+\medskip
+
+\runcodeNI
 
 <<eval=FALSE>>=
 <<soybean_simulation>>
 @
 
-In this simulation, photosynthesis was included via the mechanistic
+\expectedoutputNI
+
+\nooutput
+
+\noindent In this simulation, photosynthesis was included via the mechanistic
 Farquhar-von-Caemmerer-Berry (FvCB) model. Alternatively, it would be possible
 to use a simpler photosynthesis model based on radiation use efficiency (RUE).
 In the RUE model, the gross assimilation rate is directly proportional to the
@@ -1159,7 +1473,11 @@ incident light intensity. The standard BioCro module library contains a RUE
 canopy photosynthesis module, so it is simple to run an alternate soybean
 simulation using RUE photosynthesis in place of the FvCB model. In addition to
 switching a module, we will also need to provide a value for the efficiency,
-which is called \texttt{alpha\_rue}. This can be done as follows:
+which is called \texttt{alpha\_rue}.
+
+\medskip
+
+\runcodeNI
 
 <<soybean_simulation_rue>>=
 soybean_result_rue <- run_biocro(
@@ -1172,10 +1490,18 @@ soybean_result_rue <- run_biocro(
 )
 @
 
+\expectedoutputNI
+
+\nooutput
+
 \noindent Predicted biomass values from the two versions can be compared
 visually:
 
-<<soybean_simulation_comparison>>=
+\medskip
+
+\runcodeNI
+
+<<soybean_simulation_comparison, eval = FALSE>>=
 biomass_col <- c('fractional_doy', 'Leaf', 'Stem', 'Root', 'Grain')
 soybean_comp <- rbind(
   within(soybean_result[biomass_col], {photo_method = 'FvCB'}),
@@ -1194,6 +1520,12 @@ xyplot(
 )
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<soybean_simulation_comparison>>
+@
+
 \noindent With this value of \texttt{alpha\_rue}, the agreement between the
 model predictions is not so great. However, an optimization procedure similar to
 the ones in Section \ref{sec_optimize_simulation} and
@@ -1205,7 +1537,9 @@ CO$_2$ can be compared using response curves (as in Section
 \ref{sec_module_sensitivity} and \ref{sec_module_sensitivity}). This type of
 analysis can reveal scenarios where the model behavior is expected to differ.
 For an example of how this could be done, see \cite{lochocki_biocro_2022} and
-the \emph{Quantitative Comparison Between Two Photosynthesis Models} vignette.
+the \emph{Quantitative Comparison Between Two Photosynthesis Models} article.
+
+\newpage
 
 \subsection{Simultaneously calculating and plotting multiple response curves \label{sec_multi_response}}
 
@@ -1222,7 +1556,11 @@ separately plot the light response curves for each value of relative humidity.
 We also use the \texttt{paste} function to generate an informative plot title
 from the information contained in the response curve data frame.
 
-<<multiple_response_curves>>=
+\medskip
+
+\runcodeNI
+
+<<multiple_response_curves, eval = FALSE>>=
 temperature_response_curve <- module_response_curve(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {Qabs = 2000; StomataWS = 1; temp = 25; gbw = 2.0}),
@@ -1253,9 +1591,21 @@ temperature_response_curve_plot <- xyplot(
 print(temperature_response_curve_plot)
 @
 
-\noindent \textbf{Exercise}: Try changing the value of the absorbed
-photosynthetically active photon flux density \texttt{Qabs} and notice how the
-plot caption is automatically updated to reflect the new value.
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<multiple_response_curves>>
+@
+
+\exerciseNI
+
+\medskip
+
+Try changing the value of the absorbed photosynthetically active photon flux
+density \texttt{Qabs} and notice how the plot caption is automatically updated
+to reflect the new value.
+
+\newpage
 
 \subsection{Maximizing net assimilation under multiple conditions \label{sec_advanced_maximization}}
 
@@ -1271,7 +1621,11 @@ for a sequence of humidities. Using this process, we generate a curve we can use
 to visualize how the optimal temperature for C$_3$ photosynthesis depends on
 ambient humidity, according to this model.
 
-<<more_advanced_module_optimization>>=
+\medskip
+
+\runcodeNI
+
+<<more_advanced_module_optimization, eval = FALSE>>=
 c3_tleaf_rh <- partial_evaluate_module(
   'BioCro:c3_assimilation',
   within(soybean$parameters, {Qabs = 2000; StomataWS = 1; temp = 25; gbw = 2.0}),
@@ -1302,17 +1656,28 @@ optim_temp_plot <- xyplot(
 print(optim_temp_plot)
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<more_advanced_module_optimization>>
+@
+
 \noindent It is well-known that the optimal temperature for photosynthesis
 depends on the ambient CO$_2$ concentration (\cite{long_modification_1991}).
 This example shows that the optimal temperature also changes with humidity
 levels, shifting to lower temperatures in drier conditions.
 
-\bigskip
+\medskip
 
-\noindent \textbf{Exercise}: Try finding the optimal LAI that maximizes net
-soybean canopy assimilation for fixed environmental conditions. For this, the
-\texttt{BioCro:c3\_canopy} module would be required instead of the
-\texttt{BioCro:c3\_assimilation} module.
+\exerciseNI
+
+\medskip
+
+Try finding the optimal LAI that maximizes net soybean canopy assimilation for
+fixed environmental conditions. For this, the \texttt{BioCro:c3\_canopy} module
+would be required instead of the \texttt{BioCro:c3\_assimilation} module.
+
+\newpage
 
 \subsection{A simple example of model parameterization \label{sec_simple_parameterization}}
 
@@ -1335,7 +1700,11 @@ biomass with the measured value, producing an error metric that can be minimized
 by an optimizer. This analysis begins with a similar strategy to the one
 outlined for modules in Section \ref{sec_optimize_module}.
 
-<<simple_soybean_optimization>>=
+\medskip
+
+\runcodeNI
+
+<<simple_soybean_optimization, eval = FALSE>>=
 sim_func <- with(soybean, {partial_run_biocro(
   initial_values,
   parameters,
@@ -1370,8 +1739,19 @@ print(paste(
 ))
 @
 
-\noindent \textbf{Exercise}: Try varying a different parameter instead of
-\texttt{alphaLeaf}.
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<simple_soybean_optimization>>
+@
+
+\exerciseNI
+
+\medskip
+
+Try varying a different parameter instead of \texttt{alphaLeaf}.
+
+\newpage
 
 \subsection{Calculating module sensitivity coefficients \label{sec_module_sensitivity}}
 
@@ -1426,6 +1806,10 @@ either $\delta x$ or $\epsilon$ as input arguments, and returns the values of
 $s_1$, $s_2$, and $s_3$ as a data frame. If \texttt{delta\_x} is \texttt{NULL},
 then a relative step based on $\epsilon$ will be used for the calculations.
 
+\medskip
+
+\runcodeNI
+
 <<sensitivity_function>>=
 sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
   if (is.null(delta_x)) {
@@ -1451,6 +1835,10 @@ sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
 }
 @
 
+\expectedoutputNI
+
+\nooutput
+
 Now, let's calculate sensitivity coefficients for the \texttt{c3\_assimilation}
 module, treating the ambient CO$_2$ concentration $C_a$ as the independent
 variable and the net assimilation as the dependent variable. We'll also provide
@@ -1458,6 +1846,10 @@ an option to specify the absorbed light level. First, we'll need to create a
 function $f$ such that $f$(CO$_2$, Q) = net assimilation. We can specify the
 independent variables using \texttt{partial\_evaluate\_module}, and then create
 another function wrapper later that selects just the net assimilation output.
+
+\medskip
+
+\runcodeNI
 
 <<sensitivity_co2_function>>=
 co2_func <- partial_evaluate_module(
@@ -1473,8 +1865,16 @@ co2_func <- partial_evaluate_module(
 )
 @
 
+\expectedoutputNI
+
+\nooutput
+
 Now we will define a range of absorbed light values to use and calculate the
 sensitivity coefficients for each one using a base level of $C_a$ = 400 ppm.
+
+\medskip
+
+\runcodeNI
 
 <<sensitivity_calculations>>=
 qabs_seq <- seq(0, 2000, length.out = 101)
@@ -1489,10 +1889,18 @@ sens_result <- do.call(rbind, lapply(qabs_seq, function(Qabs) {
 }))
 @
 
+\expectedoutputNI
+
+\nooutput
+
 Now we can see the sensitivity of net assimilation to ambient CO$_2$
 concentration at different levels of absorbed light intensity.
 
-<<sensitivity_plot>>=
+\medskip
+
+\runcodeNI
+
+<<sensitivity_plot, eval = FALSE>>=
 sensitivity_plot <- xyplot(
   s2 ~ Qabs,
   data = sens_result,
@@ -1504,6 +1912,12 @@ sensitivity_plot <- xyplot(
 print(sensitivity_plot)
 @
 
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<sensitivity_plot>>
+@
+
 From this plot, we can learn several things. One observation is that the
 sensitivity coefficient is non-negative for all values of absorbed light; this
 indicates additional CO$_2$ never causes a decrease in soybean assimilation.
@@ -1512,13 +1926,19 @@ increases in ambient CO$_2$ levels when the absorbed light levels are high. This
 agrees with our intuition; CO$_2$ assimilation is limited by light availability
 at low light levels, so additional CO$_2$ cannot be used for assimilation.
 
-\bigskip
+\medskip
 
-\noindent \textbf{Exercise}: The \texttt{BioCro:c4\_assimilation} module could
-be used to calculate a similar sensitivity curve for miscanthus (using default
-values from \texttt{miscanthus\_x\_giganteus\_parameters}), revealing some
-differences between the response of C$_3$ and C$_4$ photosynthesis to changes in
-atmospheric CO$_2$ levels.
+\exerciseNI
+
+\medskip
+
+The \texttt{BioCro:c4\_assimilation} module could be used to calculate a similar
+sensitivity curve for miscanthus (using default values from
+\texttt{miscanthus\_x\_giganteus\_parameters}), revealing some differences
+between the response of C$_3$ and C$_4$ photosynthesis to changes in atmospheric
+CO$_2$ levels.
+
+\newpage
 
 \subsection{Calculating simulation sensitivity coefficients \label{sec_sim_sensitivity}}
 
@@ -1532,8 +1952,18 @@ As a simple example, we will calculate the sensitivity of final pod biomass in
 2002 to the value of \texttt{alphaLeaf}. To do it, we can reuse a few functions
 that were previously defined:
 
-<<simulation_sensitivity>>=
+\medskip
+
+\runcodeNI
+
+<<simulation_sensitivity, eval = FALSE>>=
 sensitivity(final_pod_func, soybean$parameters$alphaLeaf)
+@
+
+\expectedoutputNI
+
+<<echo = FALSE>>=
+<<simulation_sensitivity>>
 @
 
 An interesting observation here is that the sensitivity coefficients are
@@ -1543,16 +1973,20 @@ have learned that additional leaf investment is detrimental to soybean yield;
 this agrees with previous results indicating that soybean canopies are larger
 than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
 
-\bigskip
+\medskip
 
-\noindent \textbf{Exercise}: Try calculating the sensitivity coefficient for the
-response of soybean yield to changes in atmospheric CO$_2$ concentration. Also,
-see \cite{lochocki_biocro_2022} for a more detailed example of calculating and
-using simulation sensitivity coefficients.
+\exerciseNI
+
+\medskip
+
+Try calculating the sensitivity coefficient for the response of soybean yield to
+changes in atmospheric CO$_2$ concentration. Also, see
+\cite{lochocki_biocro_2022} for a more detailed example of calculating and using
+simulation sensitivity coefficients.
 
 \newpage
 
-\section{Understanding BioCro's approach to modular modeling}
+\section{Understanding BioCro's approach to modular modeling \label{sec_modular}}
 
 \subsection{Three levels of computational modeling}
 
@@ -1717,7 +2151,7 @@ define and solve the model in the \texttt{R} environment with the help of the
 
 \begin{figure}[htbp]
 <<code_level_example>>=
-f = function(t, y, p) {
+f <- function(t, y, p) {
   with(p, with(as.list(y), {
     A = Q(t) * alpha_rue          # mol / m^2 / s
     G = A * Leaf * SLA * C_conv  # kg
@@ -1770,6 +2204,8 @@ wouldn't be too much work, but more realistic models are typically much more
 complicated, and the existing code is not always organized in a way that clearly
 indicates which lines are related to which model component.)
 
+\newpage
+
 \subsection{Making computer code more modular and flexible}
 
 The main purpose of BioCro is to mitigate both issues with the code
@@ -1815,7 +2251,7 @@ but with different parameters (see the left part of Figure
 because the code may not be written in exactly the same way. For example, the
 \texttt{R} code for soybean might look like this:
 
-<<soybean_overlap_example,eval=FALSE>>=
+<<soybean_overlap_example, eval = FALSE>>=
 leaf_mass_gain_rate <- total_mass_gain_rate * 0.2
 root_mass_gain_rate <- total_mass_gain_rate * 0.8
 @
@@ -1823,7 +2259,7 @@ root_mass_gain_rate <- total_mass_gain_rate * 0.8
 \noindent while the \texttt{R} code used in the miscanthus version
 might look like this:
 
-<<miscanthus_overlap_example,eval=FALSE>>=
+<<miscanthus_overlap_example, eval = FALSE>>=
 leaf_factor <- 0.3
 dleaf_dt <- mass_gain * leaf_factor
 droot_dt <- mass_gain * (1 - leaf_factor)
@@ -1893,6 +2329,8 @@ models might require different parameters. Thus, the parameter specification
 needs to be very flexible, and the allocation model must be able to communicate
 which inputs it requires. These kinds of issues prevent code like this from
 being written very often.
+
+\newpage
 
 \subsection{The BioCro framework}
 
