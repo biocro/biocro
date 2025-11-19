@@ -13,7 +13,7 @@
 % that this chunk is evaluated, even when eval has been set to FALSE
 % at the global level, as in the R-CMD-check GitHub workflow.
 
-<<solve_latex_color_problems,include=FALSE,eval=TRUE>>=
+<<solve_latex_color_problems, include = FALSE, eval = TRUE>>=
 
 ## Versions of knitr before 1.39 used the color package, but we want
 ## to use xcolor instead (together with the "dvipsnames" option), so
@@ -109,13 +109,13 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 \end{center}
 
 % Set things up for R evaluation:
-<<preliminaries,echo=FALSE>>=
-knitr::opts_chunk$set(error=FALSE) # do stop on errors so we can immediately
-                                   # identify problems with the vignette code
+<<preliminaries, echo = FALSE>>=
+knitr::opts_chunk$set(error = FALSE) # do stop on errors so we can immediately
+                                     # identify problems with the vignette code
 knitr::opts_chunk$set(fig.width=5, fig.height=3)
 @
 
-<<loading_packages,echo=FALSE,error=FALSE>>=
+<<loading_packages, echo = FALSE, error = FALSE>>=
 # Load required packages
 library(BioCro)
 library(lattice)
@@ -135,7 +135,7 @@ if (compareVersion(expected_version, installed_version) != 0) {
 }
 @
 
-<<version_info,echo=FALSE,comment=''>>=
+<<version_info, echo = FALSE, comment = ''>>=
 # Show the current commit hash and the date of that commit.
 cat(
   paste0(
@@ -380,7 +380,7 @@ installed using the following code.
 
 \runcodeNI
 
-<<eval=FALSE>>=
+<<eval = FALSE>>=
 # Make sure packages are installed
 install.packages('BioCro')
 install.packages('lattice')
@@ -1340,10 +1340,15 @@ lines(lai ~ doy_time, r, col='blue')
 <<sorghum_optimizer_check>>
 @
 
-\noindent For a simpler (but less realistic) example of parameterization, see
-Section \ref{sec_simple_parameterization}.
+\noindent This optimization may seem complicated, but it is actually much
+simpler than a realistic model parameterization, which may include many more
+observations and parameters. A more reliable and useful objective function would
+also include more checks for error conditions.
 
-\medskip
+A full example demonstrating one approach to parameterizing BioCro's soybean
+model can be found online at the documentation web site for the
+\texttt{BioCroValidation} R package:
+\url{https://biocro.org/BioCroValidation/articles/parameterizing_soybean_biocro.html}.
 
 \newpage
 
@@ -1379,7 +1384,7 @@ Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002.
 
 \runcodeNI
 
-<<eval=FALSE>>=
+<<eval = FALSE>>=
 <<soybean_simulation>>
 @
 
@@ -1457,7 +1462,7 @@ simulation for weather data from 2002.
 
 \runcodeNI
 
-<<eval=FALSE>>=
+<<eval = FALSE>>=
 <<soybean_simulation>>
 @
 
@@ -1528,11 +1533,10 @@ xyplot(
 
 \noindent With this value of \texttt{alpha\_rue}, the agreement between the
 model predictions is not so great. However, an optimization procedure similar to
-the ones in Section \ref{sec_optimize_simulation} and
-\ref{sec_simple_parameterization} could be used to find the value of
-\texttt{alpha\_rue} that produces the best agreement. Afterwards, the response
-of the two different soybean models to important factors like temperature and
-CO$_2$ can be compared using response curves (as in Section
+the ones in Section \ref{sec_optimize_simulation} could be used to find the
+value of \texttt{alpha\_rue} that produces the best agreement. Afterwards, the
+response of the two different soybean models to important factors like
+temperature and CO$_2$ can be compared using response curves (as in Section
 \ref{sec_response_curve}) and sensitivity analysis (as in Sections
 \ref{sec_module_sensitivity} and \ref{sec_module_sensitivity}). This type of
 analysis can reveal scenarios where the model behavior is expected to differ.
@@ -1676,80 +1680,6 @@ levels, shifting to lower temperatures in drier conditions.
 Try finding the optimal LAI that maximizes net soybean canopy assimilation for
 fixed environmental conditions. For this, the \texttt{BioCro:c3\_canopy} module
 would be required instead of the \texttt{BioCro:c3\_assimilation} module.
-
-\newpage
-
-\subsection{A simple example of model parameterization \label{sec_simple_parameterization}}
-
-When developing a model, it is typically necessary to determine parameter values
-by comparing the simulation's output against experimentally measured data. For
-BioCro, the measured data would typically consist of leaf mass, stem mass, root
-mass, leaf area index, and possibly other physical observations made at multiple
-time points during one or more growing seasons. There may also be several
-parameters whose values must be determined. A full example demonstrating one
-approach to parameterizing BioCro's soybean model can be found online at the
-documentation web site for the \texttt{BioCroValidation} R package:
-\url{https://biocro.org/BioCroValidation/articles/parameterizing_soybean_biocro.html}.
-
-As a simpler example, here we will consider a contrived scenario where we have
-one measurement (final pod biomass) from soybeans during one year, and we have
-one unknown parameter value (\texttt{alphaLeaf}) to determine. First, we will
-use partial application to fix all the simulation inputs except
-\texttt{alphaLeaf}. Then we will define a function that compares the final pod
-biomass with the measured value, producing an error metric that can be minimized
-by an optimizer. This analysis begins with a similar strategy to the one
-outlined for modules in Section \ref{sec_optimize_module}.
-
-\medskip
-
-\runcodeNI
-
-<<simple_soybean_optimization, eval = FALSE>>=
-sim_func <- with(soybean, {partial_run_biocro(
-  initial_values,
-  parameters,
-  soybean_weather$'2002',
-  direct_modules,
-  differential_modules,
-  ode_solver,
-  'alphaLeaf'
-)})
-
-final_pod_func <- function(alphaLeaf) {
-  sim_result <- sim_func(alphaLeaf)
-  sim_result$Grain[nrow(sim_result)]
-}
-
-observed_biomass <- 6 # Mg / ha
-
-optim_result <- optim(
-  soybean$parameters$alphaLeaf,  # initial guess for alphaLeaf
-  function(x) {(observed_biomass - final_pod_func(x))^2},
-  method='Brent',
-  lower = 20,  # lower limit for alphaLeaf
-  upper = 25   # upper limit for alphaLeaf
-)
-
-print(paste(
-  'alphaLeaf =',
-  optim_result$par,
-  'produces a final pod biomass of',
-  observed_biomass,
-  'Mg / ha'
-))
-@
-
-\expectedoutputNI
-
-<<echo = FALSE>>=
-<<simple_soybean_optimization>>
-@
-
-\exerciseNI
-
-\medskip
-
-Try varying a different parameter instead of \texttt{alphaLeaf}.
 
 \newpage
 
