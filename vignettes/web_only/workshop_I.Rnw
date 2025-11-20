@@ -51,7 +51,7 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 \usepackage{booktabs}
 
-\usepackage{fancybox}
+\usepackage{tcolorbox}
 
 \usepackage[colorlinks=true]{hyperref}
 \hypersetup{
@@ -92,29 +92,30 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 \newcommand{\nooutput}{There shouldn't be any output from this code.}
 
-\newsavebox{\mybox}
+\newtcolorbox{mybox}[2][red]{
+  colback = shadecolor,
+  coltitle = shadecolor,
+  colframe = #1!75!black,
+  fonttitle = \bfseries,
+  title={#2}
+}
 
-\newenvironment{boxEnv}[1]{
+\newenvironment{boxEnv}[2][red]{
   % begin code
-  \begin{lrbox}{\mybox}
+  \noindent
+  \begin{mybox}[#1]{#2}
   \begin{minipage}{0.92\columnwidth}
-  \textbf{#1:} \\
 }{
   % end code
   \end{minipage}
-  \end{lrbox}
-  \noindent
-  {
-    \setlength{\fboxsep}{8pt}
-    \ovalbox{\usebox{\mybox}}
-    \medskip
-  }
+  \end{mybox}
+  \medskip
 }
 
-\newenvironment{boxCode}{\begin{boxEnv}{Code to run in R}}{\end{boxEnv}}
-\newenvironment{boxCodeOptional}{\begin{boxEnv}{Code to (optionally) run in R}}{\end{boxEnv}}
-\newenvironment{boxOutput}{\begin{boxEnv}{Expected output from R}}{\end{boxEnv}}
-\newenvironment{boxExercise}{\begin{boxEnv}{Exercise}}{\end{boxEnv}}
+\newenvironment{boxCode}{\begin{boxEnv}[darkgray]{Code to run in R}}{\end{boxEnv}}
+\newenvironment{boxCodeOptional}{\begin{boxEnv}[gray]{Code to (optionally) run in R}}{\end{boxEnv}}
+\newenvironment{boxOutput}{\begin{boxEnv}[teal]{Expected output from R}}{\end{boxEnv}}
+\newenvironment{boxExercise}{\begin{boxEnv}[violet]{Exercise}}{\end{boxEnv}}
 
 \begin{document}
 
@@ -181,9 +182,7 @@ cat(
 
 \newpage
 
-\section{Introduction}
-
-\subsection{About this Workshop}
+\section{About this Workshop}
 
 \begin{itemize}
   \item This workshop was originally held on May 13, 2022 as part of the
@@ -196,7 +195,7 @@ cat(
   machine, and complete the exercises to test your understanding.
 \end{itemize}
 
-\noindent Look out for the following \textbf{bold} phrases inside boxes:
+\noindent Throughout this document, look out for the following types of boxes:
 
 \medskip
 
@@ -204,6 +203,10 @@ cat(
   This indicates a code snippet that should be run in R. Copy it from this
   document and paste it into the R terminal.
 \end{boxCode}
+
+\begin{boxCodeOptional}
+  This indicates a code snippet that can optionally be run in R.
+\end{boxCodeOptional}
 
 \begin{boxOutput}
   This will come after a code snippet, and will show the expected output from
@@ -214,6 +217,10 @@ cat(
   This will be a suggestion for a task you should be able to complete, and will
   often be based on one or more previous code snippets.
 \end{boxExercise}
+
+\newpage
+
+\section{Introduction}
 
 \subsection{Essential information about BioCro}
 
@@ -363,7 +370,7 @@ cat(
   was originally described in \cite{matthews_soybean_2022}.
 \end{itemize}
 
-
+\newpage
 
 \section{Installing and loading R packages}
 
@@ -382,7 +389,7 @@ them now before moving on to the examples.
 \end{boxCode}
 
 \begin{boxOutput}
-\nooutput
+  \nooutput
 \end{boxOutput}
 
 \noindent If you see a warning about the version of BioCro, or if any of the
@@ -400,6 +407,8 @@ install.packages('nloptr')
 install.packages('deSolve')
 @
 \end{boxCodeOptional}
+
+\newpage
 
 \section{Examining a single module \label{sec_modules}}
 
@@ -495,8 +504,8 @@ print(get_all_modules('BioCro'))
 \end{boxCode}
 
 \begin{boxOutput}
-The output is too long to reproduce here, but it should be a list of many
-module names, each prefixed by \texttt{BioCro}.
+  The output is too long to reproduce here, but it should be a list of many
+  module names, each prefixed by \texttt{BioCro}.
 \end{boxOutput}
 
 \begin{boxExercise}
@@ -642,7 +651,7 @@ light_response_curve <- module_response_curve(
 \end{boxCode}
 
 \begin{boxOutput}
-\nooutput
+  \nooutput
 \end{boxOutput}
 
 \noindent The return value is a data frame (an R structure equivalent to a
@@ -684,6 +693,8 @@ using the same data frame.
 
 \noindent For another example demonstrating how to calculate multiple response
 curves at once, see Section \ref{sec_multi_response}.
+
+\newpage
 
 \section{Combining modules to form a larger model \label{sec_simulations}}
 
@@ -733,7 +744,7 @@ soybean_result <- run_biocro(
 \end{boxCode}
 
 \begin{boxOutput}
-\nooutput
+  \nooutput
 \end{boxOutput}
 
 \noindent As with \texttt{module\_response\_curve}, the return value from
@@ -932,6 +943,8 @@ examined using the methods described previously (Section \ref{sec_modules}).
   model; it could be removed without any effect on the simulated values of
   biomass.
 \end{itemize}
+
+\newpage
 
 \section{More analysis techniques}
 
@@ -1345,7 +1358,7 @@ remaining time that might be left, you can:
   (\url{https://biocro.org})
 \end{itemize}
 
-
+\newpage
 
 \section{The soybean challenge \label{sec_challenge}}
 
@@ -1416,6 +1429,8 @@ high yield and would like to share it, email your code to
 \href{mailto:eloch@illinois.edu}{eloch@illinois.edu} and
 \href{mailto:jmcgrath@illinois.edu}{jmcgrath@illinois.edu}. Interesting
 approaches will be showcased on the BioCro website (with your permission).
+
+\newpage
 
 \section{Additional examples \label{sec_additional_examples}}
 
@@ -1866,6 +1881,8 @@ than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
 
 \noindent See \cite{lochocki_biocro_2022} for a more detailed example of
 calculating and using simulation sensitivity coefficients.
+
+\newpage
 
 \section{Understanding BioCro's approach to modular modeling \label{sec_modular}}
 
