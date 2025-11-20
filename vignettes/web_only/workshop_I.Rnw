@@ -49,9 +49,9 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 \usepackage{amsfonts}
 
-\usepackage{listings}
-
 \usepackage{booktabs}
+
+\usepackage{fancybox}
 
 \usepackage[colorlinks=true]{hyperref}
 \hypersetup{
@@ -90,15 +90,31 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 % (see https://www.sascha-frank.com/Fonts/Helvetica.html)
 \renewcommand\familydefault{\sfdefault}
 
-\newcommand{\runcode}{\textbf{Code to run in R}:}
-\newcommand{\expectedoutput}{\textbf{Expected output}:}
-\newcommand{\exercise}{\textbf{Exercise}:}
+\newcommand{\nooutput}{There shouldn't be any output from this code.}
 
-\newcommand{\runcodeNI}{\noindent \runcode} %% runcode with noindent
-\newcommand{\expectedoutputNI}{\noindent \expectedoutput} %% expectedoutput with noindent
-\newcommand{\exerciseNI}{\noindent \exercise} %% exercise with noindent
+\newsavebox{\mybox}
 
-\newcommand{\nooutput}{\medskip There shouldn't be any output from this code. \medskip}
+\newenvironment{boxEnv}[1]{
+  % begin code
+  \begin{lrbox}{\mybox}
+  \begin{minipage}{0.9\columnwidth}
+  \textbf{#1:} \\
+}{
+  % end code
+  \end{minipage}
+  \end{lrbox}
+  \medskip
+  \noindent
+  {
+    \setlength{\fboxsep}{8pt}
+    \ovalbox{\usebox{\mybox}}
+  }
+}
+
+\newenvironment{boxCode}{\begin{boxEnv}{Code to run in R}}{\end{boxEnv}}
+\newenvironment{boxCodeOptional}{\begin{boxEnv}{Code to (optionally) run in R}}{\end{boxEnv}}
+\newenvironment{boxOutput}{\begin{boxEnv}{Expected output from R}}{\end{boxEnv}}
+\newenvironment{boxExercise}{\begin{boxEnv}{Exercise}}{\end{boxEnv}}
 
 \begin{document}
 
@@ -177,21 +193,27 @@ cat(
   other new developments.
 
   \item To use the workshop on your own, try running the code snippets on your
-  machine, and complete the exercises to test your understanding. Look out for
-  the following \textbf{bold} phrases:
-  \begin{itemize}
-    \item \runcode\ This will come before a code snippet that can be copied
-    from this document and pasted into the R terminal. You should try running
-    this code.
-
-    \item \expectedoutput\ This will come after a code snippet, and will show
-    the expected output from the code. Use this to check whether you have
-    successfully run the code.
-
-    \item \exercise\ This will be a suggestion for a task you should be able to
-    complete, and will usually be based on a previous code snippet.
-  \end{itemize}
+  machine, and complete the exercises to test your understanding.
 \end{itemize}
+
+\noindent Look out for the following \textbf{bold} phrases inside boxes:
+
+\medskip
+
+\begin{boxCode}
+  This indicates a code snippet that should be run in R. Copy it from this
+  document and paste it into the R terminal.
+\end{boxCode}
+
+\begin{boxOutput}
+  This will come after a code snippet, and will show the expected output from
+  the code. Use this to check whether you have successfully run the code.
+\end{boxOutput}
+
+\begin{boxExercise}
+  This will be a suggestion for a task you should be able to complete, and will
+  often be based on one or more previous code snippets.
+\end{boxExercise}
 
 \newpage
 
@@ -356,21 +378,22 @@ cat(
 \section{Installing and loading R packages}
 
 For this workshop, we will be using the BioCro R package, the \texttt{lattice}
-package (which provides tools for creating plots), and the \texttt{nloptr}
-package (which provides tools for optimization). We will load them now before
-moving on to the examples.
-
-\medskip \runcodeNI
-
-<<eval = FALSE>>=
-<<loading_packages>>
-@
-
-\expectedoutputNI
+package (which provides tools for creating plots), the \texttt{nloptr}
+package (which provides tools for optimization), and the \texttt{deSolve}
+package (which provides tools for solving differential equations). We will load
+them now before moving on to the examples.
 
 \medskip
 
+\begin{boxCode}
+<<eval = FALSE>>=
+<<loading_packages>>
+@
+\end{boxCode}
+
+\begin{boxOutput}
 \nooutput
+\end{boxOutput}
 
 \noindent If you see a warning about the version of BioCro, or if any of the
 packages are not available, make sure the latest version of each package is
@@ -378,8 +401,7 @@ installed using the following code.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCodeOptional}
 <<eval = FALSE>>=
 # Make sure packages are installed
 install.packages('BioCro')
@@ -387,6 +409,7 @@ install.packages('lattice')
 install.packages('nloptr')
 install.packages('deSolve')
 @
+\end{boxCodeOptional}
 
 \newpage
 
@@ -438,24 +461,23 @@ very simple module from the standard module library.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<module_info, eval = FALSE>>=
 module_info('BioCro:total_biomass')
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<module_info>>
 @
+\end{boxOutput}
 
-\exerciseNI
-
-\medskip
-
-Type \texttt{?module\_info} in R to access the help page for this function, and
-then try changing the value of the optional input argument (\texttt{verbose}).
+\begin{boxExercise}
+  Type \texttt{?module\_info} in R to access the help page for this function,
+  and then try changing the value of \texttt{module\_info}'s optional input
+  argument.
+\end{boxExercise}
 
 \noindent Note that the \texttt{?} command can be applied to all functions
 mentioned in this workshop, and the help pages are a key resource for
@@ -480,27 +502,21 @@ in the standard module library.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<viewing_all_modules, eval = FALSE>>=
 print(get_all_modules('BioCro'))
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\medskip
-
+\begin{boxOutput}
 The output is too long to reproduce here, but it should be a list of many
 module names, each prefixed by \texttt{BioCro}.
+\end{boxOutput}
 
-\medskip
-
-\exerciseNI
-
-\medskip
-
-Pick another module from the list, such as \texttt{BioCro:c3\_assimilation}, and
-get its basic information.
+\begin{boxExercise}
+  Pick another module from the list, such as \texttt{BioCro:c3\_assimilation},
+  and get its basic information.
+\end{boxExercise}
 
 \newpage
 
@@ -576,8 +592,7 @@ default soybean values.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<running_a_module, eval = FALSE>>=
 evaluate_module(
   'BioCro:c3_assimilation',
@@ -591,18 +606,17 @@ evaluate_module(
   })
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<running_a_module>>
 @
+\end{boxOutput}
 
-\exerciseNI
-
-\medskip
-
-Try changing some of the input values or running a different module.
+\begin{boxExercise}
+  Try changing some of the input values or running a different module.
+\end{boxExercise}
 
 \newpage
 
@@ -631,8 +645,7 @@ Try changing some of the input values or running a different module.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<c3_light_response_curve>>=
 light_response_curve <- module_response_curve(
   'BioCro:c3_assimilation',
@@ -646,10 +659,11 @@ light_response_curve <- module_response_curve(
   data.frame(Qabs = seq(0, 2000, length.out = 101))
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 \nooutput
+\end{boxOutput}
 
 \noindent The return value is a data frame (an R structure equivalent to a
 table), and the response of net assimilation to absorbed light intensity can be
@@ -657,8 +671,7 @@ plotted from it.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<light_response_curve_plot, eval = FALSE>>=
 light_response_curve_plot <- xyplot(
   Assim ~ Qabs,
@@ -670,12 +683,13 @@ light_response_curve_plot <- xyplot(
 )
 print(light_response_curve_plot)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<light_response_curve_plot>>
 @
+\end{boxOutput}
 
 \noindent The output from \texttt{module\_response\_curve} includes \emph{all}
 of the module's outputs, so we could also plot the response of another output
@@ -683,14 +697,10 @@ using the same data frame.
 
 \medskip
 
-\exerciseNI
-
-\medskip
-
-Try plotting the response of stomatal conductance (\texttt{Gs}) to light
-intensity.
-
-\medskip
+\begin{boxExercise}
+  Try plotting the response of stomatal conductance (\texttt{Gs}) to light
+  intensity.
+\end{boxExercise}
 
 \noindent For another example demonstrating how to calculate multiple response
 curves at once, see Section \ref{sec_multi_response}.
@@ -731,8 +741,7 @@ Champaign, Illinois during 2002.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_simulation>>=
 soybean_result <- run_biocro(
   soybean$initial_values,
@@ -743,10 +752,11 @@ soybean_result <- run_biocro(
   soybean$ode_solver
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 \nooutput
+\end{boxOutput}
 
 \noindent As with \texttt{module\_response\_curve}, the return value from
 \texttt{run\_biocro} is a data frame. We can view it directly as a table, or
@@ -755,8 +765,7 @@ values against time.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_simulation_plot, eval = FALSE>>=
 soybean_biomass_2002_plot <- xyplot(
   Leaf + Stem + Root + Grain ~ fractional_doy,
@@ -769,24 +778,21 @@ soybean_biomass_2002_plot <- xyplot(
 )
 print(soybean_biomass_2002_plot)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<soybean_simulation_plot>>
 @
+\end{boxOutput}
 
-\medskip
-
-\exerciseNI
-
-\medskip
-
-Try plotting the soybean biomass against its developmental index (the
-\texttt{DVI} column) instead of time, or try plotting some other outputs like
-LAI (the \texttt{lai} column), canopy assimilation rate (the
-\texttt{canopy\_assimilation\_rate} column), or the degree of water stress (the
-\texttt{StomataWS} column).
+\begin{boxExercise}
+  Try plotting the soybean biomass against its developmental index (the
+  \texttt{DVI} column) instead of time, or try plotting some other outputs like
+  leaf area index (the \texttt{lai} column), canopy assimilation rate (the
+  \texttt{canopy\_assimilation\_rate} column), or the degree of water stress
+  (the \texttt{StomataWS} column).
+\end{boxExercise}
 
 \newpage
 
@@ -817,20 +823,20 @@ LAI (the \texttt{lai} column), canopy assimilation rate (the
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_modules, eval = FALSE>>=
 cat('Direct modules used in the soybean model:\n')
 cat(as.character(soybean$direct_modules), sep = '\n')
 cat('\nDifferential modules used in the soybean model:\n')
 cat(as.character(soybean$differential_modules), sep = '\n')
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<soybean_modules>>
 @
+\end{boxOutput}
 
 \newpage
 
@@ -1024,8 +1030,7 @@ temperature as an independent input and fix the other module input values.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<partial_evaluate_module_p1, eval = FALSE>>=
 c3_tleaf <- partial_evaluate_module(
   'BioCro:c3_assimilation',
@@ -1042,12 +1047,13 @@ c3_tleaf <- partial_evaluate_module(
 # We can run the module using a leaf temperature of 27 degrees C
 str(c3_tleaf(27))
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<partial_evaluate_module_p1>>
 @
+\end{boxOutput}
 
 \noindent The new \texttt{c3\_tleaf} function accepts the required input, but it
 returns much more information than we need. Here we create a simple ``wrapper''
@@ -1055,8 +1061,7 @@ for this function that extracts only the net assimilation output.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<partial_evaluate_module_p2, eval = FALSE>>=
 c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
 
@@ -1064,12 +1069,13 @@ c3_assim_from_tleaf <- function(x) {c3_tleaf(x)$outputs$Assim}
 # the Assim output
 c3_assim_from_tleaf(27)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<partial_evaluate_module_p2>>
 @
+\end{boxOutput}
 
 \noindent Now we can pass this function to \texttt{optim}, with one small
 modification: \texttt{optim} actually \emph{minimizes} the value of the function
@@ -1079,8 +1085,7 @@ assimilation.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<finding_optimal_temperature, eval = FALSE>>=
 optim_result <- optim(
   25,                                    # initial guess for optimal temperature
@@ -1093,12 +1098,13 @@ optim_result <- optim(
 # Print the optimal Tleaf value
 optim_result$par
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<finding_optimal_temperature>>
 @
+\end{boxOutput}
 
 \noindent For a more advanced example where net assimilation is maximized under
 multiple conditions to calculate an optimal temperature curve, see Section
@@ -1165,13 +1171,13 @@ Then, they can be loaded into the R workspace.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<load_sorghum_data>>=
 source('sorghum.dat')
 climate <- read.csv('sorghum_climate.csv')
 yield <- read.csv('sorghum_yield.csv')
 @
+\end{boxCode}
 
 <<test_sorghum_model, include=FALSE>>=
 # This is used for debugging purposes when updating the sorghum model and
@@ -1204,17 +1210,17 @@ easier to use these commands, which will open up interactive file browsers.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<load_sorghum_flexible, eval = FALSE>>=
 source(file.choose())              # Navigate to 'sorghum.dat'
 climate <- read.csv(file.choose()) # Navigate to 'sorghum_climate.csv'
 yield <- read.csv(file.choose())   # Navigate to 'sorghum_yield.csv'
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Next, we'll create a function that runs a sorghum growth simulation
 using the weather data but accepts only \texttt{iSp} as an input; this can be
@@ -1224,8 +1230,7 @@ simulation output, but can be calculated afterwards.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sorghum_partial_function>>=
 partial_function <- function(x) {
   f = with(sorghum, {partial_run_biocro(
@@ -1242,10 +1247,11 @@ partial_function <- function(x) {
   r
 }
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Now \texttt{partial\_function} accepts a vector of the two values, but
 it still returns all of the model output rather than a single value to minimize.
@@ -1253,8 +1259,7 @@ We can use it to calculate $\chi^2$ by wrapping another function around it.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sorghum_minimization_function>>=
 to_minimize <- function(x) {
   # Get results from the model and then pull out times at which there are
@@ -1288,20 +1293,20 @@ to_minimize <- function(x) {
   ss
 }
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Now we can perform the optimization; we'll also wrap the call to the
 optimizer in \texttt{system.time} so we can see how long it takes to run.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sorghum_optimization>>=
-opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
+opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=5)
 system.time({
   nlresult = nloptr(
     x0=unlist(sorghum$parameters$iSp),
@@ -1313,10 +1318,11 @@ system.time({
 })
 setNames(nlresult$solution, 'iSp')
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Now we can check the result. In this plot, LAI values are shown in
 blue while above-ground biomass is shown in black. Measured values are shown as
@@ -1324,8 +1330,7 @@ circles, while simulated output is shown as smooth lines.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sorghum_optimizer_check, eval = FALSE>>=
 r = partial_function(nlresult$solution)
 plot(above_ground_dry_yield ~ doy_time, yield, xlim=c(4000, 7000), ylim=c(0, 25))
@@ -1333,12 +1338,13 @@ lines(above_ground_dry_yield ~ doy_time, r)
 points(lai ~ doy_time, yield, col='blue')
 lines(lai ~ doy_time, r, col='blue')
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<sorghum_optimizer_check>>
 @
+\end{boxOutput}
 
 \noindent This optimization may seem complicated, but it is actually much
 simpler than a realistic model parameterization, which may include many more
@@ -1382,39 +1388,35 @@ Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<eval = FALSE>>=
 <<soybean_simulation>>
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Then, the final pod biomass can be extracted.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_final_yield, eval = FALSE>>=
 soybean_result$Grain[nrow(soybean_result)]
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<soybean_final_yield>>
 @
+\end{boxOutput}
 
-\exerciseNI
-
-\medskip
-
-Your task is to increase that value!
-
-\medskip
+\begin{boxExercise}
+  Your task is to increase that value!
+\end{boxExercise}
 
 \noindent For example, you could try increasing a photosynthesis parameter like
 $V_{c,max}$, which is represented in the soybean model as
@@ -1422,8 +1424,7 @@ $V_{c,max}$, which is represented in the soybean model as
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_vmax, eval = FALSE>>=
 soybean_result_new <- run_biocro(
   soybean$initial_values,
@@ -1436,12 +1437,13 @@ soybean_result_new <- run_biocro(
 
 soybean_result_new$Grain[nrow(soybean_result)]
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<soybean_vmax>>
 @
+\end{boxOutput}
 
 \noindent Any approach is allowed! If you think you have a way to get a super
 high yield and would like to share it, email your code to
@@ -1460,15 +1462,15 @@ simulation for weather data from 2002.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<eval = FALSE>>=
 <<soybean_simulation>>
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent In this simulation, photosynthesis was included via the mechanistic
 Farquhar-von-Caemmerer-Berry (FvCB) model. Alternatively, it would be possible
@@ -1482,30 +1484,31 @@ which is called \texttt{alpha\_rue}.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_simulation_rue>>=
 soybean_result_rue <- run_biocro(
   soybean$initial_values,
   within(soybean$parameters, {alpha_rue = 0.05}),
   soybean_weather$'2002',
-  within(soybean$direct_modules, {canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'}),
+  within(soybean$direct_modules, {
+    canopy_photosynthesis = 'BioCro:ten_layer_rue_canopy'
+  }),
   soybean$differential_modules,
   soybean$ode_solver
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 \noindent Predicted biomass values from the two versions can be compared
 visually:
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<soybean_simulation_comparison, eval = FALSE>>=
 biomass_col <- c('fractional_doy', 'Leaf', 'Stem', 'Root', 'Grain')
 soybean_comp <- rbind(
@@ -1524,12 +1527,13 @@ xyplot(
   ylab = 'Biomass (Mg / ha)'
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<soybean_simulation_comparison>>
 @
+\end{boxOutput}
 
 \noindent With this value of \texttt{alpha\_rue}, the agreement between the
 model predictions is not so great. However, an optimization procedure similar to
@@ -1562,8 +1566,7 @@ from the information contained in the response curve data frame.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<multiple_response_curves, eval = FALSE>>=
 temperature_response_curve <- module_response_curve(
   'BioCro:c3_assimilation',
@@ -1594,20 +1597,19 @@ temperature_response_curve_plot <- xyplot(
 )
 print(temperature_response_curve_plot)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<multiple_response_curves>>
 @
+\end{boxOutput}
 
-\exerciseNI
-
-\medskip
-
-Try changing the value of the absorbed photosynthetically active photon flux
-density \texttt{Qabs} and notice how the plot caption is automatically updated
-to reflect the new value.
+\begin{boxExercise}
+  Try changing the value of the absorbed photosynthetically active photon flux
+  density \texttt{Qabs} and notice how the plot caption is automatically updated
+  to reflect the new value.
+\end{boxExercise}
 
 \newpage
 
@@ -1627,8 +1629,7 @@ ambient humidity, according to this model.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<more_advanced_module_optimization, eval = FALSE>>=
 c3_tleaf_rh <- partial_evaluate_module(
   'BioCro:c3_assimilation',
@@ -1659,27 +1660,25 @@ optim_temp_plot <- xyplot(
 )
 print(optim_temp_plot)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<more_advanced_module_optimization>>
 @
+\end{boxOutput}
 
 \noindent It is well-known that the optimal temperature for photosynthesis
 depends on the ambient CO$_2$ concentration (\cite{long_modification_1991}).
 This example shows that the optimal temperature also changes with humidity
 levels, shifting to lower temperatures in drier conditions.
 
-\medskip
-
-\exerciseNI
-
-\medskip
-
-Try finding the optimal LAI that maximizes net soybean canopy assimilation for
-fixed environmental conditions. For this, the \texttt{BioCro:c3\_canopy} module
-would be required instead of the \texttt{BioCro:c3\_assimilation} module.
+\begin{boxExercise}
+  Try finding the optimal LAI that maximizes net soybean canopy assimilation for
+  fixed environmental conditions. For this, the \texttt{BioCro:c3\_canopy}
+  module would be required instead of the \texttt{BioCro:c3\_assimilation}
+  module.
+\end{boxExercise}
 
 \newpage
 
@@ -1738,8 +1737,7 @@ then a relative step based on $\epsilon$ will be used for the calculations.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sensitivity_function>>=
 sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
   if (is.null(delta_x)) {
@@ -1764,10 +1762,11 @@ sensitivity <- function(FUN, x0, ep = 1e-6, delta_x = NULL) {
   ))
 }
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 Now, let's calculate sensitivity coefficients for the \texttt{c3\_assimilation}
 module, treating the ambient CO$_2$ concentration $C_a$ as the independent
@@ -1779,8 +1778,7 @@ another function wrapper later that selects just the net assimilation output.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sensitivity_co2_function>>=
 co2_func <- partial_evaluate_module(
   'BioCro:c3_assimilation',
@@ -1794,18 +1792,18 @@ co2_func <- partial_evaluate_module(
   c('Catm', 'Qabs')
 )
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 Now we will define a range of absorbed light values to use and calculate the
 sensitivity coefficients for each one using a base level of $C_a$ = 400 ppm.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sensitivity_calculations>>=
 qabs_seq <- seq(0, 2000, length.out = 101)
 
@@ -1818,18 +1816,18 @@ sens_result <- do.call(rbind, lapply(qabs_seq, function(Qabs) {
   return(sens)
 }))
 @
+\end{boxCode}
 
-\expectedoutputNI
-
-\nooutput
+\begin{boxOutput}
+  \nooutput
+\end{boxOutput}
 
 Now we can see the sensitivity of net assimilation to ambient CO$_2$
 concentration at different levels of absorbed light intensity.
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<sensitivity_plot, eval = FALSE>>=
 sensitivity_plot <- xyplot(
   s2 ~ Qabs,
@@ -1841,12 +1839,13 @@ sensitivity_plot <- xyplot(
 )
 print(sensitivity_plot)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<sensitivity_plot>>
 @
+\end{boxOutput}
 
 From this plot, we can learn several things. One observation is that the
 sensitivity coefficient is non-negative for all values of absorbed light; this
@@ -1858,15 +1857,14 @@ at low light levels, so additional CO$_2$ cannot be used for assimilation.
 
 \medskip
 
-\exerciseNI
+\begin{boxExercise}
+  Use the \texttt{BioCro:c4\_assimilation} module to calculate a similar
+  sensitivity curve for miscanthus (using default values from
+  \texttt{miscanthus\_x\_giganteus\_parameters}).
+\end{boxExercise}
 
-\medskip
-
-The \texttt{BioCro:c4\_assimilation} module could be used to calculate a similar
-sensitivity curve for miscanthus (using default values from
-\texttt{miscanthus\_x\_giganteus\_parameters}), revealing some differences
-between the response of C$_3$ and C$_4$ photosynthesis to changes in atmospheric
-CO$_2$ levels.
+\noindent This will reveal some differences between the response of C$_3$ and
+C$_4$ photosynthesis to changes in atmospheric CO$_2$ levels.
 
 \newpage
 
@@ -1884,17 +1882,17 @@ that were previously defined:
 
 \medskip
 
-\runcodeNI
-
+\begin{boxCode}
 <<simulation_sensitivity, eval = FALSE>>=
 sensitivity(final_pod_func, soybean$parameters$alphaLeaf)
 @
+\end{boxCode}
 
-\expectedoutputNI
-
+\begin{boxOutput}
 <<echo = FALSE>>=
 <<simulation_sensitivity>>
 @
+\end{boxOutput}
 
 An interesting observation here is that the sensitivity coefficients are
 negative, indicating that increases in \texttt{alphaLeaf} cause decreases in
@@ -1905,14 +1903,13 @@ than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
 
 \medskip
 
-\exerciseNI
+\begin{boxExercise}
+  Try calculating the sensitivity coefficient for the response of soybean yield
+  to changes in atmospheric CO$_2$ concentration.
+\end{boxExercise}
 
-\medskip
-
-Try calculating the sensitivity coefficient for the response of soybean yield to
-changes in atmospheric CO$_2$ concentration. Also, see
-\cite{lochocki_biocro_2022} for a more detailed example of calculating and using
-simulation sensitivity coefficients.
+\noindent See \cite{lochocki_biocro_2022} for a more detailed example of
+calculating and using simulation sensitivity coefficients.
 
 \newpage
 
