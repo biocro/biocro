@@ -136,6 +136,7 @@ knitr::opts_chunk$set(fig.width=5, fig.height=3)
 # Load required packages
 library(BioCro)
 library(lattice)
+library(dfoptim)
 library(deSolve)
 
 # Check the BioCro version
@@ -374,9 +375,10 @@ cat(
 \section{Installing and loading R packages}
 
 For this workshop, we will be using the BioCro R package, the \texttt{lattice}
-package (which provides tools for creating plots), and the \texttt{deSolve}
-package (which provides tools for solving differential equations). We will load
-them now before moving on to the examples.
+package (which provides tools for creating plots), the \texttt{dfoptim} package
+(which provides tools for optimization), and the \texttt{deSolve} package (which
+provides tools for solving differential equations). We will load them now before
+moving on to the examples.
 
 \bigskip
 
@@ -401,6 +403,7 @@ installed using the following code.
 # Make sure packages are installed
 install.packages('BioCro')
 install.packages('lattice')
+install.packages('dfoptim')
 install.packages('deSolve')
 @
 \end{boxCodeOptional}
@@ -1124,97 +1127,106 @@ multiple conditions to calculate an optimal temperature curve, see Section
   In this example:
 
   \begin{itemize}
-    \item We have a basic model for sorghum growth.
+    \item We have a basic model for Miscanthus growth.
 
-    \item We have sorghum leaf area index (LAI) observed at multiple times
+    \item We have Miscanthus leaf area index (LAI) observed at multiple times
     during the season and above-ground dry yield at the end of the season.
 
     \item Many parameters affect both of these values, but we will fit only the
-    initial specific leaf area (\texttt{iSp}).
+    initial specific leaf area (\texttt{iSp}) and the ``specific leaf area
+    thermal time decay'' (\texttt{Sp\_thermal\_time\_decay}), which reduces the
+    specific leaf area as the crop ages.
 
     \item We will use $\chi^2$ for the error metric; this is a useful statistic
     when fitting observations of quantities that may have very different
     magnitudes due to differences in units.
+
+    \item We will use one of the derivative-free optimization algorithms
+    available from the \texttt{dfoptim} package, since it tends to converge
+    quickly in these applications.
   \end{itemize}
 \end{itemize}
 
-\noindent The sorghum model is stored in a \texttt{.dat} file and the data is
-stored in \texttt{.csv} files. These can be downloaded from the
-\href{https://github.com/biocro/biocro/tree/main/vignettes/web_only}{BioCro GitHub page}.
-Then, they can be loaded into the R workspace.
+\noindent The basic Miscanthus model is included with the BioCro R package, as
+is the weather data. The observed values of LAI and above-ground dry yield will
+be defined below using R commands. In a more realistic situation, the model
+definition, weather data, and observations may be stored in text or CSV files
+and subsequently loaded into the R workspace.
 
 \bigskip
 
 \begin{boxCode}
-<<load_sorghum_data>>=
-source('sorghum.dat')
-climate <- read.csv('sorghum_climate.csv')
-yield <- read.csv('sorghum_yield.csv')
-@
-\end{boxCode}
+<<load_miscanthus_data, eval = FALSE>>=
+# Here we create a data frame with the Miscanthus observations.
+# - time: The time of the observation following BioCro conventions, expressed as
+#   the number of hours since the start of the year
+# - lai: The leaf area index (dimensionless)
+# - above_ground_dry_yield: Total stem and leaf mass in Mg / ha
+yield <- utils::read.table(
+  textConnection('
+    time lai    above_ground_dry_yield
+    4224     0.0445 NA
+    4296     0.0035 NA
+    4416     0.0104 NA
+    4536     0.0568 NA
+    4608     0.0878 NA
+    4704     0.2725 NA
+    4824     2.1064 NA
+    4896     2.7614 NA
+    4992     3.899  NA
+    5064     3.4318 NA
+    5160     4.4921 NA
+    5232     4.8522 NA
+    5304     5.1393 NA
+    5400     4.9133 NA
+    5472     4.7485 NA
+    6120     NA     19.35101369
+  '),
+  header = TRUE
+)
 
-<<test_sorghum_model, include=FALSE>>=
-# This is used for debugging purposes when updating the sorghum model and
-# shouldn't be included in the actual vignette
-sorghum_valid <- with(sorghum, {validate_dynamical_system_inputs(
-  initial_values,
-  parameters,
-  climate,
-  direct_modules,
-  differential_modules,
-  verbose = FALSE
-)})
+# View the result
+str(yield)
 
-if (!sorghum_valid) {
-  stop('sorghum model definition is not valid')
-}
+# Now we create a corresponding weather data set
+min_doy <- min(floor(yield$time / 24)) - 1
+max_doy <- max(ceiling(yield$time / 24)) + 1
 
-sorghum_test_res <- with(sorghum, {run_biocro(
-  initial_values,
-  parameters,
-  climate,
-  direct_modules,
-  differential_modules,
-  ode_solver
-)})
-@
+miscanthus_weather <- weather[['2016']]
 
-\noindent If the data files are not in your current working directory, it may be
-easier to use these commands, which will open up interactive file browsers.
-
-\bigskip
-
-\begin{boxCode}
-<<load_sorghum_flexible, eval = FALSE>>=
-source(file.choose())              # Navigate to 'sorghum.dat'
-climate <- read.csv(file.choose()) # Navigate to 'sorghum_climate.csv'
-yield <- read.csv(file.choose())   # Navigate to 'sorghum_yield.csv'
+miscanthus_weather <-
+  with(miscanthus_weather, {miscanthus_weather[doy >= min_doy & doy <= max_doy, ]})
 @
 \end{boxCode}
 
 \begin{boxOutput}
-  \nooutput
+<<echo = FALSE>>=
+<<load_miscanthus_data>>
+@
 \end{boxOutput}
 
-\noindent Next, we'll create a function that runs a sorghum growth simulation
-using the weather data but accepts only \texttt{iSp} as an input; this can be
-accomplished using \texttt{partial\_run\_biocro}. When comparing to the measured
-data, we'll need the above-ground dry yield; this isn't included in the typical
-simulation output, but can be calculated afterwards.
+\noindent Next, we'll create a function that runs a miscanthus growth simulation
+using the weather data but accepts only \texttt{iSp} and
+\texttt{Sp\_thermal\_time\_decay} as inputs; this can be accomplished using
+\texttt{partial\_run\_biocro}. When comparing to the measured data, we'll need
+the above-ground dry yield; this isn't included in the typical simulation
+output, but can be calculated afterwards.
 
 \bigskip
 
 \begin{boxCode}
-<<sorghum_partial_function>>=
+<<miscanthus_partial_function>>=
+par_to_optimize <- c('iSp', 'Sp_thermal_time_decay')
+
 partial_function <- function(x) {
-  f = with(sorghum, {partial_run_biocro(
+  f = with(miscanthus_x_giganteus, {partial_run_biocro(
     initial_values,
     parameters,
-    climate,
+    miscanthus_weather,
     direct_modules,
     differential_modules,
     ode_solver,
-    'iSp'
+    par_to_optimize
   )})
   r = f(x)
   r = within(r, {above_ground_dry_yield = Leaf + Stem})
@@ -1234,7 +1246,7 @@ We can use it to calculate $\chi^2$ by wrapping another function around it.
 \bigskip
 
 \begin{boxCode}
-<<sorghum_minimization_function>>=
+<<miscanthus_minimization_function, eval = FALSE>>=
 to_minimize <- function(x) {
   # Get results from the model and then pull out times at which there are
   # observed data. Use tryCatch to ensure that bad parameters do not completely
@@ -1243,34 +1255,39 @@ to_minimize <- function(x) {
     {partial_function(x)},
     error = function(e) {data.frame()}
   )
-  r_at_obs = r[r$doy_time %in% yield$doy_time, ]
+  r_at_obs <- r[r$time %in% yield$time, ]
 
   # We'll used the chi-squared statistic. It is the sum of squared differences
   # divided by predicted values. Using this gives more equal weight to each
   # variable you're predicting. Otherwise, values that are big because of unit
   # differences will have more weight.
-  obs_lai = yield$lai
-  pred_lai = r_at_obs$lai
-  ss1 = sum(((obs_lai - pred_lai)^2 / pred_lai), na.rm=TRUE)
+  obs_lai <- yield$lai
+  pred_lai <- r_at_obs$lai
+  ss1 <- sum(((obs_lai - pred_lai)^2 / pred_lai), na.rm = TRUE)
 
-  obs_yield = yield$above_ground_dry_yield
-  pred_yield = r_at_obs$above_ground_dry_yield
-  ss2 = sum(((obs_yield - pred_yield)^2 / pred_yield), na.rm=TRUE)
-  ss = ss1 + ss2
+  obs_yield <- yield$above_ground_dry_yield
+  pred_yield <- r_at_obs$above_ground_dry_yield
+  ss2 <- sum(((obs_yield - pred_yield)^2 / pred_yield), na.rm = TRUE)
+  ss <- ss1 + ss2
 
-  # Some parameters cause the model to fail completely. Thus, add a large
-  # penalty for each failed predicted value. This will make the optimizer
-  # move away from unrealistic input values. Here, `!is.finite` will find Inf,
-  # NaN, and NA values.
-  n_na = sum(!is.finite(c(pred_yield, pred_lai)))
-  ss = ss + 100 * n_na
+  # Some parameters cause the model to fail completely. Add a large penalty in
+  # these cases. This will make the optimizer move away from unrealistic input
+  # values. Here, `!is.finite` will find Inf, NaN, and NA values.
+  if (nrow(r) < 1) {
+    ss <- ss + 1000
+  }
   ss
 }
+
+# Test the function with default values
+print(to_minimize(unlist(miscanthus_x_giganteus$parameters[par_to_optimize])))
 @
 \end{boxCode}
 
 \begin{boxOutput}
-  \nooutput
+<<echo = FALSE>>=
+<<miscanthus_minimization_function>>
+@
 \end{boxOutput}
 
 \noindent Now we can perform the optimization; we'll also wrap the call to the
@@ -1279,44 +1296,80 @@ optimizer in \texttt{system.time} so we can see how long it takes to run.
 \bigskip
 
 \begin{boxCode}
-<<sorghum_optimization>>=
+<<miscanthus_optimization, eval = FALSE>>=
 system.time({
-  sorghum_optim_result <- optim(
-    unlist(sorghum$parameters$iSp),
-    to_minimize,
-    method = 'Brent',
-    lower = 0.001,
-    upper = 10
+  miscanthus_optim_result <- nmkb(
+    par = unlist(miscanthus_x_giganteus$parameters[par_to_optimize]),
+    fn = to_minimize,
+    lower = c(1e-3, -0.1),
+    upper = c(10, 0.1)
   )
 })
 
-setNames(sorghum_optim_result$par, 'iSp')
-@
-\end{boxCode}
-
-\begin{boxOutput}
-  \nooutput
-\end{boxOutput}
-
-\noindent Now we can check the result. In this plot, LAI values are shown in
-blue while above-ground biomass is shown in black. Measured values are shown as
-circles, while simulated output is shown as smooth lines.
-
-\bigskip
-
-\begin{boxCode}
-<<sorghum_optimizer_check, eval = FALSE>>=
-r = partial_function(sorghum_optim_result$par)
-plot(above_ground_dry_yield ~ doy_time, yield, xlim=c(4000, 7000), ylim=c(0, 25))
-lines(above_ground_dry_yield ~ doy_time, r)
-points(lai ~ doy_time, yield, col='blue')
-lines(lai ~ doy_time, r, col='blue')
+# See the original and optimized parameter values
+cat('Original values:\n')
+print(miscanthus_x_giganteus$parameters[par_to_optimize])
+cat('Optimized values:\n')
+print(setNames(miscanthus_optim_result$par, par_to_optimize))
 @
 \end{boxCode}
 
 \begin{boxOutput}
 <<echo = FALSE>>=
-<<sorghum_optimizer_check>>
+<<miscanthus_optimization>>
+@
+\end{boxOutput}
+
+\noindent Now we can check the result. In these plots, simulated values are
+shown as lines and observed values are shown as solid circles.
+
+\bigskip
+
+\begin{boxCode}
+<<miscanthus_optimizer_check, eval = FALSE>>=
+original_res <- partial_function(miscanthus_x_giganteus$parameters[par_to_optimize])
+optimized_res <- partial_function(miscanthus_optim_result$par)
+
+full_res <- rbind(
+  within(original_res, {par_type = 'Original parameters'}),
+  within(optimized_res, {par_type = 'Optimized parameters'})
+)
+
+xyplot(
+  lai ~ time,
+  group = par_type,
+  data = full_res,
+  type = 'l',
+  xlab = 'BioCro Time',
+  ylab = 'Leaf area index (dimensionless)',
+  par.settings = list(superpose.line = list(lty = c(1, 2))),
+  auto.key = list(space = 'top'),
+  panel = function(...) {
+    panel.xyplot(...)
+    panel.points(yield$lai ~ yield$time, pch = 16, col = 'black')
+  }
+)
+
+xyplot(
+  above_ground_dry_yield ~ time,
+  group = par_type,
+  data = full_res,
+  type = 'l',
+  xlab = 'BioCro Time',
+  ylab = 'Above-ground dry yield (Mg / ha)',
+  par.settings = list(superpose.line = list(lty = c(1, 2))),
+  auto.key = list(space = 'top'),
+  panel = function(...) {
+    panel.xyplot(...)
+    panel.points(yield$above_ground_dry_yield ~ yield$time, pch = 16, col = 'black')
+  }
+)
+@
+\end{boxCode}
+
+\begin{boxOutput}
+<<echo = FALSE>>=
+<<miscanthus_optimizer_check>>
 @
 \end{boxOutput}
 
