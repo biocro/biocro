@@ -97,17 +97,17 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 \newenvironment{boxEnv}[1]{
   % begin code
   \begin{lrbox}{\mybox}
-  \begin{minipage}{0.9\columnwidth}
+  \begin{minipage}{0.92\columnwidth}
   \textbf{#1:} \\
 }{
   % end code
   \end{minipage}
   \end{lrbox}
-  \medskip
   \noindent
   {
     \setlength{\fboxsep}{8pt}
     \ovalbox{\usebox{\mybox}}
+    \medskip
   }
 }
 
@@ -215,8 +215,6 @@ cat(
   often be based on one or more previous code snippets.
 \end{boxExercise}
 
-\newpage
-
 \subsection{Essential information about BioCro}
 
 \begin{itemize}
@@ -251,8 +249,6 @@ cat(
   \item All BioCro documentation can be accessed at \url{https://biocro.org}.
 \end{itemize}
 
-\newpage
-
 \subsection{What do we mean by modular modeling?}
 
 \begin{itemize}
@@ -278,8 +274,6 @@ cat(
   \includegraphics[width=\textwidth]{workshop_I/biocro_framework.pdf}
 \end{center}
 
-\newpage
-
 \subsection{How did we get here?}
 
 \begin{itemize}
@@ -296,8 +290,6 @@ cat(
   Lochocki, Yufeng He, Scott Oswald, Scott Rohde, Deepak Jaiswal, Megan
   Matthews, Fernando Miguez, and Steve Long.
 \end{itemize}
-
-\newpage
 
 \subsection{What does BioCro enable us to do? \label{sec_biocro_enable}}
 
@@ -342,8 +334,6 @@ cat(
   \includegraphics[width=\textwidth]{workshop_I/biocro_cartoon.pdf}
 \end{center}
 
-\newpage
-
 \subsection{What we'll be covering today}
 
 \begin{itemize}
@@ -373,7 +363,7 @@ cat(
   was originally described in \cite{matthews_soybean_2022}.
 \end{itemize}
 
-\newpage
+
 
 \section{Installing and loading R packages}
 
@@ -410,8 +400,6 @@ install.packages('nloptr')
 install.packages('deSolve')
 @
 \end{boxCodeOptional}
-
-\newpage
 
 \section{Examining a single module \label{sec_modules}}
 
@@ -483,8 +471,6 @@ module_info('BioCro:total_biomass')
 mentioned in this workshop, and the help pages are a key resource for
 understanding how to use each function.
 
-\newpage
-
 \subsection{Getting a list of all modules}
 
 \begin{itemize}
@@ -517,8 +503,6 @@ module names, each prefixed by \texttt{BioCro}.
   Pick another module from the list, such as \texttt{BioCro:c3\_assimilation},
   and get its basic information.
 \end{boxExercise}
-
-\newpage
 
 \subsection{Getting more information about a module}
 
@@ -563,8 +547,6 @@ module names, each prefixed by \texttt{BioCro}.
   consuming process, so some modules have incomplete or nonexistent
   documentation at the moment.
 \end{itemize}
-
-\newpage
 
 \subsection{Evaluating modules \label{sec_run_module}}
 
@@ -617,8 +599,6 @@ evaluate_module(
 \begin{boxExercise}
   Try changing some of the input values or running a different module.
 \end{boxExercise}
-
-\newpage
 
 \subsubsection{Calculating and viewing a module response curve \label{sec_response_curve}}
 
@@ -704,8 +684,6 @@ using the same data frame.
 
 \noindent For another example demonstrating how to calculate multiple response
 curves at once, see Section \ref{sec_multi_response}.
-
-\newpage
 
 \section{Combining modules to form a larger model \label{sec_simulations}}
 
@@ -794,8 +772,6 @@ print(soybean_biomass_2002_plot)
   (the \texttt{StomataWS} column).
 \end{boxExercise}
 
-\newpage
-
 \subsection{Components of a typical BioCro crop growth model}
 
 \begin{itemize}
@@ -837,8 +813,6 @@ cat(as.character(soybean$differential_modules), sep = '\n')
 <<soybean_modules>>
 @
 \end{boxOutput}
-
-\newpage
 
 \subsection{Brief overview of the Soybean-BioCro modules}
 
@@ -959,8 +933,6 @@ examined using the methods described previously (Section \ref{sec_modules}).
   biomass.
 \end{itemize}
 
-\newpage
-
 \section{More analysis techniques}
 
 \subsection{Optimization problems}
@@ -1008,8 +980,6 @@ examined using the methods described previously (Section \ref{sec_modules}).
   the following examples will demonstrate how they can be used in the context of
   optimization.
 \end{itemize}
-
-\newpage
 
 \subsection{Maximizing soybean assimilation \label{sec_optimize_module}}
 
@@ -1090,7 +1060,7 @@ assimilation.
 optim_result <- optim(
   25,                                    # initial guess for optimal temperature
   function(x) {-c3_assim_from_tleaf(x)}, # rephrase to a minimization
-  method = 'Brent',                      # this method is great for 1D optimization
+  method = 'Brent',                      # works well for 1D optimization
   lower = 0,                             # lower limit of temperatures to try
   upper = 50                             # upper limit of temperatures to try
 )
@@ -1109,8 +1079,6 @@ optim_result$par
 \noindent For a more advanced example where net assimilation is maximized under
 multiple conditions to calculate an optimal temperature curve, see Section
 \ref{sec_advanced_maximization}.
-
-\newpage
 
 \subsection{Parameterizing a model using measured data \label{sec_optimize_simulation}}
 
@@ -1356,8 +1324,6 @@ model can be found online at the documentation web site for the
 \texttt{BioCroValidation} R package:
 \url{https://biocro.org/BioCroValidation/articles/parameterizing_soybean_biocro.html}.
 
-\newpage
-
 \subsection{What comes next}
 
 \textbf{That's the end of the structured part of the workshop!} With any
@@ -1379,7 +1345,7 @@ remaining time that might be left, you can:
   (\url{https://biocro.org})
 \end{itemize}
 
-\newpage
+
 
 \section{The soybean challenge \label{sec_challenge}}
 
@@ -1450,8 +1416,6 @@ high yield and would like to share it, email your code to
 \href{mailto:eloch@illinois.edu}{eloch@illinois.edu} and
 \href{mailto:jmcgrath@illinois.edu}{jmcgrath@illinois.edu}. Interesting
 approaches will be showcased on the BioCro website (with your permission).
-
-\newpage
 
 \section{Additional examples \label{sec_additional_examples}}
 
@@ -1547,8 +1511,6 @@ analysis can reveal scenarios where the model behavior is expected to differ.
 For an example of how this could be done, see \cite{lochocki_biocro_2022} and
 the \emph{Quantitative Comparison Between Two Photosynthesis Models} article.
 
-\newpage
-
 \subsection{Simultaneously calculating and plotting multiple response curves \label{sec_multi_response}}
 
 When calling \texttt{module\_response\_curve}, it is possible to vary multiple
@@ -1610,8 +1572,6 @@ print(temperature_response_curve_plot)
   density \texttt{Qabs} and notice how the plot caption is automatically updated
   to reflect the new value.
 \end{boxExercise}
-
-\newpage
 
 \subsection{Maximizing net assimilation under multiple conditions \label{sec_advanced_maximization}}
 
@@ -1679,8 +1639,6 @@ levels, shifting to lower temperatures in drier conditions.
   module would be required instead of the \texttt{BioCro:c3\_assimilation}
   module.
 \end{boxExercise}
-
-\newpage
 
 \subsection{Calculating module sensitivity coefficients \label{sec_module_sensitivity}}
 
@@ -1866,8 +1824,6 @@ at low light levels, so additional CO$_2$ cannot be used for assimilation.
 \noindent This will reveal some differences between the response of C$_3$ and
 C$_4$ photosynthesis to changes in atmospheric CO$_2$ levels.
 
-\newpage
-
 \subsection{Calculating simulation sensitivity coefficients \label{sec_sim_sensitivity}}
 
 It is possible to calculate the sensitivity of simulation outputs like final
@@ -1910,8 +1866,6 @@ than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
 
 \noindent See \cite{lochocki_biocro_2022} for a more detailed example of
 calculating and using simulation sensitivity coefficients.
-
-\newpage
 
 \section{Understanding BioCro's approach to modular modeling \label{sec_modular}}
 
@@ -2131,8 +2085,6 @@ wouldn't be too much work, but more realistic models are typically much more
 complicated, and the existing code is not always organized in a way that clearly
 indicates which lines are related to which model component.)
 
-\newpage
-
 \subsection{Making computer code more modular and flexible}
 
 The main purpose of BioCro is to mitigate both issues with the code
@@ -2256,8 +2208,6 @@ models might require different parameters. Thus, the parameter specification
 needs to be very flexible, and the allocation model must be able to communicate
 which inputs it requires. These kinds of issues prevent code like this from
 being written very often.
-
-\newpage
 
 \subsection{The BioCro framework}
 
