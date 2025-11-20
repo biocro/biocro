@@ -1641,6 +1641,8 @@ depends on the ambient CO$_2$ concentration (\cite{long_modification_1991}).
 This example shows that the optimal temperature also changes with humidity
 levels, shifting to lower temperatures in drier conditions.
 
+\bigskip
+
 \begin{boxExercise}
   Try finding the optimal LAI that maximizes net soybean canopy assimilation for
   fixed environmental conditions. For this, the \texttt{BioCro:c3\_canopy}
@@ -2314,8 +2316,6 @@ such as the following:
 \item BioCro modules can be developed privately so users can withhold access to
       model components until after publication.
 \end{itemize}
-
-\newpage
 
 \newpage
 
