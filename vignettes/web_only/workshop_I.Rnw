@@ -1287,7 +1287,7 @@ optimizer in \texttt{system.time} so we can see how long it takes to run.
 
 \begin{boxCode}
 <<sorghum_optimization>>=
-opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=5)
+opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
 system.time({
   nlresult = nloptr(
     x0=unlist(sorghum$parameters$iSp),
