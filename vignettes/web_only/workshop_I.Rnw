@@ -109,7 +109,7 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
   % end code
   \end{minipage}
   \end{mybox}
-  \medskip
+  \bigskip
 }
 
 \newenvironment{boxCode}{\begin{boxEnv}[darkgray]{Code to run in R}}{\end{boxEnv}}
@@ -197,7 +197,7 @@ cat(
 
 \noindent Throughout this document, look out for the following types of boxes:
 
-\medskip
+\bigskip
 
 \begin{boxCode}
   This indicates a code snippet that should be run in R. Copy it from this
@@ -380,7 +380,7 @@ package (which provides tools for optimization), and the \texttt{deSolve}
 package (which provides tools for solving differential equations). We will load
 them now before moving on to the examples.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<eval = FALSE>>=
@@ -396,7 +396,7 @@ them now before moving on to the examples.
 packages are not available, make sure the latest version of each package is
 installed using the following code.
 
-\medskip
+\bigskip
 
 \begin{boxCodeOptional}
 <<eval = FALSE>>=
@@ -456,7 +456,7 @@ install.packages('deSolve')
 \noindent Here we use \texttt{module\_info} to obtain basic information about a
 very simple module from the standard module library.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<module_info, eval = FALSE>>=
@@ -495,7 +495,7 @@ understanding how to use each function.
 \noindent Here we use \texttt{get\_all\_modules} to view a list of all modules
 in the standard module library.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<viewing_all_modules, eval = FALSE>>=
@@ -581,7 +581,7 @@ default soybean values.
 % evaluate_module can be accessed. Also show how additional info can be found in
 % the Practical Guide.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<running_a_module, eval = FALSE>>=
@@ -632,7 +632,7 @@ evaluate_module(
 
 % Here explain module_name, fixed_quantities, varying_quantities.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<c3_light_response_curve>>=
@@ -658,7 +658,7 @@ light_response_curve <- module_response_curve(
 table), and the response of net assimilation to absorbed light intensity can be
 plotted from it.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<light_response_curve_plot, eval = FALSE>>=
@@ -684,7 +684,7 @@ print(light_response_curve_plot)
 of the module's outputs, so we could also plot the response of another output
 using the same data frame.
 
-\medskip
+\bigskip
 
 \begin{boxExercise}
   Try plotting the response of stomatal conductance (\texttt{Gs}) to light
@@ -728,7 +728,7 @@ Champaign, Illinois during 2002.
 % Here explain the various "equation" parameters and ode_solver, and mention
 % that much more information can be found in the Practical Guide.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_simulation>>=
@@ -752,7 +752,7 @@ soybean_result <- run_biocro(
 plot some of its columns against each other. Here we plot the calculated biomass
 values against time.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_simulation_plot, eval = FALSE>>=
@@ -808,7 +808,7 @@ print(soybean_biomass_2002_plot)
   all modules in Soybean-BioCro.
 \end{itemize}
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_modules, eval = FALSE>>=
@@ -1011,7 +1011,7 @@ examined using the methods described previously (Section \ref{sec_modules}).
 \texttt{BioCro:c3\_assimilation} module. The first step is to indentify leaf
 temperature as an independent input and fix the other module input values.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<partial_evaluate_module_p1, eval = FALSE>>=
@@ -1042,7 +1042,7 @@ str(c3_tleaf(27))
 returns much more information than we need. Here we create a simple ``wrapper''
 for this function that extracts only the net assimilation output.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<partial_evaluate_module_p2, eval = FALSE>>=
@@ -1066,7 +1066,7 @@ passed to it, so if we want to \emph{maximize} net assimilation, we need to
 rephrase the problem as minimizing the negative of the value of net
 assimilation.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<finding_optimal_temperature, eval = FALSE>>=
@@ -1150,7 +1150,7 @@ stored in \texttt{.csv} files. These can be downloaded from the
 \href{https://github.com/biocro/biocro/tree/main/vignettes/web_only}{BioCro GitHub page}.
 Then, they can be loaded into the R workspace.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<load_sorghum_data>>=
@@ -1189,7 +1189,7 @@ sorghum_test_res <- with(sorghum, {run_biocro(
 \noindent If the data files are not in your current working directory, it may be
 easier to use these commands, which will open up interactive file browsers.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<load_sorghum_flexible, eval = FALSE>>=
@@ -1209,7 +1209,7 @@ accomplished using \texttt{partial\_run\_biocro}. When comparing to the measured
 data, we'll need the above-ground dry yield; this isn't included in the typical
 simulation output, but can be calculated afterwards.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sorghum_partial_function>>=
@@ -1238,7 +1238,7 @@ partial_function <- function(x) {
 it still returns all of the model output rather than a single value to minimize.
 We can use it to calculate $\chi^2$ by wrapping another function around it.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sorghum_minimization_function>>=
@@ -1283,7 +1283,7 @@ to_minimize <- function(x) {
 \noindent Now we can perform the optimization; we'll also wrap the call to the
 optimizer in \texttt{system.time} so we can see how long it takes to run.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sorghum_optimization>>=
@@ -1309,7 +1309,7 @@ setNames(nlresult$solution, 'iSp')
 blue while above-ground biomass is shown in black. Measured values are shown as
 circles, while simulated output is shown as smooth lines.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sorghum_optimizer_check, eval = FALSE>>=
@@ -1365,7 +1365,7 @@ remaining time that might be left, you can:
 One way to test your BioCro knowledge is to try to maximize soybean yield. As in
 Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<eval = FALSE>>=
@@ -1379,7 +1379,7 @@ Section \ref{sec_simulate_one_year}, we can run a soybean simulation for 2002.
 
 \noindent Then, the final pod biomass can be extracted.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_final_yield, eval = FALSE>>=
@@ -1401,7 +1401,7 @@ soybean_result$Grain[nrow(soybean_result)]
 $V_{c,max}$, which is represented in the soybean model as
 \texttt{Vcmax\_at\_25}.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_vmax, eval = FALSE>>=
@@ -1439,7 +1439,7 @@ approaches will be showcased on the BioCro website (with your permission).
 In Section \ref{sec_simulate_one_year}, we ran a default Soybean-BioCro
 simulation for weather data from 2002.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<eval = FALSE>>=
@@ -1461,7 +1461,7 @@ simulation using RUE photosynthesis in place of the FvCB model. In addition to
 switching a module, we will also need to provide a value for the efficiency,
 which is called \texttt{alpha\_rue}.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_simulation_rue>>=
@@ -1485,7 +1485,7 @@ soybean_result_rue <- run_biocro(
 \noindent Predicted biomass values from the two versions can be compared
 visually:
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<soybean_simulation_comparison, eval = FALSE>>=
@@ -1541,7 +1541,7 @@ separately plot the light response curves for each value of relative humidity.
 We also use the \texttt{paste} function to generate an informative plot title
 from the information contained in the response curve data frame.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<multiple_response_curves, eval = FALSE>>=
@@ -1602,7 +1602,7 @@ for a sequence of humidities. Using this process, we generate a curve we can use
 to visualize how the optimal temperature for C$_3$ photosynthesis depends on
 ambient humidity, according to this model.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<more_advanced_module_optimization, eval = FALSE>>=
@@ -1708,7 +1708,7 @@ either $\delta x$ or $\epsilon$ as input arguments, and returns the values of
 $s_1$, $s_2$, and $s_3$ as a data frame. If \texttt{delta\_x} is \texttt{NULL},
 then a relative step based on $\epsilon$ will be used for the calculations.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sensitivity_function>>=
@@ -1749,7 +1749,7 @@ function $f$ such that $f$(CO$_2$, Q) = net assimilation. We can specify the
 independent variables using \texttt{partial\_evaluate\_module}, and then create
 another function wrapper later that selects just the net assimilation output.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sensitivity_co2_function>>=
@@ -1774,7 +1774,7 @@ co2_func <- partial_evaluate_module(
 Now we will define a range of absorbed light values to use and calculate the
 sensitivity coefficients for each one using a base level of $C_a$ = 400 ppm.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sensitivity_calculations>>=
@@ -1798,7 +1798,7 @@ sens_result <- do.call(rbind, lapply(qabs_seq, function(Qabs) {
 Now we can see the sensitivity of net assimilation to ambient CO$_2$
 concentration at different levels of absorbed light intensity.
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<sensitivity_plot, eval = FALSE>>=
@@ -1828,7 +1828,7 @@ increases in ambient CO$_2$ levels when the absorbed light levels are high. This
 agrees with our intuition; CO$_2$ assimilation is limited by light availability
 at low light levels, so additional CO$_2$ cannot be used for assimilation.
 
-\medskip
+\bigskip
 
 \begin{boxExercise}
   Use the \texttt{BioCro:c4\_assimilation} module to calculate a similar
@@ -1851,7 +1851,7 @@ As a simple example, we will calculate the sensitivity of final pod biomass in
 2002 to the value of \texttt{alphaLeaf}. To do it, we can reuse a few functions
 that were previously defined:
 
-\medskip
+\bigskip
 
 \begin{boxCode}
 <<simulation_sensitivity, eval = FALSE>>=
@@ -1872,7 +1872,7 @@ have learned that additional leaf investment is detrimental to soybean yield;
 this agrees with previous results indicating that soybean canopies are larger
 than necessary for optimal yields (\cite{srinivasan_decreasing_2017}).
 
-\medskip
+\bigskip
 
 \begin{boxExercise}
   Try calculating the sensitivity coefficient for the response of soybean yield
@@ -2258,8 +2258,6 @@ off because they can be reused for many purposes.)
 
 \begin{figure}[htbp]
 <<biocro_example>>=
-library(BioCro)
-
 time <- seq(0, 3600 * 12)                  # s
 Q <- sin(time / 3600 / 12 * pi * 2000e-6)  # mol / m^2 / s
 
