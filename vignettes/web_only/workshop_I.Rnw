@@ -136,7 +136,6 @@ knitr::opts_chunk$set(fig.width=5, fig.height=3)
 # Load required packages
 library(BioCro)
 library(lattice)
-library(nloptr)
 library(deSolve)
 
 # Check the BioCro version
@@ -375,8 +374,7 @@ cat(
 \section{Installing and loading R packages}
 
 For this workshop, we will be using the BioCro R package, the \texttt{lattice}
-package (which provides tools for creating plots), the \texttt{nloptr}
-package (which provides tools for optimization), and the \texttt{deSolve}
+package (which provides tools for creating plots), and the \texttt{deSolve}
 package (which provides tools for solving differential equations). We will load
 them now before moving on to the examples.
 
@@ -403,7 +401,6 @@ installed using the following code.
 # Make sure packages are installed
 install.packages('BioCro')
 install.packages('lattice')
-install.packages('nloptr')
 install.packages('deSolve')
 @
 \end{boxCodeOptional}
@@ -1138,10 +1135,6 @@ multiple conditions to calculate an optimal temperature curve, see Section
     \item We will use $\chi^2$ for the error metric; this is a useful statistic
     when fitting observations of quantities that may have very different
     magnitudes due to differences in units.
-
-    \item We will use one of the derivative-free optimization algorithms
-    available from the \texttt{nloptr} package, since it tends to converge
-    quickly in these applications.
   \end{itemize}
 \end{itemize}
 
@@ -1287,17 +1280,17 @@ optimizer in \texttt{system.time} so we can see how long it takes to run.
 
 \begin{boxCode}
 <<sorghum_optimization>>=
-opts <- list(algorithm='NLOPT_LN_SBPLX', xtol_rel=1e-8, maxeval=500)
 system.time({
-  nlresult = nloptr(
-    x0=unlist(sorghum$parameters$iSp),
-    eval_f=to_minimize,
-    opts=opts,
-    lb=0.001,
-    ub=100
+  sorghum_optim_result <- optim(
+    unlist(sorghum$parameters$iSp),
+    to_minimize,
+    method = 'Brent',
+    lower = 0.001,
+    upper = 10
   )
 })
-setNames(nlresult$solution, 'iSp')
+
+setNames(sorghum_optim_result$par, 'iSp')
 @
 \end{boxCode}
 
@@ -1313,7 +1306,7 @@ circles, while simulated output is shown as smooth lines.
 
 \begin{boxCode}
 <<sorghum_optimizer_check, eval = FALSE>>=
-r = partial_function(nlresult$solution)
+r = partial_function(sorghum_optim_result$par)
 plot(above_ground_dry_yield ~ doy_time, yield, xlim=c(4000, 7000), ylim=c(0, 25))
 lines(above_ground_dry_yield ~ doy_time, r)
 points(lai ~ doy_time, yield, col='blue')

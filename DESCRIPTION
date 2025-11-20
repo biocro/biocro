@@ -43,8 +43,7 @@ Suggests:
     rmarkdown,
     bookdown,
     lattice,
-    deSolve,
-    nloptr
+    deSolve
 VignetteBuilder: knitr
 SystemRequirements: C++11, GNU make
 License: MIT + file LICENSE
