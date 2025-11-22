@@ -283,6 +283,7 @@ check_time_is_sequential <- function(
     rtol = sqrt(.Machine$double.eps)
 )
 {
+    
     # only checked if differential modules are present
     if (length(differential_modules) == 0) {
         return(character())
@@ -290,12 +291,56 @@ check_time_is_sequential <- function(
 
     no_time_variable <- !('time' %in% names(drivers))
     if (no_time_variable) {
-        return("No `time` variable found in the `drivers` dataframe.")
+        msg <- paste0(c(
+            "No `time` variable found in the `drivers` dataframe.\nSuggested fixes:", 
+            "+ Add a `time` variable spaced by `timestep`:",
+            "    drivers$time <- seq(1, nrow(drivers), timestep)",
+            "+ Add the direct module `BioCro:format_time` if drivers contain `doy` and `hour` variables."), 
+            collapse = "\n    ")
+        return(msg)
     }
 
     time <- drivers[['time']]
-    if (is.unsorted(time)) {
-        return("`time` variable is not increasing.")
+
+    if (anyNA(time)) {
+        is_na <- is.na(time)
+        count_na <- sum(is_na)
+        idx <- which(is_na)
+        msg <- paste(c(
+            sprintf("Missing values found. The `time` variable in the drivers should not contain missing values, but has %1s NA's'", count_na),
+            "To find rows with NA, call `which(is.na(time))`", 
+            "+ Check rows:",  paste0(head(idx), collapse= ', ')),    
+            collapse = '\n    ' )
+            
+        return(msg)
+    }
+
+    if (is.unsorted(time, na.rm=TRUE, strictly=TRUE)) {
+        # duplicates ? 
+        duplicates <- which(duplicated(time))
+        if (length(duplicates) > 0) {
+            msg <- paste0(c(
+               sprintf("Duplicates found. The `time` variable in the drivers contains %1s duplicate entries.", length(duplicates)),
+                "To find duplicates, call: `which(duplicated(time))`",
+                "+ Check rows:", 
+                paste0(head(duplicates), collapse= ', ')),
+               collapse ='\n    ')
+            return(msg)
+        }
+        # otherwise
+        time_sorted <- sort(time)
+        not_sorted <-time != time_sorted
+        count <- sum(not_sorted) 
+        idx <- which(not_sorted)        
+        msg <- paste0(
+            c("`time` not sorted.", 
+            sprintf("The `time` variable in the drivers should be sorted in increasing order, but %1s elements are not in order.", count), 
+            "Call `sort(drivers, by = time, ascending=TRUE)` to sort the `drivers` data.frame.", 
+            "Unsorted times found at rows: ", 
+            paste0(head(idx), collapse= ', ')), collapse = "\n    "
+            
+        ) 
+        return(msg)
     }
 
     if (length(time) < 2) {
@@ -304,27 +349,46 @@ check_time_is_sequential <- function(
     }
 
     timestep <- parameters[['timestep']]
+    first_diff <- diff(time, differences = 1)
+    second_diff <- diff(time, differences = 2)
+    is_linear <- abs(second_diff) < rtol
+    is_spaced_by_timestep <- abs(first_diff - timestep) < rtol
+    
+    if (!all(is_linear)) {
+        idx <-which(!is_linear)
+        msg <- paste0(
+            c("`time` not linear.", "The `time` variable in the drivers is not linear and not spaced by `timestep`. Drivers may contain gaps. Drivers should look like:",
+            "`drivers$time <- seq(1, nrow(drivers), timestep)`", 
+            "+ Check `timestep` matches `diff(time)`", 
+            "+ Check rows:", paste(head(idx), collapse=', ') ), collapse='\n   ')
+        return(msg)
+    }
 
-    if (!is_evenly_spaced(time, timestep, rtol)) {
-        return("The `time` variable is not spaced by `timestep`.")
+    if (!all(is_spaced_by_timestep)) {
+        idx <-which(!is_spaced_by_timestep)
+        msg <- paste0(
+            c("Timestep mismatch.", "The `time` variable in the drivers is linear but not spaced by `timestep`. Drivers may contain gaps. Drivers should look like:",
+            "`drivers$time <- seq(1, nrow(drivers), timestep)`", 
+            sprintf("+ Check `timestep` matches `diff(time)`: found timestep = %1s but expected timestep = %1s", timestep, first_diff[1]), "+ Check rows:", paste(head(idx), collapse=', ') ), collapse='\n   ')
+        return(msg)
     }
 
     return(character())
 }
 
 # check if a vector is evenly spaced.
-is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
-
-    if (is.null(by)){
-        second_diff = diff(x, differences = 2)
-        is_zero = abs(second_diff) < rtol
-    } else {
-        first_diff = diff(x, differences = 1) - by
-        is_zero = abs(first_diff) < rtol
-    }
-
-    return(all(is_zero))
-}
+#is_evenly_spaced <- function(x, by = NULL, rtol = sqrt(.Machine$double.eps)){
+#
+#    if (is.null(by)){
+#        second_diff = diff(x, differences = 2)
+#        is_zero = abs(second_diff) < rtol
+#    } else {
+#        first_diff = diff(x, differences = 1) - by
+#        is_zero = abs(first_diff) < rtol
+#    }
+#
+#    return(all(is_zero))
+#}
 
 # Check that a list has the necessary elements
 check_required_elements <- function(args_to_check, required_element_names) {
