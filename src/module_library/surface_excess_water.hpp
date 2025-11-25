@@ -61,7 +61,8 @@ class surface_excess_water: public differential_module
 string_vector surface_excess_water::get_inputs()
 {
   return {
-      "soil_saturation_capacity_1"
+      "soil_saturation_capacity_1",
+      "soil_water_content_1"
   };
 }
 
