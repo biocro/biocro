@@ -2,7 +2,6 @@
 #define SOIL_EVAPORATION2_H
 #include <algorithm>  // for std::min, std::max
 #include <math.h>
-#include <Rinternals.h>
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_evaporation_functions.h"

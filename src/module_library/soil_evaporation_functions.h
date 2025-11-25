@@ -1,9 +1,8 @@
 #include <algorithm>  // for std::min, std::max
 #include <math.h>
-#include <Rinternals.h>
 using namespace std;
 /**
- * @brief functions to be used in soil evaporation computation 
+ * @brief functions to be used in soil evaporation computation
  * for multilayer soil profile.
  */
 
