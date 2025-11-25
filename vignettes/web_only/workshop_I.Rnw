@@ -91,6 +91,8 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 \newcommand{\nooutput}{There shouldn't be any output from this code.}
 
+\newcommand{\biocroweb}{\href{https://biocro.org}{BioCro web site}}
+
 \newtcolorbox{mybox}[2][red]{
   colback = shadecolor,
   coltitle = shadecolor,
@@ -114,6 +116,7 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 \newenvironment{boxCodeOptional}{\begin{boxEnv}[gray]{Code to (optionally) run in R}}{\end{boxEnv}}
 \newenvironment{boxOutput}{\begin{boxEnv}[teal]{Expected output from R}}{\end{boxEnv}}
 \newenvironment{boxExercise}{\begin{boxEnv}[violet]{Exercise}}{\end{boxEnv}}
+\newenvironment{boxLearn}{\begin{boxEnv}[olive]{Learn more}}{\end{boxEnv}}
 
 \begin{document}
 
@@ -182,16 +185,28 @@ cat(
 
 \section{About this Workshop}
 
+The main goal of this workshop is to demonstrate what can be done with the
+existing models available in BioCro, and especially to exhibit tools that can be
+used to gain more understanding. To achieve this, we will go through several
+examples showing how to use the most important BioCro functions, culminating
+with an example of parameterizing a model using measured data.
+
+In this workshop, we will assume that you have a working R installation and are
+familiar with some basic R terminology, such as \emph{vector}, \emph{list}, and
+\emph{data frame}. While some examples will use terms from mathematics, computer
+science, or plant physiology, it is not necessary to be fully familiar with
+these ideas in order to progress through the workshop. When possible, references
+to other resources will be provided so you can learn more about these topics if
+you'd like to.
+
 This workshop was originally held on May 13, 2022 as part of the
 \href{https://cropsinsilico.org/2022-annual-meeting/}{Crops in Silico Symposium}.
-
 Since then, it has been updated following changes to BioCro syntax and other new
-developments.
+developments. To use the workshop on your own, try running the code snippets on
+your machine, and complete the exercises to test your understanding.
 
-To use the workshop on your own, try running the code snippets on your machine,
-and complete the exercises to test your understanding.
-
-Throughout this document, look out for the following types of boxes:
+Throughout this document, look out for the following types of boxes, which will
+provide instructions and other key pieces of information:
 
 \begin{boxCode}
   This indicates a code snippet that should be run in R. Copy it from this
@@ -212,55 +227,107 @@ Throughout this document, look out for the following types of boxes:
   often be based on one or more previous code snippets.
 \end{boxExercise}
 
+\begin{boxLearn}
+  This will be a suggestion for where to learn more about a particular topic
+  that may only be covered briefly in this workshop.
+\end{boxLearn}
+
 \newpage
 
 \section{Introduction}
 
 \subsection{Essential information about BioCro}
 
-BioCro is a software package for modular crop growth simulations.
+\begin{itemize}
+  \item BioCro is a software package for modular crop growth simulations.
 
-It can also be thought of as a general-purpose tool for defining and solving
-sets of ordinary differential equations.
+  \item It can also be thought of as a general-purpose tool for defining and
+  solving systems of ordinary differential equations (Section \ref{sec_ode}).
 
-We have published a paper describing it in \textit{in silico Plants}
-(\cite{lochocki_biocro_2022}), and there is also a
-\href{https://ripe.illinois.edu/press/press-releases/illinois-team-significantly-improves-biocro-software-growing-virtual-crops}{press release about the paper}
-with some additional information.
+  \item We have published a paper describing BioCro in \textit{in silico Plants}
+  (\cite{lochocki_biocro_2022}), and there is also a
+  \href{https://ripe.illinois.edu/press/press-releases/illinois-team-significantly-improves-biocro-software-growing-virtual-crops}{press release about the paper}
+  with some additional information.
 
-BioCro is written in \texttt{C++} but has a convenient \texttt{R} interface that
-we will be using today.
+  \item BioCro is written in \texttt{C++} but has a convenient \texttt{R}
+  interface that we will be using today. R provides many possible avenues for
+  inputting data and analyzing results.
 
-R provides many possible avenues for inputting data and analyzing results.
+  \item The BioCro R package is available on
+  \href{https://cran.r-project.org/package=BioCro}{CRAN}, so it can be installed
+  from within R by typing \texttt{install.packages('BioCro')}.
 
-The BioCro R package is available on
-\href{https://cran.r-project.org/package=BioCro}{CRAN}.
+  \item BioCro is free and open-source, with the full source code available via
+  a public GitHub repository: \url{https://github.com/biocro/biocro}.
 
-BioCro is free and open-source, with the full source code available via a public
-GitHub repository: \url{https://github.com/biocro/biocro}.
+  \item Automated tests ensure that the code does not break following any
+  changes made by the BioCro development team.
 
-Automated tests ensure that the code does not break following any changes.
+  \item All BioCro documentation can be accessed at the \biocroweb
+  (\url{https://biocro.org}).
+\end{itemize}
 
-All BioCro documentation can be accessed at \url{https://biocro.org}.
+\subsection{What is a system of differential equations? \label{sec_ode}}
+
+When learning about BioCro, it is helpful to understand a few basic principles
+of ordinary differential equations.
+
+First, a \emph{derivative} is a mathematical quantity that expresses the
+instantaneous rate of change of one variable with respect to another. In BioCro,
+we almost exclusively deal with time rates of change; in other words, the
+instantaneous rate of change of $X$ with respect to time. The time derivative of
+$X$ is typically written as either $\frac{dX}{dt}$ (where $t$ refers to time) or
+$\dot{X}$ (where the dot refers to a derivative with respect to time). For
+example, if $M_{leaf}$ is the leaf mass, then $\frac{dM_{leaf}}{dt}$ and
+$\dot{M}_{leaf}$ are different ways of writing the instantaneous rate of change
+of leaf mass with respect to time.
+
+An \emph{ordinary differential equation} (ODE) is an equation that calculates
+the value of a derivative using a function of time and possibly other parameter
+values. For example, if the rate of leaf growth depends on the leaf mass and the
+incident light ($Q_{in}$), we could express this as an ordinary differential
+equation:
+
+\begin{equation*}
+  \frac{dM_{leaf}}{dt} = f \left( M_{leaf}, Q_{in} \right),
+\end{equation*}
+
+where $f$ is a function.
+
+A \emph{system of ODEs} is simply a collection of related ODEs that are
+typically coupled to each other. For example, in a BioCro model, the rate of
+root and leaf growth may depend on the leaf mass, while the rate of water loss
+from the soil may depend on the root mass. A realistic crop model will be
+composed of many variables and ODEs.
+
+If we know the initial values of all the variables in the system, then we can
+use the ODEs to calculate the instantaneous rates of change of each variable,
+and predict the values of the variables at a future time. This situation is
+called an \emph{initial value problem} (IVPs), and many numerical algorithms
+have been developed for solving IVPs.
+
+In many scientific fields, models are available for calculating the rates of
+change for key variables, making ODEs extremely useful for understanding
+observations and making predictions.
 
 \subsection{What do we mean by modular modeling?}
 
-Writing differential equation models is straightforward in itself, but for
-modeling crops, a couple of problems commonly appear:
+When writing code for modeling crop growth using differential equations, a
+couple of problems commonly appear:
 
 \begin{itemize}
-  \item Many crops share components, so code is duplicated in many places.
+  \item Many crops share components, so code is duplicated in multiple places.
 
   \item There are different ways to model the same process, but there isn't a
-  way to easily choose between them.
+  way to easily choose between alternate versions.
 \end{itemize}
 
 Named sets of equations provide a way to easily select and reuse pieces of
 models, and they are a central feature of BioCro that allows us to avoid these
-issues.
-
-A more detailed description of BioCro's approach to modular modeling can be
-found in Section \ref{sec_modular}.
+issues. In BioCro, we refer to these named sets of equations as \emph{modules}.
+Because larger models are formed by combining modules together, we also
+sometimes refer to them as \emph{model components}. Modules will be discussed in
+more detail later in the workshop.
 
 \begin{center}
   \includegraphics[width=\textwidth]{workshop_I/biocro_framework.pdf}
@@ -280,6 +347,9 @@ be using today (\cite{lochocki_biocro_2022}).
 The primary developers in recent years include Justin McGrath, Ed Lochocki,
 Yufeng He, Scott Oswald, Scott Rohde, Deepak Jaiswal, Megan Matthews, Fernando
 Miguez, and Steve Long.
+
+For more information about how the original code was made modular, see Section
+\ref{sec_modular}.
 
 \subsection{What does BioCro enable us to do? \label{sec_biocro_enable}}
 
@@ -323,21 +393,20 @@ BioCro particularly well-suited for operations like the following:
 
 \subsection{What we'll be covering today}
 
-The main focus today will be to go through several examples showing how to use
-the most important BioCro functions, culminating with an example of
-parameterizing a model using measured data.
-
-Our goal is to give you an idea of what can be done with the existing models
-available in BioCro, and especially to exhibit tools that can be used to gain
-more understanding.
+This workshop is focused on showing how BioCro's modular approach to modeling
+works in practice. We will begin by looking at individual model components and
+then move into complete crop models. We will also show a few key techniques that
+can be used to understand or alter BioCro models.
 
 There are a few things we will not be covering today; these will be addressed in
 future workshops:
 
 \begin{itemize}
-  \item We will not cover the process of adding new model components to
-  BioCro. This is not complicated, but some additional software tools are
-  required.
+  \item We will not cover the process of adding new modules to BioCro.
+
+  \item We will not cover the process of creating a personal module library,
+  although basic instructions can be found at
+  \url{https://github.com/biocro/skelBML}.
 
   \item Although we will briefly discuss the important processes included in a
   typical BioCro simulation, we will not take detailed look into the rationale
@@ -394,21 +463,34 @@ In BioCro, equations are grouped into \emph{libraries} of \emph{modules}.
   \item A module represents a set of related equations, while a module library
   contains a set of related modules.
 
-  \item Modules come in two types: \emph{differential} modules calculate time
-  derivatives of their outputs, while \emph{direct} modules calculate their
-  outputs directly.
+  \item Modules come in two types: \emph{differential} modules calculate the
+  derivatives of their outputs with respect to time, while \emph{direct} modules
+  calculate their outputs directly.
 \end{itemize}
+
+\begin{boxLearn}
+  For more information about modules, please see \cite{lochocki_biocro_2022},
+  as well as our articles titled \emph{A Practical Guide to BioCro} and
+  \emph{BioCro as a Dynamical System}, available on the \biocroweb.
+\end{boxLearn}
 
 For each module, the variables associated with its equations can be thought of
 as its inputs and outputs.
 
 Example: The C$_3$ assimilation module from the standard module library
-represents the Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis
-coupled with the Ball-Berry equation for stomatal conductance. It needs values
-of light intensity, leaf temperature, Rubisco kinetic parameters, and several
-other variables. It uses several equations to calculate the CO$_2$ assimilation
-rate, stomatal conductance to H$_2$O, and internal CO$_2$ concentration from
-those inputs.
+represents the Farquhar-von-Caemmerer-Berry (FvCB) model for C$_3$
+photosynthesis coupled with the Ball-Berry equation for stomatal conductance. It
+needs values of light intensity, leaf temperature, Rubisco kinetic parameters,
+and several other variables. It uses several equations to calculate the CO$_2$
+assimilation rate, stomatal conductance to H$_2$O, and internal CO$_2$
+concentration from those inputs.
+
+\begin{boxLearn}
+  To learn more about the FvCB model, see \cite{caemmerer_biochemical_2000} and
+  \cite{lochocki_widely_2025}. To learn more about the Ball-Berry model and how
+  it can be coupled with the FvCB model, see our article titled \emph{Using the
+  Ball-Berry Model}, available on the \biocroweb.
+\end{boxLearn}
 
 We can obtain basic information about a module from using the
 \texttt{module\_info} function, which requires a module name as an input.
@@ -419,11 +501,13 @@ We can obtain basic information about a module from using the
   formatted like \texttt{library\_name:local\_name}.
 
   \item Currently, there is only one official BioCro module library---the
-  standard module library---whose name is \texttt{BioCro}.
+  standard module library---whose name is \texttt{BioCro}. However, many users
+  have their own personal libraries, especially when working on new modules that
+  should be kept private because they are not yet published.
 \end{itemize}
 
-Here we use \texttt{module\_info} to obtain basic information about a
-very simple module from the standard module library.
+Here we use \texttt{module\_info} to obtain basic information about a very
+simple module from the standard module library.
 
 \begin{boxCode}
 <<module_info, eval = FALSE>>=
@@ -481,6 +565,8 @@ print(get_all_modules('BioCro'))
 The module information available from within R is missing some important parts:
 
 \begin{itemize}
+  \item The meaning of a module's inputs and outputs.
+
   \item The units for a module's inputs and outputs.
 
   \item A description of the module's purpose.
@@ -509,6 +595,32 @@ For example:
 
   \item The code implementation of its equations can also be found in the source
   code (see \texttt{do\_operation()}).
+\end{itemize}
+
+The Doxygen documentation is useful, but can be overwhelming. Here is some
+advice that may be helpful when using it:
+
+\begin{itemize}
+  \item To find a particular module, search for its local name (not its
+  fully-qualified name) using the bar in the upper right corner. For example,
+  search for \texttt{c3\_assimilation}, but not
+  \texttt{BioCro:c3\_assimilation}. Generally, two or three results will come
+  up. Results ending with \texttt{.h} or \texttt{.cpp} are source code pages,
+  while results that do not have a file extension are class overview pages. When
+  both \texttt{.h} and \texttt{.cpp} pages are available, the \texttt{.cpp} page
+  is typically more useful.
+
+  \item Stay focused on the three sections outlined above. The module
+  description can be found on its class overview page. The inputs and outputs
+  can be found in the \texttt{get\_inputs()} and \texttt{get\_outputs()} part of
+  the source code page. The code implementation of equations can be found in the
+  \texttt{do\_operation()} part of the source code page.
+
+  \item There are many other pieces of information available in the Doxygen
+  documentation, and many other parts of the source code besides the sections
+  highlighted above. Just ignore these when you are getting started. It is
+  important to understand the other parts when creating modules, but not when
+  getting basic information about a module.
 \end{itemize}
 
 \textbf{Caveat}: Fully documenting the modules is a long and time consuming
@@ -649,7 +761,7 @@ is an output of that module.
 This is the main way we can construct complex BioCro models from simpler model
 components.
 
-If a model includes derivative modules, we can solve the resulting set of
+If a model includes differential modules, we can solve the resulting set of
 coupled ordinary differential equations to find the model's state at specific
 time points.
 
@@ -1298,8 +1410,7 @@ remaining time that might be left, you can:
   \item Learn more about BioCro's approach to modular modeling (Section
   \ref{sec_modular}).
 
-  \item Read one of the articles on the BioCro web site
-  (\url{https://biocro.org})
+  \item Read one of the articles on the \biocroweb.
 \end{itemize}
 
 \newpage
