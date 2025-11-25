@@ -5,7 +5,7 @@
 #include "../framework/state_map.h"
 #include "soil_water_flow_functions.h"
 
-namespace standardBML 
+namespace standardBML
 {
 /**
  * @class soil_water_downflow
@@ -270,23 +270,22 @@ void soil_water_downflow::do_operation() const
         soil_water_content_5,
         soil_water_content_6};
 
-    double soil_sat_conductivity_1 =  3620.1 * soil_saturated_conductivity_1 - 0.0104; // Units conversion from J s m^-3 to cm/hr
-    double soil_sat_conductivity_2 =  3620.1 * soil_saturated_conductivity_2 - 0.0104; // The data was plotted with values in both units to obtain a linear realationship
-    double soil_sat_conductivity_3 =  3620.1 * soil_saturated_conductivity_3 - 0.0104; // Y = 3620.1 * X - 0.0104
-    double soil_sat_conductivity_4 =  3620.1 * soil_saturated_conductivity_4 - 0.0104;
-    double soil_sat_conductivity_5 =  3620.1 * soil_saturated_conductivity_5 - 0.0104;
-    double soil_sat_conductivity_6 =  3620.1 * soil_saturated_conductivity_6 - 0.0104;   
+    double soil_sat_conductivity_1 = 3620.1 * soil_saturated_conductivity_1 - 0.0104;  // Units conversion from J s m^-3 to cm/hr
+    double soil_sat_conductivity_2 = 3620.1 * soil_saturated_conductivity_2 - 0.0104;  // The data was plotted with values in both units to obtain a linear realationship
+    double soil_sat_conductivity_3 = 3620.1 * soil_saturated_conductivity_3 - 0.0104;  // Y = 3620.1 * X - 0.0104
+    double soil_sat_conductivity_4 = 3620.1 * soil_saturated_conductivity_4 - 0.0104;
+    double soil_sat_conductivity_5 = 3620.1 * soil_saturated_conductivity_5 - 0.0104;
+    double soil_sat_conductivity_6 = 3620.1 * soil_saturated_conductivity_6 - 0.0104;
 
     double soil_saturated_conductivity[] = {
-        soil_sat_conductivity_1, 
-        soil_sat_conductivity_2, 
-        soil_sat_conductivity_3, 
+        soil_sat_conductivity_1,
+        soil_sat_conductivity_2,
+        soil_sat_conductivity_3,
         soil_sat_conductivity_4,
         soil_sat_conductivity_5,
         soil_sat_conductivity_6};
 
-
-    double infiltrated_water = available_water - surface_runoff;    
+    double infiltrated_water = available_water - surface_runoff;
     // Potential for infilitration
     double potential_infiltration = infiltrated_water * 0.1;  // mm to cm
 
@@ -345,5 +344,5 @@ void soil_water_downflow::do_operation() const
     update(drn_6_op, infilWater.drn[5]);
 }
 
-}  // namespace standardBML 
+}  // namespace standardBML
 #endif
