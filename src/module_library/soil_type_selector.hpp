@@ -4,24 +4,32 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-namespace standardBML 
+namespace standardBML
 {
-struct soilText_str{
-  double silt;
-  double clay;
-  double sand;
-  double air_entry;
-  double b;
-  double Ks;
-  double satur;
-  double fieldc;
-  double wiltp;
-  double bulk_density;
+struct soilText_str {
+    double silt;
+    double clay;
+    double sand;
+    double air_entry;
+    double b;
+    double Ks;
+    double satur;
+    double fieldc;
+    double wiltp;
+    double bulk_density;
 };
 
-enum class SoilType { sand, loamy_sand, sandy_loam, loam, silt_loam,
-                      sandy_clay_loam, clay_loam, silty_clay_loam, sandy_clay,
-                      silty_clay, clay };
+enum class SoilType { sand,
+                      loamy_sand,
+                      sandy_loam,
+                      loam,
+                      silt_loam,
+                      sandy_clay_loam,
+                      clay_loam,
+                      silty_clay_loam,
+                      sandy_clay,
+                      silty_clay,
+                      clay };
 const soilText_str get_soil_properties(SoilType soiltype);
 
 // For backward compatibility:
@@ -37,37 +45,38 @@ soilText_str get_soil_properties(int soiltype);
 // http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf.
 //
 // YH: Not sure where the satur comes from. I think it represents porosity
-// Therfore, based on Rawls et al 1982 (https://elibrary.asabe.org/abstract.asp?aid=33720) 
+// Therfore, based on Rawls et al 1982 (https://elibrary.asabe.org/abstract.asp?aid=33720)
 // Sandy soil should have lower porosity than silt/clay soil. I now changed the satur values
 // based on the table from Rawls et al 1982 using the total porosity
 std::map<SoilType, soilText_str> soil_parameters =
-{
-  //                             d = dimensionless
-  //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
-  //                             silt  clay  sand  air_entry   b     Ks          satur fieldc wiltp bulk_density
-  { SoilType::sand,            { 0.05, 0.03, 0.92,      -0.7,  1.7,  5.8e-3,     0.437, 0.09,  0.03, 1.60 } },
-  { SoilType::loamy_sand,      { 0.12, 0.07, 0.81,      -0.9,  2.1,  1.7e-3,     0.437, 0.13,  0.06, 1.55 } },
-  { SoilType::sandy_loam,      { 0.25, 0.10, 0.65,      -1.5,  3.1,  7.2e-4,     0.453, 0.21,  0.10, 1.50 } },
-  // { SoilType::loam,            { 0.40, 0.18, 0.42,      -1.1,  4.5,  3.7e-4,     0.57, 0.27,  0.12, 1.43 } },
-  { SoilType::loam,            { 0.39, 0.21, 0.40,      -1.1,  4.5,  3.7e-4,     0.463, 0.34,  0.13, 1.30 } }, // used for comparison with DSSAR
-  { SoilType::silt_loam,       { 0.65, 0.15, 0.20,      -2.1,  4.7,  1.9e-4,     0.501, 0.33,  0.13, 1.36 } },
-  { SoilType::sandy_clay_loam, { 0.13, 0.27, 0.60,      -2.8,  4.0,  1.2e-4,     0.398, 0.26,  0.15, 1.39 } },
-  { SoilType::clay_loam,       { 0.34, 0.34, 0.32,      -2.6,  5.2,  6.4e-5,     0.464, 0.32,  0.20, 1.35 } },
-  { SoilType::silty_clay_loam, { 0.58, 0.33, 0.09,      -3.3,  6.6,  4.2e-5,     0.471, 0.37,  0.21, 1.24 } },
-  { SoilType::sandy_clay,      { 0.07, 0.40, 0.53,      -2.9,  6.0,  3.3e-5,     0.430, 0.34,  0.24, 1.30 } },
-  { SoilType::silty_clay,      { 0.45, 0.45, 0.10,      -3.4,  7.9,  2.5e-5,     0.479, 0.39,  0.25, 1.28 } },
-  { SoilType::clay,            { 0.20, 0.60, 0.20,      -3.7,  7.6,  1.7e-5,     0.475, 0.40,  0.27, 1.19 } }
+    {
+        //                             d = dimensionless
+        //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
+        //                             silt  clay  sand  air_entry   b     Ks          satur fieldc wiltp bulk_density
+        {SoilType::sand, {0.05, 0.03, 0.92, -0.7, 1.7, 5.8e-3, 0.437, 0.09, 0.03, 1.60}},
+        {SoilType::loamy_sand, {0.12, 0.07, 0.81, -0.9, 2.1, 1.7e-3, 0.437, 0.13, 0.06, 1.55}},
+        {SoilType::sandy_loam, {0.25, 0.10, 0.65, -1.5, 3.1, 7.2e-4, 0.453, 0.21, 0.10, 1.50}},
+        // { SoilType::loam,            { 0.40, 0.18, 0.42,      -1.1,  4.5,  3.7e-4,     0.57, 0.27,  0.12, 1.43 } },
+        {SoilType::loam, {0.39, 0.21, 0.40, -1.1, 4.5, 3.7e-4, 0.463, 0.34, 0.13, 1.30}},  // used for comparison with DSSAR
+        {SoilType::silt_loam, {0.65, 0.15, 0.20, -2.1, 4.7, 1.9e-4, 0.501, 0.33, 0.13, 1.36}},
+        {SoilType::sandy_clay_loam, {0.13, 0.27, 0.60, -2.8, 4.0, 1.2e-4, 0.398, 0.26, 0.15, 1.39}},
+        {SoilType::clay_loam, {0.34, 0.34, 0.32, -2.6, 5.2, 6.4e-5, 0.464, 0.32, 0.20, 1.35}},
+        {SoilType::silty_clay_loam, {0.58, 0.33, 0.09, -3.3, 6.6, 4.2e-5, 0.471, 0.37, 0.21, 1.24}},
+        {SoilType::sandy_clay, {0.07, 0.40, 0.53, -2.9, 6.0, 3.3e-5, 0.430, 0.34, 0.24, 1.30}},
+        {SoilType::silty_clay, {0.45, 0.45, 0.10, -3.4, 7.9, 2.5e-5, 0.479, 0.39, 0.25, 1.28}},
+        {SoilType::clay, {0.20, 0.60, 0.20, -3.7, 7.6, 1.7e-5, 0.475, 0.40, 0.27, 1.19}}
 
 };
 
-soilText_str get_soil_properties(int soiltype) {
+soilText_str get_soil_properties(int soiltype)
+{
     return get_soil_properties(static_cast<SoilType>(soiltype));
 }
 
 const soilText_str get_soil_properties(SoilType soiltype)
 {
     return soil_parameters.at(soiltype);
-}                      
+}
 
 class soil_type_selector : public direct_module
 {
@@ -241,7 +250,6 @@ class soil_type_selector : public direct_module
     double* soil_wilting_point_6_op;
     double* soil_bulk_density_6_op;
 
-
     // Main operation
     void do_operation() const;
 };
@@ -254,8 +262,7 @@ string_vector soil_type_selector::get_inputs()
         "soil_type_indicator_3",
         "soil_type_indicator_4",
         "soil_type_indicator_5",
-        "soil_type_indicator_6"
-        };
+        "soil_type_indicator_6"};
 }
 
 string_vector soil_type_selector::get_outputs()
@@ -325,22 +332,20 @@ string_vector soil_type_selector::get_outputs()
         "soil_saturation_capacity_6",
         "soil_field_capacity_6",
         "soil_wilting_point_6",
-        "soil_bulk_density_6"
-    };
+        "soil_bulk_density_6"};
 }
 
 void soil_type_selector::do_operation() const
 {
-
     // Collect inputs and make calculations
     soilText_str soil_properties_1 = get_soil_properties((int)(soil_type_indicator_1));  // get_soil_properties(int) is located in AuxBioCro.cpp
-    soilText_str soil_properties_2 = get_soil_properties((int)(soil_type_indicator_2)); 
-    soilText_str soil_properties_3 = get_soil_properties((int)(soil_type_indicator_3)); 
-    soilText_str soil_properties_4 = get_soil_properties((int)(soil_type_indicator_4)); 
-    soilText_str soil_properties_5 = get_soil_properties((int)(soil_type_indicator_5)); 
-    soilText_str soil_properties_6 = get_soil_properties((int)(soil_type_indicator_6)); 
+    soilText_str soil_properties_2 = get_soil_properties((int)(soil_type_indicator_2));
+    soilText_str soil_properties_3 = get_soil_properties((int)(soil_type_indicator_3));
+    soilText_str soil_properties_4 = get_soil_properties((int)(soil_type_indicator_4));
+    soilText_str soil_properties_5 = get_soil_properties((int)(soil_type_indicator_5));
+    soilText_str soil_properties_6 = get_soil_properties((int)(soil_type_indicator_6));
 
-    double saturated_conductivity_1 = soil_properties_1.Ks; // Convert units to cm/hr (through linear fit)
+    double saturated_conductivity_1 = soil_properties_1.Ks;  // Convert units to cm/hr (through linear fit)
     double saturated_conductivity_2 = soil_properties_2.Ks;
     double saturated_conductivity_3 = soil_properties_3.Ks;
     double saturated_conductivity_4 = soil_properties_4.Ks;
@@ -419,5 +424,5 @@ void soil_type_selector::do_operation() const
     update(soil_wilting_point_6_op, soil_properties_6.wiltp);
     update(soil_bulk_density_6_op, soil_properties_6.bulk_density);
 }
-}
+}  // namespace standardBML
 #endif

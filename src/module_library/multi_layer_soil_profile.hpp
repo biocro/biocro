@@ -1,11 +1,11 @@
 #ifndef MULTI_LAYER_SOIL_PROFILE_H
 #define MULTI_LAYER_SOIL_PROFILE_H
 
-#include <cmath> // for std::fmax
+#include <cmath>  // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-namespace standardBML 
+namespace standardBML
 {
 /**
  * @class multi_layer_soil_profile
@@ -22,11 +22,11 @@ class multi_layer_soil_profile : public differential_module
         : differential_module(),
 
           // Get references to input quantities
-          
+
           // soil_reflectance{get_input(input_quantities, "soil_reflectance")}, //Albedo
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
           surface_runoff{get_input(input_quantities, "surface_runoff")},
-          
+
           // Parameters for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
@@ -112,7 +112,6 @@ class multi_layer_soil_profile : public differential_module
     double const& deltaT_2;
     double const& uptake_layer_2;
 
-
     // Parameters for layer 3
     double const& soil_depth_3;
     double const& soil_water_content_3;
@@ -159,65 +158,64 @@ class multi_layer_soil_profile : public differential_module
 
 string_vector multi_layer_soil_profile::get_inputs()
 {
-  return {
-      // "soil_reflectance",
-      "soil_evaporation_rate", // Mg/ha/hr
-      "surface_runoff",
+    return {
+        // "soil_reflectance",
+        "soil_evaporation_rate",  // Mg/ha/hr
+        "surface_runoff",
 
-      "soil_depth_1",
-      "soil_water_content_1",
-      "deltaS_1",
-      "deltaU_1",
-      "deltaT_1",
-      "uptake_layer_1",
+        "soil_depth_1",
+        "soil_water_content_1",
+        "deltaS_1",
+        "deltaU_1",
+        "deltaT_1",
+        "uptake_layer_1",
 
-      "soil_depth_2",
-      "soil_water_content_2",
-      "deltaS_2",
-      "deltaU_2",
-      "deltaT_2",
-      "uptake_layer_2",
+        "soil_depth_2",
+        "soil_water_content_2",
+        "deltaS_2",
+        "deltaU_2",
+        "deltaT_2",
+        "uptake_layer_2",
 
-      "soil_depth_3",
-      "soil_water_content_3",
-      "deltaS_3",
-      "deltaU_3",
-      "deltaT_3",
-      "uptake_layer_3",
+        "soil_depth_3",
+        "soil_water_content_3",
+        "deltaS_3",
+        "deltaU_3",
+        "deltaT_3",
+        "uptake_layer_3",
 
-      "soil_depth_4",
-      "soil_water_content_4",
-      "deltaS_4",
-      "deltaU_4",
-      "deltaT_4",
-      "uptake_layer_4",
+        "soil_depth_4",
+        "soil_water_content_4",
+        "deltaS_4",
+        "deltaU_4",
+        "deltaT_4",
+        "uptake_layer_4",
 
-      "soil_depth_5",
-      "soil_water_content_5",
-      "deltaS_5",
-      "deltaU_5",
-      "deltaT_5",
-      "uptake_layer_5",
+        "soil_depth_5",
+        "soil_water_content_5",
+        "deltaS_5",
+        "deltaU_5",
+        "deltaT_5",
+        "uptake_layer_5",
 
-      "soil_depth_6",
-      "soil_water_content_6",
-      "deltaS_6",
-      "deltaU_6",
-      "deltaT_6",
-      "uptake_layer_6",
-  };
+        "soil_depth_6",
+        "soil_water_content_6",
+        "deltaS_6",
+        "deltaU_6",
+        "deltaT_6",
+        "uptake_layer_6",
+    };
 }
 
 string_vector multi_layer_soil_profile::get_outputs()
 {
-  return {
-      "soil_water_content_1",
-      "soil_water_content_2",
-      "soil_water_content_3",
-      "soil_water_content_4",
-      "soil_water_content_5",
-      "soil_water_content_6"
-  };
+    return {
+        "soil_water_content_1",
+        "soil_water_content_2",
+        "soil_water_content_3",
+        "soil_water_content_4",
+        "soil_water_content_5",
+        "soil_water_content_6"};
 }
 
 void multi_layer_soil_profile::do_operation() const
@@ -251,7 +249,7 @@ void multi_layer_soil_profile::do_operation() const
         deltaU_3,
         deltaU_4,
         deltaU_5,
-        deltaU_6};   
+        deltaU_6};
     double swdeltT[] = {
         deltaT_1,
         deltaT_2,
@@ -266,24 +264,23 @@ void multi_layer_soil_profile::do_operation() const
         uptake_layer_4,
         uptake_layer_5,
         uptake_layer_6};
-               
+
     // Calculate total change in soil water content
     double delta_soil_water_content[nlayers];
-//tttt
-    for (int l = 0; l < nlayers; l++){
-        // adding uptake because value is negative 
-        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l]/(100 * soil_depth[l])); 
+    //tttt
+    for (int l = 0; l < nlayers; l++) {
+        // adding uptake because value is negative
+        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] / (100 * soil_depth[l]));
         if (soil_water_content[l] + delta_soil_water_content[l] < 0) {
-          delta_soil_water_content[l] = -soil_water_content[l];
+            delta_soil_water_content[l] = -soil_water_content[l];
         }
     }
-    
-    // Mg/ha/hr 
+
+    // Mg/ha/hr
     // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
     // remove soil evaporation from first layer, but don't let water content go
     // negative. This is a crude, and hopefully temporary, fix. -mlm
-    delta_soil_water_content[0] = delta_soil_water_content[0]
-                                  - soil_evaporation_rate / (10.0*soil_depth[0]);
+    delta_soil_water_content[0] = delta_soil_water_content[0] - soil_evaporation_rate / (10.0 * soil_depth[0]);
 
     update(soil_water_content_1_op, delta_soil_water_content[0]);
     update(soil_water_content_2_op, delta_soil_water_content[1]);
@@ -292,5 +289,5 @@ void multi_layer_soil_profile::do_operation() const
     update(soil_water_content_5_op, delta_soil_water_content[4]);
     update(soil_water_content_6_op, delta_soil_water_content[5]);
 }
-}
+}  // namespace standardBML
 #endif
