@@ -1,8 +1,8 @@
 #ifndef LEAF_HEAT_BALANCE_H
 #define LEAF_HEAT_BALANCE_H
 
-#include "../math/roots/onedim/dekker.h"  // for dekker
-#include "leaf_energy_balance.h"
+#include "../../math/roots/onedim/dekker.h"  // for dekker
+#include "../leaf_energy_balance.h"
 /**
  *  @brief Calculates leaf-level temperature and transpiration rate for a leaf
  *  within a canopy using a heat balance equation

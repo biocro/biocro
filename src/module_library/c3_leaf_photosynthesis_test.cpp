@@ -1,6 +1,6 @@
 #include "c3_leaf_photosynthesis_test.h"
 #include "c3photo.h"                  // for c3photoC
-#include "leaf_heat_balance.h"        // for leaf_heat_balance
+#include "core/leaf_heat_balance.h"        // for leaf_heat_balance
 #include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 
 using standardBML::c3_leaf_photosynthesis_test;

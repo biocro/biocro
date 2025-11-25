@@ -5,7 +5,7 @@
 #include "../framework/state_map.h"
 #include "../framework/constants.h"  // for stefan_boltzmann,
                                      // celsius_to_kelvin, molar_mass_of_water
-#include "leaf_heat_balance.h"
+#include "core/leaf_heat_balance.h"
 #include "boundary_layer_conductance.h"  //canopy_boundary_layer_conductance_thornley
 namespace standardBML
 {

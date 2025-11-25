@@ -3,7 +3,7 @@
 
 #include "../framework/state_map.h"
 #include "../framework/module.h"
-#include "leaf_heat_balance.h"  // for leaf_heat_balanace
+#include "core/leaf_heat_balance.h"  // for leaf_heat_balanace
 namespace standardBML
 {
 /**
