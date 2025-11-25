@@ -1,11 +1,11 @@
 #ifndef MULTILAYER_SOIL_PROFILE_AVG_H
 #define MULTILAYER_SOIL_PROFILE_AVG_H
 
-#include <cmath> // for std::fmax
+#include <cmath>  // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
-namespace standardBML 
+namespace standardBML
 {
 /**
  * @class multilayer_soil_profile_avg
@@ -152,63 +152,61 @@ class multilayer_soil_profile_avg : public direct_module
 
 string_vector multilayer_soil_profile_avg::get_inputs()
 {
-  return {
+    return {
 
-      "max_rooting_layer",
-      
-      "soil_depth_1",
-      "soil_water_content_1",
-      "soil_saturated_conductivity_1",
-      "soil_saturation_capacity_1",
-      "soil_field_capacity_1",
-      "soil_wilting_point_1",
+        "max_rooting_layer",
 
-      "soil_depth_2",
-      "soil_water_content_2",
-      "soil_saturated_conductivity_2",
-      "soil_saturation_capacity_2",
-      "soil_field_capacity_2",
-      "soil_wilting_point_2",
+        "soil_depth_1",
+        "soil_water_content_1",
+        "soil_saturated_conductivity_1",
+        "soil_saturation_capacity_1",
+        "soil_field_capacity_1",
+        "soil_wilting_point_1",
 
-      "soil_depth_3",
-      "soil_water_content_3",
-      "soil_saturated_conductivity_3",
-      "soil_saturation_capacity_3",
-      "soil_field_capacity_3",
-      "soil_wilting_point_3",
+        "soil_depth_2",
+        "soil_water_content_2",
+        "soil_saturated_conductivity_2",
+        "soil_saturation_capacity_2",
+        "soil_field_capacity_2",
+        "soil_wilting_point_2",
 
-      "soil_depth_4",
-      "soil_water_content_4",
-      "soil_saturated_conductivity_4",
-      "soil_saturation_capacity_4",
-      "soil_field_capacity_4",
-      "soil_wilting_point_4",
+        "soil_depth_3",
+        "soil_water_content_3",
+        "soil_saturated_conductivity_3",
+        "soil_saturation_capacity_3",
+        "soil_field_capacity_3",
+        "soil_wilting_point_3",
 
-      "soil_depth_5",
-      "soil_water_content_5",
-      "soil_saturated_conductivity_5",
-      "soil_saturation_capacity_5",
-      "soil_field_capacity_5",
-      "soil_wilting_point_5",
+        "soil_depth_4",
+        "soil_water_content_4",
+        "soil_saturated_conductivity_4",
+        "soil_saturation_capacity_4",
+        "soil_field_capacity_4",
+        "soil_wilting_point_4",
 
-      "soil_depth_6",
-      "soil_water_content_6",
-      "soil_saturated_conductivity_6",
-      "soil_saturation_capacity_6",
-      "soil_field_capacity_6",
-      "soil_wilting_point_6"
-  };
+        "soil_depth_5",
+        "soil_water_content_5",
+        "soil_saturated_conductivity_5",
+        "soil_saturation_capacity_5",
+        "soil_field_capacity_5",
+        "soil_wilting_point_5",
+
+        "soil_depth_6",
+        "soil_water_content_6",
+        "soil_saturated_conductivity_6",
+        "soil_saturation_capacity_6",
+        "soil_field_capacity_6",
+        "soil_wilting_point_6"};
 }
 
 string_vector multilayer_soil_profile_avg::get_outputs()
 {
-  return {
-      "soil_water_content",
-      "soil_saturated_conductivity",
-      "soil_saturation_capacity",
-      "soil_field_capacity",
-      "soil_wilting_point"
-  };
+    return {
+        "soil_water_content",
+        "soil_saturated_conductivity",
+        "soil_saturation_capacity",
+        "soil_field_capacity",
+        "soil_wilting_point"};
 }
 
 void multilayer_soil_profile_avg::do_operation() const
@@ -259,15 +257,15 @@ void multilayer_soil_profile_avg::do_operation() const
         soil_wilting_point_3,
         soil_wilting_point_4,
         soil_wilting_point_5,
-        soil_wilting_point_6};     
-               
+        soil_wilting_point_6};
+
     // total soil depth - first four layers for Miscanthus roots (30-45cm)
     // double total_soil_depth = 0.0;
     // int total_number_of_layers = 0;
     // double max_depth = 45.0;
     // while (total_soil_depth <= max_depth) {
-      // total_soil_depth += soil_depth_arr[total_number_of_layers];
-      // total_number_of_layers += 1;
+    // total_soil_depth += soil_depth_arr[total_number_of_layers];
+    // total_number_of_layers += 1;
     // }
     double tot_soil_depth = 0.0;
     double tot_soil_water_content = 0.0;
@@ -276,21 +274,20 @@ void multilayer_soil_profile_avg::do_operation() const
     double tot_soil_field_capacity = 0.0;
     double tot_soil_wilting_point = 0.0;
 
-    for (int l = 0; l < max_rooting_layer; l++){
+    for (int l = 0; l < max_rooting_layer; l++) {
         tot_soil_depth += soil_depth_arr[l];
-        tot_soil_water_content += soil_water_content_arr[l]*soil_depth_arr[l];
-        tot_soil_saturated_conductivity += soil_saturated_conductivity_arr[l]*soil_depth_arr[l];
-        tot_soil_saturation_capacity += soil_saturation_capacity_arr[l]*soil_depth_arr[l];
-        tot_soil_field_capacity += soil_field_capacity_arr[l]*soil_depth_arr[l];
-        tot_soil_wilting_point += soil_wilting_point_arr[l]*soil_depth_arr[l];
+        tot_soil_water_content += soil_water_content_arr[l] * soil_depth_arr[l];
+        tot_soil_saturated_conductivity += soil_saturated_conductivity_arr[l] * soil_depth_arr[l];
+        tot_soil_saturation_capacity += soil_saturation_capacity_arr[l] * soil_depth_arr[l];
+        tot_soil_field_capacity += soil_field_capacity_arr[l] * soil_depth_arr[l];
+        tot_soil_wilting_point += soil_wilting_point_arr[l] * soil_depth_arr[l];
     }
     // Voulmetric average soil parametric values
-    double soil_water_content = tot_soil_water_content/tot_soil_depth;
-    double soil_saturated_conductivity = tot_soil_saturated_conductivity/tot_soil_depth;
-    double soil_saturation_capacity = tot_soil_saturation_capacity/tot_soil_depth;
-    double soil_field_capacity = tot_soil_field_capacity/tot_soil_depth;
-    double soil_wilting_point = tot_soil_wilting_point/tot_soil_depth;
-
+    double soil_water_content = tot_soil_water_content / tot_soil_depth;
+    double soil_saturated_conductivity = tot_soil_saturated_conductivity / tot_soil_depth;
+    double soil_saturation_capacity = tot_soil_saturation_capacity / tot_soil_depth;
+    double soil_field_capacity = tot_soil_field_capacity / tot_soil_depth;
+    double soil_wilting_point = tot_soil_wilting_point / tot_soil_depth;
 
     update(soil_water_content_op, soil_water_content);
     update(soil_saturated_conductivity_op, soil_saturated_conductivity);
@@ -298,5 +295,5 @@ void multilayer_soil_profile_avg::do_operation() const
     update(soil_field_capacity_op, soil_field_capacity);
     update(soil_wilting_point_op, soil_wilting_point);
 }
-}
+}  // namespace standardBML
 #endif
