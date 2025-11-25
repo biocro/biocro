@@ -1,6 +1,5 @@
 #include <algorithm>  // for std::min, std::max
 #include <cmath>
-#include <Rinternals.h>
 #include "soil_water_flow_functions.h"
 using namespace std;
 /**
