@@ -5,7 +5,7 @@
 #include "../framework/state_map.h"
 #include "soil_water_flow_functions.h"
 
-namespace standardBML 
+namespace standardBML
 {
 /**
  * @class soil_water_downflow
@@ -23,7 +23,7 @@ class soil_water_upflow : public direct_module
 
           // Get references to input quantities
           surface_runoff{get_input(input_quantities, "surface_runoff")},
-          
+
           // Inputs for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_saturation_capacity_1{get_input(input_quantities, "soil_saturation_capacity_1")},
@@ -166,7 +166,7 @@ class soil_water_upflow : public direct_module
 string_vector soil_water_upflow::get_inputs()
 {
     return {
-        "surface_runoff",     // Excess water (cm/hr) to check for the flooded conditions
+        "surface_runoff",  // Excess water (cm/hr) to check for the flooded conditions
 
         "soil_depth_1",
         "soil_saturation_capacity_1",
@@ -208,8 +208,7 @@ string_vector soil_water_upflow::get_inputs()
         "soil_wilting_point_6",
         "soil_field_capacity_6",
         "soil_water_content_6",
-        "deltaS_6"
-    };
+        "deltaS_6"};
 }
 
 string_vector soil_water_upflow::get_outputs()
@@ -226,7 +225,7 @@ string_vector soil_water_upflow::get_outputs()
         "deltaU_3",  // Change in soil water content due to evaporation and/or upward flow in layer 3 (cm3 [water] / cm3 [soil])
         "deltaU_4",  // Change in soil water content due to evaporation and/or upward flow in layer 4 (cm3 [water] / cm3 [soil])
         "deltaU_5",  // Change in soil water content due to evaporation and/or upward flow in layer 5 (cm3 [water] / cm3 [soil])
-        "deltaU_6"  // Change in soil water content due to evaporation and/or upward flow in layer 6 (cm3 [water] / cm3 [soil])
+        "deltaU_6"   // Change in soil water content due to evaporation and/or upward flow in layer 6 (cm3 [water] / cm3 [soil])
     };
 }
 
@@ -256,7 +255,7 @@ void soil_water_upflow::do_operation() const
         soil_wilting_point_3,
         soil_wilting_point_4,
         soil_wilting_point_5,
-        soil_wilting_point_6};        
+        soil_wilting_point_6};
 
     double soil_field_capacity[] = {
         soil_field_capacity_1,
@@ -285,21 +284,21 @@ void soil_water_upflow::do_operation() const
     upwardFlo_str upFlow;
     // if flood <= 0??? // Current depth of flooding (mm)
     // if (surface_runoff <= 0) {
-        double sw_avail[nlayers];
-        for (int l = 0; l < nlayers; l++){
-            sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);
-        }
-        // Calculate upward movement of water due to evaporation and root
-        // extraction for each soil layer.
+    double sw_avail[nlayers];
+    for (int l = 0; l < nlayers; l++) {
+        sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);
+    }
+    // Calculate upward movement of water due to evaporation and root
+    // extraction for each soil layer.
 
-        upFlow = up_flow(
-            nlayers, 
-            sw_avail,
-            soil_depth, 
-            soil_saturation_capacity, 
-            soil_wilting_point,
-            soil_field_capacity, 
-            soil_water_content);
+    upFlow = up_flow(
+        nlayers,
+        sw_avail,
+        soil_depth,
+        soil_saturation_capacity,
+        soil_wilting_point,
+        soil_field_capacity,
+        soil_water_content);
     // } else {
     //     for (int l = 0; l < nlayers; l++){
     //           upFlow.sw_delta_U[l] = 0.0;
@@ -322,5 +321,5 @@ void soil_water_upflow::do_operation() const
     update(deltaU_6_op, upFlow.sw_delta_U[5]);
 }
 
-}  // namespace standardBML 
+}  // namespace standardBML
 #endif
