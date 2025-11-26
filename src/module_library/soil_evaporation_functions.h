@@ -119,14 +119,15 @@ double surface_albedo(
     double const slope =
         bare_soil_albedo_max * (albedo_frac - 1.0) / (theta_fc_surface - theta_min);
 
-    // Effective soil water content, which is clamped to lie within the bounds
-    // placed on soil water content (dimensionless)
-    double const theta_effective =
-        std::max(theta_min, std::min(theta_surface, theta_max));
+    // Minimum soil albedo (dimensionless)
+    double const bare_soil_albedo_min =
+        bare_soil_albedo_max + slope * (theta_max - theta_min);
 
     // Bare soil albedo, accounting for water content (dimensionless)
     double const bare_soil_albedo =
-        bare_soil_albedo_max + slope * (theta_effective - theta_min);
+        theta_surface < theta_min   ? bare_soil_albedo_max
+        : theta_surface < theta_max ? bare_soil_albedo_max + slope * (theta_surface - theta_min)
+                                    : bare_soil_albedo_min;
 
     // Fraction of light transmitted through canopy (dimensionless)
     double const canopy_transmittance = exp(-k_canopy * LAI);
