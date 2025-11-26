@@ -10,11 +10,66 @@
 
 const double par_energy_content = 0.219;
 
+/**
+ *  @brief Calculates the surface albedo, which is the ratio of reflected to
+ *  incoming radiation.
+ *
+ *  This function implements some empirical relationships to estimate surface
+ *  albedo from volumetric water content at the soil surface and crop cover.
+ *
+ *  The estimate for bare soil albedo is based on measurements reported in Idso
+ *  et al. (1975). For Avondale loam with volumetric soil water content in the
+ *  range from 0.0 to roughly 0.18, the albedo was found to depend linearly on
+ *  water content in the top 20 cm of soil, with wetter soil having a smaller
+ *  albedo. Completely dry soil reached an albedo of roughly 0.30, and as the
+ *  soil water content approached the field capacity, the albedo approached a
+ *  minimum value of approximately 0.14.
+ *
+ *  Here these observations are generalized to accomodate different soil types.
+ *  When the soil water content in the upper layer is at or below a threshold
+ *  water content (`theta_min`), the bare soil albedo is set to its maximum
+ *  value (`bare_soil_albedo_max`), which may vary with soil type. At the field
+ *  capacity (`theta_fc`), which also varies with soil type, the bare soil
+ *  albedo is set to a fraction (`capacity_frac`) of its maximum value. These
+ *  two points define a linear relationship that applies for soil water content
+ *  between `theta_min` and `theta_min + 2 * (theta_fc - theta_min)`. For soil
+ *  water content above this upper limit, the albedo is fixed to its value at
+ *  this limit, which evaluates to
+ *  `bare_soil_albedo_max * (2 * capacity_frac - 1)`.
+ *
+ *  The presence of a crop canopy above the soil alters the surface albedo from
+ *  its bare soil value. A simple way to model this is to assume that a light
+ *  ray is either intercepted by the canopy or passes through it, thereby
+ *  reaching the soil surface. For light intercepted by the canopy, the fraction
+ *  of reflected light is determined by the canopy albedo; for light reaching
+ *  the soil, the fraction of reflected light is determined by the soil albedo.
+ *  In other words, `soil_albedo = bare_soil_albedo * canopy_transmittance +
+ *  canopy_albedo * (1 - canopy_transmittance)`, where `canopy_transmittance` is
+ *  the fraction of incident light transmitted through the canopy. Note that
+ *  this simple approach neglects "multiple scattering," which refers to the
+ *  possibility that a light ray may be transmitted through the canopy and
+ *  subsequently reflected by the soil, possibly scattering back and forth many
+ *  times.
+ *
+ *  Here, a simple estimate for the canopy transmittance is made based on the
+ *  total canopy leaf area index (`LAI`) and an exponential decay parameter
+ *  (`k_canopy`), where `canopy_transmittance = exp(-k_canopy * LAI)`.
+ *
+ *  Note: This function was originally based on the `ALBEDO` subroutine of
+ *  `SOILDYN.for` from DSSAT (https://github.com/DSSAT/dssat-csm-os).
+ *
+ *  References:
+ *
+ *  - [Idso, S. B., Jackson, R. D., Reginato, R. J., Kimball, B. A. & Nakayama, F. S. "The Dependence of
+ *    Bare Soil Albedo on Soil Water Content" Journal of Applied Meteorology and Climatology 14, 109–113 (1975)]
+ *    (https://doi.org/10.1175/1520-0450(1975)014<0109:TDOBSA>2.0.CO;2)
+ */
 double soil_albedo(
-    double lai,
-    double bare_soil_albedo,
-    double soil_water_content[],
-    double soil_field_capacity[])
+    double lai,                   // dimensionless
+    double bare_soil_albedo,      // dimensionless
+    double soil_water_content[],  // dimensionless from m^3 / m^3
+    double soil_field_capacity[]  // dimensionless from m^3 / m^3
+)
 {
     using std::max;
     using std::min;
