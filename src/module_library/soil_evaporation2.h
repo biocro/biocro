@@ -1,13 +1,10 @@
 #ifndef SOIL_EVAPORATION2_H
 #define SOIL_EVAPORATION2_H
+
 #include <algorithm>  // for std::min, std::max
-#include <math.h>
-#include <Rinternals.h>
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_evaporation_functions.h"
-// #include "BioCro.h"  // For SoilEvapo
-using namespace std;
 
 namespace standardBML
 {
@@ -183,24 +180,24 @@ class soil_evaporation2 : public differential_module
 string_vector soil_evaporation2::get_inputs()
 {
     return {
-        "skc",                  // Basal crop coefficient
+        "skc",  // Basal crop coefficient
         "kcbmax",
-        "doy",                  // day of the year
-        "lat",                  // latitude of the location
-        "elevation",            // altitude in meters
-        "lai",                  // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo",     // Bare soil albedo (fraction) - dimensionless
-        "kd",                   // light extinction coefficient
-        "windspeed",            // m/s
-        "rh",                   // fraction. dimensionless
+        "doy",               // day of the year
+        "lat",               // latitude of the location
+        "elevation",         // altitude in meters
+        "lai",               // Healthy leaf area index (m2[leaf] / m2[ground])
+        "bare_soil_albedo",  // Bare soil albedo (fraction) - dimensionless
+        "kd",                // light extinction coefficient
+        "windspeed",         // m/s
+        "rh",                // fraction. dimensionless
         // "height",               // Canopy height (m)
-        "sumes1",               // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2",               // Cumulative soil evaporation in stage 2 (mm)
-        "time_factor",          // Time factor for hourly temperature calculations
-        "temp",                 // degrees C
-        "solar",                // micromol / m^2 / s
-        "soil_evaporation_rate",// Actual soil evaporation rate (mm/hr)
-        "infiltrated_water",    // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
+        "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
+        "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
+        "time_factor",            // Time factor for hourly temperature calculations
+        "temp",                   // degrees C
+        "solar",                  // micromol / m^2 / s
+        "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
+        "infiltrated_water",      // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -241,26 +238,27 @@ string_vector soil_evaporation2::get_inputs()
         "soil_field_capacity_6",
         "soil_water_content_6",
         "deltaS_6",
-        "deltaU_6"
-    };
+        "deltaU_6"};
 }
 
 string_vector soil_evaporation2::get_outputs()
 {
     return {
-        "sumes1",     // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2",     // Cumulative soil evaporation in stage 2 (mm)
-        "time_factor", //time factor for hourly temperature calculations
-        "soil_evaporation_rate"
-    };
+        "sumes1",       // Cumulative soil evaporation in stage 1 (mm)
+        "sumes2",       // Cumulative soil evaporation in stage 2 (mm)
+        "time_factor",  //time factor for hourly temperature calculations
+        "soil_evaporation_rate"};
 }
 
 void soil_evaporation2::do_operation() const
 {
+    using std::max;
+    using std::min;
+
     int nlayers = 6;
     double canopyHeight = 1.0;
-    double evap_limit = 0.25;   // 6/24 cm/hr. Default Evaporation
-                                // limit (cm) from SOILDYN.for, line 468 (variable U)
+    double evap_limit = 0.25;  // 6/24 cm/hr. Default Evaporation
+                               // limit (cm) from SOILDYN.for, line 468 (variable U)
     double actual_soil_evap = soil_evaporation_rate;
     double sumes1_temp = sumes1;
     double sumes2_temp = sumes2;
@@ -315,7 +313,7 @@ void soil_evaporation2::do_operation() const
         deltaU_6};
     // SOILDYN.for, line 1488-1566
     // Soil albedo modification with water content
-    double wet_soil_albedo =  soil_albedo(
+    double wet_soil_albedo = soil_albedo(
         temp,
         lai,
         bare_soil_albedo,
@@ -326,22 +324,20 @@ void soil_evaporation2::do_operation() const
         solar,
         temp,
         lai,
-        wet_soil_albedo
-    );
-//    //Rprintf("potential_et is: %f (MJ/m2/hr)\n", potential_et);
+        wet_soil_albedo);
+    //    //Rprintf("potential_et is: %f (MJ/m2/hr)\n", potential_et);
 
     // Reference Height computation
     double reference_et = reference_evapotranspiration(
         doy,
         solar,
         temp,
-        lat,             //latitude
+        lat,  //latitude
         elevation,
         windspeed,
         rh,
-        wet_soil_albedo
-    );
-//    //Rprintf("reference_et is: %f (MJ/m2/hr)\n", reference_et);
+        wet_soil_albedo);
+    //    //Rprintf("reference_et is: %f (MJ/m2/hr)\n", reference_et);
 
     double potential_soil_evap = potential_soil_evaporation(
         skc,
@@ -350,11 +346,10 @@ void soil_evaporation2::do_operation() const
         lai,
         canopyHeight,
         potential_et,
-        reference_et
-    );
-//    //Rprintf("potential_soil_evap is: %f (MJ/m2/hr)\n", potential_soil_evap);
+        reference_et);
+    //    //Rprintf("potential_soil_evap is: %f (MJ/m2/hr)\n", potential_soil_evap);
     // SPAM.for line 353
-    if (potential_soil_evap  > 1e-6){
+    if (potential_soil_evap > 1e-6) {
         // Rprintf("potential_soil_evap is: %f (MJ/m2/hr)\n", potential_soil_evap);
         // Ritchie soil evaporation routine
         // Calculate the availability of soil water
@@ -364,16 +359,16 @@ void soil_evaporation2::do_operation() const
         }
         // SOILEV.for
         // Set air dry water content for top soil layer
-        double soil_water_air_dry = 0.9-0.00038 * pow((soil_depth[0]-30.0), 2);
+        double soil_water_air_dry = 0.9 - 0.00038 * pow((soil_depth[0] - 30.0), 2);
         // Adjust soil evaporation, and the sum of stage 1 (SUMES1) and stage 2
         // (SUMES2) evaporation based on infiltration (WINF), potential
         // soil evaporation (EOS), and stage 1 evaporation (evap_limit = U).
         // CALL ESUP(EOS, SUMES1, SUMES2, U, ES, T)  !Supplementary calcs
 
         if ((sumes1 >= evap_limit) && (infiltrated_water >= sumes2)) {
-//            Rprintf("case 1: sumes 1 >= evap_limit and winf >= sumes2 \n");
+            //            Rprintf("case 1: sumes 1 >= evap_limit and winf >= sumes2 \n");
             // Stage 1 Evaporation
-            double temp_wat_infil = infiltrated_water - sumes2; // Interim value of WINF, water available for infiltration (mm)
+            double temp_wat_infil = infiltrated_water - sumes2;  // Interim value of WINF, water available for infiltration (mm)
             sumes1_temp = evap_limit - temp_wat_infil;
             sumes2_temp = 0.0;
             time_factor_temp = 0.0;
@@ -385,33 +380,29 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
-                time_factor_temp
-            );
+                time_factor_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
             time_factor_temp = evap_comp.time_factor;
             actual_soil_evap = evap_comp.actual_soil_evap;
-//            Rprintf("Case 1: Actual soil evap is: %f \n", actual_soil_evap);
-        }
-        else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
+            //            Rprintf("Case 1: Actual soil evap is: %f \n", actual_soil_evap);
+        } else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
             //Rprintf("case 2: sumes 1 >= U and winf < sumes2 \n");
             // Stage 2 Evaporation
             time_factor_temp = time_factor + 1.0;
             actual_soil_evap = 3.5 * pow(time_factor_temp, 0.5) - sumes2;
             if (infiltrated_water > 0.0) {
-              double esx = 0.8 * infiltrated_water; // Interim value of evaporation rate for Stage 2 evaporation
-              if (esx <= actual_soil_evap) esx = actual_soil_evap + infiltrated_water;
-              if (esx > potential_soil_evap) esx = potential_soil_evap;
-              actual_soil_evap = esx;
-            }
-            else if (actual_soil_evap > potential_soil_evap) {
-              actual_soil_evap = potential_soil_evap;
+                double esx = 0.8 * infiltrated_water;  // Interim value of evaporation rate for Stage 2 evaporation
+                if (esx <= actual_soil_evap) esx = actual_soil_evap + infiltrated_water;
+                if (esx > potential_soil_evap) esx = potential_soil_evap;
+                actual_soil_evap = esx;
+            } else if (actual_soil_evap > potential_soil_evap) {
+                actual_soil_evap = potential_soil_evap;
             }
             sumes2_temp = sumes2 + actual_soil_evap - infiltrated_water;
-            time_factor_temp = pow((sumes2_temp/3.5), 2);
+            time_factor_temp = pow((sumes2_temp / 3.5), 2);
             //Rprintf("Case 2: Actual soil evap is: %f \n", actual_soil_evap);
-        }
-        else if (infiltrated_water >= sumes1) {
+        } else if (infiltrated_water >= sumes1) {
             //Rprintf("case 3: winf >= sumes1 \n");
             // Stage 1 evaporation
             sumes1_temp = 0.0;
@@ -422,15 +413,13 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
-                time_factor_temp
-            );
+                time_factor_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
             time_factor_temp = evap_comp.time_factor;
             actual_soil_evap = evap_comp.actual_soil_evap;
-              //Rprintf("Case 3: Actual soil evap is: %f \n", actual_soil_evap);
-        }
-        else {
+            //Rprintf("Case 3: Actual soil evap is: %f \n", actual_soil_evap);
+        } else {
             //Rprintf("case 4: else \n");
             // Stage 1 evaporation
             sumes1_temp = sumes1 - infiltrated_water;
@@ -441,51 +430,49 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
-                time_factor_temp
-            );
+                time_factor_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
             time_factor_temp = evap_comp.time_factor;
             actual_soil_evap = evap_comp.actual_soil_evap;
-              //Rprintf("Case 4: Actual soil evap is: %f \n", actual_soil_evap);
+            //Rprintf("Case 4: Actual soil evap is: %f \n", actual_soil_evap);
         }
-  // -----------------------------------------------------------------------
-  //    Soil evaporation can not be larger than the current extractable soil
-  //    water in the top layer.
-  //    If available soil water is less than soil evaporation, adjust first
-  //    and second stage evaporation and soil evaporation accordingly
-  // -----------------------------------------------------------------------
+        // -----------------------------------------------------------------------
+        //    Soil evaporation can not be larger than the current extractable soil
+        //    water in the top layer.
+        //    If available soil water is less than soil evaporation, adjust first
+        //    and second stage evaporation and soil evaporation accordingly
+        // -----------------------------------------------------------------------
 
         double sw_avail_evap = (soil_water_content[0] - soil_wilting_point[0] *
-                  soil_water_air_dry) * soil_depth[0] * 10.0; // Available water for soil evaporation (mm/d)
-        sw_avail_evap = max(0.0,sw_avail_evap);
+                                                            soil_water_air_dry) *
+                               soil_depth[0] * 10.0;  // Available water for soil evaporation (mm/d)
+        sw_avail_evap = max(0.0, sw_avail_evap);
 
         if (sw_avail_evap < actual_soil_evap) {
-           if ((sumes1_temp >= evap_limit) &&  (sumes2_temp > actual_soil_evap)) {
-              sumes2_temp = sumes2_temp - actual_soil_evap + sw_avail_evap;
-              time_factor_temp = pow((sumes2_temp/3.5), 2);
-              actual_soil_evap = sw_avail_evap;
+            if ((sumes1_temp >= evap_limit) && (sumes2_temp > actual_soil_evap)) {
+                sumes2_temp = sumes2_temp - actual_soil_evap + sw_avail_evap;
+                time_factor_temp = pow((sumes2_temp / 3.5), 2);
+                actual_soil_evap = sw_avail_evap;
+            } else if ((sumes1_temp >= evap_limit) && (sumes2_temp < actual_soil_evap) &&
+                       (sumes2_temp > 0.0)) {
+                sumes1_temp = sumes1_temp - (actual_soil_evap - sumes2_temp);
+                sumes2_temp = max(sumes1_temp + sw_avail_evap - evap_limit, 0.0);
+                sumes1_temp = min(sumes1_temp + sw_avail_evap, evap_limit);
+                time_factor_temp = pow((sumes2_temp / 3.5), 2);
+                actual_soil_evap = sw_avail_evap;
+            } else {
+                sumes1_temp = sumes1_temp - actual_soil_evap + sw_avail_evap;
+                actual_soil_evap = sw_avail_evap;
             }
-            else if ((sumes1_temp >= evap_limit) && (sumes2_temp < actual_soil_evap) &&
-                   (sumes2_temp > 0.0)) {
-              sumes1_temp = sumes1_temp - (actual_soil_evap - sumes2_temp);
-              sumes2_temp = max(sumes1_temp + sw_avail_evap - evap_limit, 0.0);
-              sumes1_temp = min(sumes1_temp + sw_avail_evap, evap_limit);
-              time_factor_temp = pow((sumes2_temp/3.5), 2);
-              actual_soil_evap = sw_avail_evap;
-            }
-           else {
-              sumes1_temp = sumes1_temp - actual_soil_evap + sw_avail_evap;
-              actual_soil_evap = sw_avail_evap;
-           }
         }
-  //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
         // Available water = SW - air dry limit + infil. or sat. flow
         double sw_min = max(0.0, sw_avail[0] - soil_water_air_dry * soil_wilting_point[0]);
 
         // Limit actual_soil_evap to between zero and avail water in soil layer 1
         if (actual_soil_evap > sw_min * soil_depth[0] * 10.0) {
-          actual_soil_evap = sw_min * soil_depth[0] * 10.0;
+            actual_soil_evap = sw_min * soil_depth[0] * 10.0;
         }
 
         actual_soil_evap = max(actual_soil_evap, 0.0);
@@ -501,5 +488,5 @@ void soil_evaporation2::do_operation() const
     update(soil_evaporation_rate_op, delta_actual_soil_evap);
 }
 
-}  // namespace BioCroWater
+}  // namespace standardBML
 #endif

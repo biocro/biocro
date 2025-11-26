@@ -1,7 +1,6 @@
 #ifndef SURFACE_EXCESS_WATER_H
 #define SURFACE_EXCESS_WATER_H
 
-#include <cmath> // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
@@ -12,7 +11,7 @@ namespace standardBML
  *
  */
 
-class surface_excess_water: public differential_module
+class surface_excess_water : public differential_module
 
 {
    public:
@@ -60,22 +59,20 @@ class surface_excess_water: public differential_module
 
 string_vector surface_excess_water::get_inputs()
 {
-  return {
-      "soil_saturation_capacity_1",
-      "soil_water_content_1"
-  };
+    return {
+        "soil_saturation_capacity_1",
+        "soil_water_content_1"};
 }
 
 string_vector surface_excess_water::get_outputs()
 {
-  return {
-      "soil_water_content_1",
-      "soil_water_content_2",
-      "soil_water_content_3",
-      "soil_water_content_4",
-      "soil_water_content_5",
-      "soil_water_content_6"
-  };
+    return {
+        "soil_water_content_1",
+        "soil_water_content_2",
+        "soil_water_content_3",
+        "soil_water_content_4",
+        "soil_water_content_5",
+        "soil_water_content_6"};
 }
 
 void surface_excess_water::do_operation() const
@@ -89,5 +86,5 @@ void surface_excess_water::do_operation() const
     }
     update(soil_water_content_1_op, delta_soil_water_content);
 }
-}
+}  // namespace standardBML
 #endif
