@@ -1,6 +1,6 @@
 #include <algorithm>  // for std::min, std::max
 #include <math.h>
-using namespace std;
+
 /**
  * @brief functions to be used in soil evaporation computation
  * for multilayer soil profile.
@@ -15,6 +15,9 @@ double soil_albedo(
     double soil_water_content[],
     double soil_field_capacity[])
 {
+    using std::max;
+    using std::min;
+
     // SOILDYN.for, line 1574-156
     // line 1488 - SUBROUTINE ALBEDO(KTRANS, MEINF, MULCH, SOILPROP, SW1, XHLAI)
     // line 1510 - Calculate albedo changes with soil water content
@@ -42,6 +45,8 @@ double potential_evapotranspiration(
     double lai,
     double wet_soil_albedo)
 {
+    using std::max;
+
     // from PET.for, line 895
     double tavg = temp;                                      // deg C // average temperature. originally 0.60*TMAX+0.40*TMIN
     double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
@@ -70,6 +75,8 @@ double reference_evapotranspiration(
     double rh,
     double wet_soil_albedo)
 {
+    using std::max;
+
     // PET.for, line 228
     double tavg = temp;                                      // Mean daily temperature (°C)
     double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
@@ -155,6 +162,9 @@ double potential_soil_evaporation(
     double potential_et,
     double reference_et)  //latitude
 {
+    using std::max;
+    using std::min;
+
     // double kcan = 0.85;// CSCER048.SPE, line 82
     double part = 0.07;
     double sradt = 0.25;
