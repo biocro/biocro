@@ -1,7 +1,6 @@
 #ifndef SURFACE_EXCESS_WATER_H
 #define SURFACE_EXCESS_WATER_H
 
-#include <cmath>  // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
