@@ -89,6 +89,23 @@ double surface_albedo(
     double const theta_fc_surface       // dimensionless from m^3 / m^3
 )
 {
+    // Check for bad inputs
+    if (LAI < 0) {
+        throw std::range_error("Thrown in surface_albedo: LAI is negative.");
+    }
+
+    if (bare_soil_albedo_max < 0) {
+        throw std::range_error("Thrown in surface_albedo: bare_soil_albedo_max is negative.");
+    }
+
+    if (theta_surface < 0) {
+        throw std::range_error("Thrown in surface_albedo: theta_surface is negative.");
+    }
+
+    if (theta_fc_surface < 0) {
+        throw std::range_error("Thrown in surface_albedo: theta_fc_surface is negative.");
+    }
+
     // Set constants
     double constexpr theta_min = 0.03;      // dimensionless
     double constexpr albedo_frac = 0.55;    // dimensionless
