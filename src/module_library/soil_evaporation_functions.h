@@ -1,5 +1,7 @@
+#ifndef SOIL_EVAPORATION_FUNCTIONS_H
+#define SOIL_EVAPORATION_FUNCTIONS_H
+
 #include <algorithm>  // for std::min, std::max
-#include <math.h>
 
 /**
  * @brief functions to be used in soil evaporation computation
@@ -240,3 +242,4 @@ evap_str supplemetal_evap_computation(
     return_value.actual_soil_evap = actual_soil_evap;
     return return_value;
 }
+#endif

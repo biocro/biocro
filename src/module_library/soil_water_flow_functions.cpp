@@ -1,5 +1,5 @@
 #include <algorithm>  // for std::min, std::max
-#include <cmath>
+#include <cmath>      // for exp, fabs
 #include "soil_water_flow_functions.h"
 
 /**
