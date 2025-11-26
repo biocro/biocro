@@ -123,7 +123,6 @@ soybean2 <- list(
         Kc_c                        = 38.05,
         Kc_Ea                       = 79430,
         kcbmax                      = 0.25,
-        kd                          = 0.7,
         Ko_c                        = 20.3,
         Ko_Ea                       = 36380,
         kpLN                        = 0,

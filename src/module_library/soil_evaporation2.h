@@ -24,7 +24,7 @@ class soil_evaporation2 : public differential_module
           elevation{get_input(input_quantities, "elevation")},
           lai{get_input(input_quantities, "lai")},
           bare_soil_albedo{get_input(input_quantities, "bare_soil_albedo")},
-          kd{get_input(input_quantities, "kd")},
+          k_diffuse{get_input(input_quantities, "k_diffuse")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
           // height{get_input(input_quantities, "height")},
@@ -108,7 +108,7 @@ class soil_evaporation2 : public differential_module
     double const& elevation;
     double const& lai;
     double const& bare_soil_albedo;
-    double const& kd;
+    double const& k_diffuse;
     double const& windspeed;
     double const& rh;
     // double const& height;
@@ -187,7 +187,7 @@ string_vector soil_evaporation2::get_inputs()
         "elevation",         // altitude in meters
         "lai",               // Healthy leaf area index (m2[leaf] / m2[ground])
         "bare_soil_albedo",  // Bare soil albedo (fraction) - dimensionless
-        "kd",                // light extinction coefficient
+        "k_diffuse",         // light extinction coefficient
         "windspeed",         // m/s
         "rh",                // fraction. dimensionless
         // "height",               // Canopy height (m)
@@ -342,7 +342,7 @@ void soil_evaporation2::do_operation() const
     double potential_soil_evap = potential_soil_evaporation(
         skc,
         kcbmax,
-        kd,
+        k_diffuse,
         lai,
         canopyHeight,
         potential_et,
