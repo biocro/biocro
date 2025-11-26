@@ -314,7 +314,6 @@ void soil_evaporation2::do_operation() const
     // SOILDYN.for, line 1488-1566
     // Soil albedo modification with water content
     double wet_soil_albedo = soil_albedo(
-        temp,
         lai,
         bare_soil_albedo,
         soil_water_content,

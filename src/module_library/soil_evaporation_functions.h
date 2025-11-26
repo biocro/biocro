@@ -11,7 +11,6 @@
 const double par_energy_content = 0.219;
 
 double soil_albedo(
-    double temp,
     double lai,
     double bare_soil_albedo,
     double soil_water_content[],
