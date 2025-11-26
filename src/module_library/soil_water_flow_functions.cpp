@@ -1,7 +1,7 @@
 #include <algorithm>  // for std::min, std::max
 #include <cmath>
 #include "soil_water_flow_functions.h"
-using namespace std;
+
 /**
  * @brief Calculates soil infiltration for a multi-layer soil profile.
  */

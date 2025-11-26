@@ -6,7 +6,6 @@
 #include "../framework/state_map.h"
 #include "soil_evaporation_functions.h"
 // #include "BioCro.h"  // For SoilEvapo
-using namespace std;
 
 namespace standardBML
 {
@@ -254,6 +253,9 @@ string_vector soil_evaporation2::get_outputs()
 
 void soil_evaporation2::do_operation() const
 {
+    using std::max;
+    using std::min;
+
     int nlayers = 6;
     double canopyHeight = 1.0;
     double evap_limit = 0.25;  // 6/24 cm/hr. Default Evaporation
