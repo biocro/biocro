@@ -2,13 +2,12 @@
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
 #include <algorithm>  // for std::min, std::max
+#include "../framework/constants.h"      // for pi
 
 /**
  * @brief functions to be used in soil evaporation computation
  * for multilayer soil profile.
  */
-
-const double par_energy_content = 0.219;
 
 double soil_albedo(
     double temp,
@@ -45,7 +44,8 @@ double potential_evapotranspiration(
     double solar,
     double temp,
     double lai,
-    double wet_soil_albedo)
+    double wet_soil_albedo,
+    double par_energy_content)
 {
     using std::max;
 
@@ -75,9 +75,11 @@ double reference_evapotranspiration(
     double elevation,
     double windspeed,
     double rh,
-    double wet_soil_albedo)
+    double wet_soil_albedo,
+    double par_energy_content)
 {
     using std::max;
+    using math_constants::pi;
 
     // PET.for, line 228
     double tavg = temp;                                      // Mean daily temperature (°C)
@@ -109,13 +111,12 @@ double reference_evapotranspiration(
     double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
 
     // Extraterrestrial radiation, ASCE (2005) Eqs. 21,23,24,27
-    double pie = 3.14159265359;
-    double dr = 1.0 + 0.033 * cos(2.0 * pie / 365.0 * doy);         // Eq. 23
-    double ldelta = 0.409 * sin(2.0 * pie / 365.0 * doy - 1.39);    // Eq. 24
-    double ws = acos(-1.0 * tan(lat * pie / 180.0) * tan(ldelta));  // Eq. 27
-    double ra1 = ws * sin(lat * pie / 180.0) * sin(ldelta);         // Eq. 21
-    double ra2 = cos(lat * pie / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
-    double ra = 24.0 / pie * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
+    double dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);         // Eq. 23
+    double ldelta = 0.409 * sin(2.0 * pi / 365.0 * doy - 1.39);    // Eq. 24
+    double ws = acos(-1.0 * tan(lat * pi / 180.0) * tan(ldelta));  // Eq. 27
+    double ra1 = ws * sin(lat * pi / 180.0) * sin(ldelta);         // Eq. 21
+    double ra2 = cos(lat * pi / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
+    double ra = 24.0 / pi * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
 
     // Clear sky solar radiation, ASCE (2005) Eq. 19
     double rso = (0.75 + 2E-5 * elevation) * ra;  // MJ/m2/hr

@@ -27,6 +27,7 @@ class soil_evaporation2 : public differential_module
           k_diffuse{get_input(input_quantities, "k_diffuse")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
+          par_energy_content{get_input(input_quantities, "par_energy_content")},
           // height{get_input(input_quantities, "height")},
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
@@ -111,6 +112,7 @@ class soil_evaporation2 : public differential_module
     double const& k_diffuse;
     double const& windspeed;
     double const& rh;
+    double const& par_energy_content;
     // double const& height;
     double const& sumes1;
     double const& sumes2;
@@ -190,6 +192,7 @@ string_vector soil_evaporation2::get_inputs()
         "k_diffuse",         // light extinction coefficient
         "windspeed",         // m/s
         "rh",                // fraction. dimensionless
+        "par_energy_content",     // J / micromol 
         // "height",               // Canopy height (m)
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
@@ -324,7 +327,8 @@ void soil_evaporation2::do_operation() const
         solar,
         temp,
         lai,
-        wet_soil_albedo);
+        wet_soil_albedo,
+        par_energy_content);
     //    //Rprintf("potential_et is: %f (MJ/m2/hr)\n", potential_et);
 
     // Reference Height computation
@@ -336,7 +340,8 @@ void soil_evaporation2::do_operation() const
         elevation,
         windspeed,
         rh,
-        wet_soil_albedo);
+        wet_soil_albedo,
+        par_energy_content);
     //    //Rprintf("reference_et is: %f (MJ/m2/hr)\n", reference_et);
 
     double potential_soil_evap = potential_soil_evaporation(
