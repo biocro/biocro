@@ -41,12 +41,6 @@ class multi_layer_soil_profile : public differential_module
             }
 
        inline double delta_soil_water_content() const {
-            constexpr double cf = 100; // what is this number converting?
-            // adding uptake because value is negative
-            double out = deltaS + deltaU + deltaT + (uptake / (cf * soil_depth));
-            if (soil_water_content + out < 0) { // reason for this? 
-                out = -soil_water_content;
-            }
             return out;
        }       
         
@@ -79,7 +73,6 @@ class multi_layer_soil_profile : public differential_module
     // References to input quantities
     // double const& soil_reflectance;
     double const& soil_evaporation_rate;
-    double const& surface_runoff;
     std::vector <soil_layer> layers;
    
     // Main operation
@@ -92,7 +85,6 @@ string_vector multi_layer_soil_profile::get_inputs()
     constexpr size_t size = 2 + 6 * num_layers;
     out.reserve(size);
     out.push_back("soil_evaporation_rate");
-    out.push_back("surface_runoff");
     for (size_t i = 1; i < num_layers + 1; ++i) { // index by 1
         out.push_back("soil_depth_" + std::to_string(i));
         out.push_back("soil_water_content_" + std::to_string(i));
@@ -122,7 +114,15 @@ void multi_layer_soil_profile::do_operation() const
     for (int l = 0; l < layers.size(); l++) {
      // Calculate total change in soil water content
 
-        ds = layers[l].delta_soil_water_content();
+
+        constexpr double cm_per_m = 100;
+        // adding uptake because value is negative
+        ds = layers[l].deltaS + layers[l].deltaU + layers[l].deltaT + (layers[l].uptake / (cm_per_m * layers[l].soil_depth));
+        // ensure output is not negative; this is an Euler method step.     
+        if (layers[l].soil_water_content + ds < 0) { 
+            ds = -layers[l].soil_water_content;
+        }
+            
         if (l == 0) {
             ds -= soil_evaporation_rate / (10.0 * layers[l].soil_depth);
         }      
