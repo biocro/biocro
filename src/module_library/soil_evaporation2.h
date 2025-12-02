@@ -32,7 +32,7 @@ class soil_evaporation2 : public differential_module
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
           days_stage2{get_input(input_quantities, "days_stage2")},
-          dt_per_day{get_input(input_quantities, "dt_per_day")},
+          hours_per_day{get_input(input_quantities, "hours_per_day")},
           temp{get_input(input_quantities, "temp")},
           solar{get_input(input_quantities, "solar")},
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
@@ -383,7 +383,7 @@ void soil_evaporation2::do_operation() const
             actual_soil_evap = evap_comp.actual_soil_evap;
         } else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
             // Stage 2 Evaporation
-            days_stage2_temp = days_stage2 + dt_per_day;
+            days_stage2_temp = days_stage2 + 1.0/hours_per_day;
             actual_soil_evap = 3.5 * pow(days_stage2_temp, 0.5) - sumes2;
             if (infiltrated_water > 0.0) {
                 double esx = 0.8 * infiltrated_water;  // Interim value of evaporation rate for Stage 2 evaporation
