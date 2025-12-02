@@ -194,7 +194,6 @@ string_vector soil_evaporation2::get_inputs()
         "windspeed",         // m/s
         "rh",                // fraction. dimensionless
         "par_energy_content",     // J / micromol 
-        // "height",               // Canopy height (m)
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
         "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed) 
@@ -259,10 +258,16 @@ void soil_evaporation2::do_operation() const
     using std::max;
     using std::min;
 
-    int nlayers = 6;
-    double canopyHeight = 1.0;
-    double evap_limit = 0.25;  // 6/24 cm/hr. Default Evaporation
-                               // limit (cm) from SOILDYN.for, line 468 (variable U)
+    int constexpr nlayers = 6;
+    double constexpr canopyHeight = 1.0; // m
+
+    // Upper Limit of Stage 1 Cumulative Evaporation. Houston black clay. 
+    // Table 1. Ritchie (1972)
+    double constexpr evap_limit = 6.0; // mm 
+                               
+    // soil hydraulic properties. Houston black clay
+    // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
+    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5) 
     double actual_soil_evap = soil_evaporation_rate;
     double sumes1_temp = sumes1;
     double sumes2_temp = sumes2;
@@ -315,6 +320,8 @@ void soil_evaporation2::do_operation() const
         deltaU_4,
         deltaU_5,
         deltaU_6};
+    double constexpr surface_soil_depth_in_mm = soil_depth[0] * 10.0; // mm  
+
     // Soil albedo modification with water content
     double wet_soil_albedo = soil_albedo(
         temp,
@@ -358,6 +365,8 @@ void soil_evaporation2::do_operation() const
             sw_avail[l] = max(0.0, soil_water_content[l] + swdeltS[l] + swdeltU[l]);
         }
         // Set air dry water content for top soil layer
+        // Here the 30 seems to still be in cm. 
+        // See Fortran source here: https://github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
         double soil_water_air_dry = 0.9 - 0.00038 * pow((soil_depth[0] - 30.0), 2);
         // Adjust soil evaporation, and the sum of stage 1 (SUMES1) and stage 2
         // (SUMES2) evaporation based on infiltration (WINF), potential
@@ -384,7 +393,7 @@ void soil_evaporation2::do_operation() const
         } else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
             // Stage 2 Evaporation
             days_stage2_temp = days_stage2 + 1.0/hours_per_day;
-            actual_soil_evap = 3.5 * pow(days_stage2_temp, 0.5) - sumes2;
+            actual_soil_evap = soil_evaporation_alpha * pow(days_stage2_temp, 0.5) - sumes2;
             if (infiltrated_water > 0.0) {
                 double esx = 0.8 * infiltrated_water;  // Interim value of evaporation rate for Stage 2 evaporation
                 if (esx <= actual_soil_evap) esx = actual_soil_evap + infiltrated_water;
@@ -394,7 +403,7 @@ void soil_evaporation2::do_operation() const
                 actual_soil_evap = potential_soil_evap;
             }
             sumes2_temp = sumes2 + actual_soil_evap - infiltrated_water;
-            days_stage2_temp = pow((sumes2_temp / 3.5), 2);
+            days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
         } else if (infiltrated_water >= sumes1) {
             // Stage 1 evaporation
             sumes1_temp = 0.0;
@@ -433,20 +442,20 @@ void soil_evaporation2::do_operation() const
 
         double sw_avail_evap = (soil_water_content[0] - soil_wilting_point[0] *
                                                             soil_water_air_dry) *
-                               soil_depth[0] * 10.0;  // Available water for soil evaporation (mm/d)
+                               surface_soil_depth_in_mm;  // Available water for soil evaporation (mm)
         sw_avail_evap = max(0.0, sw_avail_evap);
 
         if (sw_avail_evap < actual_soil_evap) {
             if ((sumes1_temp >= evap_limit) && (sumes2_temp > actual_soil_evap)) {
                 sumes2_temp = sumes2_temp - actual_soil_evap + sw_avail_evap;
-                days_stage2_temp = pow((sumes2_temp / 3.5), 2);
+                days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
                 actual_soil_evap = sw_avail_evap;
             } else if ((sumes1_temp >= evap_limit) && (sumes2_temp < actual_soil_evap) &&
                        (sumes2_temp > 0.0)) {
                 sumes1_temp = sumes1_temp - (actual_soil_evap - sumes2_temp);
                 sumes2_temp = max(sumes1_temp + sw_avail_evap - evap_limit, 0.0);
                 sumes1_temp = min(sumes1_temp + sw_avail_evap, evap_limit);
-                days_stage2_temp = pow((sumes2_temp / 3.5), 2);
+                days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
                 actual_soil_evap = sw_avail_evap;
             } else {
                 sumes1_temp = sumes1_temp - actual_soil_evap + sw_avail_evap;
@@ -458,8 +467,8 @@ void soil_evaporation2::do_operation() const
         double sw_min = max(0.0, sw_avail[0] - soil_water_air_dry * soil_wilting_point[0]);
 
         // Limit actual_soil_evap to between zero and avail water in soil layer 1
-        if (actual_soil_evap > sw_min * soil_depth[0] * 10.0) {
-            actual_soil_evap = sw_min * soil_depth[0] * 10.0;
+        if (actual_soil_evap > sw_min * surface_soil_depth_in_mm) {
+            actual_soil_evap = sw_min * surface_soil_depth_in_mm;
         }
 
         actual_soil_evap = max(actual_soil_evap, 0.0);
