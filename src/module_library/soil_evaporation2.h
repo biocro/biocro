@@ -129,6 +129,7 @@ class soil_evaporation2 : public differential_module
     // double const& height;
     double const& sumes1;
     double const& sumes2;
+    double const& hours_per_day;
     double const& days_stage2;
     double const& temp;
     double const& solar;
@@ -208,6 +209,7 @@ string_vector soil_evaporation2::get_inputs()
         "par_energy_content",     // J / micromol
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
+        "hours_per_day",          // 
         "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
         "temp",                   // degrees C
         "solar",                  // micromol / m^2 / s
@@ -277,9 +279,6 @@ void soil_evaporation2::do_operation() const
     // Table 1. Ritchie (1972)
     double constexpr evap_limit = 6.0;  // mm
 
-    // soil hydraulic properties. Houston black clay
-    // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
-    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5)
     double actual_soil_evap = soil_evaporation_rate;
     double sumes1_temp = sumes1;
     double sumes2_temp = sumes2;
@@ -332,7 +331,8 @@ void soil_evaporation2::do_operation() const
         deltaU_4,
         deltaU_5,
         deltaU_6};
-    double constexpr surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
+
+    double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
     // Soil albedo modification with water content
     double wet_soil_albedo = soil_albedo(
