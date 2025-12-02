@@ -4,6 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_water_flow_functions.h"
+#include <algorithm> // for std::min
 
 namespace standardBML
 {
@@ -78,7 +79,8 @@ void soil_water_uptake::do_operation() const
     double root_depth = 0;
 
     // get total root depth
-    for (int i = 0; i < max_rooting_layer; i++) {
+    int L = std::min(static_cast<int>(max_rooting_layer), num_layers);// what if max_rooting_layer > num_layers?
+    for (int i = 0; i < max_rooting_layer; i++) { 
         root_depth += layers[i].depth;  // cm
     }
 
@@ -86,7 +88,7 @@ void soil_water_uptake::do_operation() const
     // add constraint if soil_water_content_layer < uptake
     double uptake;
     for (int i = 0; i < num_layers; i++) {
-        if (i < max_rooting_layer) {
+        if (i < max_rooting_layer) { 
             uptake = -canopy_transpiration_rate * (layers[i].depth / root_depth);  // (Mg*hr/ha)*(cm/cm) = Mg/ha/hr
         } else {
             uptake = 0;

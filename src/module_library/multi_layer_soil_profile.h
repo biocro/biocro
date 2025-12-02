@@ -106,23 +106,24 @@ void multi_layer_soil_profile::do_operation() const
     double ds;
     for (int l = 0; l < layers.size(); l++) {
      // Calculate total change in soil water content
-
+        const soil_layer& layer = layers[i]; 
         constexpr double cm_per_m = 100;
         // adding uptake because value is negative
-        ds = layers[l].deltaS + layers[l].deltaU + layers[l].deltaT + (layers[l].uptake / (cm_per_m * layers[l].depth));
+        ds = layer.deltaS + layer.deltaU + layer.deltaT + (layer.uptake / (cm_per_m * layer.depth));
         // ensure output is not negative; this is an Euler method step.     
-        if (layers[l].water_content + ds < 0) { 
-            ds = -layers[l].water_content;
+        if (layer.water_content + ds < 0) { 
+            ds = -layer.water_content;
         }
             
+        constexpr double cf = 10.0; // what is the unit conversion here, Mg / ha / mm ?
         if (l == 0) {
-            ds -= soil_evaporation_rate / (10.0 * layers[l].depth);
+            ds -= soil_evaporation_rate / (cf * layer.depth);
         }      
         // Mg/ha/hr
     // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
     // remove soil evaporation from first layer, but don't let water content go
     // negative. This is a crude, and hopefully temporary, fix. -mlm/    
-        update(layers[l].water_content_op, ds);
+        update(layer.water_content_op, ds);
     }
  
 }

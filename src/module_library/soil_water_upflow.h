@@ -4,6 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_water_flow_functions.h"
+#include <algorithm> // for std::max
 
 namespace standardBML
 {
@@ -15,6 +16,32 @@ namespace standardBML
  */
 class soil_water_upflow : public direct_module
 {
+    static const int num_layers = 6;
+    struct soil_layer {
+        const double& depth;
+        const double& saturation_capacity;
+        const double& wilting_point;
+        const double& field_capacity;
+        const double& water_content;
+        const double& deltaS;
+        double water_avail;
+
+        double* deltaS_op;        
+        double* deltaU_op;
+
+
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer) :
+        depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer))},
+        saturation_capacity{get_input(input_quantities, "soil_saturation_capacity_" + std::to_string(layer))},
+        wilting_point{get_input(input_quantities, "soil_wilting_point_" + std::to_string(layer))},
+        field_capacity{get_input(input_quantities, "soil_field_capacity_" + std::to_string(layer))},
+        water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer))},        
+        deltaS{get_input(input_quantities, "deltaS_" + std::to_string(layer))},
+        water_avail{std::max(0.0, water_content + deltaS)},
+        deltaS_op{get_op(output_quantities, "deltaS_" + std::to_string(layer))},
+        deltaU_op{get_op(output_quantities, "deltaU_" + std::to_string(layer))} {
+                }
+    };
    public:
     soil_water_upflow(
         state_map const& input_quantities,
@@ -24,69 +51,9 @@ class soil_water_upflow : public direct_module
           // Get references to input quantities
           surface_runoff{get_input(input_quantities, "surface_runoff")},
 
-          // Inputs for layer 1
-          soil_depth_1{get_input(input_quantities, "soil_depth_1")},
-          soil_saturation_capacity_1{get_input(input_quantities, "soil_saturation_capacity_1")},
-          soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
-          soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
-          soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
-          deltaS_1{get_input(input_quantities, "deltaS_1")},
-
-          // Inputs for layer 2
-          soil_depth_2{get_input(input_quantities, "soil_depth_2")},
-          soil_saturation_capacity_2{get_input(input_quantities, "soil_saturation_capacity_2")},
-          soil_wilting_point_2{get_input(input_quantities, "soil_wilting_point_2")},
-          soil_field_capacity_2{get_input(input_quantities, "soil_field_capacity_2")},
-          soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
-          deltaS_2{get_input(input_quantities, "deltaS_2")},
-
-          // Inputs for layer 3
-          soil_depth_3{get_input(input_quantities, "soil_depth_3")},
-          soil_saturation_capacity_3{get_input(input_quantities, "soil_saturation_capacity_3")},
-          soil_wilting_point_3{get_input(input_quantities, "soil_wilting_point_3")},
-          soil_field_capacity_3{get_input(input_quantities, "soil_field_capacity_3")},
-          soil_water_content_3{get_input(input_quantities, "soil_water_content_3")},
-          deltaS_3{get_input(input_quantities, "deltaS_3")},
-
-          // Inputs for layer 4
-          soil_depth_4{get_input(input_quantities, "soil_depth_4")},
-          soil_saturation_capacity_4{get_input(input_quantities, "soil_saturation_capacity_4")},
-          soil_wilting_point_4{get_input(input_quantities, "soil_wilting_point_4")},
-          soil_field_capacity_4{get_input(input_quantities, "soil_field_capacity_4")},
-          soil_water_content_4{get_input(input_quantities, "soil_water_content_4")},
-          deltaS_4{get_input(input_quantities, "deltaS_4")},
-
-          // Inputs for layer 5
-          soil_depth_5{get_input(input_quantities, "soil_depth_5")},
-          soil_saturation_capacity_5{get_input(input_quantities, "soil_saturation_capacity_5")},
-          soil_wilting_point_5{get_input(input_quantities, "soil_wilting_point_5")},
-          soil_field_capacity_5{get_input(input_quantities, "soil_field_capacity_5")},
-          soil_water_content_5{get_input(input_quantities, "soil_water_content_5")},
-          deltaS_5{get_input(input_quantities, "deltaS_5")},
-
-          // Inputs for layer 6
-          soil_depth_6{get_input(input_quantities, "soil_depth_6")},
-          soil_saturation_capacity_6{get_input(input_quantities, "soil_saturation_capacity_6")},
-          soil_wilting_point_6{get_input(input_quantities, "soil_wilting_point_6")},
-          soil_field_capacity_6{get_input(input_quantities, "soil_field_capacity_6")},
-          soil_water_content_6{get_input(input_quantities, "soil_water_content_6")},
-          deltaS_6{get_input(input_quantities, "deltaS_6")},
-
-          // Get pointers to output quantities - Change in water content of each layer
-          upflow_1_op{get_op(output_quantities, "upflow_1")},
-          upflow_2_op{get_op(output_quantities, "upflow_2")},
-          upflow_3_op{get_op(output_quantities, "upflow_3")},
-          upflow_4_op{get_op(output_quantities, "upflow_4")},
-          upflow_5_op{get_op(output_quantities, "upflow_5")},
-          upflow_6_op{get_op(output_quantities, "upflow_6")},
-
-          deltaU_1_op{get_op(output_quantities, "deltaU_1")},
-          deltaU_2_op{get_op(output_quantities, "deltaU_2")},
-          deltaU_3_op{get_op(output_quantities, "deltaU_3")},
-          deltaU_4_op{get_op(output_quantities, "deltaU_4")},
-          deltaU_5_op{get_op(output_quantities, "deltaU_5")},
-          deltaU_6_op{get_op(output_quantities, "deltaU_6")}
     {
+        for (int i = 1; i < num_layers + 1; ++i)
+            layers.emplace_back(soil_layer(input_quantities, output_quantities, i));
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
@@ -95,70 +62,7 @@ class soil_water_upflow : public direct_module
    private:
     // References to input quantities
     double const& surface_runoff;
-
-    // Inputs for layer 1
-    double const& soil_depth_1;
-    double const& soil_saturation_capacity_1;
-    double const& soil_wilting_point_1;
-    double const& soil_field_capacity_1;
-    double const& soil_water_content_1;
-    double const& deltaS_1;
-
-    // Inputs for layer 2
-    double const& soil_depth_2;
-    double const& soil_saturation_capacity_2;
-    double const& soil_wilting_point_2;
-    double const& soil_field_capacity_2;
-    double const& soil_water_content_2;
-    double const& deltaS_2;
-
-    // Inputs for layer 3
-    double const& soil_depth_3;
-    double const& soil_saturation_capacity_3;
-    double const& soil_wilting_point_3;
-    double const& soil_field_capacity_3;
-    double const& soil_water_content_3;
-    double const& deltaS_3;
-
-    // Inputs for layer 4
-    double const& soil_depth_4;
-    double const& soil_saturation_capacity_4;
-    double const& soil_wilting_point_4;
-    double const& soil_field_capacity_4;
-    double const& soil_water_content_4;
-    double const& deltaS_4;
-
-    // Inputs for layer 5
-    double const& soil_depth_5;
-    double const& soil_saturation_capacity_5;
-    double const& soil_wilting_point_5;
-    double const& soil_field_capacity_5;
-    double const& soil_water_content_5;
-    double const& deltaS_5;
-
-    // Inputs for layer 6
-    double const& soil_depth_6;
-    double const& soil_saturation_capacity_6;
-    double const& soil_wilting_point_6;
-    double const& soil_field_capacity_6;
-    double const& soil_water_content_6;
-    double const& deltaS_6;
-
-    // Pointers to output quantities
-    double* upflow_1_op;
-    double* upflow_2_op;
-    double* upflow_3_op;
-    double* upflow_4_op;
-    double* upflow_5_op;
-    double* upflow_6_op;
-
-    double* deltaU_1_op;
-    double* deltaU_2_op;
-    double* deltaU_3_op;
-    double* deltaU_4_op;
-    double* deltaU_5_op;
-    double* deltaU_6_op;
-
+    std::vector<soil_layer> layers;
     // Main operation
     void do_operation() const;
 };
@@ -231,68 +135,20 @@ string_vector soil_water_upflow::get_outputs()
 
 void soil_water_upflow::do_operation() const
 {
-    int nlayers = 6;
-
-    double soil_depth[] = {
-        soil_depth_1,
-        soil_depth_2,
-        soil_depth_3,
-        soil_depth_4,
-        soil_depth_5,
-        soil_depth_6};
-
-    double soil_saturation_capacity[] = {
-        soil_saturation_capacity_1,
-        soil_saturation_capacity_2,
-        soil_saturation_capacity_3,
-        soil_saturation_capacity_4,
-        soil_saturation_capacity_5,
-        soil_saturation_capacity_6};
-
-    double soil_wilting_point[] = {
-        soil_wilting_point_1,
-        soil_wilting_point_2,
-        soil_wilting_point_3,
-        soil_wilting_point_4,
-        soil_wilting_point_5,
-        soil_wilting_point_6};
-
-    double soil_field_capacity[] = {
-        soil_field_capacity_1,
-        soil_field_capacity_2,
-        soil_field_capacity_3,
-        soil_field_capacity_4,
-        soil_field_capacity_5,
-        soil_field_capacity_6};
-
-    double soil_water_content[] = {
-        soil_water_content_1,
-        soil_water_content_2,
-        soil_water_content_3,
-        soil_water_content_4,
-        soil_water_content_5,
-        soil_water_content_6};
-
-    double swdelts[] = {
-        deltaS_1,
-        deltaS_2,
-        deltaS_3,
-        deltaS_4,
-        deltaS_5,
-        deltaS_6};
+   
 
     upwardFlo_str upFlow;
     // if flood <= 0??? // Current depth of flooding (mm)
     // if (surface_runoff <= 0) {
-    double sw_avail[nlayers];
-    for (int l = 0; l < nlayers; l++) {
-        sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);
+    double sw_avail;
+    for (int l = 0; l < num_layers; ++l) {
+        sw_avail = std::max(0.0, layers[l].water_content + swdelts[l]);
     }
     // Calculate upward movement of water due to evaporation and root
     // extraction for each soil layer.
 
     upFlow = up_flow(
-        nlayers,
+        num_layers,
         sw_avail,
         soil_depth,
         soil_saturation_capacity,

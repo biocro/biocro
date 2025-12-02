@@ -4,7 +4,7 @@
 #include <cmath>  // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-
+#include <algorithm> // for std::min
 namespace standardBML
 {
 /**
@@ -113,32 +113,29 @@ string_vector multilayer_soil_profile_avg::get_outputs()
 
 void multilayer_soil_profile_avg::do_operation() const
 {
+    // throw exception ? 
+    
     if (max_rooting_layer > num_layers) {
         throw std::out_of_range("`max_rooting_layer` exceeds the number of layers in the module `multilayer_soil_profile_avg`. Expected `max_rooting_layer` < " + std::to_string(num_layers));
     }
 
-    // total soil depth - first four layers for Miscanthus roots (30-45cm)
-    // double total_soil_depth = 0.0;
-    // int total_number_of_layers = 0;
-    // double max_depth = 45.0;
-    // while (total_soil_depth <= max_depth) {
-    // total_soil_depth += soil_depth_arr[total_number_of_layers];
-    // total_number_of_layers += 1;
-    // }
     double tot_soil_depth = 0.0;
     double tot_soil_water_content = 0.0;
     double tot_soil_saturated_conductivity = 0.0;
     double tot_soil_saturation_capacity = 0.0;
     double tot_soil_field_capacity = 0.0;
     double tot_soil_wilting_point = 0.0;
-
-    for (int l = 0; l < max_rooting_layer; l++) {
-        tot_soil_depth += layers[l].depth;
-        tot_soil_water_content += layers[l].water_content * layers[l].depth;
-        tot_soil_saturated_conductivity += layers[l].saturated_conductivity * layers[l].depth;
-        tot_soil_saturation_capacity += layers[l].saturation_capacity * layers[l].depth;
-        tot_soil_field_capacity += layers[l].field_capacity * layers[l].depth;
-        tot_soil_wilting_point += layers[l].wilting_point * layers[l].depth;
+    
+    int max_layer = static_cast <int>(max_rooting_layer);
+    int L = std::min(max_layer, num_layers);
+    for (int l = 0; l < L; l++) {
+        soil_layer& layer = layers[l];
+        tot_soil_depth += layer.depth;
+        tot_soil_water_content += layer.water_content * layer.depth;
+        tot_soil_saturated_conductivity += layer.saturated_conductivity * layer.depth;
+        tot_soil_saturation_capacity += layer.saturation_capacity * layer.depth;
+        tot_soil_field_capacity += layer.field_capacity * layer.depth;
+        tot_soil_wilting_point += layer.wilting_point * layer.depth;
     }
     // Voulmetric average soil parametric values
     double soil_water_content = tot_soil_water_content / tot_soil_depth;
