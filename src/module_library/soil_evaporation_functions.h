@@ -215,7 +215,7 @@ double potential_soil_evaporation(
 struct evap_str {
     double sumes1;
     double sumes2;
-    double time_factor;
+    double days_stage2;
     double actual_soil_evap;
 };
 
@@ -224,7 +224,7 @@ evap_str supplemetal_evap_computation(
     double sumes1_temp,
     double sumes2_temp,
     double evap_limit,
-    double time_factor_temp)
+    double days_stage2_temp)
 {
     evap_str return_value;
     double actual_soil_evap = 0.0;
@@ -232,14 +232,14 @@ evap_str supplemetal_evap_computation(
     if (sumes1_temp > evap_limit) {
         actual_soil_evap = potential_soil_evap - 0.4 * (sumes1_temp - evap_limit);
         sumes2_temp = 0.6 * (sumes1_temp - evap_limit);
-        time_factor_temp = pow((sumes2_temp / 3.5), 2);
+        days_stage2_temp = pow((sumes2_temp / 3.5), 2);
         sumes1_temp = evap_limit;
     } else
         actual_soil_evap = potential_soil_evap;
 
     return_value.sumes1 = sumes1_temp;
     return_value.sumes2 = sumes2_temp;
-    return_value.time_factor = time_factor_temp;
+    return_value.days_stage2 = days_stage2_temp;
     return_value.actual_soil_evap = actual_soil_evap;
     return return_value;
 }
