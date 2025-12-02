@@ -8,6 +8,18 @@
 
 namespace standardBML
 {
+/**
+ *  @class soil_evaporation2
+ *
+ *  @brief This module is based on the SOILEV subroutine from DSSAT, which calculates a daily soil evaporation rate. Here, we have made several changes to allow hourly calculation to match BioCro; Only compatible with a fixed-step Euler solver. 
+ *
+ *  ### Model overview
+ *
+ *  ### Source
+ *
+ *  - Ritchie, J. T. (1972), Model for predicting evaporation from a row crop with incomplete cover, Water Resour. Res., 8(5), 1204–1213, doi:10.1029/WR008i005p01204.
+ *  - DSSAT Fortran source code: https://github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
+ */
 class soil_evaporation2 : public differential_module
 {
    public:
@@ -185,18 +197,18 @@ string_vector soil_evaporation2::get_inputs()
     return {
         "skc",  // Basal crop coefficient
         "kcbmax",
-        "doy",               // day of the year
-        "lat",               // latitude of the location
-        "elevation",         // altitude in meters
-        "lai",               // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo",  // Bare soil albedo (fraction) - dimensionless
-        "k_diffuse",         // light extinction coefficient
-        "windspeed",         // m/s
-        "rh",                // fraction. dimensionless
-        "par_energy_content",     // J / micromol 
+        "doy",                    // day of the year
+        "lat",                    // latitude of the location
+        "elevation",              // altitude in meters
+        "lai",                    // Healthy leaf area index (m2[leaf] / m2[ground])
+        "bare_soil_albedo",       // Bare soil albedo (fraction) - dimensionless
+        "k_diffuse",              // light extinction coefficient
+        "windspeed",              // m/s
+        "rh",                     // fraction. dimensionless
+        "par_energy_content",     // J / micromol
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed) 
+        "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
         "temp",                   // degrees C
         "solar",                  // micromol / m^2 / s
         "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
@@ -249,7 +261,7 @@ string_vector soil_evaporation2::get_outputs()
     return {
         "sumes1",       // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",       // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",  //time factor for hourly temperature calculations
+        "days_stage2",  // time factor for hourly temperature calculations
         "soil_evaporation_rate"};
 }
 
@@ -259,15 +271,15 @@ void soil_evaporation2::do_operation() const
     using std::min;
 
     int constexpr nlayers = 6;
-    double constexpr canopyHeight = 1.0; // m
+    double constexpr canopyHeight = 1.0;  // m
 
-    // Upper Limit of Stage 1 Cumulative Evaporation. Houston black clay. 
+    // Upper Limit of Stage 1 Cumulative Evaporation. Houston black clay.
     // Table 1. Ritchie (1972)
-    double constexpr evap_limit = 6.0; // mm 
-                               
+    double constexpr evap_limit = 6.0;  // mm
+
     // soil hydraulic properties. Houston black clay
     // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
-    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5) 
+    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5)
     double actual_soil_evap = soil_evaporation_rate;
     double sumes1_temp = sumes1;
     double sumes2_temp = sumes2;
@@ -320,7 +332,7 @@ void soil_evaporation2::do_operation() const
         deltaU_4,
         deltaU_5,
         deltaU_6};
-    double constexpr surface_soil_depth_in_mm = soil_depth[0] * 10.0; // mm  
+    double constexpr surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
     // Soil albedo modification with water content
     double wet_soil_albedo = soil_albedo(
@@ -342,7 +354,7 @@ void soil_evaporation2::do_operation() const
         doy,
         solar,
         temp,
-        lat,  //latitude
+        lat,  // latitude
         elevation,
         windspeed,
         rh,
@@ -365,7 +377,7 @@ void soil_evaporation2::do_operation() const
             sw_avail[l] = max(0.0, soil_water_content[l] + swdeltS[l] + swdeltU[l]);
         }
         // Set air dry water content for top soil layer
-        // Here the 30 seems to still be in cm. 
+        // Here the 30 seems to still be in cm.
         // See Fortran source here: https://github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
         double soil_water_air_dry = 0.9 - 0.00038 * pow((soil_depth[0] - 30.0), 2);
         // Adjust soil evaporation, and the sum of stage 1 (SUMES1) and stage 2
@@ -392,7 +404,7 @@ void soil_evaporation2::do_operation() const
             actual_soil_evap = evap_comp.actual_soil_evap;
         } else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
             // Stage 2 Evaporation
-            days_stage2_temp = days_stage2 + 1.0/hours_per_day;
+            days_stage2_temp = days_stage2 + 1.0 / hours_per_day;
             actual_soil_evap = soil_evaporation_alpha * pow(days_stage2_temp, 0.5) - sumes2;
             if (infiltrated_water > 0.0) {
                 double esx = 0.8 * infiltrated_water;  // Interim value of evaporation rate for Stage 2 evaporation
