@@ -116,7 +116,8 @@ for additional details and for instructions on running these steps inside an R s
   ```
   R CMD INSTALL biocro --preclean
   ```
-5. Run local unit tests (required). All tests must pass. 
+5. Run local unit tests (required). Navigate to the `tests` directory in BioCro's source code,
+   then run the `testthat.R` script. 
   ```
   cd biocro/tests
   Rscript --vanilla testthat.R
