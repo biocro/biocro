@@ -98,31 +98,40 @@ install.packages('BioCro')
 ### Making contributions
 
 Please see the contribution guidelines before submitting changes.
-These may be found in Chapter One of the _Developer's Manual_ on the
+These may be found in [Chapter One](https://biocro.org/BioCro-documentation/latest/bookdown/contributing-to-biocro.html) of the _Developer's Manual_ on the
 [public BioCro Documentation web site](https://biocro.org).
 
 #### Pull Request Checklist
 
-Pull requests should merge to the branch `develop` and not `main`.
-Steps to complete before submitting a pull request:
+Command line instructions are provided as quick-reference. See the developer's manual
+for additional details and for instructions on running these steps inside an R session.
 
-1. Add unit tests (e.g., module tests) for new.
-2. Install the code (check that BioCro compiles).
-3. Run local unit tests. If tests fail, fix bugs.
+ These instructions assume that the source files are in a directory named `biocro` residing
+   in a parent directory `dir`. Open a terminal to `dir`. 
+
+1. Add unit tests (e.g., module tests) for new modules. BioCro compiles without tests, but
+   `R CMD check` will fail without.
+3. Install BioCro (check that BioCro compiles). The optional flag `--preclean` forces recompilation
+   of all C++ code.
+  ```
+  R CMD INSTALL biocro --preclean
+  ```
+5. Run local unit tests (required). All tests must pass. 
   ```
   cd biocro/tests
-  rscript --vanilla testthat.r
+  Rscript --vanilla testthat.R
   cd ../..
   ```
-4. Run `R CMD build` and then `R CMD check` on the tarball:
+4. Run `R CMD build` to build the BioCro tarball and then `R CMD check` on the tarball (optional):
   ```
   R CMD build --compact-vignettes=both biocro
   R CMD check --as-cran BioCro_X.Y.Z.tar.gz
   ```
-  `X.Y.Z` will the version number. Flags `--compact-vignettes=both` and `--as-cran`
-  are recommended but not required. This check is also performed online via
-  Github actions, but usually faster to run locally.
-5. Submit pull request.
+  where `X.Y.Z` is the version number. Flags `--compact-vignettes=both` and `--as-cran`
+  are recommended (but optional). If skipped, this check is also performed after a PR is submitted via
+  Github actions, but faster to run locally.
+5. Submit pull request. Pull requests should merge to the branch `develop` 
+   and not `main`, except for hotfixes or patches of `main`. 
 
 ### Software Documentation
 
