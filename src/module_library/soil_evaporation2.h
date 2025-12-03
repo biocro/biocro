@@ -11,14 +11,20 @@ namespace standardBML
 /**
  *  @class soil_evaporation2
  *
- *  @brief This module is based on the SOILEV subroutine from DSSAT, which calculates a daily soil evaporation rate. Here, we have made several changes to allow hourly calculation to match BioCro; Only compatible with a fixed-step Euler solver. 
+ *  @brief This module is based on the SOILEV subroutine from DSSAT, 
+ *  which calculates a daily soil evaporation rate. Here, we have made several
+ *  changes to allow hourly calculation to match BioCro.
+ *  Only compatible with a fixed-step Euler solver. 
  *
  *  ### Model overview
  *
  *  ### Source
  *
- *  - Ritchie, J. T. (1972), Model for predicting evaporation from a row crop with incomplete cover, Water Resour. Res., 8(5), 1204–1213, doi:10.1029/WR008i005p01204.
- *  - DSSAT Fortran source code: https://github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
+ *  - Ritchie, J. T. (1972), Model for predicting evaporation from a row crop
+ *  with incomplete cover, Water Resour. Res., 8(5), 1204–1213, 
+ *  doi:10.1029/WR008i005p01204.
+ *  - DSSAT Fortran source code: 
+ *  github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
  */
 class soil_evaporation2 : public differential_module
 {
@@ -26,7 +32,7 @@ class soil_evaporation2 : public differential_module
     soil_evaporation2(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(),
+        : differential_module(true),
 
           // Get references to input quantities
           skc{get_input(input_quantities, "skc")},
@@ -263,7 +269,7 @@ string_vector soil_evaporation2::get_outputs()
     return {
         "sumes1",       // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",       // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",  // time factor for hourly temperature calculations
+        "days_stage2",  // Days elapsed in Stage-2 evaporation (decimal allowed) 
         "soil_evaporation_rate"};
 }
 
