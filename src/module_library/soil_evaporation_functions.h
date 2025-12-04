@@ -9,10 +9,6 @@
  * for multilayer soil profile.
  */
 
-// soil hydraulic properties. Houston black clay
-// See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
-double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5)
-
 double soil_albedo(
     double temp,
     double lai,
@@ -228,6 +224,7 @@ evap_str supplemetal_evap_computation(
     double sumes1_temp,
     double sumes2_temp,
     double evap_limit,
+    double soil_evaporation_alpha,
     double days_stage2_temp)
 {
     evap_str return_value;

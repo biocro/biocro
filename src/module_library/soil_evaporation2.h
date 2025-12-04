@@ -280,6 +280,9 @@ void soil_evaporation2::do_operation() const
 
     int constexpr nlayers = 6;
     double constexpr canopyHeight = 1.0;  // m
+    // soil hydraulic properties. Houston black clay
+    // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
+    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5)
 
     // Upper Limit of Stage 1 Cumulative Evaporation. Houston black clay.
     // Table 1. Ritchie (1972)
@@ -403,6 +406,7 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
+                soil_evaporation_alpha,
                 days_stage2_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
@@ -431,6 +435,7 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
+                soil_evaporation_alpha,
                 days_stage2_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
@@ -445,6 +450,7 @@ void soil_evaporation2::do_operation() const
                 sumes1_temp,
                 sumes2_temp,
                 evap_limit,
+                soil_evaporation_alpha,
                 days_stage2_temp);
             sumes1_temp = evap_comp.sumes1;
             sumes2_temp = evap_comp.sumes2;
