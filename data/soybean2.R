@@ -64,7 +64,7 @@ soybean2 <- list(
         StemLitter                  = 0,
         sumes1                      = 0.125,
         sumes2                      = 0,
-        time_factor                 = 0,
+        days_stage2                 = 0,
         TTc                         = 0
     ),
     parameters = list(

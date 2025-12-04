@@ -135,8 +135,8 @@ class soil_evaporation2 : public differential_module
     // double const& height;
     double const& sumes1;
     double const& sumes2;
-    double const& hours_per_day;
     double const& days_stage2;
+    double const& hours_per_day;
     double const& temp;
     double const& solar;
     double const& soil_evaporation_rate;
@@ -215,8 +215,8 @@ string_vector soil_evaporation2::get_inputs()
         "par_energy_content",     // J / micromol
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
-        "hours_per_day",          // 
         "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "hours_per_day",          // 
         "temp",                   // degrees C
         "solar",                  // micromol / m^2 / s
         "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
