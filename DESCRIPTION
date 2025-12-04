@@ -45,7 +45,7 @@ Suggests:
     lattice,
     deSolve
 VignetteBuilder: knitr
-SystemRequirements: C++11, GNU make
+SystemRequirements: C++17, GNU make
 License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
