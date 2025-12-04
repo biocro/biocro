@@ -34,7 +34,7 @@ Authors@R: c(
     person("Boost Organization", role = "cph",
            comment = "Copyright holder of included Boost library")
     )
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.1.0)
 Imports:
     stats
 Suggests:

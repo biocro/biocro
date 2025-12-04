@@ -52,15 +52,15 @@ on:
         description: 'Platform to check'
         type: choice
         options:
-          - R 4.0.0 on Ubuntu
+          - R 4.1.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
           - R 4.2.0 on macOS
           - R release version on macOS
-          - R 4.0.0 on Windows
+          - R 4.1.0 on Windows
           - R release version on Windows
           - R devel version on Windows
-        default: R 4.0.0 on Ubuntu
+        default: R 4.1.0 on Ubuntu
 
 jobs:
 
