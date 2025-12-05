@@ -1,15 +1,14 @@
 #ifndef SOIL_EVAPORATION_FUNCTIONS_H
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
-#include <algorithm>  // for std::min, std::max
-#include <stdexcept>  // for std::range_error
+#include <algorithm>                 // for std::min, std::max
+#include "../framework/constants.h"  // for pi
+#include <stdexcept>                 // for std::range_error
 
 /**
  * @brief functions to be used in soil evaporation computation
  * for multilayer soil profile.
  */
-
-const double par_energy_content = 0.219;
 
 /**
  *  @brief Calculates the surface albedo, which is the ratio of reflected to
@@ -148,7 +147,8 @@ double potential_evapotranspiration(
     double solar,
     double temp,
     double lai,
-    double wet_soil_albedo)
+    double wet_soil_albedo,
+    double par_energy_content)
 {
     using std::max;
 
@@ -178,8 +178,10 @@ double reference_evapotranspiration(
     double elevation,
     double windspeed,
     double rh,
-    double wet_soil_albedo)
+    double wet_soil_albedo,
+    double par_energy_content)
 {
+    using math_constants::pi;
     using std::max;
 
     // PET.for, line 228
@@ -212,13 +214,12 @@ double reference_evapotranspiration(
     double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
 
     // Extraterrestrial radiation, ASCE (2005) Eqs. 21,23,24,27
-    double pie = 3.14159265359;
-    double dr = 1.0 + 0.033 * cos(2.0 * pie / 365.0 * doy);         // Eq. 23
-    double ldelta = 0.409 * sin(2.0 * pie / 365.0 * doy - 1.39);    // Eq. 24
-    double ws = acos(-1.0 * tan(lat * pie / 180.0) * tan(ldelta));  // Eq. 27
-    double ra1 = ws * sin(lat * pie / 180.0) * sin(ldelta);         // Eq. 21
-    double ra2 = cos(lat * pie / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
-    double ra = 24.0 / pie * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
+    double dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);         // Eq. 23
+    double ldelta = 0.409 * sin(2.0 * pi / 365.0 * doy - 1.39);    // Eq. 24
+    double ws = acos(-1.0 * tan(lat * pi / 180.0) * tan(ldelta));  // Eq. 27
+    double ra1 = ws * sin(lat * pi / 180.0) * sin(ldelta);         // Eq. 21
+    double ra2 = cos(lat * pi / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
+    double ra = 24.0 / pi * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
 
     // Clear sky solar radiation, ASCE (2005) Eq. 19
     double rso = (0.75 + 2E-5 * elevation) * ra;  // MJ/m2/hr
@@ -317,7 +318,7 @@ double potential_soil_evaporation(
 struct evap_str {
     double sumes1;
     double sumes2;
-    double time_factor;
+    double days_stage2;
     double actual_soil_evap;
 };
 
@@ -326,7 +327,8 @@ evap_str supplemetal_evap_computation(
     double sumes1_temp,
     double sumes2_temp,
     double evap_limit,
-    double time_factor_temp)
+    double soil_evaporation_alpha,
+    double days_stage2_temp)
 {
     evap_str return_value;
     double actual_soil_evap = 0.0;
@@ -334,14 +336,14 @@ evap_str supplemetal_evap_computation(
     if (sumes1_temp > evap_limit) {
         actual_soil_evap = potential_soil_evap - 0.4 * (sumes1_temp - evap_limit);
         sumes2_temp = 0.6 * (sumes1_temp - evap_limit);
-        time_factor_temp = pow((sumes2_temp / 3.5), 2);
+        days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
         sumes1_temp = evap_limit;
     } else
         actual_soil_evap = potential_soil_evap;
 
     return_value.sumes1 = sumes1_temp;
     return_value.sumes2 = sumes2_temp;
-    return_value.time_factor = time_factor_temp;
+    return_value.days_stage2 = days_stage2_temp;
     return_value.actual_soil_evap = actual_soil_evap;
     return return_value;
 }
