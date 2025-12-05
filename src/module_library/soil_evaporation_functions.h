@@ -1,43 +1,146 @@
 #ifndef SOIL_EVAPORATION_FUNCTIONS_H
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
-#include <algorithm>  // for std::min, std::max
-#include "../framework/constants.h"      // for pi
+#include <algorithm>                 // for std::min, std::max
+#include "../framework/constants.h"  // for pi
+#include <stdexcept>                 // for std::range_error
 
 /**
  * @brief functions to be used in soil evaporation computation
  * for multilayer soil profile.
  */
 
-double soil_albedo(
-    double temp,
-    double lai,
-    double bare_soil_albedo,
-    double soil_water_content[],
-    double soil_field_capacity[])
+/**
+ *  @brief Calculates the surface albedo, which is the ratio of reflected to
+ *  incoming radiation.
+ *
+ *  This function implements some empirical relationships to estimate surface
+ *  albedo from volumetric water content at the soil surface and crop cover.
+ *
+ *  The estimate for bare soil albedo is based on measurements reported in Idso
+ *  et al. (1975). For Avondale loam with volumetric soil water content in the
+ *  range from 0.0 to roughly 0.18, the albedo was found to depend linearly on
+ *  water content in the top 20 cm of soil, with wetter soil having a smaller
+ *  albedo. Completely dry soil reached an albedo of roughly 0.30, and as the
+ *  soil water content approached the field capacity, the albedo approached a
+ *  minimum value of approximately 0.14.
+ *
+ *  Here these observations are generalized to accomodate different soil types.
+ *  When the soil water content in the upper layer (`theta_surface`) is at or
+ *  below a minimum threshold water content (`theta_min`), the bare soil albedo
+ *  is set to its maximum value (`bare_soil_albedo_max`), which may vary with
+ *  soil type. At the field capacity (`theta_fc_surface`), which also varies
+ *  with soil type, the bare soil albedo is set to a particular fraction of its
+ *  maximum value (`albedo_frac * bare_soil_albedo_max`). These two points
+ *  define a linear relationship that applies for soil water content above
+ *  `theta_min` and below a maximum threshold (`theta_max`). For soil water
+ *  content above `theta_max`, the albedo is set to the value it takes at
+ *  `theta_max`.
+ *
+ *  The presence of a crop canopy above the soil alters the surface albedo from
+ *  its bare soil value. A simple way to model this is to assume that a light
+ *  ray is either intercepted by the canopy or passes through it, thereby
+ *  reaching the soil surface. For light intercepted by the canopy, the fraction
+ *  of reflected light is determined by the canopy albedo; for light reaching
+ *  the soil, the fraction of reflected light is determined by the soil albedo.
+ *  In other words, `soil_albedo = bare_soil_albedo * canopy_transmittance +
+ *  canopy_albedo * (1 - canopy_transmittance)`, where `canopy_transmittance` is
+ *  the fraction of incident light transmitted through the canopy. Note that
+ *  this simple approach neglects "multiple scattering," which refers to the
+ *  possibility that a light ray may be transmitted through the canopy and
+ *  subsequently reflected by the soil, possibly scattering back and forth many
+ *  times.
+ *
+ *  Here, a simple estimate for the canopy transmittance is made based on the
+ *  total canopy leaf area index (`LAI`) and an exponential decay parameter
+ *  (`k_canopy`), where `canopy_transmittance = exp(-k_canopy * LAI)`.
+ *
+ *  A typical value of canopy albedo for crops is 0.23; see the text following
+ *  Equation 2 of Ritchie (1972).
+ *
+ *  Note: This function was originally based on the `ALBEDO` subroutine of
+ *  `SOILDYN.for` from DSSAT (https://github.com/DSSAT/dssat-csm-os).
+ *
+ *  References:
+ *
+ *  - [Idso, S. B., Jackson, R. D., Reginato, R. J., Kimball, B. A. & Nakayama, F. S. "The Dependence of
+ *    Bare Soil Albedo on Soil Water Content" Journal of Applied Meteorology and Climatology 14, 109–113 (1975)]
+ *    (https://doi.org/10.1175/1520-0450(1975)014<0109:TDOBSA>2.0.CO;2)
+ *
+ *  - [Ritchie, J. T. "Model for predicting evaporation from a row crop with incomplete cover."
+ *    Water Resources Research 8, 1204–1213 (1972)]
+ *    (https://doi.org/10.1029/WR008i005p01204)
+ *
+ *  @param [in] LAI Total canopy leaf area index; dimensionless from
+ *              (m^2 leaf) / (m^2 ground)
+ *
+ *  @param [in] bare_soil_albedo_max The maximum bare soil albedo, which occurs
+ *              for completely dry soil; dimensionless from W / W
+ *
+ *  @param [in] theta_surface Volumetric soil water content in the upper soil
+ *              layer; dimensionless from (m^3 water) / (m^3 soil)
+ *
+ *  @param [in] theta_fc_surface The field capacity of the upper soil level,
+ *              expressed as a volumetric water content; dimensionless from
+ *              (m^3 water) / (m^3 soil)
+ *
+ *  @return Surface albedo accounting for bare soil and canopy; dimensionless
+ *          from W / W
+ *
+ */
+double surface_albedo(
+    double const LAI,                   // dimensionless
+    double const bare_soil_albedo_max,  // dimensionless
+    double const theta_surface,         // dimensionless from m^3 / m^3
+    double const theta_fc_surface       // dimensionless from m^3 / m^3
+)
 {
-    using std::max;
-    using std::min;
+    // Check for bad inputs
+    if (LAI < 0) {
+        throw std::range_error("Thrown in surface_albedo: LAI is negative.");
+    }
 
-    // SOILDYN.for, line 1574-156
-    // line 1488 - SUBROUTINE ALBEDO(KTRANS, MEINF, MULCH, SOILPROP, SW1, XHLAI)
-    // line 1510 - Calculate albedo changes with soil water content
-    double ff = (soil_water_content[0] - 0.03) /
-                (soil_field_capacity[0] - 0.03);
-    ff = max(0.0, min(2.0, ff));
-    double wet_soil_albedo = bare_soil_albedo * (1.0 - 0.45 * ff);
+    if (bare_soil_albedo_max < 0) {
+        throw std::range_error("Thrown in surface_albedo: bare_soil_albedo_max is negative.");
+    }
 
-    // Compute albedo with canopy cover (SOILDYN.for, line 1613)
-    // kd = Light extinction coefficient used for computation of plant
-    //         transpiration
-    // kd = 1.0;
-    // double canopy_cover = 1.0 - exp(-kd * lai);
-    // double canopy_albedo = canopy_cover * 0.23 +
-    //               (1.0 - canopy_cover) * wet_soil_albedo;
-    // Potential evapotranspiration (PET.for, line 891)
-    double soil_albedo = (lai <= 0.0) ? wet_soil_albedo : 0.23 - (0.23 - wet_soil_albedo) * exp(-0.75 * lai);
-    // Rprintf("soil_albedo is: %f \n", soil_albedo);
-    return soil_albedo;
+    if (theta_surface < 0) {
+        throw std::range_error("Thrown in surface_albedo: theta_surface is negative.");
+    }
+
+    if (theta_fc_surface < 0) {
+        throw std::range_error("Thrown in surface_albedo: theta_fc_surface is negative.");
+    }
+
+    // Set constants
+    double constexpr theta_min = 0.03;      // dimensionless
+    double constexpr albedo_frac = 0.55;    // dimensionless
+    double constexpr k_canopy = 0.75;       // dimensionless
+    double constexpr canopy_albedo = 0.23;  // dimensionless
+
+    // Upper threshold for water content (dimensionless)
+    double const theta_max = theta_min + 2.0 * (theta_fc_surface - theta_min);
+
+    // Slope of albedo vs. water content in linear range (dimensionless)
+    double const slope =
+        bare_soil_albedo_max * (albedo_frac - 1.0) / (theta_fc_surface - theta_min);
+
+    // Minimum soil albedo (dimensionless)
+    double const bare_soil_albedo_min =
+        bare_soil_albedo_max + slope * (theta_max - theta_min);
+
+    // Bare soil albedo, accounting for water content (dimensionless)
+    double const bare_soil_albedo =
+        theta_surface < theta_min   ? bare_soil_albedo_max
+        : theta_surface < theta_max ? bare_soil_albedo_max + slope * (theta_surface - theta_min)
+                                    : bare_soil_albedo_min;
+
+    // Fraction of light transmitted through canopy (dimensionless)
+    double const canopy_transmittance = exp(-k_canopy * LAI);
+
+    // Effective surface albedo including bare soil and canopy (dimensionless)
+    return bare_soil_albedo * canopy_transmittance +
+           canopy_albedo * (1 - canopy_transmittance);
 }
 
 double potential_evapotranspiration(
@@ -78,8 +181,8 @@ double reference_evapotranspiration(
     double wet_soil_albedo,
     double par_energy_content)
 {
-    using std::max;
     using math_constants::pi;
+    using std::max;
 
     // PET.for, line 228
     double tavg = temp;                                      // Mean daily temperature (°C)

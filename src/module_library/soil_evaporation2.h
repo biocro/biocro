@@ -11,19 +11,19 @@ namespace standardBML
 /**
  *  @class soil_evaporation2
  *
- *  @brief This module is based on the SOILEV subroutine from DSSAT, 
+ *  @brief This module is based on the SOILEV subroutine from DSSAT,
  *  which calculates a daily soil evaporation rate. Here, we have made several
  *  changes to allow hourly calculation to match BioCro.
- *  Only compatible with a fixed-step Euler solver. 
+ *  Only compatible with a fixed-step Euler solver.
  *
  *  ### Model overview
  *
  *  ### Source
  *
  *  - Ritchie, J. T. (1972), Model for predicting evaporation from a row crop
- *  with incomplete cover, Water Resour. Res., 8(5), 1204–1213, 
+ *  with incomplete cover, Water Resour. Res., 8(5), 1204–1213,
  *  doi:10.1029/WR008i005p01204.
- *  - DSSAT Fortran source code: 
+ *  - DSSAT Fortran source code:
  *  github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
  */
 class soil_evaporation2 : public differential_module
@@ -41,7 +41,7 @@ class soil_evaporation2 : public differential_module
           lat{get_input(input_quantities, "lat")},
           elevation{get_input(input_quantities, "elevation")},
           lai{get_input(input_quantities, "lai")},
-          bare_soil_albedo{get_input(input_quantities, "bare_soil_albedo")},
+          bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
@@ -127,7 +127,7 @@ class soil_evaporation2 : public differential_module
     double const& lat;
     double const& elevation;
     double const& lai;
-    double const& bare_soil_albedo;
+    double const& bare_soil_albedo_max;
     double const& k_diffuse;
     double const& windspeed;
     double const& rh;
@@ -208,7 +208,7 @@ string_vector soil_evaporation2::get_inputs()
         "lat",                    // latitude of the location
         "elevation",              // altitude in meters
         "lai",                    // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo",       // Bare soil albedo (fraction) - dimensionless
+        "bare_soil_albedo_max",   // Bare soil albedo (fraction) - dimensionless
         "k_diffuse",              // light extinction coefficient
         "windspeed",              // m/s
         "rh",                     // fraction. dimensionless
@@ -216,7 +216,7 @@ string_vector soil_evaporation2::get_inputs()
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
         "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
-        "hours_per_day",          // 
+        "hours_per_day",          //
         "temp",                   // degrees C
         "solar",                  // micromol / m^2 / s
         "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
@@ -269,7 +269,7 @@ string_vector soil_evaporation2::get_outputs()
     return {
         "sumes1",       // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",       // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",  // Days elapsed in Stage-2 evaporation (decimal allowed) 
+        "days_stage2",  // Days elapsed in Stage-2 evaporation (decimal allowed)
         "soil_evaporation_rate"};
 }
 
@@ -344,12 +344,11 @@ void soil_evaporation2::do_operation() const
     double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
     // Soil albedo modification with water content
-    double wet_soil_albedo = soil_albedo(
-        temp,
+    double wet_soil_albedo = surface_albedo(
         lai,
-        bare_soil_albedo,
-        soil_water_content,
-        soil_field_capacity);
+        bare_soil_albedo_max,
+        soil_water_content[0],
+        soil_field_capacity[0]);
     // Potential soil evaporation (PET.for - PSE function at line 1442)
     double potential_et = potential_evapotranspiration(
         solar,
