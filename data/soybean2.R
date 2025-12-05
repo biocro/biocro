@@ -84,7 +84,7 @@ soybean2 <- list(
         atmospheric_transmittance   = 0.6,
         b0                          = 0.008,
         b1                          = 10.6,
-        bare_soil_albedo            = 0.15,
+        bare_soil_albedo_max        = 0.15,
         beta_PSII                   = 0.5,
         betaLeaf                    = -18.1101308143176,
         betaRhizome                 = -Inf,

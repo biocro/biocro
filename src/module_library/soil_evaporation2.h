@@ -23,7 +23,7 @@ class soil_evaporation2 : public differential_module
           lat{get_input(input_quantities, "lat")},
           elevation{get_input(input_quantities, "elevation")},
           lai{get_input(input_quantities, "lai")},
-          bare_soil_albedo{get_input(input_quantities, "bare_soil_albedo")},
+          bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
           kd{get_input(input_quantities, "kd")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
@@ -107,7 +107,7 @@ class soil_evaporation2 : public differential_module
     double const& lat;
     double const& elevation;
     double const& lai;
-    double const& bare_soil_albedo;
+    double const& bare_soil_albedo_max;
     double const& kd;
     double const& windspeed;
     double const& rh;
@@ -182,14 +182,14 @@ string_vector soil_evaporation2::get_inputs()
     return {
         "skc",  // Basal crop coefficient
         "kcbmax",
-        "doy",               // day of the year
-        "lat",               // latitude of the location
-        "elevation",         // altitude in meters
-        "lai",               // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo",  // Bare soil albedo (fraction) - dimensionless
-        "kd",                // light extinction coefficient
-        "windspeed",         // m/s
-        "rh",                // fraction. dimensionless
+        "doy",                   // day of the year
+        "lat",                   // latitude of the location
+        "elevation",             // altitude in meters
+        "lai",                   // Healthy leaf area index (m2[leaf] / m2[ground])
+        "bare_soil_albedo_max",  // dimensionless; maximum bare soil albedo
+        "kd",                    // light extinction coefficient
+        "windspeed",             // m/s
+        "rh",                    // fraction. dimensionless
         // "height",               // Canopy height (m)
         "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
@@ -313,12 +313,11 @@ void soil_evaporation2::do_operation() const
         deltaU_6};
     // SOILDYN.for, line 1488-1566
     // Soil albedo modification with water content
-    double wet_soil_albedo = soil_albedo(
-        temp,
+    double wet_soil_albedo = surface_albedo(
         lai,
-        bare_soil_albedo,
-        soil_water_content,
-        soil_field_capacity);
+        bare_soil_albedo_max,
+        soil_water_content[0],
+        soil_field_capacity[0]);
     // Potential soil evaporation (PET.for - PSE function at line 1442)
     double potential_et = potential_evapotranspiration(
         solar,
