@@ -56,6 +56,9 @@ const double par_energy_content = 0.219;
  *  total canopy leaf area index (`LAI`) and an exponential decay parameter
  *  (`k_canopy`), where `canopy_transmittance = exp(-k_canopy * LAI)`.
  *
+ *  A typical value of canopy albedo for crops is 0.23; see the text following
+ *  Equation 2 of Ritchie (1972).
+ *
  *  Note: This function was originally based on the `ALBEDO` subroutine of
  *  `SOILDYN.for` from DSSAT (https://github.com/DSSAT/dssat-csm-os).
  *
@@ -64,6 +67,10 @@ const double par_energy_content = 0.219;
  *  - [Idso, S. B., Jackson, R. D., Reginato, R. J., Kimball, B. A. & Nakayama, F. S. "The Dependence of
  *    Bare Soil Albedo on Soil Water Content" Journal of Applied Meteorology and Climatology 14, 109–113 (1975)]
  *    (https://doi.org/10.1175/1520-0450(1975)014<0109:TDOBSA>2.0.CO;2)
+ *
+ *  - [Ritchie, J. T. "Model for predicting evaporation from a row crop with incomplete cover."
+ *    Water Resources Research 8, 1204–1213 (1972)]
+ *    (https://doi.org/10.1029/WR008i005p01204)
  *
  *  @param [in] LAI Total canopy leaf area index; dimensionless from
  *              (m^2 leaf) / (m^2 ground)
