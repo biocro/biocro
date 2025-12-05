@@ -64,7 +64,7 @@ soybean2 <- list(
         StemLitter                  = 0,
         sumes1                      = 0.125,
         sumes2                      = 0,
-        time_factor                 = 0,
+        days_stage2                 = 0,
         TTc                         = 0
     ),
     parameters = list(
@@ -114,6 +114,7 @@ soybean2 <- list(
         Gstar_c                     = 19.02,
         Gstar_Ea                    = 37830,
         heightf                     = 6,
+        hours_per_day               = 24,
         irrigation                  = 0,
         iSp                         = 3.2,
         Jmax_at_25                  = 195,
