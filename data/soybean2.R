@@ -44,6 +44,7 @@ soybean2 <- list(
         adaptive_max_steps     = 200
     ),
     initial_values = list(
+        days_stage2                 = 0,
         DVI                         = -1,
         Grain                       = 1e-05,
         Leaf                        = 0.06312,
@@ -64,7 +65,6 @@ soybean2 <- list(
         StemLitter                  = 0,
         sumes1                      = 0.125,
         sumes2                      = 0,
-        days_stage2                 = 0,
         TTc                         = 0
     ),
     parameters = list(

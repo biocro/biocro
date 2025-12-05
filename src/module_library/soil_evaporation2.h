@@ -208,7 +208,7 @@ string_vector soil_evaporation2::get_inputs()
         "lat",                    // latitude of the location
         "elevation",              // altitude in meters
         "lai",                    // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo_max",   // Bare soil albedo (fraction) - dimensionless
+        "bare_soil_albedo_max",   // Maximum bare soil albedo - dimensionless
         "k_diffuse",              // light extinction coefficient
         "windspeed",              // m/s
         "rh",                     // fraction. dimensionless
