@@ -26,6 +26,7 @@ class multi_layer_soil_profile : public differential_module
           // soil_reflectance{get_input(input_quantities, "soil_reflectance")}, //Albedo
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
           surface_runoff{get_input(input_quantities, "surface_runoff")},
+          uptake_laststep{get_input(input_quantities, "uptake_laststep")},
 
           // Parameters for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
@@ -76,6 +77,7 @@ class multi_layer_soil_profile : public differential_module
           uptake_layer_6{get_input(input_quantities, "uptake_layer_6")},
 
           // Get pointers to output quantities - Change in water content of each layer
+          uptake_laststep_op{get_op(output_quantities, "uptake_laststep")},
           soil_water_content_1_op{get_op(output_quantities, "soil_water_content_1")},
           soil_water_content_2_op{get_op(output_quantities, "soil_water_content_2")},
           soil_water_content_3_op{get_op(output_quantities, "soil_water_content_3")},
@@ -95,6 +97,7 @@ class multi_layer_soil_profile : public differential_module
     // double const& soil_reflectance;
     double const& soil_evaporation_rate;
     double const& surface_runoff;
+    double const& uptake_laststep;
 
     // Parameters for layer 1
     double const& soil_depth_1;
@@ -145,6 +148,7 @@ class multi_layer_soil_profile : public differential_module
     double const& uptake_layer_6;
 
     // Pointers to output parameters
+    double* uptake_laststep_op;
     double* soil_water_content_1_op;
     double* soil_water_content_2_op;
     double* soil_water_content_3_op;
@@ -162,6 +166,7 @@ string_vector multi_layer_soil_profile::get_inputs()
         // "soil_reflectance",
         "soil_evaporation_rate",  // Mg/ha/hr
         "surface_runoff",
+        "uptake_laststep",
 
         "soil_depth_1",
         "soil_water_content_1",
@@ -210,6 +215,7 @@ string_vector multi_layer_soil_profile::get_inputs()
 string_vector multi_layer_soil_profile::get_outputs()
 {
     return {
+        "uptake_laststep",
         "soil_water_content_1",
         "soil_water_content_2",
         "soil_water_content_3",
@@ -221,6 +227,7 @@ string_vector multi_layer_soil_profile::get_outputs()
 void multi_layer_soil_profile::do_operation() const
 {
     int nlayers = 6;
+    double current_total_uptake{0};
     double soil_depth[] = {
         soil_depth_1,
         soil_depth_2,
@@ -274,6 +281,7 @@ void multi_layer_soil_profile::do_operation() const
         if (soil_water_content[l] + delta_soil_water_content[l] < 0) {
             delta_soil_water_content[l] = -soil_water_content[l];
         }
+        current_total_uptake += uptake[l];
     }
 
     // Mg/ha/hr
@@ -281,7 +289,9 @@ void multi_layer_soil_profile::do_operation() const
     // remove soil evaporation from first layer, but don't let water content go
     // negative. This is a crude, and hopefully temporary, fix. -mlm
     delta_soil_water_content[0] = delta_soil_water_content[0] - soil_evaporation_rate / (10.0 * soil_depth[0]);
+    double delta_uptake = current_total_uptake - uptake_laststep;
 
+    update(uptake_laststep_op, delta_uptake);
     update(soil_water_content_1_op, delta_soil_water_content[0]);
     update(soil_water_content_2_op, delta_soil_water_content[1]);
     update(soil_water_content_3_op, delta_soil_water_content[2]);
