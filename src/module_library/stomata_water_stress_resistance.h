@@ -6,10 +6,52 @@
 
 namespace standardBML
 {
-class stomata_water_stress_resistance: public direct_module 
+/**
+ * @class stomata_water_stress_resistance
+ *
+ * @brief Calculates a 0-1 water stress factor that is applied to b0 an b1
+ * of the Ball-Berry model.
+ *
+ * ### Model overview
+ * Following the [Van den Honert Equation]
+ * (https://doi.org/10.5194/hess-2-31-1998) for plant hydrology,
+ * $\Psi_{leaf} = \Psi_{soil} - R_{hydro} * E$, where $\Psi$ is water potential,
+ * $E$ is transpiration rate, $R_{hydro}$ is total hydraulic resistance (soil +
+ * root + xylem), with units of Pressure per Flux (e.g., $MPa \cdot m^2 \cdot s
+ * \cdot mol^{-1}$). Our goal is to estimate the water potential ($\Psi_{leaf}$)
+ * and stress in the leaf. To map the physical quantity to the 0-1 stress factor
+ * ($f_{ws}$), we assume a critical water potential $\Psi_{crit}$ and use it to
+ * scale the above equation, so we have:
+
+ * $$\frac{\Psi_{leaf}}{\Psi_{crit}} = \frac{\Psi_{soil}}{\Psi_{crit}} -  E *
+ * \frac{R_{hydro}}{\Psi_{crit}}$$
+
+ * which equals,
+
+ * $$f_{ws} = f_{ws}^{linear} - E *R_{norm}$$
+ * Where $R_{norm}$ is the normalized hydraulic resistance (unit: 1/ET),
+ * representing the fraction cost of moving 1 unit of water. Now our new $f_{ws}$
+ * is nonlinearly responding to changes in both supply (soil water) and demand
+ * (ET). Since ET has a clear diurnal signal, $f_{ws}$ also has a diurnal signal.
+ * This makes more sense because a plant at noon is likely under more hydraulic
+ * tension than a plant at dawn, even if the soil water content hasn't changed.
+ * Lastly, if we directly use uptake for this module, there will be a module
+ * cyclic issue like this:
+ * <p align="center">
+ * water_stress → gs → ET (uptake) → water_stress
+ * </p>
+ * Since soil water potential changes slowly (it doesn't jump wildly in 1 hour),
+ * the error introduced by using "1-hour-old" uptake data is negligible. Therefore,
+ * I use the uptake from the previous hour to calculate stress for the current
+ * hour. For this, I added a state variable named `uptake_laststep`, simply
+ * tracking the last step's value total uptake (E).
+ *
+ */
+class stomata_water_stress_resistance : public direct_module
 {
    public:
-    stomata_water_stress_resistance(state_map const& input_quantities, state_map* output_quantities)
+    stomata_water_stress_resistance(state_map const& input_quantities,
+                                    state_map* output_quantities)
         : direct_module{},
 
           // Get pointers to input quantities
@@ -44,49 +86,58 @@ class stomata_water_stress_resistance: public direct_module
 
 string_vector stomata_water_stress_resistance::get_inputs()
 {
-    return {
-        "Catm",
-        "uptake_laststep",
-        "soil_field_capacity",
-        "soil_wilting_point",
-        "soil_water_content"};
+    return {"Catm",
+            "uptake_laststep",
+            "soil_field_capacity",
+            "soil_wilting_point",
+            "soil_water_content"};
 }
 
 string_vector stomata_water_stress_resistance::get_outputs()
 {
-    return {
-        "StomataWS"};
+    return {"StomataWS"};
 }
 
 void stomata_water_stress_resistance::do_operation() const
 {
-    double resistance_base = 0.01;    // higher = faster response
-    // Collect inputs and make calculations
+    // starts linear stress a bit lower than the fc, mimicing the "Readily
+    // Available Water" plateau Within the RAW plateau, plants can maintain full
+    // turgor and achieve maximum potential evapotranspiration without suffering
+    // from water deficit. TAW(total available water) = FC-WP RAW_sf lowers TAW
+    // so stress starts a bit lower than FC Ref:FAO 1998: Table 22 in Chapter 8
+    // - ETc under soil water stress conditions
+    // https://www.fao.org/4/x0490e/x0490e0e.htm
+    // #chapter%208%20%20%20etc%20under%20soil%20water%20stress%20conditions
+    const double RAW_sf = 0.7;
+    const double resistance_amplifier = 5.0;
+    double resistance_base =
+        0.01;  // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
     double Catm = *Catm_ip;
-// eCO2 plants are 5x more sensitive to flow/drying
-// As xylem ABA increased (drought signal), the eCO2 plants closed their stomata more aggressively than ambient plants
-    if (Catm > 500) resistance_base *= 5.0;
-    double uptake_laststep    = *uptake_laststep_ip;
+    // eCO2 plants are x times more sensitive to flow/drying
+    // As xylem ABA increased (drought signal), the eCO2 plants closed their
+    // stomata more aggressively than ambient plants
+    if (Catm > 500) resistance_base *= resistance_amplifier;
+    double uptake_laststep = *uptake_laststep_ip;
     double soil_wilting_point = *soil_wilting_point_ip;
     double soil_field_capacity = *soil_field_capacity_ip;
     double soil_water_content = *soil_water_content_ip;
-//starts linear stress a bit lower than the fc, mimicing the "Readily Available Water" plateau
-    double RAW_sf = 0.8;
-    double slope  = 1.0 / (RAW_sf*soil_field_capacity - soil_wilting_point);
-    double intercept = 1.0 - RAW_sf*soil_field_capacity * slope;
-     
-    double x = std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0);
+    double slope = 1.0 / (RAW_sf * soil_field_capacity - soil_wilting_point);
+    double intercept = 1.0 - RAW_sf * soil_field_capacity * slope;
 
-//    The Safety Valve: Dynamic Resistance
-    // At x=1 (Wet): R = base. 
+    double x =
+        std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0);
+
+    // The Safety Valve: Dynamic Resistance
+    // At x=1 (Wet): R = base.
     // At x=0.5 (Dry): R = 2*base. (StomataWS drops significantly).
-    double resistance_dynamic = resistance_base / x ;
+    double resistance_dynamic = resistance_base / x;
 
-    double f_ws = x - resistance_dynamic * std::abs(uptake_laststep); 
-    f_ws   = std::min(std::max(f_ws, 1e-10),1.0);
+    // The uptake_laststep is negative. We need the positive 
+    double f_ws = x - resistance_dynamic * std::abs(uptake_laststep);
+    f_ws = std::min(std::max(f_ws, 1e-10), 1.0);
 
     // Update the output quantity list
-    update(StomataWS_op, f_ws); 
+    update(StomataWS_op, f_ws);
 }
 
 }  // namespace standardBML
