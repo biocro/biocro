@@ -66,7 +66,8 @@ soybean2 <- list(
         StemLitter                  = 0,
         sumes1                      = 0.125,
         sumes2                      = 0,
-        TTc                         = 0
+        TTc                         = 0,
+        uptake_laststep             = 0
     ),
     parameters = list(
         alpha1                      = 0,
