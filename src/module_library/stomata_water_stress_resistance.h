@@ -116,6 +116,8 @@ void stomata_water_stress_resistance::do_operation() const
     // eCO2 plants are x times more sensitive to flow/drying
     // As xylem ABA increased (drought signal), the eCO2 plants closed their
     // stomata more aggressively than ambient plants
+    // The resistance_amplifier is tunnable to see different 
+    // level of eCO2 response.
     if (Catm > 500) resistance_base *= resistance_amplifier;
     double uptake_laststep = *uptake_laststep_ip;
     double soil_wilting_point = *soil_wilting_point_ip;
