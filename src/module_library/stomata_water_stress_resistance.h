@@ -10,7 +10,7 @@ namespace standardBML
  * @class stomata_water_stress_resistance
  *
  * @brief Calculates a 0-1 water stress factor that is applied to b0 an b1
- * of the Ball-Berry model.
+ * of the Ball-Berry model. Currently compatible with the Euler solver only.
  *
  * ### Model overview
  * Following the [Van den Honert Equation]
@@ -29,16 +29,16 @@ namespace standardBML
  * which equals,
 
  * $$f_{ws} = f_{ws}^{linear} - E *R_{norm}$$
- * Where $R_{norm}$ is the normalized hydraulic resistance (unit: 1/ET),
+ * Where $R_{norm}$ is the normalized hydraulic resistance (unit: 1/E),
  * representing the fraction cost of moving 1 unit of water. Now our new $f_{ws}$
  * is nonlinearly responding to changes in both supply (soil water) and demand
- * (ET). Since ET has a clear diurnal signal, $f_{ws}$ also has a diurnal signal.
+ * (E). Since E has a clear diurnal signal, $f_{ws}$ also has a diurnal signal.
  * This makes more sense because a plant at noon is likely under more hydraulic
  * tension than a plant at dawn, even if the soil water content hasn't changed.
  * Lastly, if we directly use uptake for this module, there will be a module
  * cyclic issue like this:
  * <p align="center">
- * water_stress → gs → ET (uptake) → water_stress
+ * water_stress → gs → E (uptake) → water_stress
  * </p>
  * Since soil water potential changes slowly (it doesn't jump wildly in 1 hour),
  * the error introduced by using "1-hour-old" uptake data is negligible. Therefore,
