@@ -5,4 +5,4 @@
 [submodule "src/inc"]
 	path = src/inc
 	url = https://github.com/biocro/inc
-	branch = new-boost
+	branch = main
