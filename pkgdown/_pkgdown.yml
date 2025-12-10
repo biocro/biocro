@@ -28,6 +28,8 @@ navbar:
       - text: ---
       - text: Getting Started with BioCro (HTML)
         href: articles/BioCro.html
+      - text: Workshop I (PDF)
+        href: articles/web_only/workshop_I.pdf
       - text: A Practical Guide to BioCro (PDF)
         href: articles/web_only/a_practical_guide_to_biocro.pdf
       - text: "    [R code]" # four non-breaking spaces (NO-BREAK SPACE, Unicode U+00A0) used for indentation here
@@ -45,8 +47,6 @@ navbar:
       - text: ---
       - text: CROP GROWTH MODELING TOPICS
       - text: ---
-      - text: Avoiding Pitfalls When Using the FvCB Model (HTML)
-        href: articles/web_only/avoiding_pitfalls_fvcb.html
       - text: Light Absorption by a Thick Layer (HTML)
         href: articles/web_only/thick_layer_absorption.html
       - text: Using the Ball-Berry Model (HTML)

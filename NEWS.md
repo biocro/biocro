@@ -35,6 +35,14 @@ be directly added to this file to describe the related changes.
 
 ## Minor User-Facing Changes
 
+- Increased the minimum supported R version to 4.1.0.
+
+  - This was necessary because the C++ standard was switched from C++11 to
+    C++17, as required by CRAN.
+
+  - The version of boost bundled with BioCro (1.71.0) was also not compatible
+    with C++17, requiring an update to a new version (1.89.0).
+
 - A simple multidimensional root solving library has been added. See header
   file `src/math/roots/multidim/zeros.h` for example usage. Currently, only one
   method is available: Broyden's method. This library is intended to support
@@ -174,6 +182,8 @@ be directly added to this file to describe the related changes.
 
 - `catm_data` was updated to include the global average atmospheric CO2
   concentration in 2024.
+
+- Added a new workshop vignette.
 
 - Links to the main BioCro documentation web site were changed from
   `https://biocro.github.io` to `https://biocro.org`

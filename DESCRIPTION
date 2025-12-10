@@ -1,5 +1,5 @@
 Package: BioCro
-Version: 3.2.0-5
+Version: 3.2.0-6
 Date: 2025-02-25
 Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
@@ -34,7 +34,7 @@ Authors@R: c(
     person("Boost Organization", role = "cph",
            comment = "Copyright holder of included Boost library")
     )
-Depends: R (>= 3.6.0)
+Depends: R (>= 4.1.0)
 Imports:
     stats
 Suggests:
@@ -43,9 +43,10 @@ Suggests:
     rmarkdown,
     bookdown,
     lattice,
-    deSolve
+    deSolve,
+    dfoptim
 VignetteBuilder: knitr
-SystemRequirements: C++11, GNU make
+SystemRequirements: C++17, GNU make
 License: MIT + file LICENSE
 LazyData: true
 ByteCompile: TRUE
