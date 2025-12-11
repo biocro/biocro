@@ -1,3 +1,3 @@
-input,input,input,input,input,output,"description"
-Catm,soil_field_capacity,soil_water_content,soil_wilting_point,uptake_laststep,StomataWS,NA
-1,1,1,1,1,1e-10,"automatically-generated test case"
+input,input,input,input,input,input,output,"description"
+Catm,resistance_amplifier,soil_field_capacity,soil_water_content,soil_wilting_point,uptake_laststep,StomataWS,NA
+1,1,1,1,1,1,1e-10,"automatically-generated test case"
