@@ -56,6 +56,7 @@ class stomata_water_stress_resistance : public direct_module
 
           // Get pointers to input quantities
           Catm_ip{get_ip(input_quantities, "Catm")},
+          resistance_amplifier_ip{get_ip(input_quantities, "resistance_amplifier")},
           uptake_laststep_ip{get_ip(input_quantities, "uptake_laststep")},
           soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
           soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
@@ -72,6 +73,7 @@ class stomata_water_stress_resistance : public direct_module
    private:
     // Pointers to input quantities
     const double* Catm_ip;
+    const double* resistance_amplifier_ip;
     const double* uptake_laststep_ip;
     const double* soil_field_capacity_ip;
     const double* soil_wilting_point_ip;
@@ -87,6 +89,7 @@ class stomata_water_stress_resistance : public direct_module
 string_vector stomata_water_stress_resistance::get_inputs()
 {
     return {"Catm",
+            "resistance_amplifier",
             "uptake_laststep",
             "soil_field_capacity",
             "soil_wilting_point",
@@ -108,17 +111,22 @@ void stomata_water_stress_resistance::do_operation() const
     // - ETc under soil water stress conditions
     // https://www.fao.org/4/x0490e/x0490e0e.htm
     // #chapter%208%20%20%20etc%20under%20soil%20water%20stress%20conditions
-    const double RAW_sf = 0.7;
-    const double resistance_amplifier = 5.0;
+    // The value for soybean comes close to 0.7 based the FAO reference.
+    // However, it is for irrigation scheduling. Here the value is more like
+    // a physiological threshold for when stomata first begin to close.
+    // Therefore, I use a higher value than 0.7 because our soil water 
+    // rarely go below the content (corresponding to 0.7) to trigger stress 
+    const double RAW_sf = 0.9;
     double resistance_base =
-        0.01;  // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
+        0.02;  // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
+    double sensitivity_exponent = 1.0;
     double Catm = *Catm_ip;
     // eCO2 plants are x times more sensitive to flow/drying
     // As xylem ABA increased (drought signal), the eCO2 plants closed their
     // stomata more aggressively than ambient plants
     // The resistance_amplifier is tunnable to see different 
     // level of eCO2 response.
-    if (Catm > 500) resistance_base *= resistance_amplifier;
+    if (Catm > 500) sensitivity_exponent = *resistance_amplifier_ip;
     double uptake_laststep = *uptake_laststep_ip;
     double soil_wilting_point = *soil_wilting_point_ip;
     double soil_field_capacity = *soil_field_capacity_ip;
@@ -129,10 +137,10 @@ void stomata_water_stress_resistance::do_operation() const
     double x =
         std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0);
 
-    // The Safety Valve: Dynamic Resistance
+    // Dynamic Resistance based on soil water status 
     // At x=1 (Wet): R = base.
-    // At x=0.5 (Dry): R = 2*base. (StomataWS drops significantly).
-    double resistance_dynamic = resistance_base / x;
+    // At x=0.5 (Dry): R = 2^n*base. (StomataWS drops significantly).
+    double resistance_dynamic = resistance_base / std::pow(x, sensitivity_exponent);
 
     // The uptake_laststep is negative. We need the positive 
     double f_ws = x - resistance_dynamic * std::abs(uptake_laststep);

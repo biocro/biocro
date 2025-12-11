@@ -162,6 +162,7 @@ soybean2 <- list(
         rateSeneRoot                = 0,
         rateSeneStem                = 0.00081741805,
         remobilization_fraction     = 0.6,
+        resistance_amplifier        = 5.0,
         retrans                     = 0.9,
         retrans_rhizome             = 1,
         RL_at_25                    = 1.28,
