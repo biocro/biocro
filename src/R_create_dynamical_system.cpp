@@ -76,4 +76,24 @@ SEXP R_get_system_modules(const SEXP handle)
     return R_NilValue;
 }
 
+SEXP R_calculate_derivative(SEXP handle, SEXP time, SEXP state)
+{
+    dynamical_system* pointer = static_cast<dynamical_system*>(R_ExternalPtrAddr(handle));
+    if (NULL != pointer) {
+        // R to C++
+        double t = REAL(time)[0];
+        // calculate vector
+        std::vector<double> x;
+        pointer->get_differential_quantities(x);
+        for (size_t i = 0; i < x.size(); ++i)
+            x[i] = REAL(state)[i];
+
+        std::vector<double> dxdt(x.size());
+        pointer->calculate_derivative(x, dxdt, t);
+        // C++ to R
+        return r_vector_from_state_vector(dxdt);
+    }
+    return R_NilValue;
+}
+
 }  // extern "C"

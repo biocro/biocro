@@ -1,4 +1,12 @@
 
+check_if_dynamical_system <- function(x){
+    if (attr(x, "class") != "biocro_dynamical_system"){
+        error_messages <- "`dynamical_system` must be an R object produced by `create_dynamical_system`"
+    } else {
+        error_messages <- character(0)
+    }
+}
+
 create_dynamical_system <- function(
     initial_values = list(),
     parameters = list(),
@@ -53,19 +61,13 @@ create_dynamical_system <- function(
     return(result)
 }
 
-
-
 get_system_modules <- function(
     dynamical_system
 )
 {
-    if (attr(dynamical_system, "class") != "biocro_dynamical_system"){
-        error_messages <- "`dynamical_system` must be an R object produced by `create_dynamical_system`"
-    } else {
-        error_messages <- character(0)
-    }
+    msg <- check_if_dynamical_system(dynamical_system)
 
-    stop_and_send_error_messages(error_messages)
+    stop_and_send_error_messages(msg)
 
     # Run the C++ code
     result <- .Call(
@@ -76,3 +78,27 @@ get_system_modules <- function(
     # Return the result
     return(result)
 }
+
+
+calculative_derivative <- function(
+    dynamical_system, time, state
+)
+{
+    msg <- check_if_dynamical_system(dynamical_system)
+
+    stop_and_send_error_messages(msg)
+    time <- as.double(time)
+    state <- as.double(state)
+    # Run the C++ code
+    result <- .Call(
+        R_calculate_derivative,
+        dynamical_system,
+        time,
+        state
+    )
+
+    # Return the result
+    return(result)
+}
+
+
