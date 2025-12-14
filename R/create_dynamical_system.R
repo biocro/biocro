@@ -101,4 +101,19 @@ calculative_derivative <- function(
     return(result)
 }
 
+get_differential_quantities <- function(dynamical_system)
+{
+    msg <- check_if_dynamical_system(dynamical_system)
+
+    stop_and_send_error_messages(msg)
+
+    # Run the C++ code
+    result <- .Call(
+        R_get_differential_quantities,
+        dynamical_system
+    )
+
+    # Return the result
+    return(result)
+}
 

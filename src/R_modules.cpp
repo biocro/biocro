@@ -56,16 +56,13 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 
         // Try to create an instance of the module
         bool create_success = true;
-        bool is_differential = false;
+        bool is_differential = w->is_differential();
         bool requires_euler_ode_solver = false;
         string creation_error_message = "none";
         try {
             std::unique_ptr<module> module_ptr = w->create_module(
                 module_inputs,
                 &module_outputs);
-
-            // Check to see if the module is a differential module
-            is_differential = module_ptr->is_differential();
 
             // Check to see if the module requires an Euler ode_solver
             requires_euler_ode_solver = module_ptr->requires_euler_ode_solver();

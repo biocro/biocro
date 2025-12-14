@@ -34,6 +34,7 @@ static const R_CallMethodDef callMethods[] = {
     {"R_run_biocro",                       (DL_FUNC) &R_run_biocro,                       11},
     {"R_create_dynamical_system",          (DL_FUNC) &R_create_dynamical_system,          5},
     {"R_get_system_modules",               (DL_FUNC) &R_get_system_modules,               1},
+    {"R_get_differential_quantities",      (DL_FUNC) &R_get_differential_quantities,      1},
     {"R_calculate_derivative",             (DL_FUNC) &R_calculate_derivative,             3},
     {"R_system_derivatives",               (DL_FUNC) &R_system_derivatives,               6},
     {"R_validate_dynamical_system_inputs", (DL_FUNC) &R_validate_dynamical_system_inputs, 6},

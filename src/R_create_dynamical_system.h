@@ -12,5 +12,6 @@ extern "C" SEXP R_create_dynamical_system(
 
 extern "C" SEXP R_get_system_modules(const SEXP handle);
 extern "C" SEXP R_calculate_derivative(SEXP handle, SEXP time, SEXP state);
+extern "C" SEXP R_get_differential_quantities(const SEXP handle);
 
 #endif

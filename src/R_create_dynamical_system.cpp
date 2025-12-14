@@ -96,4 +96,15 @@ SEXP R_calculate_derivative(SEXP handle, SEXP time, SEXP state)
     return R_NilValue;
 }
 
+SEXP R_get_differential_quantities(const SEXP handle)
+{
+    dynamical_system* pointer = static_cast<dynamical_system*>(R_ExternalPtrAddr(handle));
+    if (NULL != pointer) {
+        state_map x = pointer->get_initial_values();
+
+        return vector_from_map(x);
+    }
+    return R_NilValue;
+}
+
 }  // extern "C"
