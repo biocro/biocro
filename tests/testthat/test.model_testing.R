@@ -1,15 +1,52 @@
-# The purpose of this file is to make sure certain types of model errors are
-# caught by the model testing functions
+## The purpose of this file is to make sure certain types of model errors are
+## caught by the model testing functions. It uses a simple harmonic oscillator
+## model. It is unlikely that the stored test results will need to be updated.
+## But, if they do, follow these steps:
+##
+## 1. Open a fresh R session in this directory
+##
+## 2. Source this file by typing the following:
+##
+##    source('test.model_testing.R')
+##
+## 3. Update the stored values:
+##
+##   update_stored_model_results(example_test_case)
+##
+## Afterwards, check the git diff for the stored data files to make sure the
+## changes are reasonable (to the extent that this is possible). Finally, rerun
+## the tests to make sure they all pass.
 
-example_test_case <- model_test_case(
-    'miscanthus_x_giganteus',
-    miscanthus_x_giganteus,
-    get_growing_season_climate(weather$'2005'),
-    TRUE,
-    file.path('..', 'test_data'),
-    'soil_evaporation_rate'
+# Define oscillator model and its test case
+oscillator_model <- list(
+    initial_values = list(
+        position = 1,
+        velocity = 0
+    ),
+    parameters = list(
+        spring_constant = 0.5,
+        timestep = 1
+    ),
+    direct_modules = 'BioCro:harmonic_energy',
+    differential_modules = 'BioCro:harmonic_oscillator',
+    ode_solver = default_ode_solvers$boost_rkck54
 )
 
+oscillator_drivers <- data.frame(
+    time = seq_len(100),
+    mass = rep_len(1, 100)
+)
+
+example_test_case <- model_test_case(
+    'harmonic_oscillator',
+    oscillator_model,
+    oscillator_drivers,
+    TRUE,
+    file.path('..', 'test_data'),
+    row_interval = 10
+)
+
+# Run tests
 test_that('definitions must be valid', {
     expect_error(
         run_model_test_cases(
@@ -17,7 +54,7 @@ test_that('definitions must be valid', {
                 within(example_test_case, {parameters = list()})
             )
         ),
-        'The `miscanthus_x_giganteus` simulation does not have a valid definition.'
+        'The `harmonic_oscillator` simulation does not have a valid definition.'
     )
 })
 
@@ -39,7 +76,7 @@ test_that('simulation must run to completion', {
                 within(example_test_case, {drivers = drivers[seq_len(3), ]})
             )
         ),
-        'The `miscanthus_x_giganteus` simulation result has 3 rows, but the saved result has 4296 rows.'
+        'The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows.'
     )
 })
 
@@ -52,7 +89,7 @@ test_that('separate errors are reported for each model', {
 
     expect_error(
         run_model_test_cases(bad_cases),
-        'The `miscanthus_x_giganteus` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `miscanthus_x_giganteus` simulation result has 3 rows, but the saved result has 4296 rows.'
+        'The `harmonic_oscillator` simulation does not have a valid definition.\n  Stored result file `fake_file.csv` does not exist.\n  The `harmonic_oscillator` simulation result has 3 rows, but the saved result has 100 rows.'
     )
 })
 
@@ -60,10 +97,10 @@ test_that('warning occurs for extra columns in new results', {
     expect_warning(
         run_model_test_cases(
             list(
-                within(example_test_case, {direct_modules = append(direct_modules, 'BioCro:total_biomass')})
+                within(example_test_case, {drivers$new_column <- 3})
             )
         ),
-        'The `miscanthus_x_giganteus` simulation result contains columns that are not in the saved result. Is this intentional? Extra columns: total_biomass.',
+        'The `harmonic_oscillator` simulation result contains columns that are not in the saved result. Is this intentional? Extra columns: new_column.',
         fixed = TRUE
     )
 })
@@ -73,12 +110,12 @@ test_that('new result must include all stored columns', {
         run_model_test_cases(
             list(
                 within(example_test_case, {
-                    parameters$time_zone_offset = drivers$time_zone_offset[1]
-                    drivers$time_zone_offset = NULL
+                    parameters$mass = drivers$mass[1]
+                    drivers$mass = NULL
                 })
             )
         ),
-        'The `miscanthus_x_giganteus` simulation result is missing required columns from the saved result: time_zone_offset.'
+        'The `harmonic_oscillator` simulation result is missing required columns from the saved result: mass.'
     )
 })
 
@@ -86,19 +123,19 @@ test_that('new values must agree with old values', {
     expect_error(
         run_model_test_cases(
             list(
-                within(example_test_case, {drivers$time_zone_offset = -5})
+                within(example_test_case, {drivers$mass = 2})
             )
         ),
-        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns:'
+        'The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:'
     )
 
     expect_error(
         run_model_test_cases(
             list(
-                within(example_test_case, {parameters$Rd = parameters$Rd * 1.1})
+                within(example_test_case, {parameters$spring_constant = parameters$spring_constant * 1.1})
             )
         ),
-        'The new `miscanthus_x_giganteus` simulation result does not agree with the stored result for the following columns:'
+        'The new `harmonic_oscillator` simulation result does not agree with the stored result for the following columns:'
     )
 })
 
@@ -110,7 +147,7 @@ test_that('results can be stored and loaded', {
         update_stored_model_results(model_with_tempfile)
     )
 
-    col_to_keep <- c('time', 'Leaf', 'Stem', 'Root', 'Grain')
+    col_to_keep <- c('time', 'position', 'velocity', 'kinetic_energy', 'spring_energy')
 
     compare_crop_output <- expect_silent(
         compare_model_output(model_with_tempfile, col_to_keep)

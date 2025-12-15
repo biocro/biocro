@@ -26,7 +26,7 @@ class FvCB : public direct_module
           Kc{get_input(input_quantities, "Kc")},
           Ko{get_input(input_quantities, "Ko")},
           Oi{get_input(input_quantities, "Oi")},
-          Rd{get_input(input_quantities, "Rd")},
+          RL{get_input(input_quantities, "RL")},
           TPU{get_input(input_quantities, "TPU")},
           Vcmax{get_input(input_quantities, "Vcmax")},
           alpha_TPU{get_input(input_quantities, "alpha_TPU")},
@@ -56,7 +56,7 @@ class FvCB : public direct_module
     double const& Kc;
     double const& Ko;
     double const& Oi;
-    double const& Rd;
+    double const& RL;
     double const& TPU;
     double const& Vcmax;
     double const& alpha_TPU;
@@ -86,7 +86,7 @@ string_vector FvCB::get_inputs()
         "Kc",                           // mmol / mol
         "Ko",                           // mmol / mol
         "Oi",                           // micromol / m^2 / s
-        "Rd",                           // micromol / m^2 / s
+        "RL",                           // micromol / m^2 / s
         "TPU",                          // micromol / m^2 / s
         "Vcmax",                        // micromol / m^2 / s
         "alpha_TPU",                    // dimensionless
@@ -118,7 +118,7 @@ void FvCB::do_operation() const
         Kc,
         Ko,
         Oi,
-        Rd,
+        RL,
         TPU,
         Vcmax,
         alpha_TPU,

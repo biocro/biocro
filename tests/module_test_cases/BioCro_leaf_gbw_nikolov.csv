@@ -1,3 +1,5 @@
 input,input,input,input,input,input,input,output,"description"
 Gs,air_pressure,leaf_temperature,leafwidth,rh,temp,windspeed,gbw_leaf,NA
 1,1,1,1,1,1,1,1.98970617661238,"automatically-generated test case"
+0.084994555803669,101325,17.378062,0.04,0.139999999870721,18.2,0,0.00235151658235852,"Potentially tricky case for secant method (windspeed = 0)"
+0.084994555803669,101325,17.378062,0.04,0.139999999870721,18.2,1.227339,0.0365979611137832,"Potentially tricky case for secant method (windspeed > 0)"

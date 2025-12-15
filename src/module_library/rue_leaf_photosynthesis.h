@@ -10,7 +10,7 @@ namespace standardBML
  *  @class rue_leaf_photosynthesis
  *
  *  @brief  Calculates leaf photosynthesis parameters using a simple radiation
- *  use efficiency (RUE) model where gross CO2 assimilation is assumed to be
+ *  use efficiency (RUE) model where net CO2 assimilation is assumed to be
  *  directly proportional to the incident photosynthetically active photon flux
  *  density (PPFD).
  *
@@ -63,51 +63,35 @@ namespace standardBML
  *
  *  ### This particular RUE model
  *
- *  Here we use a RUE model where the measure of growth is the leaf-level gross
- *  CO2 assimilation rate (`A_g`) and the measure of light exposure is the
+ *  Here we use a RUE model where the measure of growth is the leaf-level net
+ *  CO2 assimilation rate (`A_n`) and the measure of light exposure is the
  *  amount of PPFD intercepted by the leaf (`Q`). Both of these quantities are
  *  considered to be instantaneous rates, and the equation relating them is
  *
- *  > `A_g = alpha_rue * Q` (1)
+ *  > `A_n = alpha_rue * Q` (1)
  *
- *  BioCro uses units of micromol / m^2 / s for both `A_g` and `Q`, so the
+ *  BioCro uses units of micromol / m^2 / s for both `A_n` and `Q`, so the
  *  proportionality constant `alpha_rue` is dimensionless. Alternatively, it can
  *  be considered to have units of C / photon.
  *
- *  Equation (1) was chosen so that this RUE model could be as close as possible
- *  to the more realistic versions in `c3_leaf_photosynthesis` and
- *  `c4_leaf_photosynthesis`, using the following rationale:
+ *  The model calculates an instantaneous CO2 assimilation rate from `Q` so it
+ *  can be used in place of the C3 and C4 versions (`c3_leaf_photosynthesis` and
+ *  `c4_leaf_photosynthesis`, respectively) inside a multi-layered canopy,
+ *  allowing users to switch between RUE and mechanistic models with as few
+ *  other changes as possible.
  *
- *  - The model should calculate an instantaneous CO2 assimilation rate so it
- *    can be used in place of the other options inside a multi-layered canopy,
- *    allowing the user to switch between RUE and mechanistic models with as few
- *    other changes as possible.
+ *  For interchangability with the C3 and C4 versions, other output quantities
+ *  are also provided, such as the transpiration rate. However, these always
+ *  take the same default value of 0.0, and are not actually calculated based on
+ *  any model.
  *
- *  - It makes more sense to use `A_g` than the net CO2 assimilation rate `A_n`
- *    because `A_n` is generally negative when `Q` is zero due to respiration,
- *    a situation that a RUE model with `A_n = alpha_rue * Q` would not be able
- *    to reproduce.
- *
- *  Unlike the C3 and C4 versions of leaf photosynthesis, no attempt was made to
- *  modify `A_n` according to water stress, as this would not be included in a
- *  pure RUE model. (However, in principle, the value of `alpha_rue` could be
+ *  Unlike the C3 and C4 versions, no attempt was made to modify `A_n` according
+ *  to water stress. However, in principle, the value of `alpha_rue` could be
  *  modified according to water stress or other factors by a hypothetical
- *  associated module.) In all other respects besides the calculations for
- *  `A_g` and the lack of water stress, this module is the same as the
- *  `c3_leaf_photosynthesis` module:
+ *  associated module.
  *
- *  - It uses the same equation to calculate day respiration from leaf
- *    temperature.
- *
- *  - It uses the Ball-Berry model to calculate stomatal conductance from `A_n`.
- *
- *  - It uses the `leaf_energy_balance()` function to handle transpiration and
- *    determine leaf temperature.
- *
- *  However, it is important to note that assimilation and stomatal conductance
- *  are not determined iteratively since stomatal conductance has no impact on
- *  assimilation, in contrast to the C3 and C4 cases (described by `c3photoC()`
- *  and `c4photoC()` functions, respectively).
+ *  This version of the RUE model has been simplified compared to the one
+ *  originally presented in Lochocki et al. (2022).
  *
  *  ### Sources
  *
@@ -124,6 +108,11 @@ namespace standardBML
  *  - Humphries, S. W. & Long, S. P. "WIMOVAC: a software package for modelling
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
+ *
+ *  - Lochocki, E. B. et al. "BioCro II: a Software Package for Modular Crop
+ *    Growth Simulations."[in silico Plants diac003(2022)]
+ *    (https://doi.org/10.1093/insilicoplants/diac003)
+
  */
 class rue_leaf_photosynthesis : public direct_module
 {
@@ -134,34 +123,16 @@ class rue_leaf_photosynthesis : public direct_module
         : direct_module{},
 
           // Get references to input parameters
-          absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
-          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           alpha_rue{get_input(input_quantities, "alpha_rue")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          b0{get_input(input_quantities, "b0")},
-          b1{get_input(input_quantities, "b1")},
-          Catm{get_input(input_quantities, "Catm")},
-          gbw_canopy{get_input(input_quantities, "gbw_canopy")},
-          height{get_input(input_quantities, "height")},
           incident_ppfd{get_input(input_quantities, "incident_ppfd")},
-          leafwidth{get_input(input_quantities, "leafwidth")},
-          Rd{get_input(input_quantities, "Rd")},
-          rh{get_input(input_quantities, "rh")},
-          temp{get_input(input_quantities, "temp")},
-          windspeed{get_input(input_quantities, "windspeed")},
-          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
           Assim_op{get_op(output_quantities, "Assim")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
-          Rp_op{get_op(output_quantities, "Rp")},
-          Ci_op{get_op(output_quantities, "Ci")},
           Gs_op{get_op(output_quantities, "Gs")},
-          TransR_op{get_op(output_quantities, "TransR")},
-          EPenman_op{get_op(output_quantities, "EPenman")},
-          EPriestly_op{get_op(output_quantities, "EPriestly")},
-          leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
-          gbw_op{get_op(output_quantities, "gbw")}
+          RL_op{get_op(output_quantities, "RL")},
+          Rp_op{get_op(output_quantities, "Rp")},
+          TransR_op{get_op(output_quantities, "TransR")}
     {
     }
     static string_vector get_inputs();
@@ -170,34 +141,16 @@ class rue_leaf_photosynthesis : public direct_module
 
    private:
     // References to input parameters
-    double const& absorbed_longwave;
-    double const& absorbed_shortwave;
     double const& alpha_rue;
-    double const& atmospheric_pressure;
-    double const& b0;
-    double const& b1;
-    double const& Catm;
-    double const& gbw_canopy;
-    double const& height;
     double const& incident_ppfd;
-    double const& leafwidth;
-    double const& Rd;
-    double const& rh;
-    double const& temp;
-    double const& windspeed;
-    double const& windspeed_height;
 
     // Pointers to output parameters
     double* Assim_op;
     double* GrossAssim_op;
-    double* Rp_op;
-    double* Ci_op;
     double* Gs_op;
+    double* RL_op;
+    double* Rp_op;
     double* TransR_op;
-    double* EPenman_op;
-    double* EPriestly_op;
-    double* leaf_temperature_op;
-    double* gbw_op;
 
     // Main operation
     void do_operation() const;

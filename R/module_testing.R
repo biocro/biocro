@@ -1,18 +1,23 @@
-test_module <- function(module_name, case_to_test)
-{
+test_module <- function(module_name, case_to_test, verbose = TRUE) {
     # Get the expected outputs
-    expected_outputs <- case_to_test[['expected_outputs']]
+    expected_outputs <- case_to_test[["expected_outputs"]]
 
     # Try to get the actual outputs
     msg <- character()
     actual_outputs <- tryCatch(
-        evaluate_module(module_name, case_to_test[['inputs']]),
+        {
+            evaluate_module(
+                module_name,
+                case_to_test[["inputs"]],
+                stop_on_exception = TRUE
+            )
+        },
         error = function(cond) {
             msg <<- paste0(
                 "Module `",
                 module_name,
                 "` test case `",
-                case_to_test[['description']],
+                case_to_test[["description"]],
                 "`: could not calculate outputs: ",
                 cond
             )
@@ -24,19 +29,95 @@ test_module <- function(module_name, case_to_test)
         return(gsub("\n", "", msg, fixed = TRUE))
     }
 
-    # Make sure the outputs are ordered the same way (otherwise `all.equal` may
-    # indicate a difference when there isn't one)
-    expected_outputs <-  expected_outputs[order(names(expected_outputs))]
-    actual_outputs <- actual_outputs[order(names(actual_outputs))]
+    # Check to see if there are new outputs; if there are, throw a warning and
+    # proceed to check the outputs that are present in the stored test case
+    actual_output_names <- names(actual_outputs)
+    expected_output_names <- names(expected_outputs)
 
-    # Check to see if the expected and actual outputs match
-    if (!isTRUE(all.equal(expected_outputs, actual_outputs))) {
-        return(
+    new_output_names <-
+        actual_output_names[!actual_output_names %in% expected_output_names]
+
+    if (length(new_output_names) > 0) {
+        warning(
             paste0(
                 "Module `",
                 module_name,
                 "` test case `",
                 case_to_test[['description']],
+                "`: unexpected outputs were found: ",
+                paste(new_output_names, collapse = ', ')
+            )
+        )
+        actual_outputs <-
+            actual_outputs[actual_output_names %in% expected_output_names]
+    }
+
+    # Make sure the outputs are ordered the same way (otherwise `all.equal` may
+    # indicate a difference when there isn't one)
+    expected_outputs <- expected_outputs[order(names(expected_outputs))]
+    actual_outputs <- actual_outputs[order(names(actual_outputs))]
+
+    # Check to see if the expected and actual outputs match
+    if (!isTRUE(all.equal(expected_outputs, actual_outputs))) {
+        # Collect discrepancies into a table and print it to the terminal, if
+        # desired
+        if (verbose) {
+            idx <- sapply(seq_along(expected_outputs), function(i) {
+                qname <- names(expected_outputs)[[i]]
+                expected <- expected_outputs[[i]]
+
+                actual <- if (qname %in% names(actual_outputs)) {
+                    actual_outputs[[qname]]
+                } else {
+                    NA
+                }
+
+                if (is.na(actual)) {
+                    TRUE
+                } else {
+                    abs(expected - actual) > sqrt(.Machine$double.eps)
+                }
+            })
+
+            qnames <- names(expected_outputs)[idx]
+            expected <- unlist(expected_outputs)[idx]
+
+            actual <- sapply(qnames, function(qn) {
+                if (qn %in% names(actual_outputs)) {
+                    actual_outputs[[qn]]
+                } else {
+                    NA
+                }
+            })
+
+            differences <- data.frame(
+                Quantity = qnames,
+                Expected = expected,
+                Actual = actual,
+                stringsAsFactors = FALSE
+            )
+
+            rownames(differences) <- NULL
+
+            cat(paste0(
+                '\nDifferences found for Module `',
+                module_name,
+                '` test case `',
+                case_to_test[['description']],
+                '`:\n\n'
+            ))
+
+            print(differences)
+
+            cat('\n')
+        }
+
+        return(
+            paste0(
+                "Module `",
+                module_name,
+                "` test case `",
+                case_to_test[["description"]],
                 "`: calculated outputs do not match expected outputs"
             )
         )
@@ -124,18 +205,16 @@ df_from_case_list <- function(case_list, col_type, col_names) {
 csv_from_cases <- function(
     module_name,
     directory,
-    case_list
-)
-{
+    case_list) {
     filename <- module_case_file_path(module_name, directory)
 
     info <- module_info(module_name, FALSE)
 
     # Extract the inputs, expected outputs, and descriptions from the case list
     case_value_df <- cbind(
-        df_from_case_list(case_list, 'inputs', info[['inputs']]),
-        df_from_case_list(case_list, 'expected_outputs', info[['outputs']]),
-        df_from_case_list(case_list, 'description', 1)
+        df_from_case_list(case_list, "inputs", info[["inputs"]]),
+        df_from_case_list(case_list, "expected_outputs", info[["outputs"]]),
+        df_from_case_list(case_list, "description", 1)
     )
 
     # Make a data frame with the correct column headers
@@ -144,13 +223,13 @@ csv_from_cases <- function(
         stringsAsFactors = FALSE
     )
 
-    header_df[1,] <- c(
-        rep.int('input', length(info[['inputs']])),
-        rep.int('output', length(info[['outputs']])),
-        'description'
+    header_df[1, ] <- c(
+        rep.int("input", length(info[["inputs"]])),
+        rep.int("output", length(info[["outputs"]])),
+        "description"
     )
 
-    header_df[2,] <- c(info[['inputs']], info[['outputs']], NA)
+    header_df[2, ] <- c(info[["inputs"]], info[["outputs"]], NA)
 
     # Make sure the data frames have the same column names, or rbind will fail
     colnames(case_value_df) <- colnames(header_df)
@@ -167,8 +246,7 @@ csv_from_cases <- function(
     )
 }
 
-cases_from_csv <- function(module_name, directory)
-{
+cases_from_csv <- function(module_name, directory) {
     # Generate the filename
     filename <- module_case_file_path(module_name, directory)
 
@@ -185,14 +263,14 @@ cases_from_csv <- function(module_name, directory)
     )
 
     # Get the column names and types, making sure to trim any whitespace
-    column_types <- file_contents[1,]
+    column_types <- file_contents[1, ]
     column_types <- trimws(column_types)
 
-    column_names <- file_contents[2,]
+    column_names <- file_contents[2, ]
     column_names <- trimws(column_names)
 
     # Get the quantity values
-    test_data <- file_contents[-(1:2),]
+    test_data <- file_contents[-(1:2), ]
 
     # Get the indices of the input, output, and description columns
     input_columns <- c()
@@ -248,9 +326,7 @@ initialize_csv <- function(
     directory,
     nonstandard_inputs = list(),
     description = "automatically-generated test case",
-    overwrite = FALSE
-)
-{
+    overwrite = FALSE) {
     # Generate the filename
     filename <- module_case_file_path(module_name, directory)
 
@@ -263,13 +339,13 @@ initialize_csv <- function(
     info <- module_info(module_name, FALSE)
 
     # Get the default input quantities
-    inputs <- quantity_list_from_names(info[['inputs']])
+    inputs <- quantity_list_from_names(info[["inputs"]])
 
     # Modify any inputs that should take nonstandard values
     inputs[names(nonstandard_inputs)] <- nonstandard_inputs
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_name, inputs)
+    outputs <- evaluate_module(module_name, inputs, stop_on_exception = TRUE)
 
     # Make a case list with one element
     case_list <- list(case(inputs, outputs, description))
@@ -279,8 +355,7 @@ initialize_csv <- function(
     paste0("Case file `", filename, "` was initialized; any pre-existing file was overwritten")
 }
 
-add_csv_row <- function(module_name, directory, inputs, description)
-{
+add_csv_row <- function(module_name, directory, inputs, description) {
     # Generate the filename
     filename <- module_case_file_path(module_name, directory)
 
@@ -294,7 +369,7 @@ add_csv_row <- function(module_name, directory, inputs, description)
     case_list <- cases_from_csv(module_name, directory)
 
     # Run the module using the inputs
-    outputs <- evaluate_module(module_name, inputs)
+    outputs <- evaluate_module(module_name, inputs, stop_on_exception = TRUE)
 
     # Add a new case to the list
     case_list <- append(
@@ -307,16 +382,19 @@ add_csv_row <- function(module_name, directory, inputs, description)
     paste0("Added new case to file `", filename, "`")
 }
 
-update_csv_cases <- function(module_name, directory)
-{
+update_csv_cases <- function(module_name, directory) {
     # Get any test cases already defined in the module's csv file
     case_list <- cases_from_csv(module_name, directory)
 
     # Define a helping function that updates a test case by running the module
     # using the inputs and storing the result as the expected outputs
     update_case <- function(one_case) {
-        one_case[['expected_outputs']] <-
-            evaluate_module(module_name, one_case[['inputs']])
+        one_case[["expected_outputs"]] <- evaluate_module(
+            module_name,
+            one_case[["inputs"]],
+            stop_on_exception = TRUE
+        )
+
         return(one_case)
     }
 
@@ -331,14 +409,14 @@ update_csv_cases <- function(module_name, directory)
 # A helping function that determines fully-qualified module names from the test
 # case CSV files in a directory
 module_names_from_case_directory <- function(library_name, directory) {
-    csv_files <- list.files(directory, '[Cc][Ss][Vv]$')
+    csv_files <- list.files(directory, "[Cc][Ss][Vv]$")
 
     module_names <- sapply(csv_files, function(fn) {
         # Get the un-qualified module name
-        mn <- gsub(paste0(library_name, '_'), '', tools::file_path_sans_ext(fn))
+        mn <- gsub(paste0(library_name, "_"), "", tools::file_path_sans_ext(fn))
 
         # Add the library name with proper formatting
-        paste0(library_name, ':', mn)
+        paste0(library_name, ":", mn)
     })
 
     module_names
@@ -347,9 +425,8 @@ module_names_from_case_directory <- function(library_name, directory) {
 test_module_library <- function(
     library_name,
     directory,
-    modules_to_skip = c()
-)
-{
+    modules_to_skip = c(),
+    verbose = TRUE) {
     # Get the module names associated with the test cases in the directory
     directory_module_names <-
         module_names_from_case_directory(library_name, directory)
@@ -363,10 +440,10 @@ test_module_library <- function(
             directory_module_names[!directory_module_names %in% module_names]
 
         msg <- paste0(
-            'Found test cases in the `', directory,
-            '` directory for modules that are not in the `', library_name,
-            '` module library: ',
-            paste(extra_modules, collapse = ', ')
+            "Found test cases in the `", directory,
+            "` directory for modules that are not in the `", library_name,
+            "` module library: ",
+            paste(extra_modules, collapse = ", ")
         )
 
         stop(msg)
@@ -382,12 +459,12 @@ test_module_library <- function(
     test_result <- lapply(module_names, function(module) {
         # Make sure the module can be instantiated
         info <- module_info(module, verbose = FALSE)
-        msg <- if (info[['creation_error_message']] != "none") {
+        msg <- if (info[["creation_error_message"]] != "none") {
             paste0(
                 "Module `",
                 module,
                 "`: could not be instantiated: ",
-                info[['creation_error_message']]
+                info[["creation_error_message"]]
             )
         } else {
             character()
@@ -413,7 +490,7 @@ test_module_library <- function(
 
         # Run each test case
         lapply(cases, function(case) {
-            test_module(module, case)
+            test_module(module, case, verbose)
         })
     })
 
@@ -429,7 +506,7 @@ test_module_library <- function(
             ),
             test_result
         )
-        stop(paste(test_result, collapse = '\n  '))
+        stop(paste(test_result, collapse = "\n  "))
     }
 
     return(invisible(NULL))

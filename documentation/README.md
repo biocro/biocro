@@ -1,6 +1,6 @@
 <!-- external references -->
 
-[online docs]: https://biocro.github.io
+[online docs]: https://biocro.org
   "Online documentation for BioCro" {target="_blank"}
 
 [biocro auto-document workflows]:
@@ -52,7 +52,7 @@ There several categories of documentation for BioCro:
 ## The online documentation {-}
 
 All of the documentation mentioned above is available online at
-[https://biocro.github.io][online docs].
+[https://biocro.org][online docs].
 
 ### When online documentation is generated {- #sec:generation-triggers}
 

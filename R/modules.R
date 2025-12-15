@@ -199,7 +199,11 @@ check_module_input_quantities <- function(
     return(error_messages)
 }
 
-evaluate_module <- function(module_name, input_quantities)
+evaluate_module <- function(
+    module_name,
+    input_quantities,
+    stop_on_exception = FALSE
+)
 {
     # Type checks for `module_name` and `input_quantities` will be
     # performed by the `check_module_input_quantities` function
@@ -216,7 +220,19 @@ evaluate_module <- function(module_name, input_quantities)
     # C++ requires that all the variables have type `double`
     input_quantities <- lapply(input_quantities, as.numeric)
 
-    result <- .Call(R_evaluate_module, module_creator, input_quantities)
+    # Try to run the module
+    result <- tryCatch(
+        .Call(R_evaluate_module, module_creator, input_quantities),
+        error = function(e) {
+            if (stop_on_exception) {
+                stop(e)
+            } else {
+                list(error_msg = conditionMessage(e))
+            }
+        }
+    )
+
+    # Reorder and return the results
     result <- result[order(names(result))]
     return(result)
 }
@@ -224,7 +240,8 @@ evaluate_module <- function(module_name, input_quantities)
 partial_evaluate_module <- function(
     module_name,
     input_quantities,
-    arg_names
+    arg_names,
+    stop_on_exception = FALSE
 )
 {
     # Check that the following type conditions are met:
@@ -309,8 +326,11 @@ partial_evaluate_module <- function(
             temp_input_quantities[[arg_names[i]]] <- x[i]
         }
 
-        output_quantities <-
-            evaluate_module(module_name, temp_input_quantities)
+        output_quantities <- evaluate_module(
+            module_name,
+            temp_input_quantities,
+            stop_on_exception
+        )
 
         list(inputs = temp_input_quantities, outputs = output_quantities)
     }
@@ -319,7 +339,8 @@ partial_evaluate_module <- function(
 module_response_curve <- function(
     module_name,
     fixed_quantities,
-    varying_quantities
+    varying_quantities,
+    stop_on_exception = FALSE
 )
 {
     # Check that the following type conditions are met:
@@ -352,7 +373,8 @@ module_response_curve <- function(
     evaluation_function <- partial_evaluate_module(
         module_name,
         fixed_quantities,
-        names(varying_quantities)
+        names(varying_quantities),
+        stop_on_exception
     )
 
     # Apply the function to each row in the data frame of inputs, producing a
@@ -361,6 +383,15 @@ module_response_curve <- function(
     df_list <- apply(varying_quantities, 1, function(x) {
         result <- evaluation_function(x)
         as.data.frame(c(result$inputs, result$outputs), row.names = NULL)
+    })
+
+    # Find all unique column names
+    df_cnames <- unique(unlist(lapply(df_list, colnames)))
+
+    # For each data frame, set any missing columns to NA
+    df_list <- lapply(df_list, function(x) {
+      x[setdiff(df_cnames, names(x))] <- NA
+      x
     })
 
     # Combine the data frames into one data frame, add the module name as the

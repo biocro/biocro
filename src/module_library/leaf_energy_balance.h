@@ -2,22 +2,39 @@
 #define ENERGY_BALANCE_H
 
 struct energy_balance_outputs {
-    double Deltat;         //!< Temperature difference (leaf - air) (degrees C)
-    double E_loss;         //!< Rate of energy loss due to transpiration (J / m^2 / s)
-    double EPenman;        //!< Potential transpiration rate (mmol / m^2 / s)
-    double EPriestly;      //!< Priestly transpiration rate (mmol / m^2 / s)
-    double gbw;            //!< Total boundary layer conductance to water vapor, for mass fluxes (m / s)
-    double gbw_canopy;     //!< Canopy boundary layer conductance to water vapor, for mass fluxes (m / s)
-    double gbw_leaf;       //!< Leaf boundary layer conductance to water vapor, for mass fluxes (m / s)
-    double gbw_molecular;  //!< Total boundary layer conductance to water vapor, for molecular fluxes (mol / m^2 / s)
-    double gsw;            //!< Stomatal conductance to water vapor, for mass fluxes (m / s)
-    double H;              //!< Rate of sensible heat loss (J / m^2 / s)
-    double PhiN;           //!< Net energy available for transpiration and heat loss (J / m^2 / s)
-    double RH_canopy;      //!< Relative humidity in the canopy, just outside the leaf boundary layer (dimensionless)
-    double storage;        //!< Rate of energy storage by the leaf; should be zero (J / m^2 / s)
-    double TransR;         //!< Transpiration rate (mmol / m^2 / s)
-    int iterations;        //!< Number of iterations used by convergence loop
+    double Deltat;           //!< Temperature difference (leaf - air) (degrees C)
+    double E_loss;           //!< Rate of energy loss due to transpiration (J / m^2 / s)
+    double EPenman;          //!< Potential transpiration rate (mmol / m^2 / s)
+    double EPriestly;        //!< Priestly transpiration rate (mmol / m^2 / s)
+    double gbw;              //!< Total boundary layer conductance to water vapor, for mass fluxes (m / s)
+    double gbw_canopy;       //!< Canopy boundary layer conductance to water vapor, for mass fluxes (m / s)
+    double gbw_leaf;         //!< Leaf boundary layer conductance to water vapor, for mass fluxes (m / s)
+    double gbw_molecular;    //!< Total boundary layer conductance to water vapor, for molecular fluxes (mol / m^2 / s)
+    double gsw;              //!< Stomatal conductance to water vapor, for mass fluxes (m / s)
+    double H;                //!< Rate of sensible heat loss (J / m^2 / s)
+    double leaf_temp_check;  //!< Equals zero if loop has converged (degrees C)
+    double PhiN;             //!< Net energy available for transpiration and heat loss (J / m^2 / s)
+    double RH_canopy;        //!< Relative humidity in the canopy, just outside the leaf boundary layer (dimensionless)
+    double storage;          //!< Rate of energy storage by the leaf; should be zero (J / m^2 / s)
+    double TransR;           //!< Transpiration rate (mmol / m^2 / s)
+    size_t iterations;       //!< Number of iterations used by convergence loop
 };
+
+double check_leaf_temp(
+    double const air_pressure,          // Pa
+    double const air_temperature,       // degrees C
+    double const Delta_rho,             // kg / m^3
+    double const epsilon_s,             // dimensionless
+    double const gamma,                 // kg / m^3 / K
+    double const gbw_canopy,            // m / s
+    double const J_a,                   // J / m^2 / s
+    double const lambda,                // J / kg
+    double const leaf_temperature,      // degrees C
+    double const leaf_width,            // m
+    double const s,                     // kg / m^3 / K
+    double const stomatal_conductance,  // mol / m^2 / s
+    double const wind_speed             // m / s
+);
 
 energy_balance_outputs leaf_energy_balance(
     double absorbed_longwave_energy,   // J / m^2 / s

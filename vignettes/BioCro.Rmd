@@ -55,13 +55,13 @@ There are parameters and modules for soybean (_Glycine max_), miscanthus
 ## Getting Started
 
 The best place to get started with BioCro is the
-[public BioCro Documentation web site](https://biocro.github.io), which includes
+[public BioCro Documentation web site](https://biocro.org), which includes
 the following:
 
 - Installation instructions
 
-- A "Practical Guide to BioCro" and other articles in the "Articles" dropdown
-  menu
+- A self-guided workshop ("Workshop I"), a "Practical Guide to BioCro," and
+  other articles in the "Articles" dropdown menu
 
 - Documentation of the C++ code, including notes on the biological models used
   in BioCro, in the "C++ Library" dropdown menu
@@ -71,7 +71,7 @@ the following:
 
 There is also a separate [page that documents all of the quantities
 used by the Standard BioCro Module
-Library](https://biocro.github.io/BioCro-documentation/quantity_docs/quantities.html).
+Library](https://biocro.org/BioCro-documentation/quantity_docs/quantities.html).
 
 ## License
 

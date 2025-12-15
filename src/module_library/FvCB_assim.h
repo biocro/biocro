@@ -22,7 +22,7 @@ FvCB_outputs FvCB_assim(
     double Kc,
     double Ko,
     double Oi,
-    double Rd,
+    double RL,
     double TPU,
     double Vcmax,
     double alpha_TPU,

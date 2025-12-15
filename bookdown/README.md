@@ -1,6 +1,6 @@
 <!-- external references -->
 
-[online docs]: https://biocro.github.io
+[online docs]: https://biocro.org
   "Online documentation for BioCro" {target="_blank"}
 
 
@@ -10,7 +10,7 @@
 
 _Note_: A copy of the __bookdown__ BioCro developer's manual is
 automatically generated on BioCro's GitHub documentation site at
-[https://biocro.github.io][online docs] and may be viewed by clicking
+[https://biocro.org][online docs] and may be viewed by clicking
 on the _Developer's Manual_ menu-bar link found there.  What follows,
 therefore, will mostly be of interest to developers working on
 revising the documentation who want to check the results of their

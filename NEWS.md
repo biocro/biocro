@@ -31,6 +31,174 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# Changes in BioCro version 3.3.0
+
+## Minor User-Facing Changes
+
+- Increased the minimum supported R version to 4.1.0.
+
+  - This was necessary because the C++ standard was switched from C++11 to
+    C++17, as required by CRAN.
+
+  - The version of boost bundled with BioCro (1.71.0) was also not compatible
+    with C++17, requiring an update to a new version (1.89.0).
+
+- New multidimensional and 1D root finders written in C++ have been added to
+  `src/math/roots/`. These are intended to support models requiring numerical
+  solutions to sets of simultaneous equations, and they will eventually be moved
+  to the `biocro/framework` repository.
+
+  - For multidimensional root finders, see `src/math/roots/multidim/zeros.h` for
+    example usage. Currently, only one method is available: Broyden's method.
+
+  - For 1D root finders, see `src/math/roots/onedim/roots.h` for example usage
+    and a list of available methods.
+
+  - These new finders are now used in several places:
+
+    - For Ci calculations, replaced the original fixed-point iteration method
+      with the new 1D Dekker root finder. Fixed-point iteration is known to be
+      unstable in these calculations; see Sun et al. (2012) "A numerical issue
+      in calculating the coupled carbon and water fluxes in a climate model."
+      *Journal of Geophysical Research* https://dx.doi.org/10.1029/2012JD018059.
+
+    - For leaf temperature calculations, replaced the original fixed-point
+      iteration method with the new 1D Dekker root finder.
+
+    - For the Nikolov leaf boundary layer conductance model, replaced the
+      original fixed-point iteration method with the new 1D Dekker root finder.
+
+- Added a new module which computes day length from solar position:
+  `BioCro:daylength_calculator`.
+
+- Added a new model for leaf boundary layer conductance (from Campbell & Norman
+  1998). This model is now used in place of the Nikolov model for energy balance
+  calculations, since it can be solved more easily, and does not have multiple
+  solutions.
+
+- Changed how growth respiration is calculated (so the rate of growth
+  respiration is zero whenever the base rate of carbon available for growth is
+  negative) and made sure it is calculated consistently across different
+  modules.
+
+- Renamed several quantities to make their meanings more clear:
+
+  - `mrc1` has been replaced by `grc_leaf` and `grc_stem` to better indicate
+    that this is a growth respiration coefficient that was applied to two
+    different tissues.
+
+  - `mrc2` has been replaced by `grc_root` and `grc_rhizome` for similar
+    reasons.
+
+  - `mrc_root` has been split into `mrc_root` and `mrc_rhizome` instead of using
+    one coefficient for both.
+
+  - `mrc_grain` has been split into `mrc_grain` and `mrc_shell` instead of using
+    one coefficient for both.
+
+  - Molar fluxes (with units of micromol / m^2 / s) are now distinguished from
+    mass fluxes (with units of Mg / ha / hr) when necessary by replacing `_rate`
+    with `_molar_flux` in the quantity name. For example,
+    `canopy_assimilation_molar_flux` is a molar flux and
+    `canopy_assimilation_rate` is a mass flux. Previously the molar fluxes had a
+    suffix of `_CO2`, so this necessitated renaming two quantities:
+    `canopy_assimilation_rate_CO2` and `canopy_photorespiration_rate_CO2`.
+
+  - `GrossAssim_CO2` was renamed to `canopy_gross_assimilation_molar_flux` for
+    consistency with other canopy-level molar flux outputs such as
+    `canopy_assimilation_molar_flux`.
+
+  - `Rd` was renamed to `RL` and its definition was updated to "the rate of
+    non-photorespiratory CO2 release in the light" when necessary, following
+    https://doi.org/10.1093/plphys/kiab076 and https://doi.org/10.1111/pce.14153.
+    This avoid the ambiguity of using a subscript `d` (which can refer to "day"
+    or "dark" in different contexts) and it reflects an updated understanding
+    of the metabolic origin of this term (it is not exclusively, or even
+    primarily, due to mitochondrial respiration).
+
+  - Several quantities representing a value at 25 degrees C were renamed to
+    better reflect this: `jmax` -> `Jmax_at_25`, `Rd` -> `RL_at_25`,
+    `tpu_rate_max` -> `Tp_at_25`, `vmax1` -> `Vcmax_at_25`,
+    `vmax` -> `Vcmax_at_25`.
+
+- The `BioCro:parameter_calculator` module no longer recalculates `Vcmax_at_25`.
+
+- The rate of non-photorespiratory CO2 release in the light (`RL` or
+  `canopy_non_photorespiratory_CO2_release`) is now included in the outputs of
+  photosynthesis modules, including at the canopy level.
+
+- The rate of whole-plant growth respiration is now included in the outputs of
+  the canopy photosynthesis modules, including the C4 canopy, where whole-plant
+  growth respiration had not been previously calculated.
+
+- The `BioCro:maintenance_respiration` module was split into two modules
+  (a differential module called `BioCro:maintenance_respiration` and a direct
+  module called `BioCro:maintenance_respiration_calculator`) to make maintenance
+  respiration rates available as outputs.
+
+- Several changes were made to the partitioning growth calculator modules:
+
+  - Now there are only two such modules: `BioCro:partitioning_growth_calculator`
+    and `BioCro:partitioning_growth_calculator_leaf_costs`.
+
+  - The partitioning growth calculator modules now include growth respiration
+    rates in their outputs.
+
+  - They have also been standardized so they apply growth respiration to all
+    tissues, and they both incorporate reductions in leaf growth rate due to
+    water stress.
+
+- The `BioCro:partitioning_coefficient_logistic` module can now calculate the
+  rhizome partitioning coefficient using the logistic model.
+
+- Two new modules were added for calculating cumulative flows of CO2 and water:
+  `BioCro:cumulative_carbon_dynamics` and `BioCro:cumulative_water_dynamics`.
+
+- A new module was added for calculating the total amounts of carbon used for
+  growth and maintenance respiration:
+  `BioCro:total_growth_and_maintenance_respiration`.
+
+- Simplified the radiation use efficiency (RUE) model such that net CO2
+  assimilation is directly proportional to the incident quantum flux of photons.
+
+- Altered `test_module` (and hence `test_module_library`) so that new module
+  outputs produce a warning but don't cause an error on their own.
+
+- Altered `evaluate_module`, `partial_evaluate_module`, and
+  `module_response_curve` so that by default, module errors do not prevent
+  response curve calculations from completing. The original behavior of these
+  functions can be reproduced by setting `stop_on_exception` to `TRUE` when
+  calling them.
+
+- Following changes to the behavior of some modules, the soybean model was
+  re-parameterized. The parameterization script is now included in the BioCro
+  repository and package. See the help file for `soybean` for complete details.
+
+- `catm_data` was updated to include the global average atmospheric CO2
+  concentration in 2024.
+
+- Added a new workshop vignette, and removed an outdated vignette about the FvCB
+  model.
+
+- Links to the main BioCro documentation web site were changed from
+  `https://biocro.github.io` to `https://biocro.org`
+
+## Internal changes
+
+- Renamed the `resp()` function to `growth_resp_Q10()` to better indicate its
+  purpose, and moved it to a respiration header file. The new header file
+  (`respiration.h`) also includes a new maintenance respiration function
+  (`maintenance_respiration_Q10()`) and a simpler growth respiration function
+  that does not apply a Q10 response (`growth_resp()`).
+
+## Bug fixes
+
+- Fixed a an issue where setting `adaptive_max_steps` to `NA` in R would cause
+  `run_biocro` to fail at the first time point.
+
+- Fixed a typo in the calculation of relative humidity just above the canopy
+  (`RH_canopy`).
+
 # Changes in BioCro version 3.2.0
 
 ## Minor User-Facing Changes
@@ -247,7 +415,7 @@ be directly added to this file to describe the related changes.
   from photon flux density (in micromoles per square meter per second) to energy
   flux density (in joules per square meter per second or watts per square meter)
   for photosynthetically active radiation (PAR). It equals 1/4.57, 4.57 being a
-  commonly used constant to convert PAR in W m^-2 to micromole m^-2 s^-1. Users
+  commonly used constant to convert PAR in W m^-2 to micromol m^-2 s^-1. Users
   should take care to ensure that if processing of radiation data is required to
   prepare it for use with BioCro, the same conversion factor is used. See more
   details in Plant Growth Chamber Handbook. CHAPTER 1 – RADIATION– John C. Sager
@@ -319,7 +487,7 @@ be directly added to this file to describe the related changes.
   removed; references to ebimodeling/biocro have been updated to point
   to biocro/biocro instead.  Most of these occurred in various places
   in the documentation.  Most links to the online documentation have
-  been replaced with links to https://biocro.github.io, with (in some
+  been replaced with links to https://biocro.org, with (in some
   cases) instructions on how to navigate to the particular section of
   the documentation of interest.  This decreases dependence on the
   precise layout of the online documentation.  Some other changes and
@@ -345,8 +513,8 @@ be directly added to this file to describe the related changes.
   triggers of the workflow so that automatic publication happens when
   a new release is published.  Additionally, a symlink is created to
   link the URL
-  https://biocro.github.io/BioCro-documentation/latest/pkgdown/ to
-  https://biocro.github.io/BioCro-documentation/<tag name>/pkgdown/,
+  https://biocro.org/BioCro-documentation/latest/pkgdown/ to
+  https://biocro.org/BioCro-documentation/<tag name>/pkgdown/,
   where <tag name> is the tag name for the new release.
 
 # Changes in BioCro Version 3.0.0
@@ -450,7 +618,7 @@ be directly added to this file to describe the related changes.
 
   PDF versions of these vignettes corresponding to the latest version of BioCro
   can be obtained online from the _Articles_ menu at the
-  [BioCro documentation website](https://biocro.github.io).
+  [BioCro documentation website](https://biocro.org).
 
 # BioCro Version 0.951
 

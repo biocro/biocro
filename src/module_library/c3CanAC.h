@@ -23,27 +23,27 @@ canopy_photosynthesis_outputs c3CanAC(
     double growth_respiration_fraction,  // dimensionless
     double Gs_min,                       // mol / m^2 / s
     double heightf,                      // m^(-1)
-    double Jmax,                         // micromol / m^2 / s
+    double Jmax_at_25,                   // micromol / m^2 / s
+    double k_diffuse,                    // dimensionless
     double kpLN,
-    double k_diffuse,  // dimensionless
-    double LAI,        // dimensionless
-    double leafN,
+    double LAI,                     // dimensionless
     double leaf_reflectance_nir,    // dimensionless
     double leaf_reflectance_par,    // dimensionless
     double leaf_transmittance_nir,  // dimensionless
     double leaf_transmittance_par,  // dimensionless
     double leaf_width,              // m
-    double lnb0,                    // micromol / m^2 / s
+    double leafN,
+    double lnb0,  // micromol / m^2 / s
     double lnb1,
     double o2,                   // mmol / mol
     double par_energy_content,   // J / micromol
     double par_energy_fraction,  // dimensionless
-    double Rd,                   // micromol / m^2 / s
     double RH,                   // Pa / Pa
+    double RL_at_25,             // micromol / m^2 / s
     double solarR,               // micromol / m^2 / s
     double StomataWS,            // dimensionless
-    double tpu_rate_max,         // micromol / m^2 / s
-    double Vmax,                 // micromol / m^2 / s
+    double Tp_at_25,             // micromol / m^2 / s
+    double Vcmax_at_25,          // micromol / m^2 / s
     double WindSpeed,            // m / s
     double WindSpeedHeight,      // m
     int lnfun,                   // dimensionless switch

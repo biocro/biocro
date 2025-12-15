@@ -259,4 +259,42 @@ inline double TempToCp(
 
     return cp * 4184;  // J / kg / K
 }
+
+/**
+ *  @brief Use Equation 14.5a from Thornley & Johnson (1990) to calculate water
+ *  vapor density from water vapor pressure.
+ *
+ *  This equation is described as follows:
+ *
+ *  > Before considering the bahavior of eqn (14.4k), we should point out that
+ *  > vapour pressure rather than vapour density is frequently used in the
+ *  > treatment of evaporation and transpiration (e.g. Monteith 1973, Jones
+ *  > 1983). It can be shown (Exercise 14.3) that vapour density and pressure
+ *  > are related by
+ *  >
+ *  >  `rho_v = rho * epsilon * p_v / (P - p_v)`,  (14.5a)
+ *  >
+ *  > where `P` is the total atmospheric pressure (dry air plus water vapour)
+ *  > (Pa), `p_v` is the vapour pressure (or partial vapour pressure) (Pa),
+ *  > `rho`, as defined above, is the density of dry air (kg / m^3), and
+ *  > `epsilon` is the ratio of the relative molecular mass of water to the
+ *  > relative molar mass of dry air (`epsilon` = 0.622 (Exercise 14.3)).
+ *
+ *  Note: eqn (14.4k) is the Penman-Monteith equation for canopy transpiration
+ *  as expressed in this source.
+ */
+inline double vapor_density_from_pressure(
+    double density_of_dry_air,  // kg / m^3
+    double total_pressure,      // Pa
+    double vapor_pressure       // Pa
+)
+{
+    // Specify the ratio of the relative molecular mass of water to the relative
+    // molecular mass of dry air. See Thornley & Johnson (1990), page 409.
+    constexpr double molecular_ratio_water_air = 0.622;  // dimensionless
+
+    return density_of_dry_air * molecular_ratio_water_air *
+           vapor_pressure / (total_pressure - vapor_pressure);  // kg / m^3
+}
+
 #endif

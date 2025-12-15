@@ -20,7 +20,7 @@
 \usage{catm_data}
 
 \format{
-  Data frame with 3 columns and 44 rows:
+  Data frame with 3 columns and 45 rows:
   \itemize{
     \item \code{year}: the year
     \item \code{Catm}: CO2 concentration (micromol / mol)
@@ -32,7 +32,7 @@
 \source{
   Data were obtained from the National Oceanic and Atmospheric Administration's
   Global Monitoring Laboratory (https://gml.noaa.gov/ccgg/trends/data.html) on
-  2024-02-07.
+  2025-10-21.
 
   The exact link used was
   https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_gl.txt.
@@ -40,10 +40,6 @@
   Alternatively, the data can be accessed from
   https://gml.noaa.gov/ccgg/trends/gl_data.html by clicking the link to
   \code{Globally averaged marine surface annual mean data (CSV)}.
-
-  Note: the globally averaged value for 2023 was not yet available, so the
-  2023 Mauna Loa value was used instead as a temporary fix. This value is likely
-  to be slightly higher than the global value (by around 1 ppm).
 
   These data are provided here as a convenience to BioCro users; please visit
   the NOAA GML webpage for guidelines regarding the use of this data if you are

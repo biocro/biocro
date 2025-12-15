@@ -1,6 +1,6 @@
 <!-- This file is raw R Markdown code.  To see this as a
 correctly-rendered web page, visit the online documentation at
-https://biocro.github.io, go to the Developer's Manual, and find the
+https://biocro.org, go to the Developer's Manual, and find the
 section on formatting tools in the chapter on contributing to BioCro.
 -->
 

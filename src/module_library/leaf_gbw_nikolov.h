@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "conductance_helpers.h"         // for g_to_mass
 #include "water_and_air_properties.h"    // for saturation_vapor_pressure, molar_volume
 #include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
 
@@ -65,7 +66,7 @@ string_vector leaf_gbw_nikolov::get_inputs()
         "leaf_temperature",  // degrees C
         "Gs",                // mol / m^2 / s
         "rh",                // dimensionless
-        "air_pressure"       // mol / m^2 / s
+        "air_pressure"       // Pa
     };
 }
 
@@ -78,12 +79,6 @@ string_vector leaf_gbw_nikolov::get_outputs()
 
 void leaf_gbw_nikolov::do_operation() const
 {
-    const double volume_of_one_mole_of_air =
-        molar_volume(air_temperature, air_pressure);  // m^3 / mol
-
-    // Get the temperature difference between the leaf and the air
-    const double delta_t = leaf_temperature - air_temperature;  // degrees C
-
     // Determine the partial pressure of water vapor from the air temperature
     // and relative humidity
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
@@ -93,9 +88,9 @@ void leaf_gbw_nikolov::do_operation() const
     // stomatal conductance from mol / m^2 / s to m / s.
     const double gbw_leaf = leaf_boundary_layer_conductance_nikolov(
         air_temperature,
-        delta_t,
+        leaf_temperature - air_temperature,
         water_vapor_pressure,
-        Gs * volume_of_one_mole_of_air,
+        g_to_mass(air_pressure, Gs, air_temperature),
         leafwidth,
         windspeed,
         air_pressure);  // m / s

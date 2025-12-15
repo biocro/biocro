@@ -436,15 +436,15 @@ conductances combine to form the overall boundary layer conductance:
 where $g_{b,leaf}$ and $g_{g,canopy}$ are the conductances across the leaf and
 canopy boundary layers.
 
-$g_{b,leaf}$ is calculated using a model described in @nikolov_coupling_1995. It
-treats the leaves in the canopy as individual flat objects in a moving air
-stream, and considers free and forced convection, where free convection is
-driven by wind and forced convection is driven by temperature gradients. In
-BioCro, wind speed within the canopy is modeled as an exponential decay with the
-cumulative leaf area index, and this depth-dependent wind speed is used to
-calculate $g_{b,leaf}$. Because of this, and a dependence on stomatal
-conductance, $g_{b,leaf}$ changes throughout the canopy and is different for
-sunlit and shaded leaves.
+$g_{b,leaf}$ is calculated using a model described in
+@campbell_introduction_1998. It treats the leaves in the canopy as individual
+flat objects in a moving air stream, and considers free and forced convection,
+where free convection is driven by wind and forced convection is driven by
+temperature gradients. In BioCro, wind speed within the canopy is modeled as an
+exponential decay with the cumulative leaf area index, and this depth-dependent
+wind speed is used to calculate $g_{b,leaf}$. Because of this, $g_{b,leaf}$
+changes throughout the canopy and is slightly different for sunlit and shaded
+leaves.
 
 On the other hand, $g_{b,canopy}$ is calculated using a model described in
 @thornley_plant_1990. It treats the canopy as an infinitely wide rough surface
@@ -457,13 +457,6 @@ in a simple way, a minimum value of $g_{b,canopy}$ is enforced in BioCro. The
 minimum conductance is a parameter that can be varied by the user.
 $g_{b,canopy}$ is the same for sunlit and shaded leaves at all depths within the
 canopy.
-
-The numeric technique used to solve for $T_l$ in BioCro (fixed-point iteration)
-does not always converge to a reasonable solution. To prevent extremely high or
-low leaf temperatures, $\Delta T$ is restricted to lie between -30$^{\circ}$C
-and 30$^{\circ}$C. This restriction tends to be enforced only in unusual
-situations where stomatal conductance is very low (and hence assimilation is low
-as well), and thus has little impact on the overall result of a simulation.
 
 ## BioCro Examples
 
@@ -512,7 +505,7 @@ xyplot(
     auto = TRUE,
     xlab = 'Wind speed (m / s)',
     ylab = 'Leaf temperature (degrees C)',
-    ylim = c(0, 100),
+    ylim = c(25, 50),
     main = 'Leaf temperature for different\nstomatal conductances (mol / m^2 / s)'
 )
 ```
@@ -547,30 +540,28 @@ xyplot(
 BioCro's model for leaf boundary layer conductance:
 ```{r}
 leaf_gbw_res <- module_response_curve(
-    'BioCro:leaf_gbw_nikolov',
+    'BioCro:leaf_gbw_campbell',
     list(
         air_pressure = 101325,
-        leafwidth = 0.1,
-        temp = 25,
         leaf_temperature = 26,
-        rh = 0.6
+        leafwidth = 0.1,
+        temp = 25
+
     ),
     expand.grid(
-        windspeed = seq(0, 1, by = 0.005),
-        Gs = c(0.05, 0.1, 0.2, 0.4, 0.8)
+        windspeed = seq(0, 1, by = 0.005)
     )
 )
 
 xyplot(
     gbw_leaf ~ windspeed,
-    group = Gs,
     data = leaf_gbw_res,
     type = 'l',
     auto = TRUE,
     xlab = 'Wind speed (m / s)',
     ylab = 'Leaf boundary layer conductance (m / s)',
-    ylim = c(0, 0.02),
-    main = 'Leaf gbw for different stomatal conductances\n(Gs; mol / m^2 / s)'
+    ylim = c(0, 0.015),
+    main = 'Leaf gbw for different wind speeds'
 )
 ```
 

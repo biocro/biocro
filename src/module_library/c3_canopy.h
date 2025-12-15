@@ -33,7 +33,7 @@ class c3_canopy : public direct_module
           Gstar_c{get_input(input_quantities, "Gstar_c")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           heightf{get_input(input_quantities, "heightf")},
-          jmax{get_input(input_quantities, "jmax")},
+          Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
           Jmax_c{get_input(input_quantities, "Jmax_c")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
@@ -59,33 +59,35 @@ class c3_canopy : public direct_module
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
           phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
-          Rd{get_input(input_quantities, "Rd")},
-          Rd_c{get_input(input_quantities, "Rd_c")},
-          Rd_Ea{get_input(input_quantities, "Rd_Ea")},
           rh{get_input(input_quantities, "rh")},
+          RL_at_25{get_input(input_quantities, "RL_at_25")},
+          RL_c{get_input(input_quantities, "RL_c")},
+          RL_Ea{get_input(input_quantities, "RL_Ea")},
           solar{get_input(input_quantities, "solar")},
           StomataWS{get_input(input_quantities, "StomataWS")},
           temp{get_input(input_quantities, "temp")},
           theta_0{get_input(input_quantities, "theta_0")},
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
+          Tp_at_25{get_input(input_quantities, "Tp_at_25")},
           Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
-          tpu_rate_max{get_input(input_quantities, "tpu_rate_max")},
+          Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
           Vcmax_c{get_input(input_quantities, "Vcmax_c")},
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
-          vmax{get_input(input_quantities, "vmax")},
           windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
-          canopy_assimilation_rate_CO2_op{get_op(output_quantities, "canopy_assimilation_rate_CO2")},
-          canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
+          canopy_assimilation_molar_flux_op{get_op(output_quantities, "canopy_assimilation_molar_flux")},
           canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
-          GrossAssim_CO2_op{get_op(output_quantities, "GrossAssim_CO2")},
-          canopy_photorespiration_rate_CO2_op{get_op(output_quantities, "canopy_photorespiration_rate_CO2")}
+          canopy_gross_assimilation_molar_flux_op{get_op(output_quantities, "canopy_gross_assimilation_molar_flux")},
+          canopy_non_photorespiratory_CO2_release_rate_op{get_op(output_quantities, "canopy_non_photorespiratory_CO2_release_molar_flux")},
+          canopy_photorespiration_molar_flux_op{get_op(output_quantities, "canopy_photorespiration_molar_flux")},
+          canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
+          whole_plant_growth_respiration_molar_flux_op{get_op(output_quantities, "whole_plant_growth_respiration_molar_flux")}
     {
     }
     static string_vector get_inputs();
@@ -112,7 +114,7 @@ class c3_canopy : public direct_module
     double const& Gstar_c;
     double const& Gstar_Ea;
     double const& heightf;
-    double const& jmax;
+    double const& Jmax_at_25;
     double const& Jmax_c;
     double const& Jmax_Ea;
     double const& k_diffuse;
@@ -138,33 +140,35 @@ class c3_canopy : public direct_module
     double const& phi_PSII_0;
     double const& phi_PSII_1;
     double const& phi_PSII_2;
-    double const& Rd;
-    double const& Rd_c;
-    double const& Rd_Ea;
     double const& rh;
+    double const& RL_at_25;
+    double const& RL_c;
+    double const& RL_Ea;
     double const& solar;
     double const& StomataWS;
     double const& temp;
     double const& theta_0;
     double const& theta_1;
     double const& theta_2;
+    double const& Tp_at_25;
     double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
-    double const& tpu_rate_max;
+    double const& Vcmax_at_25;
     double const& Vcmax_c;
     double const& Vcmax_Ea;
-    double const& vmax;
     double const& windspeed;
     double const& windspeed_height;
 
     // Pointers to output quantities
-    double* canopy_assimilation_rate_CO2_op;
-    double* canopy_transpiration_rate_op;
+    double* canopy_assimilation_molar_flux_op;
     double* canopy_conductance_op;
-    double* GrossAssim_CO2_op;
-    double* canopy_photorespiration_rate_CO2_op;
+    double* canopy_gross_assimilation_molar_flux_op;
+    double* canopy_non_photorespiratory_CO2_release_rate_op;
+    double* canopy_photorespiration_molar_flux_op;
+    double* canopy_transpiration_rate_op;
+    double* whole_plant_growth_respiration_molar_flux_op;
 
     // Main operation
     void do_operation() const;

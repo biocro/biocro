@@ -14,7 +14,7 @@
 ##
 ## 2. Source this file by typing the following:
 ##
-##    source('test.CropModels.R')`
+##    source('test.CropModels.R')
 ##
 ## 3. Run one of the models and create a plot by typing the following:
 ##

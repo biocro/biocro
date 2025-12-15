@@ -63,6 +63,12 @@ willow <- list(
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
+        grc_grain                    = 0.0,
+        grc_leaf                     = 0.02,
+        grc_rhizome                  = 0.03,
+        grc_root                     = 0.03,
+        grc_shell                    = 0.0,
+        grc_stem                     = 0.02,
         growth_respiration_fraction  = 0.3,
         Gs_min                       = 1e-3,
         Gstar_c                      = 19.02,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
@@ -70,7 +76,7 @@ willow <- list(
         heightf                      = 3,        # LAI of 6 when canopy is 2 m tall
         hydrDist                     = 0,
         iSp                          = 1.1,
-        jmax                         = 180,
+        Jmax_at_25                   = 180,
         Jmax_c                       = 17.57,    # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         Jmax_Ea                      = 43.54e3,  # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         k_diffuse                    = 0.37,
@@ -123,9 +129,6 @@ willow <- list(
         lnfun                        = 0,
         longitude                    = -88,
         min_gbw_canopy               = 0.005,
-        mrc1                         = 0.02,
-        mrc2                         = 0.03,
-        net_assimilation_rate_shell  = 0.0,
         nlayers                      = 10,
         O2                           = 210,
         par_energy_content           = 0.219,
@@ -135,13 +138,13 @@ willow <- list(
         phi_PSII_0                   = 0.352,    # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         phi_PSII_1                   = 0.022,    # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         phi_PSII_2                   = -3.4e-4,  # Table 2 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
-        Rd                           = 1.1,
-        Rd_c                         = 18.72,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
-        Rd_Ea                        = 46.39e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         remobilization_fraction      = 0.6,
         retrans                      = 0.9,
         retrans_rhizome              = 1.0,
         rfl                          = 0.2,
+        RL_at_25                     = 1.1,
+        RL_c                         = 18.72,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        RL_Ea                        = 46.39e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         rsdf                         = 0.44,
         rsec                         = 0.2,
         seneLeaf                     = 1600,
@@ -179,15 +182,14 @@ willow <- list(
         tp3                          = 900,
         tp4                          = 1200,
         tp5                          = 3939,
+        Tp_at_25                     = 23,
         Tp_c                         = 19.77399, # Chosen so that Tp_norm = 1 at 25 degrees C
         Tp_Ha                        = 62.99e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_Hd                        = 182.14e3, # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_S                         = 0.588e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
-        tpu_rate_max                 = 23,
+        Vcmax_at_25                  = 100,
         Vcmax_c                      = 26.35,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         Vcmax_Ea                     = 65.33e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
-        vmax1                        = 100,
-        vmax_n_intercept             = 0,
         windspeed_height             = 5,
         wsFun                        = 2
     )

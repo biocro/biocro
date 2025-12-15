@@ -11,6 +11,7 @@
 #include "aba_decay.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
+#include "broyden_test.h"
 #include "buck_swvp.h"
 #include "bucket_soil_drainage.h"
 #include "c3_assimilation.h"
@@ -20,8 +21,11 @@
 #include "c4_assimilation.h"
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
-#include "carbon_assimilation_to_biomass.h"
 #include "canopy_gbw_thornley.h"
+#include "carbon_assimilation_to_biomass.h"
+#include "cumulative_carbon_dynamics.h"
+#include "cumulative_water_dynamics.h"
+#include "daylength_calculator.h"
 #include "development_index.h"
 #include "development_index_from_thermal_time.h"
 #include "example_model_mass_gain.h"
@@ -35,6 +39,8 @@
 #include "hyperbolas.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_evapotranspiration.h"
+#include "leaf_evapotranspiration_check.h"
+#include "leaf_gbw_campbell.h"
 #include "leaf_gbw_nikolov.h"
 #include "leaf_shape_factor.h"
 #include "leaf_water_stress_exponential.h"
@@ -43,6 +49,7 @@
 #include "litter_cover.h"
 #include "magic_clock.h"
 #include "maintenance_respiration.h"
+#include "maintenance_respiration_calculator.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
@@ -50,8 +57,6 @@
 #include "multilayer_canopy_properties.h"
 #include "multilayer_rue_canopy.h"
 #include "night_and_day_trackers.h"
-#include "no_leaf_resp_neg_assim_partitioning_growth_calculator.h"
-#include "no_leaf_resp_partitioning_growth_calculator.h"
 #include "nr_ex.h"
 #include "one_layer_soil_profile.h"
 #include "one_layer_soil_profile_derivatives.h"
@@ -61,6 +66,7 @@
 #include "partitioning_coefficient_selector.h"
 #include "partitioning_growth.h"
 #include "partitioning_growth_calculator.h"
+#include "partitioning_growth_calculator_leaf_costs.h"
 #include "penman_monteith_leaf_temperature.h"
 #include "penman_monteith_transpiration.h"
 #include "phase_clock.h"
@@ -68,6 +74,7 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
+#include "root_onedim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -93,6 +100,7 @@
 #include "thermal_time_senescence.h"
 #include "thermal_time_trilinear.h"
 #include "total_biomass.h"
+#include "total_growth_and_maintenance_respiration.h"
 #include "two_layer_soil_profile.h"
 #include "varying_Jmax25.h"
 #include "water_vapor_properties_from_air_temperature.h"
@@ -102,6 +110,7 @@ creator_map standardBML::module_library::library_entries =
      {"aba_decay",                                             &create_mc<aba_decay>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
+     {"broyden_test",                                          &create_mc<broyden_test>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
      {"bucket_soil_drainage",                                  &create_mc<bucket_soil_drainage>},
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
@@ -111,8 +120,11 @@ creator_map standardBML::module_library::library_entries =
      {"c4_assimilation",                                       &create_mc<c4_assimilation>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
-     {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
+     {"cumulative_carbon_dynamics",                            &create_mc<cumulative_carbon_dynamics>},
+     {"cumulative_water_dynamics",                             &create_mc<cumulative_water_dynamics>},
+     {"daylength_calculator",                                  &create_mc<daylength_calculator>},
      {"development_index",                                     &create_mc<development_index>},
      {"development_index_from_thermal_time",                   &create_mc<development_index_from_thermal_time>},
      {"example_model_mass_gain",                               &create_mc<example_model_mass_gain>},
@@ -128,6 +140,8 @@ creator_map standardBML::module_library::library_entries =
      {"hyperbola_2d",                                          &create_mc<hyperbola_2d>},
      {"incident_shortwave_from_ground_par",                    &create_mc<incident_shortwave_from_ground_par>},
      {"leaf_evapotranspiration",                               &create_mc<leaf_evapotranspiration>},
+     {"leaf_evapotranspiration_check",                         &create_mc<leaf_evapotranspiration_check>},
+     {"leaf_gbw_campbell",                                     &create_mc<leaf_gbw_campbell>},
      {"leaf_gbw_nikolov",                                      &create_mc<leaf_gbw_nikolov>},
      {"leaf_shape_factor",                                     &create_mc<leaf_shape_factor>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
@@ -136,12 +150,11 @@ creator_map standardBML::module_library::library_entries =
      {"litter_cover",                                          &create_mc<litter_cover>},
      {"magic_clock",                                           &create_mc<magic_clock>},
      {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
+     {"maintenance_respiration_calculator",                    &create_mc<maintenance_respiration_calculator>},
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},
      {"night_and_day_trackers",                                &create_mc<night_and_day_trackers>},
-     {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_mc<no_leaf_resp_neg_assim_partitioning_growth_calculator>},
-     {"no_leaf_resp_partitioning_growth_calculator",           &create_mc<no_leaf_resp_partitioning_growth_calculator>},
      {"nr_ex",                                                 &create_mc<nr_ex>},
      {"one_layer_soil_profile",                                &create_mc<one_layer_soil_profile>},
      {"one_layer_soil_profile_derivatives",                    &create_mc<one_layer_soil_profile_derivatives>},
@@ -151,6 +164,7 @@ creator_map standardBML::module_library::library_entries =
      {"partitioning_coefficient_selector",                     &create_mc<partitioning_coefficient_selector>},
      {"partitioning_growth",                                   &create_mc<partitioning_growth>},
      {"partitioning_growth_calculator",                        &create_mc<partitioning_growth_calculator>},
+     {"partitioning_growth_calculator_leaf_costs",             &create_mc<partitioning_growth_calculator_leaf_costs>},
      {"penman_monteith_leaf_temperature",                      &create_mc<penman_monteith_leaf_temperature>},
      {"penman_monteith_transpiration",                         &create_mc<penman_monteith_transpiration>},
      {"phase_clock",                                           &create_mc<phase_clock>},
@@ -158,6 +172,7 @@ creator_map standardBML::module_library::library_entries =
      {"priestley_transpiration",                               &create_mc<priestley_transpiration>},
      {"rasmussen_specific_heat",                               &create_mc<rasmussen_specific_heat>},
      {"rh_to_mole_fraction",                                   &create_mc<rh_to_mole_fraction>},
+     {"root_onedim_test",                                      &create_mc<root_onedim_test>},
      {"rue_leaf_photosynthesis",                               &create_mc<rue_leaf_photosynthesis>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
@@ -188,6 +203,7 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_senescence",                               &create_mc<thermal_time_senescence>},
      {"thermal_time_trilinear",                                &create_mc<thermal_time_trilinear>},
      {"total_biomass",                                         &create_mc<total_biomass>},
+     {"total_growth_and_maintenance_respiration",              &create_mc<total_growth_and_maintenance_respiration>},
      {"two_layer_soil_profile",                                &create_mc<two_layer_soil_profile>},
      {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
      {"water_vapor_properties_from_air_temperature",           &create_mc<water_vapor_properties_from_air_temperature>}

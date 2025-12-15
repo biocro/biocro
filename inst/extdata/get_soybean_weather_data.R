@@ -44,6 +44,12 @@ soybean_weather <- lapply(soybean_weather, function(wd) {
     wd
 })
 
+# Clamp `solar` to positive values
+soybean_weather <- lapply(soybean_weather, function(wd) {
+    wd$solar <- pmax(wd$solar, 0)
+})
+
+
 # Set the names properly
 names(soybean_weather) <- c('2002', '2004', '2005', '2006')
 

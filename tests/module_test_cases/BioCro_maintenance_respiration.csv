@@ -1,3 +1,3 @@
-input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
-Grain,Leaf,Rhizome,Root,Shell,Stem,mrc_grain,mrc_leaf,mrc_root,mrc_stem,temp,Grain,Leaf,Rhizome,Root,Shell,Stem,NA
-1,1,1,1,1,1,0.1,0.1,0.1,0.1,1,-0.01894645708138,-0.01894645708138,-0.01894645708138,-0.01894645708138,-0.01894645708138,-0.01894645708138,"automatically-generated test case"
+input,input,input,input,input,input,output,output,output,output,output,output,"description"
+Grain_mr_rate,Leaf_mr_rate,Rhizome_mr_rate,Root_mr_rate,Shell_mr_rate,Stem_mr_rate,Grain,Leaf,Rhizome,Root,Shell,Stem,NA
+1,1,1,1,1,1,-1,-1,-1,-1,-1,-1,"automatically-generated test case"

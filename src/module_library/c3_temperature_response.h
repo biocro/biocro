@@ -13,8 +13,8 @@ struct c3_temperature_response_parameters {
     double phi_PSII_0;  //!< Order 0 coefficient of polynomial response for theta (dimensionless)
     double phi_PSII_1;  //!< Order 1 coefficient of polynomial response for theta ((degrees C)^(-1))
     double phi_PSII_2;  //!< Order 2 coefficient of polynomial response for theta ((degrees C)^(-2))
-    double Rd_c;        //!< Arrhenius scaling parameter for Rd_norm (dimensionless)
-    double Rd_Ea;       //!< Arrhenius activation energy for Rd_norm (J / mol)
+    double RL_c;        //!< Arrhenius scaling parameter for RL_norm (dimensionless)
+    double RL_Ea;       //!< Arrhenius activation energy for RL_norm (J / mol)
     double theta_0;     //!< Order 0 coefficient of polynomial response for theta (dimensionless)
     double theta_1;     //!< Order 1 coefficient of polynomial response for theta ((degrees C)^(-1))
     double theta_2;     //!< Order 2 coefficient of polynomial response for theta ((degrees C)^(-2))
@@ -27,12 +27,12 @@ struct c3_temperature_response_parameters {
 };
 
 struct c3_param_at_tleaf {
-    double Gstar;       //!< CO2 compensation point in the absence of Rd (micromol / mol)
+    double Gstar;       //!< CO2 compensation point in the absence of RL (micromol / mol)
     double Jmax_norm;   //!< Jmax normalized to its value at 25 degrees C (dimensionless)
     double Kc;          //!< Michaelis-Menten constant for Rubisco carboxylation (micromol / mol)
     double Ko;          //!< Michaelis-Menten constant for Rubisco oxygenation (mmol / mol)
     double phi_PSII;    //!< Dark-adapted operating efficiency of photosystem II (dimensionless)
-    double Rd_norm;     //!< Rd normalized to its value at 25 degrees C (dimensionless)
+    double RL_norm;     //!< RL normalized to its value at 25 degrees C (dimensionless)
     double theta;       //!< Linear light response factor (dimensionless)
     double Tp_norm;     //!< Tp normalized to its value at 25 degrees C (dimensionless)
     double Vcmax_norm;  //!< Vcmax normalized to its value at 25 degrees C (dimensionless)

@@ -61,6 +61,13 @@ miscanthus_x_giganteus <- list(
         chil                        = 1,
         dry_biomass_per_carbon      = 30.026, # g CHO / mol C (glucose)
         emissivity_sky              = 1,
+        grc_grain                   = 0.0,
+        grc_leaf                    = 0.02,
+        grc_rhizome                 = 0.03,
+        grc_root                    = 0.03,
+        grc_shell                   = 0.0,
+        grc_stem                    = 0.02,
+        growth_respiration_fraction = 0.0,
         Gs_min                      = 1e-3,
         heightf                     = 1.33, # LAI of 4 when canopy is 3 m tall
         hydrDist                    = 0,
@@ -111,11 +118,8 @@ miscanthus_x_giganteus <- list(
         longitude                   = -88,
         lowerT                      = 3,
         min_gbw_canopy              = 0.005,
-        mrc1                        = 0.02,
-        mrc2                        = 0.03,
         nalphab0                    = 0.02367,
         nalphab1                    = 0.000488,
-        net_assimilation_rate_shell = 0.0,
         nileafn                     = 85,
         nkln                        = 0.5,
         nkpLN                       = 0.17,
@@ -130,11 +134,11 @@ miscanthus_x_giganteus <- list(
         par_energy_fraction         = 0.5,
         phi1                        = 0.01,
         phi2                        = 10,
-        Rd                          = 0.8,
         remobilization_fraction     = 0.6,
         retrans                     = 0.9,
         retrans_rhizome             = 1.0,
         rfl                         = 0.2,
+        RL_at_25                    = 0.8,
         rsdf                        = 0.44,
         rsec                        = 0.2,
         seneLeaf                    = 3000,
@@ -169,8 +173,7 @@ miscanthus_x_giganteus <- list(
         tp4                         = 2676,
         tp5                         = 3211,
         upperT                      = 37.5,
-        vmax1                       = 39,
-        vmax_n_intercept            = 0,
+        Vcmax_at_25                 = 39,
         windspeed_height            = 10, # for SURFRAD
         wsFun                       = 2
     )

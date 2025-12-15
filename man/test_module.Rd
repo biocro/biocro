@@ -27,7 +27,7 @@
 }
 
 \usage{
-  test_module(module_name, case_to_test)
+  test_module(module_name, case_to_test, verbose = TRUE)
 
   case(inputs, expected_outputs, description)
 
@@ -57,6 +57,12 @@
             \code{"temp below tbase"}. The description should be succinct and
             not contain any newline characters.
     }
+  }
+
+  \item{verbose}{
+    A logical value indicating whether to print information about failed tests
+    to the R terminal. When \code{verbose} is \code{TRUE}, any module outputs
+    that do not match the expected value will be printed.
   }
 
   \item{inputs}{
@@ -127,7 +133,8 @@ test_module(
 
 # Example 2: Defining an individual test case for the 'BioCro' module library's
 # 'thermal_time_linear' module and running the test. This test will fail, so the
-# return value will be a message indicating the failure.
+# return value will be a message indicating the failure. Because verbose is TRUE
+# by default, information about the failure will also be printed.
 test_module(
   'BioCro:thermal_time_linear',
   case(

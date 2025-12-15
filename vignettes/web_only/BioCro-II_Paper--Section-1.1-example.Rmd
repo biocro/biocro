@@ -16,7 +16,6 @@ bibliography: references/BioCro.bibtex
 knitr::opts_chunk$set(
   error = FALSE,
   collapse = TRUE,
-  cache = TRUE,
   autodep = TRUE
 )
 ```

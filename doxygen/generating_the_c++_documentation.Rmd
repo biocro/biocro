@@ -1,6 +1,6 @@
 <!-- This file is raw R Markdown code.  To see this as a
 correctly-rendered web page, visit the online documentation at
-https://biocro.github.io, go to the Developer's Manual, and find the
+https://biocro.org, go to the Developer's Manual, and find the
 chapter on generating documentation.  -->
 
 ## Documenting the C/C++ code.
@@ -9,7 +9,7 @@ chapter on generating documentation.  -->
 
 [Doxygen Downloads page]: https://www.doxygen.nl/download.html "Doxygen download page" {target="_blank"}
 [Doxygen Installation page]: https://www.doxygen.nl/manual/install.html "Doxygen installation page" {target="_blank"}
-[on-line version]: https://biocro.github.io "Complete Doxygen documentation" {target="_blank"}
+[on-line version]: https://biocro.org "Complete Doxygen documentation" {target="_blank"}
 [doxygen_faq]: https://doxygen.nl/manual/faq.html#faq_cmdline "Configuring Doxygen from the Command Line" {target="_blank"}
 [Configuration section]: https://doxygen.nl/manual/config.html "Configuring Doxygen" {target="_blank"}
 [Configuration options related to the dot tool]: https://www.doxygen.nl/manual/config.html#config_dot "Configuring Dot" {target="_blank"}

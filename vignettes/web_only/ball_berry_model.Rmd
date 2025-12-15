@@ -568,14 +568,14 @@ we observe the following trends:
 - The CO$_2$ concentration at the leaf surface ($C_s$) decreases with canopy
   depth (Figure \@ref(fig:cs-layer)).
 
-- The relative humidity at the leaf surface ($C_s$) increases with canopy depth
-  (Figure \@ref(fig:hs-layer)).
+- The relative humidity at the leaf surface ($RH_s$) is mostly insensitive
+  to the canopy depth (Figure \@ref(fig:hs-layer)).
 
-- The stomatal conductance ($g_{sw}$) increases with canopy depth
+- The stomatal conductance ($g_{sw}$) decreases with canopy depth
   (Figure \@ref(fig:gsw-layer)).
 
-- The leaf temperature ($T_l$) generally increases with canopy depth, although
-  the trend is not monotonic (Figure \@ref(fig:tl-layer)).
+- The leaf temperature ($T_l$) increases with canopy depth
+ (Figure \@ref(fig:tl-layer)).
 
 - The net assimilation rate ($A_n$) decreases with canopy depth (Figure
   \@ref(fig:an-layer)).

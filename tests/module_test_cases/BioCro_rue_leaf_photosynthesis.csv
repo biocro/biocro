@@ -1,3 +1,3 @@
-input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,"description"
-Catm,Rd,absorbed_longwave,absorbed_shortwave,alpha_rue,atmospheric_pressure,b0,b1,gbw_canopy,height,incident_ppfd,leafwidth,rh,temp,windspeed,windspeed_height,Assim,Ci,EPenman,EPriestly,GrossAssim,Gs,Rp,TransR,gbw,leaf_temperature,NA
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.000213542175519579,-2.04127216830115e-07,-7.01570258014822,-8.83978525098676,1,626.000000296086,0,-7.0157025773921,0.000292552880417629,0.458807806306993,"automatically-generated test case"
+input,input,output,output,output,output,output,output,"description"
+alpha_rue,incident_ppfd,Assim,GrossAssim,Gs,RL,Rp,TransR,NA
+1,1,1,1,0,0,0,0,"automatically-generated test case"

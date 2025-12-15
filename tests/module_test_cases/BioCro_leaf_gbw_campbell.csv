@@ -1,0 +1,3 @@
+input,input,input,input,input,output,"description"
+air_pressure,leaf_temperature,leafwidth,temp,windspeed,gbw_leaf,NA
+1,1,1,1,1,335.073259234706,"automatically-generated test case"

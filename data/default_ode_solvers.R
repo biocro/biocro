@@ -3,7 +3,7 @@ default_ode_solvers <- list(
         type = 'auto',
         output_step_size = 1.0,
         adaptive_rel_error_tol = 1e-4,
-        adaptive_abs_error_tole = 1e-4,
+        adaptive_abs_error_tol = 1e-4,
         adaptive_max_steps = 200
     ),
     homemade_euler = list(
@@ -38,7 +38,7 @@ default_ode_solvers <- list(
         type = 'boost_rosenbrock',
         output_step_size = 1.0,
         adaptive_rel_error_tol = 1e-4,
-        adaptive_abs_error_tole = 1e-4,
+        adaptive_abs_error_tol = 1e-4,
         adaptive_max_steps = 200
     )
 )

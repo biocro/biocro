@@ -20,7 +20,12 @@ partial_run_biocro(
     verbose = FALSE
 )
 
-partial_evaluate_module(module_name, input_quantities, arg_names)
+partial_evaluate_module(
+  module_name,
+  input_quantities,
+  arg_names,
+  stop_on_exception = FALSE
+)
 }
 
 \arguments{
@@ -65,6 +70,10 @@ partial_evaluate_module(module_name, input_quantities, arg_names)
     A list of named numeric elements representing any input quantities required
     by the module that are not included in \code{arg_names}; any extraneous
     quantities will be ignored by the module.
+  }
+
+  \item{stop_on_exception}{
+    Identical to the corresponding argument from \code{\link{evaluate_module}}.
   }
 }
 

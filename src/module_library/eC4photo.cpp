@@ -57,19 +57,19 @@ double eC4photoC(
     Kc = Kc2 * Q10Kc;
     Ko = Ko2 * Q10Ko;
     Vpmax = Vpmax1 * Q10p;
-    double Jmax = Jmax1 * pow(Q10cb, (AirTemp - 25) / 10);
+    double Jmax_at_25 = Jmax1 * pow(Q10cb, (AirTemp - 25) / 10);
 
     double Cm = 0.4 * Ca;
     double Om = Oa;
 
-    double Rd = 0.08;
-    double Rm = 0.5 * Rd;
+    double RL = 0.08;
+    double Rm = 0.5 * RL;
 
     /* Light limited */
     double I2 = (Idir * 0.85) / 2;
-    double J = (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4 * theta * I2 * Jmax)) / 2 * theta;
+    double J = (Jmax_at_25 + I2 - sqrt(pow(Jmax_at_25 + I2, 2) - 4 * theta * I2 * Jmax_at_25)) / 2 * theta;
     double Aj0 = 0.4 * J - Rm + gs * Cm;
-    double Aj1 = (1 - 0.4) * J / 3 - Rd;
+    double Aj1 = (1 - 0.4) * J / 3 - RL;
 
     if (Aj0 < Aj1) {
         Aj = Aj0;
@@ -88,9 +88,9 @@ double eC4photoC(
     double Om1 = Om * 1e3;
 
     double a1 = 1 - alpha / 0.047 * Kc / Ko1;
-    double b1 = -((Vp - Rm + gs * Cm) + (Vcmax - Rd) +
-                  gs * (Kc * (1 + Om1 / Ko1)) + ((alpha / 0.047) * (gammaStar * Vcmax + Rd * Kc / Ko1)));
-    double c1 = (Vcmax - Rd) * (Vp - Rm + gs * Cm) - (Vcmax * gs * gammaStar * Om1 + Rd * gs * Kc * (1 + Om1 / Ko1));
+    double b1 = -((Vp - Rm + gs * Cm) + (Vcmax - RL) +
+                  gs * (Kc * (1 + Om1 / Ko1)) + ((alpha / 0.047) * (gammaStar * Vcmax + RL * Kc / Ko1)));
+    double c1 = (Vcmax - RL) * (Vp - Rm + gs * Cm) - (Vcmax * gs * gammaStar * Om1 + RL * gs * Kc * (1 + Om1 / Ko1));
 
     double c3 = pow(b1, 2) - 4 * a1 * c1;
     if (c3 < 0) {

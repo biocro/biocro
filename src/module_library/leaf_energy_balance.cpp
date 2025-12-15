@@ -1,45 +1,110 @@
-#include <cmath>  // for pow, std::abs
+#include <cmath>                          // for pow, std::abs
+#include "../framework/constants.h"       // for stefan_boltzmann,
+                                          // celsius_to_kelvin, molar_mass_of_water
+#include "boundary_layer_conductance.h"   // for leaf_boundary_layer_conductance_nikolov
+#include "conductance_helpers.h"          // for g_to_mass, g_to_molecular, sequential_conductance
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "water_and_air_properties.h"     // for TempToCp, dry_air_density, etc
 #include "leaf_energy_balance.h"
-#include "boundary_layer_conductance.h"
-#include "water_and_air_properties.h"  // for TempToCp, dry_air_density, etc
-#include "../framework/constants.h"    // for stefan_boltzmann,
-                                       // celsius_to_kelvin, molar_mass_of_water
 
 /**
- *  @brief Use Equation 14.5a from Thornley & Johnson (1990) to calculate water
- *  vapor density from water vapor pressure.
+ *  @brief Calculates the total energy available to the leaf for transpiration
+ *  and sensible heat loss, often denoted as \f$ \Phi_N \f$.
  *
- *  This equation is described as follows:
+ *  This is a simple helping function to reduce repeated code in the energy
+ *  balance calculations.
  *
- *  > Before considering the bahavior of eqn (14.4k), we should point out that
- *  > vapour pressure rather than vapour density is frequently used in the
- *  > treatment of evaporation and transpiration (e.g. Monteith 1973, Jones
- *  > 1983). It can be shown (Exercise 14.3) that vapour density and pressure
- *  > are related by
- *  >
- *  >  `rho_v = rho * epsilon * p_v / (P - p_v)`,  (14.5a)
- *  >
- *  > where `P` is the total atmospheric pressure (dry air plus water vapour)
- *  > (Pa), `p_v` is the vapour pressure (or partial vapour pressure) (Pa),
- *  > `rho`, as defined above, is the density of dry air (kg / m^3), and
- *  > `epsilon` is the ratio of the relative molecular mass of water to the
- *  > relative molar mass of dry air (`epsilon` = 0.622 (Exercise 14.3)).
+ *  @param [in] epsilon_s Emissivity of the leaf surface (dimensionless)
  *
- *  Note: eqn (14.4k) is the Penman-Monteith equation for canopy transpiration
- *  as expressed in this source.
+ *  @param [in] J_a Absorbed shortwave and longwave energy (J / m^2 / s)
+ *
+ *  @param [in] leaf_temperature Leaf temperature (degrees C)
+ *
+ *  @return Phi_N (J / m^2 / s)
  */
-double vapor_density_from_pressure(
-    double density_of_dry_air,  // kg / m^3
-    double total_pressure,      // Pa
-    double vapor_pressure       // Pa
+double calculate_Phi_N(
+    double const epsilon_s,        // dimensionless
+    double const J_a,              // J / m^2 / s
+    double const leaf_temperature  // degrees C
 )
 {
-    // Specify the ratio of the relative molecular mass of water to the relative
-    // molecular mass of dry air. See Thornley & Johnson (1990), page 409.
-    constexpr double molecular_ratio_water_air = 0.622;  // dimensionless
+    // Get longwave energy losses
+    double const R_l = epsilon_s * physical_constants::stefan_boltzmann *
+                       pow(conversion_constants::celsius_to_kelvin + leaf_temperature, 4);  // J / m^2 / s
 
-    return density_of_dry_air * molecular_ratio_water_air *
-           vapor_pressure / (total_pressure - vapor_pressure);  // kg / m^3
+    // Get the energy available for transpiration and heat loss
+    return J_a - R_l;  // J / m^2 / s
+}
+
+/**
+ *  @brief Calculates the leaf boundary layer conductance using the Nikolov
+ *  model.
+ *
+ *  This is a simple wrapper to reduce repeated code in the energy balance
+ *  calculations.
+ *
+ *  @return gbw_leaf (m / s)
+ */
+double calculate_gbw_leaf(
+    double const air_pressure,      // Pa
+    double const air_temperature,   // degrees C
+    double const leaf_temperature,  // degrees C
+    double const leaf_width,        // m
+    double const wind_speed         // m / s
+)
+{
+    return leaf_boundary_layer_conductance_campbell(
+        air_temperature,
+        leaf_temperature - air_temperature,
+        leaf_width,
+        wind_speed,
+        air_pressure);  // m / s
+}
+
+/**
+ *  @brief Calculates a difference in leaf temperature; this function will
+ *  return zero only if leaf temperature satisfies the energy balance equations.
+ */
+double check_leaf_temp(
+    double const air_pressure,          // Pa
+    double const air_temperature,       // degrees C
+    double const Delta_rho,             // kg / m^3
+    double const epsilon_s,             // dimensionless
+    double const gamma,                 // kg / m^3 / K
+    double const gbw_canopy,            // m / s
+    double const J_a,                   // J / m^2 / s
+    double const lambda,                // J / kg
+    double const leaf_temperature,      // degrees C
+    double const leaf_width,            // m
+    double const s,                     // kg / m^3 / K
+    double const stomatal_conductance,  // mol / m^2 / s
+    double const wind_speed             // m / s
+)
+{
+    // Get stomatal conductance to water vapor as a mass conductance
+    double const gsw = g_to_mass(air_pressure, stomatal_conductance, leaf_temperature);  // m / s
+
+    // Get leaf boundary layer conductance to water vapor
+    double const gbw_leaf = calculate_gbw_leaf(
+        air_pressure,
+        air_temperature,
+        leaf_temperature,
+        leaf_width,
+        wind_speed);  // m / s
+
+    // Get the boundary layer conductance and total conductance to water
+    // vapor
+    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);  // m / s
+    double const gw = sequential_conductance(gsw, gbw);               // m / s
+
+    // Get the new leaf temperature using the Penman-Monteith equation
+    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);
+    double const pm_top = Phi_N / gw - lambda * Delta_rho;              // J / m^3
+    double const pm_bottom = lambda * (s + gamma * (1.0 + gbw / gsw));  // J / m^3 / K
+
+    double const leaf_temperature_new = air_temperature + pm_top / pm_bottom;  // degrees C
+
+    return leaf_temperature - leaf_temperature_new;  // degrees C
 }
 
 /**
@@ -95,100 +160,94 @@ energy_balance_outputs leaf_energy_balance(
     double constexpr epsilon_s = 1.0;  // dimensionless
 
     // Get water vapor and air properties based on the air temperature
-    const double c_p = TempToCp(air_temperature);                                        // J / kg / K
-    const double lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
-    const double p_w_sat_air = saturation_vapor_pressure(air_temperature);               // Pa
-    const double rho_ta = dry_air_density(air_temperature, air_pressure);                // kg / m^3
-    const double s = TempToSFS(air_temperature);                                         // kg / m^3 / K
+    double const c_p = TempToCp(air_temperature);                                        // J / kg / K
+    double const lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
+    double const p_w_sat_air = saturation_vapor_pressure(air_temperature);               // Pa
+    double const rho_ta = dry_air_density(air_temperature, air_pressure);                // kg / m^3
+    double const s = TempToSFS(air_temperature);                                         // kg / m^3 / K
 
     // Get the pyschrometric parameter
-    const double gamma = rho_ta * c_p / lambda;  // kg / m^3 / K
+    double const gamma = rho_ta * c_p / lambda;  // kg / m^3 / K
 
     // Get vapor density in the ambient air.
-    const double p_w_air = p_w_sat_air * relative_humidity;  // Pa
+    double const p_w_air = p_w_sat_air * relative_humidity;  // Pa
 
-    const double rho_w_air =
+    double const rho_w_air =
         vapor_density_from_pressure(rho_ta, air_pressure, p_w_air);  // kg / m^3
 
     // Get vapor density deficit
-    const double rho_w_sat =
+    double const rho_w_sat =
         vapor_density_from_pressure(rho_ta, air_pressure, p_w_sat_air);  // kg / m^3
 
-    const double Delta_rho = rho_w_sat - rho_w_air;  // kg / m^3
+    double const Delta_rho = rho_w_sat - rho_w_air;  // kg / m^3
 
     // Get total absorbed light energy (longwave and shortwave)
-    const double J_a = absorbed_shortwave_energy + absorbed_longwave_energy;  // J / m^2 / s
+    double const J_a = absorbed_shortwave_energy + absorbed_longwave_energy;  // J / m^2 / s
 
-    // Make an initial guess for the leaf temperature
-    double leaf_temperature{air_temperature + 0.1};  // degrees C
+    // Use partial application to fix all inputs to `check_leaf_temp` except
+    // leaf temperature. To solve the energy balance equations, a root of this
+    // function must be found.
+    auto check_leaf_temp_partial = [=](double const leaf_temperature) {
+        return check_leaf_temp(
+            air_pressure,          // Pa
+            air_temperature,       // degrees C
+            Delta_rho,             // kg / m^3
+            epsilon_s,             // dimensionless
+            gamma,                 // kg / m^3 / K
+            gbw_canopy,            // m / s
+            J_a,                   // J / m^2 / s
+            lambda,                // J / kg
+            leaf_temperature,      // degrees C
+            leaf_width,            // m
+            s,                     // kg / m^3 / K
+            stomatal_conductance,  // mol / m^2 / s
+            wind_speed             // m / s
+        );
+    };
 
-    // Initialize other loop variables; their values will be set during the loop
-    double gbw_leaf{};   // m / s
-    double gbw{};        // m / s
-    double gsw{};        // m / s
-    double gw{};         // m / s
-    double mv_tl{};      // m^3 / mol
-    double Phi_N{};      // J / m^2 / s
-    double pm_bottom{};  // J / m^3 / K
-    double pm_top{};     // J / m^3
-    double R_l{};        // J / m^2 / s
+    // Run Dekker's method
+    double constexpr delta_temp = 50;  // degrees C
 
-    // Run loop to find the leaf temperature
-    double constexpr max_delta{10};  // degrees C
-    double old_leaf_temperature{};   // degrees C
-    double change_in_tl{};           // degrees C
-    int counter{0};
+    root_finding::dekker solver{500, 1e-12, 1e-12};
 
-    do {
-        // Store leaf temperature from previous loop iteration
-        old_leaf_temperature = leaf_temperature;  // degrees C
+    root_finding::result_t result = solver.solve(
+        check_leaf_temp_partial,
+        air_temperature + 0.9 * delta_temp,  // guess
+        air_temperature - delta_temp,        // lower
+        air_temperature + delta_temp         // upper
+    );
 
-        // Get longwave energy losses
-        R_l = epsilon_s * physical_constants::stefan_boltzmann *
-              pow(conversion_constants::celsius_to_kelvin + leaf_temperature, 4);  // J / m^2 / s
+    // Throw exception if not converged
+    if (!root_finding::is_successful(result.flag)) {
+        throw std::runtime_error(
+            "leaf_temperature solver reports failed convergence with termination flag:\n    " +
+            root_finding::flag_message(result.flag));
+    }
 
-        // Get the energy available for transpiration and heat loss
-        Phi_N = J_a - R_l;  // J / m^2 / s
-
-        // Get stomatal conductance to water vapor as a mass conductance
-        mv_tl = molar_volume(leaf_temperature, air_pressure);  // m^3 / mol
-        gsw = stomatal_conductance * mv_tl;                    // m / s
-
-        // Get leaf boundary layer conductance to water vapor
-        gbw_leaf = leaf_boundary_layer_conductance_nikolov(
-            air_temperature,
-            leaf_temperature - air_temperature,
-            p_w_air,
-            gsw,
-            leaf_width,
-            wind_speed,
-            air_pressure);  // m / s
-
-        // Get the boundary layer conductance and total conductance to water
-        // vapor
-        gbw = 1.0 / (1.0 / gbw_leaf + 1.0 / gbw_canopy);  // m / s
-        gw = 1.0 / (1.0 / gsw + 1.0 / gbw);               // m / s
-
-        // Get the new leaf temperature using the Penman-Monteith equation
-        pm_top = Phi_N / gw - lambda * Delta_rho;              // J / m^3
-        pm_bottom = lambda * (s + gamma * (1.0 + gbw / gsw));  // J / m^3 / K
-
-        leaf_temperature = air_temperature +
-                           std::min(std::max(pm_top / pm_bottom, -max_delta), max_delta);  // degrees C
-
-        // Get the change in leaf temperature relative to the previous iteration
-        change_in_tl = std::abs(leaf_temperature - old_leaf_temperature);  // degrees C
-
-    } while ((++counter <= 50) && (change_in_tl > 0.25));
+    // Get final value
+    double const leaf_temperature = result.root;  // degrees C
 
     // Calculate additional outputs
-    double const Delta_T = leaf_temperature - air_temperature;  // degrees C
-    double const E = (Delta_rho + s * Delta_T) * gw;            // kg / m^2 / s
-    double const H = rho_ta * c_p * Delta_T * gbw;              // J / m^2 / s
-    double const storage = Phi_N - H - lambda * E;              // J / m^2 / s
+    double const gsw = g_to_mass(air_pressure, stomatal_conductance, leaf_temperature);  // m / s
+
+    double const gbw_leaf = calculate_gbw_leaf(
+        air_pressure,
+        air_temperature,
+        leaf_temperature,
+        leaf_width,
+        wind_speed);  // m / s
+
+    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);                   // m / s
+    double const gbw_molecular = g_to_molecular(air_pressure, gbw, leaf_temperature);  // mol / m^2 / s
+    double const gw = sequential_conductance(gsw, gbw);                                // m / s
+    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);            // degrees C
+    double const Delta_T = leaf_temperature - air_temperature;                         // degrees C
+    double const E = (Delta_rho + s * Delta_T) * gw;                                   // kg / m^2 / s
+    double const H = rho_ta * c_p * Delta_T * gbw;                                     // J / m^2 / s
+    double const storage = Phi_N - H - lambda * E;                                     // J / m^2 / s
 
     // Relative humidity just outside the leaf boundary layer
-    double const RH_canopy = (rho_w_air - E / gbw_canopy) / rho_w_sat;  // dimensionless
+    double const RH_canopy = (rho_w_air + E / gbw_canopy) / rho_w_sat;  // dimensionless
 
     // Potential evapotranspiration can be calculated assuming infinite stomatal
     // conductance; here we call this "Penman transpiration."
@@ -206,20 +265,21 @@ energy_balance_outputs leaf_energy_balance(
     double constexpr cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     return energy_balance_outputs{
-        /* Deltat = */ Delta_T,             // degrees C
-        /* E_loss = */ lambda * E,          // J / m^2 / s
-        /* EPenman = */ EPen * cf,          // mmol / m^2 / s
-        /* EPriestly = */ EPries * cf,      // mmol / m^2 / s
-        /* gbw = */ gbw,                    // m / s
-        /* gbw_canopy = */ gbw_canopy,      // m / s
-        /* gbw_leaf = */ gbw_leaf,          // m / s
-        /* gbw_molecular = */ gbw / mv_tl,  // mol / m^2 / s
-        /* gsw = */ gsw,                    // m / s
-        /* H = */ H,                        // J / m^2 / s
-        /* PhiN = */ Phi_N,                 // J / m^2 / s
-        /* RH_canopy = */ RH_canopy,        // dimensionless
-        /* storage = */ storage,            // J / m^2 / s
-        /* TransR = */ E * cf,              // mmol / m^2 / s
-        /* iterations = */ counter          // not a physical quantity
+        /* Deltat = */ Delta_T,                   // degrees C
+        /* E_loss = */ lambda * E,                // J / m^2 / s
+        /* EPenman = */ EPen * cf,                // mmol / m^2 / s
+        /* EPriestly = */ EPries * cf,            // mmol / m^2 / s
+        /* gbw = */ gbw,                          // m / s
+        /* gbw_canopy = */ gbw_canopy,            // m / s
+        /* gbw_leaf = */ gbw_leaf,                // m / s
+        /* gbw_molecular = */ gbw_molecular,      // mol / m^2 / s
+        /* gsw = */ gsw,                          // m / s
+        /* H = */ H,                              // J / m^2 / s
+        /* leaf_temp_check = */ result.residual,  // degrees C
+        /* PhiN = */ Phi_N,                       // J / m^2 / s
+        /* RH_canopy = */ RH_canopy,              // dimensionless
+        /* storage = */ storage,                  // J / m^2 / s
+        /* TransR = */ E * cf,                    // mmol / m^2 / s
+        /* iterations = */ result.iteration       // not a physical quantity
     };
 }

@@ -2,6 +2,7 @@
 #define CONDUCTANCE_LIMITED_ASSIM_H
 
 #include "../framework/constants.h"  // for dr_boundary, dr_stomata
+#include "conductance_helpers.h"     // for sequential_conductance
 
 /**
  *  @brief Computes the conductance-limited net CO2 assimilation rate.
@@ -72,8 +73,10 @@ inline double conductance_limited_assim(
     double gsw   // mol / m^2 / s
 )
 {
-    return Ca / (physical_constants::dr_boundary / gbw +
-                 physical_constants::dr_stomata / gsw);  // micromol / m^2 / s
+    using physical_constants::dr_boundary;
+    using physical_constants::dr_stomata;
+
+    return Ca * sequential_conductance(gbw / dr_boundary, gsw / dr_stomata);  // micromol / m^2 / s
 }
 
 #endif

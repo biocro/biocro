@@ -55,7 +55,7 @@ inline void parameter_list::add(std::string const &s, char const delim, bool con
 parameter_list parameters {
   { "windspeed"                         , {"Wind speed at the top of the canopy."                                     ,"m / s"                        }},
   { "soilEvap"                          , {"Rate of evaporation of water from the soil."                              ,""                             }},
-  { "solar"                             , {"Photosynthetically active radiation photon flux at the top of the canopy" ,"micromole / m^2 / s"          }},
+  { "solar"                             , {"Photosynthetically active radiation photon flux at the top of the canopy" ,"micromol / m^2 / s"           }},
   { "lat"                               , {"Latitude"                                                                 ,"degrees N"                    }},
   { "rh"                                , {"Relative humidity"                                                        ,"Pa / Pa"                      }},
   { "soil_bulk_density"                 , {"Mass of soil per volume of bulk soil."                                    ,"Mg / m^3"                     }},
@@ -84,8 +84,8 @@ parameter_list parameters {
   { "Rhizome"                           , {"Mass of rhizomes per ground area"                                         ,"Mg / ha"                      }},
   { "acceleration_from_gravity"         , {"Accerlation from gravity"                                                 ,"m / s^2"                      }},
   { "lai"                               , {"Leaf area index"                                                          ,"m^2 / m^2"                    }},
-  { "Catm"                              , {"Atmospheric CO2 concentration"                                            ,"micromole / mol"              }},
-  { "vmax"                              , {"Maximum carboxylation rate of C4 photosynthesis."                         ,"micromole / m^2 / s"          }},
+  { "Catm"                              , {"Atmospheric CO2 concentration"                                            ,"micromol / mol"               }},
+  { "Vcmax_at_25"                       , {"Maximum carboxylation rate of C4 photosynthesis."                         ,"micromol / m^2 / s"           }},
   { "alpha"                             , {"Quantum efficiency of CO2 assimiliation for incident radiation."          ,"mol / mol"                    }},  // This is for *incident* not absorbed radiation.
   { "kparm"                             , {"Slope of the roughly linear portion of an A-Ci curve."                    ,"mol / m^2 / s / Pa"           }},
   { "slope_water_vapor"                 , {"Slope of the saturation water vapor density vs air temperature curve."    ,"kg / m^3 / K"                 }},  // It is also kg / m^3 / degrees C since it is a change in temperature.

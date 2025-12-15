@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,"description"
+Grain_gr,Grain_mr,Leaf_WS_loss,Leaf_gr,Leaf_mr,Rhizome_gr,Rhizome_mr,Root_gr,Root_mr,Shell_gr,Shell_mr,Stem_gr,Stem_mr,whole_plant_growth_respiration,total_growth_respiration,total_maintenance_respiration,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,8,6,"automatically-generated test case"

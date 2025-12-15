@@ -598,7 +598,8 @@ xyplot(
 )
 ```
 
-We can also see the total canopy assimilation rate (in units of Mg / ha / hr):
+We can also see the total canopy assimilation rate (in units of
+micromol / m^2 / s):
 
 ```{r}
 canopy_totals <- evaluate_module(
@@ -609,7 +610,7 @@ canopy_totals <- evaluate_module(
     })
 )
 
-canopy_totals$canopy_assimilation_rate
+canopy_totals$canopy_assimilation_molar_flux
 ```
 
 Another potentially interesting output is the total PPFD absorbed by the canopy.

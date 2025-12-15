@@ -26,7 +26,7 @@ string_vector c3_canopy::get_inputs()
         "Gstar_c",                      // dimensionless
         "Gstar_Ea",                     // J / mol
         "heightf",                      // m^(-1)
-        "jmax",                         // micromol / m^2 / s
+        "Jmax_at_25",                   // micromol / m^2 / s
         "Jmax_c",                       // dimensionless
         "Jmax_Ea",                      // J / mol
         "k_diffuse",                    // dimensionless
@@ -52,37 +52,39 @@ string_vector c3_canopy::get_inputs()
         "phi_PSII_0",           // dimensionless
         "phi_PSII_1",           // (degrees C)^(-1)
         "phi_PSII_2",           // (degrees C)^(-2)
-        "Rd",                   // micromol / m^2 / s
-        "Rd_c",                 // dimensionless
-        "Rd_Ea",                // J / mol
         "rh",                   // dimensionless
+        "RL_at_25",             // micromol / m^2 / s
+        "RL_c",                 // dimensionless
+        "RL_Ea",                // J / mol
         "solar",                // micromol / m^2 / s
         "StomataWS",            // dimensionless
         "temp",                 // degrees C
         "theta_0",              // dimensionless
         "theta_1",              // (degrees C)^(-1)
         "theta_2",              // (degrees C)^(-2)
+        "Tp_at_25",             // micromol / m^2 / s
         "Tp_c",                 // dimensionless
         "Tp_Ha",                // J / mol
         "Tp_Hd",                // J / mol
         "Tp_S",                 // J / K / mol
-        "tpu_rate_max",         // micromol / m^2 / s
+        "Vcmax_at_25",          // micromol / m^2 / s
         "Vcmax_c",              // dimensionless
         "Vcmax_Ea",             // J / mol
-        "vmax",                 // micromol / m^2 / s
         "windspeed",            // m / s
-        "windspeed_height",     // m
+        "windspeed_height"      // m
     };
 }
 
 string_vector c3_canopy::get_outputs()
 {
     return {
-        "canopy_assimilation_rate_CO2",     // Mg / ha / hr
-        "canopy_transpiration_rate",        // Mg / ha / hr
-        "canopy_conductance",               // mol / m^2 / s
-        "GrossAssim_CO2",                   // Mg / ha / hr
-        "canopy_photorespiration_rate_CO2"  // Mg / ha / hr
+        "canopy_assimilation_molar_flux",                      // micromol / m^2 / s
+        "canopy_conductance",                                  // mol / m^2 / s
+        "canopy_gross_assimilation_molar_flux",                // micromol / m^2 / s
+        "canopy_non_photorespiratory_CO2_release_molar_flux",  // micromol / m^2 / s
+        "canopy_photorespiration_molar_flux",                  // micromol / m^2 / s
+        "canopy_transpiration_rate",                           // Mg / ha / hr
+        "whole_plant_growth_respiration_molar_flux"            // micromol / m^2 / s
     };
 }
 
@@ -101,8 +103,8 @@ void c3_canopy::do_operation() const
         phi_PSII_0,
         phi_PSII_1,
         phi_PSII_2,
-        Rd_c,
-        Rd_Ea,
+        RL_c,
+        RL_Ea,
         theta_0,
         theta_1,
         theta_2,
@@ -132,36 +134,38 @@ void c3_canopy::do_operation() const
         growth_respiration_fraction,
         Gs_min,
         heightf,
-        jmax,
-        kpLN,
+        Jmax_at_25,
         k_diffuse,
+        kpLN,
         lai,
-        LeafN,
         leaf_reflectance_nir,
         leaf_reflectance_par,
         leaf_transmittance_nir,
         leaf_transmittance_par,
         leafwidth,
+        LeafN,
         lnb0,
         lnb1,
         O2,
         par_energy_content,
         par_energy_fraction,
-        Rd,
         rh,
+        RL_at_25,
         solar,
         StomataWS,
-        tpu_rate_max,
-        vmax,
+        Tp_at_25,
+        Vcmax_at_25,
         windspeed,
         windspeed_height,
         lnfun,
         nlayers);
 
     // Update the output quantity list
-    update(canopy_assimilation_rate_CO2_op, can_result.Assim);     // Mg / ha / hr
-    update(canopy_transpiration_rate_op, can_result.Trans);        // Mg / ha / hr
-    update(canopy_conductance_op, can_result.canopy_conductance);  // mol / m^2 / s
-    update(GrossAssim_CO2_op, can_result.GrossAssim);              // Mg / ha / hr
-    update(canopy_photorespiration_rate_CO2_op, can_result.Rp);    // Mg / ha / hr
+    update(canopy_assimilation_molar_flux_op, can_result.Assim);                      // micromol / m^2 / s
+    update(canopy_conductance_op, can_result.canopy_conductance);                     // mol / m^2 / s
+    update(canopy_gross_assimilation_molar_flux_op, can_result.GrossAssim);           // micromol / m^2 / s
+    update(canopy_non_photorespiratory_CO2_release_rate_op, can_result.RL);           // micromol / m^2 / s
+    update(canopy_photorespiration_molar_flux_op, can_result.Rp);                     // micromol / m^2 / s
+    update(canopy_transpiration_rate_op, can_result.Trans);                           // Mg / ha / hr
+    update(whole_plant_growth_respiration_molar_flux_op, can_result.whole_plant_gr);  // micromol / m^2 / s
 }

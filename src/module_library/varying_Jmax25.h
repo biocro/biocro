@@ -9,7 +9,7 @@ namespace standardBML
 /**
  *  @class varying_Jmax25
  *
- *  @brief Allows Jmax (at 25 degrees C) to vary based on development index.
+ *  @brief Allows Jmax_at_25 to vary based on development index.
  *
  *  Here we wish to specify separate values of \f$ J_{max} \f$ (at 25 degrees C)
  *  for mature and emerging plants, where the value for mature plants is
@@ -77,7 +77,7 @@ namespace standardBML
  *  This module implements Equation `(3)` where the values of
  *  \f$ J_{max}^{mature} \f$, \f$ DVI_0 \f$, \f$ \Delta_{DVI} \f$ and
  *  \f$ f_{emerging} \f$ are taken from the BioCro quantities called
- *  ``'jmax_mature'``, ``'DVI0_jmax'``, ``'Delta_DVI_jmax'``, and ``'sf_jmax'``,
+ *  ``'Jmax_at_25_mature'``, ``'DVI0_jmax'``, ``'Delta_DVI_jmax'``, and ``'sf_jmax'``,
  *  respectively.
  */
 class varying_Jmax25 : public direct_module
@@ -90,13 +90,13 @@ class varying_Jmax25 : public direct_module
 
           // Get references to input quantities
           DVI{get_input(input_quantities, "DVI")},
-          jmax_mature{get_input(input_quantities, "jmax_mature")},
+          Jmax_at_25_mature{get_input(input_quantities, "Jmax_at_25_mature")},
           DVI0_jmax{get_input(input_quantities, "DVI0_jmax")},
           D_DVI{get_input(input_quantities, "Delta_DVI_jmax")},
           sf_jmax{get_input(input_quantities, "sf_jmax")},
 
           // Get pointers to output quantities
-          jmax_op{get_op(output_quantities, "jmax")}
+          Jmax_at_25_op{get_op(output_quantities, "Jmax_at_25")}
     {
     }
     static string_vector get_inputs();
@@ -106,13 +106,13 @@ class varying_Jmax25 : public direct_module
    private:
     // Pointers to input quantities
     double const& DVI;
-    double const& jmax_mature;
+    double const& Jmax_at_25_mature;
     double const& DVI0_jmax;
     double const& D_DVI;
     double const& sf_jmax;
 
     // Pointers to output quantities
-    double* jmax_op;
+    double* Jmax_at_25_op;
 
     // Main operation
     void do_operation() const;
@@ -121,18 +121,18 @@ class varying_Jmax25 : public direct_module
 string_vector varying_Jmax25::get_inputs()
 {
     return {
-        "DVI",             // dimensionless
-        "sf_jmax",         // dimensionless
-        "DVI0_jmax",       // dimensionless
-        "Delta_DVI_jmax",  // dimensionless
-        "jmax_mature"      // micromol / m^2 / s
+        "DVI",               // dimensionless
+        "sf_jmax",           // dimensionless
+        "DVI0_jmax",         // dimensionless
+        "Delta_DVI_jmax",    // dimensionless
+        "Jmax_at_25_mature"  // micromol / m^2 / s
     };
 }
 
 string_vector varying_Jmax25::get_outputs()
 {
     return {
-        "jmax"  // micromol / m^2 / s
+        "Jmax_at_25"  // micromol / m^2 / s
     };
 }
 
@@ -140,12 +140,12 @@ void varying_Jmax25::do_operation() const
 {
     double const k = -log(1.0 / 0.95 - 1.0);  // dimensionless
 
-    double const C = jmax_mature * sf_jmax;        // micromol / m^2 / s
-    double const L = jmax_mature * (1 - sf_jmax);  // micromol / m^2 / s
+    double const C = Jmax_at_25_mature * sf_jmax;        // micromol / m^2 / s
+    double const L = Jmax_at_25_mature * (1 - sf_jmax);  // micromol / m^2 / s
 
-    double const jmax = L / (1.0 + exp(-k * (DVI - DVI0_jmax) / D_DVI)) + C;  // micromol / m^2 / s
+    double const Jmax_at_25 = L / (1.0 + exp(-k * (DVI - DVI0_jmax) / D_DVI)) + C;  // micromol / m^2 / s
 
-    update(jmax_op, jmax);
+    update(Jmax_at_25_op, Jmax_at_25);
 }
 
 }  // namespace standardBML

@@ -40,6 +40,7 @@ class leaf_evapotranspiration : public direct_module
           gbw_op{get_op(output_quantities, "gbw")},
           gsw_op{get_op(output_quantities, "gsw")},
           H_op{get_op(output_quantities, "H")},
+          leaf_temp_check_op{get_op(output_quantities, "leaf_temp_check")},
           leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
           PhiN_op{get_op(output_quantities, "PhiN")},
           storage_op{get_op(output_quantities, "storage")},
@@ -73,6 +74,7 @@ class leaf_evapotranspiration : public direct_module
     double* gbw_op;
     double* gsw_op;
     double* H_op;
+    double* leaf_temp_check_op;
     double* leaf_temperature_op;
     double* PhiN_op;
     double* storage_op;
@@ -110,6 +112,7 @@ string_vector leaf_evapotranspiration::get_outputs()
         "gbw_leaf",          // m / s
         "gsw",               // m / s
         "H",                 // J / m^2 / s
+        "leaf_temp_check",   // degrees C
         "leaf_temperature",  // degrees C
         "PhiN",              // J / m^2 / s
         "storage",           // J / m^2 / s
@@ -151,6 +154,7 @@ void leaf_evapotranspiration::do_operation() const
     update(gbw_op, result.gbw);
     update(gsw_op, result.gsw);
     update(H_op, result.H);
+    update(leaf_temp_check_op, result.leaf_temp_check);
     update(iterations_op, result.iterations);
     update(leaf_temperature_op, temp + result.Deltat);
     update(PhiN_op, result.PhiN);

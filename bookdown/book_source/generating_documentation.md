@@ -1,6 +1,6 @@
 <!--  external references -->
 
-[online docs]: https://biocro.github.io
+[online docs]: https://biocro.org
   "Online documentation for BioCro" {target="_blank"}
 
 <!-- main text -->
@@ -13,7 +13,7 @@ Before we discuss generating documentation, we reiterate that you
 rarely need to.  That is because the documentation is automatically
 generated for you and made available online!
 
-The public documentation page at [https://biocro.github.io][online
+The public documentation page at [https://biocro.org][online
 docs] provides up-to-date documentation for the latest release of
 BioCro.  (This documentation will provide links to documentation of
 older releases.)

@@ -1,3 +1,3 @@
-input,input,input,input,input,input,output,"description"
-Grain,Leaf,Rhizome,Root,Shell,Stem,total_biomass,NA
-1,1,1,1,1,1,6,"automatically-generated test case"
+input,input,input,input,input,input,input,input,input,input,output,output,"description"
+Grain,Leaf,LeafLitter,Rhizome,RhizomeLitter,Root,RootLitter,Shell,Stem,StemLitter,total_intact_biomass,total_litter_biomass,NA
+1,1,1,1,1,1,1,1,1,1,6,4,"automatically-generated test case"

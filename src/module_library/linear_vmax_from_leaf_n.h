@@ -13,13 +13,13 @@ class linear_vmax_from_leaf_n : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          LeafN_0_ip{get_ip(input_quantities, "LeafN_0")},
-          LeafN_ip{get_ip(input_quantities, "LeafN")},
-          vmax_n_intercept_ip{get_ip(input_quantities, "vmax_n_intercept")},
-          vmax1_ip{get_ip(input_quantities, "vmax1")},
+          LeafN{get_input(input_quantities, "LeafN")},
+          LeafN_0{get_input(input_quantities, "LeafN_0")},
+          Vcmax_at_25_n_offset{get_input(input_quantities, "Vcmax_at_25_n_offset")},
+          Vcmax_at_25_n_slope{get_input(input_quantities, "Vcmax_at_25_n_slope")},
 
           // Get pointers to output quantities
-          vmax_op{get_op(output_quantities, "vmax")}
+          Vcmax_at_25_op{get_op(output_quantities, "Vcmax_at_25")}
     {
     }
     static string_vector get_inputs();
@@ -28,13 +28,13 @@ class linear_vmax_from_leaf_n : public direct_module
 
    private:
     // Pointers to input quantities
-    const double* LeafN_0_ip;
-    const double* LeafN_ip;
-    const double* vmax_n_intercept_ip;
-    const double* vmax1_ip;
+    double const& LeafN;
+    double const& LeafN_0;
+    double const& Vcmax_at_25_n_offset;
+    double const& Vcmax_at_25_n_slope;
 
     // Pointers to output quantities
-    double* vmax_op;
+    double* Vcmax_at_25_op;
 
     // Main operation
     void do_operation() const;
@@ -43,30 +43,24 @@ class linear_vmax_from_leaf_n : public direct_module
 string_vector linear_vmax_from_leaf_n::get_inputs()
 {
     return {
-        "LeafN_0",           //
-        "LeafN",             //
-        "vmax_n_intercept",  //
-        "vmax1"              //
+        "LeafN",                 //
+        "LeafN_0",               //
+        "Vcmax_at_25_n_offset",  // micromol / m^2 / s
+        "Vcmax_at_25_n_slope"    //
     };
 }
 
 string_vector linear_vmax_from_leaf_n::get_outputs()
 {
     return {
-        "vmax"  //
+        "Vcmax_at_25"  // micromol / m^2 / s
     };
 }
 
 void linear_vmax_from_leaf_n::do_operation() const
 {
-    // Collect inputs and make calculations
-    double LeafN_0 = *LeafN_0_ip;
-    double LeafN = *LeafN_ip;
-    double vmax_n_intercept = *vmax_n_intercept_ip;
-    double vmax1 = *vmax1_ip;
-
     // Update the output quantity list
-    update(vmax_op, (LeafN_0 - LeafN) * vmax_n_intercept + vmax1);
+    update(Vcmax_at_25_op, (LeafN_0 - LeafN) * Vcmax_at_25_n_slope + Vcmax_at_25_n_offset);
 }
 
 }  // namespace standardBML

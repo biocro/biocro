@@ -31,8 +31,8 @@ class c3_parameters : public direct_module
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
           phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
-          Rd_c{get_input(input_quantities, "Rd_c")},
-          Rd_Ea{get_input(input_quantities, "Rd_Ea")},
+          RL_c{get_input(input_quantities, "RL_c")},
+          RL_Ea{get_input(input_quantities, "RL_Ea")},
           theta_0{get_input(input_quantities, "theta_0")},
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
@@ -50,7 +50,7 @@ class c3_parameters : public direct_module
           Kc_op{get_op(output_quantities, "Kc")},
           Ko_op{get_op(output_quantities, "Ko")},
           phi_PSII_op{get_op(output_quantities, "phi_PSII")},
-          Rd_norm_op{get_op(output_quantities, "Rd_norm")},
+          RL_norm_op{get_op(output_quantities, "RL_norm")},
           theta_op{get_op(output_quantities, "theta")},
           Tp_norm_op{get_op(output_quantities, "Tp_norm")},
           Vcmax_norm_op{get_op(output_quantities, "Vcmax_norm")}
@@ -73,8 +73,8 @@ class c3_parameters : public direct_module
     double const& phi_PSII_0;
     double const& phi_PSII_1;
     double const& phi_PSII_2;
-    double const& Rd_c;
-    double const& Rd_Ea;
+    double const& RL_c;
+    double const& RL_Ea;
     double const& theta_0;
     double const& theta_1;
     double const& theta_2;
@@ -92,7 +92,7 @@ class c3_parameters : public direct_module
     double* Kc_op;
     double* Ko_op;
     double* phi_PSII_op;
-    double* Rd_norm_op;
+    double* RL_norm_op;
     double* theta_op;
     double* Tp_norm_op;
     double* Vcmax_norm_op;
@@ -115,8 +115,8 @@ string_vector c3_parameters::get_inputs()
         "phi_PSII_0",  // dimensionless
         "phi_PSII_1",  // (degrees C)^(-1)
         "phi_PSII_2",  // (degrees C)^(-2)
-        "Rd_c",        // dimensionless
-        "Rd_Ea",       // J / mol
+        "RL_c",        // dimensionless
+        "RL_Ea",       // J / mol
         "theta_0",     // dimensionless
         "theta_1",     // (degrees C)^(-1)
         "theta_2",     // (degrees C)^(-2)
@@ -138,7 +138,7 @@ string_vector c3_parameters::get_outputs()
         "Kc",         // micromol / mol
         "Ko",         // mmol / mol
         "phi_PSII",   // dimensionless
-        "Rd_norm",    // dimensionless
+        "RL_norm",    // dimensionless
         "theta",      // dimensionless
         "Tp_norm",    // dimensionless
         "Vcmax_norm"  // dimensionless
@@ -160,8 +160,8 @@ void c3_parameters::do_operation() const
         phi_PSII_0,
         phi_PSII_1,
         phi_PSII_2,
-        Rd_c,
-        Rd_Ea,
+        RL_c,
+        RL_Ea,
         theta_0,
         theta_1,
         theta_2,
@@ -181,7 +181,7 @@ void c3_parameters::do_operation() const
     update(Kc_op, c3_param.Kc);
     update(Ko_op, c3_param.Ko);
     update(phi_PSII_op, c3_param.phi_PSII);
-    update(Rd_norm_op, c3_param.Rd_norm);
+    update(RL_norm_op, c3_param.RL_norm);
     update(theta_op, c3_param.theta);
     update(Tp_norm_op, c3_param.Tp_norm);
     update(Vcmax_norm_op, c3_param.Vcmax_norm);

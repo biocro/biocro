@@ -221,6 +221,15 @@ run_biocro <- function(
     ode_solver_adaptive_abs_error_tol <- as.numeric(ode_solver_adaptive_abs_error_tol)
     ode_solver_adaptive_max_steps <- as.numeric(ode_solver_adaptive_max_steps)
 
+    # `ode_solver_adaptive_max_steps` will be converted to an integer by
+    # `R_run_biocro`. This conversion will not work if the max step value is not
+    # a finite number. Sometimes a value of `NA` is passed when using a
+    # non-adaptive solver; in this case, the actual value does not matter (as
+    # long as it is positive), so we simply set it to 1.
+    if (!is.finite(ode_solver_adaptive_max_steps)) {
+        ode_solver_adaptive_max_steps <- 1
+    }
+
     # Make sure verbose is a logical variable
     verbose <- lapply(verbose, as.logical)
 

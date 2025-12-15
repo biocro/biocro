@@ -1,7 +1,76 @@
-#include <cmath>                       // for std::max, std::min, pow, log
-#include "../framework/constants.h"    // for celsius_to_kelvin
-#include "water_and_air_properties.h"  // for saturation_vapor_pressure
+#include <cmath>                          // for std::max, std::min, pow, log
+#include "../framework/constants.h"       // for celsius_to_kelvin
+#include "conductance_helpers.h"          // for g_to_mass
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "water_and_air_properties.h"     // for saturation_vapor_pressure
 #include "boundary_layer_conductance.h"
+
+/**
+ *  @brief Calculates the conductance for water vapor flow from the leaf across
+ *  its boundary layer using a model described in Campbell & Norman (1998).
+ *
+ *  Note that for an isolated leaf, this conductance characterizes the entire
+ *  path from the leaf surface to the ambient air. For a leaf within a canopy,
+ *  there is an additional boundary layer separating the canopy from the
+ *  atmosphere; this canopy boundary layer conductance must be calculated using
+ *  a separate model.
+ *
+ *  In this model, two types of gas flow are considered: "forced" flow driven
+ *  by wind-created eddy currents and "free" flow driven by temperature-related
+ *  buoyancy effects. The overall conductance is determined to be the larger of
+ *  the free and forced conductances.
+ *
+ *  In this function, we use the "forced convection" and "free convection"
+ *  equations for vapor transfer as shown in Table 7.6. The equations as
+ *  presented in the table return "molecular" conductances in units of
+ *  mol / m^2 / s. Here we convert these to "mass" conductances for consistency
+ *  with `leaf_boundary_layer_conductance_nikolov()`.
+ *
+ *  These form a simpler alterative to the model presented in
+ *  `leaf_boundary_layer_conductance_nikolov()`. Specifically, the Campbell &
+ *  Norman equations do not require an iterative method to solve.
+ *
+ *  References:
+ *
+ *  - Campbell, G. S. & Norman, J. "An Introduction to Environmental
+ *    Biophysics," Springer-Verlag, New York, 1998
+ *
+ *  @param [in] air_temperature The air temperature in degrees C
+ *
+ *  @param [in] delta_t The temperature difference between the leaf and air in
+ *              degrees C
+ *
+ *  @param [in] lw The characteristic leaf dimension in m
+ *
+ *  @param [in] windspeed The wind speed just outside the leaf boundary layer in
+ *              m / s
+ *
+ *  @param [in] p The atmospheric pressure in Pa
+ *
+ *  @return The leaf boundary layer conductance in m / s
+ */
+double leaf_boundary_layer_conductance_campbell(
+    double air_temperature,  // degrees C
+    double delta_t,          // degrees C
+    double lw,               // m
+    double windspeed,        // m / s
+    double p                 // Pa
+)
+{
+    // Set constants
+    double constexpr coef_forced = 0.147;
+    double constexpr coef_free = 0.055;
+
+    // Calculate conductances
+    double const gbv_forced = coef_forced * sqrt(windspeed / lw);           // mol / m^2 / s
+    double const gbv_free = coef_free * pow(std::abs(delta_t) / lw, 0.25);  // mol / m^2 / s
+
+    // The overall conductance is the larger one
+    double const gbv_leaf = std::max(gbv_forced, gbv_free);  // mol / m^2 / s
+
+    // Convert to a mass conductance and return
+    return g_to_mass(p, gbv_leaf, air_temperature + delta_t);  // m / s
+}
 
 /**
  *  @brief Calculates the conductance for water vapor flow from the leaf across
@@ -22,6 +91,13 @@
  *  In this function, we use equations 29, 33, 34, and 35 to calculate boundary
  *  layer conductance. This is the same approach taken in the `MLcan` model of
  *  Drewry et al. (2010).
+ *
+ *  Nikolov et al. (1995) solve the coupled equations for free boundary layer
+ *  conductance using the fixed-point iteration method. Here we use the Dekker
+ *  method for better stability.
+ *
+ *  Use this model with caution; it is know to exhibit multiple solutions, which
+ *  can make its outputs discontinuous as inputs are varied.
  *
  *  References:
  *
@@ -76,37 +152,47 @@ double leaf_boundary_layer_conductance_nikolov(
     double const gbv_forced = cf * pow(Tak, 0.56) *
                               sqrt((Tak + 120) * windspeed / (lw * p));  // m / s
 
-    // The equations for free convection must be solved iteratively. First make
-    // a starting guess for gbv_free.
-    double gbv_free{gbv_forced};  // m / s
-
-    // Initialize other loop variables; their values will be set during the loop
-    double eb{};      // Pa
-    double Tvdiff{};  // K
-
-    // Run loop to find gbv_free. See code on page 229.
-    double old_gbv_free{};   // m / s
-    double change_in_gbv{};  // m / s
-    int counter{0};
-
-    do {
-        // Store gbv_free from previous loop iteration
-        old_gbv_free = gbv_free;  // m / s
-
+    // This lambda function equals zero only if gbv_free satisfies the Nikolov
+    // model equations for free boundary layer conductance. Here, gbv_free
+    // should be expressed in m / s.
+    auto check_leaf_gbv_free = [=](double const gbv_free) {
         // Equation 35
-        eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa
+        double const eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa
 
         // Equation 34
-        Tvdiff = (Tlk / (1.0 - ct * eb / p)) - (Tak / (1.0 - ct * ea / p));  // K
+        double const Tvdiff = Tlk / (1.0 - ct * eb / p) -
+                              Tak / (1.0 - ct * ea / p);  // K
 
         // Equation 33
-        gbv_free = ce * pow(Tlk, 0.56) * sqrt((Tlk + 120) / p) *
-                   pow(std::abs(Tvdiff) / lw, 0.25);  // m / s
+        double const new_gbv_free =
+            ce * pow(Tlk, 0.56) * sqrt((Tlk + 120) / p) *
+            pow(std::abs(Tvdiff) / lw, 0.25);  // m / s
 
-        // Get the change in gbv_free relative to the previous iteration
-        change_in_gbv = std::abs(gbv_free - old_gbv_free);  // m / s
+        return gbv_free - new_gbv_free;  // m / s
+    };
 
-    } while ((++counter <= 12) && (change_in_gbv > 0.01));
+    // Run the Dekker method; check_leaf_gbv_free is always positive for
+    // gbv_free = 0, but it is difficult to find a finite value where
+    // check_leaf_gbv_free is guaranteed to be negative; here we just use a
+    // very large value and hope for the best.
+    root_finding::dekker solver(500, 1e-12, 1e-12);
+
+    root_finding::result_t result = solver.solve(
+        check_leaf_gbv_free,
+        1e-4,  // first guess
+        0,     // lower bound of initial bracket
+        0.5    // upper bound of initial bracket
+    );
+
+    // Throw exception if not converged
+    if (!root_finding::is_successful(result.flag)) {
+        throw std::runtime_error(
+            "gbv_free solver reports failed convergence with termination flag:\n    " +
+            root_finding::flag_message(result.flag));
+    }
+
+    // Get final value
+    double const gbv_free = result.root;  // m / s
 
     // The overall conductance is the larger one
     return std::max(gbv_forced, gbv_free);  // m / s

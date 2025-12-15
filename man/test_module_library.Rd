@@ -15,7 +15,12 @@
 }
 
 \usage{
-  test_module_library(library_name, directory, modules_to_skip = c())
+  test_module_library(
+    library_name,
+    directory,
+    modules_to_skip = c(),
+    verbose = TRUE
+  )
 }
 
 \arguments{
@@ -30,6 +35,10 @@
     A vector of local module name strings indicating any modules from the
     library that should not be tested. This feature should be used sparingly,
     since there are very few legitimate reasons to skip a module test.
+  }
+
+  \item{verbose}{
+    To be passed to \code{\link{test_module}}.
   }
 }
 

@@ -16,9 +16,9 @@ weather <- lapply(raw_weather, function(wd) {
 })
 
 # Round `solar` to the nearest integer
+# Clamp to positive values
 weather <- lapply(weather, function(wd) {
-    wd$solar <- round(wd$solar)
-    wd
+    wd$solar <- pmax(0, round(wd$solar))
 })
 
 # Round `rh` to 2 significant figures

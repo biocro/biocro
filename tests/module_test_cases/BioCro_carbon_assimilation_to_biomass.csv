@@ -1,3 +1,3 @@
-input,input,input,input,output,output,output,"description"
-dry_biomass_per_carbon,GrossAssim_CO2,canopy_assimilation_rate_CO2,canopy_photorespiration_rate_CO2,GrossAssim,canopy_assimilation_rate,canopy_photorespiration_rate,NA
-1,1,1,1,3.6e-05,3.6e-05,3.6e-05,"automatically-generated test case"
+input,input,input,input,input,input,output,output,output,output,output,"description"
+canopy_assimilation_molar_flux,canopy_gross_assimilation_molar_flux,canopy_non_photorespiratory_CO2_release_molar_flux,canopy_photorespiration_molar_flux,dry_biomass_per_carbon,whole_plant_growth_respiration_molar_flux,canopy_assimilation_rate,canopy_gross_assimilation_rate,canopy_non_photorespiratory_CO2_release_rate,canopy_photorespiration_rate,whole_plant_growth_respiration_rate,NA
+1,1,1,1,1,1,3.6e-05,3.6e-05,3.6e-05,3.6e-05,3.6e-05,"automatically-generated test case"

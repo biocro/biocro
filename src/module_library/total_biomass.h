@@ -9,8 +9,8 @@ namespace standardBML
 /**
  *  @class total_biomass
  *
- *  @brief Calculates the total biomass by adding together the masses of the
- *  `Leaf`, `Stem`, `Root`, `Rhizome`, `Shell`, and `Grain` tissues.
+ *  @brief Calculates the total intact and senesced biomass and returns them as
+ *  ``'total_intact_biomass'`` and ``'total_litter_biomass'``, respectively.
  */
 class total_biomass : public direct_module
 {
@@ -21,15 +21,20 @@ class total_biomass : public direct_module
         : direct_module{},
 
           // Get pointers to input parameters
-          Leaf{get_input(input_quantities, "Leaf")},
-          Stem{get_input(input_quantities, "Stem")},
-          Root{get_input(input_quantities, "Root")},
-          Rhizome{get_input(input_quantities, "Rhizome")},
-          Shell{get_input(input_quantities, "Shell")},
           Grain{get_input(input_quantities, "Grain")},
+          Leaf{get_input(input_quantities, "Leaf")},
+          LeafLitter{get_input(input_quantities, "LeafLitter")},
+          Rhizome{get_input(input_quantities, "Rhizome")},
+          RhizomeLitter{get_input(input_quantities, "RhizomeLitter")},
+          Root{get_input(input_quantities, "Root")},
+          RootLitter{get_input(input_quantities, "RootLitter")},
+          Shell{get_input(input_quantities, "Shell")},
+          Stem{get_input(input_quantities, "Stem")},
+          StemLitter{get_input(input_quantities, "StemLitter")},
 
           // Get pointers to output parameters
-          total_biomass_op{get_op(output_quantities, "total_biomass")}
+          total_intact_biomass_op{get_op(output_quantities, "total_intact_biomass")},
+          total_litter_biomass_op{get_op(output_quantities, "total_litter_biomass")}
     {
     }
     static string_vector get_inputs();
@@ -38,15 +43,20 @@ class total_biomass : public direct_module
 
    private:
     // Pointers to input parameters
-    const double& Leaf;
-    const double& Stem;
-    const double& Root;
-    const double& Rhizome;
-    const double& Shell;
     const double& Grain;
+    const double& Leaf;
+    const double& LeafLitter;
+    const double& Rhizome;
+    const double& RhizomeLitter;
+    const double& Root;
+    const double& RootLitter;
+    const double& Shell;
+    const double& Stem;
+    const double& StemLitter;
 
     // Pointers to output parameters
-    double* total_biomass_op;
+    double* total_intact_biomass_op;
+    double* total_litter_biomass_op;
 
     // Main operation
     void do_operation() const;
@@ -55,25 +65,34 @@ class total_biomass : public direct_module
 string_vector total_biomass::get_inputs()
 {
     return {
-        "Leaf",     // Mg / ha
-        "Stem",     // Mg / ha
-        "Root",     // Mg / ha
-        "Rhizome",  // Mg / ha
-        "Shell",    // Mg / ha
-        "Grain"     // Mg / ha
+        "Grain",          // Mg / ha
+        "Leaf",           // Mg / ha
+        "LeafLitter",     // Mg / ha
+        "Rhizome",        // Mg / ha
+        "RhizomeLitter",  // Mg / ha
+        "Root",           // Mg / ha
+        "RootLitter",     // Mg / ha
+        "Shell",          // Mg / ha
+        "Stem",           // Mg / ha
+        "StemLitter"      // Mg / ha
     };
 }
 
 string_vector total_biomass::get_outputs()
 {
     return {
-        "total_biomass"  // Mg / ha
+        "total_intact_biomass",  // Mg / ha
+        "total_litter_biomass"   // Mg / ha
     };
 }
 
 void total_biomass::do_operation() const
 {
-    update(total_biomass_op, Leaf + Stem + Root + Rhizome + Shell + Grain);
+    update(total_intact_biomass_op,
+           Grain + Leaf + Rhizome + Root + Shell + Stem);
+
+    update(total_litter_biomass_op,
+           LeafLitter + RhizomeLitter + RootLitter + StemLitter);
 }
 
 }  // namespace standardBML

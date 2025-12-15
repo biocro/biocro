@@ -1,0 +1,3 @@
+input,input,input,output,output,output,"description"
+canopy_transpiration_rate,precip,soil_evaporation_rate,canopy_transpiration,soil_evaporation,total_precip,NA
+1,1,1,1,1,10,"automatically-generated test case"
