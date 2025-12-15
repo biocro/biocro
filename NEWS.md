@@ -31,7 +31,7 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
-# Unreleased
+# Changes in BioCro version 3.3.0
 
 ## Minor User-Facing Changes
 
@@ -43,39 +43,33 @@ be directly added to this file to describe the related changes.
   - The version of boost bundled with BioCro (1.71.0) was also not compatible
     with C++17, requiring an update to a new version (1.89.0).
 
-- A simple multidimensional root solving library has been added. See header
-  file `src/math/roots/multidim/zeros.h` for example usage. Currently, only one
-  method is available: Broyden's method. This library is intended to support
-  models requiring equation solving.
+- New multidimensional and 1D root finders written in C++ have been added to
+  `src/math/roots/`. These are intended to support models requiring numerical
+  solutions to sets of simultaneous equations, and they will eventually be moved
+  to the `biocro/framework` repository.
 
-- BioCro's 1D root solving library has been moved to `src/math/roots/onedim` in
-  anticipation that it will be moved to the `biocro/framework` repository. The
-  code was refactored, but this refactoring has small changes for client code.
-  See the header file  `src/math/roots/onedim/roots.h` for example usage
-  and a list of available methods.
+  - For multidimensional root finders, see `src/math/roots/multidim/zeros.h` for
+    example usage. Currently, only one method is available: Broyden's method.
 
-- Added a module `daylength_calculator` which compute day length from solar position.
+  - For 1D root finders, see `src/math/roots/onedim/roots.h` for example usage
+    and a list of available methods.
 
-- Added custom C++ library for the numerical approximation of the zeros of real
-  valued 1D functions. See the header file ~~`roots_onedim.h`~~
-  `src/math/roots/onedim/roots.h` for example usage and a list of available methods.
+  - These new finders are now used in several places:
 
-- Swapped fixed point iteration for the Dekker method in Ci calculation. To
-  incorporate the effect of stomatal conductance, the Ball-Berry and FvCB model
-  require solving for the correct intercellular CO2 concentrations by
-  identifying the root of an equation. BioCro previously used fixed point
-  iteration to find the root. However, the fixed point iteration method is known
-  to be unstable. For more info, see Sun et al. (2012) "A numerical issue in
-  calculating the coupled carbon and water fluxes in a climate model."
-  *Journal of Geophysical Research* https://dx.doi.org/10.1029/2012JD018059.
-  This change only affects the solution at low Ci, and does not modify the
-  interface of any module.
+    - For Ci calculations, replaced the original fixed-point iteration method
+      with the new 1D Dekker root finder. Fixed-point iteration is known to be
+      unstable in these calculations; see Sun et al. (2012) "A numerical issue
+      in calculating the coupled carbon and water fluxes in a climate model."
+      *Journal of Geophysical Research* https://dx.doi.org/10.1029/2012JD018059.
 
-- Swapped fixed point iteration for the Dekker method in energy balance
-  calculations that are used to determine the leaf temperature.
+    - For leaf temperature calculations, replaced the original fixed-point
+      iteration method with the new 1D Dekker root finder.
 
-- Swapped fixed point iteration for the Dekker method in the implementation of
-  the Nikolov leaf boundary layer conductance model.
+    - For the Nikolov leaf boundary layer conductance model, replaced the
+      original fixed-point iteration method with the new 1D Dekker root finder.
+
+- Added a new module which computes day length from solar position:
+  `BioCro:daylength_calculator`.
 
 - Added a new model for leaf boundary layer conductance (from Campbell & Norman
   1998). This model is now used in place of the Nikolov model for energy balance
@@ -118,7 +112,7 @@ be directly added to this file to describe the related changes.
     non-photorespiratory CO2 release in the light" when necessary, following
     https://doi.org/10.1093/plphys/kiab076 and https://doi.org/10.1111/pce.14153.
     This avoid the ambiguity of using a subscript `d` (which can refer to "day"
-    or "dark" in different contexts) and it reflects and updated understanding
+    or "dark" in different contexts) and it reflects an updated understanding
     of the metabolic origin of this term (it is not exclusively, or even
     primarily, due to mitochondrial respiration).
 
@@ -183,7 +177,8 @@ be directly added to this file to describe the related changes.
 - `catm_data` was updated to include the global average atmospheric CO2
   concentration in 2024.
 
-- Added a new workshop vignette.
+- Added a new workshop vignette, and removed an outdated vignette about the FvCB
+  model.
 
 - Links to the main BioCro documentation web site were changed from
   `https://biocro.github.io` to `https://biocro.org`
