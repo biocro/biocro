@@ -57,6 +57,7 @@ class stomata_water_stress_resistance : public direct_module
           // Get pointers to input quantities
           Catm_ip{get_ip(input_quantities, "Catm")},
           resistance_amplifier_ip{get_ip(input_quantities, "resistance_amplifier")},
+          resistance_base_ip{get_ip(input_quantities, "resistance_base")},
           uptake_laststep_ip{get_ip(input_quantities, "uptake_laststep")},
           soil_field_capacity_ip{get_ip(input_quantities, "soil_field_capacity")},
           soil_wilting_point_ip{get_ip(input_quantities, "soil_wilting_point")},
@@ -74,6 +75,7 @@ class stomata_water_stress_resistance : public direct_module
     // Pointers to input quantities
     const double* Catm_ip;
     const double* resistance_amplifier_ip;
+    const double* resistance_base_ip;
     const double* uptake_laststep_ip;
     const double* soil_field_capacity_ip;
     const double* soil_wilting_point_ip;
@@ -90,6 +92,7 @@ string_vector stomata_water_stress_resistance::get_inputs()
 {
     return {"Catm",
             "resistance_amplifier",
+            "resistance_base",
             "uptake_laststep",
             "soil_field_capacity",
             "soil_wilting_point",
@@ -117,8 +120,8 @@ void stomata_water_stress_resistance::do_operation() const
     // Therefore, I use a higher value than 0.7 because our soil water 
     // rarely go below the content (corresponding to 0.7) to trigger stress 
     const double RAW_sf = 0.9;
-    double resistance_base =
-        0.02;  // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
+    // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
+    double resistance_base = *resistance_base_ip;
     double sensitivity_exponent = 1.0;
     double Catm = *Catm_ip;
     // eCO2 plants are x times more sensitive to flow/drying
