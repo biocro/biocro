@@ -153,6 +153,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      R_USE_WCHANGES_MEANING: ${{ matrix.cm }}
 
     steps:
 
@@ -161,6 +162,7 @@ jobs:
         run: |
           echo 'os: ${{ matrix.os }}'
           echo 'R version: ${{ matrix.r }}'
+          echo 'Check changes-meaning: ${{ matrix.cm }}'
           echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
 
       # For debugging
