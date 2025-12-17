@@ -21,14 +21,6 @@ on:
         description: Don't actually run the check; show output for debugging
         type: boolean
         default: false
-      platform-to-check:
-        description: 'Platform to check'
-        type: choice
-        options:
-          - R 4.1.0 on Ubuntu
-          - R release version on Ubuntu
-          - R devel version on Ubuntu
-        default: R 4.1.0 on Ubuntu
 
 jobs:
 
@@ -49,8 +41,9 @@ jobs:
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
           filter:
-            '[?configName == `${{ inputs.platform-to-check }}`
-                || `${{ github.event_name }}` != ''workflow_dispatch'']'
+            '[?configName == ''R 4.1.0 on Ubuntu''
+                || ?configName == ''R release version on Ubuntu''
+                || ?configName == ''R devel version on Ubuntu'']'
 
   display_matrix:
     name: "DEBUG: Display strategy matrix"
