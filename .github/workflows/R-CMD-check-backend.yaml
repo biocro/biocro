@@ -41,6 +41,8 @@ on:
         type: boolean
       error-on:
         type: string
+      changes-meaning:
+        type: boolean
 
 env:
 
@@ -66,6 +68,7 @@ jobs:
           echo 'check-vignettes: ${{ inputs.check-vignettes }}'
           echo 'as-cran: ${{ inputs.as-cran }}'
           echo 'error-on: ${{ inputs.error-on }}'
+          echo 'changes-meaning: ${{ inputs.changes-meaning }}'
       - name: Print environment variables
         run: |
           echo "github.event_name: ${{ github.event_name }}"
@@ -153,7 +156,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      R_USE_WCHANGES_MEANING: ${{ matrix.cm }}
+      R_USE_WCHANGES_MEANING: ${{ inputs.changes-meaning }}
 
     steps:
 
@@ -162,7 +165,6 @@ jobs:
         run: |
           echo 'os: ${{ matrix.os }}'
           echo 'R version: ${{ matrix.r }}'
-          echo 'Check changes-meaning: ${{ matrix.cm }}'
           echo 'HTTP user agent: ${{ matrix.http-user-agent }}'
 
       # For debugging

@@ -2,51 +2,43 @@
     {
         "configName": "R 4.1.0 on Windows",
         "os": "windows-latest",
-        "r": "4.1.0",
-        "cm": false
+        "r": "4.1.0"
     },
     {
         "configName": "R 4.2.0 on macOS",
         "os": "macOS-latest",
-        "r": "4.2.0",
-        "cm": false
+        "r": "4.2.0"
     },
     {
         "configName": "R 4.1.0 on Ubuntu",
         "os": "ubuntu-24.04",
-        "r": "4.1.0",
-        "cm": true
+        "r": "4.1.0"
     },
     {
         "configName": "R release version on Ubuntu",
         "os": "ubuntu-24.04",
-        "r": "release",
-        "cm": true
+        "r": "release"
     },
     {
         "configName": "R devel version on Ubuntu",
         "os": "ubuntu-24.04",
         "r": "devel",
-        "cm": true,
         "http-user-agent": "release"
     },
     {
         "configName": "R release version on Windows",
         "os": "windows-latest",
-        "r": "release",
-        "cm": false
+        "r": "release"
     },
     {
         "configName": "R release version on macOS",
         "os": "macOS-latest",
-        "r": "release",
-        "cm": false
+        "r": "release"
     },
     {
         "configName": "R devel version on Windows",
         "os": "windows-latest",
         "r": "devel",
-        "cm": false,
         "http-user-agent": "release"
     }
 ]
