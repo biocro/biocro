@@ -3,7 +3,7 @@
 #
 # Here the goal is to just check for installation failures on Ubuntu when
 # including the -Wchanges-meaning compiler flag. This flag automatically causes
-# an "R CMD check" warning, so we need to set "error-on" to "never." To save
+# an "R CMD check" warning, so we need to set "error-on" to "error." To save
 # time, we do not check the tests, examples, manual, or vignettes, since these
 # are extensively checked by the `R-CMD-check` workflow.
 
@@ -72,7 +72,7 @@ jobs:
         "${{ inputs.as-cran
             || github.event_name != 'workflow_dispatch' }}"
       error-on:
-        'never'
+        'error'
       changes-meaning:
         true
       dry-run:
