@@ -1,0 +1,87 @@
+# This workflow is based on the `R-CMD-check` worflow; see its yaml file for
+# more information.
+#
+# Here the goal is to just check for installation failures on Ubuntu when
+# including the -Wchanges-meaning compiler flag. This flag automatically causes
+# an "R CMD check" warning, so we need to set "error-on" to "never." To save
+# time, we do not check the tests, examples, manual, or vignettes, since these
+# are extensively checked by the `R-CMD-check` workflow.
+
+name: R-CMD-check-changes-meaning
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      as-cran:
+        description: 'Use the --as-cran option when checking'
+        type: boolean
+        default: true
+      dry-run:
+        description: Don't actually run the check; show output for debugging
+        type: boolean
+        default: false
+      platform-to-check:
+        description: 'Platform to check'
+        type: choice
+        options:
+          - R 4.1.0 on Ubuntu
+          - R release version on Ubuntu
+          - R devel version on Ubuntu
+        default: R 4.1.0 on Ubuntu
+
+jobs:
+
+  matrix_prep:
+    name: Prepare strategy matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4.1.1
+        with:
+          submodules: true
+
+      - id: set-matrix
+        name: Construct the strategy matrix
+        uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # release 2.0.1
+        with:
+          inputFile: '.github/workflows/strategy_matrix.json'
+          filter:
+            '[?configName == `${{ inputs.platform-to-check }}`
+                || `${{ github.event_name }}` != ''workflow_dispatch'']'
+
+  display_matrix:
+    name: "DEBUG: Display strategy matrix"
+    needs: matrix_prep
+    runs-on: ubuntu-latest
+    steps:
+    - name: Show the strategy matrix
+      run: |
+        echo 'matrix: ${{ needs.matrix_prep.outputs.matrix }}'
+
+  call-R-CMD-check:
+    uses: ./.github/workflows/R-CMD-check-backend.yaml
+    needs: matrix_prep
+    with:
+      strategy-matrix: ${{ needs.matrix_prep.outputs.matrix }}
+
+      check-manual:
+        false
+      run-tests:
+        false
+      check-examples:
+        false
+      check-vignettes:
+        false
+      as-cran:
+        "${{ inputs.as-cran
+            || github.event_name != 'workflow_dispatch' }}"
+      error-on:
+        'never'
+      changes-meaning:
+        true
+      dry-run:
+        "${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}"
+
