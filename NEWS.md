@@ -175,6 +175,8 @@ be directly added to this file to describe the related changes.
 - `catm_data` was updated to include the global average atmospheric CO2
   concentration in 2024.
 
+- Added a new workshop vignette.
+
 - Links to the main BioCro documentation web site were changed from
   `https://biocro.github.io` to `https://biocro.org`
 
