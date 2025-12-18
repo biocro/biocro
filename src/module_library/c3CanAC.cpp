@@ -82,15 +82,7 @@ CanopyPhotosynthesis c3CanAC(
         par_energy_fraction};
 
     double const lai_per_layer = LAI / nlayers;  // dimensionless
-    CanopyPhotosynthesis canopy(0);
-    //double CanopyA{0.0};             // micromol / m^2 / s
-    //double GCanopyA{0.0};            // micromol / m^2 / s
-    //double canopy_rp{0.0};           // micromol / m^2 / s
-    //double canopy_RL{0.0};           // micromol / m^2 / s
-    //double CanopyT{0.0};             // mmol / m^2 / s
-    //double CanopyPe{0.0};            // mmol / m^2 / s
-    //double CanopyPr{0.0};            // mmol / m^2 / s
-    //double canopy_conductance{0.0};  // mmol / m^2 / s
+    CanopyPhotosynthesis canopy;
     
     double gbw_guess{1.2};  // mol / m^2 / s
     LightProfile light_profile;
@@ -201,9 +193,6 @@ CanopyPhotosynthesis c3CanAC(
         canopy.stomatal_vapor_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mol / m^2 / s
     }
 
-    // Calculate the rate of whole-plant growth respiration
-    canopy.whole_plant_growth_respiration = growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s
-    canopy.assim -= canopy.whole_plant_growth_respiration;
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
     // the following conversion factor:

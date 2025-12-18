@@ -1,13 +1,13 @@
 #ifndef PHOTOSYNTHESIS_OUTPUTS_H
 #define PHOTOSYNTHESIS_OUTPUTS_H
 
+#include "../math/roots/onedim/roots.h" // for result
 /**
  * @brief A simple structure for holding the output of photosynthesis
  * calculations.
  */
 struct photosynthesis_outputs {
     double Assim;              //!< Net CO2 assimilation rate (micromol / m^2 / s)
-    double Assim_check;        //!< Equals zero if loop has converged (micromol / m^2 / s)
     double Assim_conductance;  //!< Conductance-limited net CO2 assim. rate (micromol / m^2 / s)
     double Ci;                 //!< CO2 concentration in intercellular spaces (micromol / mol)
     double Cs;                 //!< CO2 concentration at the leaf surface (micromol / mol)
@@ -16,15 +16,7 @@ struct photosynthesis_outputs {
     double RHs;                //!< Relative humidity at the leaf surface (dimensionless)
     double RL;                 //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
     double Rp;                 //!< Rate of photorespiration (micromol / m^2 / s)
-    size_t iterations;         //!< Number of iterations used by convergence loop
+    root_finding::result_t solver_result;       
 };
-
-
-// CarbonPathway = C3, C4, CAM (or different models thereof)
-//template<typename CarbonPathway>
-//struct LeafPhotosynthesis { };
-    
-
-
 
 #endif

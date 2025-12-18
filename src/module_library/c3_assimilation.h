@@ -309,7 +309,7 @@ void c3_assimilation::do_operation() const
         gbw);
 
     // Update the output quantity list
-    update(Assim_check_op, c3_results.Assim_check);
+    update(Assim_check_op, c3_results.solver_result.residual);
     update(Assim_conductance_op, c3_results.Assim_conductance);
     update(Assim_op, c3_results.Assim);
     update(Ci_op, c3_results.Ci);
@@ -319,7 +319,7 @@ void c3_assimilation::do_operation() const
     update(RHs_op, c3_results.RHs);
     update(RL_op, c3_results.RL);
     update(Rp_op, c3_results.Rp);
-    update(iterations_op, c3_results.iterations);
+    update(iterations_op, c3_results.solver_result.iteration);
 }
 
 }  // namespace standardBML

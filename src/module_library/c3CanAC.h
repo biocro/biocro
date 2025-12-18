@@ -1,7 +1,7 @@
 #ifndef C3CANAC_H
 #define C3CANAC_H
 
-#include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
+#include "core/photosynthesis.h"  // for CanopyPhotosynthesis
 #include "c3_temperature_response.h"        // for c3_temperature_response_parameters
 
 CanopyPhotosynthesis c3CanAC(

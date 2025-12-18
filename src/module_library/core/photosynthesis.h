@@ -1,34 +1,100 @@
-#include <algorithm>  // for std::min, std::max
-#include <vector>
-#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
-#include "BioCro.h"                  // for WINDprof
-#include "c4photo.h"                 // for c4photoC
-#include "leaf_energy_balance.h"     // for leaf_energy_balance
-#include "lightME.h"                 // for lightME
-#include "respiration.h"             // for growth_resp
-#include "sunML.h"                   // for sunML
-#include "CanAC.h"
+#ifndef CANOPY_PHOTO_CORE_H
+#define CANOPY_PHOTO_CORE_H
 
-CanopyPhotosynthesis CanAC(
-    const nitroParms& nitroP,
-    double absorbed_longwave,  // J / m^2 / s
-    double Alpha,
-    double ambient_temperature,          // degrees C
-    double atmospheric_pressure,         // Pa
-    double atmospheric_scattering,       // dimensionless
-    double atmospheric_transmittance,    // dimensionless
-    double b0,                           // mol / m^2 / s
-    double b1,                           // dimensionless
-    double beta,                         // dimensionless
+#include "canopy_light_distribution.h"    // CanopyLight, LightProfile
+#include "atmosphere_light_scattering.h"  // AtmosphereLightScattering
+#include "../../framework/constants.h"  
+/*
+This file contains code used in photosynthesis modules to compute canopy photosynthesis integrals. However, this code is not a biocro module
+*/
+
+namespace PhotoCore {
+/**
+ * @brief A simple structure for holding the output of leaf photosynthesis
+ * calculations; which will be summed into canopy photosynthesis rates. This type must have vector space operations: vector addition and scalar multiplication.
+ */
+struct CanopyAssim {
+    double assim = 0;                           //!< Net CO2 assimilation rate (micromol / m^2 / s)
+    double stomatal_vapor_conductance = 0;      //!< Stomatal conductance to water vapor (mol / m^2 / s)
+    double penman = 0;                          //!< P-M transpiration rate (mmol / m^2 / s)
+    double priestly = 0 ;                       //!< Priestly transpiration rate (mmol / m^2 / s)
+    double carboxylation = 0;                   //!< Gross CO2 assimilation rate (micromol / m^2 / s)
+    double leaf_respiration =0 ;                //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
+    double photorespiration = 0;                //!< Rate of photorespiration (micromol / m^2 / s)
+    double transpiration = 0;                   //!< Transpiration rate (Mg / ha / hr)
+    double whole_plant_growth_respiration =0 ;  //!< Whole-plant growth respiration rate (micromol / m^2 / s)
+   
+    CanopyAssim() = default;  
+    
+    
+    CanopyAssim& operator+=(const CanopyAssim& rhs)
+    {
+        assim += rhs.assim;
+        stomatal_vapor_conductance += rhs.stomatal_vapor_conductance;
+        penman += rhs.penman;
+        priestly += rhs.priestly;
+        carboxylation += rhs.carboxylation;
+        leaf_respiration += rhs.leaf_respiration;
+        photorespiration += rhs.photorespiration;
+        transpiration += rhs.transpiration;
+        return *this;
+    }
+    
+    CanopyAssim& operator*=(double scalar){
+        assim *= scalar;
+        stomatal_vapor_conductance *= scalar;
+        penman *= scalar;
+        priestly *= scalar;
+        carboxylation *= scalar;
+        leaf_respiration *= scalar;
+        photorespiration *= scalar;
+        transpiration *= scalar;
+        return *this;
+    }
+
+};
+
+inline CanopyAssim operator+(const CanopyAssim& lhs, const CanopyAssim& rhs) {
+    CanopyAssim out = lhs;
+    out += rhs;
+    return out;
+}
+
+inline CanopyAssim operator*(const CanopyAssim& lhs, double scalar) {
+    CanopyAssim out = lhs;
+    out *= scalar;
+    return out;
+}
+
+inline CanopyAssim operator*(double scalar, const CanopyAssim& rhs) {
+    CanopyAssim out = rhs;
+    out *= scalar;
+    return out;
+}
+
+
+template<typename PhotoFunc>
+struct CanopyIntegrand {
+    PhotoFunc photo;
+    
+    LightProfile light_profile;
+    AtmosphericLightScattering atmo_light_scattering;
+    CanopyLight canopy_light_model;
+    
+    CanopyIntegrand(
+        double ambient_temperature,          // degrees C
+        double atmospheric_pressure,         // Pa
+        double atmospheric_scattering,       // dimensionless
+        double atmospheric_transmittance,    // dimensionless
     double Catm,                         // ppm
     double chil,                         // dimensionless
     double cosine_zenith_angle,          // dimensionless
     double gbw_canopy,                   // m / s
-    double growth_respiration_fraction,  // dimensionless
     double Gs_min,                       // mol / m^2 / s
     double k_diffuse,                    // dimensionless
     double Kparm,
     double kpLN,
+    emissivity
     double LAI,                     // dimensionless from m^2 / m^2
     double leaf_reflectance_nir,    // dimensionless
     double leaf_reflectance_par,    // dimensionless
@@ -50,18 +116,19 @@ CanopyPhotosynthesis CanAC(
     int lnfun,                   // dimensionless switch
     int nlayers                  // dimensionless
 )
-{
-    Light_model light_model = lightME(
-        cosine_zenith_angle,
-        atmospheric_pressure,
-        atmospheric_transmittance,
-        atmospheric_scattering);
-
+//     = lightME(
+//        cosine_zenith_angle,
+//        atmospheric_pressure,
+//        atmospheric_transmittance,
+//        atmospheric_scattering);
+//    
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
-    double q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
-    double q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
-
+    double q_dir = atmo_light_scattering.direct_fraction * solarR;    // micromol / m^2 / s
+    double q_diff = atmo_light_scattering.diffuse_fraction * solarR;  // micromol / m^2 / s
+    
+        double absorbed_longwave = emissivity_sky * physical_constants::stefan_boltzmann *
+        std::pow(conversion_constants::celsius_to_kelvin + temp, 4); 
     // Here we set `heightf = 1`. The value used for `heightf` does not matter,
     // since the canopy height is not used anywhere in this function.
     CanopyLight canopy_light_model{
@@ -83,7 +150,7 @@ CanopyPhotosynthesis CanAC(
     CanopyPhotosynthesis canopy;
 
     double gbw_guess{1.2};  // mol / m^2 / s
-    LightProfile light_profile;
+    
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
 
@@ -194,4 +261,8 @@ CanopyPhotosynthesis CanAC(
     double constexpr cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
     canopy.transpiration *= cf2;
     return canopy;
+
 }
+
+}
+#endif

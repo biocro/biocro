@@ -217,7 +217,7 @@ void c4_assimilation::do_operation() const
 
     // Update the output quantity list
     update(Assim_op, c4_results.Assim);
-    update(Assim_check_op, c4_results.Assim_check);
+    update(Assim_check_op, c4_results.solver_result.residual);
     update(Assim_conductance_op, c4_results.Assim_conductance);
     update(Ci_op, c4_results.Ci);
     update(Cs_op, c4_results.Cs);
@@ -226,7 +226,7 @@ void c4_assimilation::do_operation() const
     update(RHs_op, c4_results.RHs);
     update(RL_op, c4_results.RL);
     update(Rp_op, c4_results.Rp);
-    update(iterations_op, c4_results.iterations);
+    update(iterations_op, c4_results.solver_result.iteration);
 }
 
 }  // namespace standardBML
