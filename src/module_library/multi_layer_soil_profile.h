@@ -106,7 +106,7 @@ void multi_layer_soil_profile::do_operation() const
     double ds;
     for (int l = 0; l < layers.size(); l++) {
      // Calculate total change in soil water content
-        const soil_layer& layer = layers[i]; 
+        const soil_layer& layer = layers[l]; 
         constexpr double cm_per_m = 100;
         // adding uptake because value is negative
         ds = layer.deltaS + layer.deltaU + layer.deltaT + (layer.uptake / (cm_per_m * layer.depth));

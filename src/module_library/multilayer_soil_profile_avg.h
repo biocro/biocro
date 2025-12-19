@@ -126,10 +126,10 @@ void multilayer_soil_profile_avg::do_operation() const
     double tot_soil_field_capacity = 0.0;
     double tot_soil_wilting_point = 0.0;
     
-    int max_layer = static_cast <int>(max_rooting_layer);
-    int L = std::min(max_layer, num_layers);
-    for (int l = 0; l < L; l++) {
-        soil_layer& layer = layers[l];
+    size_t max_layer = static_cast <size_t>(max_rooting_layer);
+    size_t L = std::min(max_layer, num_layers);
+    for (size_t l = 0; l < L; l++) {
+        soil_layer const& layer = layers[l];
         tot_soil_depth += layer.depth;
         tot_soil_water_content += layer.water_content * layer.depth;
         tot_soil_saturated_conductivity += layer.saturated_conductivity * layer.depth;
