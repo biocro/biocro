@@ -4,7 +4,7 @@
 
 #include "zeros.h"
 #include "../../linalg/base.h"
-#include "../../linalg/LU.h"
+#include "../../linalg/lu.h"
 
 
 namespace root_multidim {
@@ -21,10 +21,8 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     
     vec_t x;
     vec_t delta_x;
-    mat_t A;
     vec_t y;
-    linalg::LU<double, Dim> lu;    
-
+    
     template <typename F>
     bool initialize(F&& fun, std::array<double, Dim> const& guess)
     {
@@ -36,11 +34,12 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     template <typename F>
     bool iterate(F&& fun)
     {
-        A = fun.jacobian(x);         
+        linalg::LU<double, Dim> lu(fun.jacobian(x));
+                 
         y *= -1;
         auto sol = lu.solve(y);
         if (!sol) {
-            flag = Flag::singular_matrix;
+            this->flag = Flag::singular_matrix;
             return false;
         } 
         delta_x = sol.value();

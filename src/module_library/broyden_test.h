@@ -4,6 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "../math/roots/multidim/broyden.h"
+#include "../math/roots/multidim/newton.h"
 #include "../math/linalg/base.h"
 
 #include <array>
@@ -21,7 +22,7 @@ struct test_function {
         return y;
     }
 
-    linalg::matrix<double, 2, 2> jacobian(const std::array<double, 2>& x) {
+    linalg::matrix<double, 2, 2> jacobian(linalg::vector<double, 2>const& x) {
         linalg::matrix<double, 2, 2> jac;
         double v = x[0] * x[0] + 1;
         double dv = 2 * x[0];
@@ -37,20 +38,20 @@ struct test_function {
 
 class broyden_test : public direct_module
 {
-    struct result {
-        std::array<double*, 2> x;
-        std::array<double*, 2> y;
-        double* iter;
-        
-        result(state_map* output_quantities, std::string method) {
-            for (size_t i = 0; i < 2; ++i){
-                x[i] = get_op(output_quantities, method + "_x" + std::to_string(i));                
-                y[i] = get_op(output_quantities, method + "_y" + std::to_string(i));
-            }
-            iter = get_op(output_quantities, method + "_iter");                
-        }
-        
-    };
+//    struct result {
+//        std::array<double*, 2> x;
+//        std::array<double*, 2> y;
+//        double* iter;
+//        
+//        result(state_map* output_quantities, std::string method) {
+//            for (size_t i = 1; i <= 2; ++i){
+//                x[i] = get_op(output_quantities, method + "_x" + std::to_string(i));                
+//                y[i] = get_op(output_quantities, method + "_y" + std::to_string(i));
+//            }
+//            iter = get_op(output_quantities, method + "_iter");                
+//        }
+//        
+//    };
    public:
     broyden_test(
         state_map const& input_quantities, state_map* output_quantities)
@@ -62,11 +63,16 @@ class broyden_test : public direct_module
           rel_tol{get_input(input_quantities, "rel_tol")},
           guess_1{get_input(input_quantities, "guess_1")},
           guess_2{get_input(input_quantities, "guess_2")},
-          
+          broyden_success{get_op(output_quantities, "broyden_success")},
+          newton_success{get_op(output_quantities, "newton_success")}
     // Get pointers to output quantities
 
     {
-        
+//        string_vector _methods = broyden_test::methods();
+//        results.reserve(_methods.size());
+//        for (auto method : _methods){
+//            results.emplace_back(result(output_quantities, method));
+//        }    
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
@@ -81,21 +87,19 @@ class broyden_test : public direct_module
     const double& guess_2;
 
     // Pointers to output quantities
-    std::vector<result> results;
-    static string_vector methods() {
-        return {"broyden", "newton"};
-    }
+    double* broyden_success;
+    double* newton_success;
     // Main operation
     void do_operation() const;
 
-    void update_result(result const& r, root_multidim::result_t<2> out) const {
-        for(size_t i = 0; i < 2; ++i){
-            update(r.x[i], out.zero[i]);
-            update(r.y[i], out.residual[i]);
-        }
-        update(r.iter, out.iteration);
-              
-    }
+//    void update_result(result const& r, root_multidim::result_t<2> out) const {
+//        for(size_t i = 0; i < 2; ++i){
+//            update(r.x[i], out.zero[i]);
+//            update(r.y[i], out.residual[i]);
+//        }
+//        update(r.iter, out.iteration);
+//              
+//    }
 };
 
 string_vector broyden_test::get_inputs()
@@ -110,16 +114,7 @@ string_vector broyden_test::get_inputs()
 
 string_vector broyden_test::get_outputs()
 {
-    string_vector outputs = {"x1", "x2", "y1", "y2", "iter"};
-    string_vector out;
-    string_vector _methods = broyden_test::methods();
-    out.reserve(outputs.size() * _methods.size());
-    for (auto method : _methods){
-        for(auto output : outputs) {
-           out.push_back(method + "_" + output); 
-        }    
-    }
-    return out;
+    return {"broyden_success", "newton_success"};
     
 }
 
@@ -131,10 +126,10 @@ void broyden_test::do_operation() const
     test_function func;
     
     broyden<2> bs(static_cast<size_t>(max_iterations), abs_tol, rel_tol);
-    update_result(results[0], bs(func, guess));
-    newton<2> ns(static_cast<size_t>(max_iterations), abs_tol, rel_tol);    
-    update_result(results[1], ns(func, guess));
+    update(broyden_success, static_cast<double>(bs(func, guess).flag));
     
+    newton<2> ns(static_cast<size_t>(max_iterations), abs_tol, rel_tol);        
+    update(newton_success, static_cast<double>(ns(func, guess).flag));
         
 }
 
