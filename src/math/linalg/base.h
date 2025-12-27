@@ -3,115 +3,177 @@
 
 #include <vector>
 #include <array>
+#include <algorithm> // std::min; 
+#include <stdexcept>
+#include "vector.h" // Vector
+#include "matrix.h" // Matrix
 
 namespace linalg {
 
-// Define common Vector and Matrix Expression intefaces
-template<E>
-struct Vector {
-    static constexpr bool IS_LEAF = false;
+// Declare Concrete Types for storage.
+template<typename Scalar, size_t Dim>
+struct vector : Vector<Scalar, Dim, vector<Scalar, Dim>> {
+    static constexpr bool IS_LEAF = true;
+    using container = typename std::array<Scalar, Dim>;
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
 
+    
     [[nodiscard]]
-    double operator[](size_t i) const {
-        // Delegation to the actual expression type.
-        // This avoids dynamic polymorphism (a.k.a. virtual functions in C++)
-        return static_cast<E const&>(*this)[i];
+    double operator[](size_t i) const noexcept { 
+        return data[i]; 
     }
 
-    [[nodiscard]]
-    size_t dim() const { 
-        return static_cast<E const&>(*this).dim(); 
+    double& operator[](size_t i) noexcept { 
+        return data[i]; 
+    }
+    
+    template <typename E>
+    vector(Vector<Scalar, Dim, E> const& expr) {
+        for (size_t i = 0; i < Dim; ++i) {
+            data[i] = expr[i];
+        }
     }
 
+    vector() : data{} {}
+    vector(std::initializer_list<Scalar> ilist) : data{} {
+        if (ilist.size() != Dim) 
+            throw std::logic_error(
+                "Initializer list does not contain the correct number of elements for vector dimension.");
+        std::copy(ilist.begin(), ilist.end(), data.begin());
+    }
+    
+    vector(container const& arr) : data{arr} {}
+//   vector(const& vector v) : data{} {std::copy(data.begin(), data.end(), v.data.begin());}
+    
+    iterator begin() {return data.begin();}
+    iterator end() {return data.end();}
+    const_iterator cbegin() const {return data.cbegin();}
+    const_iterator cend() const {return data.cend();} 
+
+    std::array<Scalar, Dim> asarray() const { return data; }
+    
+//    vector operator-() const;     
+
+    template<typename E>
+    vector& operator+=(Vector<Scalar, Dim, E> const& expr) {
+        for(size_t i = 0; i < Dim; ++i)
+            data[i] += expr[i];
+        return *this; 
+    }
+        
+    template<typename E>
+    vector& operator-=(Vector<Scalar, Dim, E> const& expr) {
+        for(size_t i = 0; i < Dim; ++i)
+            data[i] -= expr[i];
+        return *this; 
+    }
+    
+    vector& operator*=(Scalar expr) {
+        for(size_t i = 0; i < Dim; ++i)
+            data[i] *= expr;
+        return *this; 
+    }
+    
+    vector& operator/=(Scalar expr) {
+        for(size_t i = 0; i < Dim; ++i)
+            data[i] /= expr;
+        return *this; 
+    }      
+private:
+    container data;
+    
 };
 
-template<E>
-struct Matrix {
+template<typename Scalar, size_t Row, size_t Col>
+struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
+    using container = std::array<std::array<Scalar, Col>, Row>;
+    static constexpr bool IS_LEAF = true;
     
-    static constexpr bool IS_LEAF = false;
-
-    [[nodiscard]]
-    double operator()(size_t i, size_t j) const {
-        // Delegation to the actual expression type.
-        // This avoids dynamic polymorphism (a.k.a. virtual functions in C++)
-        return static_cast<E const&>(*this)(i, j);
+    const Scalar& operator()(size_t i, size_t j) const {
+        return data[i][j];
+    }
+    
+    Scalar& operator()(size_t i, size_t j) {
+        return data[i][j];
     }
 
-    [[nodiscard]]
-    size_t row() const { 
-        return static_cast<E const&>(*this).row(); 
-    }    
-
-    [[nodiscard]]
-    size_t col() const { 
-        return static_cast<E const&>(*this).col(); 
+    matrix() = default;
+    
+    matrix(std::initializer_list<Scalar> ilist) : data{} {
+        if (ilist.size() != Row * Col) 
+            throw std::logic_error(
+                "Initializer list does not contain the correct number of elements for matrix dimension.");
+        auto it = ilist.begin();        
+        for (size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j) {            
+                data[i][j] = *it;
+                ++it;
+            }
+        } 
     }
-}
+    
+    matrix(container const& arr) : data{arr} {}
+    
+    static matrix identity() {
+        matrix out;
+        for (size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j) {                 
+                out(i, j) = i == j ? 1 : 0;
+            }
+        }
+        return out;
+    }
 
-// Declare Concrete Types for storage.
+    template<typename E>
+    matrix& operator+=(Matrix<Scalar, Row, Col, E> const& expr) {
+        for(size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j)
+                operator()(i, j) += expr(i, j);
+        }
+        return *this; 
+    }
+        
+    template<typename E>
+    matrix& operator-=(Matrix<Scalar, Row, Col, E> const& expr) {
+        for(size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j)
+                operator()(i, j) -= expr(i, j);
+        }
+        return *this; 
+    }
+    
+    matrix& operator*=(Scalar expr) {
+        for(size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j)
+                operator()(i, j) *= expr;
+        }
+        return *this; 
+    }
+    
+    matrix& operator/=(Scalar expr) {
+        for(size_t i = 0; i < Row; ++i) {
+            for (size_t j = 0; j < Col; ++j)
+                operator()(i, j) /= expr;
+        }
+ 
+        return *this;
+    }
+    
+    matrix& swap_row(size_t i, size_t j) {
+        std::swap(data[i],data[j]);
+        return *this;
+    }
 
-//struct vector {
-//    using container = std::vector<double>;
-//    
-//    size_t dim() const;  
-//private:
-//    container data;
-//    
-//};
-//
-//struct dynamic_matrix {
-//    using container = std::vector<double>;
-//    
-//    static matrix zeros(size_t row, size_t col) {
-//        return matrix(row, col);
-//    }
-//
-//    const double& operator()(size_t i, size_t j) const {
-//        return data[col_dim * i + j];
-//    }
-//    
-//    double& operator()(size_t i, size_t j) {
-//        return data[col_dim * i + j];
-//    }
-//
-//    
-//    size_t col() const {return Row;};
-//    size_t row() const {return Col;};
-//private:
-//    matrix(size_t row, size_t col) : Row{row}, Col{col}, data(Row * Col, 0) {}
-//    size_t Row;
-//    size_t Col;
-//    
-//    container data;
-//    
-//};
-//
-//
-//template<size_t Row, size_t Col>
-//struct matrix {
-//    using container = std::array<double, Row * Col>;
-//    
-//    
-//    
-//    const double& operator()(size_t i, size_t j) const {
-//        return data[Col * i + j];
-//    }
-//    
-//    double& operator()(size_t i, size_t j) {
-//        return data[Col * i + j];
-//    }
-//
-//    
-//    size_t col() const {return Row;};
-//    size_t row() const {return Col;};
-//private:
-//    
-//    container data;
-//    
-//};
-//
-//
-
+    matrix& swap_col(size_t i, size_t j) {
+        for (size_t k = 0; k < Row; ++k)
+            std::swap(data[k][i], data[k][j]);
+        return *this;
+    }
+private:
+    container data;
+    
+};
 
 }
 
