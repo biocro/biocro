@@ -47,7 +47,6 @@ struct leaf_heat_balance {
     double leaf_width;                                     // m
     double relative_humidity;                              // Pa / Pa
     double canopy_boundary_layer_conductance_water_vapor;  // m / s
-    double stomatal_conductance_water_vapor;               // mol / m^2 / s
     double wind_speed;                                     // m / s
 
     static constexpr double leaf_emissivity = 1;  // dimensionless
@@ -60,18 +59,13 @@ struct leaf_heat_balance {
         double gbw_canopy,                 // m / s
         double leaf_width,                 // m
         double relative_humidity,          // dimensionless from Pa / Pa
-        double stomatal_conductance,       // mol / m^2 / s
         double wind_speed                  // m / s
     );
 
-    // solve heat balance equation, using root_finding
-    root_finding::result_t solve() const;
-    // extract results, given the correct value of leaf_temperature
-    energy_balance_outputs make_result(root_finding::result_t const& result) const;
-
+    
     // leaf heat balance based on:
     // Equation 14.1, pg 224 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
-    double heat_balance(double const& leaf_temperature) const;
+    double heat_balance(double const& leaf_temperature, double) const;
     double blackbody_radiation(double const& leaf_temperature) const;
     double sensible_heat_flux(double const& leaf_temperature, double const& _water_vapor_conductance) const;
     double latent_heat_flux(double const& _leaf_transpiration) const;
@@ -79,9 +73,6 @@ struct leaf_heat_balance {
     double heat_conductance(double const& leaf_temperature) const;
     double water_vapor_conductance(double const& leaf_temperature) const;
 
-   private:
-    // equation_solver must be mutable as it has internal that it manages.
-    mutable root_finding::dekker _equation_solver{100, 1e-12, 1e-12};
 };
 
 #endif
