@@ -1,0 +1,153 @@
+---
+title: "Leaf Photosynthesis Model: A system of nonlinear equations"
+output:
+  bookdown::html_vignette2:
+    toc: true
+    number_sections: true
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Leaf Photosynthesis Model: A system of nonlinear equations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{bookdown}
+bibliography: references/leafphoto_references.bib
+csl: chicago-author-date.csl
+link-citations: yes
+pkgdown:
+  as_is: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 5,
+  fig.height = 5,
+  fig.align = "center"
+)
+```
+
+# Overview
+
+To compute the rate of photosynthesis, we  
+
+\begin{equation}
+  g_{sw} = b_0 + b_1 \cdot \frac{ A_n \cdot h_s}{C_s} \quad
+    \text{if} \; A_n \geq 0, (\#eq:bb)
+\end{equation}
+
+
+# Derivation 
+
+The FvCB model simulates the rate of CO$_2$ assimilation by determining the main limitations on the overall rate of assimilation: Rubisco kinetics and RuBP regeneration. However, the FvCB model depends on the intercellular CO$_2$ concentration and the leaf's temperature. In other words, the leaf's CO$_2$ assimilation rate also depends on the leaf's internal environment. To simulate the rate of photosynthesis across a field, we must determine the leaf's internal environment from the leaf's external environment. 
+
+Here the stomata exert their influence of the rate of photosynthesis as the stomata affect the rate at which CO$_2$ may diffuse into the leaf, and the rate at which water evaporates from the leaf, influencing the leaf's temperature. The flux of water and CO$_2$ are modeled using spatially-discretized diffusion equations. Leaf temperature is modeled by heat balance. A brief derivation of these equations is given.
+
+## CO2 diffusion
+
+Let $C_x$ denote the molar CO$_2$ concentration at location $x$, with three locations: atmosphere, surface, and intercellular, so $x\in \lbrace a,s,i\rbrace$. That is $C_a$ denotes the CO$_2$ concentration of the ambient air away from the leaf's surface. Because surfaces slow the movement of air, a layer of slow moving air builds up around the leaf---this layer is called a boundary layer. Although the thickness of this layer does vary, the edge of this layer is fuzzy. The details involve fluid dynamics which are well beyond our scope here. However, the overall effect of the boundary layer (and its typical thickness) are modeled using conductance. 
+
+Although a more rigorous derivation is possible using an approximation to the diffusion equation and finite-volume-method, the flux of atmospheric CO$_2$ is approximated using $g_{bc} (C_a - C_s)$ for a bonudary layer CO$_2$ conductance $g_{bc}$ which depends on the thickness of the boundary layer and the diffusivity of CO$_2$ in air. In the same manner, CO$_2$ diffuses into the leaf through the stomata at a rate  $g_{sc} (C_s - C_i)$ which depends on the stomatal CO$_2$ conductance $ g_{sc}$. The rate of change in CO$_2$ at the leaf surface is the difference in these rates.
+
+\begin{equation}
+  \dot{C}_s = g_{bc} (C_a - C_s) - g_{sc} (C_s - C_i)  
+    (\#eq:cs_dot)
+\end{equation}
+
+Similarly, the rate of change in $C_i$ depends on the difference in the flux of CO$_2$ into the leaf (or out of the leaf) and the rate of CO$_2$ assimilation by carboxylation $V_c$ minus the rate that the CO$_2$ is produced by photosynthesis $V_o/2$ and respiration pathways $R$. 
+
+\begin{equation}
+  \dot{C}_i = g_{sc} (C_s - C_i) - V_c(C_i) + \frac{1}{2}V_o(C_i) + R 
+    (\#eq:ci_dot)
+\end{equation}
+
+However, these differential equations have a single stable steady state, and it is assumed that under most conditions, the system contracts quickly to steady state so that $\dot{C
+_i \approx \dot{C}_s \approx 0$ and we do not have to solve the differential equation, but simply find the steady state $C_s$ and $C_i$. Once we know $C_i$, the FvCB model specifies the rate of carboxylation; this is denoted by $V_c(C_i)$ and $V_o(C_i)$.
+
+The model is the resulting system of nonlinear equations rather than these differential equations, but the model is only valid when the fluxes maintain the system near steady state. If $C_a$ changes, the corresponding stable steady state changes instantaneously, but the actual value of $C_s$ and $C_i$ take time to reach the steady state. Thus, the system's true behavior will exhibit a lagging response to changes, but this lag is assumed to be quite small (< 1 min). It is possible to estimate the lag using the linearized dynamics of the system, but we will not pursue that calculation further. The point is that the overall model breaks down when the assumption of slow changes isn't met, and a change is slow if it is much slower than the rate at which $C_s$ and $C_i$ come into equilibrium.
+
+Moreover, systems of nonlinear equations might have multiple solutions, but the differential equations prescribe that the correct solution is both a stable steady state, and if there is more than one stable steady state, then it is the stable steady state closest to the previous steady state. Thus, if there are multiple stable solutions, then it is mostly a sign that the steady state approximation has broken down.
+
+## H2O Diffusion
+
+The same logic applies to the flux of water. The boundary layer and the stomata influence the rate at which water transpires out of the leaf. Let $w_x$ denote the molar fraction of water vapor contained at location $x$. As before, we have $x \in \lbrace a, s, i \rbrace$. The rate of transpiration across the boundary layer is $g_{bw} ( w_a - w_s )$ and through the phloem, it is $g_{sw} (w_s - w_i) $, where $g_{bw}$ and $g_{sw}$ are the boundary layer and stomatal H$_2$O conductances, respectively.  The rate of change in water vapor at the surface of the leaf is 
+
+\begin{equation}
+  \dot{w}_s = g_{bw} (w_a - w_s) - g_{sw} (w_s - w_i)  
+    (\#eq:ws_dot)
+\end{equation}
+
+and inside the leaf it is:
+
+\begin{equation}
+  \dot{w}_i = g_{sw} (w_s - w_i)  + E  
+    (\#eq:ws_dot)
+\end{equation}
+
+where $E$ is the rate at which water evaporates from the liquid surfaces of the leaf's interior. 
+
+However, we 
+
+## Temperature
+
+## Stomata
+
+
+## Determining $C_s$
+
+Assuming steady-state conditions, the CO$_2$ flux across the boundary layer is
+given by $A_n$, allowing us to find $C_s$ using a single gas flow equation:
+
+
+where $C_a$ is the ambient CO$_2$ concentration, $g_{bc}$ is the boundary layer
+conductance to CO$_2$ diffusion, and $g_{bw}$ is the boundary layer
+conductance to water vapor diffusion. The two conductances are related by the
+ratio of diffusivities of CO$_2$ and H$_2$O in the boundary layer, which is
+typically taken to be 1.37. (For more information about this ratio and its
+value, see the discussion following Equation B16 in
+@von_caemmerer_relationships_1981.)
+
+## Determining $h_s$
+
+The situation with water vapor is more complicated. The first point is that
+water vapor flows along concentration gradients, _not_ relative humidity
+gradients. Concentrations and relative humidities are related by
+
+\begin{equation}
+  h = P_w / P_{w,sat}(T) = w \cdot P_{tot} / P_{w,sat}(T), (\#eq:hw)
+\end{equation}
+
+where $h$ is the relative humidity, $w$ is the water vapor concentration, $P_w$
+is the partial pressure of water vapor, $P_{w,sat}(T)$ is the saturation water
+vapor pressure corresponding to the air temperature $T$, and $P_{tot}$ is the
+total gas pressure. The second point is that the water vapor flux $E$ is
+initially unknown; instead, we assume that water vapor is fully saturated within
+the leaf and that the water vapor flow has reached steady-state conditions.
+
+Thus, we can begin with two gas flow equations corresponding to water vapor
+flux across the boundary layer and stomata ($E_b$ and $E_s$, respectively):
+
+\begin{equation}
+  E_b = g_{bw} \cdot (w_s - w_a) (\#eq:fluxbdry)
+\end{equation}
+
+and
+
+\begin{equation}
+  E_s = g_{sw} \cdot (w_i - w_s), (\#eq:fluxstom)
+\end{equation}
+
+where $w_a$, $w_s$, and $w_i$ are the water vapor concentrations in the ambient
+air, at the leaf surface, and in the leaf interior, respectively. Note that
+Equation \@ref(eq:hw) can be used to re-express these concentrations using the
+corresponding relative humidities ($h_a$, $h_s$, and $h_i$) and air temperatures
+($T_a$, $T_s$, and $T_i$) at the same locations as follows:
+
+\begin{align}
+  w_a &= h_a \cdot \frac{P_{w,sat}(T_a)}{P_{tot}} \\
+  w_s &= h_s \cdot \frac{P_{w,sat}(T_s)}{P_{tot}} \\
+  w_i &= h_i \cdot \frac{P_{w,sat}(T_i)}{P_{tot}} =
+    \frac{P_{w,sat}(T_i)}{P_{tot}}, (\#eq:rh)
+\end{align}
+
