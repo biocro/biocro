@@ -37,7 +37,7 @@ jobs:
       working-directory: source
 
     - name: 4. Cache R packages
-      uses: actions/cache@v3.3.2
+      uses: actions/cache@v4.3.0
       with:
         path: ${{ env.R_LIBS_USER }}
         key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
@@ -48,7 +48,7 @@ jobs:
         while read -r cmd
         do
           eval sudo $cmd
-        done < <(Rscript -e 'writeLines(unlist(sapply(c("xslt", "xml2", "stringi"), function(p) { remotes::system_requirements("ubuntu", "24.04", package = p) })))')
+        done < <(Rscript -e 'writeLines(unlist(sapply(c("xslt", "xml2", "stringi"), function(p) { remotes::system_requirements("ubuntu", "22.04", package = p) })))')
 
     # Currently, this should be a no-op since BioCro doesn't have any
     # dependencies.

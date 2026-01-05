@@ -1,10 +1,8 @@
 #ifndef ROOT_BROYDEN_H
 #define ROOT_BROYDEN_H
 
-#include <array>
-#include <cmath>    // std::sqrt, std::isnan
-#include <numeric>  // std::inner_product
 #include "zeros.h"
+#include "../../linalg/base.h"
 
 namespace root_multidim
 {
@@ -13,12 +11,11 @@ namespace root_multidim
  *
  *  @details
  */
-template <size_t dim>
-struct broyden : public zero_finding_method<dim, broyden<dim>> {
-    using zero_finding_method<dim, broyden<dim>>::zero_finding_method;
-    using vec_t = vec_t<dim>;
-    using mat_t = mat_t<dim>;
-
+template <size_t Dim>
+struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
+    using zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
+    using vec_t = typename linalg::vector<double, Dim>; 
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;    
     vec_t _zero;
     vec_t _residual;
     vec_t delta_x;
@@ -30,11 +27,11 @@ struct broyden : public zero_finding_method<dim, broyden<dim>> {
     double _tmp_c;
 
     template <typename F>
-    bool initialize(F&& fun, const vec_t& guess)
+    bool initialize(F&& fun, std::array<double, Dim> const& guess)
     {
         _zero = guess;
         _residual = fun(guess);
-        inv_jac = identity<dim>();
+        inv_jac = linalg::matrix<double, Dim, Dim>::identity();
         return true;
     }
 
@@ -76,7 +73,7 @@ struct broyden : public zero_finding_method<dim, broyden<dim>> {
 
         */
         update_x();
-        delta_y = fun(_zero);
+        delta_y = fun(_zero.asarray());
         update_y();
         update_inv_jac();
         return true;
@@ -97,67 +94,37 @@ struct broyden : public zero_finding_method<dim, broyden<dim>> {
         return false;
     }
 
-    vec_t residual() const
+    std::array<double, Dim> residual() const
     {
-        return _residual;
+        return _residual.asarray();
     }
 
-    vec_t zero() const
+    std::array<double, Dim> zero() const
     {
-        return _zero;
+        return _zero.asarray();
     }
 
     inline void update_x()
     {
-        // these formulae are computed in a single for-loop pass
-        // delta_x = dot(inv_jac,  -residual)
-        // zero += delta_x
-        for (size_t i = 0; i < dim; ++i) {
-            delta_x[i] = 0;
-            for (size_t j = 0; j < dim; ++j) {
-                delta_x[i] += inv_jac[i][j] * -_residual[j];
-            }
-            _zero[i] += delta_x[i];
-        }
+        delta_x = inv_jac * (-1.0 * _residual);
+        _zero += delta_x;
+ 
     }
 
     inline void update_y()
     {
         // this is computed in a single for-loop pass
-        for (size_t i = 0; i < dim; ++i) {
-            std::swap(delta_y[i], _residual[i]);     // swap values so that y[i] is new value, and delta_y[i] is old
-            delta_y[i] = _residual[i] - delta_y[i];  //
-        }
+        std::swap(delta_y, _residual);
+        delta_y = _residual - delta_y;
+
     }
 
     void update_inv_jac()
     {
-        /*
-        inv_jac ->  inv_jac + outer(a, b) / c
-          where
-            a = delta_x - dot(inv_jac , delta_y)
-            b = dot(delta_x, inv_jac)
-            c = dot(delta_x, dot(inv_jac, delta_y))
-
-
-        */
-        _tmp_c = 0;
-        _tmp_b.fill(0);
-
-        for (size_t i = 0; i < dim; ++i) {
-            _tmp_a[i] = delta_x[i];
-            for (size_t j = 0; j < dim; ++j) {
-                _tmp_a[i] -= inv_jac[i][j] * delta_y[j];
-                _tmp_b[j] += delta_x[i] * inv_jac[i][j];
-                _tmp_c += delta_x[i] * inv_jac[i][j] * delta_y[j];
-            }
-        }
-
-        for (size_t i = 0; i < dim; ++i) {
-            for (size_t j = 0; j < dim; ++j) {
-                inv_jac[i][j] += _tmp_a[i] * _tmp_b[j] / _tmp_c;
-            }
-        }
+        _tmp_a = delta_x - inv_jac * delta_y;
+        _tmp_b = delta_x * inv_jac; 
+        _tmp_c = linalg::quadratic_form(inv_jac, delta_x, delta_y); // equivalent to  delta_x * inv_jac * delta_y
+        inv_jac += linalg::outer(_tmp_a , _tmp_b) / _tmp_c;
     }
 };
 
