@@ -35,6 +35,11 @@ vignette: >
 \newcommand{\Out}{\operatorname{\mathbf{Out}}}
 \numberwithin{equation}{section}
 
+```{r, echo = FALSE}
+options(crayon.enabled = FALSE, cli.num_colors = 1) # crayon colors cause latex
+                                                    # issues, so do not use them
+```
+
 # Dynamical systems, real and mathematical
 
 In his book _Computation, Dynamics, and Cognition_
