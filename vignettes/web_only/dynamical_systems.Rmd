@@ -36,8 +36,14 @@ vignette: >
 \numberwithin{equation}{section}
 
 ```{r, echo = FALSE}
-options(crayon.enabled = FALSE, cli.num_colors = 1) # crayon colors cause latex
-                                                    # issues, so do not use them
+options(
+  crayon.enabled = FALSE, # crayon colors cause latex issues
+  cli.num_colors = 1
+)
+
+knitr::opts_chunk$set(
+  error = FALSE # stop on errors to help with troubleshooting
+)
 ```
 
 # Dynamical systems, real and mathematical
