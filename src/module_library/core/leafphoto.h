@@ -3,53 +3,169 @@
 
 #include <array>
 
+namespace photosynthesis {
 
-struct Leaf {
-  
-    // solve for internal states
+struct LeafPhotoC3 {
+    // external inputs needed to solve equation
+    double absorbed_radiation;                             // W / m^2
+    double air_temperature;                                // deg C
+    double air_pressure;                                   // Pa
+    double leaf_width;                                     // m
+    double relative_humidity;                              // Pa / Pa
+    double canopy_boundary_layer_conductance_water_vapor;  // m / s
+    double wind_speed;                                     // m / s
+    
+    LeafPhotoC3(
+        double absorbed_radiation,                             // W / m^2
+        double air_temperature,                                // deg C
+        double air_pressure,                                   // Pa
+        double leaf_width,                                     // m
+        double relative_humidity,                              // Pa / Pa
+        double gbw_canopy,  // m / s
+        double wind_speed                                     // m / s
+    ) : absorbed_radiation{absorbed_radiation}, 
+        air_temperature{air_temperature},
+        air_pressure{air_pressure},
+        leaf_width{leaf_width},
+        relative_humidity{relative_humidity},
+        canopy_boundary_layer_conductance_water_vapor{gbw_canopy},
+        wind_speed{wind_speed} 
+    {   
+        wa = relative_humidity * saturation_vapor_pressure(air_temperature) / air pressure;
+        
+    }
+    // computed once
+    double wa; 
     
     // system of equations to solve
-    std::array<double, 3> defining_function(std::array<double, 3> x) {
-        std::array<double, 3> y;
-        double gsc = gs / dr_stomata;  // mol / m^2 / s
-        double gbc  = gbw / dr_stomata; 
+    static size_t dim = 5;
+  
+    std::array<double, dim> operator()(std::array<double, dim>const& x) {
+        std::array<double, dim> y;
         double bb_index = assim  * hs / Cs;
-        y[0] = gsc * (Cs - Ci) - assim;
-        y[1] = gbc * (Ca - Cs) - gsc * (Cs - Ci);
-        y[2] = bb_intercept + bb_slope * bb_index - gsw;
-        y[3] = assim - FvCB_assim(
-            Ci, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation);
-        double wa = 
-        y[4] = gbw * (wa - ws) - gsw * (ws - wi);
-
+        double assim = FvCB;
+        y[0] = ci_balance_equation(Ci, gs, assim);
+        y[1] = cs_balance_equation(Cs, Ci, gs);
+        y[2] = stomatal_equation(Cs, gsw, hs, assim);
+        y[3] = surface_relative_humidity_equation(gsw, hs, leaf_temperature);
+        y[4] = heat_balance(leaf_temperature, gsw);
+        return y;
     }     
 
-    double ci_balance_equation(double Ci, double gs, double assim) {
-        
-
-    double cs_balance_equation(double Cs, double Ci, double gs) {
-        double Gs = gs / dr_stomata;  // mol / m^2 / s
-        double Gb = gbw / dr_stomata;
-        return Gb * (Ca - Cs) - Gs * (Cs - Ci);    
+    double ci_balance_equation(double Ci, double gs, double assim) const {
+        return gsc * (Cs - Ci) - assim;   
     }
 
-    double assim_equation(double assim, double Ci, double Tleaf){
-        return
-
+    double cs_balance_equation(double Cs, double Ci, double gsc) const {
+        return gbc * (Ca - Cs) - gsc * (Cs - Ci);    
     }
 
-    double stomatal_equation(double Cs, double gs) {
-            Gb = gbw / dr_stomata;
+    double stomatal_equation(double Cs, double gsw, double hs, double assim) const {
+        double bb_index = std::max(assim, 0)  * hs/ Cs
         double g0 = bb_intercept + bb_slope * bb_index; 
         return g0 - gs;   
     }
-
     
+    double surface_relative_humidity_equation(double gsw, double hs, double leaf_temperature) const {
+        double gbw = boundary_water_vapor_conductance(leaf_temperature);
+        double wi = saturation_vapor_pressure(leaf_temperature) / air_pressure ;
+        double ws = hs * wi;
+        return gbw * (wa - ws) - gsw * (ws - wi);
+    }
+     // leaf heat balance based on:
+    // Equation 14.1, pg 224 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
+    double heat_balance(double const& leaf_temperature, double const& gsw) const
+    {
+        double gbw = boundary_water_vapor_conductance(leaf_temperature);
+        double vapor_cond = sequential_conductance(gbw, gsw);
+        double E = leaf_transpiration(leaf_temperature, vapor_cond);
+        return absorbed_radiation - blackbody_radiation(leaf_temperature) - sensible_heat_flux(leaf_temperature, vapor_cond) - latent_heat_flux(E);  // J / m^2 / s
+    }
+
+    double blackbody_radiation(double const& leaf_temperature) const
+    {
+        using conversion_constants::celsius_to_kelvin;
+        using physical_constants::stefan_boltzmann;
+
+        double temp = celsius_to_kelvin + leaf_temperature;             // K
+        return leaf_emissivity * stefan_boltzmann * std::pow(temp, 4);  // J / m^2 / s
+    }
+
+    double sensible_heat_flux(double const& leaf_temperature) const
+    {
+        using physical_constants::molar_mass_of_dry_air;
+        const double cp = molar_mass_of_dry_air * TempToCp(air_temperature);  // J / mol
+
+        double delta_temp = leaf_temperature - air_temperature;
+        return cp * heat_conductance(leaf_temperature) * (delta_temp);
+    };
+
+    double latent_heat_flux(double const& _leaf_transpiration) const
+    {
+        using physical_constants::molar_mass_of_water;                                       // kg /mol
+        double const lambda = water_latent_heat_of_vaporization_henderson(air_temperature);  // J / kg
+
+        return lambda * molar_mass_of_water * _leaf_transpiration;  // J / m^2 / s
+    }
+
+    double leaf_transpiration(double const& leaf_temperature, double const& _water_vapor_conductance) const
+    {
+        double vp_air = relative_humidity * saturation_vapor_pressure(air_temperature);  // Pa
+
+        // assuming leaf's interior has relative humidity = 1
+        double vp_leaf = saturation_vapor_pressure(leaf_temperature);         // Pa
+        return _water_vapor_conductance * (vp_leaf - vp_air) / air_pressure;  // mol / m^2 / s
+    }
+    
+    double heat_conductance(double const& leaf_temperature) const
+    {
+        double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // mol / m^2 / s
+        // convert to a heat transfer conductance
+        constexpr double heat_to_vapor_conductance_ratio = 0.135 / 0.147;
+        double const gbh_canopy = heat_to_vapor_conductance_ratio * gbv_canopy;
+        // from Table 7.6 on pg. 109 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
+        // Set constants
+        double constexpr coef_forced = 0.135;
+        double constexpr coef_free = 0.05;
+
+        // Calculate conductances
+        double const gbh_forced = coef_forced * std::sqrt(wind_speed / leaf_width);                                     // mol / m^2 / s
+        double const gbh_free = coef_free * std::pow(std::abs(leaf_temperature - air_temperature) / leaf_width, 0.25);  // mol / m^2 / s
+
+        // The overall conductance is the larger one
+        double const gbh_leaf = std::max(gbh_forced, gbh_free);  // mol / m^2 / s
+
+        // using the forced convection; ratio is almost the same for free convection (I think the numbers in the table are rounded)
+        double const gth = sequential_conductance(gbh_leaf, gbh_canopy);  // mol/ m^2 / s
+
+        return gth;  // mol / m^2 / s
+    }
+
+    double boundary_water_vapor_conductance(double const& leaf_temperature) const const
+    {
+        double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // mol / m^2 / s
+
+        // Set constants
+        double constexpr coef_forced = 0.147;
+        double constexpr coef_free = 0.055;
+
+        // Calculate conductances
+        double const gbv_forced = coef_forced * std::sqrt(wind_speed / leaf_width);                                     // mol / m^2 / s
+        double const gbv_free = coef_free * std::pow(std::abs(leaf_temperature - air_temperature) / leaf_width, 0.25);  // mol / m^2 / s
+
+        // The overall conductance is the larger one
+        double const gbv_leaf = std::max(gbv_forced, gbv_free);  // mol / m^2 / s
+
+        // Get the boundary layer conductance and total conductance to water
+        // vapor
+        return sequential_conductance(gbv_leaf, gbv_canopy);                  // mol/ m^2 / s
+        
+    }
+
       
     
 };
+} // namespace photosynthesis
 /*
 photosynthesis_outputs c3photoC(
     c3_temperature_response_parameters const tr_param,
@@ -200,58 +316,4 @@ photosynthesis_outputs c3photoC(
     
 }
 
-// This function returns the solubility of O2 in H2O relative to its value at
-// 25 degrees C. The equation used here was developed by forming a polynomial
-// fit to tabulated solubility values from a reference book, and then a
-// subsequent normalization to the return value at 25 degrees C. For more
-// details, See Long, Plant, Cell & Environment 14, 729–739 (1991)
-// (https://doi.org/10.1111/j.1365-3040.1991.tb01439.x).
-double solo(
-    double LeafT  // degrees C
-)
-{
-    return (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
-}
-
-
-// Make an initial guess for boundary layer conductance
-double const gbw_guess{1.2};  // mol / m^2 / s
-
-// Get an initial estimate of stomatal conductance, assuming the leaf is at
-// air temperature
-double const initial_stomatal_conductance =
-    c3photoC(
-        tr_param, absorbed_ppfd, ambient_temperature, ambient_temperature,
-        rh, Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0,
-        b1, Gs_min, Catm, atmospheric_pressure, O2, StomataWS,
-        electrons_per_carboxylation,
-        electrons_per_oxygenation, beta_PSII, gbw_guess)
-        .Gs;  // mol / m^2 / s
-
-// Calculate a new value for leaf temperature using the estimate for
-// stomatal conductance
-const energy_balance_outputs et = leaf_energy_balance(
-    absorbed_longwave,
-    absorbed_shortwave,
-    atmospheric_pressure,
-    ambient_temperature,
-    gbw_canopy,
-    leafwidth,
-    rh,
-    initial_stomatal_conductance,
-    windspeed);
-
-double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
-
-// Calculate final values for assimilation, stomatal conductance, and Ci
-// using the new leaf temperature
-const photosynthesis_outputs photo =
-    c3photoC(
-        tr_param, absorbed_ppfd, leaf_temperature, ambient_temperature,
-        rh, Vcmax_at_25, Jmax_at_25,
-        Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-        StomataWS,
-        electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-        et.gbw_molecular);
-    */
 #endif

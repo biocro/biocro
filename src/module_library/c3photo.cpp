@@ -12,15 +12,7 @@
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
-/*
 
-  The secant method is used to solve for assimilation, Ci, and stomatal conductance,
-  because of known convergence issues when using fixed-point iteration, based on
-  Sun et al. (2012) "A numerical issue in calculating the coupled carbon and
-  water fluxes in a climate model." *Journal of Geophysical Research*
-  https://dx.doi.org/10.1029/2012JD018059
-
-*/
 
 photosynthesis_outputs c3photoC(
     c3_temperature_response_parameters const tr_param,

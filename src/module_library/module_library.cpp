@@ -17,7 +17,6 @@
 #include "c3_assimilation.h"
 #include "c3_canopy.h"
 #include "c3_leaf_photosynthesis.h"
-#include "c3_leaf_photosynthesis_test.h"
 #include "c3_parameters.h"
 #include "c4_assimilation.h"
 #include "c4_canopy.h"
@@ -43,7 +42,6 @@
 #include "leaf_evapotranspiration_check.h"
 #include "leaf_gbw_campbell.h"
 #include "leaf_gbw_nikolov.h"
-#include "leaf_heat_balance_module.h"
 #include "leaf_shape_factor.h"
 #include "leaf_water_stress_exponential.h"
 #include "light_from_solar.h"
@@ -118,7 +116,6 @@ creator_map standardBML::module_library::library_entries =
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
      {"c3_canopy",                                             &create_mc<c3_canopy>},
      {"c3_leaf_photosynthesis",                                &create_mc<c3_leaf_photosynthesis>},
-     {"c3_leaf_photosynthesis_test",                           &create_mc<c3_leaf_photosynthesis_test>},
      {"c3_parameters",                                         &create_mc<c3_parameters>},
      {"c4_assimilation",                                       &create_mc<c4_assimilation>},
      {"c4_canopy",                                             &create_mc<c4_canopy>},
@@ -146,7 +143,6 @@ creator_map standardBML::module_library::library_entries =
      {"leaf_evapotranspiration_check",                         &create_mc<leaf_evapotranspiration_check>},
      {"leaf_gbw_campbell",                                     &create_mc<leaf_gbw_campbell>},
      {"leaf_gbw_nikolov",                                      &create_mc<leaf_gbw_nikolov>},
-     {"leaf_heat_balance",                                     &create_mc<leaf_heat_balance_module>},
      {"leaf_shape_factor",                                     &create_mc<leaf_shape_factor>},
      {"leaf_water_stress_exponential",                         &create_mc<leaf_water_stress_exponential>},
      {"light_from_solar",                                      &create_mc<light_from_solar>},
@@ -194,7 +190,6 @@ creator_map standardBML::module_library::library_entries =
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
      {"stomata_water_stress_sigmoid",                          &create_mc<stomata_water_stress_sigmoid>},
      {"ten_layer_c3_canopy",                                   &create_mc<ten_layer_c3_canopy>},
-     {"ten_layer_c3_canopy_test",                              &create_mc<ten_layer_c3_canopy_test>},
      {"ten_layer_c4_canopy",                                   &create_mc<ten_layer_c4_canopy>},
      {"ten_layer_canopy_integrator",                           &create_mc<ten_layer_canopy_integrator>},
      {"ten_layer_canopy_properties",                           &create_mc<ten_layer_canopy_properties>},

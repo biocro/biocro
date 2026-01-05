@@ -3,11 +3,8 @@
 using standardBML::ten_layer_c3_canopy;
 using standardBML::ten_layer_c3_canopy_parent;
 
-using standardBML::ten_layer_c3_canopy_parent_test;
-using standardBML::ten_layer_c3_canopy_test;
 
 int const ten_layer_c3_canopy::nlayers = 10;       // Set the number of layers
-int const ten_layer_c3_canopy_test::nlayers = 10;  // Set the number of layers
 
 string_vector ten_layer_c3_canopy::get_inputs()
 {
@@ -31,24 +28,4 @@ void ten_layer_c3_canopy::do_operation() const
     ten_layer_c3_canopy_parent::run();
 }
 
-string_vector ten_layer_c3_canopy_test::get_inputs()
-{
-    // Just call the parent class's input function with the appropriate number
-    // of layers
-    return ten_layer_c3_canopy_parent_test::generate_inputs(
-        ten_layer_c3_canopy_test::nlayers);
-}
 
-string_vector ten_layer_c3_canopy_test::get_outputs()
-{
-    // Just call the parent class's output function with the appropriate number
-    // of layers
-    return ten_layer_c3_canopy_parent_test::generate_outputs(
-        ten_layer_c3_canopy_test::nlayers);
-}
-
-void ten_layer_c3_canopy_test::do_operation() const
-{
-    // Just call the parent class's run operation
-    ten_layer_c3_canopy_parent_test::run();
-}

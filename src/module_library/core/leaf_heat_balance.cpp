@@ -29,9 +29,9 @@ leaf_heat_balance::leaf_heat_balance(
 }
 
 // Equation 14.1, pg 224 of Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
-double leaf_heat_balance::heat_balance(double const& leaf_temperature) const
+double leaf_heat_balance::heat_balance(double const& leaf_temperature, double const& stomatal_conductance_water_vapor) const
 {
-    double vapor_cond = water_vapor_conductance(leaf_temperature);
+    double vapor_cond = water_vapor_conductance(leaf_temperature, stomatal_conductance_water_vapor);
     double E = leaf_transpiration(leaf_temperature, vapor_cond);
     return absorbed_radiation - blackbody_radiation(leaf_temperature) - sensible_heat_flux(leaf_temperature, vapor_cond) - latent_heat_flux(E);  // J / m^2 / s
 }
@@ -96,7 +96,7 @@ double leaf_heat_balance::heat_conductance(double const& leaf_temperature) const
     return gth;  // mol / m^2 / s
 }
 
-double leaf_heat_balance::water_vapor_conductance(double const& leaf_temperature, double stomatal_conductance_water_vapor) const
+double leaf_heat_balance::water_vapor_conductance(double const& leaf_temperature, double const& stomatal_conductance_water_vapor) const
 {
     double const gbv_canopy = g_to_molecular(air_pressure, canopy_boundary_layer_conductance_water_vapor, leaf_temperature);  // mol / m^2 / s
 

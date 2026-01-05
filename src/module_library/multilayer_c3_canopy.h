@@ -5,8 +5,6 @@
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "c3_leaf_photosynthesis.h"
-#include "c3_leaf_photosynthesis_test.h"
-
 namespace standardBML
 {
 using ten_layer_c3_canopy_parent =
@@ -48,34 +46,6 @@ class ten_layer_c3_canopy : public ten_layer_c3_canopy_parent
     static string_vector get_inputs();
     static string_vector get_outputs();
     static std::string get_name() { return "ten_layer_c3_canopy"; }
-
-   private:
-    // Number of layers
-    int static const nlayers;
-
-    // Main operation
-    void do_operation() const;
-};
-
-using ten_layer_c3_canopy_parent_test =
-    multilayer_canopy_photosynthesis<
-        ten_layer_canopy_properties,
-        c3_leaf_photosynthesis_test>;
-class ten_layer_c3_canopy_test : public ten_layer_c3_canopy_parent_test
-{
-   public:
-    ten_layer_c3_canopy_test(
-        state_map const& input_quantities,
-        state_map* output_quantities)
-        : ten_layer_c3_canopy_parent_test(
-              ten_layer_c3_canopy_test::nlayers,
-              input_quantities,
-              output_quantities)
-    {
-    }
-    static string_vector get_inputs();
-    static string_vector get_outputs();
-    static std::string get_name() { return "ten_layer_c3_canopy_test"; }
 
    private:
     // Number of layers

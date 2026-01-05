@@ -65,13 +65,13 @@ struct leaf_heat_balance {
     
     // leaf heat balance based on:
     // Equation 14.1, pg 224 in Campbell & Norman, "An Introduction to Environmental Biophysics" 2ed.
-    double heat_balance(double const& leaf_temperature, double) const;
+    double heat_balance(double const& leaf_temperature, double const& stomatal_conductance_water_vapor) const;
     double blackbody_radiation(double const& leaf_temperature) const;
     double sensible_heat_flux(double const& leaf_temperature, double const& _water_vapor_conductance) const;
     double latent_heat_flux(double const& _leaf_transpiration) const;
     double leaf_transpiration(double const& leaf_temperature, double const& _water_vapor_conductance) const;
     double heat_conductance(double const& leaf_temperature) const;
-    double water_vapor_conductance(double const& leaf_temperature) const;
+    double water_vapor_conductance(double const& leaf_temperature, double const& stomatal_conductance_water_vapor) const;
 
 };
 

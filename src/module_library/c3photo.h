@@ -26,6 +26,8 @@ photosynthesis_outputs c3photoC(
     double const beta_PSII,
     double const gbw);
 
+
+
 double solc(double LeafT);
 double solo(double LeafT);
 
