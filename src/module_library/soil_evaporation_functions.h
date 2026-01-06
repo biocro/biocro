@@ -170,6 +170,28 @@ double potential_evapotranspiration(
     return potential_et;
 }
 
+/**
+ *  @brief Calculates the reference evapotranspiration rate from environmental
+ *  conditions.
+ *
+ *  The reference evapotranspiration rate (`ET_0`) depends on environmental
+ *  conditions, and is the rate that would occur for the reference surface,
+ *  which is described in Allen et al. (1998) as follows:
+ *
+ *  > The reference surface is a hypothetical grass reference crop with an
+ *  > assumed crop height of 0.12 m, a fixed surface resistance of 70 s / m, and
+ *  > an albedo of 0.23. The reference surface closely resembles an extensive
+ *  > surface of green, well-watered grass of uniform height, actively growing
+ *  > and completely shading the ground. The fixed surface resistance of
+ *  > 70 s / m implies a moderately dry soil surface resulting from about a
+ *  > weekly irrigation frequency.
+ *
+ *  References:
+ *
+ *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
+ *    Paper No. 56." Food and Agriculture Organization of the United Nations, Rome, Italy (1998)]
+ *    (http://www.climasouth.eu/sites/default/files/FAO%2056.pdf)
+ */
 double reference_evapotranspiration(
     int doy,
     double solar,
@@ -259,6 +281,91 @@ double reference_evapotranspiration(
     return reference_et;
 }
 
+/**
+ *  @brief Calculates the potential rate of evaporation of water from the soil
+ *  surface in the presence of a crop.
+ *
+ *  The potential rate of evaporation of water from the soil surface is the
+ *  highest rate possible given the contraints placed by the available solar
+ *  energy and the crop itself. The availability and distribution of water
+ *  within the soil may reduce the actual rate to a lower value, but these
+ *  calculations are handled elsewhere (typically in the `soil_evaporation2`
+ *  module).
+ *
+ *  This function was originally based on the `PETASCE` and `PSE` subroutines of
+ *  `PET.for`, and the `SPAM` subroutine of `SPAM.for`, all of which are parts
+ *  of DSSAT (https://github.com/DSSAT/dssat-csm-os). Here we follow the "T"
+ *  method, described as "Standardized Reference Evapotranspiration Equation for
+ *  the tall reference crop (50-cm alfalfa) with dual FAO-56 crop coefficient
+ *  method (potential E and T calculated independently)."
+ *
+ *  The "dual crop coefficient" approach to calculating evapotranspiration is
+ *  described in Chapter 7 of FAO-56 (Allen et al. 1998). In this approach, the
+ *  actual crop evapotranspiration rate (`ET_c`) is determined from the
+ *  reference evapotranspiration rate (`ET_0`) according to
+ *
+ *  `ET_c = (K_cb + K_e) * ET_0`,
+ *
+ *  where `K_cb` is the "basal crop coefficient" and `K_e` is the "soil
+ *  evaporation coefficient." The reference rate depends on environmental
+ *  conditions, and is the rate that would occur for the reference surface; see
+ *  the `reference_evapotranspiration()` function for more information.
+ *
+ *  The dimensionless coefficients `K_cb` and `K_e` account for differences
+ *  between the reference surface and the actual crop, which generally has
+ *  different characteristics. They each describe one component of the crop
+ *  evapotranspiration rate, which can be described as the "transpiration" and
+ *  "evaporation" components. Thus, the term "crop evapotranspiration" is better
+ *  understood as "evapotranspiration from cropland," since it includes both
+ *  crop transpiration and soil evaporation. Allen et al. (1998) describes the
+ *  coefficients in more detail as follows:
+ *
+ *  > The basal crop coefficient (`K_cb`) is defined as the ratio of the crop
+ *  > evapotranspiration over the reference evapotranspiration (`ET_c / ET_0`)
+ *  > when the soil surface is dry but transpiration is occurring at a potential
+ *  > rate, i.e., water is not limiting transpiration (Figure 22). Therefore,
+ *  > `K_cb * ET_0` represents primarily the transpiration component of `ET_c`.
+ *  > The `K_cb * ET_0` does include a residual diffusive evaporation component
+ *  > supplied by soil water below the dry surface and by soil water from
+ *  > beneath dense vegetation.
+ *
+ *  and:
+ *
+ *  > The soil evaporation coefficient, `K_e`, describes the evaporation
+ *  > component of `ET_c`. Where the topsoil is wet, following rain or
+ *  > irrigation, `K_e` is maximal. Where the soil surface is dry, `K_e` is
+ *  > small and even zero when no water remains near the soil surface for
+ *  > evaporation.
+ *
+ *  A key constraint on the values of `K_cb` and `K_e` is that the overall crop
+ *  coefficient `K_c = K_cb + K_e` cannot exceed a maximum value, `K_cmax`,
+ *  which is determined by the energy available for evapotranspiration.
+ *  Expressing this as a limitation on `K_e`, we see that `K_e` must be less
+ *  than or equal to `K_cmax - K_cb`, with equality only occurring when the soil
+ *  is fully wet. This can be expressed as `K_e = K_r * (K_cmax - K_cb)`, where
+ *  `K_r` is an evaporation reduction coefficient that depends on the soil
+ *  surface water content.
+ *
+ *  Another consideration is that soil evaporation tends to decrease as crop
+ *  cover increases, because some of the available solar energy is intercepted
+ *  by the crop. Thus, `K_e` actually depends on properties of the crop itself,
+ *  despite being a coefficient that describes evaporation from the soil. This
+ *  is expressed as another constraint: `K_e` must be less than or equal to
+ *  `f_ew * K_cmax`, where `f_ew` is the fraction of soil that is both exposed
+ *  and wetted. A larger canopy leaf area index tends to decrease `f_ew`.
+ *
+ *  To calculate the potential rate of evaporation of water from the soil
+ *  surface, we assume `K_r` is 1. We also assume that the soil is evenly
+ *  wetted; in this case, `f_w` is also 1, where `f_w` is the fraction of soil
+ *  that is wet. These assumptions enable the calculation of `K_e`, and then the
+ *  potential evaporation rate is given by `K_e * ET_0`.
+ *
+ *  References:
+ *
+ *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
+ *    Paper No. 56." Food and Agriculture Organization of the United Nations, Rome, Italy (1998)]
+ *    (http://www.climasouth.eu/sites/default/files/FAO%2056.pdf)
+ */
 double potential_soil_evaporation(
     double skc,
     double kcbmax,
