@@ -10,30 +10,19 @@
 
 namespace root_multidim
 {
-// May be replaced later with BOOST's uBLAS code.
-// vector type
-template <size_t dim>
-using vec_t = std::array<double, dim>;
-
-// matrix type
-template <size_t dim>
-using mat_t = std::array<vec_t<dim>, dim>;
-
 // termination states
 enum class Flag {
     residual_zero,
     delta_x_zero,
     zero_is_nonfinite,
     max_iterations,
-
-    function_is_nonfinite,
-
+    function_is_nonfinite
 };
 
 template <size_t dim>
 struct result_t {
-    vec_t<dim> zero;
-    vec_t<dim> residual;
+    std::array<double, dim> zero;
+    std::array<double, dim> residual;
     size_t iteration;
     Flag flag;
 };
@@ -41,9 +30,9 @@ struct result_t {
 template <size_t dim, typename Method>
 struct zero_finding_method {
     // declare types for solving
-    using vec_t = vec_t<dim>;
-    using mat_t = mat_t<dim>;
-    using result_t = result_t<dim>;
+    using vec_t = std::array<double, dim>;
+    using mat_t = std::array<vec_t, dim>;
+    using result_type = result_t<dim>;
 
     zero_finding_method(size_t max_iter, double abs_tol, double rel_tol) : max_iterations{max_iter}, _abs_tol{abs_tol}, _rel_tol{rel_tol} {}
     // zero_finding_method(size_t max_iter, const double& abs_tol, const double& rel_tol) : max_iterations{max_iter}, _abs_tol{abs_tol}, _rel_tol{rel_tol} {}
@@ -55,7 +44,7 @@ struct zero_finding_method {
     Flag flag;
 
     template <typename F, typename... Args>
-    result_t solve(F&& fun, Args&&... args)
+    result_type solve(F&& fun, Args&&... args)
     {
         is_valid = static_cast<Method*>(this)->initialize(std::forward<F>(fun), std::forward<Args>(args)...);
         for (size_t i = 0; i <= max_iterations; ++i) {
@@ -74,15 +63,15 @@ struct zero_finding_method {
     }
 
     template <typename F, typename... Args>
-    inline result_t operator()(F&& fun, Args&&... args)
+    inline result_type operator()(F&& fun, Args&&... args)
     {
         return solve(std::forward<F>(fun), std::forward<Args>(args)...);
     }
 
    protected:
-    result_t make_result(size_t i)
+    result_type make_result(size_t i)
     {
-        result_t out;
+        result_type out;
         out.zero = static_cast<Method*>(this)->zero();
         out.residual = static_cast<Method*>(this)->residual();
         out.iteration = i;
@@ -118,151 +107,73 @@ struct zero_finding_method {
         }
         return false;
     }
-};
 
-// template <typename F>
-// mat_t approx_jac(F&& fun, const vec_t& x)
-// {
-//     vec_t x0 = x;
-//     mat_t jac;
-//     vec_t y0 = fun(x);
-//     vec_t y1;
-//     double constexpr eps = 1e-10;
-//     for (size_t i = 0; i < dim; ++i) {
-//         x0[i] += eps;
-//         if (i > 0) {
-//             x0[i - 1] -= eps;
-//         }
-//         y1 = fun(x0);
-//         for (size_t j = 0; j < dim; ++j) {
-//             jac[j][i] = (y1[j] - y0[j]) / eps;
-//         }
-//     }
-
-//     return jac;
-// }
-
-template <size_t dim>
-inline mat_t<dim> identity()
-{
-    mat_t<dim> out;
-    for (size_t i = 0; i < dim; ++i) {
-        for (size_t j = 0; j < dim; ++j) {
-            out[i][j] = 0;
-            if (i == j)
-                out[i][j] = 1;
-        }
-    }
-    return out;
-}
-
-template <size_t dim>
-inline mat_t<dim> invert(const mat_t<dim>& A)
-{
-    mat_t<dim> out = identity<dim>();
-    double b;
-    // gauss seidel method
-    for (size_t iteration = 0; iteration < 100; ++iteration) {
+    inline mat_t identity()
+    {
+        mat_t
+            out;
         for (size_t i = 0; i < dim; ++i) {
-            for (size_t k = 0; k < dim; ++k) {
-                b = i == k ? 1 : 0;
-                out[i][k] = b;
-                for (size_t j = 0; j < dim; ++j) {
-                    if (j != i)
-                        out[i][k] -= A[i][j] * out[j][k];
-                }
-                out[i][k] /= A[i][i];
-
-                if (std::isnan(out[i][k])) {
-                    return identity<dim>();
-                }
+            for (size_t j = 0; j < dim; ++j) {
+                out[i][j] = 0;
+                if (i == j)
+                    out[i][j] = 1;
             }
         }
+        return out;
     }
-    return out;
-}
 
-template <>
-inline mat_t<2> invert(const mat_t<2>& A)
-{
-    mat_t<2> out;
-    // analytic formula
-    double det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
-    out[0][0] = A[1][1] / det;
-    out[0][1] = -A[0][1] / det;
-    out[1][0] = -A[1][0] / det;
-    out[1][1] = A[0][0] / det;
-    return out;
-}
+    // inline mat_t invert(const mat_t& A)
+    // {
+    //     mat_t out = identity();
+    //     double b;
+    //     // gauss seidel method
+    //     for (size_t iteration = 0; iteration < 100; ++iteration) {
+    //         for (size_t i = 0; i < dim; ++i) {
+    //             for (size_t k = 0; k < dim; ++k) {
+    //                 b = i == k ? 1 : 0;
+    //                 out[i][k] = b;
+    //                 for (size_t j = 0; j < dim; ++j) {
+    //                     if (j != i)
+    //                         out[i][k] -= A[i][j] * out[j][k];
+    //                 }
+    //                 out[i][k] /= A[i][i];
 
-// template <size_t dim>
-// vec_t<dim>& operator+=(vec_t<dim>& x, const vec_t<dim>& y)
-// {
-//     for (size_t i = 0; i < dim; ++i) {
-//         x[i] += y[i];
-//     }
-//     return x;
-// }
+    //                 if (std::isnan(out[i][k])) {
+    //                     return identity();
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return out;
+    // }
 
-// template <size_t dim>
-// vec_t<dim>& operator-=(vec_t<dim>& x, const vec_t<dim>& y)
-// {
-//     for (size_t i = 0; i < dim; ++i) {
-//         x[i] -= y[i];
-//     }
-//     return x;
-// }
+    // template <>
+    // inline mat_t<2> invert(const mat_t<2>& A)
+    // {
+    //     mat_t<2> out;
+    //     // analytic formula
+    //     double det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    //     out[0][0] = A[1][1] / det;
+    //     out[0][1] = -A[0][1] / det;
+    //     out[1][0] = -A[1][0] / det;
+    //     out[1][1] = A[0][0] / det;
+    //     return out;
+    // }
 
-// template <size_t dim>
-// vec_t<dim> operator+(const vec_t<dim>& x, const vec_t<dim>& y)
-// {
-//     vec_t<dim> out;
-//     for (size_t i = 0; i < dim; ++i) {
-//         out[i] = x[i] + y[i];
-//     }
-//     return x;
-// }
-
-// template <size_t dim>
-// vec_t<dim> operator-(const vec_t<dim>& x, const vec_t<dim>& y)
-// {
-//     vec_t<dim> out;
-//     for (size_t i = 0; i < dim; ++i) {
-//         out[i] = x[i] - y[i];
-//     }
-//     return out;
-// }
-
-template <size_t dim>
-inline double dot(const vec_t<dim>& u, const vec_t<dim>& v)
-{
-    return std::inner_product(u.cbegin(), u.cend(), v.cbegin(), 0.0);
-}
-
-template <size_t dim>
-vec_t<dim> dot(const mat_t<dim>& A, const vec_t<dim>& v)
-{
-    vec_t<dim> out;
-    for (size_t i = 0; i < v.size(); ++i) {
-        out[i] = dot(A[i], v);
+    inline double dot(const vec_t& u, const vec_t& v)
+    {
+        return std::inner_product(u.cbegin(), u.cend(), v.cbegin(), 0.0);
     }
-    return out;
-}
 
-// // transpose
-
-// template <size_t dim>
-// vec_t<dim> dot(const vec_t<dim>& v, const std::array<vec_t<dim>, dim>& A)
-// {
-//     vec_t<dim> out;
-//     out.fill(0);
-//     for (size_t i = 0; i < dim; ++i) {
-//         for (size_t j = 0; j < dim; ++j) {
-//             out[j] += v[i] * A[i][j];
-//         }
-//     }
-//     return out;
-// }
+    vec_t dot(const mat_t& A, const vec_t& v)
+    {
+        vec_t out;
+        for (size_t i = 0; i < v.size(); ++i) {
+            out[i] = dot(A[i], v);
+        }
+        return out;
+    }
+};
 
 }  // namespace root_multidim
 #endif

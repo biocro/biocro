@@ -38,6 +38,10 @@ on:
           - warning
           - info
         default: warning
+      changes-meaning:
+        description: 'Add -Wchanges-meaning compiler flag'
+        type: boolean
+        default: false
 
       # This will show some configuration variables but will skip
       # doing the actual package check and the lengthy steps involved
@@ -52,15 +56,15 @@ on:
         description: 'Platform to check'
         type: choice
         options:
-          - R 3.6.0 on Ubuntu
+          - R 4.1.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
           - R 4.2.0 on macOS
           - R release version on macOS
-          - R 3.6.0 on Windows
+          - R 4.1.0 on Windows
           - R release version on Windows
           - R devel version on Windows
-        default: R 3.6.0 on Ubuntu
+        default: R 4.1.0 on Ubuntu
 
 jobs:
 
@@ -129,10 +133,11 @@ jobs:
 
       # Note: Non-manual dispatches automatically run the tests and
       # check the examples and the vignettes, but do not check the
-      # manual.  Note that the inputs.* values will have non-boolean
-      # values when the event is not 'workflow_dispatch'--namely, the
-      # non-truthy value '' (the empty string).  But the way the
-      # boolean operators (|| and &&) are used below ensure that the
+      # manual or add the -Wchanges-meaning compiler flag.  Note that
+      # the inputs.* values will have non-boolean values when the
+      # event is not 'workflow_dispatch'--namely, the non-truthy
+      # value '' (the empty string).  But the way the boolean
+      # operators (|| and &&) are used below ensure that the
       # resulting expression always evaluates to a boolean value, as
       # expected by the called workflow.
 
@@ -154,7 +159,9 @@ jobs:
       error-on:
         "${{ inputs.error-on
             || github.event_name != 'workflow_dispatch' && 'warning' }}"
-
+      changes-meaning:
+        "${{ github.event_name == 'workflow_dispatch'
+            && inputs.changes-meaning }}"
       dry-run:
         "${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}"
 
