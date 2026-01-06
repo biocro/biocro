@@ -1,3 +1,0 @@
-input,input,input,input,input,output,output,"description"
-abs_tol,guess_1,guess_2,max_iterations,rel_tol,broyden_success,newton_success,NA
-1e-10,2,3,50,1e-10,0,0,"Simple linear/quadratic system."
