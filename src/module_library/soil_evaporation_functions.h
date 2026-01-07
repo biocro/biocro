@@ -343,60 +343,75 @@ double reference_evapotranspiration(
  *  - [DeJonge, K. C. & Thorp, K. R. "Implementing standardized reference evapotranspiration and dual
  *    crop coefficient approach in the DSSAT cropping system model." Transactions of the ASABE 60, 1965–1981 (2017)]
  *    (https://doi.org/10.13031/trans.12321)
+ *
+ *  @param [in] SK_c A shaping parameter that determines the shape of the K_cb
+ *              versus LAI curve; dimensionless
+ *
+ *  @param [in] K_cb_max The maximum basal crop coefficient; dimensionless
+ *
+ *  @param [in] LAI Total canopy leaf area index; dimensionless from
+ *              (m^2 leaf) / (m^2 ground)
+ *
+ *  @param [in] height The canopy height; m
+ *
+ *  @param [in] ET_0 The reference evapotranspiration rate; any acceptable units
+ *              such as kg / m^2 ground / hr, mol / m^2 / hr, or mm / hr
+ *
+ *  @return The potential soil evaporation rate `ES_0`; same units as `ET_0`
  */
 double potential_soil_evaporation(
-    double skc,           // dimensionless
-    double kcbmax,        // dimensionless
-    double lai,           // dimensionless
-    double canopyHeight,  // m
-    double reference_et   // any transpiration rate units such as mm / hr
+    double SK_c,      // dimensionless
+    double K_cb_max,  // dimensionless
+    double LAI,       // dimensionless
+    double height,    // m
+    double ET_0       // any transpiration rate units such as mm / hr
 )
 {
     // Set constants
-    double constexpr kr = 1.0;      // dimensionless
-    double constexpr fw = 1.0;      // dimensionless
-    double constexpr kcbmin = 0.0;  // dimensionless
+    double constexpr K_r = 1.0;       // dimensionless
+    double constexpr f_w = 1.0;       // dimensionless
+    double constexpr K_cb_min = 0.0;  // dimensionless
 
     // Check for bad inputs
-    if (lai < 0) {
-        throw std::range_error("Thrown in potential_soil_evaporation: lai is negative.");
+    if (LAI < 0) {
+        throw std::range_error("Thrown in potential_soil_evaporation: LAI is negative.");
     }
 
-    if (skc < 0) {
-        throw std::range_error("Thrown in potential_soil_evaporation: skc is negative.");
+    if (SK_c < 0) {
+        throw std::range_error("Thrown in potential_soil_evaporation: SK_c is negative.");
     }
 
-    if (kcbmax < kcbmin) {
-        throw std::range_error("Thrown in potential_soil_evaporation: kcbmax is smaller than kcbmin.");
+    if (K_cb_max < K_cb_min) {
+        throw std::range_error("Thrown in potential_soil_evaporation: K_cb_max is smaller than K_cb_min.");
     }
 
     // Equation 6 from DeJonge & Thorp (2017)
-    double const kcb = kcbmin + (kcbmax - kcbmin) * (1.0 - exp(-1.0 * skc * lai));  // dimensionless
+    double const K_cb = K_cb_min + (K_cb_max - K_cb_min) * (1.0 - exp(-1.0 * SK_c * LAI));  // dimensionless
 
-    // Equation A7 from DeJonge & Thorp (2017). Note: if kcb is greater than 1,
-    // then kcmax will be equal to 1, and hence kcb > kcmax.
-    double const kcmax = std::max(1.0, kcb + 0.05);  // dimensionless
+    // Equation A7 from DeJonge & Thorp (2017). Note: if K_cb is greater than 1,
+    // then K_cmax will be equal to 1, and hence K_cb > K_cmax.
+    double const K_cmax = std::max(1.0, K_cb + 0.05);  // dimensionless
 
     // Equation 76 from FAO-56, or Equation A9 from DeJonge & Thorp (2017).
-    // Note: if kcb > kcmax, then fc will be larger than 1, indicating full
+    // Note: if K_cb > K_cmax, then f_c will be larger than 1, indicating full
     // coverage by the canopy.
-    double const fc =
-        kcb > kcbmin ? pow(((kcb - kcbmin) / (kcmax - kcbmin)), (1.0 + 0.5 * canopyHeight))
-                     : 0;
+    double const f_c =
+        K_cb > K_cb_min ? pow(((K_cb - K_cb_min) / (K_cmax - K_cb_min)), (1.0 + 0.5 * height))
+                        : 0;
 
     // Equation 75 from FAO-56, or Equation A8 from DeJonge & Thorp (2017).
-    // Note: it is possible that fc > 1; in this case, we should set few to its
-    // minimum value (0).
-    double const few = fc > 1 ? 0.0 : std::min(1.0 - fc, fw);  // dimensionless
+    // Note: it is possible that f_c > 1; in this case, we should set f_ew to
+    // its minimum value (0.0).
+    double const f_ew = f_c > 1 ? 0.0 : std::min(1.0 - f_c, f_w);  // dimensionless
 
     // Equation 71 from FAO-56, or Equation A5 from DeJonge & Thorp (2017).
-    // Note: it is possible that kcb > kcmax; in this case, we should set
-    // ke_constraint_1 to its minimum possible value (0).
-    double const ke_constraint_1 = kcb > kcmax ? 0.0 : kr * (kcmax - kcb);  // dimensionless
-    double const ke_constraint_2 = kcmax * few;                             // dimensionless
-    double const ke = std::min(ke_constraint_1, ke_constraint_2);           // dimensionless
+    // Note: it is possible that K_cb > K_cmax; in this case, we should set
+    // K_e_constraint_1 to its minimum possible value (0.0).
+    double const K_e_constraint_1 = K_cb > K_cmax ? 0.0 : K_r * (K_cmax - K_cb);  // dimensionless
+    double const K_e_constraint_2 = K_cmax * f_ew;                                // dimensionless
+    double const K_e = std::min(K_e_constraint_1, K_e_constraint_2);              // dimensionless
 
-    return ke * reference_et;  // same units as reference_et
+    return K_e * ET_0;  // same units as ET_0
 }
 
 // Calculate stage 1 soil evaporation
