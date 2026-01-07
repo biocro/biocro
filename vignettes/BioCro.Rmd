@@ -8,8 +8,13 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+options(
+  crayon.enabled = FALSE, # crayon colors cause latex issues
+  cli.num_colors = 1
+)
+
 knitr::opts_chunk$set(
-  error = FALSE,
+  error = FALSE, # stop on errors to help with troubleshooting
   collapse = TRUE,
   comment = "#>",
   fig.width = 6,
@@ -60,8 +65,8 @@ the following:
 
 - Installation instructions
 
-- A "Practical Guide to BioCro" and other articles in the "Articles" dropdown
-  menu
+- A self-guided workshop ("Workshop I"), a "Practical Guide to BioCro," and
+  other articles in the "Articles" dropdown menu
 
 - Documentation of the C++ code, including notes on the biological models used
   in BioCro, in the "C++ Library" dropdown menu

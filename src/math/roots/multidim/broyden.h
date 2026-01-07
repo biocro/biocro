@@ -16,8 +16,8 @@ namespace root_multidim
 template <size_t dim>
 struct broyden : public zero_finding_method<dim, broyden<dim>> {
     using zero_finding_method<dim, broyden<dim>>::zero_finding_method;
-    using vec_t = vec_t<dim>;
-    using mat_t = mat_t<dim>;
+    using vec_t = typename zero_finding_method<dim, broyden<dim>>::vec_t;
+    using mat_t = typename zero_finding_method<dim, broyden<dim>>::mat_t;
 
     vec_t _zero;
     vec_t _residual;
@@ -34,7 +34,7 @@ struct broyden : public zero_finding_method<dim, broyden<dim>> {
     {
         _zero = guess;
         _residual = fun(guess);
-        inv_jac = identity<dim>();
+        inv_jac = this->identity();
         return true;
     }
 
