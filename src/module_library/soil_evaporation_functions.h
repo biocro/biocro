@@ -349,6 +349,8 @@ double reference_evapotranspiration(
  *
  *  @param [in] K_cb_max The maximum basal crop coefficient; dimensionless
  *
+ *  @param [in] K_cb_min The minimum basal crop coefficient; dimensionless
+ *
  *  @param [in] LAI Total canopy leaf area index; dimensionless from
  *              (m^2 leaf) / (m^2 ground)
  *
@@ -362,16 +364,12 @@ double reference_evapotranspiration(
 double potential_soil_evaporation(
     double SK_c,      // dimensionless
     double K_cb_max,  // dimensionless
+    double K_cb_min,  // dimensionless
     double LAI,       // dimensionless
     double height,    // m
     double ET_0       // any transpiration rate units such as mm / hr
 )
 {
-    // Set constants
-    double constexpr K_r = 1.0;       // dimensionless
-    double constexpr f_w = 1.0;       // dimensionless
-    double constexpr K_cb_min = 0.0;  // dimensionless
-
     // Check for bad inputs
     if (LAI < 0) {
         throw std::range_error("Thrown in potential_soil_evaporation: LAI is negative.");
@@ -381,9 +379,17 @@ double potential_soil_evaporation(
         throw std::range_error("Thrown in potential_soil_evaporation: SK_c is negative.");
     }
 
-    if (K_cb_max < K_cb_min) {
-        throw std::range_error("Thrown in potential_soil_evaporation: K_cb_max is smaller than K_cb_min.");
+    if (K_cb_min < 0) {
+        throw std::range_error("Thrown in potential_soil_evaporation: K_cb_min is negative.");
     }
+
+    if (K_cb_max < K_cb_min) {
+        throw std::range_error("Thrown in potential_soil_evaporation: K_cb_max is less than K_cb_min.");
+    }
+
+    // Set constants
+    double constexpr K_r = 1.0;       // dimensionless
+    double constexpr f_w = 1.0;       // dimensionless
 
     // Equation 6 from DeJonge & Thorp (2017)
     double const K_cb = K_cb_min + (K_cb_max - K_cb_min) * (1.0 - exp(-1.0 * SK_c * LAI));  // dimensionless

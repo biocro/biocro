@@ -37,6 +37,7 @@ class soil_evaporation2 : public differential_module
           // Get references to input quantities
           skc{get_input(input_quantities, "skc")},
           kcbmax{get_input(input_quantities, "kcbmax")},
+          kcbmin{get_input(input_quantities, "kcbmin")},
           doy{get_input(input_quantities, "doy")},
           lat{get_input(input_quantities, "lat")},
           elevation{get_input(input_quantities, "elevation")},
@@ -122,6 +123,7 @@ class soil_evaporation2 : public differential_module
     // Pointers to input quantities
     double const& skc;
     double const& kcbmax;
+    double const& kcbmin;
     double const& doy;
     double const& lat;
     double const& elevation;
@@ -200,8 +202,9 @@ class soil_evaporation2 : public differential_module
 string_vector soil_evaporation2::get_inputs()
 {
     return {
-        "skc",  // Basal crop coefficient
-        "kcbmax",
+        "skc",                    // dimensionless
+        "kcbmax",                 // dimensionless
+        "kcbmin",                 // dimensionless
         "doy",                    // day of the year
         "lat",                    // latitude of the location
         "elevation",              // altitude in meters
@@ -360,6 +363,7 @@ void soil_evaporation2::do_operation() const
     double potential_soil_evap = potential_soil_evaporation(
         skc,
         kcbmax,
+        kcbmin,
         lai,
         canopyHeight,
         reference_et);
