@@ -285,11 +285,11 @@ double reference_evapotranspiration(
  *  @brief Calculates the potential rate of evaporation of water from the soil
  *  surface in the presence of a crop.
  *
- *  The potential rate of evaporation of water from the soil surface is the
- *  highest rate possible given the contraints placed by the available solar
+ *  The potential rate of evaporation of water from the soil surface (`ES_0`) is
+ *  the highest rate possible given the contraints placed by the available solar
  *  energy and the crop itself. The availability and distribution of water
  *  within the soil may reduce the actual rate to a lower value, but these
- *  calculations are handled elsewhere (typically in the `soil_evaporation2`
+ *  calculations are handled elsewhere (typically by the `soil_evaporation2`
  *  module).
  *
  *  This function was originally based on the `PETASCE` and `PSE` subroutines of
@@ -354,17 +354,22 @@ double reference_evapotranspiration(
  *  `f_ew * K_cmax`, where `f_ew` is the fraction of soil that is both exposed
  *  and wetted. A larger canopy leaf area index tends to decrease `f_ew`.
  *
- *  To calculate the potential rate of evaporation of water from the soil
- *  surface, we assume `K_r` is 1. We also assume that the soil is evenly
- *  wetted; in this case, `f_w` is also 1, where `f_w` is the fraction of soil
- *  that is wet. These assumptions enable the calculation of `K_e`, and then the
- *  potential evaporation rate is given by `K_e * ET_0`.
+ *  As described in DeJonge & Thorp (2017), to calculate the potential rate of
+ *  evaporation of water from the soil surface, we assume `K_r` is 1. We also
+ *  assume that the soil is evenly wetted; in this case, `f_w` is also 1, where
+ *  `f_w` is the fraction of soil that is wet. These assumptions enable the
+ *  calculation of `K_e`, and then the potential evaporation rate is given by
+ *  `ES_0 = K_e * ET_0`.
  *
  *  References:
  *
  *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
  *    Paper No. 56." Food and Agriculture Organization of the United Nations, Rome, Italy (1998)]
  *    (http://www.climasouth.eu/sites/default/files/FAO%2056.pdf)
+ *
+ *  - [DeJonge, K. C. & Thorp, K. R. "Implementing standardized reference evapotranspiration and dual
+ *    crop coefficient approach in the DSSAT cropping system model." Transactions of the ASABE 60, 1965–1981 (2017)]
+ *    (https://doi.org/10.13031/trans.12321)
  */
 double potential_soil_evaporation(
     double skc,
@@ -373,49 +378,62 @@ double potential_soil_evaporation(
     double lai,
     double canopyHeight,
     double potential_et,
-    double reference_et)  //latitude
+    double reference_et)
 {
-    using std::max;
-    using std::min;
+    // Set constants
+    double constexpr kr = 1.0;      // dimensionless
+    double constexpr fw = 1.0;      // dimensionless
+    double constexpr kcbmin = 0.0;  // dimensionless
 
-    // double kcan = 0.85;// CSCER048.SPE, line 82
-    double part = 0.07;
-    double sradt = 0.25;
-    double ksevap = (kd / (1.0 - part)) * (1.0 - sradt);
-    // Rprintf("ksevap is: %f \n", ksevap);
-    double potential_soil_evap = 0.0;
-    double kcb = 0.0;
-    double kcbmin = 0.0;
-
-    if (lai > 0.0) {
-        kcb = max(0.0, kcbmin + (kcbmax - kcbmin) * (1.0 - exp(-1.0 * skc * lai)));
+    // Check for bad inputs
+    if (lai < 0) {
+        throw std::range_error("Thrown in potential_soil_evaporation: lai is negative.");
     }
-    // Maximum crop coefficient (Kcmax) (FAO-56 Eq. 72)
-    double kcmax = max(1.0, kcb + 0.05);
-    double fc = 0.0;  // effective canopy cover (FAO-56 Eq. 76)
-    if (kcb > kcbmin) {
-        fc = pow(((kcb - kcbmin) / (kcmax - kcbmin)), (1.0 + 0.5 * canopyHeight));
-    }
-    double fw = 1.0;                 // Wetted soil fraction (FAO-56 Eq. 75)
-    double few = min(1.0 - fc, fw);  // Exposed and wetted soil fraction (FAO-56 Eq. 75)
-    // KE = potential evaporation coefficient (FAO-56 Eq. 71)
-    double ke = max(0.0, min(1.0 * (kcmax - kcb), few * kcmax));
-    // double reference_et = 0.5;
-    //if (ke >= 0.0) {
-    //    potential_soil_evap = ke * reference_et;
-    //} else if (ksevap <= 0.0) {
-    //    if (lai <= 0.0)
-    //      potential_soil_evap = potential_et * (1.0 - 0.39*lai);
-    //    else
-    //      potential_soil_evap = potential_et / 1.1 * exp(-0.4*lai);
-    //}else {
-    //    potential_soil_evap = potential_et * exp(-ksevap * lai);
-    //}
-    double attenuation = exp(-ksevap * lai);  // stronger LAI sensitivity
-    potential_soil_evap = ke * reference_et * attenuation;
-    potential_soil_evap = max(potential_soil_evap, 0.0);
 
-    return potential_soil_evap;
+    if (skc < 0) {
+        throw std::range_error("Thrown in potential_soil_evaporation: skc is negative.");
+    }
+
+    if (kcbmax < kcbmin) {
+        throw std::range_error("Thrown in potential_soil_evaporation: kcbmax is smaller than kcbmin.");
+    }
+
+    // Equation 6 from DeJonge & Thorp (2017)
+    double const kcb = kcbmin + (kcbmax - kcbmin) * (1.0 - exp(-1.0 * skc * lai));  // dimensionless
+
+    // Equation A7 from DeJonge & Thorp (2017). Note: if kcb is greater than 1,
+    // then kcmax will be equal to 1, and hence kcb > kcmax.
+    double const kcmax = std::max(1.0, kcb + 0.05);  // dimensionless
+
+    // Equation 76 from FAO-56, or Equation A9 from DeJonge & Thorp (2017).
+    // Note: if kcb > kcmax, then fc will be larger than 1, indicating full
+    // coverage by the canopy.
+    double const fc =
+        kcb > kcbmin ? pow(((kcb - kcbmin) / (kcmax - kcbmin)), (1.0 + 0.5 * canopyHeight))
+                     : 0;
+
+    // Equation 75 from FAO-56, or Equation A8 from DeJonge & Thorp (2017).
+    // Note: it is possible that fc > 1; in this case, we should set few to its
+    // minimum value (0).
+    double const few = fc > 1 ? 0.0 : std::min(1.0 - fc, fw);  // dimensionless
+
+    // Equation 71 from FAO-56, or Equation A5 from DeJonge & Thorp (2017).
+    // Note: it is possible that kcb > kcmax; in this case, we should set
+    // ke_constraint_1 to its minimum possible value (0).
+    double const ke_constraint_1 = kcb > kcmax ? 0.0 : kr * (kcmax - kcb);  // dimensionless
+    double const ke_constraint_2 = kcmax * few;                             // dimensionless
+    double const ke = std::min(ke_constraint_1, ke_constraint_2);           // dimensionless
+
+    // This is the rate that should be returned
+    double const ES_0 = ke * reference_et;
+
+    // Some extra stuff that probably shouldn't be here
+    double const part = 0.07;
+    double const sradt = 0.25;
+    double const ksevap = (kd / (1.0 - part)) * (1.0 - sradt);
+    double const attenuation = exp(-ksevap * lai);  // dimensionless
+
+    return std::max(ES_0 * attenuation, 0.0);
 }
 
 // Calculate stage 1 soil evaporation
