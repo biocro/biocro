@@ -74,127 +74,129 @@ tileDrain_str tile_flow(
     double soil_saturation_capacity[],
     double sw_delta_S[]);
 
-
-
-template<size_t num_layers>
+template <size_t num_layers>
 struct soil_water_profile {
-    
     struct soil_layer {
-               
         double const& thickness;
         double const& water_content;
         double const& field_capacity;
         double const& saturation_capacity;
         double const& wilting_point;
         double const& saturated_conductivity;
-        
-        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer) :
-            thickness{get_input(input_quantities, make_quantity_name("layer_thickness",layer))},
-            water_content{get_input(input_quantities, make_quantity_name("water_content",layer))},        
-            field_capacity{get_input(input_quantities, make_quantity_name("field_capacity",layer))},
-            saturation_capacity{get_input(input_quantities, make_quantity_name("saturation_capacity",layer))},
-            wilting_point{get_input(input_quantities, make_quantity_name("wilting_point",layer))},
-            saturated_conductivity{get_input(input_quantities, make_quantity_name("saturated_conductivity", layer))}
-         {
-                }   
-    
-        static std::string make_quantity_name(std::string name, int layer) {
+
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer)
+            : thickness{get_input(input_quantities, make_quantity_name("layer_thickness", layer))},
+              water_content{get_input(input_quantities, make_quantity_name("water_content", layer))},
+              field_capacity{get_input(input_quantities, make_quantity_name("field_capacity", layer))},
+              saturation_capacity{get_input(input_quantities, make_quantity_name("saturation_capacity", layer))},
+              wilting_point{get_input(input_quantities, make_quantity_name("wilting_point", layer))},
+              saturated_conductivity{get_input(input_quantities, make_quantity_name("saturated_conductivity", layer))}
+        {
+        }
+
+        static std::string make_quantity_name(std::string name, int layer)
+        {
             return "soil_" + name + "_" + std::to_string(layer);
-        } 
-        
-        static string_vector inputs() {
+        }
+
+        static string_vector inputs()
+        {
             return {
                 "layer_thickness",
                 "water_content",
                 "field_capacity",
                 "saturation_capacity",
                 "wilting_point",
-                "saturated_conductivity"
-            };
-        }  
+                "saturated_conductivity"};
+        }
     };
-    
+
     std::vector<soil_layer> layers;
-    
-    soil_water_profile(state_map const& input_quantities, state_map* output_quantities) {
-        for (size_t i = 1; i < num_layers + 1; ++i){
+
+    soil_water_profile(state_map const& input_quantities, state_map* output_quantities)
+    {
+        for (size_t i = 1; i < num_layers + 1; ++i) {
             layers.emplace_back(soil_layer(input_quantities, output_quantities, i));
         }
     }
 
-    static string_vector inputs(){
+    static string_vector inputs()
+    {
         string_vector out;
         string_vector inputs = soil_layer::inputs();
         size_t inputs_per_layer = inputs.size();
         out.reserve(num_layers * inputs_per_layer);
-        for (size_t l = 1; l < num_layers + 1; ++l){
+        for (size_t l = 1; l < num_layers + 1; ++l) {
             for (std::string& input : inputs)
                 out.push_back(soil_layer::make_quantity_name(input, l));
         }
         return out;
     }
-       
+
     // formerly esw
-    double extractable_water(const soil_layer& layer) const {
+    double extractable_water(const soil_layer& layer) const
+    {
         return layer.field_capacity - layer.wilting_point;
     }
-    
+
     // formerly thet1 and thet2
     // I think this should have a better name. Excess water conten?
-    double theta(const soil_layer& layer) const {
+    double theta(const soil_layer& layer) const
+    {
         double esw = extractable_water(layer);
         double th = std::min(layer.water_content - layer.wilting_point, esw);
         return std::max(0.0, th);
     }
-    
-    double weight_by_thickness(const soil_layer& layer, const soil_layer& next_layer) const {
-        return layer.thickness/(layer.thickness + next_layer.thickness);
+
+    double weight_by_thickness(const soil_layer& layer, const soil_layer& next_layer) const
+    {
+        return layer.thickness / (layer.thickness + next_layer.thickness);
     }
 
-    double average_diffusivity(const soil_layer& layer, const soil_layer& next_layer) const {
+    double average_diffusivity(const soil_layer& layer, const soil_layer& next_layer) const
+    {
         double w = weight_by_thickness(layer, next_layer);
-        double avg_theta  = theta(layer) * w + theta(next_layer) * (1 - w);
-        
-        constexpr double magic_num_1 = 35.4; 
-        double u = magic_num_1  * avg_theta;
-        
-        
-        constexpr double hr_per_day = 24; 
-        constexpr double min_diffusivity = 0.88 / hr_per_day; // 0.88 cm / day 
-        double out = min_diffusivity  * std::exp(u); 
-        
-        constexpr double max_diffusivity = 100 / hr_per_day; // 100 cm / day
-        return std::min(out, max_diffusivity); 
+        double avg_theta = theta(layer) * w + theta(next_layer) * (1 - w);
 
+        constexpr double magic_num_1 = 35.4;
+        double u = magic_num_1 * avg_theta;
+
+        constexpr double hr_per_day = 24;
+        constexpr double min_diffusivity = 0.88 / hr_per_day;  // 0.88 cm / day
+        double out = min_diffusivity * std::exp(u);
+
+        constexpr double max_diffusivity = 100 / hr_per_day;  // 100 cm / day
+        return std::min(out, max_diffusivity);
     }
-    
+
     // is this a gradient ? spatial derivative?
-    double grad(const soil_layer& layer, const soil_layer& next_layer) const {     
+    double grad(const soil_layer& layer, const soil_layer& next_layer) const
+    {
         double a = theta(next_layer) / extractable_water(next_layer) - theta(layer) / extractable_water(layer);
         double w = weight_by_thickness(layer, next_layer);
         double weighted_extractable_water = w * extractable_water(layer) + extractable_water(next_layer) * (1 - w);
         return a * weighted_extractable_water;
     }
 
-    double upflow(const soil_layer& layer, const soil_layer& next_layer) const {
+    double upflow(const soil_layer& layer, const soil_layer& next_layer) const
+    {
         double avg_thickness = (layer.thickness + next_layer.thickness) * 0.5;
-        return average_diffusivity(layer, next_layer) * grad(layer, next_layer) / avg_thickness;  // cm / hr  
-        /*  
+        return average_diffusivity(layer, next_layer) * grad(layer, next_layer) / avg_thickness;  // cm / hr
+        /*
            Adjustment amount for upward flow calculations to prevent a
            soil layer from exceeding the saturation content (cm3/cm3)
-           Upward flow from layer M to layer L              
+           Upward flow from layer M to layer L
          */
-          
     }
 };
-//    double flowfix(double flow) const { 
-//        /*  
+//    double flowfix(double flow) const {
+//        /*
 //           Adjustment amount for upward flow calculations to prevent a
 //           soil layer from exceeding the saturation content (cm3/cm3)
-//           Upward flow from layer M to layer L              
-//         */ 
+//           Upward flow from layer M to layer L
+//         */
 //        if (upflow[l] > 0.0) {
-//            
+//
 //            if (swtemp[l] <= soil_field_capacity[l]) {
 //                swtemp[l] = swtemp[l] + upflow[l] / depth[l];
 //                sw_inf[l] = sw_inf[l] + upflow[l] / depth[l];
@@ -204,14 +206,14 @@ struct soil_water_profile {
 //                                        (swtemp[l] - soil_field_capacity[l]) * soil_depth[l],
 //                                        (sw_inf[l] - soil_saturation_capacity[l]) * soil_depth[l]});
 //                    flowfix = std::min(upflow[l], flowfix);
-//                    
+//
 //                    upflow[l] = upflow[l] - flowfix;
 //                    swtemp[l] = soil_water_old + upflow[l] / soil_depth[l];
 //                }
 //            } else {  // No upward flow if swtemp > soil_field_capacity
 //                upflow[l] = 0.0;
 //            }
-//            
+//
 //            if (upflow[l] / soil_depth[m] > sw_avail[m]) {
 //                upflow[l] = sw_avail[m] * soil_depth[m];
 //                swtemp[l] = soil_water_old + upflow[l] / soil_depth[l];

@@ -4,7 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_water_flow_functions.h"
-#include <algorithm> // for std::min
+#include <algorithm>  // for std::min
 
 namespace standardBML
 {
@@ -14,14 +14,14 @@ class soil_water_uptake : public direct_module
     struct soil_layer {
         const double& depth;
         const double& water_content;
-        
+
         double* uptake_op;
 
-        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer) :
-        depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer))},
-        water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer))},
-        uptake_op{get_op(output_quantities, "uptake_layer_" + std::to_string(layer))} {}
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer) : depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer))},
+                                                                                                 water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer))},
+                                                                                                 uptake_op{get_op(output_quantities, "uptake_layer_" + std::to_string(layer))} {}
     };
+
    public:
     soil_water_uptake(
         state_map const& input_quantities,
@@ -33,7 +33,7 @@ class soil_water_uptake : public direct_module
           canopy_transpiration_rate{get_input(input_quantities, "canopy_transpiration_rate")}
 
     {
-        for (int i = 1;  i<num_layers +1; ++i ){
+        for (int i = 1; i < num_layers + 1; ++i) {
             layers.emplace_back(soil_layer(input_quantities, output_quantities, i));
         }
     }
@@ -58,8 +58,8 @@ string_vector soil_water_uptake::get_inputs()
     inputs.reserve(names.size() * num_layers + 2);
     inputs.push_back("max_rooting_layer");
     inputs.push_back("canopy_transpiration_rate");
-    for(int i = 1; i < num_layers+1; ++i )
-        for(auto name : names)
+    for (int i = 1; i < num_layers + 1; ++i)
+        for (auto name : names)
             inputs.push_back(name + "_" + std::to_string(i));
     return inputs;
 }
@@ -68,7 +68,7 @@ string_vector soil_water_uptake::get_outputs()
 {
     string_vector outputs;
     outputs.reserve(num_layers);
-    for (int i = 1; i < num_layers+ 1; ++i)
+    for (int i = 1; i < num_layers + 1; ++i)
         outputs.push_back("uptake_layer_" + std::to_string(i));
     return outputs;
 }
@@ -79,8 +79,8 @@ void soil_water_uptake::do_operation() const
     double root_depth = 0;
 
     // get total root depth
-    int L = std::min(static_cast<int>(max_rooting_layer), num_layers);// what if max_rooting_layer > num_layers?
-    for (int i = 0; i < max_rooting_layer; i++) { 
+    int L = std::min(static_cast<int>(max_rooting_layer), num_layers);  // what if max_rooting_layer > num_layers?
+    for (int i = 0; i < max_rooting_layer; i++) {
         root_depth += layers[i].depth;  // cm
     }
 
@@ -88,7 +88,7 @@ void soil_water_uptake::do_operation() const
     // add constraint if soil_water_content_layer < uptake
     double uptake;
     for (int i = 0; i < num_layers; i++) {
-        if (i < max_rooting_layer) { 
+        if (i < max_rooting_layer) {
             uptake = -canopy_transpiration_rate * (layers[i].depth / root_depth);  // (Mg*hr/ha)*(cm/cm) = Mg/ha/hr
         } else {
             uptake = 0;

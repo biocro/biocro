@@ -4,7 +4,7 @@
 #include <cmath>  // for std::fmax
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include <algorithm> // for std::min
+#include <algorithm>  // for std::min
 namespace standardBML
 {
 /**
@@ -24,19 +24,18 @@ class multilayer_soil_profile_avg : public direct_module
         const double& saturation_capacity;
         const double& field_capacity;
         const double& wilting_point;
-        
-        soil_layer(state_map const& input_quantities, state_map* output_quantities, size_t layer_num) :
-            depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer_num))},
-            water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer_num))},
-            saturated_conductivity{get_input(input_quantities, "soil_saturated_conductivity_" + std::to_string(layer_num))},
-            saturation_capacity{get_input(input_quantities, "soil_saturation_capacity_" + std::to_string(layer_num))},
-            field_capacity{get_input(input_quantities, "soil_field_capacity_" + std::to_string(layer_num))},
-            wilting_point{get_input(input_quantities, "soil_wilting_point_" + std::to_string(layer_num))}
-           {
-                
 
-            }
-    }; 
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, size_t layer_num)
+            : depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer_num))},
+              water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer_num))},
+              saturated_conductivity{get_input(input_quantities, "soil_saturated_conductivity_" + std::to_string(layer_num))},
+              saturation_capacity{get_input(input_quantities, "soil_saturation_capacity_" + std::to_string(layer_num))},
+              field_capacity{get_input(input_quantities, "soil_field_capacity_" + std::to_string(layer_num))},
+              wilting_point{get_input(input_quantities, "soil_wilting_point_" + std::to_string(layer_num))}
+        {
+        }
+    };
+
    public:
     multilayer_soil_profile_avg(
         state_map const& input_quantities,
@@ -44,7 +43,6 @@ class multilayer_soil_profile_avg : public direct_module
         : direct_module(),
 
           // Get references to input quantities
-
           max_rooting_layer{get_input(input_quantities, "max_rooting_layer")},
 
           // Get pointers to output quantities - Change in water content of each layer
@@ -54,7 +52,6 @@ class multilayer_soil_profile_avg : public direct_module
           soil_field_capacity_op{get_op(output_quantities, "soil_field_capacity")},
           soil_wilting_point_op{get_op(output_quantities, "soil_wilting_point")}
     {
-        
         layers.reserve(num_layers);
         for (size_t i = 1; i < num_layers + 1; ++i)
             layers.emplace_back(soil_layer(input_quantities, output_quantities, i));
@@ -82,7 +79,7 @@ class multilayer_soil_profile_avg : public direct_module
 };
 
 string_vector multilayer_soil_profile_avg::get_inputs()
-{   
+{
     string_vector names = {
         "soil_depth",
         "soil_water_content",
@@ -90,11 +87,11 @@ string_vector multilayer_soil_profile_avg::get_inputs()
         "soil_saturation_capacity",
         "soil_field_capacity",
         "soil_wilting_point"};
-        
+
     string_vector inputs;
     inputs.reserve(names.size() * num_layers + 1);
     for (size_t i = 1; i < num_layers + 1; ++i) {
-        for (auto name : names) 
+        for (auto name : names)
             inputs.push_back(name + "_" + std::to_string(i));
     }
     inputs.push_back("max_rooting_layer");
@@ -113,8 +110,8 @@ string_vector multilayer_soil_profile_avg::get_outputs()
 
 void multilayer_soil_profile_avg::do_operation() const
 {
-    // throw exception ? 
-    
+    // throw exception ?
+
     if (max_rooting_layer > num_layers) {
         throw std::out_of_range("`max_rooting_layer` exceeds the number of layers in the module `multilayer_soil_profile_avg`. Expected `max_rooting_layer` < " + std::to_string(num_layers));
     }
@@ -125,8 +122,8 @@ void multilayer_soil_profile_avg::do_operation() const
     double tot_soil_saturation_capacity = 0.0;
     double tot_soil_field_capacity = 0.0;
     double tot_soil_wilting_point = 0.0;
-    
-    size_t max_layer = static_cast <size_t>(max_rooting_layer);
+
+    size_t max_layer = static_cast<size_t>(max_rooting_layer);
     size_t L = std::min(max_layer, num_layers);
     for (size_t l = 0; l < L; l++) {
         soil_layer const& layer = layers[l];

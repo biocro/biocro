@@ -16,7 +16,7 @@ namespace standardBML
 class soil_water_tiledrain : public direct_module
 {
     static const int num_layers = 6;
-    
+
    public:
     soil_water_tiledrain(
         state_map const& input_quantities,

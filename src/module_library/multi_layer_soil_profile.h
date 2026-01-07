@@ -1,9 +1,9 @@
 #ifndef MULTI_LAYER_SOIL_PROFILE_H
 #define MULTI_LAYER_SOIL_PROFILE_H
 
-#include <cmath>  // for std::fmax
-#include <vector> // std::vector
-#include <string> // std::to_string
+#include <cmath>   // for std::fmax
+#include <vector>  // std::vector
+#include <string>  // std::to_string
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
@@ -25,21 +25,20 @@ class multi_layer_soil_profile : public differential_module
         const double& deltaU;
         const double& deltaT;
         const double& uptake;
-        
-        double* water_content_op;
-        
-        soil_layer(state_map const& input_quantities, state_map* output_quantities, size_t layer_num) :
-            depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer_num))},
-            water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer_num))},
-            deltaS{get_input(input_quantities, "deltaS_" + std::to_string(layer_num))},
-            deltaU{get_input(input_quantities, "deltaU_" + std::to_string(layer_num))},
-            deltaT{get_input(input_quantities, "deltaT_" + std::to_string(layer_num))},
-            uptake{get_input(input_quantities, "uptake_layer_" + std::to_string(layer_num))},
-            water_content_op{get_op(output_quantities, "soil_water_content_" + std::to_string(layer_num))} {
-                
 
-            }
-    }; 
+        double* water_content_op;
+
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, size_t layer_num)
+            : depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer_num))},
+              water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer_num))},
+              deltaS{get_input(input_quantities, "deltaS_" + std::to_string(layer_num))},
+              deltaU{get_input(input_quantities, "deltaU_" + std::to_string(layer_num))},
+              deltaT{get_input(input_quantities, "deltaT_" + std::to_string(layer_num))},
+              uptake{get_input(input_quantities, "uptake_layer_" + std::to_string(layer_num))},
+              water_content_op{get_op(output_quantities, "soil_water_content_" + std::to_string(layer_num))}
+        {
+        }
+    };
 
    public:
     multi_layer_soil_profile(
@@ -50,7 +49,7 @@ class multi_layer_soil_profile : public differential_module
           // Get references to input quantities
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")}
 
-    {   
+    {
         layers.reserve(num_layers);
         for (size_t i = 1; i < num_layers + 1; ++i)
             layers.emplace_back(soil_layer(input_quantities, output_quantities, i));
@@ -63,8 +62,8 @@ class multi_layer_soil_profile : public differential_module
    private:
     // References to input quantities
     double const& soil_evaporation_rate;
-    std::vector <soil_layer> layers;
-   
+    std::vector<soil_layer> layers;
+
     // Main operation
     void do_operation() const;
 };
@@ -77,55 +76,51 @@ string_vector multi_layer_soil_profile::get_inputs()
         "deltaS",
         "deltaU",
         "deltaT",
-        "uptake_layer"
-    };
-    
-    string_vector inputs;    
+        "uptake_layer"};
+
+    string_vector inputs;
     inputs.reserve(1 + names.size() * num_layers);
     inputs.push_back("soil_evaporation_rate");
-    for (size_t i = 1; i < num_layers + 1; ++i) { // index by 1
-        for (auto name : names) 
+    for (size_t i = 1; i < num_layers + 1; ++i) {  // index by 1
+        for (auto name : names)
             inputs.push_back(name + "_" + std::to_string(i));
     }
-    return inputs;    
+    return inputs;
 }
 
 string_vector multi_layer_soil_profile::get_outputs()
 {
     string_vector out;
-    out.reserve(num_layers); 
-    for (size_t i = 1; i < num_layers + 1; ++i) // index by 1
+    out.reserve(num_layers);
+    for (size_t i = 1; i < num_layers + 1; ++i)  // index by 1
         out.push_back("soil_water_content_" + std::to_string(i));
     return out;
 }
 
 void multi_layer_soil_profile::do_operation() const
 {
-   
-
     double ds;
     for (int l = 0; l < layers.size(); l++) {
-     // Calculate total change in soil water content
-        const soil_layer& layer = layers[l]; 
+        // Calculate total change in soil water content
+        const soil_layer& layer = layers[l];
         constexpr double cm_per_m = 100;
         // adding uptake because value is negative
         ds = layer.deltaS + layer.deltaU + layer.deltaT + (layer.uptake / (cm_per_m * layer.depth));
-        // ensure output is not negative; this is an Euler method step.     
-        if (layer.water_content + ds < 0) { 
+        // ensure output is not negative; this is an Euler method step.
+        if (layer.water_content + ds < 0) {
             ds = -layer.water_content;
         }
-            
-        constexpr double cf = 10.0; // what is the unit conversion here, Mg / ha / mm ?
+
+        constexpr double cf = 10.0;  // what is the unit conversion here, Mg / ha / mm ?
         if (l == 0) {
             ds -= soil_evaporation_rate / (cf * layer.depth);
-        }      
+        }
         // Mg/ha/hr
-    // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
-    // remove soil evaporation from first layer, but don't let water content go
-    // negative. This is a crude, and hopefully temporary, fix. -mlm/    
+        // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
+        // remove soil evaporation from first layer, but don't let water content go
+        // negative. This is a crude, and hopefully temporary, fix. -mlm/
         update(layer.water_content_op, ds);
     }
- 
 }
 }  // namespace standardBML
 #endif

@@ -327,7 +327,6 @@ upwardFlo_str up_flow(
     return return_value;
 }
 
-
 tileDrain_str tile_flow(
     int nlayers,
     int td_layer_num,
