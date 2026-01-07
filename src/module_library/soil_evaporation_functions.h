@@ -372,13 +372,12 @@ double reference_evapotranspiration(
  *    (https://doi.org/10.13031/trans.12321)
  */
 double potential_soil_evaporation(
-    double skc,
-    double kcbmax,
-    double kd,
-    double lai,
-    double canopyHeight,
-    double potential_et,
-    double reference_et)
+    double skc,           // dimensionless
+    double kcbmax,        // dimensionless
+    double lai,           // dimensionless
+    double canopyHeight,  // m
+    double reference_et   // any transpiration rate units such as mm / hr
+)
 {
     // Set constants
     double constexpr kr = 1.0;      // dimensionless
@@ -424,16 +423,7 @@ double potential_soil_evaporation(
     double const ke_constraint_2 = kcmax * few;                             // dimensionless
     double const ke = std::min(ke_constraint_1, ke_constraint_2);           // dimensionless
 
-    // This is the rate that should be returned
-    double const ES_0 = ke * reference_et;
-
-    // Some extra stuff that probably shouldn't be here
-    double const part = 0.07;
-    double const sradt = 0.25;
-    double const ksevap = (kd / (1.0 - part)) * (1.0 - sradt);
-    double const attenuation = exp(-ksevap * lai);  // dimensionless
-
-    return std::max(ES_0 * attenuation, 0.0);
+    return ke * reference_et;  // same units as reference_et
 }
 
 // Calculate stage 1 soil evaporation

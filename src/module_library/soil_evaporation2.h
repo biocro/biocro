@@ -349,6 +349,7 @@ void soil_evaporation2::do_operation() const
         bare_soil_albedo_max,
         soil_water_content[0],
         soil_field_capacity[0]);
+
     // Potential soil evaporation (PET.for - PSE function at line 1442)
     double potential_et = potential_evapotranspiration(
         solar,
@@ -372,11 +373,10 @@ void soil_evaporation2::do_operation() const
     double potential_soil_evap = potential_soil_evaporation(
         skc,
         kcbmax,
-        k_diffuse,
         lai,
         canopyHeight,
-        potential_et,
         reference_et);
+
     if (potential_soil_evap > 1e-6) {
         // Ritchie soil evaporation routine
         // Calculate the availability of soil water
