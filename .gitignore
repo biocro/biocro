@@ -14,6 +14,8 @@ src/**/*.o
 src/**/*.exe
 src/**/*.so
 src/**/*.dll
+src/**/*.Td
+src/.deps
 
 # Build directories in testing.
 src/build
