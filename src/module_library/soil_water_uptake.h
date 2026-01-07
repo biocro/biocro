@@ -17,9 +17,10 @@ class soil_water_uptake : public direct_module
 
         double* uptake_op;
 
-        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer) : depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer))},
-                                                                                                 water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer))},
-                                                                                                 uptake_op{get_op(output_quantities, "uptake_layer_" + std::to_string(layer))} {}
+        soil_layer(state_map const& input_quantities, state_map* output_quantities, int layer)
+            : depth{get_input(input_quantities, "soil_depth_" + std::to_string(layer))},
+              water_content{get_input(input_quantities, "soil_water_content_" + std::to_string(layer))},
+              uptake_op{get_op(output_quantities, "uptake_layer_" + std::to_string(layer))} {}
     };
 
    public:
