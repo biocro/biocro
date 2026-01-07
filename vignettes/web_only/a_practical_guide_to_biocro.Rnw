@@ -85,9 +85,16 @@ knitr::opts_knit$set(latex.options.xcolor = 'dvipsnames')
 
 % Set things up for R evaluation:
 <<preliminaries,echo=FALSE>>=
-knitr::opts_chunk$set(error=FALSE) # do stop on errors so we can immediately
-                                   # identify problems with the vignette code
-knitr::opts_chunk$set(fig.width=5, fig.height=3)
+options(
+  crayon.enabled = FALSE, # crayon colors cause latex issues
+  cli.num_colors = 1
+)
+
+knitr::opts_chunk$set(
+  error = FALSE, # stop on errors to help with troubleshooting
+  fig.width = 5,
+  fig.height = 3
+)
 @
 
 <<version_info,echo=FALSE,comment=''>>=
@@ -635,8 +642,8 @@ will occur:
 
 <<run_biocro_error_quantity, error=TRUE>>=
 soybean_result <- run_biocro(
-  within(soybean$initial_values, rm(Leaf)),         # remove the initial `Leaf` value
-  within(soybean$parameters, rm(leaf_reflectance)), # remove `leaf_reflectance`
+  within(soybean$initial_values, rm(Leaf)),    # remove the initial `Leaf` value
+  within(soybean$parameters, rm(Vcmax_at_25)), # remove `Vcmax_at_25`
   soybean_weather$'2002',
   soybean$direct_modules,
   soybean$differential_modules,
