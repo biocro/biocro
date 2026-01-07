@@ -143,33 +143,6 @@ double surface_albedo(
            canopy_albedo * (1 - canopy_transmittance);
 }
 
-double potential_evapotranspiration(
-    double solar,
-    double temp,
-    double lai,
-    double wet_soil_albedo,
-    double par_energy_content)
-{
-    using std::max;
-
-    // from PET.for, line 895
-    double tavg = temp;                                      // deg C // average temperature. originally 0.60*TMAX+0.40*TMIN
-    double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
-    double solar_rad = srad * 23.923;
-    // Rprintf("SOLAR is: %f (MJ/m2/hr)\n", srad);
-    double equilibrium_evap = solar_rad * (2.04e-4 - 1.83e-4 * wet_soil_albedo) * (tavg + 29.0);
-    // Rprintf("equilibrium_evap is: %f \n", equilibrium_evap);
-    double potential_et = equilibrium_evap * 1.1;
-    if (tavg > 35.0) {
-        potential_et = equilibrium_evap * ((tavg - 35.0) * 0.05 + 1.1);
-    } else if (tavg < 5.0) {
-        potential_et = equilibrium_evap * 0.01 * exp(0.18 * (tavg + 20.0));
-    }
-    potential_et = max(potential_et, 0.0001);
-
-    return potential_et;
-}
-
 /**
  *  @brief Calculates the reference evapotranspiration rate from environmental
  *  conditions.

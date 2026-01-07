@@ -42,7 +42,6 @@ class soil_evaporation2 : public differential_module
           elevation{get_input(input_quantities, "elevation")},
           lai{get_input(input_quantities, "lai")},
           bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
-          k_diffuse{get_input(input_quantities, "k_diffuse")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
@@ -128,7 +127,6 @@ class soil_evaporation2 : public differential_module
     double const& elevation;
     double const& lai;
     double const& bare_soil_albedo_max;
-    double const& k_diffuse;
     double const& windspeed;
     double const& rh;
     double const& par_energy_content;
@@ -209,7 +207,6 @@ string_vector soil_evaporation2::get_inputs()
         "elevation",              // altitude in meters
         "lai",                    // Healthy leaf area index (m2[leaf] / m2[ground])
         "bare_soil_albedo_max",   // Maximum bare soil albedo - dimensionless
-        "k_diffuse",              // light extinction coefficient
         "windspeed",              // m/s
         "rh",                     // fraction. dimensionless
         "par_energy_content",     // J / micromol
@@ -343,27 +340,17 @@ void soil_evaporation2::do_operation() const
 
     double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
-    // Soil albedo modification with water content
     double wet_soil_albedo = surface_albedo(
         lai,
         bare_soil_albedo_max,
         soil_water_content[0],
         soil_field_capacity[0]);
 
-    // Potential soil evaporation (PET.for - PSE function at line 1442)
-    double potential_et = potential_evapotranspiration(
-        solar,
-        temp,
-        lai,
-        wet_soil_albedo,
-        par_energy_content);
-
-    // Reference Height computation
     double reference_et = reference_evapotranspiration(
         doy,
         solar,
         temp,
-        lat,  // latitude
+        lat,
         elevation,
         windspeed,
         rh,
