@@ -362,12 +362,12 @@ double reference_evapotranspiration(
  *  @return The potential soil evaporation rate `ES_0`; same units as `ET_0`
  */
 double potential_soil_evaporation(
-    double SK_c,      // dimensionless
-    double K_cb_max,  // dimensionless
-    double K_cb_min,  // dimensionless
-    double LAI,       // dimensionless
-    double height,    // m
-    double ET_0       // any transpiration rate units such as mm / hr
+    double const SK_c,      // dimensionless
+    double const K_cb_max,  // dimensionless
+    double const K_cb_min,  // dimensionless
+    double const LAI,       // dimensionless
+    double const height,    // m
+    double const ET_0       // any transpiration rate units such as mm / hr
 )
 {
     // Check for bad inputs
@@ -388,8 +388,8 @@ double potential_soil_evaporation(
     }
 
     // Set constants
-    double constexpr K_r = 1.0;       // dimensionless
-    double constexpr f_w = 1.0;       // dimensionless
+    double constexpr K_r = 1.0;  // dimensionless
+    double constexpr f_w = 1.0;  // dimensionless
 
     // Equation 6 from DeJonge & Thorp (2017)
     double const K_cb = K_cb_min + (K_cb_max - K_cb_min) * (1.0 - exp(-1.0 * SK_c * LAI));  // dimensionless
