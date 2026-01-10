@@ -1,10 +1,10 @@
 #ifndef C3CANAC_H
 #define C3CANAC_H
 
-#include "core/photosynthesis.h"  // for CanopyPhotosynthesis
+#include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
 #include "c3_temperature_response.h"        // for c3_temperature_response_parameters
 
-CanopyPhotosynthesis c3CanAC(
+canopy_photosynthesis_outputs c3CanAC(
     c3_temperature_response_parameters const tr_param,
     double absorbed_longwave,            // J / m^2 / s
     double ambient_temperature,          // degrees C

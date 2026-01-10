@@ -13,7 +13,6 @@ soilML_str soilML(double precipit, double transp, double* cws, double soildepth,
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, std::vector<double>& wind_speed_profile);
-double wind_speed_profile(double cumulative_lai, double windspeed_above_canopy);
 double AbiotEff(double smoist, double stemp);
 
 #endif

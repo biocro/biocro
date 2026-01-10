@@ -75,13 +75,6 @@ void WINDprof(double WindSpeed, double LAI, vector<double>& wind_speed_profile)
     }
 }
 
-double wind_speed_profile(double cumulative_lai, double windspeed_above_canopy)
-{
-    constexpr double k = 0.7;
-    double u = k * cumulative_lai;
-    return windspeed_above_canopy * std::exp(-u);
-}
-
 /**
  * @brief Calculates a relative humidity profile throughout a multilayer
  * canopy.
@@ -198,10 +191,6 @@ void LNprof(double LeafN, double LAI, double kpLN, vector<double>& leafN_profile
     }
 }
 
-double leaf_nitrogen_profile(double cumulative_lai, double total_leaf_nitrogen, double kpLN)
-{
-    return total_leaf_nitrogen * std::exp(-kpLN * cumulative_lai);
-}
 
 /* Soil Evaporation Function */
 /* Variables I need */

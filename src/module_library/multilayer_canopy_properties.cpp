@@ -2,7 +2,7 @@
 #include "multilayer_canopy_properties.h"
 #include "BioCro.h"     // for WINDprof
 #include "AuxBioCro.h"  // for LNprof
-#include "sunML.h"      // for sunML
+#include "core/canopy_light_distribution.h"
 
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;
@@ -107,7 +107,7 @@ void multilayer_canopy_properties::run() const
     // that the `sunML` function expects input expects PPFD values, so we must
     // convert photosynthetically active radiation (PAR) to PPFD using the
     // energy content of light in the PAR band
-    CanopyLight canopy_light_model(
+    PhotoCore::CanopyLight canopy_light_model(
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
         chil,
@@ -129,23 +129,23 @@ void multilayer_canopy_properties::run() const
 
     // Update layer-dependent outputs
     double lai_per_layer = lai / nlayers;
-    LightProfile light_profile;
+    PhotoCore::LightProfile light_profile;
 
     for (int i = 0; i < nlayers; ++i) {
         double cumulative_lai = (0.5 + i) * lai_per_layer;  // midpoint rule
 
         light_profile = canopy_light_model.get_light_profile(cumulative_lai);
-        update(sunlit_fraction_ops[i], light_profile.sunlit_fraction);
-        update(sunlit_incident_nir_ops[i], light_profile.sunlit_incident_nir);
-        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit_incident_ppfd);
-        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit_absorbed_ppfd);
-        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit_absorbed_shortwave);
+        update(sunlit_fraction_ops[i], light_profile.sunlit.fraction);
+        update(sunlit_incident_nir_ops[i], light_profile.sunlit.incident_nir);
+        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit.incident_ppfd);
+        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit.absorbed_ppfd);
+        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit.absorbed_shortwave);
 
-        update(shaded_fraction_ops[i], light_profile.shaded_fraction);
-        update(shaded_incident_nir_ops[i], light_profile.shaded_incident_nir);
-        update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd);
-        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded_absorbed_ppfd);
-        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave);
+        update(shaded_fraction_ops[i], light_profile.shaded.fraction);
+        update(shaded_incident_nir_ops[i], light_profile.shaded.incident_nir);
+        update(shaded_incident_ppfd_ops[i], light_profile.shaded.incident_ppfd);
+        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded.absorbed_ppfd);
+        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded.absorbed_shortwave);
 
         update(height_ops[i], light_profile.height);
 

@@ -2,9 +2,9 @@
 #define C4CANAC_H
 
 #include "AuxBioCro.h"                      // for nitroParms
-#include "core/photosynthesis.h"  // for CanopyPhotosynthesis
+#include "canopy_photosynthesis_outputs.h" 
 
-CanopyPhotosynthesis CanAC(
+canopy_photosynthesis_outputs CanAC(
     const nitroParms& nitroP,
     double absorbed_longwave,  // J / m^2 / s
     double Alpha,

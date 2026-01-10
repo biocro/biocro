@@ -1,6 +1,6 @@
 #ifndef CANOPY_LIGHT_DISTRIBUTION_H
 #define CANOPY_LIGHT_DISTRIBUTION_H
-
+#include "atmosphere_light_scattering.h"
 namespace PhotoCore {
 
 struct LightProfile {
@@ -8,7 +8,7 @@ struct LightProfile {
         double fraction;
         double absorbed_ppfd;
         double absorbed_shortwave;
-        double incident nir;
+        double incident_nir;
         double incident_ppfd;
     };
     
@@ -72,6 +72,7 @@ double shaded_radiation(
 );
 
 struct CanopyLight {
+
     const double ambient_ppfd_beam;       // micromol / (m^2 beam) / s
     const double ambient_ppfd_diffuse;    // micromol / m^2 / s
     const double chil;                    // dimensionless from m^2 / m^2
@@ -87,10 +88,11 @@ struct CanopyLight {
     const double par_energy_fraction;     // dimensionless
 
     LightProfile get_light_profile(double cumulative_lai) const;
-
+    
+    
     CanopyLight(
-        double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
-        double ambient_ppfd_diffuse,    // micromol / m^2 / s
+        double ambient_ppfd_beam,
+        double ambient_ppfd_diffuse,
         double chil,                    // dimensionless from m^2 / m^2
         double cosine_zenith_angle,     // dimensionless
         double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
@@ -102,9 +104,25 @@ struct CanopyLight {
         double leaf_transmittance_par,  // dimensionless
         double par_energy_content,      // J / micromol
         double par_energy_fraction      // dimensionless
+    );    
 
+    static CanopyLight from_solar(
+        double solarR,
+        double direct_fraction,
+        double diffuse_fraction,
+        double chil,                    // dimensionless from m^2 / m^2
+        double cosine_zenith_angle,     // dimensionless
+        double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+        double k_diffuse,               // dimensionless
+        double lai,                     // dimensionless from m^2 / m^2
+        double leaf_reflectance_nir,    // dimensionless
+        double leaf_reflectance_par,    // dimensionless
+        double leaf_transmittance_nir,  // dimensionless
+        double leaf_transmittance_par,  // dimensionless
+        double par_energy_content,      // J / micromol
+        double par_energy_fraction      // dimensionless
     );
-
+    
     // computed during initialization by constructor
     const double absorptance_nir;
     const double absorptance_par;

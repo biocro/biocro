@@ -115,7 +115,7 @@ void c3_canopy::do_operation() const
         Vcmax_c,
         Vcmax_Ea};
 
-    const CanopyPhotosynthesis can_result = c3CanAC(
+    const canopy_photosynthesis_outputs can_result = c3CanAC(
         tr_param,
         absorbed_longwave,
         temp,
@@ -161,11 +161,11 @@ void c3_canopy::do_operation() const
         nlayers);
 
     // Update the output quantity list
-    update(canopy_assimilation_molar_flux_op, can_result.assim);                      // micromol / m^2 / s
-    update(canopy_conductance_op, can_result.stomatal_vapor_conductance);                     // mol / m^2 / s
-    update(canopy_gross_assimilation_molar_flux_op, can_result.carboxylation);           // micromol / m^2 / s
-    update(canopy_non_photorespiratory_CO2_release_rate_op, can_result.leaf_respiration);           // micromol / m^2 / s
-    update(canopy_photorespiration_molar_flux_op, can_result.photorespiration);                     // micromol / m^2 / s
-    update(canopy_transpiration_rate_op, can_result.transpiration);                           // Mg / ha / hr
-    update(whole_plant_growth_respiration_molar_flux_op, can_result.whole_plant_growth_respiration);  // micromol / m^2 / s
+    update(canopy_assimilation_molar_flux_op, can_result.Assim);                      // micromol / m^2 / s
+    update(canopy_conductance_op, can_result.canopy_conductance);                     // mol / m^2 / s
+    update(canopy_gross_assimilation_molar_flux_op, can_result.GrossAssim);           // micromol / m^2 / s
+    update(canopy_non_photorespiratory_CO2_release_rate_op, can_result.RL);           // micromol / m^2 / s
+    update(canopy_photorespiration_molar_flux_op, can_result.Rp);                     // micromol / m^2 / s
+    update(canopy_transpiration_rate_op, can_result.Trans);                           // Mg / ha / hr
+    update(whole_plant_growth_respiration_molar_flux_op, can_result.whole_plant_gr);  // micromol / m^2 / s
 }

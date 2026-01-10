@@ -96,5 +96,4 @@ struct crop_phenology {
 };
 
 void LNprof(double LeafN, double LAI, double kpLN, std::vector<double>& leafNla);
-double leaf_nitrogen_profile(double cumulative_lai, double total_leaf_nitrogen, double kpLN);
 #endif

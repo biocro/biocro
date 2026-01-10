@@ -1,7 +1,7 @@
-#include "canopy_light_distrbution.h"
 #include <cmath>      // exp, tan, cos, acos, sqrt
 #include <stdexcept>  // std::out_of_range
 
+#include "canopy_light_distribution.h"
 namespace PhotoCore {
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
@@ -409,8 +409,8 @@ double shaded_radiation(
  *          the relative fractions of shaded and sunlit leaves
  */
 CanopyLight::CanopyLight(
-    double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
-    double ambient_ppfd_diffuse,    // micromol / m^2 / s
+    double ambient_ppfd_beam,
+    double ambient_ppfd_diffuse,
     double chil,                    // dimensionless from m^2 / m^2
     double cosine_zenith_angle,     // dimensionless
     double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
@@ -422,8 +422,8 @@ CanopyLight::CanopyLight(
     double leaf_transmittance_par,  // dimensionless
     double par_energy_content,      // J / micromol
     double par_energy_fraction      // dimensionless
-    ) : ambient_ppfd_beam{ambient_ppfd_beam},
-        ambient_ppfd_diffuse{ambient_ppfd_diffuse},
+    ) : ambient_ppfd_beam{ambient_ppfd_beam},   // micromol / m^2 / s
+        ambient_ppfd_diffuse{ambient_ppfd_diffuse},  // micromol / m^2 / s},
         chil{chil},
         cosine_zenith_angle{cosine_zenith_angle},
         heightf{heightf},
@@ -518,8 +518,8 @@ LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
     // of the calculations above, we want to use the limits of the above
     // expressions as cosine_zenith_angle approaches 0 from the right:
     if (cosine_zenith_angle <= 1E-10) {
-        profile.shaded.ppfd = ambient_ppfd_diffuse * std::exp(-k_diffuse * cumulative_lai);
-        profile.shaded.nir = ambient_nir_diffuse * std::exp(-k_diffuse * cumulative_lai);
+        profile.shaded.incident_ppfd = ambient_ppfd_diffuse * std::exp(-k_diffuse * cumulative_lai);
+        profile.shaded.incident_nir = ambient_nir_diffuse * std::exp(-k_diffuse * cumulative_lai);
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
         profile.sunlit.fraction = 0;
@@ -536,13 +536,13 @@ LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
         profile.sunlit.fraction = std::exp(-k_direct * cumulative_lai);
-        profile.shaded.fraction = 1 - sunlit.fraction;
+        profile.shaded.fraction = 1 - profile.sunlit.fraction;
     }
 
     // Store values of incident PPFD
     profile.height = (lai - cumulative_lai) / heightf;                    // m
-    profile.sunlit.incident_ppfd = ambient_ppfd_beam_leaf + profile.shaded.ppfd;  // micromol / (m^2 leaf) / s
-    profile.sunlit.incident_nir = ambient_nir_beam_leaf + profile.shaded.nir;     // J / (m^2 leaf) / s
+    profile.sunlit.incident_ppfd = ambient_ppfd_beam_leaf + profile.shaded.incident_ppfd;  // micromol / (m^2 leaf) / s
+    profile.sunlit.incident_nir = ambient_nir_beam_leaf + profile.shaded.incident_nir;     // J / (m^2 leaf) / s
 
     // Store values of absorbed PPFD
     profile.sunlit.absorbed_ppfd =
@@ -581,4 +581,40 @@ LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
     return profile;
 }
 
+
+CanopyLight CanopyLight::from_solar(
+        double solarR,
+        double direct_fraction,
+        double diffuse_fraction,
+        double chil,                    // dimensionless from m^2 / m^2
+        double cosine_zenith_angle,     // dimensionless
+        double heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+        double k_diffuse,               // dimensionless
+        double lai,                     // dimensionless from m^2 / m^2
+        double leaf_reflectance_nir,    // dimensionless
+        double leaf_reflectance_par,    // dimensionless
+        double leaf_transmittance_nir,  // dimensionless
+        double leaf_transmittance_par,  // dimensionless
+        double par_energy_content,      // J / micromol
+        double par_energy_fraction      // dimensionless
+    ) {
+        double ambient_ppfd_beam = direct_fraction * solarR;
+        double ambient_ppfd_diffuse = diffuse_fraction * solarR; 
+    return CanopyLight(
+         ambient_ppfd_beam,
+         ambient_ppfd_diffuse,
+         chil,                    // dimensionless from m^2 / m^2
+         cosine_zenith_angle,     // dimensionless
+         heightf,                 // m^-1 from m^2 leaf / m^2 ground / m height
+         k_diffuse,               // dimensionless
+         lai,                     // dimensionless from m^2 / m^2
+         leaf_reflectance_nir,    // dimensionless
+         leaf_reflectance_par,    // dimensionless
+         leaf_transmittance_nir,  // dimensionless
+         leaf_transmittance_par,  // dimensionless
+         par_energy_content,      // J / micromol
+         par_energy_fraction);      // dimensionless
+    
+}
+    
 }
