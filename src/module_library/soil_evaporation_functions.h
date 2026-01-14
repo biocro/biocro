@@ -204,17 +204,18 @@ double surface_albedo(
  */
 double reference_evapotranspiration(
     int doy,
-    double const solar,  // micromol / m^2 / s
-    double const temp,   // degrees C
-    double windspeed,
-    double rh,
+    double const solar,      // micromol / m^2 / s
+    double const temp,       // degrees C
+    double const windspeed,  // m / s
+    double const rh,         // dimensionless
     double wet_soil_albedo,
     double const par_energy_content,                // J / micromol
     double const par_energy_fraction,               // dimensionless
     double const atmospheric_pressure,              // Pa
     double const irradiance_direct_transmittance,   // dimensionless
     double const irradiance_diffuse_transmittance,  // dimensionless
-    double const cosine_zenith_angle                // dimensionless
+    double const cosine_zenith_angle,               // dimensionless
+    double const windspeed_height                   // m
 )
 {
     using calculation_constants::eps_zero;
@@ -236,7 +237,7 @@ double reference_evapotranspiration(
 
     // Slope of the saturation vapor pressure-temperature curve; Equation 36
     // from ASCE (2005)
-    double const udelta = 2503.0 * pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0); // kPa / degree C
+    double const udelta = 2503.0 * pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degree C
 
     // Actual water vapor pressure; Equation 41 from ASCE (2005)
     double const sat_vap_pressure = saturation_vapor_pressure(temp) * kPa_per_Pa;  // kPa
@@ -274,8 +275,9 @@ double reference_evapotranspiration(
     // Soil heat flux, ASCE (2005) Eq. 30
     double g = 0.0;  // MJ/m2/hr
 
-    // Wind speed, ASCE (2005) Eq. 33 and Appendix E
-    double wind2m = windspeed * (4.87 / log(67.8 * 2.0 - 5.42));
+    // Estimate the wind speed 2m above the ground; Equation 67 from ASCE (2005)
+    double const wind2m =
+        windspeed * (4.87 / log(67.8 * windspeed_height - 5.42));  // m / s
 
     // Aerodynamic roughness and surface resistance daily timestep constants
     // ASCE (2005) Table 1

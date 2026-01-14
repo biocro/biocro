@@ -58,6 +58,7 @@ class soil_evaporation2 : public differential_module
           irradiance_direct_transmittance{get_input(input_quantities, "irradiance_direct_transmittance")},
           irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -147,6 +148,7 @@ class soil_evaporation2 : public differential_module
     double const& irradiance_direct_transmittance;
     double const& irradiance_diffuse_transmittance;
     double const& cosine_zenith_angle;
+    double const& windspeed_height;
 
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
@@ -230,6 +232,7 @@ string_vector soil_evaporation2::get_inputs()
         "irradiance_direct_transmittance",   // dimensionless
         "irradiance_diffuse_transmittance",  // dimensionless
         "cosine_zenith_angle",               // dimensionless
+        "windspeed_height",                  // m
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -370,7 +373,8 @@ void soil_evaporation2::do_operation() const
         atmospheric_pressure,
         irradiance_direct_transmittance,
         irradiance_diffuse_transmittance,
-        cosine_zenith_angle);
+        cosine_zenith_angle,
+        windspeed_height);
 
     double potential_soil_evap = potential_soil_evaporation(
         skc,
