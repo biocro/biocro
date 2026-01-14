@@ -3,7 +3,7 @@
 
 #include <algorithm>                   // for std::min, std::max
 #include <stdexcept>                   // for std::range_error
-#include "../framework/constants.h"    // for pi
+#include "../framework/constants.h"    // for eps_zero, pi, stefan_boltzmann
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure
 
 /**
@@ -177,6 +177,9 @@ double surface_albedo(
  *     pressure instead of Equation 37 from ASCE (2005); see
  *     `saturation_vapor_pressure()` for more information.
  *
+ *  5. The surface albedo is an input, rather than being fixed to 0.23.
+ *     Typically the surface albedo is calculated using `soil_albedo()`.
+ *
  *  The reference evapotranspiration rate (`ET_0`) depends on environmental
  *  conditions, and is the rate that would occur for the reference surface,
  *  which is described in Allen et al. (1998) as follows:
@@ -204,11 +207,11 @@ double surface_albedo(
  */
 double reference_evapotranspiration(
     int doy,
-    double const solar,      // micromol / m^2 / s
-    double const temp,       // degrees C
-    double const windspeed,  // m / s
-    double const rh,         // dimensionless
-    double wet_soil_albedo,
+    double const solar,                             // micromol / m^2 / s
+    double const temp,                              // degrees C
+    double const windspeed,                         // m / s
+    double const rh,                                // dimensionless
+    double const wet_soil_albedo,                   // dimensionless
     double const par_energy_content,                // J / micromol
     double const par_energy_fraction,               // dimensionless
     double const atmospheric_pressure,              // Pa
@@ -219,7 +222,9 @@ double reference_evapotranspiration(
 )
 {
     using calculation_constants::eps_zero;
+    using conversion_constants::celsius_to_kelvin;
     using math_constants::pi;
+    using physical_constants::stefan_boltzmann;  // W / m^2 / K^4
     using std::max;
 
     // Set constants
@@ -227,6 +232,9 @@ double reference_evapotranspiration(
     double constexpr MJ_per_J = 1e-6;        // MJ / J
     double constexpr s_per_hr = 3600;        // s / hr
     double constexpr solar_constant = 4.92;  // MJ / m^2 / hr
+
+    // Air temperature in Kelvin
+    double const tk = temp + celsius_to_kelvin;  // K
 
     // Total incident shortwave energy (including PAR and NIR bands)
     double const srad =
@@ -244,8 +252,8 @@ double reference_evapotranspiration(
 
     double const ea = sat_vap_pressure * rh;  // kPa
 
-    // Net shortwave radiation, ASCE (2005) Eq. 16
-    double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
+    // Net shortwave radiation; Equation 43 from ASCE (2005)
+    double const rns = (1.0 - wet_soil_albedo) * srad;  // MJ / m^2 / hr
 
     // Account for Earth's ellipical orbit; Equation 50 from ASCE (2005)
     double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
@@ -258,19 +266,19 @@ double reference_evapotranspiration(
     // Clear sky solar radiation, modified from ASCE (2005) Equation 47
     double const rso = (irradiance_direct_transmittance + irradiance_diffuse_transmittance) * ra;  // MJ / m^2 / hr
 
-    // Net longwave radiation, ASCE (2005) Eqs. 17 and 18
-    double ratio = srad / rso;
-    if (ratio < 0.3)
-        ratio = 0.3;
-    else if (ratio > 1.0)
-        ratio = 1.0;
+    // Net longwave radiation; Equations 44 and 45 from ASCE (2005)
+    double const cloudiness_ratio =
+        rso <= eps_zero ? 1.0 : std::max(0.3, std::min(1.0, srad / rso));  // dimensionless
 
-    double fcd = 1.35 * ratio - 0.35;                                  // Eq 18
-    double tk4 = pow((temp + 273.16), 4.0);                            //Eq. 17
-    double rnl = 4.901e-9 * fcd * (0.34 - 0.14 * pow(ea, 0.5)) * tk4;  // MJ/m2/hr Eq. 17
+    double const fcd = 1.35 * cloudiness_ratio - 0.35;  // dimensionless
+
+    double const net_emissivity = fcd * (0.34 - 0.14 * pow(ea, 0.5));  // dimensionless
+
+    double const rnl =
+        stefan_boltzmann * s_per_hr * MJ_per_J * net_emissivity * pow(tk, 4.0);  // MJ / m^2 / s
 
     // Net radiation, ASCE (2005) Eq. 15
-    double rn = rns - rnl;  // MJ/m2/hr
+    double const rn = rns - rnl;  // MJ / m^2 / hr
 
     // Soil heat flux, ASCE (2005) Eq. 30
     double g = 0.0;  // MJ/m2/hr
@@ -287,7 +295,7 @@ double reference_evapotranspiration(
 
     // Standardized reference evapotranspiration, ASCE (2005) Eq. 1
     double reference_et = 0.408 * udelta * (rn - g) + psychrometric_const *
-                                                          (Cn / (temp + 273.0)) * wind2m * (sat_vap_pressure - ea);
+                                                          (Cn / tk) * wind2m * (sat_vap_pressure - ea);
     reference_et = reference_et / (udelta + psychrometric_const * (1.0 + Cd * wind2m));  //mm/hr
     reference_et = max(0.0001, reference_et);
 
