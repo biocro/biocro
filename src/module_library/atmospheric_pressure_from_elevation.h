@@ -1,7 +1,8 @@
 #ifndef ATMOSPHERIC_PRESSURE_FROM_ELEVATION_H
 #define ATMOSPHERIC_PRESSURE_FROM_ELEVATION_H
 
-#include <cmath>  // for pow
+#include <cmath>                     // for pow
+#include "../framework/constants.h"  // for atmospheric_pressure_at_sea_level
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
@@ -12,6 +13,10 @@ namespace standardBML
  *
  *  @brief Estimates the atmospheric pressure from the site elevation using
  *  Equation 3 from ASCE (2005).
+ *
+ *  At sea level, elevation is zero and the equation in ASCE (2005) predicts
+ *  an atmospheric pressure of 101.3 kPa. Here we instead use the default BioCro
+ *  value, expressed in Pa rather than kPa.
  *
  *  References:
  *
@@ -65,10 +70,9 @@ string_vector atmospheric_pressure_from_elevation::get_outputs()
 
 void atmospheric_pressure_from_elevation::do_operation() const
 {
-    double const Pa_per_kPa = 1e3;
-
     update(atmospheric_pressure_op,
-           Pa_per_kPa * 101.3 * pow(((293.0 - 0.0065 * elevation) / 293.0), 5.26));  // Pa
+           physical_constants::atmospheric_pressure_at_sea_level *
+               pow(((293.0 - 0.0065 * elevation) / 293.0), 5.26));  // Pa
 }
 
 }  // namespace standardBML

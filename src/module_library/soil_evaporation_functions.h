@@ -147,6 +147,20 @@ double surface_albedo(
  *  @brief Calculates the reference evapotranspiration rate from environmental
  *  conditions.
  *
+ *  Here we generally follow the method described in ASCE (2005), with a few
+ *  key differences:
+ *
+ *  1. The atmospheric pressure is an input, so it is not necessarily calculated
+ *     using Equation 3 from ASCE (2005). This is to accomodate weather data
+ *     sets that include measured values of local atmospheric pressure.
+ *     Otherwise, the `atmospheric_pressure_from_elevation` module enables the
+ *     use of Equation 3.
+ *
+ *  2. Separate atmospheric transmittances for direct and diffuse radiation are
+ *     used in place of the simplified transmittance defined in Equations 19 and
+ *     47.
+ *
+ *
  *  The reference evapotranspiration rate (`ET_0`) depends on environmental
  *  conditions, and is the rate that would occur for the reference surface,
  *  which is described in Allen et al. (1998) as follows:
@@ -164,6 +178,10 @@ double surface_albedo(
  *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
  *    Paper No. 56." Food and Agriculture Organization of the United Nations, Rome, Italy (1998)]
  *    (http://www.climasouth.eu/sites/default/files/FAO%2056.pdf)
+ *
+ *  - ["Calculating Standardized Reference Crop Evapotranspiration" in "The ASCE
+ *    Standardized Reference Evapotranspiration Equation" 7–45 (2005)]
+ *    (https://doi.org/10.1061/9780784408056.ch04)
  */
 double reference_evapotranspiration(
     int doy,
@@ -175,7 +193,9 @@ double reference_evapotranspiration(
     double rh,
     double wet_soil_albedo,
     double par_energy_content,
-    double const atmospheric_pressure  // kPa
+    double const atmospheric_pressure,             // kPa
+    double const irradiance_direct_transmittance,  // dimensionless
+    double const irradiance_diffuse_transmittance  // dimensionless
 )
 {
     using math_constants::pi;
@@ -216,8 +236,8 @@ double reference_evapotranspiration(
     double ra2 = cos(lat * pi / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
     double ra = 24.0 / pi * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
 
-    // Clear sky solar radiation, ASCE (2005) Eq. 19
-    double rso = (0.75 + 2E-5 * elevation) * ra;  // MJ/m2/hr
+    // Clear sky solar radiation, modified from ASCE (2005) Equations 19 and 47
+    double rso = (irradiance_direct_transmittance + irradiance_diffuse_transmittance) * ra;  // MJ/m2/hr
 
     // Net longwave radiation, ASCE (2005) Eqs. 17 and 18
     double ratio = srad / rso;

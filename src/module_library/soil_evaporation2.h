@@ -56,6 +56,8 @@ class soil_evaporation2 : public differential_module
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
           infiltrated_water{get_input(input_quantities, "infiltrated_water")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          irradiance_direct_transmittance{get_input(input_quantities, "irradiance_direct_transmittance")},
+          irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -143,6 +145,8 @@ class soil_evaporation2 : public differential_module
     double const& soil_evaporation_rate;
     double const& infiltrated_water;
     double const& atmospheric_pressure;
+    double const& irradiance_direct_transmittance;
+    double const& irradiance_diffuse_transmittance;
 
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
@@ -204,26 +208,28 @@ class soil_evaporation2 : public differential_module
 string_vector soil_evaporation2::get_inputs()
 {
     return {
-        "skc",                    // dimensionless
-        "kcbmax",                 // dimensionless
-        "kcbmin",                 // dimensionless
-        "doy",                    // day of the year
-        "lat",                    // latitude of the location
-        "elevation",              // altitude in meters
-        "lai",                    // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo_max",   // Maximum bare soil albedo - dimensionless
-        "windspeed",              // m/s
-        "rh",                     // fraction. dimensionless
-        "par_energy_content",     // J / micromol
-        "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2",                 // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
-        "hours_per_day",          //
-        "temp",                   // degrees C
-        "solar",                  // micromol / m^2 / s
-        "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
-        "infiltrated_water",      // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
-        "atmospheric_pressure",   // Pa
+        "skc",                               // dimensionless
+        "kcbmax",                            // dimensionless
+        "kcbmin",                            // dimensionless
+        "doy",                               // day of the year
+        "lat",                               // latitude of the location
+        "elevation",                         // altitude in meters
+        "lai",                               // Healthy leaf area index (m2[leaf] / m2[ground])
+        "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
+        "windspeed",                         // m/s
+        "rh",                                // fraction. dimensionless
+        "par_energy_content",                // J / micromol
+        "sumes1",                            // Cumulative soil evaporation in stage 1 (mm)
+        "sumes2",                            // Cumulative soil evaporation in stage 2 (mm)
+        "days_stage2",                       // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "hours_per_day",                     //
+        "temp",                              // degrees C
+        "solar",                             // micromol / m^2 / s
+        "soil_evaporation_rate",             // Actual soil evaporation rate (mm/hr)
+        "infiltrated_water",                 // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
+        "atmospheric_pressure",              // Pa
+        "irradiance_direct_transmittance",   // dimensionless
+        "irradiance_diffuse_transmittance",  // dimensionless
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -364,7 +370,9 @@ void soil_evaporation2::do_operation() const
         rh,
         wet_soil_albedo,
         par_energy_content,
-        atmospheric_pressure * kPa_per_Pa);
+        atmospheric_pressure * kPa_per_Pa,
+        irradiance_direct_transmittance,
+        irradiance_diffuse_transmittance);
 
     double potential_soil_evap = potential_soil_evaporation(
         skc,
