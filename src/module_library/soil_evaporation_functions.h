@@ -1,9 +1,10 @@
 #ifndef SOIL_EVAPORATION_FUNCTIONS_H
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
-#include <algorithm>                 // for std::min, std::max
-#include "../framework/constants.h"  // for pi
-#include <stdexcept>                 // for std::range_error
+#include <algorithm>                   // for std::min, std::max
+#include <stdexcept>                   // for std::range_error
+#include "../framework/constants.h"    // for pi
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
 
 /**
  * @brief functions to be used in soil evaporation computation
@@ -172,6 +173,10 @@ double surface_albedo(
  *     the solar zenith angle is negative, the sun is below the horizon, and
  *     hence `R_a` is zero.
  *
+ *  4. We use the Arden-Buck equation to calculate the saturation water vapor
+ *     pressure instead of Equation 37 from ASCE (2005); see
+ *     `saturation_vapor_pressure()` for more information.
+ *
  *  The reference evapotranspiration rate (`ET_0`) depends on environmental
  *  conditions, and is the rate that would occur for the reference surface,
  *  which is described in Allen et al. (1998) as follows:
@@ -199,8 +204,8 @@ double surface_albedo(
  */
 double reference_evapotranspiration(
     int doy,
-    double solar,  // micromol / m^2 / s
-    double temp,
+    double const solar,  // micromol / m^2 / s
+    double const temp,   // degrees C
     double windspeed,
     double rh,
     double wet_soil_albedo,
@@ -222,32 +227,21 @@ double reference_evapotranspiration(
     double constexpr s_per_hr = 3600;        // s / hr
     double constexpr solar_constant = 4.92;  // MJ / m^2 / hr
 
-    // PET.for, line 228
-    double tavg = temp;  // Mean daily temperature (°C)
-
     // Total incident shortwave energy (including PAR and NIR bands)
     double const srad =
         solar * par_energy_content / par_energy_fraction * MJ_per_J * s_per_hr;  // MJ / m^2 / hr
 
-    // Psychrometric constant, ASCE (2005) Eq. 4
-    double psychrometric_const = 0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa/deg C
+    // Psychrometric constant; Equation 35 from ASCE (2005)
+    double const psychrometric_const = 0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degree C
 
-    // Slope of the saturation vapor pressure-temperature curve
-    // ASCE (2005) Eq. 5                                    !kPa/degC
-    double udelta = 2503.0 * pow(exp(17.27 * tavg / (tavg + 237.3)) / (tavg + 237.3), 2.0);
+    // Slope of the saturation vapor pressure-temperature curve; Equation 36
+    // from ASCE (2005)
+    double const udelta = 2503.0 * pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0); // kPa / degree C
 
-    // Saturation vapor pressure, ASCE (2005) Eqs. 6 and 7
-    double sat_vap_pressure = 0.6108 * exp((17.27 * tavg) / (tavg + 237.3));  // kPa
-    // Actual vapor pressure, ASCE (2005) Table 3
-    // double actual_vap_pressure = rh * sat_vap_pressure;
-    // adjust actual evaporation rate based on conditions
-    double ea;
-    if (rh > 1.e-6)
-        // ASCE (2005) Eq. 12
-        ea = sat_vap_pressure * rh;  // kPa
-    else
-        // ASCE (2005) Appendix E, assume TDEW=TMIN-2.0
-        ea = 0.6108 * exp((17.27 * (tavg - 2.0)) / ((tavg - 2.0) + 237.3));  // kPa
+    // Actual water vapor pressure; Equation 41 from ASCE (2005)
+    double const sat_vap_pressure = saturation_vapor_pressure(temp) * kPa_per_Pa;  // kPa
+
+    double const ea = sat_vap_pressure * rh;  // kPa
 
     // Net shortwave radiation, ASCE (2005) Eq. 16
     double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
@@ -271,7 +265,7 @@ double reference_evapotranspiration(
         ratio = 1.0;
 
     double fcd = 1.35 * ratio - 0.35;                                  // Eq 18
-    double tk4 = pow((tavg + 273.16), 4.0);                            //Eq. 17
+    double tk4 = pow((temp + 273.16), 4.0);                            //Eq. 17
     double rnl = 4.901e-9 * fcd * (0.34 - 0.14 * pow(ea, 0.5)) * tk4;  // MJ/m2/hr Eq. 17
 
     // Net radiation, ASCE (2005) Eq. 15
@@ -291,7 +285,7 @@ double reference_evapotranspiration(
 
     // Standardized reference evapotranspiration, ASCE (2005) Eq. 1
     double reference_et = 0.408 * udelta * (rn - g) + psychrometric_const *
-                                                          (Cn / (tavg + 273.0)) * wind2m * (sat_vap_pressure - ea);
+                                                          (Cn / (temp + 273.0)) * wind2m * (sat_vap_pressure - ea);
     reference_et = reference_et / (udelta + psychrometric_const * (1.0 + Cd * wind2m));  //mm/hr
     reference_et = max(0.0001, reference_et);
 
