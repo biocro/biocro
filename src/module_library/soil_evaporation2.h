@@ -39,13 +39,12 @@ class soil_evaporation2 : public differential_module
           kcbmax{get_input(input_quantities, "kcbmax")},
           kcbmin{get_input(input_quantities, "kcbmin")},
           doy{get_input(input_quantities, "doy")},
-          lat{get_input(input_quantities, "lat")},
-          elevation{get_input(input_quantities, "elevation")},
           lai{get_input(input_quantities, "lai")},
           bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
           windspeed{get_input(input_quantities, "windspeed")},
           rh{get_input(input_quantities, "rh")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
+          par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           // height{get_input(input_quantities, "height")},
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
@@ -58,6 +57,7 @@ class soil_evaporation2 : public differential_module
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           irradiance_direct_transmittance{get_input(input_quantities, "irradiance_direct_transmittance")},
           irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -128,13 +128,12 @@ class soil_evaporation2 : public differential_module
     double const& kcbmax;
     double const& kcbmin;
     double const& doy;
-    double const& lat;
-    double const& elevation;
     double const& lai;
     double const& bare_soil_albedo_max;
     double const& windspeed;
     double const& rh;
     double const& par_energy_content;
+    double const& par_energy_fraction;
     // double const& height;
     double const& sumes1;
     double const& sumes2;
@@ -147,6 +146,7 @@ class soil_evaporation2 : public differential_module
     double const& atmospheric_pressure;
     double const& irradiance_direct_transmittance;
     double const& irradiance_diffuse_transmittance;
+    double const& cosine_zenith_angle;
 
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
@@ -212,13 +212,12 @@ string_vector soil_evaporation2::get_inputs()
         "kcbmax",                            // dimensionless
         "kcbmin",                            // dimensionless
         "doy",                               // day of the year
-        "lat",                               // latitude of the location
-        "elevation",                         // altitude in meters
         "lai",                               // Healthy leaf area index (m2[leaf] / m2[ground])
         "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
         "windspeed",                         // m/s
         "rh",                                // fraction. dimensionless
         "par_energy_content",                // J / micromol
+        "par_energy_fraction",               // dimensionless
         "sumes1",                            // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                            // Cumulative soil evaporation in stage 2 (mm)
         "days_stage2",                       // Days elapsed in Stage-2 evaporation (decimal allowed)
@@ -230,6 +229,7 @@ string_vector soil_evaporation2::get_inputs()
         "atmospheric_pressure",              // Pa
         "irradiance_direct_transmittance",   // dimensionless
         "irradiance_diffuse_transmittance",  // dimensionless
+        "cosine_zenith_angle",               // dimensionless
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -286,8 +286,6 @@ void soil_evaporation2::do_operation() const
 {
     using std::max;
     using std::min;
-
-    double constexpr kPa_per_Pa = 1e-3;
 
     int constexpr nlayers = 6;
     double constexpr canopyHeight = 1.0;  // m
@@ -364,15 +362,15 @@ void soil_evaporation2::do_operation() const
         doy,
         solar,
         temp,
-        lat,
-        elevation,
         windspeed,
         rh,
         wet_soil_albedo,
         par_energy_content,
-        atmospheric_pressure * kPa_per_Pa,
+        par_energy_fraction,
+        atmospheric_pressure,
         irradiance_direct_transmittance,
-        irradiance_diffuse_transmittance);
+        irradiance_diffuse_transmittance,
+        cosine_zenith_angle);
 
     double potential_soil_evap = potential_soil_evaporation(
         skc,

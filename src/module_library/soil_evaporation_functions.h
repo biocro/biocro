@@ -147,8 +147,8 @@ double surface_albedo(
  *  @brief Calculates the reference evapotranspiration rate from environmental
  *  conditions.
  *
- *  Here we generally follow the method described in ASCE (2005), with a few
- *  key differences:
+ *  Here we generally follow the hourly "tall crop" calculations described in
+ *  ASCE (2005), with a few key differences:
  *
  *  1. The atmospheric pressure is an input, so it is not necessarily calculated
  *     using Equation 3 from ASCE (2005). This is to accomodate weather data
@@ -158,8 +158,19 @@ double surface_albedo(
  *
  *  2. Separate atmospheric transmittances for direct and diffuse radiation are
  *     used in place of the simplified transmittance defined in Equations 19 and
- *     47.
+ *     47. Typically these are calculated by the
+ *     `shortwave_atmospheric_scattering` module.
  *
+ *  3. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
+ *     incident on the Earth's upper atmosphere during periods of 24 and 1 hour,
+ *     respectively. Ultimately, this is compared to the actual solar radiation
+ *     incident at the Earth's surface, enabling an estimate of cloudiness.
+ *     However, BioCro uses instantaneous measurements of incident light at the
+ *     surface, so it is not appropriate to integrate over a time interval here.
+ *     As explained in Duffie and Beckam (1980) (the source cited by ASCE 2005),
+ *     the relevant instantaneous equation for `R_a` is Equation 1.10.1. When
+ *     the solar zenith angle is negative, the sun is below the horizon, and
+ *     hence `R_a` is zero.
  *
  *  The reference evapotranspiration rate (`ET_0`) depends on environmental
  *  conditions, and is the rate that would occur for the reference surface,
@@ -182,31 +193,44 @@ double surface_albedo(
  *  - ["Calculating Standardized Reference Crop Evapotranspiration" in "The ASCE
  *    Standardized Reference Evapotranspiration Equation" 7–45 (2005)]
  *    (https://doi.org/10.1061/9780784408056.ch04)
+ *
+ *  - [Duffie, J. A. & Beckman, W. A. Solar Engineering of Thermal Processes. (Wiley New York, 1980)]
+ *    (http://les.edu.uy/FRS/duffie_beckman.pdf)
  */
 double reference_evapotranspiration(
     int doy,
-    double solar,
+    double solar,  // micromol / m^2 / s
     double temp,
-    double lat,  //latitude
-    double elevation,
     double windspeed,
     double rh,
     double wet_soil_albedo,
-    double par_energy_content,
-    double const atmospheric_pressure,             // kPa
-    double const irradiance_direct_transmittance,  // dimensionless
-    double const irradiance_diffuse_transmittance  // dimensionless
+    double const par_energy_content,                // J / micromol
+    double const par_energy_fraction,               // dimensionless
+    double const atmospheric_pressure,              // Pa
+    double const irradiance_direct_transmittance,   // dimensionless
+    double const irradiance_diffuse_transmittance,  // dimensionless
+    double const cosine_zenith_angle                // dimensionless
 )
 {
+    using calculation_constants::eps_zero;
     using math_constants::pi;
     using std::max;
 
+    // Set constants
+    double constexpr kPa_per_Pa = 1e-3;      // kPa / Pa
+    double constexpr MJ_per_J = 1e-6;        // MJ / J
+    double constexpr s_per_hr = 3600;        // s / hr
+    double constexpr solar_constant = 4.92;  // MJ / m^2 / hr
+
     // PET.for, line 228
-    double tavg = temp;                                      // Mean daily temperature (°C)
-    double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
+    double tavg = temp;  // Mean daily temperature (°C)
+
+    // Total incident shortwave energy (including PAR and NIR bands)
+    double const srad =
+        solar * par_energy_content / par_energy_fraction * MJ_per_J * s_per_hr;  // MJ / m^2 / hr
 
     // Psychrometric constant, ASCE (2005) Eq. 4
-    double psychrometric_const = 0.000665 * atmospheric_pressure;  // kPa/deg C
+    double psychrometric_const = 0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa/deg C
 
     // Slope of the saturation vapor pressure-temperature curve
     // ASCE (2005) Eq. 5                                    !kPa/degC
@@ -228,16 +252,16 @@ double reference_evapotranspiration(
     // Net shortwave radiation, ASCE (2005) Eq. 16
     double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
 
-    // Extraterrestrial radiation, ASCE (2005) Eqs. 21,23,24,27
-    double dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);         // Eq. 23
-    double ldelta = 0.409 * sin(2.0 * pi / 365.0 * doy - 1.39);    // Eq. 24
-    double ws = acos(-1.0 * tan(lat * pi / 180.0) * tan(ldelta));  // Eq. 27
-    double ra1 = ws * sin(lat * pi / 180.0) * sin(ldelta);         // Eq. 21
-    double ra2 = cos(lat * pi / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
-    double ra = 24.0 / pi * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
+    // Account for Earth's ellipical orbit; Equation 50 from ASCE (2005)
+    double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
 
-    // Clear sky solar radiation, modified from ASCE (2005) Equations 19 and 47
-    double rso = (irradiance_direct_transmittance + irradiance_diffuse_transmittance) * ra;  // MJ/m2/hr
+    // Extraterrestrial radiation; Equation 1.10.1 from Duffie and Beckam (1980)
+    double const ra =
+        cosine_zenith_angle <= eps_zero ? 0.0
+                                        : solar_constant * dr * cosine_zenith_angle;  // MJ / m^2 / hr
+
+    // Clear sky solar radiation, modified from ASCE (2005) Equation 47
+    double const rso = (irradiance_direct_transmittance + irradiance_diffuse_transmittance) * ra;  // MJ / m^2 / hr
 
     // Net longwave radiation, ASCE (2005) Eqs. 17 and 18
     double ratio = srad / rso;
