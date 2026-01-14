@@ -174,7 +174,9 @@ double reference_evapotranspiration(
     double windspeed,
     double rh,
     double wet_soil_albedo,
-    double par_energy_content)
+    double par_energy_content,
+    double const atmospheric_pressure  // kPa
+)
 {
     using math_constants::pi;
     using std::max;
@@ -182,11 +184,9 @@ double reference_evapotranspiration(
     // PET.for, line 228
     double tavg = temp;                                      // Mean daily temperature (°C)
     double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
-    // Atmospheric pressure, ASCE (2005) Eq. 3
-    double atmos_pressure = 101.3 * pow(((293.0 - 0.0065 * elevation) / 293.0), 5.26);  // kPa
 
     // Psychrometric constant, ASCE (2005) Eq. 4
-    double psychrometric_const = 0.000665 * atmos_pressure;  // kPa/deg C
+    double psychrometric_const = 0.000665 * atmospheric_pressure;  // kPa/deg C
 
     // Slope of the saturation vapor pressure-temperature curve
     // ASCE (2005) Eq. 5                                    !kPa/degC

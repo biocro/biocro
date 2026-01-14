@@ -55,6 +55,7 @@ class soil_evaporation2 : public differential_module
           solar{get_input(input_quantities, "solar")},
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
           infiltrated_water{get_input(input_quantities, "infiltrated_water")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -141,6 +142,7 @@ class soil_evaporation2 : public differential_module
     double const& solar;
     double const& soil_evaporation_rate;
     double const& infiltrated_water;
+    double const& atmospheric_pressure;
 
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
@@ -221,6 +223,7 @@ string_vector soil_evaporation2::get_inputs()
         "solar",                  // micromol / m^2 / s
         "soil_evaporation_rate",  // Actual soil evaporation rate (mm/hr)
         "infiltrated_water",      // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
+        "atmospheric_pressure",   // Pa
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -277,6 +280,8 @@ void soil_evaporation2::do_operation() const
 {
     using std::max;
     using std::min;
+
+    double constexpr kPa_per_Pa = 1e-3;
 
     int constexpr nlayers = 6;
     double constexpr canopyHeight = 1.0;  // m
@@ -358,7 +363,8 @@ void soil_evaporation2::do_operation() const
         windspeed,
         rh,
         wet_soil_albedo,
-        par_energy_content);
+        par_energy_content,
+        atmospheric_pressure * kPa_per_Pa);
 
     double potential_soil_evap = potential_soil_evaporation(
         skc,

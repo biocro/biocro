@@ -9,6 +9,7 @@
 
 // Include all the header files that define the modules.
 #include "aba_decay.h"
+#include "atmospheric_pressure_from_elevation.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
 #include "broyden_test.h"
@@ -118,6 +119,7 @@
 creator_map standardBML::module_library::library_entries =
 {
      {"aba_decay",                                             &create_mc<aba_decay>},
+     {"atmospheric_pressure_from_elevation",                   &create_mc<atmospheric_pressure_from_elevation>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
      {"broyden_test",                                          &create_mc<broyden_test>},
