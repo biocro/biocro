@@ -228,9 +228,6 @@ double surface_albedo(
  *     pressure instead of Equation 37 from ASCE (2005); see
  *     `saturation_vapor_pressure()` for more information.
  *
- *  5. The surface albedo is an input, rather than being fixed to 0.23.
- *     Typically the surface albedo is calculated using `soil_albedo()`.
- *
  *  References:
  *
  *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
@@ -337,19 +334,22 @@ double reference_evapotranspiration(
     // Net shortwave radiation; Equation 43 from ASCE (2005)
     double const rns = (1.0 - reference_albedo) * srad;  // MJ / m^2 / hr
 
-    // Clear sky radation at the Earth's surface; here we combine Equation
-    // 1.10.1 from Duffie and Beckam (1980) with Equations 47 and 50 from ASCE
-    // (2005), modified to include separate transmittances for direct and
-    // diffuse light.
+    // Distance factor that accounts for the elliptical shape of the Earth's
+    // orbit around the sun; Equation 50 from ASCE (2005)
     double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
 
-    double const ra =
-        cosine_zenith_angle <= eps_zero ? 0.0 : solar_constant * dr;  // MJ / m^2 / hr
+    // Direct beam irradiance incident on the Earth's upper atmosphere
+    double const r_extraterrestrial =
+        cosine_zenith_angle <= eps_zero ? 0.0 : solar_constant * dr;  // MJ / (m^2 beam) / hr
 
+    // Effective atmospheric transmittance including direct and diffuse
+    // radiation
     double const trans = irradiance_direct_transmittance * cosine_zenith_angle +
                          irradiance_diffuse_transmittance;  // dimensionless
 
-    double const rso = trans * ra;  // MJ / m^2 / hr
+    // Clear-sky irradiance at the Earth's surface expressed on a ground area
+    // basis
+    double const rso = trans * r_extraterrestrial;  // MJ / m^2 / hr
 
     // Net longwave radiation; Equations 44 and 45 from ASCE (2005)
     double const cloudiness_ratio =
