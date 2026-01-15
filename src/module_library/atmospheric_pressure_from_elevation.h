@@ -12,7 +12,7 @@ namespace standardBML
  *  @class atmospheric_pressure_from_elevation
  *
  *  @brief Estimates the atmospheric pressure from the site elevation using
- *  Equation 3 from ASCE (2005).
+ *  Equation 3 (or 34) from ASCE (2005).
  *
  *  At sea level, elevation is zero and the equation in ASCE (2005) predicts
  *  an atmospheric pressure of 101.3 kPa. Here we instead use the default BioCro

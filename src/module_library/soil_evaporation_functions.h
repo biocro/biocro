@@ -149,19 +149,44 @@ double surface_albedo(
  *  @brief Calculates the reference evapotranspiration rate from environmental
  *  conditions.
  *
- *  Here we generally follow the hourly "tall crop" calculations described in
- *  ASCE (2005), with a few key differences:
+ *  Inspired by DSSAT, here we use the method described in ASCE (2005) to
+ *  calculate the reference evapotranspiration rate. ASCE (2005) defines the
+ *  rate as follows:
+ *
+ *  > Reference evapotranspiration (`ET_ref`) is the rate at which readily
+ *  > available soil water is vaporized from specified vegetated surfaces. For
+ *  > convenience and reproducibility, the reference surface has recently been
+ *  > expressed as a hypothetical crop (vegetative) surface with specific
+ *  > characteristics. In the context of this standardization report, reference
+ *  > evapotranspiration is defined as the ET rate from a uniform surface of
+ *  > dense, actively growing vegetation having specified height and surface
+ *  > resistance, not short of soil water, and representing an expanse of at
+ *  > least 100 m of the same or similar vegetation.
+ *
+ *  The reference rate is typically modified by crop and soil coefficients to
+ *  estimate the real evapotranspiration rate; see potential_soil_evaporation()`
+ *  for more details. Although Equation 1 in ASCE (2005) is slightly different
+ *  than the reference evapotranspiration calculations in FAO-56 (Allen et al.
+ *  1998), it is nevertheless compatible with crop coefficients calculated as in
+ *  FAO-56, according to Appendix B of ASCE (2005).
+ *
+ *  Slightly different equations and coefficients must be used depending on the
+ *  time step (hourly, daily, or monthly) and the reference type (short or
+ *  tall). While DSSAT takes daily steps and allows users to specify short or
+ *  tall crops, here we take hourly steps and assume a tall reference crop.
+ *
+ *  Additionally, our approach deviates from ASCE (2005) in a few ways:
  *
  *  1. The atmospheric pressure is an input, so it is not necessarily calculated
- *     using Equation 3 from ASCE (2005). This is to accomodate weather data
+ *     using Equation 34 from ASCE (2005). This is to accomodate weather data
  *     sets that include measured values of local atmospheric pressure.
  *     Otherwise, the `atmospheric_pressure_from_elevation` module enables the
- *     use of Equation 3.
+ *     use of Equation 34.
  *
  *  2. Separate atmospheric transmittances for direct and diffuse radiation are
- *     used in place of the simplified transmittance defined in Equations 19 and
- *     47. Typically these are calculated by the
- *     `shortwave_atmospheric_scattering` module.
+ *     used in place of the simplified transmittance defined in Equation 47.
+ *     Typically these are calculated by the `shortwave_atmospheric_scattering`
+ *     module.
  *
  *  3. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
  *     incident on the Earth's upper atmosphere during periods of 24 and 1 hour,
@@ -181,18 +206,6 @@ double surface_albedo(
  *  5. The surface albedo is an input, rather than being fixed to 0.23.
  *     Typically the surface albedo is calculated using `soil_albedo()`.
  *
- *  The reference evapotranspiration rate (`ET_0`) depends on environmental
- *  conditions, and is the rate that would occur for the reference surface,
- *  which is described in Allen et al. (1998) as follows:
- *
- *  > The reference surface is a hypothetical grass reference crop with an
- *  > assumed crop height of 0.12 m, a fixed surface resistance of 70 s / m, and
- *  > an albedo of 0.23. The reference surface closely resembles an extensive
- *  > surface of green, well-watered grass of uniform height, actively growing
- *  > and completely shading the ground. The fixed surface resistance of
- *  > 70 s / m implies a moderately dry soil surface resulting from about a
- *  > weekly irrigation frequency.
- *
  *  References:
  *
  *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
@@ -205,6 +218,49 @@ double surface_albedo(
  *
  *  - [Duffie, J. A. & Beckman, W. A. Solar Engineering of Thermal Processes. (Wiley New York, 1980)]
  *    (http://les.edu.uy/FRS/duffie_beckman.pdf)
+ *
+ *
+ *  @param [in] atmospheric_pressure The local atmospheric pressure; Pa
+ *
+ *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle;
+ *              dimensionless
+ *
+ *  @param [in] doy The day of the year, which can be fractional
+ *
+ *  @param [in] irradiance_diffuse_transmittance The atmospheric transmittance
+ *              for direct sunlight - in other words, the ratio of direct beam
+ *              light at the Earth's surface to the light incident on the upper
+ *              atmosphere; dimensionless
+ *
+ *  @param [in] irradiance_direct_transmittance The atmospheric transmittance
+ *              for diffuse sunlight - in other words, the ratio of diffuse
+ *              light at the Earth's surface to the light incident on the upper
+ *              atmosphere; dimensionless
+ *
+ *  @param [in] par_energy_content The energy of each mole of photons in the PAR
+ *              band; J / micromol
+ *
+ *  @param [in] par_energy_fraction The fraction of total shortwave energy in
+ *              the PAR band, where the remaining energy is assumed to lie in
+ *              the NIR band; dimensionless
+ *
+ *  @param [in] rh The relative humidty expressed as a number between 0 and 1;
+ *              dimensionless
+ *
+ *  @param [in] solar The incident photosynthetically active flux density on a
+ *              ground area basis; micromol / m^2 / s
+ *
+ *  @param [in] surface_albedo The albedo of the surface, including the crop
+ *              canopy and the soil; dimensionless
+ *
+ *  @param [in] temp The air temperature; degrees C
+ *
+ *  @param [in] windspeed The wind speed; m / s
+ *
+ *  @param [in] windspeed_height The height at which the wind speed was
+ *              measured; m
+ *
+ *  @return The reference evapotranspiration rate; mm / hr
  */
 double reference_evapotranspiration(
     double const atmospheric_pressure,              // Pa
@@ -216,7 +272,7 @@ double reference_evapotranspiration(
     double const par_energy_fraction,               // dimensionless
     double const rh,                                // dimensionless
     double const solar,                             // micromol / m^2 / s
-    double const surface_albedo,                   // dimensionless
+    double const surface_albedo,                    // dimensionless
     double const temp,                              // degrees C
     double const windspeed,                         // m / s
     double const windspeed_height                   // m
