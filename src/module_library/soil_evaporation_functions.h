@@ -2,6 +2,7 @@
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
 #include <algorithm>                   // for std::min, std::max
+#include <cmath>                       // for pow
 #include <stdexcept>                   // for std::range_error
 #include "../framework/constants.h"    // for eps_zero, pi, stefan_boltzmann
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure
@@ -225,7 +226,6 @@ double reference_evapotranspiration(
     using conversion_constants::celsius_to_kelvin;
     using math_constants::pi;
     using physical_constants::stefan_boltzmann;  // W / m^2 / K^4
-    using std::max;
 
     // Set constants
     double constexpr kPa_per_Pa = 1e-3;      // kPa / Pa
@@ -277,11 +277,11 @@ double reference_evapotranspiration(
     double const rnl =
         stefan_boltzmann * s_per_hr * MJ_per_J * net_emissivity * pow(tk, 4.0);  // MJ / m^2 / s
 
-    // Net radiation, ASCE (2005) Eq. 15
+    // Net radiation; Equation 42 from ASCE (2005)
     double const rn = rns - rnl;  // MJ / m^2 / hr
 
-    // Soil heat flux, ASCE (2005) Eq. 30
-    double g = 0.0;  // MJ/m2/hr
+    // Soil heat flux; Equation 66 from ASCE (2005)
+    double const g = rn >= 0 ? 0.04 * rn : 0.2 * rn; // MJ / m^2 / hr
 
     // Estimate the wind speed 2m above the ground; Equation 67 from ASCE (2005)
     double const wind2m =
@@ -297,7 +297,7 @@ double reference_evapotranspiration(
     double reference_et = 0.408 * udelta * (rn - g) + psychrometric_const *
                                                           (Cn / tk) * wind2m * (sat_vap_pressure - ea);
     reference_et = reference_et / (udelta + psychrometric_const * (1.0 + Cd * wind2m));  //mm/hr
-    reference_et = max(0.0001, reference_et);
+    reference_et = std::max(0.0001, reference_et);
 
     return reference_et;
 }
