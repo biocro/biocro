@@ -320,11 +320,14 @@ double reference_evapotranspiration(
         solar * par_energy_content / par_energy_fraction * MJ_per_J * s_per_hr;  // MJ / m^2 / hr
 
     // Psychrometric constant; Equation 35 from ASCE (2005)
-    double const psychrometric_const = 0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degree C
+    double const psychrometric_const =
+        0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degree C
 
     // Slope of the saturation vapor pressure-temperature curve; Equation 36
     // from ASCE (2005)
-    double const udelta = 2503.0 * pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degree C
+    double const udelta =
+        2503.0 *
+        pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degree C
 
     // Actual water vapor pressure; Equation 41 from ASCE (2005)
     double const sat_vap_pressure = saturation_vapor_pressure(temp) * kPa_per_Pa;  // kPa
