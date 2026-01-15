@@ -301,7 +301,7 @@ double reference_evapotranspiration(
 
     double const pm_bottom = udelta + psychrometric_const * (1.0 + Cd * wind2m);  // kPa / degree C
 
-    return std::max(0.0001, pm_top / pm_bottom);  // mm / hr
+    return pm_top / pm_bottom;  // mm / hr
 }
 
 /**
