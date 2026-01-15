@@ -2,7 +2,7 @@
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
 #include <algorithm>                   // for std::min, std::max
-#include <cmath>                       // for pow
+#include <cmath>                       // for pow, cos
 #include <stdexcept>                   // for std::range_error
 #include "../framework/constants.h"    // for eps_zero, pi, stefan_boltzmann
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure
@@ -281,25 +281,27 @@ double reference_evapotranspiration(
     double const rn = rns - rnl;  // MJ / m^2 / hr
 
     // Soil heat flux; Equation 66 from ASCE (2005)
-    double const g = rn >= 0 ? 0.04 * rn : 0.2 * rn; // MJ / m^2 / hr
+    double const g = rn >= 0 ? 0.04 * rn : 0.2 * rn;  // MJ / m^2 / hr
 
     // Estimate the wind speed 2m above the ground; Equation 67 from ASCE (2005)
     double const wind2m =
         windspeed * (4.87 / log(67.8 * windspeed_height - 5.42));  // m / s
 
-    // Aerodynamic roughness and surface resistance daily timestep constants
-    // ASCE (2005) Table 1
-    // Tall reference crop (50-cm alfalfa) for hourly during daytime
-    double Cn = 66.0;  // K mm s^3 Mg^-1 d^-1
-    double Cd = 0.95;  //s m^-1 (0.25 (day) - 1.7 (night) mm/hour)
+    // Aerodynamic roughness and surface resistance; hourly values for tall
+    // reference from Table 1 of ASCE (2005)
+    double const Cn = 66.0;                     // K mm s^3 / Mg / hr
+    double const Cd = rn >= 0.0 ? 0.25 : 0.17;  // m / s
 
     // Standardized reference evapotranspiration, ASCE (2005) Eq. 1
-    double reference_et = 0.408 * udelta * (rn - g) + psychrometric_const *
-                                                          (Cn / tk) * wind2m * (sat_vap_pressure - ea);
-    reference_et = reference_et / (udelta + psychrometric_const * (1.0 + Cd * wind2m));  //mm/hr
-    reference_et = std::max(0.0001, reference_et);
+    double const et_coef = 0.408;  // m^2 mm / MJ
 
-    return reference_et;
+    double const pm_top =
+        et_coef * udelta * (rn - g) +
+        psychrometric_const * (Cn / tk) * wind2m * (sat_vap_pressure - ea);  // mm * kPa / degree C / hr
+
+    double const pm_bottom = udelta + psychrometric_const * (1.0 + Cd * wind2m);  // kPa / degree C
+
+    return std::max(0.0001, pm_top / pm_bottom);  // mm / hr
 }
 
 /**
