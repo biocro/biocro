@@ -183,26 +183,33 @@ double surface_albedo(
  *     Otherwise, the `atmospheric_pressure_from_elevation` module enables the
  *     use of Equation 34.
  *
- *  2. Separate atmospheric transmittances for direct and diffuse radiation are
- *     used in place of the simplified transmittance defined in Equation 47.
- *     Typically these are calculated by the `shortwave_atmospheric_scattering`
- *     module. In this approach, the direct beam radiation on a ground area
- *     basis at the Earth's surface is given by
- *     `solar_constant * direct_transmittance * cosine_zenith_angle`, while the
- *     diffuse component is given by `solar_constant * diffuse_transmittance`.
- *     Thus, the overall transmittance is effectively `diffuse_transmittance +
- *     direct_transmittance * cosine_zenith_angle`.
- *
- *  3. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
+ *  2. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
  *     incident on the Earth's upper atmosphere during periods of 24 and 1 hour,
  *     respectively. Ultimately, this is compared to the actual solar radiation
  *     incident at the Earth's surface, enabling an estimate of cloudiness.
  *     However, BioCro uses instantaneous measurements of incident light at the
  *     surface, so it is not appropriate to integrate over a time interval here.
  *     As explained in Duffie and Beckam (1980) (the source cited by ASCE 2005),
- *     the relevant instantaneous equation for `R_a` is Equation 1.10.1. When
- *     the solar zenith angle is negative, the sun is below the horizon, and
- *     hence `R_a` is zero.
+ *     the relevant instantaneous equation for `R_a` is Equation 1.10.1. Using
+ *     ASCE notation, this would be
+ *     `R_a = solar_constant * dr * cosine_zenith_angle`. One extra
+ *     consideration applies: when the solar zenith angle is negative, the sun
+ *     is below the horizon, and hence `R_a` is zero.
+ *
+ *  3. Equation 47 from ASCE (2005) uses an atmospheric transmittance to
+ *     calculate the incident light at the Earth's surface: `R_s = R_a * trans`,
+ *     where `trans = 0.75 + 2e-5 * elevation`. Combining this with the equation
+ *     discussed in (2) above produces
+ *     `R_s = solar_constant * dr * trans * cosine_zenith_angle`. Here we extend
+ *     this simple approach by using separate atmospheric transmittances for
+ *     direct and diffuse radiation. Typically these are calculated by the
+ *     `shortwave_atmospheric_scattering` module. In this approach, the direct
+ *     beam radiation on a ground area basis at the Earth's surface is given by
+ *     `solar_constant * dr * direct_transmittance * cosine_zenith_angle`, while
+ *     the diffuse component is given by `solar_constant * diffuse_transmittance`.
+ *     Thus, the overall transmittance (as applied to `solar_constant * dr`) is
+ *     effectively
+ *     `diffuse_transmittance + direct_transmittance * cosine_zenith_angle`.
  *
  *  4. We use the Arden-Buck equation to calculate the saturation water vapor
  *     pressure instead of Equation 37 from ASCE (2005); see
