@@ -35,30 +35,28 @@ class soil_evaporation2 : public differential_module
         : differential_module(true),
 
           // Get references to input quantities
-          skc{get_input(input_quantities, "skc")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
+          days_stage2{get_input(input_quantities, "days_stage2")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
+          infiltrated_water{get_input(input_quantities, "infiltrated_water")},
+          irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
+          irradiance_direct_transmittance{get_input(input_quantities, "irradiance_direct_transmittance")},
           kcbmax{get_input(input_quantities, "kcbmax")},
           kcbmin{get_input(input_quantities, "kcbmin")},
-          fractional_doy{get_input(input_quantities, "fractional_doy")},
           lai{get_input(input_quantities, "lai")},
-          bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
-          windspeed{get_input(input_quantities, "windspeed")},
-          rh{get_input(input_quantities, "rh")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
-          // height{get_input(input_quantities, "height")},
+          rh{get_input(input_quantities, "rh")},
+          skc{get_input(input_quantities, "skc")},
+          soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
+          solar{get_input(input_quantities, "solar")},
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
-          days_stage2{get_input(input_quantities, "days_stage2")},
-          hours_per_day{get_input(input_quantities, "hours_per_day")},
           temp{get_input(input_quantities, "temp")},
-          solar{get_input(input_quantities, "solar")},
-          soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
-          infiltrated_water{get_input(input_quantities, "infiltrated_water")},
-          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          irradiance_direct_transmittance{get_input(input_quantities, "irradiance_direct_transmittance")},
-          irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
-          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
+          windspeed{get_input(input_quantities, "windspeed")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -66,7 +64,6 @@ class soil_evaporation2 : public differential_module
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           deltaS_1{get_input(input_quantities, "deltaS_1")},
           deltaU_1{get_input(input_quantities, "deltaU_1")},
-          // deltaT_1{get_input(input_quantities, "deltaT_1")},
 
           // Parameters for layer 2
           soil_depth_2{get_input(input_quantities, "soil_depth_2")},
@@ -75,7 +72,6 @@ class soil_evaporation2 : public differential_module
           soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
           deltaS_2{get_input(input_quantities, "deltaS_2")},
           deltaU_2{get_input(input_quantities, "deltaU_2")},
-          // deltaT_2{get_input(input_quantities, "deltaT_2")},
 
           // Parameters for layer 3
           soil_depth_3{get_input(input_quantities, "soil_depth_3")},
@@ -84,7 +80,6 @@ class soil_evaporation2 : public differential_module
           soil_water_content_3{get_input(input_quantities, "soil_water_content_3")},
           deltaS_3{get_input(input_quantities, "deltaS_3")},
           deltaU_3{get_input(input_quantities, "deltaU_3")},
-          // deltaT_3{get_input(input_quantities, "deltaT_3")},
 
           // Parameters for layer 4
           soil_depth_4{get_input(input_quantities, "soil_depth_4")},
@@ -93,7 +88,6 @@ class soil_evaporation2 : public differential_module
           soil_water_content_4{get_input(input_quantities, "soil_water_content_4")},
           deltaS_4{get_input(input_quantities, "deltaS_4")},
           deltaU_4{get_input(input_quantities, "deltaU_4")},
-          // deltaT_4{get_input(input_quantities, "deltaT_4")},
 
           // Parameters for layer 5
           soil_depth_5{get_input(input_quantities, "soil_depth_5")},
@@ -102,7 +96,6 @@ class soil_evaporation2 : public differential_module
           soil_water_content_5{get_input(input_quantities, "soil_water_content_5")},
           deltaS_5{get_input(input_quantities, "deltaS_5")},
           deltaU_5{get_input(input_quantities, "deltaU_5")},
-          // deltaT_5{get_input(input_quantities, "deltaT_5")},
 
           // Parameters for layer 6
           soil_depth_6{get_input(input_quantities, "soil_depth_6")},
@@ -111,7 +104,7 @@ class soil_evaporation2 : public differential_module
           soil_water_content_6{get_input(input_quantities, "soil_water_content_6")},
           deltaS_6{get_input(input_quantities, "deltaS_6")},
           deltaU_6{get_input(input_quantities, "deltaU_6")},
-          // deltaT_6{get_input(input_quantities, "deltaT_6")},
+
           // Get pointers to output quantities
           sumes1_op{get_op(output_quantities, "sumes1")},
           sumes2_op{get_op(output_quantities, "sumes2")},
@@ -124,32 +117,31 @@ class soil_evaporation2 : public differential_module
     static std::string get_name() { return "soil_evaporation2"; }
 
    private:
-    // Pointers to input quantities
-    double const& skc;
+    // References to input quantities
+    double const& atmospheric_pressure;
+    double const& bare_soil_albedo_max;
+    double const& cosine_zenith_angle;
+    double const& days_stage2;
+    double const& fractional_doy;
+    double const& infiltrated_water;
+    double const& irradiance_diffuse_transmittance;
+    double const& irradiance_direct_transmittance;
     double const& kcbmax;
     double const& kcbmin;
-    double const& fractional_doy;
     double const& lai;
-    double const& bare_soil_albedo_max;
-    double const& windspeed;
-    double const& rh;
     double const& par_energy_content;
     double const& par_energy_fraction;
-    // double const& height;
+    double const& rh;
+    double const& skc;
+    double const& soil_evaporation_rate;
+    double const& solar;
     double const& sumes1;
     double const& sumes2;
-    double const& days_stage2;
-    double const& hours_per_day;
     double const& temp;
-    double const& solar;
-    double const& soil_evaporation_rate;
-    double const& infiltrated_water;
-    double const& atmospheric_pressure;
-    double const& irradiance_direct_transmittance;
-    double const& irradiance_diffuse_transmittance;
-    double const& cosine_zenith_angle;
+    double const& windspeed;
     double const& windspeed_height;
 
+    // Inputs for layer 1
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
     double const& soil_field_capacity_1;
@@ -198,10 +190,10 @@ class soil_evaporation2 : public differential_module
     double const& deltaU_6;
 
     // Pointers to output quantities
-    double* sumes1_op;
-    double* sumes2_op;
     double* days_stage2_op;
     double* soil_evaporation_rate_op;
+    double* sumes1_op;
+    double* sumes2_op;
 
     // Main operation
     void do_operation() const;
@@ -210,29 +202,29 @@ class soil_evaporation2 : public differential_module
 string_vector soil_evaporation2::get_inputs()
 {
     return {
-        "skc",                               // dimensionless
+        "atmospheric_pressure",              // Pa
+        "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
+        "cosine_zenith_angle",               // dimensionless
+        "days_stage2",                       // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "fractional_doy",                    // day
+        "infiltrated_water",                 // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
+        "irradiance_diffuse_transmittance",  // dimensionless
+        "irradiance_direct_transmittance",   // dimensionless
         "kcbmax",                            // dimensionless
         "kcbmin",                            // dimensionless
-        "fractional_doy",                    // day
         "lai",                               // Healthy leaf area index (m2[leaf] / m2[ground])
-        "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
-        "windspeed",                         // m/s
-        "rh",                                // fraction. dimensionless
         "par_energy_content",                // J / micromol
         "par_energy_fraction",               // dimensionless
+        "rh",                                // fraction. dimensionless
+        "skc",                               // dimensionless
+        "soil_evaporation_rate",             // Actual soil evaporation rate (mm/hr)
+        "solar",                             // micromol / m^2 / s
         "sumes1",                            // Cumulative soil evaporation in stage 1 (mm)
         "sumes2",                            // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",                       // Days elapsed in Stage-2 evaporation (decimal allowed)
-        "hours_per_day",                     //
         "temp",                              // degrees C
-        "solar",                             // micromol / m^2 / s
-        "soil_evaporation_rate",             // Actual soil evaporation rate (mm/hr)
-        "infiltrated_water",                 // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
-        "atmospheric_pressure",              // Pa
-        "irradiance_direct_transmittance",   // dimensionless
-        "irradiance_diffuse_transmittance",  // dimensionless
-        "cosine_zenith_angle",               // dimensionless
+        "windspeed",                         // m/s
         "windspeed_height",                  // m
+
         "soil_depth_1",
         "soil_wilting_point_1",
         "soil_field_capacity_1",
@@ -279,16 +271,19 @@ string_vector soil_evaporation2::get_inputs()
 string_vector soil_evaporation2::get_outputs()
 {
     return {
-        "sumes1",       // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2",       // Cumulative soil evaporation in stage 2 (mm)
-        "days_stage2",  // Days elapsed in Stage-2 evaporation (decimal allowed)
-        "soil_evaporation_rate"};
+        "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "soil_evaporation_rate",  // mm / hr
+        "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
+        "sumes2"                  // Cumulative soil evaporation in stage 2 (mm)
+    };
 }
 
 void soil_evaporation2::do_operation() const
 {
     using std::max;
     using std::min;
+
+    double constexpr hours_per_day = 24.0;
 
     int constexpr nlayers = 6;
     double constexpr canopyHeight = 1.0;  // m
@@ -355,25 +350,25 @@ void soil_evaporation2::do_operation() const
 
     double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
-    double wet_soil_albedo = surface_albedo(
+    double surf_albedo = surface_albedo(
         lai,
         bare_soil_albedo_max,
         soil_water_content[0],
         soil_field_capacity[0]);
 
     double reference_et = reference_evapotranspiration(
+        atmospheric_pressure,
+        cosine_zenith_angle,
         fractional_doy,
-        solar,
-        temp,
-        windspeed,
-        rh,
-        wet_soil_albedo,
+        irradiance_diffuse_transmittance,
+        irradiance_direct_transmittance,
         par_energy_content,
         par_energy_fraction,
-        atmospheric_pressure,
-        irradiance_direct_transmittance,
-        irradiance_diffuse_transmittance,
-        cosine_zenith_angle,
+        rh,
+        solar,
+        surf_albedo,
+        temp,
+        windspeed,
         windspeed_height);
 
     double potential_soil_evap = potential_soil_evaporation(

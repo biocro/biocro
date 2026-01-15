@@ -207,18 +207,18 @@ double surface_albedo(
  *    (http://les.edu.uy/FRS/duffie_beckman.pdf)
  */
 double reference_evapotranspiration(
+    double const atmospheric_pressure,              // Pa
+    double const cosine_zenith_angle,               // dimensionless
     double const doy,                               // day
-    double const solar,                             // micromol / m^2 / s
-    double const temp,                              // degrees C
-    double const windspeed,                         // m / s
-    double const rh,                                // dimensionless
-    double const wet_soil_albedo,                   // dimensionless
+    double const irradiance_diffuse_transmittance,  // dimensionless
+    double const irradiance_direct_transmittance,   // dimensionless
     double const par_energy_content,                // J / micromol
     double const par_energy_fraction,               // dimensionless
-    double const atmospheric_pressure,              // Pa
-    double const irradiance_direct_transmittance,   // dimensionless
-    double const irradiance_diffuse_transmittance,  // dimensionless
-    double const cosine_zenith_angle,               // dimensionless
+    double const rh,                                // dimensionless
+    double const solar,                             // micromol / m^2 / s
+    double const surface_albedo,                   // dimensionless
+    double const temp,                              // degrees C
+    double const windspeed,                         // m / s
     double const windspeed_height                   // m
 )
 {
@@ -253,7 +253,7 @@ double reference_evapotranspiration(
     double const ea = sat_vap_pressure * rh;  // kPa
 
     // Net shortwave radiation; Equation 43 from ASCE (2005)
-    double const rns = (1.0 - wet_soil_albedo) * srad;  // MJ / m^2 / hr
+    double const rns = (1.0 - surface_albedo) * srad;  // MJ / m^2 / hr
 
     // Account for Earth's ellipical orbit; Equation 50 from ASCE (2005)
     double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
@@ -292,7 +292,7 @@ double reference_evapotranspiration(
     double const Cn = 66.0;                     // K mm s^3 / Mg / hr
     double const Cd = rn >= 0.0 ? 0.25 : 0.17;  // m / s
 
-    // Standardized reference evapotranspiration, ASCE (2005) Eq. 1
+    // Standardized reference evapotranspiration; Equation 1 from ASCE (2005)
     double const et_coef = 0.408;  // m^2 mm / MJ
 
     double const pm_top =
