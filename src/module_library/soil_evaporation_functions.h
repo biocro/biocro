@@ -207,7 +207,7 @@ double surface_albedo(
  *    (http://les.edu.uy/FRS/duffie_beckman.pdf)
  */
 double reference_evapotranspiration(
-    int doy,
+    double const doy,                               // day
     double const solar,                             // micromol / m^2 / s
     double const temp,                              // degrees C
     double const windspeed,                         // m / s

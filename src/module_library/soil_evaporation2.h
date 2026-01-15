@@ -38,7 +38,7 @@ class soil_evaporation2 : public differential_module
           skc{get_input(input_quantities, "skc")},
           kcbmax{get_input(input_quantities, "kcbmax")},
           kcbmin{get_input(input_quantities, "kcbmin")},
-          doy{get_input(input_quantities, "doy")},
+          fractional_doy{get_input(input_quantities, "fractional_doy")},
           lai{get_input(input_quantities, "lai")},
           bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
           windspeed{get_input(input_quantities, "windspeed")},
@@ -128,7 +128,7 @@ class soil_evaporation2 : public differential_module
     double const& skc;
     double const& kcbmax;
     double const& kcbmin;
-    double const& doy;
+    double const& fractional_doy;
     double const& lai;
     double const& bare_soil_albedo_max;
     double const& windspeed;
@@ -213,7 +213,7 @@ string_vector soil_evaporation2::get_inputs()
         "skc",                               // dimensionless
         "kcbmax",                            // dimensionless
         "kcbmin",                            // dimensionless
-        "doy",                               // day of the year
+        "fractional_doy",                    // day
         "lai",                               // Healthy leaf area index (m2[leaf] / m2[ground])
         "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
         "windspeed",                         // m/s
@@ -362,7 +362,7 @@ void soil_evaporation2::do_operation() const
         soil_field_capacity[0]);
 
     double reference_et = reference_evapotranspiration(
-        doy,
+        fractional_doy,
         solar,
         temp,
         windspeed,
