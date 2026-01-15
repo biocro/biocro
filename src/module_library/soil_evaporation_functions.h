@@ -60,7 +60,10 @@
  *  A typical value of canopy albedo for crops is 0.23; see the text following
  *  Equation 2 of Ritchie (1972).
  *
- *  Note: This function was originally based on the `ALBEDO` subroutine of
+ *  The presence of mulch also alters the surface albedo, but it is not yet
+ *  considered by this function.
+ *
+ *  Note: This function was originally based on the `ALBEDO_avg` subroutine of
  *  `SOILDYN.for` from DSSAT (https://github.com/DSSAT/dssat-csm-os).
  *
  *  References:
@@ -115,10 +118,12 @@ double surface_albedo(
     }
 
     // Set constants
-    double constexpr theta_min = 0.03;      // dimensionless
     double constexpr albedo_frac = 0.55;    // dimensionless
-    double constexpr k_canopy = 0.75;       // dimensionless
     double constexpr canopy_albedo = 0.23;  // dimensionless
+    double constexpr k_canopy = 0.75;       // dimensionless
+    double constexpr mulch_albedo = 0.45;   // dimensionless (from MULCHLAYER subroutine)
+    double constexpr mulch_cover = 0.0;     // dimensionless (disable mulch for now)
+    double constexpr theta_min = 0.03;      // dimensionless
 
     // Upper threshold for water content (dimensionless)
     double const theta_max = theta_min + 2.0 * (theta_fc_surface - theta_min);
@@ -131,17 +136,25 @@ double surface_albedo(
     double const bare_soil_albedo_min =
         bare_soil_albedo_max + slope * (theta_max - theta_min);
 
-    // Bare soil albedo, accounting for water content (dimensionless)
+    // Bare soil albedo, accounting for water content (dimensionless); in DSSAT,
+    // this is called SWALB (the wet soil albedo)
     double const bare_soil_albedo =
         theta_surface < theta_min   ? bare_soil_albedo_max
         : theta_surface < theta_max ? bare_soil_albedo_max + slope * (theta_surface - theta_min)
                                     : bare_soil_albedo_min;
 
+    // Albedo accounting for soil and mulch cover (dimensionless); in DSSAT,
+    // this is called MSALB (mulch/soil abedo)
+    double const mulch_soil_albedo =
+        mulch_cover * mulch_albedo + (1.0 - mulch_cover) * bare_soil_albedo;
+
     // Fraction of light transmitted through canopy (dimensionless)
     double const canopy_transmittance = exp(-k_canopy * LAI);
 
-    // Effective surface albedo including bare soil and canopy (dimensionless)
-    return bare_soil_albedo * canopy_transmittance +
+    // Effective surface albedo including bare soil, mulch, and canopy
+    // (dimensionless); in DSSAT, this is called CMSALB (the canopy/mulch/soil
+    // albedo)
+    return mulch_soil_albedo * canopy_transmittance +
            canopy_albedo * (1 - canopy_transmittance);
 }
 
@@ -262,9 +275,6 @@ double surface_albedo(
  *  @param [in] solar The incident photosynthetically active flux density on a
  *              ground area basis; micromol / m^2 / s
  *
- *  @param [in] surface_albedo The albedo of the surface, including the crop
- *              canopy and the soil; dimensionless
- *
  *  @param [in] temp The air temperature; degrees C
  *
  *  @param [in] windspeed The wind speed; m / s
@@ -284,7 +294,6 @@ double reference_evapotranspiration(
     double const par_energy_fraction,               // dimensionless
     double const rh,                                // dimensionless
     double const solar,                             // micromol / m^2 / s
-    double const surface_albedo,                    // dimensionless
     double const temp,                              // degrees C
     double const windspeed,                         // m / s
     double const windspeed_height                   // m
@@ -296,10 +305,12 @@ double reference_evapotranspiration(
     using physical_constants::stefan_boltzmann;  // W / m^2 / K^4
 
     // Set constants
-    double constexpr kPa_per_Pa = 1e-3;      // kPa / Pa
-    double constexpr MJ_per_J = 1e-6;        // MJ / J
-    double constexpr s_per_hr = 3600;        // s / hr
-    double constexpr solar_constant = 4.92;  // MJ / m^2 / hr
+    double constexpr et_coef = 0.408;          // m^2 mm / MJ
+    double constexpr kPa_per_Pa = 1e-3;        // kPa / Pa
+    double constexpr MJ_per_J = 1e-6;          // MJ / J
+    double constexpr reference_albedo = 0.23;  // dimensionless
+    double constexpr s_per_hr = 3600;          // s / hr
+    double constexpr solar_constant = 4.92;    // MJ / m^2 / hr
 
     // Air temperature in Kelvin
     double const tk = temp + celsius_to_kelvin;  // K
@@ -321,7 +332,7 @@ double reference_evapotranspiration(
     double const ea = sat_vap_pressure * rh;  // kPa
 
     // Net shortwave radiation; Equation 43 from ASCE (2005)
-    double const rns = (1.0 - surface_albedo) * srad;  // MJ / m^2 / hr
+    double const rns = (1.0 - reference_albedo) * srad;  // MJ / m^2 / hr
 
     // Clear sky radation at the Earth's surface; here we combine Equation
     // 1.10.1 from Duffie and Beckam (1980) with Equations 47 and 50 from ASCE
@@ -360,12 +371,10 @@ double reference_evapotranspiration(
 
     // Aerodynamic roughness and surface resistance; hourly values for tall
     // reference from Table 1 of ASCE (2005)
-    double const Cn = 66.0;                     // K mm s^3 / Mg / hr
+    double constexpr Cn = 66.0;                 // K mm s^3 / Mg / hr
     double const Cd = rn >= 0.0 ? 0.25 : 0.17;  // m / s
 
     // Standardized reference evapotranspiration; Equation 1 from ASCE (2005)
-    double const et_coef = 0.408;  // m^2 mm / MJ
-
     double const pm_top =
         et_coef * udelta * (rn - g) +
         psychrometric_const * (Cn / tk) * wind2m * (sat_vap_pressure - ea);  // mm * kPa / degree C / hr

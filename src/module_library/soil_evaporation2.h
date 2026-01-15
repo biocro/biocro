@@ -55,8 +55,8 @@ class soil_evaporation2 : public differential_module
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
           temp{get_input(input_quantities, "temp")},
-          windspeed_height{get_input(input_quantities, "windspeed_height")},
           windspeed{get_input(input_quantities, "windspeed")},
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -106,10 +106,10 @@ class soil_evaporation2 : public differential_module
           deltaU_6{get_input(input_quantities, "deltaU_6")},
 
           // Get pointers to output quantities
-          sumes1_op{get_op(output_quantities, "sumes1")},
-          sumes2_op{get_op(output_quantities, "sumes2")},
           days_stage2_op{get_op(output_quantities, "days_stage2")},
-          soil_evaporation_rate_op{get_op(output_quantities, "soil_evaporation_rate")}
+          soil_evaporation_rate_op{get_op(output_quantities, "soil_evaporation_rate")},
+          sumes1_op{get_op(output_quantities, "sumes1")},
+          sumes2_op{get_op(output_quantities, "sumes2")}
     {
     }
     static string_vector get_inputs();
@@ -350,12 +350,6 @@ void soil_evaporation2::do_operation() const
 
     double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
 
-    double surf_albedo = surface_albedo(
-        lai,
-        bare_soil_albedo_max,
-        soil_water_content[0],
-        soil_field_capacity[0]);
-
     double reference_et = reference_evapotranspiration(
         atmospheric_pressure,
         cosine_zenith_angle,
@@ -366,7 +360,6 @@ void soil_evaporation2::do_operation() const
         par_energy_fraction,
         rh,
         solar,
-        surf_albedo,
         temp,
         windspeed,
         windspeed_height);
