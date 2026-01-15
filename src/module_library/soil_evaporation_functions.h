@@ -186,7 +186,12 @@ double surface_albedo(
  *  2. Separate atmospheric transmittances for direct and diffuse radiation are
  *     used in place of the simplified transmittance defined in Equation 47.
  *     Typically these are calculated by the `shortwave_atmospheric_scattering`
- *     module.
+ *     module. In this approach, the direct beam radiation on a ground area
+ *     basis at the Earth's surface is given by
+ *     `solar_constant * direct_transmittance * cosine_zenith_angle`, while the
+ *     diffuse component is given by `solar_constant * diffuse_transmittance`.
+ *     Thus, the overall transmittance is effectively `diffuse_transmittance +
+ *     direct_transmittance * cosine_zenith_angle`.
  *
  *  3. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
  *     incident on the Earth's upper atmosphere during periods of 24 and 1 hour,
@@ -311,16 +316,19 @@ double reference_evapotranspiration(
     // Net shortwave radiation; Equation 43 from ASCE (2005)
     double const rns = (1.0 - surface_albedo) * srad;  // MJ / m^2 / hr
 
-    // Account for Earth's ellipical orbit; Equation 50 from ASCE (2005)
+    // Clear sky radation at the Earth's surface; here we combine Equation
+    // 1.10.1 from Duffie and Beckam (1980) with Equations 47 and 50 from ASCE
+    // (2005), modified to include separate transmittances for direct and
+    // diffuse light.
     double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
 
-    // Extraterrestrial radiation; Equation 1.10.1 from Duffie and Beckam (1980)
     double const ra =
-        cosine_zenith_angle <= eps_zero ? 0.0
-                                        : solar_constant * dr * cosine_zenith_angle;  // MJ / m^2 / hr
+        cosine_zenith_angle <= eps_zero ? 0.0 : solar_constant * dr;  // MJ / m^2 / hr
 
-    // Clear sky solar radiation, modified from ASCE (2005) Equation 47
-    double const rso = (irradiance_direct_transmittance + irradiance_diffuse_transmittance) * ra;  // MJ / m^2 / hr
+    double const trans = irradiance_direct_transmittance * cosine_zenith_angle +
+                         irradiance_diffuse_transmittance;  // dimensionless
+
+    double const rso = trans * ra;  // MJ / m^2 / hr
 
     // Net longwave radiation; Equations 44 and 45 from ASCE (2005)
     double const cloudiness_ratio =
