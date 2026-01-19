@@ -1,9 +1,11 @@
 #ifndef SOIL_EVAPORATION_FUNCTIONS_H
 #define SOIL_EVAPORATION_FUNCTIONS_H
 
-#include <algorithm>                 // for std::min, std::max
-#include "../framework/constants.h"  // for pi
-#include <stdexcept>                 // for std::range_error
+#include <algorithm>                   // for std::min, std::max
+#include <cmath>                       // for pow, cos
+#include <stdexcept>                   // for std::range_error
+#include "../framework/constants.h"    // for eps_zero, pi, stefan_boltzmann
+#include "water_and_air_properties.h"  // for saturation_vapor_pressure
 
 /**
  * @brief functions to be used in soil evaporation computation
@@ -58,7 +60,10 @@
  *  A typical value of canopy albedo for crops is 0.23; see the text following
  *  Equation 2 of Ritchie (1972).
  *
- *  Note: This function was originally based on the `ALBEDO` subroutine of
+ *  The presence of mulch also alters the surface albedo, but it is not yet
+ *  considered by this function.
+ *
+ *  Note: This function was originally based on the `ALBEDO_avg` subroutine of
  *  `SOILDYN.for` from DSSAT (https://github.com/DSSAT/dssat-csm-os).
  *
  *  References:
@@ -113,10 +118,12 @@ double surface_albedo(
     }
 
     // Set constants
-    double constexpr theta_min = 0.03;      // dimensionless
     double constexpr albedo_frac = 0.55;    // dimensionless
-    double constexpr k_canopy = 0.75;       // dimensionless
     double constexpr canopy_albedo = 0.23;  // dimensionless
+    double constexpr k_canopy = 0.75;       // dimensionless
+    double constexpr mulch_albedo = 0.45;   // dimensionless (from MULCHLAYER subroutine)
+    double constexpr mulch_cover = 0.0;     // dimensionless (disable mulch for now)
+    double constexpr theta_min = 0.03;      // dimensionless
 
     // Upper threshold for water content (dimensionless)
     double const theta_max = theta_min + 2.0 * (theta_fc_surface - theta_min);
@@ -129,17 +136,25 @@ double surface_albedo(
     double const bare_soil_albedo_min =
         bare_soil_albedo_max + slope * (theta_max - theta_min);
 
-    // Bare soil albedo, accounting for water content (dimensionless)
+    // Bare soil albedo, accounting for water content (dimensionless); in DSSAT,
+    // this is called SWALB (the wet soil albedo)
     double const bare_soil_albedo =
         theta_surface < theta_min   ? bare_soil_albedo_max
         : theta_surface < theta_max ? bare_soil_albedo_max + slope * (theta_surface - theta_min)
                                     : bare_soil_albedo_min;
 
+    // Albedo accounting for soil and mulch cover (dimensionless); in DSSAT,
+    // this is called MSALB (mulch/soil abedo)
+    double const mulch_soil_albedo =
+        mulch_cover * mulch_albedo + (1.0 - mulch_cover) * bare_soil_albedo;
+
     // Fraction of light transmitted through canopy (dimensionless)
     double const canopy_transmittance = exp(-k_canopy * LAI);
 
-    // Effective surface albedo including bare soil and canopy (dimensionless)
-    return bare_soil_albedo * canopy_transmittance +
+    // Effective surface albedo including bare soil, mulch, and canopy
+    // (dimensionless); in DSSAT, this is called CMSALB (the canopy/mulch/soil
+    // albedo)
+    return mulch_soil_albedo * canopy_transmittance +
            canopy_albedo * (1 - canopy_transmittance);
 }
 
@@ -147,111 +162,229 @@ double surface_albedo(
  *  @brief Calculates the reference evapotranspiration rate from environmental
  *  conditions.
  *
- *  The reference evapotranspiration rate (`ET_0`) depends on environmental
- *  conditions, and is the rate that would occur for the reference surface,
- *  which is described in Allen et al. (1998) as follows:
+ *  Inspired by DSSAT, here we use the method described in ASCE (2005) to
+ *  calculate the reference evapotranspiration rate. ASCE (2005) defines the
+ *  rate as follows:
  *
- *  > The reference surface is a hypothetical grass reference crop with an
- *  > assumed crop height of 0.12 m, a fixed surface resistance of 70 s / m, and
- *  > an albedo of 0.23. The reference surface closely resembles an extensive
- *  > surface of green, well-watered grass of uniform height, actively growing
- *  > and completely shading the ground. The fixed surface resistance of
- *  > 70 s / m implies a moderately dry soil surface resulting from about a
- *  > weekly irrigation frequency.
+ *  > Reference evapotranspiration (`ET_ref`) is the rate at which readily
+ *  > available soil water is vaporized from specified vegetated surfaces. For
+ *  > convenience and reproducibility, the reference surface has recently been
+ *  > expressed as a hypothetical crop (vegetative) surface with specific
+ *  > characteristics. In the context of this standardization report, reference
+ *  > evapotranspiration is defined as the ET rate from a uniform surface of
+ *  > dense, actively growing vegetation having specified height and surface
+ *  > resistance, not short of soil water, and representing an expanse of at
+ *  > least 100 m of the same or similar vegetation.
+ *
+ *  The reference rate is typically modified by crop and soil coefficients to
+ *  estimate the real evapotranspiration rate; see potential_soil_evaporation()`
+ *  for more details. Although Equation 1 in ASCE (2005) is slightly different
+ *  than the reference evapotranspiration calculations in FAO-56 (Allen et al.
+ *  1998), it is nevertheless compatible with crop coefficients calculated as in
+ *  FAO-56, according to Appendix B of ASCE (2005).
+ *
+ *  Slightly different equations and coefficients must be used depending on the
+ *  time step (hourly, daily, or monthly) and the reference type (short or
+ *  tall). While DSSAT takes daily steps and allows users to specify short or
+ *  tall crops, here we take hourly steps and assume a tall reference crop.
+ *
+ *  Additionally, our approach deviates from ASCE (2005) in a few ways:
+ *
+ *  1. The atmospheric pressure is an input, so it is not necessarily calculated
+ *     using Equation 34 from ASCE (2005). This is to accomodate weather data
+ *     sets that include measured values of local atmospheric pressure.
+ *     Otherwise, the `atmospheric_pressure_from_elevation` module enables the
+ *     use of Equation 34.
+ *
+ *  2. Equations 21 and 48 in ASCE (2005) calculate the total solar radiation
+ *     incident on the Earth's upper atmosphere during periods of 24 and 1 hour,
+ *     respectively. Ultimately, this is compared to the actual solar radiation
+ *     incident at the Earth's surface, enabling an estimate of cloudiness.
+ *     However, BioCro uses instantaneous measurements of incident light at the
+ *     surface, so it is not appropriate to integrate over a time interval here.
+ *     As explained in Duffie and Beckam (1980) (the source cited by ASCE 2005),
+ *     the relevant instantaneous equation for `R_a` is Equation 1.10.1. Using
+ *     ASCE notation, this would be
+ *     `R_a = solar_constant * dr * cosine_zenith_angle`. One extra
+ *     consideration applies: when the solar zenith angle is negative, the sun
+ *     is below the horizon, and hence `R_a` is zero.
+ *
+ *  3. Equation 47 from ASCE (2005) uses an atmospheric transmittance to
+ *     calculate the incident light at the Earth's surface: `R_s = R_a * trans`,
+ *     where `trans = 0.75 + 2e-5 * elevation`. Combining this with the equation
+ *     discussed in (2) above produces
+ *     `R_s = solar_constant * dr * trans * cosine_zenith_angle`. Here we extend
+ *     this simple approach by using separate atmospheric transmittances for
+ *     direct and diffuse radiation. Typically these are calculated by the
+ *     `shortwave_atmospheric_scattering` module. In this approach, the direct
+ *     beam radiation on a ground area basis at the Earth's surface is given by
+ *     `solar_constant * dr * direct_transmittance * cosine_zenith_angle`, while
+ *     the diffuse component is given by `solar_constant * diffuse_transmittance`.
+ *     Thus, the overall transmittance (as applied to `solar_constant * dr`) is
+ *     effectively
+ *     `diffuse_transmittance + direct_transmittance * cosine_zenith_angle`.
+ *
+ *  4. We use the Arden-Buck equation to calculate the saturation water vapor
+ *     pressure instead of Equation 37 from ASCE (2005); see
+ *     `saturation_vapor_pressure()` for more information.
  *
  *  References:
  *
  *  - [Allen, R. G., Pereira, L. S., Raes, D. & Smith, M. "FAO Irrigation and Drainage
  *    Paper No. 56." Food and Agriculture Organization of the United Nations, Rome, Italy (1998)]
  *    (http://www.climasouth.eu/sites/default/files/FAO%2056.pdf)
+ *
+ *  - ["Calculating Standardized Reference Crop Evapotranspiration" in "The ASCE
+ *    Standardized Reference Evapotranspiration Equation" 7–45 (2005)]
+ *    (https://doi.org/10.1061/9780784408056.ch04)
+ *
+ *  - [Duffie, J. A. & Beckman, W. A. Solar Engineering of Thermal Processes. (Wiley New York, 1980)]
+ *    (http://les.edu.uy/FRS/duffie_beckman.pdf)
+ *
+ *
+ *  @param [in] atmospheric_pressure The local atmospheric pressure; Pa
+ *
+ *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle;
+ *              dimensionless
+ *
+ *  @param [in] doy The day of the year, which can be fractional
+ *
+ *  @param [in] irradiance_diffuse_transmittance The atmospheric transmittance
+ *              for direct sunlight - in other words, the ratio of direct beam
+ *              light at the Earth's surface to the light incident on the upper
+ *              atmosphere; dimensionless
+ *
+ *  @param [in] irradiance_direct_transmittance The atmospheric transmittance
+ *              for diffuse sunlight - in other words, the ratio of diffuse
+ *              light at the Earth's surface to the light incident on the upper
+ *              atmosphere; dimensionless
+ *
+ *  @param [in] par_energy_content The energy of each mole of photons in the PAR
+ *              band; J / micromol
+ *
+ *  @param [in] par_energy_fraction The fraction of total shortwave energy in
+ *              the PAR band, where the remaining energy is assumed to lie in
+ *              the NIR band; dimensionless
+ *
+ *  @param [in] rh The relative humidty expressed as a number between 0 and 1;
+ *              dimensionless
+ *
+ *  @param [in] solar The incident photosynthetically active flux density on a
+ *              ground area basis; micromol / m^2 / s
+ *
+ *  @param [in] temp The air temperature; degrees C
+ *
+ *  @param [in] windspeed The wind speed; m / s
+ *
+ *  @param [in] windspeed_height The height at which the wind speed was
+ *              measured; m
+ *
+ *  @return The reference evapotranspiration rate; mm / hr
  */
 double reference_evapotranspiration(
-    int doy,
-    double solar,
-    double temp,
-    double lat,  //latitude
-    double elevation,
-    double windspeed,
-    double rh,
-    double wet_soil_albedo,
-    double par_energy_content)
+    double const atmospheric_pressure,              // Pa
+    double const cosine_zenith_angle,               // dimensionless
+    double const doy,                               // day
+    double const irradiance_diffuse_transmittance,  // dimensionless
+    double const irradiance_direct_transmittance,   // dimensionless
+    double const par_energy_content,                // J / micromol
+    double const par_energy_fraction,               // dimensionless
+    double const rh,                                // dimensionless
+    double const solar,                             // micromol / m^2 / s
+    double const temp,                              // degrees C
+    double const windspeed,                         // m / s
+    double const windspeed_height                   // m
+)
 {
+    using calculation_constants::eps_zero;
+    using conversion_constants::celsius_to_kelvin;
     using math_constants::pi;
-    using std::max;
+    using physical_constants::stefan_boltzmann;  // W / m^2 / K^4
 
-    // PET.for, line 228
-    double tavg = temp;                                      // Mean daily temperature (°C)
-    double srad = par_energy_content * 1e-6 * solar * 3600;  // micromole/m2/s to MJ/m2/hr.
-    // Atmospheric pressure, ASCE (2005) Eq. 3
-    double atmos_pressure = 101.3 * pow(((293.0 - 0.0065 * elevation) / 293.0), 5.26);  // kPa
+    // Set constants
+    double constexpr et_coef = 0.408;          // m^2 mm / MJ
+    double constexpr kPa_per_Pa = 1e-3;        // kPa / Pa
+    double constexpr MJ_per_J = 1e-6;          // MJ / J
+    double constexpr reference_albedo = 0.23;  // dimensionless
+    double constexpr s_per_hr = 3600;          // s / hr
+    double constexpr solar_constant = 4.92;    // MJ / m^2 / hr
 
-    // Psychrometric constant, ASCE (2005) Eq. 4
-    double psychrometric_const = 0.000665 * atmos_pressure;  // kPa/deg C
+    // Air temperature in Kelvin
+    double const tk = temp + celsius_to_kelvin;  // K
 
-    // Slope of the saturation vapor pressure-temperature curve
-    // ASCE (2005) Eq. 5                                    !kPa/degC
-    double udelta = 2503.0 * pow(exp(17.27 * tavg / (tavg + 237.3)) / (tavg + 237.3), 2.0);
+    // Total incident shortwave energy (including PAR and NIR bands)
+    double const srad =
+        solar * par_energy_content / par_energy_fraction * MJ_per_J * s_per_hr;  // MJ / m^2 / hr
 
-    // Saturation vapor pressure, ASCE (2005) Eqs. 6 and 7
-    double sat_vap_pressure = 0.6108 * exp((17.27 * tavg) / (tavg + 237.3));  // kPa
-    // Actual vapor pressure, ASCE (2005) Table 3
-    // double actual_vap_pressure = rh * sat_vap_pressure;
-    // adjust actual evaporation rate based on conditions
-    double ea;
-    if (rh > 1.e-6)
-        // ASCE (2005) Eq. 12
-        ea = sat_vap_pressure * rh;  // kPa
-    else
-        // ASCE (2005) Appendix E, assume TDEW=TMIN-2.0
-        ea = 0.6108 * exp((17.27 * (tavg - 2.0)) / ((tavg - 2.0) + 237.3));  // kPa
+    // Psychrometric constant; Equation 35 from ASCE (2005)
+    double const psychrometric_const =
+        0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degree C
 
-    // Net shortwave radiation, ASCE (2005) Eq. 16
-    double rns = (1.0 - wet_soil_albedo) * srad;  //MJ/m2/hr
+    // Slope of the saturation vapor pressure-temperature curve; Equation 36
+    // from ASCE (2005)
+    double const udelta =
+        2503.0 *
+        pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degree C
 
-    // Extraterrestrial radiation, ASCE (2005) Eqs. 21,23,24,27
-    double dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);         // Eq. 23
-    double ldelta = 0.409 * sin(2.0 * pi / 365.0 * doy - 1.39);    // Eq. 24
-    double ws = acos(-1.0 * tan(lat * pi / 180.0) * tan(ldelta));  // Eq. 27
-    double ra1 = ws * sin(lat * pi / 180.0) * sin(ldelta);         // Eq. 21
-    double ra2 = cos(lat * pi / 180.0) * cos(ldelta) * sin(ws);    // Eq. 21
-    double ra = 24.0 / pi * 4.92 * dr * (ra1 + ra2);               // MJ/m2/hr Eq. 21
+    // Actual water vapor pressure; Equation 41 from ASCE (2005)
+    double const sat_vap_pressure = saturation_vapor_pressure(temp) * kPa_per_Pa;  // kPa
 
-    // Clear sky solar radiation, ASCE (2005) Eq. 19
-    double rso = (0.75 + 2E-5 * elevation) * ra;  // MJ/m2/hr
+    double const ea = sat_vap_pressure * rh;  // kPa
 
-    // Net longwave radiation, ASCE (2005) Eqs. 17 and 18
-    double ratio = srad / rso;
-    if (ratio < 0.3)
-        ratio = 0.3;
-    else if (ratio > 1.0)
-        ratio = 1.0;
+    // Net shortwave radiation; Equation 43 from ASCE (2005)
+    double const rns = (1.0 - reference_albedo) * srad;  // MJ / m^2 / hr
 
-    double fcd = 1.35 * ratio - 0.35;                                  // Eq 18
-    double tk4 = pow((tavg + 273.16), 4.0);                            //Eq. 17
-    double rnl = 4.901e-9 * fcd * (0.34 - 0.14 * pow(ea, 0.5)) * tk4;  // MJ/m2/hr Eq. 17
+    // Distance factor that accounts for the elliptical shape of the Earth's
+    // orbit around the sun; Equation 50 from ASCE (2005)
+    double const dr = 1.0 + 0.033 * cos(2.0 * pi / 365.0 * doy);  // dimensionless
 
-    // Net radiation, ASCE (2005) Eq. 15
-    double rn = rns - rnl;  // MJ/m2/hr
+    // Direct beam irradiance incident on the Earth's upper atmosphere
+    double const r_extraterrestrial =
+        cosine_zenith_angle <= eps_zero ? 0.0 : solar_constant * dr;  // MJ / (m^2 beam) / hr
 
-    // Soil heat flux, ASCE (2005) Eq. 30
-    double g = 0.0;  // MJ/m2/hr
+    // Effective atmospheric transmittance including direct and diffuse
+    // radiation
+    double const trans = irradiance_direct_transmittance * cosine_zenith_angle +
+                         irradiance_diffuse_transmittance;  // dimensionless
 
-    // Wind speed, ASCE (2005) Eq. 33 and Appendix E
-    double wind2m = windspeed * (4.87 / log(67.8 * 2.0 - 5.42));
+    // Clear-sky irradiance at the Earth's surface expressed on a ground area
+    // basis
+    double const rso = trans * r_extraterrestrial;  // MJ / m^2 / hr
 
-    // Aerodynamic roughness and surface resistance daily timestep constants
-    // ASCE (2005) Table 1
-    // Tall reference crop (50-cm alfalfa) for hourly during daytime
-    double Cn = 66.0;  // K mm s^3 Mg^-1 d^-1
-    double Cd = 0.95;  //s m^-1 (0.25 (day) - 1.7 (night) mm/hour)
+    // Net longwave radiation; Equations 44 and 45 from ASCE (2005)
+    double const cloudiness_ratio =
+        rso <= eps_zero ? 1.0 : std::max(0.3, std::min(1.0, srad / rso));  // dimensionless
 
-    // Standardized reference evapotranspiration, ASCE (2005) Eq. 1
-    double reference_et = 0.408 * udelta * (rn - g) + psychrometric_const *
-                                                          (Cn / (tavg + 273.0)) * wind2m * (sat_vap_pressure - ea);
-    reference_et = reference_et / (udelta + psychrometric_const * (1.0 + Cd * wind2m));  //mm/hr
-    reference_et = max(0.0001, reference_et);
+    double const fcd = 1.35 * cloudiness_ratio - 0.35;  // dimensionless
 
-    return reference_et;
+    double const net_emissivity = fcd * (0.34 - 0.14 * pow(ea, 0.5));  // dimensionless
+
+    double const rnl =
+        stefan_boltzmann * s_per_hr * MJ_per_J * net_emissivity * pow(tk, 4.0);  // MJ / m^2 / s
+
+    // Net radiation; Equation 42 from ASCE (2005)
+    double const rn = rns - rnl;  // MJ / m^2 / hr
+
+    // Soil heat flux; Equation 66 from ASCE (2005)
+    double const g = rn >= 0 ? 0.04 * rn : 0.2 * rn;  // MJ / m^2 / hr
+
+    // Estimate the wind speed 2m above the ground; Equation 67 from ASCE (2005)
+    double const wind2m =
+        windspeed * (4.87 / log(67.8 * windspeed_height - 5.42));  // m / s
+
+    // Aerodynamic roughness and surface resistance; hourly values for tall
+    // reference from Table 1 of ASCE (2005)
+    double constexpr Cn = 66.0;                 // K mm s^3 / Mg / hr
+    double const Cd = rn >= 0.0 ? 0.25 : 0.17;  // m / s
+
+    // Standardized reference evapotranspiration; Equation 1 from ASCE (2005)
+    double const pm_top =
+        et_coef * udelta * (rn - g) +
+        psychrometric_const * (Cn / tk) * wind2m * (sat_vap_pressure - ea);  // mm * kPa / degree C / hr
+
+    double const pm_bottom = udelta + psychrometric_const * (1.0 + Cd * wind2m);  // kPa / degree C
+
+    return pm_top / pm_bottom;  // mm / hr
 }
 
 /**

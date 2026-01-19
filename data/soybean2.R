@@ -1,6 +1,7 @@
 soybean2 <- list(
     direct_modules = list(
         "BioCro:format_time",
+        "BioCro:atmospheric_pressure_from_elevation",
         solar_coordinates = "BioCro:solar_position_michalsky",
         "BioCro:shortwave_atmospheric_scattering",
         "BioCro:incident_shortwave_from_ground_par",
@@ -79,7 +80,6 @@ soybean2 <- list(
         alphaSeneStem               = 5.27247131590,
         alphaShell                  = 12.93223971329,
         alphaStem                   = 29.08162026066,
-        atmospheric_pressure        = 101325,
         atmospheric_scattering      = 0.3,
         atmospheric_transmittance   = 0.6,
         b0                          = 0.008,
