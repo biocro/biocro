@@ -31,6 +31,18 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# Changes in BioCro version 3.3.1
+
+## Bug fixes
+
+- Addressed a compiler warning (`changes-meaning`) that prevented BioCro
+  compilation for some versions of linux/gcc. Also added new checks to the
+  GitHub actions used to check the package to catch this if it occurs again in
+  the future.
+
+- Addressed an issue with error message formatting in vignettes that prevented
+  some articles from being built.
+
 # Changes in BioCro version 3.3.0
 
 ## Minor User-Facing Changes
