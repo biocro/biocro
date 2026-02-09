@@ -393,7 +393,12 @@ discuss the following questions:
 
 3. Which BioCro features will be added or lost?
 
-### Releasing a new version of BioCro {#new-release}
+## Releasing a new version of BioCro {#new-release}
+
+R commands for submitting the package to the win-builder service and CRAN can be
+found in the ["Submitting to CRAN" chapter](#cran-submission) below.
+
+### Preparing a new version of BioCro on GitHub
 
 When releasing a new version of BioCro, it is essential to make sure that
 `NEWS.md` is up to date and that the new version is acceptable to CRAN. This can
@@ -419,8 +424,8 @@ be achieved through the following steps:
    contents of `cran-comments.md` to make sure it accurately reflects the
    `R CMD check` notes.
 
-6. Make a pull request, requesting to merge the new branch into `develop`. In
-   general, follow the guidelines in the
+6. Make two pull requests, requesting to merge the new branch into `develop` and
+   `main`. In general, follow the guidelines in the
    ["Pull Request Etiquette" chapter](#pr-etiquette). However, there is one
    extra requirement for a release branch: the branch should not be merged until
    the new version has been accepted by CRAN. Sometimes CRAN may have issues
@@ -431,7 +436,7 @@ be achieved through the following steps:
    for instructions.
 
 7. When the new version is on CRAN, merge the release branch into `develop` and
-   then `main`.
+   `main`.
 
 ### Submitting a new version of BioCro to CRAN {#cran-submission}
 
@@ -448,14 +453,14 @@ consists of the following steps:
    package again on the development version of R for Windows. The easiest way to
    do this is to call `devtools::check_win_devel()` from an R session running in
    the BioCro root directory. Note that all email correspondance will be sent to
-   the package maintainer regardless of who performs this action.
+   the package maintainer regardless of who performs this action. {#win-builder}
 
 2. Submit the package, cross fingers, and wait. There are two ways to submit:
 
    1. Call `devtools::submit_cran()` from an R session running in the BioCro
       root directory. This method will build the package and submit it to CRAN,
       automatically including the contents of `cran-comments.md` along with the
-      built package.
+      built package. {#devtools-submit-cran}
 
    2. Submit manually. First, build the package with
       `R CMD build`[^compressing_vignettes]. Second, attach the resulting

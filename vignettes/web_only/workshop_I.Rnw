@@ -148,7 +148,7 @@ library(dfoptim)
 library(deSolve)
 
 # Check the BioCro version
-expected_version  <- '3.2.0-5'
+expected_version  <- '3.3.1'
 installed_version <- as.character(packageVersion('BioCro'))
 
 if (compareVersion(expected_version, installed_version) != 0) {
