@@ -87,6 +87,8 @@
 #include "song_flowering.h"
 #include "soybean_development_rate_calculator.h"
 #include "stefan_boltzmann_longwave.h"
+#include "stiff_onedim_test.h"
+#include "stiff_twodim_test.h"
 #include "stomata_water_stress_exponential.h"
 #include "stomata_water_stress_linear.h"
 #include "stomata_water_stress_linear_aba_response.h"
@@ -185,6 +187,8 @@ creator_map standardBML::module_library::library_entries =
      {"song_flowering",                                        &create_mc<song_flowering>},
      {"soybean_development_rate_calculator",                   &create_mc<soybean_development_rate_calculator>},
      {"stefan_boltzmann_longwave",                             &create_mc<stefan_boltzmann_longwave>},
+     {"stiff_onedim_test",                                     &create_mc<stiff_onedim_test>},
+     {"stiff_twodim_test",                                     &create_mc<stiff_twodim_test>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
