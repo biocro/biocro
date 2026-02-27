@@ -51,14 +51,14 @@ soilText_str get_soil_properties(int soiltype);
 std::map<SoilType, soilText_str> soil_parameters =
     {
         //                             d = dimensionless
-        //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
+        //                             d     d     d     J kg^-1     d     kg s m-3     d     d      d     Mg m^-3
         //                             silt  clay  sand  air_entry   b     Ks          satur fieldc wiltp bulk_density
         {SoilType::sand, {0.05, 0.03, 0.92, -0.7, 1.7, 5.8e-3, 0.437, 0.09, 0.03, 1.60}},
         {SoilType::loamy_sand, {0.12, 0.07, 0.81, -0.9, 2.1, 1.7e-3, 0.437, 0.13, 0.06, 1.55}},
-        {SoilType::sandy_loam, {0.25, 0.10, 0.65, -1.5, 3.1, 7.2e-4, 0.453, 0.21, 0.10, 1.50}},
+        {SoilType::sandy_loam, {0.25, 0.10, 0.65, -1.5, 3.1, 7.2e-4, 0.42, 0.15, 0.10, 1.50}},
         // { SoilType::loam,            { 0.40, 0.18, 0.42,      -1.1,  4.5,  3.7e-4,     0.57, 0.27,  0.12, 1.43 } },
-        {SoilType::loam, {0.39, 0.21, 0.40, -1.1, 4.5, 3.7e-4, 0.463, 0.34, 0.13, 1.30}},  // used for comparison with DSSAR
-        {SoilType::silt_loam, {0.65, 0.15, 0.20, -2.1, 4.7, 1.9e-4, 0.501, 0.33, 0.13, 1.36}},
+        {SoilType::loam, {0.39, 0.21, 0.40, -1.1, 4.5, 3.7e-4, 0.42, 0.30, 0.22, 1.30}},  // used for comparison with DSSAT
+        {SoilType::silt_loam, {0.65, 0.15, 0.20, -2.1, 4.7, 1.9e-4, 0.501, 0.40, 0.30, 1.36}},
         {SoilType::sandy_clay_loam, {0.13, 0.27, 0.60, -2.8, 4.0, 1.2e-4, 0.398, 0.26, 0.15, 1.39}},
         {SoilType::clay_loam, {0.34, 0.34, 0.32, -2.6, 5.2, 6.4e-5, 0.464, 0.32, 0.20, 1.35}},
         {SoilType::silty_clay_loam, {0.58, 0.33, 0.09, -3.3, 6.6, 4.2e-5, 0.471, 0.37, 0.21, 1.24}},
