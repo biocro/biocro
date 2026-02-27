@@ -77,11 +77,11 @@ inline double Q10_temperature_response(
  *  The Eyring equation (Eyring 1935) gives the dependence of the rate constant
  *  of a chemical reaction on the absolute temperature:
  *
- *  > `k = kappa * e^(S / R) * e^(-H / R / T) * (k * T / h)` (1)
+ *  > `k = kappa * k_b * T / h * e^(S / R) * e^(-H / R / T)` (1)
  *
  *  where `k` is the rate constant, `kappa` is the transmission coefficient,
  *  `S` is the entropy of activation, `H` is the heat of activation, `T` is the
- *  absolute temperature, `R` is the ideal gas constant, `k` is Boltzmann's
+ *  absolute temperature, `R` is the ideal gas constant, `k_b` is Boltzmann's
  *  constant, and `h` is Planck's constant.
  *
  *  This function is often used to calculate relative temperature responses; in
@@ -89,10 +89,10 @@ inline double Q10_temperature_response(
  *  temperature, often chosen to be 25 degrees C. Using Equation (1), the
  *  relative rate is given by
  *
- *  > `r = [kappa * k / (h * k(T_ref))] * T * e^(S / R) * e^(-H / R / T)` (2)
+ *  > `r = [kappa * k_b / (h * k(T_ref))] * T * e^(S / R) * e^(-H / R / T)` (2)
  *
  *  For simplicity, here we define a constant scaling factor `gamma`, equal to
- *  `kappa * k / (h * k(T_ref))`. Thus, Equation 2 can be written as
+ *  `kappa * k_b / (h * k(T_ref))`. Thus, Equation 2 can be written as
  *
  *  > `r = gamma * T * e^(S / R - H / R / T)` (3)
  *
@@ -137,14 +137,14 @@ inline double eyring_response(
  *  The peaked Arrhenius response gives the dependence of the value of a
  *  parameter on the absolute temperature:
  *
- *  > `p = k * exp(-H_a / R / T) / [1 + exp(S / R) * exp(-H_d / R / T)]` (1)
+ *  > `p = kappa * exp(-H_a / R / T) / [1 + exp(S / R) * exp(-H_d / R / T)]` (1)
  *
- *  Where `p` is the parameter value, `k` is a scaling factor, `H_a` is the
+ *  Where `p` is the parameter value, `kappa` is a scaling factor, `H_a` is the
  *  enthalpy of activation, `S` is the entropy, `H_d` is the enthalpy of
  *  deactivation, `T` is the absolute temperature, and `R` is the ideal gas
  *  constant.
  *
- *  By defining `c` such that `k = exp(c)`, this can be written as:
+ *  By defining `c` such that `kappa = exp(c)`, this can be written as:
  *
  *  > `p = exp(c - H_a / R / T) / [1 + exp(S / R - H_d / R / T)]` (2)
  *
