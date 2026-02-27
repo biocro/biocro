@@ -119,7 +119,7 @@ void stomata_water_stress_resistance::do_operation() const
     // a physiological threshold for when stomata first begin to close.
     // Therefore, I use a higher value than 0.7 because our soil water 
     // rarely go below the content (corresponding to 0.7) to trigger stress 
-    const double RAW_sf = 0.9;
+    const double RAW_sf = 0.8;
     // Normalized Hydraulic Resistance; 1/(ET or t/ha/hr)
     double resistance_base = *resistance_base_ip;
     double sensitivity_exponent = 1.0;
@@ -134,19 +134,49 @@ void stomata_water_stress_resistance::do_operation() const
     double soil_wilting_point = *soil_wilting_point_ip;
     double soil_field_capacity = *soil_field_capacity_ip;
     double soil_water_content = *soil_water_content_ip;
-    double slope = 1.0 / (RAW_sf * soil_field_capacity - soil_wilting_point);
-    double intercept = 1.0 - RAW_sf * soil_field_capacity * slope;
+    // The plant can push a little harder than the dirt's normal limit
+    // We lower the stress limit by 20% 
+    // The bulk dirt layer might look totally dry in the model. 
+    // The real plant may still find tiny drops of water via rhizosphere.
+    double plant_stress_wp = soil_wilting_point * 0.8;
+    double available_water = soil_field_capacity - plant_stress_wp;
+    double stress_start_point = plant_stress_wp + (RAW_sf * available_water);
 
-    double x =
-        std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0);
+    double x = 1.0;
+    double slope,intercept;
+    // Calculate the linear relative extractable water (REW)
+    if (soil_water_content < stress_start_point) {
+        slope = 1.0 / (stress_start_point - plant_stress_wp);
+        intercept = 1.0 - stress_start_point * slope;
+        x = slope * soil_water_content + intercept;
+    }
 
-    // Dynamic Resistance based on soil water status 
-    // At x=1 (Wet): R = base.
-    // At x=0.5 (Dry): R = 2^n*base. (StomataWS drops significantly).
-    double resistance_dynamic = resistance_base / std::pow(x, sensitivity_exponent);
+    x = std::min(std::max(x, 0.01), 1.0);
 
-    // The uptake_laststep is negative. We need the positive 
-    double f_ws = x - resistance_dynamic * std::abs(uptake_laststep);
+    // Use an S-curve to map the physical response
+    // the simple REW is too strong (simple linear) 
+    // The straight line assumes the plant feels stress at a constant rate. 
+    // But soil does not hold water in a straight line. 
+    // Soil holds water very loosely at first.
+    // The plant easily drinks this water. The soil holds the last bits of water very tightly.
+    // curve_steepness controls how fast the soil fail. 
+    // p50_point is the water level where the plant loses 50% of gs.
+    // this fits better to real soil water retention curve
+    // the two parameters here can be tunned by checking gs and swc data
+    // This S-Curve is a logistic function, commonly used in describing the water stress 
+    // Similar as https://doi.org/10.1046/j.1365-3040.2003.01035.x
+    double curve_steepness = 10.0;
+    double p50_point = 0.42;
+    
+    // Calculate the physical stress factor
+    x = 1.0 / (1.0 + std::exp(-curve_steepness * (x - p50_point)));    
+
+    double resistance_dynamic = resistance_base * (1.0 / std::pow(x, sensitivity_exponent) - 1.0);
+
+    double current_et = std::abs(uptake_laststep);
+
+    // Calculate the final stress factor
+    double f_ws = x - (resistance_dynamic * current_et);
     f_ws = std::min(std::max(f_ws, 1e-10), 1.0);
 
     // Update the output quantity list
