@@ -90,6 +90,7 @@
 #include "soil_surface_runoff.h"
 #include "soil_type_selector.h"
 #include "soil_water_downflow.h"
+#include "soil_water_dynamic_rooting.h"
 #include "soil_water_tiledrain.h"
 #include "soil_water_upflow.h"
 #include "soil_water_uptake.h"
@@ -200,6 +201,7 @@ creator_map standardBML::module_library::library_entries =
      {"soil_surface_runoff",                                   &create_mc<soil_surface_runoff>},
      {"soil_type_selector",                                    &create_mc<soil_type_selector>},
      {"soil_water_downflow",                                   &create_mc<soil_water_downflow>},
+     {"soil_water_dynamic_rooting",                            &create_mc<soil_water_dynamic_rooting>},
      {"soil_water_tiledrain",                                  &create_mc<soil_water_tiledrain>},
      {"soil_water_upflow",                                     &create_mc<soil_water_upflow>},
      {"soil_water_uptake",                                     &create_mc<soil_water_uptake>},
