@@ -274,6 +274,8 @@ void multilayer_soil_profile_avg::do_operation() const
     double tot_soil_field_capacity = 0.0;
     double tot_soil_wilting_point = 0.0;
 
+    //do not use the surface layer since plant would seek deep water
+    //when surface is dry.
     for (int l = 0; l < max_rooting_layer; l++) {
         tot_soil_depth += soil_depth_arr[l];
         tot_soil_water_content += soil_water_content_arr[l] * soil_depth_arr[l];
