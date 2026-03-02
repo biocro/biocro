@@ -83,7 +83,7 @@ string_vector FvCB::get_inputs()
         "Ci",                           // micromol / mol
         "Gstar",                        // micromol / mol
         "J",                            // micromol / mol
-        "Kc",                           // mmol / mol
+        "Kc",                           // micromol / mol
         "Ko",                           // mmol / mol
         "Oi",                           // micromol / m^2 / s
         "RL",                           // micromol / m^2 / s

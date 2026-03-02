@@ -5,7 +5,8 @@
 #include "../framework/constants.h"  // for ideal_gas_constant
 
 /**
- *  @brief Calculates the exponential term of the Arrhenius equation.
+ *  @brief Calculates the Arrhenius equation normalized to its value at a
+ *  reference temperature.
  *
  *  The Arrhenius equation gives the dependence of the rate constant of a
  *  chemical reaction on the absolute temperature and is often written as
@@ -21,30 +22,41 @@
  *
  *  > `A = k_0 * e^c` (2)
  *
- *  where `k_0` is the rate constant measured at a reference temperature (e.g.
- *  25 degrees C) and `c` is a dimensionless parameter chosen so that `k = k_0`
- *  at the reference temperature.
+ *  where `k_0` is the rate constant measured at a reference temperature `T_ref`
+ *  (e.g. 25 degrees C) and `c` is a dimensionless parameter chosen so that
+ *  `k = k_0` at the reference temperature. Using this definition, Equation (1)
+ *  becomes
  *
- *  In order to make this function reusable, it only calculates the exponential
- *  factor, which is always dimensionless. I.e., it calculates
- *  `e^(c - E_a / R / T)`.
+ *  > `k = k_0 * e^(c - E_a / R / T)` (3)
  *
- *  @param [in] c Dimensionless parameter related to the reference temperature
- *                at which the rate constant was measured
+ *  The value of `c` can be found by solving
+ *  `k_0 = k_0 * e^(c - E_a / R / T_ref)` for `c`, which yields
  *
- *  @param [in] activation_energy Activation energy of the reaction in J / mol
+ *  > `c = E_a / R / T_ref` (4)
  *
- *  @param [in] temperature_k Absolute temperature in Kelvin
+ *  Here we return `k / k_0 = e^(c - E_a / R / T)` with `c` defined as in
+ *  Equation (4).
  *
- *  @return The Arrhenius exponential `e^(c - E_a / R / T)`
+ *  @param [in] activation_energy Activation energy of the reaction (J / mol)
+ *
+ *  @param [in] reference_temperature_k Reference temperature (K)
+ *
+ *  @param [in] temperature_k Temperature at which the reaction is occurring (K)
+ *
+ *  @return The Arrhenius equation normalized to its value at the reference
+ *          temperature (dimensionless)
  */
 inline double arrhenius_exponential(
-    double c,                  // dimensionless
-    double activation_energy,  // J / mol
-    double temperature_k       // Kelvin
+    double activation_energy,        // J / mol
+    double reference_temperature_k,  // Kelvin
+    double temperature_k             // Kelvin
 )
 {
     using physical_constants::ideal_gas_constant;  // J / k / mol
+
+    double const c = activation_energy /
+                     (ideal_gas_constant * reference_temperature_k);  // dimensionless
+
     return exp(c - activation_energy / (ideal_gas_constant * temperature_k));
 }
 
@@ -99,10 +111,6 @@ inline double Q10_temperature_response(
  *  The user should ensure that `gamma` is chosen such that `r` evaluates to 1
  *  at the reference temperature.
  *
- *  Note that the exponential factor is superficially similar to an Arrhenius
- *  exponential with `c = S / R` and `E_a = H`. We use this to simplify the
- *  calculations in the code.
- *
  *  References:
  *  - [Eyring, Henry. Chemical Reviews 17, 65–77 (1935)]
  *    (https://doi.org/10.1021/cr60056a006)
@@ -127,7 +135,7 @@ inline double eyring_response(
     using physical_constants::ideal_gas_constant;  // J / k / mol
 
     return gamma * temperature_k *
-           arrhenius_exponential(S / ideal_gas_constant, H, temperature_k);
+           exp(S / ideal_gas_constant - H / (ideal_gas_constant * temperature_k));
 }
 
 /**
@@ -175,11 +183,6 @@ inline double eyring_response(
  *  For an in-depth discussion of these equations and their role in plant
  *  modeling, see Murphy & Stinziano (2021) and Yin (2021).
  *
- *  Note that the exponential factor in the numerator is equivalent to an
- *  Arrhenius exponential, and the exponential factor in the denominator is
- *  superficially similar to one with `c = S / R` and `E_a = H_d`. We use this
- *  to simplify the calculations in the code.
- *
  *  References:
  *  - [Hall, A. E. Oecologia 43, 299–316 (1979)]
  *    (https://doi.org/10.1007/BF00344957)
@@ -226,10 +229,10 @@ inline double peaked_arrhenius_response(
 {
     using physical_constants::ideal_gas_constant;  // J / k / mol
 
-    double const top = arrhenius_exponential(c, Ha, temperature_k);
+    double const top = exp(c - Ha / (ideal_gas_constant * temperature_k));
 
-    double const bot =
-        1.0 + arrhenius_exponential(S / ideal_gas_constant, Hd, temperature_k);
+    double const bot = 1.0 +
+                       exp(S / ideal_gas_constant - Hd / (ideal_gas_constant * temperature_k));
 
     return top / bot;
 }
