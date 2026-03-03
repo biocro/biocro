@@ -72,7 +72,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RH_canopy",         // dimensionless
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
-        "TransR"             // mmol / m^2 / s
+        "TransR",            // mmol / m^2 / s
+        "numit"             // 
     };
 }
 
@@ -117,31 +118,50 @@ void c3_leaf_photosynthesis::do_operation() const
             electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mol / m^2 / s
 
-    // Calculate a new value for leaf temperature using the estimate for
-    // stomatal conductance
-    const energy_balance_outputs et = leaf_energy_balance(
-        absorbed_longwave,
-        absorbed_shortwave,
-        atmospheric_pressure,
-        ambient_temperature,
-        gbw_canopy,
-        leafwidth,
-        rh,
-        initial_stomatal_conductance,
-        windspeed);
+    photosynthesis_outputs photo; 
+    energy_balance_outputs et;
+    // Initial guess
+    double current_gs = initial_stomatal_conductance;
 
-    double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
+    // 1. Set convergence criteria
+    const int max_iterations = 10;
+    const double tolerance = 0.01; // tolerance in g_s (mol/m^2/s)
+    double num_of_it = 0;
+    double current_Tleaf = ambient_temperature; 
+    
+    for (int i = 0; i < max_iterations; ++i) {
+      // 2. Solve Energy Balance with current g_s
+      et = leaf_energy_balance(
+          absorbed_longwave,
+          absorbed_shortwave,
+          atmospheric_pressure,
+          ambient_temperature,
+          gbw_canopy,
+          leafwidth,
+          rh,
+          current_gs,
+          windspeed);
 
-    // Calculate final values for assimilation, stomatal conductance, and Ci
-    // using the new leaf temperature
-    const photosynthesis_outputs photo =
-        c3photoC(
-            tr_param, absorbed_ppfd, leaf_temperature, ambient_temperature,
-            rh, Vcmax_at_25, Jmax_at_25,
-            Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-            StomataWS,
-            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-            et.gbw_molecular);
+      current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
+
+      // 3. Recalculate g_s with current Tleaf
+      photo =
+          c3photoC(
+              tr_param, absorbed_ppfd, current_Tleaf, ambient_temperature,
+              rh, Vcmax_at_25, Jmax_at_25,
+              Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
+              StomataWS,
+              electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
+              et.gbw_molecular);
+
+      // 4. Check for convergence
+      if (std::abs(photo.Gs - current_gs) < tolerance) {
+          break;
+      }
+      // 5. Update guess for next iteration
+      current_gs = photo.Gs;
+      num_of_it += 1;
+    }
 
     // Update the outputs
     update(Assim_op, photo.Assim);
@@ -152,10 +172,11 @@ void c3_leaf_photosynthesis::do_operation() const
     update(gbw_op, et.gbw_molecular);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, leaf_temperature);
+    update(leaf_temperature_op, current_Tleaf);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
+    update(numit_op, num_of_it);
 }
