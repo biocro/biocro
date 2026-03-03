@@ -68,7 +68,6 @@ class c3_canopy : public direct_module
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
@@ -146,7 +145,6 @@ class c3_canopy : public direct_module
     double const& theta_1;
     double const& theta_2;
     double const& Tp_at_25;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;

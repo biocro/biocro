@@ -187,7 +187,6 @@ soybean <- list(
         Topt_R0R1                   = 31.5,
         Topt_R1R7                   = 21.5,
         Tp_at_25                    = 13,
-        Tp_c                        = 19.77399,
         Tp_Ha                       = 62990,
         Tp_Hd                       = 182140,
         Tp_S                        = 588,

@@ -106,7 +106,6 @@ class c3_assimilation : public direct_module
           theta_2{get_input(input_quantities, "theta_2")},
           Tleaf{get_input(input_quantities, "Tleaf")},
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
@@ -165,7 +164,6 @@ class c3_assimilation : public direct_module
     double const& theta_2;
     double const& Tleaf;
     double const& Tp_at_25;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
@@ -224,7 +222,6 @@ string_vector c3_assimilation::get_inputs()
         "theta_2",                      // (degrees C)^(-2)
         "Tleaf",                        // degrees C
         "Tp_at_25",                     // micromol / m^2 / s
-        "Tp_c",                         // dimensionless
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
@@ -265,7 +262,6 @@ void c3_assimilation::do_operation() const
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,

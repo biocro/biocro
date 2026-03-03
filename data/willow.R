@@ -181,7 +181,6 @@ willow <- list(
         tp4                          = 1200,
         tp5                          = 3939,
         Tp_at_25                     = 23,
-        Tp_c                         = 19.77399, # Chosen so that Tp_norm = 1 at 25 degrees C
         Tp_Ha                        = 62.99e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_Hd                        = 182.14e3, # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_S                         = 0.588e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)

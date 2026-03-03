@@ -43,7 +43,6 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "theta_1",                      // (degrees C)^(-1)
         "theta_2",                      // (degrees C)^(-2)
         "Tp_at_25",                     // micromol / m^2 / s
-        "Tp_c",                         // dimensionless
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
@@ -88,7 +87,6 @@ void c3_leaf_photosynthesis::do_operation() const
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,

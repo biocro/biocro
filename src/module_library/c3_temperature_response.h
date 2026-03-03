@@ -13,7 +13,6 @@ struct c3_temperature_response_parameters {
     double theta_0;     //!< Order 0 coefficient of polynomial response for theta (dimensionless)
     double theta_1;     //!< Order 1 coefficient of polynomial response for theta ((degrees C)^(-1))
     double theta_2;     //!< Order 2 coefficient of polynomial response for theta ((degrees C)^(-2))
-    double Tp_c;        //!< Johnson, Eyring, & Williams scaling parameter for Tp_norm (dimensionless)
     double Tp_Ha;       //!< Johnson, Eyring, & Williams enthalpy of activation for Tp_norm (J / mol)
     double Tp_Hd;       //!< Johnson, Eyring, & Williams enthalpy of deactivation for Tp_norm (J / mol)
     double Tp_S;        //!< Johnson, Eyring, & Williams entropy parameter for Tp_norm (J / K / mol)

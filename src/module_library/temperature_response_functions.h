@@ -13,29 +13,25 @@
  *
  *  > `k = A * e^(-E_a / R / T)` (1)
  *
- *  where `k` is the rate constant, `E_a` is the activation energy, `R` is the
- *  ideal gas constant, and `T` is the absolute temperature. As `T` approaches
- *  infinity, `E_a / R / T` approaches zero and so `k` approaches `A`. Thus,
- *  `A` represents the rate constant in the limit of infinite temperature. From
- *  a practical standpoint, `A` is not a particularly useful parameter and for
- *  this reason it is often written as
+ *  where `k` is the rate constant, `A` is a scaling factor, `E_a` is the
+ *  activation energy, `R` is the ideal gas constant, and `T` is the absolute
+ *  temperature.
  *
- *  > `A = k_0 * e^c` (2)
+ *  For practical reasons, it is convenient to calculate a normalized reaction
+ *  rate `k / k_0`, where `k_0` is the rate at a reference temperature `T_ref`.
+ *  Using Equation (1), we can see that `k_0` is given by
  *
- *  where `k_0` is the rate constant measured at a reference temperature `T_ref`
- *  (e.g. 25 degrees C) and `c` is a dimensionless parameter chosen so that
- *  `k = k_0` at the reference temperature. Using this definition, Equation (1)
- *  becomes
+ *  > `k_0 = A * e^(-E_a / R / T_ref)` (2)
  *
- *  > `k = k_0 * e^(c - E_a / R / T)` (3)
+ *  and hence the normalized reaction rate is
  *
- *  The value of `c` can be found by solving
- *  `k_0 = k_0 * e^(c - E_a / R / T_ref)` for `c`, which yields
+ *  > `k / k_0 = e^(-E_a / R / T) / e^(-E_a / R / T_ref)` (3)
  *
- *  > `c = E_a / R / T_ref` (4)
+ *  This can also be expressed as
  *
- *  Here we return `k / k_0 = e^(c - E_a / R / T)` with `c` defined as in
- *  Equation (4).
+ *  > `k / k_0 = e^(c - E_a / R / T)` (4)
+ *
+ *  where `c = E_a / R / T_ref`.
  *
  *  @param [in] activation_energy Activation energy of the reaction (J / mol)
  *
@@ -47,9 +43,9 @@
  *          temperature (dimensionless)
  */
 inline double arrhenius_exponential(
-    double activation_energy,        // J / mol
-    double reference_temperature_k,  // Kelvin
-    double temperature_k             // Kelvin
+    double const activation_energy,        // J / mol
+    double const reference_temperature_k,  // Kelvin
+    double const temperature_k             // Kelvin
 )
 {
     using physical_constants::ideal_gas_constant;  // J / k / mol
@@ -75,8 +71,8 @@ inline double arrhenius_exponential(
  *  https://doi.org/10.1016/j.fcr.2010.07.007
  */
 inline double Q10_temperature_response(
-    double temperature,  // degrees C
-    double Tref          // degrees C
+    double const temperature,  // degrees C
+    double const Tref          // degrees C
 )
 {
     constexpr double Q10 = 2.0;
@@ -84,81 +80,100 @@ inline double Q10_temperature_response(
 }
 
 /**
- *  @brief Calculates a relative reaction rate using the Eyring equation
+ *  @brief Calculates the Eyring equation normalized to its value at a
+ *  reference temperature.
  *
  *  The Eyring equation (Eyring 1935) gives the dependence of the rate constant
  *  of a chemical reaction on the absolute temperature:
  *
- *  > `k = kappa * k_b * T / h * e^(S / R) * e^(-H / R / T)` (1)
+ *  > `k = kappa * k_b * T / h * e^(S / R - H / R / T)` (1)
  *
  *  where `k` is the rate constant, `kappa` is the transmission coefficient,
  *  `S` is the entropy of activation, `H` is the heat of activation, `T` is the
  *  absolute temperature, `R` is the ideal gas constant, `k_b` is Boltzmann's
  *  constant, and `h` is Planck's constant.
  *
- *  This function is often used to calculate relative temperature responses; in
- *  other words, `r(T) = k(T) / k(T_ref)`, where `T_ref` is a reference
- *  temperature, often chosen to be 25 degrees C. Using Equation (1), the
- *  relative rate is given by
+ *  For practical reasons, it is convenient to calculate a normalized reaction
+ *  rate `k / k_0`, where `k_0` is the rate at a reference temperature `T_ref`.
+ *  Using Equation (1), we can see that `k_0` is given by
  *
- *  > `r = [kappa * k_b / (h * k(T_ref))] * T * e^(S / R) * e^(-H / R / T)` (2)
+ *  > `k_0 = kappa * k_b * T_ref / h * e^(S / R - H / R / T_ref)` (2)
  *
- *  For simplicity, here we define a constant scaling factor `gamma`, equal to
- *  `kappa * k_b / (h * k(T_ref))`. Thus, Equation 2 can be written as
+ *  and hence the normalized reaction rate is
  *
- *  > `r = gamma * T * e^(S / R - H / R / T)` (3)
+ *  > `k / k_0 = T / T_ref * e^(S / R - H / R / T) / e^(S / R - H / R / T_ref)` (3)
  *
- *  The user should ensure that `gamma` is chosen such that `r` evaluates to 1
- *  at the reference temperature.
+ *  Note that the exponential terms simplify to `e^(H / R / T_ref - H / R / T)`,
+ *  which can be recognized as the normalized Arrhenius equation (see
+ *  `arrhenius_exponential()` for more details). Thus, this equation can be
+ *  simplified to
+ *
+ *  > `k / k_0 = T / T_ref * Arr` (4)
+ *
+ *  where `Arr` is the value of the normalized Arrhenius equation with
+ *  `E_a = H`. An interesting aspect of Equation (4) is that `S` no longer
+ *  appears, indicating that this parameter does not influence the normalized
+ *  Eyring response.
  *
  *  References:
  *  - [Eyring, Henry. Chemical Reviews 17, 65–77 (1935)]
  *    (https://doi.org/10.1021/cr60056a006)
  *
- *  @param [in] gamma Constant scaling factor (K^-1)
  *
- *  @param [in] H Heat of activation (J / mol)
+ *  @param [in] H Heat of activation of the reaction (J / mol)
  *
- *  @param [in] S Entropy of activation (J / K / mol)
+ *  @param [in] reference_temperature_k Reference temperature (K)
  *
- *  @param [in] temperature_k Absolute temperature (K)
+ *  @param [in] temperature_k Temperature at which the reaction is occurring (K)
  *
- *  @return Relative reaction rate `r` (dimensionless)
+ *  @return The Arrhenius equation normalized to its value at the reference
+ *          temperature (dimensionless)
  */
 inline double eyring_response(
-    double gamma,         // K^-1
-    double H,             // J / mol
-    double S,             // J / K / mol
-    double temperature_k  // K
+    double const H,                        // J / mol
+    double const reference_temperature_k,  // K
+    double const temperature_k             // K
 )
 {
-    using physical_constants::ideal_gas_constant;  // J / k / mol
-
-    return gamma * temperature_k *
-           exp(S / ideal_gas_constant - H / (ideal_gas_constant * temperature_k));
+    return temperature_k / reference_temperature_k *
+        arrhenius_exponential(H, reference_temperature_k, temperature_k);
 }
 
 /**
- *  @brief A temperature response function originally defined in Hall (1979),
- *  often used to represent peaked temperature responses in plant models.
+ *  @brief Calculate the peaked Arrhenius equation normalized to its value at a
+ *  reference temperature.
  *
- *  The peaked Arrhenius response gives the dependence of the value of a
+ *  The peaked Arrhenius equation gives the dependence of the value of a
  *  parameter on the absolute temperature:
  *
- *  > `p = kappa * exp(-H_a / R / T) / [1 + exp(S / R) * exp(-H_d / R / T)]` (1)
+ *  > `p = kappa * exp(-H_a / R / T) / [1 + exp(S / R - H_d / R / T)]` (1)
  *
  *  Where `p` is the parameter value, `kappa` is a scaling factor, `H_a` is the
  *  enthalpy of activation, `S` is the entropy, `H_d` is the enthalpy of
  *  deactivation, `T` is the absolute temperature, and `R` is the ideal gas
  *  constant.
  *
- *  By defining `c` such that `kappa = exp(c)`, this can be written as:
+ *  For practical reasons, it is convenient to calculate a normalized parameter
+ *  value `p / p_0`, where `p_0` is the parameter value at a reference
+ *  temperature `T_ref`. Using Equation (1), we can see that `p_0` is given by
  *
- *  > `p = exp(c - H_a / R / T) / [1 + exp(S / R - H_d / R / T)]` (2)
+ *  > `p_0 = kappa * exp(-H_a / R / T_ref) / [1 + exp(S / R - H_d / R / T_ref)]` (2)
  *
- *  This is the form used here. Typically `c` is chosen such that `p` is equal
- *  to 1 at a particular reference temperature, often 25 degrees C. Then `p`
- *  represents a relative parameter value.
+ *  and hence the normalized parameter value is
+ *
+ *  > `p / p_0 = exp(-H_a / R / T) / exp(-H_a / R / T_ref) *`
+ *  > `          [1 + exp(S / R - H_d / R / T_ref)] /`
+ *  > `          [1 + exp(S / R - H_d / R / T)]` (3)
+ *
+ *  The factor `exp(-H_a / R / T) / exp(-H_a / R / T_ref)` can be recognized as
+ *  the normalized Arrhenius equation (see `arrhenius_exponential()` for more
+ *  details). Thus, this equation can be simplified further to
+ *
+ *  > `p / p_0 = Arr * c / [1 + exp(S / R - H_d / R / T)]` (4)
+ *
+ *  where `Arr` is the value of the normalized Arrhenius equation with
+ *  `E_a = H_a`, and `c` is a normalization factor defined by
+ *  `c = 1 + exp(S / R - H_d / R / T_ref)`.
  *
  *  This function was originally based on the Johnson-Eyring-Williams equation,
  *  but with the linear `T` factor "omitted because it has little influence on
@@ -205,61 +220,70 @@ inline double eyring_response(
  *  - [Yin, X. New Phytologist 231, 2113–2116 (2021)]
  *    (https://doi.org/10.1111/nph.17341)
  *
- *  @param [in] c Dimensionless scaling parameter
- *
  *  @param [in] Ha Enthalpy of activation (J / mol)
  *
  *  @param [in] Hd Enthalpy of deactivation (J / mol)
  *
+ *  @param [in] reference_temperature_k Reference temperature (K)
+ *
  *  @param [in] S Entropy (J / K / mol)
  *
- *  @param [in] temperature_k Absolute temperature (K)
+ *  @param [in] temperature_k Temperature at which the reaction is occurring (K)
  *
- *  @return The value of a reaction rate (or some other parameter) at the
- *          specified temperature; the units of the return value will depend on
- *          the particular situation where this function is being used.
+ *  @return The peaked Arrhenius equation normalized to its value at the
+ *          reference temperature (dimensionless)
  */
 inline double peaked_arrhenius_response(
-    double c,             // dimensionless
-    double Ha,            // J / mol
-    double Hd,            // J / mol
-    double S,             // J / K / mol
-    double temperature_k  // K
+    double const Ha,                       // J / mol
+    double const Hd,                       // J / mol
+    double const reference_temperature_k,  // Kelvin
+    double const S,                        // J / K / mol
+    double const temperature_k             // K
 )
 {
     using physical_constants::ideal_gas_constant;  // J / k / mol
 
-    double const top = exp(c - Ha / (ideal_gas_constant * temperature_k));
+    double const c = 1 + exp(S / ideal_gas_constant - Hd / ideal_gas_constant / reference_temperature_k);
 
-    double const bot = 1.0 +
-                       exp(S / ideal_gas_constant - Hd / (ideal_gas_constant * temperature_k));
-
-    return top / bot;
+    return arrhenius_exponential(Ha, reference_temperature_k, temperature_k) *
+           c / (1 + exp(S / ideal_gas_constant - Hd / ideal_gas_constant / temperature_k));
 }
 
 /**
- *  @brief A temperature response function originally defined in Johnson,
- *  Eyring, and Williams (1942), but used more recently to describe the
- *  temperature response of triose phosphate utilization limitations in Yang et
- *  al. (2016).
+ *  @brief Calculate the Johnson-Eyring-Williams equation normalized to its
+ *  value at a reference temperature.
  *
- *  The Johnson-Eyring-Williams response gives the dependence of the rate
+ *  The Johnson-Eyring-Williams equation was originally defined in Johnson,
+ *  Eyring, and Williams (1942). It gives the dependence of the rate
  *  constant of a chemical reaction on the absolute temperature:
  *
- *  > `k = c'' * T * exp(-H_a / (R * T)) / [1 + exp(S / R) * exp(-H_d / (R * T))]` (1)
+ *  > `k = c'' * T * exp(-H_a / R / T) / [1 + exp(S / R - H_d / R / T)]` (1)
  *
  *  Where `k` is the rate constant, `c''` is a scaling factor, `H_a` is the
  *  enthalpy of activation, `S` is the entropy, `H_d` is the enthalpy of
  *  deactivation, `T` is the absolute temperature, and `R` is the ideal gas
  *  constant.
  *
- *  By defining `c` such that `c'' = exp(c)`, this can be written as:
+ *  For practical reasons, it is convenient to calculate a normalized reaction
+ *  rate `k / k_0`, where `k_0` is the rate at a reference temperature `T_ref`.
+ *  Using Equation (1), we can see that `k_0` is given by
  *
- *  > `k = T * exp(c - H_a / (R * T)) / [1 + exp(S / R) * exp(-H_d / (R * T))]` (2)
+ *  > `k_0 = c'' * T_ref * exp(-H_a / R / T_ref) / [1 + exp(S / R - H_d / R / T)]` (2)
  *
- *  This is the form used here. Typically `c` is chosen such that `k` is equal
- *  to 1 at a particular reference temperature, often 25 degrees C. Then `k`
- *  represents a relative reaction rate.
+ *  and hence the normalized value is
+ *
+ *  > `k / k_0 = T / T_ref *`
+ *  > `          exp(-H_a / R / T) / exp(-H_a / R / T_ref) *`
+ *  > `          [1 + exp(S / R - H_d / R / T_ref)] /`
+ *  > `          [1 + exp(S / R - H_d / R / T)]` (3)
+ *
+ *  The terms following `T / T_ref` can be recognized as the normalized peaked
+ *  Arrhenius equation (see `peaked_arrhenius_response()` for more details.)
+ *  Thus, this equation can be simplified further to
+ *
+ *  > `k / k_0 = T / T_ref * PA` (4)
+ *
+ *  where `PA` is the value of the normalized peaked Arrhenius equation.
  *
  *  Note that a similar equation is also derived in Sharpe and DeMichele (1977),
  *  where the main difference is the inclusion of an additional entropy term.
@@ -269,16 +293,9 @@ inline double peaked_arrhenius_response(
  *  For an in-depth discussion of these equations and their role in plant
  *  modeling, see Murphy & Stinziano (2021) and Yin (2021).
  *
- *  Note that this equation is equivalent to a "peaked Arrhenius response" with
- *  an additional multiplicative factor of `T`. We use this to simplify the
- *  calculations in the code.
- *
  *  References:
  *  - [Johnson, F. H., Eyring, H. & Williams, R. W. Journal of Cellular and
  *    Comparative Physiology 20, 247–268 (1942)](https://doi.org/10.1002/jcp.1030200302)
- *
- *  - [Yang, J. T., Preiser, A. L., Li, Z., Weise, S. E. & Sharkey, T. D. Planta
- *    243, 687–698 (2016)](10.1007/s00425-015-2436-8)
  *
  *  - [Sharpe, P. J. H. & DeMichele, D. W. Journal of Theoretical Biology 64,
  *    649–670 (1977)](https://doi.org/10.1016/0022-5193(77)90265-X)
@@ -289,29 +306,29 @@ inline double peaked_arrhenius_response(
  *  - [Yin, X. New Phytologist 231, 2113–2116 (2021)]
  *    (https://doi.org/10.1111/nph.17341)
  *
- *  @param [in] c Dimensionless scaling parameter
- *
  *  @param [in] Ha Enthalpy of activation (J / mol)
  *
  *  @param [in] Hd Enthalpy of deactivation (J / mol)
  *
+ *  @param [in] reference_temperature_k Reference temperature (K)
+ *
  *  @param [in] S Entropy (J / K / mol)
  *
- *  @param [in] temperature_k Absolute temperature (K)
+ *  @param [in] temperature_k Temperature at which the reaction is occurring (K)
  *
- *  @return The value of a reaction rate (or some other parameter) at the
- *          specified temperature; the units of the return value will depend on
- *          the particular situation where this function is being used.
+ *  @return The Johnson-Eyring-Williams equation normalized to its value at the
+ *          reference temperature (dimensionless)
  */
 inline double johnson_eyring_williams_response(
-    double c,             // dimensionless
-    double Ha,            // J / mol
-    double Hd,            // J / mol
-    double S,             // J / K / mol
-    double temperature_k  // K
+    double const Ha,                       // J / mol
+    double const Hd,                       // J / mol
+    double const reference_temperature_k,  // K
+    double const S,                        // J / K / mol
+    double const temperature_k             // K
 )
 {
-    return temperature_k * peaked_arrhenius_response(c, Ha, Hd, S, temperature_k);
+    return temperature_k / reference_temperature_k *
+           peaked_arrhenius_response(Ha, Hd, reference_temperature_k, S, temperature_k);
 }
 
 /**

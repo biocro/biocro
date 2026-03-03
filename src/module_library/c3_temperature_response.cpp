@@ -28,13 +28,14 @@ using conversion_constants::celsius_to_kelvin;
  *  - `theta`
  *
  *  The following parameters are calculated using a Johnson, Eyring, & Williams
- *  temperature response (`johnson_eyring_williams_response()`) as in Harley et
- *  al. (1992):
+ *  temperature response (`johnson_eyring_williams_response()`) as in Yang et
+ *  al. (2016):
  *  - `TPU_norm`
+ *  A reference temperature of 25 degrees C is used.
  *
- * References:
- *  - [Harley, P. C., Thomas, R. B., Reynolds, J. F. & Strain, B. R. Plant, Cell
- *    & Environment 15, 271–282 (1992)](https://doi.org/10.1111/j.1365-3040.1992.tb00974.x)
+ *  References:
+ *  - [Yang, J. T., Preiser, A. L., Li, Z., Weise, S. E. & Sharkey, T. D. Planta
+ *    243, 687–698 (2016)](https://doi/org/10.1007/s00425-015-2436-8)
  *
  *  - [Bernacchi, C. J., Singsaas, E. L., Pimentel, C., Jr, A. R. P. & Long, S. P.
  *    Plant, Cell & Environment 24, 253–259 (2001)](https://doi.org/10.1111/j.1365-3040.2001.00668.x)
@@ -48,8 +49,8 @@ c3_param_at_tleaf c3_temperature_response(
 )
 {
     // Get reference temperature in Kelvin
-    double constexpr Tref_K = 25.0 + celsius_to_kelvin; // K
-    
+    double constexpr Tref_K = 25.0 + celsius_to_kelvin;  // K
+
     // Get leaf temperature in Kelvin
     double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
 
@@ -61,6 +62,6 @@ c3_param_at_tleaf c3_temperature_response(
         /* phi_PSII =   */ polynomial_response(param.phi_PSII_0, param.phi_PSII_1, param.phi_PSII_2, Tleaf),
         /* RL_norm =    */ arrhenius_exponential(param.RL_Ea, Tref_K, Tleaf_K),
         /* theta =      */ polynomial_response(param.theta_0, param.theta_1, param.theta_2, Tleaf),
-        /* Tp_norm =    */ johnson_eyring_williams_response(param.Tp_c, param.Tp_Ha, param.Tp_Hd, param.Tp_S, Tleaf_K),
+        /* Tp_norm =    */ johnson_eyring_williams_response(param.Tp_Ha, param.Tp_Hd, Tref_K, param.Tp_S, Tleaf_K),
         /* Vcmax_norm = */ arrhenius_exponential(param.Vcmax_Ea, Tref_K, Tleaf_K)};
 }

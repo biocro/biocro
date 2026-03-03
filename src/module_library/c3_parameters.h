@@ -32,7 +32,6 @@ class c3_parameters : public direct_module
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
           Tleaf{get_input(input_quantities, "Tleaf")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
@@ -68,7 +67,6 @@ class c3_parameters : public direct_module
     double const& theta_1;
     double const& theta_2;
     double const& Tleaf;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
@@ -104,7 +102,6 @@ string_vector c3_parameters::get_inputs()
         "theta_1",     // (degrees C)^(-1)
         "theta_2",     // (degrees C)^(-2)
         "Tleaf",       // degrees C
-        "Tp_c",        // dimensionless
         "Tp_Ha",       // J / mol
         "Tp_Hd",       // J / mol
         "Tp_S",        // J / K / mol
@@ -142,7 +139,6 @@ void c3_parameters::do_operation() const
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,
