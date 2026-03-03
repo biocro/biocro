@@ -82,7 +82,8 @@ class c3_leaf_photosynthesis : public direct_module
           RL_op{get_op(output_quantities, "RL")},
           Rp_op{get_op(output_quantities, "Rp")},
           TransR_op{get_op(output_quantities, "TransR")},
-          numit_op{get_op(output_quantities, "numit")}
+          numit_op{get_op(output_quantities, "numit")},
+          residual_op{get_op(output_quantities, "residual")}
     {
     }
     static string_vector get_inputs();
@@ -153,6 +154,7 @@ class c3_leaf_photosynthesis : public direct_module
     double* Rp_op;
     double* TransR_op;
     double* numit_op;
+    double* residual_op;
 
     // Main operation
     void do_operation() const;
