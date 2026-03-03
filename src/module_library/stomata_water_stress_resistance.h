@@ -154,7 +154,7 @@ void stomata_water_stress_resistance::do_operation() const
     x = std::min(std::max(x, 0.01), 1.0);
 
     // Use an S-curve to map the physical response
-    // the simple REW is too strong (simple linear) 
+    // the simple REW is too strong (simple linear) when I compare with gs data 
     // The straight line assumes the plant feels stress at a constant rate. 
     // But soil does not hold water in a straight line. 
     // Soil holds water very loosely at first.
@@ -167,6 +167,11 @@ void stomata_water_stress_resistance::do_operation() const
     // Similar as https://doi.org/10.1046/j.1365-3040.2003.01035.x
     double curve_steepness = 10.0;
     double p50_point = 0.42;
+
+    if (Catm > 500){
+        curve_steepness = 4.0;
+        p50_point = 0.45;
+    }
     
     // Calculate the physical stress factor
     x = 1.0 / (1.0 + std::exp(-curve_steepness * (x - p50_point)));    
