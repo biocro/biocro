@@ -2,6 +2,7 @@
 #include "c3photo.h"                  // for c3photoC
 #include "leaf_energy_balance.h"      // for leaf_energy_balance
 #include "c3_temperature_response.h"  // for c3_temperature_response_parameters
+#include "../math/roots/onedim/fixed_point.h"
 
 using standardBML::c3_leaf_photosynthesis;
 
@@ -73,7 +74,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
         "TransR",            // mmol / m^2 / s
-        "numit"             // 
+        "numit",             //
+        "residual"
     };
 }
 
@@ -118,18 +120,15 @@ void c3_leaf_photosynthesis::do_operation() const
             electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mol / m^2 / s
 
-    photosynthesis_outputs photo; 
+    photosynthesis_outputs photo;
     energy_balance_outputs et;
     // Initial guess
-    double current_gs = initial_stomatal_conductance;
 
     // 1. Set convergence criteria
-    const int max_iterations = 10;
-    const double tolerance = 0.01; // tolerance in g_s (mol/m^2/s)
-    double num_of_it = 0;
-    double current_Tleaf = ambient_temperature; 
-    
-    for (int i = 0; i < max_iterations; ++i) {
+    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+
+    auto func = [=, &photo, &et](double current_gs){
+
       // 2. Solve Energy Balance with current g_s
       et = leaf_energy_balance(
           absorbed_longwave,
@@ -142,7 +141,7 @@ void c3_leaf_photosynthesis::do_operation() const
           current_gs,
           windspeed);
 
-      current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
+      double current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
 
       // 3. Recalculate g_s with current Tleaf
       photo =
@@ -154,14 +153,18 @@ void c3_leaf_photosynthesis::do_operation() const
               electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
               et.gbw_molecular);
 
-      // 4. Check for convergence
-      if (std::abs(photo.Gs - current_gs) < tolerance) {
-          break;
-      }
-      // 5. Update guess for next iteration
-      current_gs = photo.Gs;
-      num_of_it += 1;
+    return photo.Gs;
+    };
+
+    using namespace root_finding;
+    result_t result = solver.solve(func, initial_stomatal_conductance);
+    // Throw exception if not converged
+    if (!is_successful(result.flag)) {
+        throw std::runtime_error(
+            "c3_leaf_photosynthesis solver reports failed convergence with termination flag:\n    " +
+            flag_message(result.flag));
     }
+
 
     // Update the outputs
     update(Assim_op, photo.Assim);
@@ -172,11 +175,12 @@ void c3_leaf_photosynthesis::do_operation() const
     update(gbw_op, et.gbw_molecular);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, current_Tleaf);
+    update(leaf_temperature_op, ambient_temperature + et.Deltat);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
-    update(numit_op, num_of_it);
+    update(numit_op, result.iteration);
+    update(residual_op, result.residual);
 }
