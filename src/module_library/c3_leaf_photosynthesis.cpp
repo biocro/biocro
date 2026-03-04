@@ -135,10 +135,9 @@ void c3_leaf_photosynthesis::do_operation() const
             c3photoC(
                 tr_param, absorbed_ppfd, current_Tleaf, ambient_temperature,
                 rh, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-                StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-                et.gbw_molecular);
+                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
+                O2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, et.gbw_molecular);
 
         return photo.Gs;
     };

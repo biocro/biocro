@@ -141,9 +141,8 @@ canopy_photosynthesis_outputs c3CanAC(
                 tr_param, iabs_dir, ambient_temperature, ambient_temperature,
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
         auto func_direct = [=, &direct_photo, &et_direct](double current_gs) {
@@ -158,14 +157,15 @@ canopy_photosynthesis_outputs c3CanAC(
                 current_gs,
                 layer_wind_speed);
 
-            double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
+            double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
 
             direct_photo =
                 c3photoC(
-                    tr_param, iabs_dir, leaf_temperature_dir, ambient_temperature,
-                    RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
-                    Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                    o2, StomataWS,
+                    tr_param, iabs_dir, leaf_temperature_dir,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
                     electrons_per_carboxylation, electrons_per_oxygenation,
                     beta_PSII, et_direct.gbw_molecular);
 
@@ -197,9 +197,8 @@ canopy_photosynthesis_outputs c3CanAC(
                 tr_param, iabs_diff, ambient_temperature, ambient_temperature,
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
         auto func_diffuse = [=, &diffuse_photo, &et_diffuse](double current_gs) {
@@ -214,17 +213,17 @@ canopy_photosynthesis_outputs c3CanAC(
                 current_gs,
                 layer_wind_speed);
 
-            double leaf_temperature_Idiffuse = ambient_temperature + et_diffuse.Deltat;  // degrees C
+            double leaf_temperature_Idiffuse =
+                ambient_temperature + et_diffuse.Deltat;  // degrees C
 
             diffuse_photo =
                 c3photoC(
-                    tr_param, iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
-                    RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25,
-                    Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm,
-                    atmospheric_pressure, o2, StomataWS,
-                    electrons_per_carboxylation,
-                    electrons_per_oxygenation, beta_PSII,
-                    et_diffuse.gbw_molecular);
+                    tr_param, iabs_diff, leaf_temperature_Idiffuse,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
+                    electrons_per_carboxylation, electrons_per_oxygenation,
+                    beta_PSII, et_diffuse.gbw_molecular);
 
             return diffuse_photo.Gs;
         };
