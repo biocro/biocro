@@ -83,14 +83,13 @@ class c3_assimilation : public direct_module
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw{get_input(input_quantities, "gbw")},
           Gs_min{get_input(input_quantities, "Gs_min")},
-          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
-          Jmax_c{get_input(input_quantities, "Jmax_c")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
-          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_at_25{get_input(input_quantities, "Kc_at_25")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
-          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_at_25{get_input(input_quantities, "Ko_at_25")},
           Ko_Ea{get_input(input_quantities, "Ko_Ea")},
           O2{get_input(input_quantities, "O2")},
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
@@ -99,7 +98,6 @@ class c3_assimilation : public direct_module
           Qabs{get_input(input_quantities, "Qabs")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
-          RL_c{get_input(input_quantities, "RL_c")},
           RL_Ea{get_input(input_quantities, "RL_Ea")},
           StomataWS{get_input(input_quantities, "StomataWS")},
           Tambient{get_input(input_quantities, "temp")},
@@ -108,12 +106,10 @@ class c3_assimilation : public direct_module
           theta_2{get_input(input_quantities, "theta_2")},
           Tleaf{get_input(input_quantities, "Tleaf")},
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
-          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
 
           // Get pointers to output quantities
@@ -145,14 +141,13 @@ class c3_assimilation : public direct_module
     double const& electrons_per_oxygenation;
     double const& gbw;
     double const& Gs_min;
-    double const& Gstar_c;
+    double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& Jmax_at_25;
-    double const& Jmax_c;
     double const& Jmax_Ea;
-    double const& Kc_c;
+    double const& Kc_at_25;
     double const& Kc_Ea;
-    double const& Ko_c;
+    double const& Ko_at_25;
     double const& Ko_Ea;
     double const& O2;
     double const& phi_PSII_0;
@@ -161,7 +156,6 @@ class c3_assimilation : public direct_module
     double const& Qabs;
     double const& rh;
     double const& RL_at_25;
-    double const& RL_c;
     double const& RL_Ea;
     double const& StomataWS;
     double const& Tambient;
@@ -170,12 +164,10 @@ class c3_assimilation : public direct_module
     double const& theta_2;
     double const& Tleaf;
     double const& Tp_at_25;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
-    double const& Vcmax_c;
     double const& Vcmax_Ea;
 
     // Pointers to output quantities
@@ -207,14 +199,13 @@ string_vector c3_assimilation::get_inputs()
         "electrons_per_oxygenation",    // self-explanatory units
         "gbw",                          // mol / m^2 / s
         "Gs_min",                       // mol / m^2 / s
-        "Gstar_c",                      // dimensionless
+        "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
         "Jmax_at_25",                   // micromol / m^2 / s
-        "Jmax_c",                       // dimensionless
         "Jmax_Ea",                      // J / mol
-        "Kc_c",                         // dimensionless
+        "Kc_at_25",                     // micromol / mol
         "Kc_Ea",                        // J / mol
-        "Ko_c",                         // dimensionless
+        "Ko_at_25",                     // mmol / mol
         "Ko_Ea",                        // J / mol
         "O2",                           // millimol / mol
         "phi_PSII_0",                   // dimensionless
@@ -223,7 +214,6 @@ string_vector c3_assimilation::get_inputs()
         "Qabs",                         // micromol / m^2 / s
         "rh",                           // dimensionless
         "RL_at_25",                     // micromol / m^2 / s
-        "RL_c",                         // dimensionless
         "RL_Ea",                        // J / mol
         "StomataWS",                    // dimensionless
         "temp",                         // degrees C
@@ -232,12 +222,10 @@ string_vector c3_assimilation::get_inputs()
         "theta_2",                      // (degrees C)^(-2)
         "Tleaf",                        // degrees C
         "Tp_at_25",                     // micromol / m^2 / s
-        "Tp_c",                         // dimensionless
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
-        "Vcmax_c",                      // dimensionless
         "Vcmax_Ea",                     // J / mol
     };
 }
@@ -263,27 +251,20 @@ void c3_assimilation::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
-        Gstar_c,
         Gstar_Ea,
-        Jmax_c,
         Jmax_Ea,
-        Kc_c,
         Kc_Ea,
-        Ko_c,
         Ko_Ea,
         phi_PSII_0,
         phi_PSII_1,
         phi_PSII_2,
-        RL_c,
         RL_Ea,
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_c,
         Vcmax_Ea};
 
     photosynthesis_outputs c3_results = c3photoC(
@@ -292,6 +273,9 @@ void c3_assimilation::do_operation() const
         Tleaf,
         Tambient,
         rh,
+        Gstar_at_25,
+        Kc_at_25,
+        Ko_at_25,
         Vcmax_at_25,
         Jmax_at_25,
         Tp_at_25,

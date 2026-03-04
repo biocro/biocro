@@ -1,6 +1,8 @@
 #ifndef ENERGY_BALANCE_H
 #define ENERGY_BALANCE_H
 
+#include <cstddef>  // for size_t
+
 struct energy_balance_outputs {
     double Deltat;           //!< Temperature difference (leaf - air) (degrees C)
     double E_loss;           //!< Rate of energy loss due to transpiration (J / m^2 / s)
