@@ -31,6 +31,20 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+## Bug Fixes
+
+- Changed the minimum version of macOS checked by the R-CMD-check from
+  4.2.0 to 4.3.0.
+
+  - CRAN now only provides R versions 4.2.3 and above for Mac.
+
+  - Somehow the vignette builder cannot find the `knitr` package when using the
+    the online testing setup for R version 4.2.0 or 4.2.3 even when `knitr` is
+    installed, causing a spurious test failure. This problem does not occur for
+    R version 4.3.0.
+
 # Changes in BioCro version 3.3.1
 
 ## Bug fixes

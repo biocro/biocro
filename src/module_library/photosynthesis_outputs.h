@@ -1,6 +1,8 @@
 #ifndef PHOTOSYNTHESIS_OUTPUTS_H
 #define PHOTOSYNTHESIS_OUTPUTS_H
 
+#include <cstddef>  // for size_t
+
 /**
  * @brief A simple structure for holding the output of photosynthesis
  * calculations.
