@@ -1,11 +1,12 @@
 #include <vector>
-#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
-#include "BioCro.h"                  // for WINDprof
-#include "c3photo.h"                 // for c3photoC
-#include "leaf_energy_balance.h"     // for leaf_energy_balance
-#include "lightME.h"                 // for lightME
-#include "respiration.h"             // for growth_resp
-#include "sunML.h"                   // for sunML
+#include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
+#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "BioCro.h"                            // for WINDprof
+#include "c3photo.h"                           // for c3photoC
+#include "leaf_energy_balance.h"               // for leaf_energy_balance
+#include "lightME.h"                           // for lightME
+#include "respiration.h"                       // for growth_resp
+#include "sunML.h"                             // for sunML
 #include "c3CanAC.h"
 
 canopy_photosynthesis_outputs c3CanAC(
@@ -103,6 +104,16 @@ canopy_photosynthesis_outputs c3CanAC(
 
     double gbw_guess{1.2};  // mol / m^2 / s
 
+    energy_balance_outputs et_direct;
+    energy_balance_outputs et_diffuse;
+    photosynthesis_outputs direct_photo;
+    photosynthesis_outputs diffuse_photo;
+
+    using namespace root_finding;
+
+    // Set convergence criteria
+    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -124,37 +135,51 @@ canopy_photosynthesis_outputs c3CanAC(
         double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
+        // Initial guess
         double direct_gsw_estimate =
             c3photoC(
                 tr_param, iabs_dir, ambient_temperature, ambient_temperature,
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
-        energy_balance_outputs et_direct = leaf_energy_balance(
-            absorbed_longwave,
-            j_dir,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leaf_width,
-            RH,
-            direct_gsw_estimate,
-            layer_wind_speed);
+        auto func_direct = [=, &direct_photo, &et_direct](double current_gs) {
+            et_direct = leaf_energy_balance(
+                absorbed_longwave,
+                j_dir,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leaf_width,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
+            double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
 
-        photosynthesis_outputs direct_photo =
-            c3photoC(
-                tr_param, iabs_dir, leaf_temperature_dir, ambient_temperature,
-                RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et_direct.gbw_molecular);
+            direct_photo =
+                c3photoC(
+                    tr_param, iabs_dir, leaf_temperature_dir,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
+                    electrons_per_carboxylation, electrons_per_oxygenation,
+                    beta_PSII, et_direct.gbw_molecular);
+
+            return direct_photo.Gs;
+        };
+
+        result_t result_direct = solver.solve(func_direct, direct_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_direct.flag)) {
+            throw std::runtime_error(
+                "c3Canopy direct solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_direct.flag));
+        }
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
@@ -166,38 +191,51 @@ canopy_photosynthesis_outputs c3CanAC(
         double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless
         double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
+        // Initial guess
         double diffuse_gsw_estimate =
             c3photoC(
                 tr_param, iabs_diff, ambient_temperature, ambient_temperature,
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
-        energy_balance_outputs et_diffuse = leaf_energy_balance(
-            absorbed_longwave,
-            j_diff,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leaf_width,
-            RH,
-            diffuse_gsw_estimate,
-            layer_wind_speed);
+        auto func_diffuse = [=, &diffuse_photo, &et_diffuse](double current_gs) {
+            et_diffuse = leaf_energy_balance(
+                absorbed_longwave,
+                j_diff,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leaf_width,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-        double leaf_temperature_Idiffuse = ambient_temperature + et_diffuse.Deltat;  // degrees C
+            double leaf_temperature_Idiffuse =
+                ambient_temperature + et_diffuse.Deltat;  // degrees C
 
-        photosynthesis_outputs diffuse_photo =
-            c3photoC(
-                tr_param, iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
-                RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm,
-                atmospheric_pressure, o2, StomataWS,
-                electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII,
-                et_diffuse.gbw_molecular);
+            diffuse_photo =
+                c3photoC(
+                    tr_param, iabs_diff, leaf_temperature_Idiffuse,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
+                    electrons_per_carboxylation, electrons_per_oxygenation,
+                    beta_PSII, et_diffuse.gbw_molecular);
+
+            return diffuse_photo.Gs;
+        };
+
+        result_t result_diffuse = solver.solve(func_diffuse, diffuse_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_diffuse.flag)) {
+            throw std::runtime_error(
+                "c3Canopy diffuse solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_diffuse.flag));
+        }
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

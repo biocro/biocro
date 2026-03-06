@@ -1,12 +1,13 @@
 #include <algorithm>  // for std::min, std::max
 #include <vector>
-#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
-#include "BioCro.h"                  // for WINDprof
-#include "c4photo.h"                 // for c4photoC
-#include "leaf_energy_balance.h"     // for leaf_energy_balance
-#include "lightME.h"                 // for lightME
-#include "respiration.h"             // for growth_resp
-#include "sunML.h"                   // for sunML
+#include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
+#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "BioCro.h"                            // for WINDprof
+#include "c4photo.h"                           // for c4photoC
+#include "leaf_energy_balance.h"               // for leaf_energy_balance
+#include "lightME.h"                           // for lightME
+#include "respiration.h"                       // for growth_resp
+#include "sunML.h"                             // for sunML
 #include "CanAC.h"
 
 canopy_photosynthesis_outputs CanAC(
@@ -99,6 +100,16 @@ canopy_photosynthesis_outputs CanAC(
 
     double gbw_guess{1.2};  // mol / m^2 / s
 
+    energy_balance_outputs et_direct;
+    energy_balance_outputs et_diffuse;
+    photosynthesis_outputs direct_photo;
+    photosynthesis_outputs diffuse_photo;
+
+    using namespace root_finding;
+
+    // Set convergence criteria
+    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -132,28 +143,40 @@ canopy_photosynthesis_outputs CanAC(
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
                 .Gs;  // mol / m^2 / s
+        auto func_direct = [=, &direct_photo, &et_direct](double current_gs) {
+            et_direct = leaf_energy_balance(
+                absorbed_longwave,
+                j_dir,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leafwidth,
+                RH,
+                direct_gsw_estimate,
+                layer_wind_speed);
 
-        energy_balance_outputs et_direct = leaf_energy_balance(
-            absorbed_longwave,
-            j_dir,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leafwidth,
-            RH,
-            direct_gsw_estimate,
-            layer_wind_speed);
+            double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
 
-        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
+            direct_photo =
+                c4photoC(
+                    i_dir, leaf_temperature_dir, ambient_temperature,
+                    RH, Vcmax_at_25, Alpha, Kparm,
+                    theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
+                    atmospheric_pressure, upperT, lowerT,
+                    et_direct.gbw_molecular);
 
-        photosynthesis_outputs direct_photo =
-            c4photoC(
-                i_dir, leaf_temperature_dir, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
-                theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, upperT, lowerT,
-                et_direct.gbw_molecular);
+            return direct_photo.Gs;
+        };
 
+        result_t result_direct = solver.solve(func_direct, direct_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_direct.flag)) {
+            throw std::runtime_error(
+                "CanAC direct solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_direct.flag));
+        }
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
@@ -172,27 +195,40 @@ canopy_photosynthesis_outputs CanAC(
                 atmospheric_pressure, upperT, lowerT,
                 gbw_guess)
                 .Gs;  // mol / m^2 / s
+        auto func_diffuse = [=, &diffuse_photo, &et_diffuse](double current_gs) {
+            et_diffuse = leaf_energy_balance(
+                absorbed_longwave,
+                j_diff,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leafwidth,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-        energy_balance_outputs et_diffuse = leaf_energy_balance(
-            absorbed_longwave,
-            j_diff,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leafwidth,
-            RH,
-            diffuse_gsw_estimate,
-            layer_wind_speed);
+            double leaf_temperature_diff =
+                ambient_temperature + et_diffuse.Deltat;  // degrees C
 
-        double leaf_temperature_diff = ambient_temperature + et_diffuse.Deltat;  // degrees C
+            diffuse_photo =
+                c4photoC(
+                    i_diff, leaf_temperature_diff, ambient_temperature,
+                    RH, Vcmax_at_25, Alpha, Kparm,
+                    theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
+                    atmospheric_pressure, upperT, lowerT,
+                    et_diffuse.gbw_molecular);
 
-        photosynthesis_outputs diffuse_photo =
-            c4photoC(
-                i_diff, leaf_temperature_diff, ambient_temperature,
-                RH, Vcmax_at_25, Alpha, Kparm,
-                theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, upperT, lowerT,
-                et_diffuse.gbw_molecular);
+            return diffuse_photo.Gs;
+        };
+
+        result_t result_diffuse = solver.solve(func_diffuse, diffuse_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_diffuse.flag)) {
+            throw std::runtime_error(
+                "CanAC diffuse solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_diffuse.flag));
+        }
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
