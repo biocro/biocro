@@ -14,12 +14,12 @@ struct energy_balance_outputs {
     double gbw_molecular;    //!< Total boundary layer conductance to water vapor, for molecular fluxes (mol / m^2 / s)
     double gsw;              //!< Stomatal conductance to water vapor, for mass fluxes (m / s)
     double H;                //!< Rate of sensible heat loss (J / m^2 / s)
-    double leaf_temp_check;  //!< Equals zero if loop has converged (degrees C)
+    double residual_energy_balance_Tleaf;  //!< Equals zero if loop has converged (degrees C)
     double PhiN;             //!< Net energy available for transpiration and heat loss (J / m^2 / s)
     double RH_canopy;        //!< Relative humidity in the canopy, just outside the leaf boundary layer (dimensionless)
     double storage;          //!< Rate of energy storage by the leaf; should be zero (J / m^2 / s)
     double TransR;           //!< Transpiration rate (mmol / m^2 / s)
-    size_t iterations;       //!< Number of iterations used by convergence loop
+    size_t iteration_energy_balance_Tleaf;       //!< Number of iterations used by convergence loop
 };
 
 double check_leaf_temp(

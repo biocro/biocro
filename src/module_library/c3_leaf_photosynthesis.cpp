@@ -70,8 +70,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
         "TransR",            // mmol / m^2 / s
-        "numit",             // not a physical quantity
-        "residual"           // mol / m^2 / s
+        "iteration_C3_Gs",   // not a physical quantity
+        "residual_C3_Gs"     // mol / m^2 / s
     };
 }
 
@@ -167,6 +167,6 @@ void c3_leaf_photosynthesis::do_operation() const
     update(RL_op, photo.RL);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
-    update(numit_op, result.iteration);
-    update(residual_op, result.residual);
+    update(iteration_C3_Gs_op, result.iteration);
+    update(residual_C3_Gs_op, result.residual);
 }

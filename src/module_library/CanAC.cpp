@@ -144,29 +144,29 @@ canopy_photosynthesis_outputs CanAC(
                 gbw_guess)
                 .Gs;  // mol / m^2 / s
         auto func_direct = [=, &direct_photo, &et_direct](double current_gs) {
-          et_direct = leaf_energy_balance(
-              absorbed_longwave,
-              j_dir,
-              atmospheric_pressure,
-              ambient_temperature,
-              gbw_canopy,
-              leafwidth,
-              RH,
-              direct_gsw_estimate,
-              layer_wind_speed);
+            et_direct = leaf_energy_balance(
+                absorbed_longwave,
+                j_dir,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leafwidth,
+                RH,
+                direct_gsw_estimate,
+                layer_wind_speed);
 
-          double leaf_temperature_dir = 
-              ambient_temperature + et_direct.Deltat;  // degrees C
+            double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
 
-          direct_photo =
-              c4photoC(
-                  i_dir, leaf_temperature_dir, ambient_temperature,
-                  RH, Vcmax_at_25, Alpha, Kparm,
-                  theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
-                  atmospheric_pressure, upperT, lowerT,
-                  et_direct.gbw_molecular);
+            direct_photo =
+                c4photoC(
+                    i_dir, leaf_temperature_dir, ambient_temperature,
+                    RH, Vcmax_at_25, Alpha, Kparm,
+                    theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
+                    atmospheric_pressure, upperT, lowerT,
+                    et_direct.gbw_molecular);
 
-          return direct_photo.Gs;
+            return direct_photo.Gs;
         };
 
         result_t result_direct = solver.solve(func_direct, direct_gsw_estimate);
@@ -196,27 +196,27 @@ canopy_photosynthesis_outputs CanAC(
                 gbw_guess)
                 .Gs;  // mol / m^2 / s
         auto func_diffuse = [=, &diffuse_photo, &et_diffuse](double current_gs) {
-          et_diffuse = leaf_energy_balance(
-              absorbed_longwave,
-              j_diff,
-              atmospheric_pressure,
-              ambient_temperature,
-              gbw_canopy,
-              leafwidth,
-              RH,
-              current_gs,
-              layer_wind_speed);
+            et_diffuse = leaf_energy_balance(
+                absorbed_longwave,
+                j_diff,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leafwidth,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-          double leaf_temperature_diff = 
-              ambient_temperature + et_diffuse.Deltat;  // degrees C
+            double leaf_temperature_diff =
+                ambient_temperature + et_diffuse.Deltat;  // degrees C
 
-          diffuse_photo =
-              c4photoC(
-                  i_diff, leaf_temperature_diff, ambient_temperature,
-                  RH, Vcmax_at_25, Alpha, Kparm,
-                  theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
-                  atmospheric_pressure, upperT, lowerT,
-                  et_diffuse.gbw_molecular);
+            diffuse_photo =
+                c4photoC(
+                    i_diff, leaf_temperature_diff, ambient_temperature,
+                    RH, Vcmax_at_25, Alpha, Kparm,
+                    theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
+                    atmospheric_pressure, upperT, lowerT,
+                    et_diffuse.gbw_molecular);
 
             return diffuse_photo.Gs;
         };
