@@ -159,7 +159,7 @@ photosynthesis_outputs c4photoC(
 
     return photosynthesis_outputs{
         /* .Assim = */ Assim,                       // micromol / m^2 /s
-        /* .Assim_check = */ result.residual,       // micromol / m^2 / s
+        /* .residual = */ result.residual,          // micromol / m^2 / s
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
         /* .Ci = */ Ci,                             // micromol / mol
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
@@ -168,6 +168,6 @@ photosynthesis_outputs c4photoC(
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .RL = */ RT,                             // micromol / m^2 / s
         /* .Rp = */ 0,                              // micromol / m^2 / s
-        /* .iterations = */ result.iteration        // not a physical quantity
+        /* .iteration = */ result.iteration         // not a physical quantity
     };
 }

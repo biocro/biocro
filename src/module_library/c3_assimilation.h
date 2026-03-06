@@ -54,7 +54,6 @@ namespace standardBML
  *
  * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
- * - ``'Assim_check'`` for an indicator of whether the loop converged
  * - ``'Assim_conductance'`` for the maximum net assimilation rate limited by conductance
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'Cs'`` for the CO2 concentration at the leaf surface
@@ -63,7 +62,8 @@ namespace standardBML
  * - ``'RHs'`` for the relative humidity at the leaf surface
  * - ``'RL'`` for the rate of non-photorespiratory CO2 release in the light
  * - ``'Rp'`` for the rate of photorespiration
- * - ``'iterations'`` for the number of iterations required for the convergence loop
+ * - ``'residual_C3_Assim'`` for an indicator of whether the loop converged
+ * - ``'iteration_C3_Assim'`` for the number of iterations required for the convergence loop
  */
 class c3_assimilation : public direct_module
 {
@@ -114,7 +114,6 @@ class c3_assimilation : public direct_module
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
-          Assim_check_op{get_op(output_quantities, "Assim_check")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
           Ci_op{get_op(output_quantities, "Ci")},
           Cs_op{get_op(output_quantities, "Cs")},
@@ -123,7 +122,8 @@ class c3_assimilation : public direct_module
           RHs_op{get_op(output_quantities, "RHs")},
           RL_op{get_op(output_quantities, "RL")},
           Rp_op{get_op(output_quantities, "Rp")},
-          iterations_op{get_op(output_quantities, "iterations")}
+          residual_C3_Assim_op{get_op(output_quantities, "residual_C3_Assim")},
+          iteration_C3_Assim_op{get_op(output_quantities, "iteration_C3_Assim")}
     {
     }
     static string_vector get_inputs();
@@ -172,7 +172,6 @@ class c3_assimilation : public direct_module
 
     // Pointers to output quantities
     double* Assim_op;
-    double* Assim_check_op;
     double* Assim_conductance_op;
     double* Ci_op;
     double* Cs_op;
@@ -181,7 +180,8 @@ class c3_assimilation : public direct_module
     double* RHs_op;
     double* RL_op;
     double* Rp_op;
-    double* iterations_op;
+    double* residual_C3_Assim_op;
+    double* iteration_C3_Assim_op;
 
     // Main operation
     void do_operation() const;
@@ -234,7 +234,6 @@ string_vector c3_assimilation::get_outputs()
 {
     return {
         "Assim",              // micromol / m^2 / s
-        "Assim_check",        // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
         "Ci",                 // micromol / mol
         "Cs",                 // micromol / m^2 / s
@@ -243,7 +242,8 @@ string_vector c3_assimilation::get_outputs()
         "RHs",                // dimensionless from Pa / Pa
         "RL",                 // micromol / m^2 / s
         "Rp",                 // micromol / m^2 / s
-        "iterations"          // not a physical quantity
+        "residual_C3_Assim",  // micromol / m^2 / s
+        "iteration_C3_Assim"  // not a physical quantity
     };
 }
 
@@ -293,7 +293,6 @@ void c3_assimilation::do_operation() const
         gbw);
 
     // Update the output quantity list
-    update(Assim_check_op, c3_results.Assim_check);
     update(Assim_conductance_op, c3_results.Assim_conductance);
     update(Assim_op, c3_results.Assim);
     update(Ci_op, c3_results.Ci);
@@ -303,7 +302,8 @@ void c3_assimilation::do_operation() const
     update(RHs_op, c3_results.RHs);
     update(RL_op, c3_results.RL);
     update(Rp_op, c3_results.Rp);
-    update(iterations_op, c3_results.iterations);
+    update(residual_C3_Assim_op, c3_results.residual);
+    update(iteration_C3_Assim_op, c3_results.iteration);
 }
 
 }  // namespace standardBML
