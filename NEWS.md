@@ -33,6 +33,18 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
+## Minor User-Facing Changes
+
+- The internal temperature response functions, such as `arrhenius_exponential`,
+  now return values normalized to the parameter value at a reference temperature
+  (25 degrees C). Because of this, several "scaling" parameters such as
+  `Vcmax_c`, `Jmax_c`, `RL_c`, etc, are no longer required.
+
+- The fixed-point iteration method is now used to check for consistent values of
+  stomatal conductance when solving the combined assimilation + energy balance
+  models in the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
+  `BioCro:c4_leaf_photosynthesis`, and `BioCro:c4_canopy` modules.
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
