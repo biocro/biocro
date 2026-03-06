@@ -49,7 +49,7 @@ string_vector c4_leaf_photosynthesis::get_outputs()
         "RH_canopy",         // dimensionless
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
-        "TransR",             // mmol / m^2 / s
+        "TransR",            // mmol / m^2 / s
         "iteration_C4_Gs",   // not a physical quantity
         "residual_C4_Gs"     // mol / m^2 / s
     };
