@@ -1,0 +1,3 @@
+input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,output,output,"description"
+abs_tol,guess_1,guess_2,max_iterations,rel_tol,broyden_flag,broyden_iteration,broyden_x1,broyden_x2,broyden_y1,broyden_y2,newton_flag,newton_iteration,newton_x1,newton_x2,newton_y1,newton_y2,NA
+1e-10,2,3,50,1e-10,0,8,1.00000000000024,0.999999999999842,1.58206781009085e-13,-8.1379347705024e-14,0,4,1,1,0,0,"Simple linear/quadratic system."

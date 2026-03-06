@@ -28,6 +28,9 @@ photosynthesis_outputs c3photoC(
     double const Tleaf,                        // degrees C
     double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
+    double const Gstar_at_25,                  // micromol / mol
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
     double const Vcmax_at_25,                  // micromol / m^2 / s
     double const Jmax_at_25,                   // micromol / m^2 / s
     double const TPU_rate_max,                 // micromol / m^2 / s
@@ -57,10 +60,10 @@ photosynthesis_outputs c3photoC(
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
     double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
-    double const Gstar = c3_param.Gstar;                     // micromol / mol
+    double const Gstar = Gstar_at_25 * c3_param.Gstar_norm;  // micromol / mol
     double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;     // micromol / m^2 / s
-    double const Kc = c3_param.Kc;                           // micromol / mol
-    double const Ko = c3_param.Ko;                           // mmol / mol
+    double const Kc = Kc_at_25 * c3_param.Kc_norm;           // micromol / mol
+    double const Ko = Ko_at_25 * c3_param.Ko_norm;           // mmol / mol
     double const RL = RL_at_25 * c3_param.RL_norm;           // micromol / m^2 / s
     double const theta = c3_param.theta;                     // dimensionless
     double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
@@ -170,7 +173,6 @@ photosynthesis_outputs c3photoC(
 
     return photosynthesis_outputs{
         /* .Assim = */ Assim,                       // micromol / m^2 / s
-        /* .Assim_check = */ result.residual,       // micromol / m^2 / s
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
         /* .Ci = */ Ci,                             // micromol / mol
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
@@ -179,7 +181,8 @@ photosynthesis_outputs c3photoC(
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .RL = */ RL,                             // micromol / m^2 / s
         /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
-        /* .iterations = */ result.iteration        // not a physical quantity
+        /* .residual = */ result.residual,          // micromol / m^2 / s
+        /* .iteration = */ result.iteration         // not a physical quantity
     };
 }
 
