@@ -124,8 +124,8 @@ void c3_leaf_photosynthesis::do_operation() const
     double current_gs = initial_stomatal_conductance;
 
     // 1. Set convergence criteria
-    const int max_iterations = 10;
-    const double tolerance = 0.01; // tolerance in g_s (mol/m^2/s)
+    const int max_iterations = 50;
+    const double tolerance = 0.001; // tolerance in g_s (mol/m^2/s)
     double num_of_it = 0;
     double current_Tleaf = ambient_temperature; 
     
