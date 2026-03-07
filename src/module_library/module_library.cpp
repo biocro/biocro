@@ -12,7 +12,6 @@
 #include "atmospheric_pressure_from_elevation.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
-#include "broyden_test.h"
 #include "buck_swvp.h"
 #include "bucket_soil_drainage.h"
 #include "c3_assimilation.h"
@@ -78,6 +77,7 @@
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
 #include "root_onedim_test.h"
+#include "root_multidim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -122,7 +122,6 @@ creator_map standardBML::module_library::library_entries =
      {"atmospheric_pressure_from_elevation",                   &create_mc<atmospheric_pressure_from_elevation>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
-     {"broyden_test",                                          &create_mc<broyden_test>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
      {"bucket_soil_drainage",                                  &create_mc<bucket_soil_drainage>},
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
@@ -187,6 +186,7 @@ creator_map standardBML::module_library::library_entries =
      {"rasmussen_specific_heat",                               &create_mc<rasmussen_specific_heat>},
      {"rh_to_mole_fraction",                                   &create_mc<rh_to_mole_fraction>},
      {"root_onedim_test",                                      &create_mc<root_onedim_test>},
+     {"root_multidim_test",                                    &create_mc<root_multidim_test>},
      {"rue_leaf_photosynthesis",                               &create_mc<rue_leaf_photosynthesis>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
