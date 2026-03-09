@@ -1,7 +1,8 @@
+#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "c3_temperature_response.h"           // for c3_temperature_response_parameters
+#include "c3photo.h"                           // for c3photoC
+#include "leaf_energy_balance.h"               // for leaf_energy_balance
 #include "c3_leaf_photosynthesis.h"
-#include "c3photo.h"                  // for c3photoC
-#include "leaf_energy_balance.h"      // for leaf_energy_balance
-#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 
 using standardBML::c3_leaf_photosynthesis;
 
@@ -20,15 +21,14 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
         "Gs_min",                       // mol / m^2 / s
-        "Gstar_c",                      // dimensionless
+        "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
         "height",                       // m
         "Jmax_at_25",                   // micromol / m^2 / s
-        "Jmax_c",                       // dimensionless
         "Jmax_Ea",                      // J / mol
-        "Kc_c",                         // dimensionless
+        "Kc_at_25",                     // micromol / mol
         "Kc_Ea",                        // J / mol
-        "Ko_c",                         // dimensionless
+        "Ko_at_25",                     // mmol / mol
         "Ko_Ea",                        // J / mol
         "leafwidth",                    // m
         "O2",                           // mmol / mol
@@ -37,7 +37,6 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "phi_PSII_2",                   // (degrees C)^(-2)
         "rh",                           // dimensionless
         "RL_at_25",                     // micromol / m^2 / s
-        "RL_c",                         // dimensionless
         "RL_Ea",                        // J / mol
         "StomataWS",                    // dimensionless
         "temp",                         // degrees C
@@ -45,12 +44,10 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "theta_1",                      // (degrees C)^(-1)
         "theta_2",                      // (degrees C)^(-2)
         "Tp_at_25",                     // micromol / m^2 / s
-        "Tp_c",                         // dimensionless
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
-        "Vcmax_c",                      // dimensionless
         "Vcmax_Ea",                     // J / mol
         "windspeed"                     // m / s
     };
@@ -73,7 +70,8 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
         "TransR",            // mmol / m^2 / s
-        "numit"             // 
+        "iteration_C3_Gs",   // not a physical quantity
+        "residual_C3_Gs"     // mol / m^2 / s
     };
 }
 
@@ -81,27 +79,20 @@ void c3_leaf_photosynthesis::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
-        Gstar_c,
         Gstar_Ea,
-        Jmax_c,
         Jmax_Ea,
-        Kc_c,
         Kc_Ea,
-        Ko_c,
         Ko_Ea,
         phi_PSII_0,
         phi_PSII_1,
         phi_PSII_2,
-        RL_c,
         RL_Ea,
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_c,
         Vcmax_Ea};
 
     // Make an initial guess for boundary layer conductance
@@ -112,55 +103,53 @@ void c3_leaf_photosynthesis::do_operation() const
     double const initial_stomatal_conductance =
         c3photoC(
             tr_param, absorbed_ppfd, ambient_temperature, ambient_temperature,
-            rh, Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0,
-            b1, Gs_min, Catm, atmospheric_pressure, O2, StomataWS,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation, beta_PSII, gbw_guess)
+            rh, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
+            Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
+            StomataWS, electrons_per_carboxylation, electrons_per_oxygenation,
+            beta_PSII, gbw_guess)
             .Gs;  // mol / m^2 / s
 
-    photosynthesis_outputs photo; 
+    photosynthesis_outputs photo;
     energy_balance_outputs et;
-    // Initial guess
-    double current_gs = initial_stomatal_conductance;
 
     // 1. Set convergence criteria
-    const int max_iterations = 50;
-    const double tolerance = 0.001; // tolerance in g_s (mol/m^2/s)
-    double num_of_it = 0;
-    double current_Tleaf = ambient_temperature; 
-    
-    for (int i = 0; i < max_iterations; ++i) {
-      // 2. Solve Energy Balance with current g_s
-      et = leaf_energy_balance(
-          absorbed_longwave,
-          absorbed_shortwave,
-          atmospheric_pressure,
-          ambient_temperature,
-          gbw_canopy,
-          leafwidth,
-          rh,
-          current_gs,
-          windspeed);
+    root_finding::fixed_point solver(50, 1e-3, 1e-3);
 
-      current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
+    auto func = [=, &photo, &et](double current_gs) {
+        // 2. Solve Energy Balance with current g_s
+        et = leaf_energy_balance(
+            absorbed_longwave,
+            absorbed_shortwave,
+            atmospheric_pressure,
+            ambient_temperature,
+            gbw_canopy,
+            leafwidth,
+            rh,
+            current_gs,
+            windspeed);
 
-      // 3. Recalculate g_s with current Tleaf
-      photo =
-          c3photoC(
-              tr_param, absorbed_ppfd, current_Tleaf, ambient_temperature,
-              rh, Vcmax_at_25, Jmax_at_25,
-              Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-              StomataWS,
-              electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-              et.gbw_molecular);
+        double current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
 
-      // 4. Check for convergence
-      if (std::abs(photo.Gs - current_gs) < tolerance) {
-          break;
-      }
-      // 5. Update guess for next iteration
-      current_gs = photo.Gs;
-      num_of_it += 1;
+        // 3. Recalculate g_s with current Tleaf
+        photo =
+            c3photoC(
+                tr_param, absorbed_ppfd, current_Tleaf, ambient_temperature,
+                rh, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
+                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
+                O2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, et.gbw_molecular);
+
+        return photo.Gs;
+    };
+
+    using namespace root_finding;
+    result_t result = solver.solve(func, initial_stomatal_conductance);
+
+    // Throw exception if not converged
+    if (!is_successful(result.flag)) {
+        throw std::runtime_error(
+            "c3_leaf_photosynthesis solver reports failed convergence with termination flag:\n    " +
+            flag_message(result.flag));
     }
 
     // Update the outputs
@@ -172,11 +161,12 @@ void c3_leaf_photosynthesis::do_operation() const
     update(gbw_op, et.gbw_molecular);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, current_Tleaf);
+    update(leaf_temperature_op, ambient_temperature + et.Deltat);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
-    update(numit_op, num_of_it);
+    update(iteration_C3_Gs_op, result.iteration);
+    update(residual_C3_Gs_op, result.residual);
 }
