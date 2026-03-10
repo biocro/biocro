@@ -100,7 +100,7 @@ class soil_water_uptake : public direct_module
     double const& canopy_transpiration_rate;  // Mg/ha/hr
 
     // pointers to output quantities
-    double* uptake_layer_1_op; //Mg/ha/hr
+    double* uptake_layer_1_op;  // Mg/ha/hr
     double* uptake_layer_2_op;
     double* uptake_layer_3_op;
     double* uptake_layer_4_op;
@@ -207,21 +207,21 @@ void soil_water_uptake::do_operation() const
     // Calculate the weight of roots in each layer
     double root_weight[6] = {0.0};
     double total_weight = 0.0;
-    double current_top_depth = 0.0; // top depth of the rooting layer 
+    double current_top_depth = 0.0;  // top depth of the rooting layer
 
     // get total root depth
     for (int i = 0; i < max_rooting_layer; i++) {
         // Find the middle depth of the current layer
         double mid_depth = current_top_depth + (soil_depth[i] / 2.0);
-        // Root fraction drop off fast. The number 0.1 controls how fast. 
+        // Root fraction drop off fast. The number 0.1 controls how fast.
         // A bigger number makes the surface roots gets more weights.
-        // Root fraction profile is known to decrease exponentially with depth. 
-        // Jackson, R.B., Canadell, J., Ehleringer, J.R. et al. 
+        // Root fraction profile is known to decrease exponentially with depth.
+        // Jackson, R.B., Canadell, J., Ehleringer, J.R. et al.
         // A global analysis of root distributions for terrestrial biomes.
         // Oecologia 108, 389–411 (1996). https://doi.org/10.1007/BF00333714
         double base_weight = exp(-0.1 * mid_depth) * soil_depth[i];
         root_weight[i] = base_weight;
- 
+
         total_weight = total_weight + root_weight[i];
         current_top_depth = current_top_depth + soil_depth[i];
     }
@@ -229,20 +229,20 @@ void soil_water_uptake::do_operation() const
     // uptake in layer = ET*(depth of layer/total depth of root zone)
     // we track the water demand for each layer.
     // If the demand cannot be met in one layer, try the next layer upto max_rooting_layer
-    // The unmet_demand can still be there after exhausting all layers 
-    // This should be a feedback to the leaf level to lower gs/ET to make sure 
+    // The unmet_demand can still be there after exhausting all layers
+    // This should be a feedback to the leaf level to lower gs/ET to make sure
     // water is balanced. However, it's difficult to solve this canopy to leaf feedback
     // Also, one should check how often unmet_demand becomes non-zeros for diagnostic
     double unmet_demand = 0.0;
     for (int i = 0; i < max_rooting_layer; i++) {
-       // Check if all dirt is totally dry
+        // Check if all dirt is totally dry
         if (total_weight > 0.0) {
             double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);
             double requested_uptake = base_request + unmet_demand;
             double max_water_volume = 0.0;
-            // Only calculate volume if we are above the WP 
+            // Only calculate volume if we are above the WP
             if (soil_water_content[i] > soil_wilting_point[i]) {
-               max_water_volume = (soil_water_content[i] - soil_wilting_point[i]) * 100* soil_depth[i];//Mg/ha
+                max_water_volume = (soil_water_content[i] - soil_wilting_point[i]) * 100 * soil_depth[i];  // Mg/ha
             }
             // Make it negative because uptake is negative
             double max_negative_uptake = -max_water_volume;
@@ -255,10 +255,10 @@ void soil_water_uptake::do_operation() const
                 // The dirt has enough water
                 uptake[i] = requested_uptake;
                 // The plant has no missing demand
-                unmet_demand = 0.0; 
+                unmet_demand = 0.0;
             }
         } else {
-            uptake[i] = 0.0; 
+            uptake[i] = 0.0;
         }
     }
 

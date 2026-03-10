@@ -7,9 +7,9 @@
 namespace standardBML
 {
 /**
- *  @class soil_water_dynamic_rooting 
+ *  @class soil_water_dynamic_rooting
  *
- *  @brief Allows max_rooting_layer to change over time 
+ *  @brief Allows max_rooting_layer to change over time
  *
  */
 class soil_water_dynamic_rooting : public direct_module
@@ -45,26 +45,26 @@ class soil_water_dynamic_rooting : public direct_module
 string_vector soil_water_dynamic_rooting::get_inputs()
 {
     return {
-        "DVI"               // dimensionless
+        "DVI"  // dimensionless
     };
 }
 
 string_vector soil_water_dynamic_rooting::get_outputs()
 {
     return {
-        "max_rooting_layer"  // 
+        "max_rooting_layer"  //
     };
 }
 
 void soil_water_dynamic_rooting::do_operation() const
 {
-    double max_rooting_layer{}; 
-    if (DVI < 1.0){
-      max_rooting_layer = 3;
-    }else if(DVI < 1.5) {
-      max_rooting_layer = 4;
-    }else{
-      max_rooting_layer = 5;
+    double max_rooting_layer{};
+    if (DVI < 1.0) {
+        max_rooting_layer = 3;
+    } else if (DVI < 1.5) {
+        max_rooting_layer = 4;
+    } else {
+        max_rooting_layer = 5;
     }
     update(max_rooting_layer_op, max_rooting_layer);
 }
