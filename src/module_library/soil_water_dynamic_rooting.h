@@ -58,8 +58,6 @@ string_vector soil_water_dynamic_rooting::get_outputs()
 
 void soil_water_dynamic_rooting::do_operation() const
 {
-//segment function for now
-//will replace it with continous function to avoid sudden jump
     double max_rooting_layer{}; 
     if (DVI < 1.0){
       max_rooting_layer = 3;
