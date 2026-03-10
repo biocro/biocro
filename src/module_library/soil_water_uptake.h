@@ -215,7 +215,10 @@ void soil_water_uptake::do_operation() const
         double mid_depth = current_top_depth + (soil_depth[i] / 2.0);
         // Root fraction drop off fast. The number 0.1 controls how fast. 
         // A bigger number makes the surface roots gets more weights.
-        // Similar to our light extinction with LAI (Beer's LAW)
+        // Root fraction profile is known to decrease exponentially with depth. 
+        // Jackson, R.B., Canadell, J., Ehleringer, J.R. et al. 
+        // A global analysis of root distributions for terrestrial biomes.
+        // Oecologia 108, 389–411 (1996). https://doi.org/10.1007/BF00333714
         double base_weight = exp(-0.1 * mid_depth) * soil_depth[i];
         root_weight[i] = base_weight;
  
@@ -224,23 +227,22 @@ void soil_water_uptake::do_operation() const
     }
 
     // uptake in layer = ET*(depth of layer/total depth of root zone)
-    // add constraint if soil_water_content_layer < uptake
-    // Calculate uptake using the heavy surface weights
-    // Variable to hold the missing water
+    // we track the water demand for each layer.
+    // If the demand cannot be met in one layer, try the next layer upto max_rooting_layer
+    // The unmet_demand can still be there after exhausting all layers 
+    // This should be a feedback to the leaf level to lower gs/ET to make sure 
+    // water is balanced. However, it's difficult to solve this canopy to leaf feedback
+    // Also, one should check how often unmet_demand becomes non-zeros for diagnostic
     double unmet_demand = 0.0;
     for (int i = 0; i < max_rooting_layer; i++) {
        // Check if all dirt is totally dry
         if (total_weight > 0.0) {
             double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);
             double requested_uptake = base_request + unmet_demand;
-            // Make a safe limit. We leave 10% of the available water in the dirt.
-            double total_capacity = soil_field_capacity[i] - soil_wilting_point[i];
-            double safe_margin = total_capacity * 0.1;
-            double safe_wilting_point = soil_wilting_point[i] + safe_margin;
             double max_water_volume = 0.0;
-            // Only calculate volume if we are above the safe limit
-            if (soil_water_content[i] > safe_wilting_point) {
-               max_water_volume = (soil_water_content[i] - safe_wilting_point) * 100* soil_depth[i];//Mg/ha
+            // Only calculate volume if we are above the WP 
+            if (soil_water_content[i] > soil_wilting_point[i]) {
+               max_water_volume = (soil_water_content[i] - soil_wilting_point[i]) * 100* soil_depth[i];//Mg/ha
             }
             // Make it negative because uptake is negative
             double max_negative_uptake = -max_water_volume;
