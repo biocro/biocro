@@ -267,7 +267,6 @@ void multi_layer_soil_profile::do_operation() const
 
     // Calculate total change in soil water content
     double delta_soil_water_content[nlayers];
-    //tttt
     for (int l = 0; l < nlayers; l++) {
         // adding uptake because value is negative
         delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] / (100 * soil_depth[l]));
@@ -280,6 +279,7 @@ void multi_layer_soil_profile::do_operation() const
     // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
     // remove soil evaporation from first layer, but don't let water content go
     // negative. This is a crude, and hopefully temporary, fix. -mlm
+    // soil_evaporation_rate from the new soil evapo function is in mm/hr? -YH
     delta_soil_water_content[0] = delta_soil_water_content[0] - soil_evaporation_rate / (10.0 * soil_depth[0]);
 
     update(soil_water_content_1_op, delta_soil_water_content[0]);

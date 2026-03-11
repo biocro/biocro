@@ -28,9 +28,11 @@ infilWater_str infil(
     }
     double excess = 0.0;  // Excess water to be added to runoff (cm/hr)
     double tmpexcess = 0.0;
+    double currentswcon = swcon;
     for (int l = 0; l < nlayers; l++) {
         double hold = (soil_saturation_capacity[l] - swtemp[l]) * soil_depth[l];
 
+        double current_ks  = soil_saturated_conductivity[l];
         // Rprintf("the value of hold is : %f \n", hold);
         // Rprintf("the value of potential_infiltration is : %f \n", potential_infiltration);
 
@@ -38,18 +40,18 @@ infilWater_str infil(
             // Rprintf("PINF is greater than 0.0001, and holding capacity. \n");
             if (l == 0) {
                 // reduce SWCON in top layer to allow for increased evaporation for wet soils
-                drainage_rate = 0.9 * swcon * (soil_saturation_capacity[l] - soil_field_capacity[l]) * soil_depth[l];  // cm/hr
+                drainage_rate = 0.9 * currentswcon * (soil_saturation_capacity[l] - soil_field_capacity[l]) * soil_depth[l];  // cm/hr
             } else {
-                drainage_rate = swcon * (soil_saturation_capacity[l] - soil_field_capacity[l]) * soil_depth[l];
+                drainage_rate = currentswcon * (soil_saturation_capacity[l] - soil_field_capacity[l]) * soil_depth[l];
             }
             // Rprintf("drainage_rate: %f \n", drainage_rate);
             drn[l] = potential_infiltration - hold + drainage_rate;  // cm/hr
             // Rprintf("the value of drn[%i]: %f \n", l, drn[l]);
             // Rprintf("the value of HOLD is %f \n", hold);
             // Rprintf("the value of PINF is %f \n", potential_infiltration);
-            if (soil_saturated_conductivity[l] > 0.0 && drn[l] > soil_saturated_conductivity[l]) {
+            if (current_ks > 0.0 && drn[l] > current_ks) {
                 // Rprintf("drn%i > soil_saturated_conductivity_%i \n", l,l);
-                drn[l] = soil_saturated_conductivity[l];
+                drn[l] = current_ks;
                 drainage_rate = drn[l] + hold - potential_infiltration;
             }
 
@@ -90,14 +92,14 @@ infilWater_str infil(
             if (swtemp[l] >= (soil_field_capacity[l] + 0.003)) {
                 if (l == 0) {
                     drainage_rate = 0.9 * (swtemp[l] - soil_field_capacity[l]) *
-                                    swcon * soil_depth[l];
+                                    currentswcon * soil_depth[l];
                 } else {
-                    drainage_rate = (swtemp[l] - soil_field_capacity[l]) * swcon *
+                    drainage_rate = (swtemp[l] - soil_field_capacity[l]) * currentswcon *
                                     soil_depth[l];
                 }
                 drn[l] = drainage_rate;
-                if (soil_saturated_conductivity[l] > 0.0 && drn[l] > soil_saturated_conductivity[l]) {
-                    drn[l] = soil_saturated_conductivity[l];
+                if (current_ks > 0.0 && drn[l] > current_ks) {
+                    drn[l] = current_ks;
                     drainage_rate = drn[l];
                 }
                 swtemp[l] = swtemp[l] - drainage_rate / soil_depth[l];
@@ -149,6 +151,7 @@ infilWater_str satflo(
     }
 
     double drmx[nlayers];  // Calculated maximum saturated flow from layer l (cm/hr)
+    double currentswcon  = swcon;
 
     // double excess = 0.0; //Excess water to be added to runoff (cm/hr)
     for (int l = 0; l < nlayers; l++) {
@@ -157,7 +160,7 @@ infilWater_str satflo(
         // double hold = (soil_saturation_capacity[l] - swtemp[l]) * soil_depth[l];
         if (swtemp[l] >= soil_field_capacity[l] + 0.003) {
             // Rprintf("swtemp[%i] > soil_field_capacity_%i. \n", l,l);
-            drmx[l] = (swtemp[l] - soil_field_capacity[l]) * swcon * soil_depth[l];
+            drmx[l] = (swtemp[l] - soil_field_capacity[l]) * currentswcon * soil_depth[l];
             drmx[l] = std::max(0.0, drmx[l]);
         }
         if (l == 0) {
@@ -256,10 +259,10 @@ upwardFlo_str up_flow(
         thet2 = std::max(0.0, thet2);
         // Rprintf("thet2 is %f \n", thet2);
 
-        double dbar = 0.88 * exp(35.4 * ((thet1 * soil_depth[l] + thet2 * soil_depth[m]) / (soil_depth[l] + soil_depth[m])) * 0.5);
-        dbar = std::min(dbar, 100.0);
-        // Rprintf("dbar is %f \n", dbar);
-
+        constexpr double min_diffusivity = 0.88 / 24.0;  // 0.88 cm / day
+        constexpr double max_diffusivity = 100 / 24.0;  // 100 cm / day
+        double dbar = min_diffusivity * exp(35.4 * ((thet1 * soil_depth[l] + thet2 * soil_depth[m]) / (soil_depth[l] + soil_depth[m])) * 0.5);
+        dbar = std::min(dbar, max_diffusivity);
         // Rprintf("dbar is %f \n", dbar);
 
         double grad = (thet2 / esw[m] - thet1 / esw[l]) * (esw[m] * soil_depth[m] + esw[l] * soil_depth[l]) / (soil_depth[m] + soil_depth[l]);

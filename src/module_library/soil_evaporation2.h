@@ -287,13 +287,13 @@ void soil_evaporation2::do_operation() const
 
     int constexpr nlayers = 6;
     double constexpr canopyHeight = 1.0;  // m
-    // soil hydraulic properties. Houston black clay
+    // soil hydraulic properties. Yolo Loam 
     // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
-    double constexpr soil_evaporation_alpha = 3.5;  // mm/day^(0.5)
+    double constexpr soil_evaporation_alpha = 4.0;  // mm/day^(0.5)
 
-    // Upper Limit of Stage 1 Cumulative Evaporation. Houston black clay.
+    // Upper Limit of Stage 1 Cumulative Evaporation. Yolo Loam 
     // Table 1. Ritchie (1972)
-    double constexpr evap_limit = 6.0;  // mm
+    double constexpr evap_limit = 9.0;  // mm
 
     double actual_soil_evap = soil_evaporation_rate;
     double sumes1_temp = sumes1;
