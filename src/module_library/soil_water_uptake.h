@@ -16,7 +16,7 @@ class soil_water_uptake : public direct_module
         : direct_module(),
 
           // get references to input quantities
-          soil_depth_1{get_input(input_quantities, "soil_depth_1")},            
+          soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
           soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
@@ -97,7 +97,7 @@ class soil_water_uptake : public direct_module
     double const& soil_field_capacity_6;
 
     double const& max_rooting_layer;
-    double const& canopy_transpiration_rate;  
+    double const& canopy_transpiration_rate;
 
     // pointers to output quantities
     double* uptake_layer_1_op;  // Mg/ha/hr
@@ -116,38 +116,38 @@ string_vector soil_water_uptake::get_inputs()
 {
     return {
 
-        "soil_depth_1",            // cm
-        "soil_water_content_1",    // Volumetric, cm3 [water] /cm3 [soil]
-        "soil_wilting_point_1",    // Volumetric, cm3/cm3
-        "soil_field_capacity_1",   // Volumetric, cm3/cm3
+        "soil_depth_1",           // cm
+        "soil_water_content_1",   // cm3 [water] /cm3 [soil]. Volumetric water content
+        "soil_wilting_point_1",   // cm3/cm3
+        "soil_field_capacity_1",  // cm3/cm3
 
         "soil_depth_2",           // cm
-        "soil_water_content_2",   // Volumetric, cm3/cm3
-        "soil_wilting_point_2",   // Volumetric, cm3/cm3
-        "soil_field_capacity_2",  // Volumetric, cm3/cm3
+        "soil_water_content_2",   // cm3/cm3
+        "soil_wilting_point_2",   // cm3/cm3
+        "soil_field_capacity_2",  // cm3/cm3
 
         "soil_depth_3",           // cm
-        "soil_water_content_3",   // Volumetric, cm3/cm3
-        "soil_wilting_point_3",   // Volumetric, cm3/cm3
-        "soil_field_capacity_3",  // Volumetric, cm3/cm3
+        "soil_water_content_3",   // cm3/cm3
+        "soil_wilting_point_3",   // cm3/cm3
+        "soil_field_capacity_3",  // cm3/cm3
 
         "soil_depth_4",           // cm
-        "soil_water_content_4",   // Volumetric, cm3/cm3
-        "soil_wilting_point_4",   // Volumetric, cm3/cm3
-        "soil_field_capacity_4",  // Volumetric, cm3/cm3
+        "soil_water_content_4",   // cm3/cm3
+        "soil_wilting_point_4",   // cm3/cm3
+        "soil_field_capacity_4",  // cm3/cm3
 
         "soil_depth_5",           // cm
-        "soil_water_content_5",   // Volumetric, cm3/cm3
-        "soil_wilting_point_5",   // Volumetric, cm3/cm3
-        "soil_field_capacity_5",  // Volumetric, cm3/cm3
+        "soil_water_content_5",   // cm3/cm3
+        "soil_wilting_point_5",   // cm3/cm3
+        "soil_field_capacity_5",  // cm3/cm3
 
         "soil_depth_6",           // cm
-        "soil_water_content_6",   // Volumetric, cm3/cm3
-        "soil_wilting_point_6",   // Volumetric, cm3/cm3
-        "soil_field_capacity_6",  // Volumetric, cm3/cm3
+        "soil_water_content_6",   // cm3/cm3
+        "soil_wilting_point_6",   // cm3/cm3
+        "soil_field_capacity_6",  // cm3/cm3
 
-        "max_rooting_layer",      // number of layers
-        "canopy_transpiration_rate" // Mg/ha/hr
+        "max_rooting_layer",         // number of layers
+        "canopy_transpiration_rate"  // Mg/ha/hr
 
     };
 }
@@ -156,8 +156,8 @@ string_vector soil_water_uptake::get_outputs()
 {
     return {
 
-        "uptake_layer_1",  // Mg/ha/hr  
-        "uptake_layer_2",  // Mg/ha/hr  
+        "uptake_layer_1",  // Mg/ha/hr
+        "uptake_layer_2",  // Mg/ha/hr
         "uptake_layer_3",  // Mg/ha/hr
         "uptake_layer_4",  // Mg/ha/hr
         "uptake_layer_5",  // Mg/ha/hr
@@ -211,13 +211,13 @@ void soil_water_uptake::do_operation() const
     // 1 Mg/ha = 0.1  kg/m^2 = 0.1 mm of water because 1 mm of water on a 1 m2 area equals 1 kg.
     // Or 1 mm of water equals 10 Mg/ha.
     // For soil_water_content theta (cm3/cm3) = theta (mm/mm) in a D (cm)-thick soil,
-    // Total water is theta * 10D (mm) = theta * 10D * 10 (Mg/ha) = theta * 100 * D 
-    double const volume_to_mass = 100; // Mg/ha/cm 
+    // Total water is theta * 10D (mm) = theta * 10D * 10 (Mg/ha) = theta * 100 * D
+    double const volume_to_mass = 100;  // Mg/ha/cm
 
     // get total root depth
     for (int i = 0; i < max_rooting_layer; i++) {
         // Find the middle depth of the current layer
-        double mid_depth = current_top_depth + (soil_depth[i] / 2.0); //cm
+        double mid_depth = current_top_depth + (soil_depth[i] / 2.0);  // cm
         // Root fraction drop off fast. The number 0.1 controls how fast.
         // A bigger number makes the surface roots gets more weights.
         // Root fraction profile is known to decrease exponentially with depth.
@@ -225,7 +225,7 @@ void soil_water_uptake::do_operation() const
         // A global analysis of root distributions for terrestrial biomes.
         // Oecologia 108, 389–411 (1996). https://doi.org/10.1007/BF00333714
         double base_weight = exp(-0.1 * mid_depth) * soil_depth[i];  // dimensionless
-        root_weight[i] = base_weight; // dimensionless
+        root_weight[i] = base_weight;                                // dimensionless
 
         total_weight = total_weight + root_weight[i];
         current_top_depth = current_top_depth + soil_depth[i];
@@ -242,9 +242,9 @@ void soil_water_uptake::do_operation() const
     for (int i = 0; i < max_rooting_layer; i++) {
         // Check if all dirt is totally dry
         if (total_weight > 0.0) {
-            double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight); // Mg/ha/hr
-            double requested_uptake = base_request + unmet_demand; // Mg/ha/hr
-            double max_water= 0.0;
+            double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);  // Mg/ha/hr
+            double requested_uptake = base_request + unmet_demand;                               // Mg/ha/hr
+            double max_water = 0.0;
             // Only calculate volume if we are above the WP
             if (soil_water_content[i] > soil_wilting_point[i]) {
                 max_water = (soil_water_content[i] - soil_wilting_point[i]) * volume_to_mass * soil_depth[i];  // Mg/ha
