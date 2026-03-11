@@ -268,13 +268,13 @@ void soil_water_uptake::do_operation() const
     }
 
     // update uptake, they are negative
-    update(uptake_layer_1_op, uptake[0]);
-    update(uptake_layer_2_op, uptake[1]);
-    update(uptake_layer_3_op, uptake[2]);
-    update(uptake_layer_4_op, uptake[3]);
-    update(uptake_layer_5_op, uptake[4]);
-    update(uptake_layer_6_op, uptake[5]);
-    update(unmet_demand_op, unmet_demand);
+    update(uptake_layer_1_op, uptake[0]);  // Mg/ha/hr
+    update(uptake_layer_2_op, uptake[1]);  // Mg/ha/hr
+    update(uptake_layer_3_op, uptake[2]);  // Mg/ha/hr
+    update(uptake_layer_4_op, uptake[3]);  // Mg/ha/hr
+    update(uptake_layer_5_op, uptake[4]);  // Mg/ha/hr
+    update(uptake_layer_6_op, uptake[5]);  // Mg/ha/hr
+    update(unmet_demand_op, unmet_demand);  // Mg/ha/hr
 }
 
 }  // namespace standardBML
