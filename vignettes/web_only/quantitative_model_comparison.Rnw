@@ -183,7 +183,7 @@ This code creates two named lists to help with retrieving processed weather
 data:
 \begin{itemize}
 
-\item \texttt{catm}: A list of the atmospheric [\cotwo] levels for 1980 - 2023.
+\item \texttt{catm}: A list of the atmospheric [\cotwo] levels for 1980 - 2025.
 Essentially, this list contains globally averaged annual atmospheric [\cotwo]
 levels from \texttt{catm\_data}, a dataset obtained from NOAA and included as
 part of the BioCro package.
@@ -549,7 +549,7 @@ fvcb_aq_scatter_plot <- xyplot(
     xlab = 'Incident PPFD (micromol / m^2 / s)',
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
-    main = '(Ag, Q) scatter plot from the FvCB model in 2002'
+    main = '(An, Q) scatter plot from the FvCB model in 2002'
 )
 
 pdf_print(fvcb_aq_scatter_plot, 'fvcb_aq_scatter_plot.pdf')
@@ -564,7 +564,7 @@ rue_aq_scatter_plot <- xyplot(
     xlab = 'Incident PPFD (micromol / m^2 / s)',
     ylab = 'Net CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
-    main = '(Ag, Q) scatter plot from the RUE model in 2002'
+    main = '(An, Q) scatter plot from the RUE model in 2002'
 )
 
 pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
@@ -1112,7 +1112,7 @@ can be observed (Figure \ref{fig_multiyear_biomass_difference}; this is Figure
 
 <<multiyear_comparison>>=
 # Decide which years to use
-years <- as.character(seq(1995, 2023))
+years <- as.character(seq(1995, 2025))
 
 # Initialize vectors to store final biomass and atmospheric CO2 values
 final_biomass_seq_rue <- numeric(length(years))
@@ -1168,10 +1168,11 @@ multiyear_comparison <- within(multiyear_comparison, {
 multiyear_biomass_plot <- xyplot(
   final_biomass_rue + final_biomass_fvcb ~ year,
   data = multiyear_comparison,
-  type = 'l',
+  type = 'b',
+  pch = 16,
   auto.key = list(space = 'top'),
   grid = TRUE,
-  ylim = c(8, 13),
+  ylim = c(7, 14),
   xlab = 'Year',
   ylab = 'Final biomass (Mg / ha)'
 )
@@ -1186,7 +1187,7 @@ multiyear_biomass_difference_plot <- xyplot(
   pch = 16,
   auto = TRUE,
   grid = TRUE,
-  ylim = c(-20, 20),
+  ylim = c(-40, 40),
   xlab = 'Atmospheric CO2 concentration (ppm)',
   ylab = '(M_RUE - M_FvCB) / M_FvCB (%)'
 )
@@ -1200,7 +1201,7 @@ pdf_print(multiyear_biomass_difference_plot, 'multiyear_biomass_difference_plot.
     \caption{
       End-of-season soybean biomass values calculated for Champaign, IL using
       either the FvCB or RUE photosynthesis equations for each year from
-      1995 - 2023.
+      1995 - 2025.
     }
     \label{fig_multiyear_biomass}
   \end{center}
@@ -1211,7 +1212,7 @@ pdf_print(multiyear_biomass_difference_plot, 'multiyear_biomass_difference_plot.
     \includegraphics[width=0.5\textwidth]{multiyear_biomass_difference_plot.pdf}
     \caption{
       End-of-season biomass differences between the FvCB and RUE soybean models
-      expressed as percentages for each year from 1995 - 2023, plotted against
+      expressed as percentages for each year from 1995 - 2025, plotted against
       yearly average [\cotwo] levels.
     }
     \label{fig_multiyear_biomass_difference}
