@@ -76,6 +76,13 @@
   procedure based on the assumption that values at the same hour of sequential
   days should be similar.
 
+  The SURFRAD data set is missing logs for days 213-234 of 2024, and the log for
+  day 235 is incomplete. Rather than relying on the interpolation procedure for
+  such a large gap, values of \code{solar} are taken from the WARM data set
+  instead. Since the WARM data only includes total daily insolation, the hourly
+  values are estimated from the calculated hourly solar position, as described
+  in Lochocki \emph{et al.} (2022) and its associated GitHub repository.
+
   The \code{time_zone_offset} is set to a constant value of -6 since this data
   is specified in the CST time zone (i.e., UTC-6). Since the value of this
   quantity does not change, it could in principle be considered a parameter
