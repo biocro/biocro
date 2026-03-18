@@ -274,7 +274,6 @@ void multi_layer_soil_profile::do_operation() const
 
     // Calculate total change in soil water content
     double delta_soil_water_content[nlayers];
-    //tttt
     for (int l = 0; l < nlayers; l++) {
         // adding uptake because value is negative
         delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] / (100 * soil_depth[l]));
