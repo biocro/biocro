@@ -45,6 +45,10 @@ be directly added to this file to describe the related changes.
   models in the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
   `BioCro:c4_leaf_photosynthesis`, and `BioCro:c4_canopy` modules.
 
+- Added two new years of weather data (2023 and 2025) to the `weather` data set
+  and one year of globally-averaged atmospheric CO2 concentration (2025) to the
+  `catm_data` data set.
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
