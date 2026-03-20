@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 struct Light_profile {
-    static constexpr int max_layers = 200;
+    static constexpr int max_layers = 25;
     double canopy_direct_transmission_fraction;  // dimensionless
     double height[max_layers];                       // m
     double shaded_absorbed_ppfd[max_layers];         // micromol / (m^2 leaf) / s
