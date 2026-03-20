@@ -1,5 +1,6 @@
 #include "sunML.h"
-
+using std::exp;
+using std::sqrt;
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.
@@ -422,8 +423,8 @@ Light_profile sunML(
     int nlayers                     // dimensionless
 )
 {
-    if (nlayers < 1 || nlayers > MAXLAY) {
-        throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
+    if (nlayers < 1 || nlayers > Light_profile::max_layers) {
+        throw std::out_of_range("nlayers must be at least 1 but no more than " + std::to_string(Light_profile::max_layers));
     }
 
     if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {

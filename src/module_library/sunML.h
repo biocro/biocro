@@ -1,21 +1,25 @@
 #ifndef SUNML_H
 #define SUNML_H
+// #include "AuxBioCro.h"  // for MAXLAY
 
-#include "AuxBioCro.h"  // for MAXLAY
+#include <string>
+#include <cmath>
+#include <stdexcept>
 
 struct Light_profile {
+    static constexpr int max_layers = 200;
     double canopy_direct_transmission_fraction;  // dimensionless
-    double height[MAXLAY];                       // m
-    double shaded_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double shaded_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double shaded_fraction[MAXLAY];              // dimensionless
-    double shaded_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double shaded_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double sunlit_fraction[MAXLAY];              // dimensionless
-    double sunlit_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double sunlit_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
+    double height[max_layers];                       // m
+    double shaded_absorbed_ppfd[max_layers];         // micromol / (m^2 leaf) / s
+    double shaded_absorbed_shortwave[max_layers];    // J / (m^2 leaf) / s
+    double shaded_fraction[max_layers];              // dimensionless
+    double shaded_incident_nir[max_layers];          // J / (m^2 leaf) / s
+    double shaded_incident_ppfd[max_layers];         // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_ppfd[max_layers];         // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_shortwave[max_layers];    // J / (m^2 leaf) / s
+    double sunlit_fraction[max_layers];              // dimensionless
+    double sunlit_incident_nir[max_layers];          // J / (m^2 leaf) / s
+    double sunlit_incident_ppfd[max_layers];         // micromol / (m^2 leaf) / s
 };
 
 double thin_layer_absorption(
