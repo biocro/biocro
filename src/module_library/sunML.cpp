@@ -1,6 +1,8 @@
 #include "sunML.h"
+
 using std::exp;
 using std::sqrt;
+
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.

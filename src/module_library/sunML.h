@@ -1,6 +1,5 @@
 #ifndef SUNML_H
 #define SUNML_H
-// #include "AuxBioCro.h"  // for MAXLAY
 
 #include <string>
 #include <cmath>
