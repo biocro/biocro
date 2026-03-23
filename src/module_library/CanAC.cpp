@@ -130,7 +130,6 @@ canopy_photosynthesis_outputs CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless. Fraction of LAI that is sunlit.
         double i_dir = light_layer.sunlit_incident_ppfd;       // micromol / m^2 / s
         double j_dir = light_layer.sunlit_absorbed_shortwave;  // J / m^2 / s
         double pLeafsun = light_layer.sunlit_fraction;         // dimensionless. Fraction of LAI that is sunlit.
