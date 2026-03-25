@@ -1,5 +1,8 @@
 #include "sunML.h"
 
+using std::exp;
+using std::sqrt;
+
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.
@@ -405,7 +408,7 @@ double shaded_radiation(
  *          the canopy, including several photon flux densities and
  *          the relative fractions of shaded and sunlit leaves
  */
-Light_profile sunML(
+LightProfile sunML(
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2
@@ -422,8 +425,8 @@ Light_profile sunML(
     int nlayers                     // dimensionless
 )
 {
-    if (nlayers < 1 || nlayers > MAXLAY) {
-        throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
+    if (nlayers < 1) {
+        throw std::out_of_range("nlayers must be at least 1");
     }
 
     if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {
@@ -497,7 +500,7 @@ Light_profile sunML(
         ambient_ppfd_beam_leaf, par_energy_content, par_energy_fraction);  // J / (m^2 leaf) / s
 
     // Start to fill in the light profile values
-    Light_profile light_profile;
+    LightProfile light_profile(nlayers);
     light_profile.canopy_direct_transmission_fraction = canopy_direct_transmission_fraction;
 
     // Fill in the layer-dependent light profile values
@@ -536,29 +539,30 @@ Light_profile sunML(
         }
 
         // Store values of incident PPFD
-        light_profile.height[i] = (lai - cumulative_lai) / heightf;                    // m
-        light_profile.shaded_fraction[i] = shaded_fraction;                            // dimensionless from m^2 / m^2
-        light_profile.shaded_incident_ppfd[i] = shaded_ppfd;                           // micromol / (m^2 leaf) / s
-        light_profile.shaded_incident_nir[i] = shaded_nir;                             // J / (m^2 leaf) / s
-        light_profile.sunlit_fraction[i] = sunlit_fraction;                            // dimensionless from m^2 / m^2
-        light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + shaded_ppfd;  // micromol / (m^2 leaf) / s
-        light_profile.sunlit_incident_nir[i] = ambient_nir_beam_leaf + shaded_nir;     // J / (m^2 leaf) / s
+        LightProfile::Layer& layer = light_profile[i];
+        layer.height = (lai - cumulative_lai) / heightf;                    // m
+        layer.shaded_fraction = shaded_fraction;                            // dimensionless from m^2 / m^2
+        layer.shaded_incident_ppfd = shaded_ppfd;                           // micromol / (m^2 leaf) / s
+        layer.shaded_incident_nir = shaded_nir;                             // J / (m^2 leaf) / s
+        layer.sunlit_fraction = sunlit_fraction;                            // dimensionless from m^2 / m^2
+        layer.sunlit_incident_ppfd = ambient_ppfd_beam_leaf + shaded_ppfd;  // micromol / (m^2 leaf) / s
+        layer.sunlit_incident_nir = ambient_nir_beam_leaf + shaded_nir;     // J / (m^2 leaf) / s
 
         // Store values of absorbed PPFD
-        light_profile.sunlit_absorbed_ppfd[i] =
+        layer.sunlit_absorbed_ppfd =
             thin_layer_absorption(
                 leaf_reflectance_par,
                 leaf_transmittance_par,
                 ambient_ppfd_beam_leaf + shaded_ppfd);  // micromol / m^2 / s
 
-        light_profile.shaded_absorbed_ppfd[i] =
+        layer.shaded_absorbed_ppfd  =
             thin_layer_absorption(
                 leaf_reflectance_par,
                 leaf_transmittance_par,
                 shaded_ppfd);  // micromol / m^2 / s
 
         // Store values of absorbed solar energy (including PAR and NIR)
-        light_profile.sunlit_absorbed_shortwave[i] =
+        layer.sunlit_absorbed_shortwave =
             absorbed_shortwave(
                 ambient_nir_beam_leaf + shaded_nir,
                 ambient_ppfd_beam_leaf + shaded_ppfd,
@@ -568,7 +572,7 @@ Light_profile sunML(
                 leaf_reflectance_nir,
                 leaf_transmittance_nir);  // J / (m^2 leaf) / s
 
-        light_profile.shaded_absorbed_shortwave[i] =
+        layer.shaded_absorbed_shortwave =
             absorbed_shortwave(
                 shaded_nir,
                 shaded_ppfd,

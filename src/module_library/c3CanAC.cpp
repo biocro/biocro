@@ -69,7 +69,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    const Light_profile light_profile = sunML(
+    const LightProfile light_profile = sunML(
         q_dir,
         q_diff,
         chil,
@@ -125,14 +125,15 @@ canopy_photosynthesis_outputs c3CanAC(
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
 
+        const LightProfile::Layer& light_layer = light_profile[current_layer];
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];    // micromol / m^2 / s
-        double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless
+        double iabs_dir = light_layer.sunlit_absorbed_ppfd;    // micromol / m^2 / s
+        double j_dir = light_layer.sunlit_absorbed_shortwave;  // J / m^2 / s
+        double pLeafsun = light_layer.sunlit_fraction;         // dimensionless
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
         // Initial guess
@@ -186,9 +187,9 @@ canopy_photosynthesis_outputs c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];    // micromol / m^2 /s
-        double j_diff = light_profile.shaded_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless
+        double iabs_diff = light_layer.shaded_absorbed_ppfd;    // micromol / m^2 /s
+        double j_diff = light_layer.shaded_absorbed_shortwave;  // J / m^2 / s
+        double pLeafshade = light_layer.shaded_fraction;        // dimensionless
         double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
         // Initial guess
