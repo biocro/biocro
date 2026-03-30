@@ -3,7 +3,6 @@
                                           // celsius_to_kelvin, molar_mass_of_water
 #include "boundary_layer_conductance.h"   // for leaf_boundary_layer_conductance_nikolov
 #include "conductance_helpers.h"          // for g_to_mass, g_to_molecular, sequential_conductance
-#include "../../math/roots/onedim/dekker.h"  // for dekker
 #include "water_and_air_properties.h"     // for TempToCp, dry_air_density, etc
 #include "leaf_heat_balance.h"
 
