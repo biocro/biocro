@@ -1,13 +1,12 @@
 #ifndef ZEROS_NEWTON_H
 #define ZEROS_NEWTON_H
 
-
 #include "zeros.h"
 #include "../../linalg/base.h"
 #include "../../linalg/lu.h"
 
-
-namespace root_multidim {
+namespace root_multidim
+{
 
 /** @brief Newton's method.
  *
@@ -16,13 +15,13 @@ namespace root_multidim {
 template <size_t Dim>
 struct newton : public zero_finding_method<Dim, newton<Dim>> {
     using zero_finding_method<Dim, newton<Dim>>::zero_finding_method;
-    using vec_t = typename linalg::vector<double, Dim>; 
-    using mat_t = typename linalg::matrix<double, Dim, Dim>;    
-    
+    using vec_t = typename linalg::vector<double, Dim>;
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;
+
     vec_t x;
     vec_t delta_x;
     vec_t y;
-    
+
     template <typename F>
     bool initialize(F&& fun, std::array<double, Dim> const& guess)
     {
@@ -35,16 +34,15 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     bool iterate(F&& fun)
     {
         linalg::LU<double, Dim> lu(fun.jacobian(x));
-                 
-        y *= -1;
-        auto sol = lu.solve(y);
+
+        auto sol = lu.solve(-1.0 * y);
         if (!sol) {
             this->flag = Flag::singular_matrix;
             return false;
-        } 
+        }
         delta_x = sol.value();
         x += delta_x;
-        y = fun(x.asarray());        
+        y = fun(x.asarray());
         return true;
     }
 
@@ -54,12 +52,6 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
             this->flag = Flag::residual_zero;
             return true;
         }
-
-//        if (this->is_zero(delta_x, x)) {
-//            this->flag = Flag::delta_x_zero;
-//            return true;
-//        }
-
         return false;
     }
 
@@ -74,6 +66,6 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     }
 };
 
-} // root_multidim
+}  // namespace root_multidim
 
 #endif

@@ -31,6 +31,48 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+## Minor User-Facing Changes
+
+- The internal temperature response functions, such as `arrhenius_exponential`,
+  now return values normalized to the parameter value at a reference temperature
+  (25 degrees C). Because of this, several "scaling" parameters such as
+  `Vcmax_c`, `Jmax_c`, `RL_c`, etc, are no longer required.
+
+- The fixed-point iteration method is now used to check for consistent values of
+  stomatal conductance when solving the combined assimilation + energy balance
+  models in the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
+  `BioCro:c4_leaf_photosynthesis`, and `BioCro:c4_canopy` modules.
+
+- Added two new years of weather data (2023 and 2025) to the `weather` data set
+  and one year of globally-averaged atmospheric CO2 concentration (2025) to the
+  `catm_data` data set.
+
+## Bug Fixes
+
+- Changed the minimum version of macOS checked by the R-CMD-check from
+  4.2.0 to 4.3.0.
+
+  - CRAN now only provides R versions 4.2.3 and above for Mac.
+
+  - Somehow the vignette builder cannot find the `knitr` package when using the
+    the online testing setup for R version 4.2.0 or 4.2.3 even when `knitr` is
+    installed, causing a spurious test failure. This problem does not occur for
+    R version 4.3.0.
+
+# Changes in BioCro version 3.3.1
+
+## Bug fixes
+
+- Addressed a compiler warning (`changes-meaning`) that prevented BioCro
+  compilation for some versions of linux/gcc. Also added new checks to the
+  GitHub actions used to check the package to catch this if it occurs again in
+  the future.
+
+- Addressed an issue with error message formatting in vignettes that prevented
+  some articles from being built.
+
 # Changes in BioCro version 3.3.0
 
 ## Minor User-Facing Changes

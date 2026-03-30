@@ -13,8 +13,13 @@ vignette: >
 bibliography: references/BioCro.bibtex
 ---
 ```{r, setup, include=FALSE}
+options(
+  crayon.enabled = FALSE, # crayon colors cause latex issues
+  cli.num_colors = 1
+)
+
 knitr::opts_chunk$set(
-  error = FALSE,
+  error = FALSE, # stop on errors to help with troubleshooting
   collapse = TRUE,
   autodep = TRUE
 )

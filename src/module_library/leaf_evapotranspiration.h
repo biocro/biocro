@@ -40,12 +40,12 @@ class leaf_evapotranspiration : public direct_module
           gbw_op{get_op(output_quantities, "gbw")},
           gsw_op{get_op(output_quantities, "gsw")},
           H_op{get_op(output_quantities, "H")},
-          leaf_temp_check_op{get_op(output_quantities, "leaf_temp_check")},
           leaf_temperature_op{get_op(output_quantities, "leaf_temperature")},
           PhiN_op{get_op(output_quantities, "PhiN")},
           storage_op{get_op(output_quantities, "storage")},
           TransR_op{get_op(output_quantities, "TransR")},
-          iterations_op{get_op(output_quantities, "iterations")}
+          residual_energy_balance_Tleaf_op{get_op(output_quantities, "residual_energy_balance_Tleaf")},
+          iteration_energy_balance_Tleaf_op{get_op(output_quantities, "iteration_energy_balance_Tleaf")}
     {
     }
     static string_vector get_inputs();
@@ -74,12 +74,12 @@ class leaf_evapotranspiration : public direct_module
     double* gbw_op;
     double* gsw_op;
     double* H_op;
-    double* leaf_temp_check_op;
     double* leaf_temperature_op;
     double* PhiN_op;
     double* storage_op;
     double* TransR_op;
-    double* iterations_op;
+    double* residual_energy_balance_Tleaf_op;
+    double* iteration_energy_balance_Tleaf_op;
 
     // Main operation
     void do_operation() const;
@@ -104,20 +104,20 @@ string_vector leaf_evapotranspiration::get_inputs()
 string_vector leaf_evapotranspiration::get_outputs()
 {
     return {
-        "EPenman",           // mmol / m^2 / s
-        "EPriestly",         // mmol / m^2 / s
-        "E_loss",            // J / m^2 / s
-        "gbw",               // m / s
-        "gbw_canopy",        // m / s
-        "gbw_leaf",          // m / s
-        "gsw",               // m / s
-        "H",                 // J / m^2 / s
-        "leaf_temp_check",   // degrees C
-        "leaf_temperature",  // degrees C
-        "PhiN",              // J / m^2 / s
-        "storage",           // J / m^2 / s
-        "TransR",            // mmol / m^2 / s
-        "iterations"         // not a physical quantity
+        "EPenman",                        // mmol / m^2 / s
+        "EPriestly",                      // mmol / m^2 / s
+        "E_loss",                         // J / m^2 / s
+        "gbw",                            // m / s
+        "gbw_canopy",                     // m / s
+        "gbw_leaf",                       // m / s
+        "gsw",                            // m / s
+        "H",                              // J / m^2 / s
+        "leaf_temperature",               // degrees C
+        "PhiN",                           // J / m^2 / s
+        "storage",                        // J / m^2 / s
+        "TransR",                         // mmol / m^2 / s
+        "residual_energy_balance_Tleaf",  // degrees C
+        "iteration_energy_balance_Tleaf"  // not a physical quantity
     };
 }
 
@@ -154,8 +154,8 @@ void leaf_evapotranspiration::do_operation() const
     update(gbw_op, result.gbw);
     update(gsw_op, result.gsw);
     update(H_op, result.H);
-    update(leaf_temp_check_op, result.leaf_temp_check);
-    update(iterations_op, result.iterations);
+    update(residual_energy_balance_Tleaf_op, result.residual_energy_balance_Tleaf);
+    update(iteration_energy_balance_Tleaf_op, result.iteration_energy_balance_Tleaf);
     update(leaf_temperature_op, temp + result.Deltat);
     update(PhiN_op, result.PhiN);
     update(storage_op, result.storage);

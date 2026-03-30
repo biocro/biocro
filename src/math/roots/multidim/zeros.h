@@ -5,8 +5,7 @@
 #include <algorithm>  // std::swap
 #include <cmath>      // std::sqrt, std::isnan
 
-#include "../../linalg/base.h" 
-
+#include "../../linalg/base.h"
 namespace root_multidim
 {
 // termination states
@@ -19,25 +18,28 @@ enum class Flag {
     singular_matrix
 };
 
-template<size_t Dim>
+template <size_t Dim>
 struct result_t {
     std::array<double, Dim> zero;
     std::array<double, Dim> residual;
     size_t iteration;
     Flag flag;
 
-    result_t (
+    result_t(
         std::array<double, Dim> const& x,
         std::array<double, Dim> const& y,
         size_t i,
-        Flag f
-    ) : zero{x}, residual{y}, iteration{i}, flag{f} {}
+        Flag f) : zero{x}, residual{y}, iteration{i}, flag{f} {}
 };
 
 template <size_t Dim, typename Method>
 struct zero_finding_method {
-
-    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol) : max_iterations{max_iter}, _abs_tol{abs_tol}, _rel_tol{rel_tol} {}
+    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol)
+        : max_iterations{max_iter},
+          _abs_tol{abs_tol},
+          _rel_tol{rel_tol}
+    {
+    }
     zero_finding_method() = default;
 
     size_t max_iterations = 100;
@@ -95,7 +97,9 @@ struct zero_finding_method {
     }
 
     // floating point errors can increase with dimension
-    inline bool is_zero(linalg::vector<double, Dim> const& y, linalg::vector<double, Dim> const& x) const
+    inline bool is_zero(
+        linalg::vector<double, Dim> const& y,
+        linalg::vector<double, Dim> const& x) const
     {
         double ysq = linalg::dot(y, y);
         double xsq = linalg::dot(x, x);

@@ -4,6 +4,9 @@ SOURCES = $(wildcard *.cpp module_library/*.cpp framework/*.cpp framework/ode_so
 OBJECTS = $(SOURCES:.cpp=.o)
 
 
+ifeq ($(R_USE_WCHANGES_MEANING),true)
+  PKG_CXXFLAGS += -Wchanges-meaning -Werror=changes-meaning
+endif
 
 
 

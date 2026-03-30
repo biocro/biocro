@@ -14,8 +14,9 @@ namespace root_multidim
 template <size_t Dim>
 struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
     using zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
-    using vec_t = typename linalg::vector<double, Dim>; 
-    using mat_t = typename linalg::matrix<double, Dim, Dim>;    
+    using vec_t = typename linalg::vector<double, Dim>;
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;
+
     vec_t _zero;
     vec_t _residual;
     vec_t delta_x;
@@ -108,23 +109,21 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
     {
         delta_x = inv_jac * (-1.0 * _residual);
         _zero += delta_x;
- 
     }
 
     inline void update_y()
     {
-        // this is computed in a single for-loop pass
         std::swap(delta_y, _residual);
         delta_y = _residual - delta_y;
-
     }
 
     void update_inv_jac()
     {
         _tmp_a = delta_x - inv_jac * delta_y;
-        _tmp_b = delta_x * inv_jac; 
-        _tmp_c = linalg::quadratic_form(inv_jac, delta_x, delta_y); // equivalent to  delta_x * inv_jac * delta_y
-        inv_jac += linalg::outer(_tmp_a , _tmp_b) / _tmp_c;
+        _tmp_b = delta_x * inv_jac;
+        _tmp_c = linalg::quadratic_form(inv_jac, delta_x, delta_y);
+        // above equivalent to  delta_x * inv_jac * delta_y
+        inv_jac += linalg::outer(_tmp_a, _tmp_b) / _tmp_c;
     }
 };
 
