@@ -92,7 +92,9 @@ photosynthesis_outputs c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Adjust Ball-Berry parameters in response to water stress
-    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
+    // Cap StomWS for the intercept to avoid negative values
+    double const StomWS_for_b0 = (StomWS > 1.0) ? 1.0 : StomWS;
+    double const b0_adj = StomWS_for_b0 * b0 + Gs_min * (1.0 - StomWS_for_b0);
     double const b1_adj = StomWS * b1;
 
     // Initialize variables before running fixed point iteration in a loop
