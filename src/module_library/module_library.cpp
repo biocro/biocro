@@ -100,6 +100,7 @@
 #include "stefan_boltzmann_longwave.h"
 #include "stomata_water_stress_exponential.h"
 #include "stomata_water_stress_linear.h"
+#include "stomata_water_stress_linear_v2.h"
 #include "stomata_water_stress_linear_aba_response.h"
 #include "stomata_water_stress_sigmoid.h"
 #include "surface_excess_water.h"
@@ -210,6 +211,7 @@ creator_map standardBML::module_library::library_entries =
      {"stefan_boltzmann_longwave",                             &create_mc<stefan_boltzmann_longwave>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
+     {"stomata_water_stress_linear_v2",                        &create_mc<stomata_water_stress_linearV2>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
      {"stomata_water_stress_sigmoid",                          &create_mc<stomata_water_stress_sigmoid>},
      {"surface_excess_water",                                  &create_mc<surface_excess_water>},
