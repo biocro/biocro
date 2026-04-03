@@ -8,13 +8,45 @@
 namespace root_multidim
 {
 
-/** @brief Newton's method.
+/**
+ * @brief Newton's method for finding vector-valued zeros of nonlinear systems.
  *
- *  @details
+ * This struct implements Newton's method given a function that provides the
+ * avoiding the full, dense Jacobian at every step. The linear system is
+ * solved using LU decomposition.
+ *
+ * @tparam Dim The dimension of the system (number of equations = number of unknowns).
+ *
+ * @par Usage Example
+ * @code
+ * // Define the system: find x such that f(x) = 0
+ * struct f {
+ * operator()(std::array<double, 2> x) -> std::array<double, 2> {
+ *     return { x[0]*x[0] + x[1] - 1.0,
+ *              x[0]      - x[1]*x[1] };
+ * }
+ *
+ * };
+ * using namespace root_multidim;
+ * // set solver with a max iterations, abs_tol, rel_rol
+ * newton<2> solver(100, 1e-5, 1e-5);
+ * std::array<double, 2> guess = { 0.5, 0.5 };
+ *
+ * result_t result = solver.solve(f, guess);
+ *
+ * @endcode
+ *
+ * @note Convergence may occur if the Jacobian is approximate, but
+ *       may be slow if the Jacobian is wrong. Use `broyden` or a Quasi-
+ *       Newton method if the Jacobian must be approximated numerically.
  */
 template <size_t Dim>
 struct newton : public zero_finding_method<Dim, newton<Dim>> {
     using zero_finding_method<Dim, newton<Dim>>::zero_finding_method;
+
+    friend class zero_finding_method<Dim, newton<Dim>>::zero_finding_method;
+
+   private:
     using vec_t = typename linalg::vector<double, Dim>;
     using mat_t = typename linalg::matrix<double, Dim, Dim>;
 
@@ -23,36 +55,36 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     vec_t y;
 
     template <typename F>
-    bool initialize(F&& fun, std::array<double, Dim> const& guess)
+    Status initialize(F&& fun, std::array<double, Dim> const& guess)
     {
         x = guess;
         y = fun(guess);
-        return true;
+        return Status::ok;
     }
 
     template <typename F>
-    bool iterate(F&& fun)
+    Status iterate(F&& fun)
     {
         linalg::LU<double, Dim> lu(fun.jacobian(x));
 
         auto sol = lu.solve(-1.0 * y);
         if (!sol) {
             this->flag = Flag::singular_matrix;
-            return false;
+            return Status::failed;
         }
         delta_x = sol.value();
         x += delta_x;
         y = fun(x.asarray());
-        return true;
+        return Status::ok;
     }
 
-    bool has_converged()
+    Status has_converged()
     {
         if (this->is_zero(y, x)) {
             this->flag = Flag::residual_zero;
-            return true;
+            return Status::converged;
         }
-        return false;
+        return Status::ok;
     }
 
     std::array<double, Dim> residual() const

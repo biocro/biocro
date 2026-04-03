@@ -7,37 +7,91 @@
 namespace root_multidim
 {
 
-/** @brief Broyden's method.
+/**
+ * @brief Broyden's method for finding vector-valued zeros of nonlinear systems.
  *
- *  @details
+ * This struct implements Broyden's "good" method — a quasi-Newton root-finding
+ * algorithm that approximates the Jacobian inverse iteratively, avoiding the
+ * cost of computing or factoring a full Jacobian at every step.
+ *
+ * @tparam Dim The dimension of the system (number of equations = number of unknowns).
+ *
+ * @par Usage Example
+ * @code
+ * // Define the system: find x such that f(x) = 0
+ * auto f = [](std::array<double, 2> x) -> std::array<double, 2> {
+ *     return { x[0]*x[0] + x[1] - 1.0,
+ *              x[0]      - x[1]*x[1] };
+ * };
+ * using namespace root_multidim;
+ * // set solver with a max iterations, abs_tol, rel_rol
+ * broyden<2> solver(100, 1e-5, 1e-5);
+ * std::array<double, 2> guess = { 0.5, 0.5 };
+ *
+ * result_t result = solver.solve(f, guess);
+ *
+ * @endcode
+ *
+ * @note The inverse Jacobian is initialised to the identity matrix, so the
+ *       first step is equivalent to a Newton step with @f$ J = I @f$.
+ *       Convergence may be slow if the true Jacobian at the starting point
+ *       differs greatly from the identity.
  */
 template <size_t Dim>
 struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
+    // zero_finding_method methods can call private methods defined here
+    friend class zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
+
+    // "import" parent class methods
     using zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
-    using vec_t = typename linalg::vector<double, Dim>;
-    using mat_t = typename linalg::matrix<double, Dim, Dim>;
 
-    vec_t _zero;
-    vec_t _residual;
-    vec_t delta_x;
-    vec_t delta_y;
-    mat_t inv_jac;
+   private:
+    // --- type aliases -------------------------------------------------------
+    using vec_t = typename linalg::vector<double, Dim>;       ///< Dense vector type.
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;  ///< Dense matrix type.
 
-    vec_t _tmp_a;
-    vec_t _tmp_b;
-    double _tmp_c;
+    // --- state -----------------------------------------------------------------
+
+    vec_t _zero;      ///< Current best estimate of the zero.
+    vec_t _residual;  ///< Residual f(_zero) at the current estimate.
+    vec_t delta_x;    ///< Last step taken in x-space.
+    vec_t delta_y;    ///< Change in residual across the last step.
+    mat_t inv_jac;    ///< Running approximation of the inverse Jacobian.
+
+    // --- internal temporaries (avoid per-iteration allocation) ----------------
+
+    vec_t _tmp_a;   ///< @private Numerator row  in the rank-1 update.
+    vec_t _tmp_b;   ///< @private Numerator col  in the rank-1 update.
+    double _tmp_c;  ///< @private Denominator scalar in the rank-1 update.
 
     template <typename F>
-    bool initialize(F&& fun, std::array<double, Dim> const& guess)
+    Status initialize(F&& fun, std::array<double, Dim> const& guess)
     {
         _zero = guess;
         _residual = fun(guess);
         inv_jac = linalg::matrix<double, Dim, Dim>::identity();
-        return true;
+        return Status::ok;
     }
-
+    /**
+     * @brief Performs one Broyden iteration.
+     *
+     * Advances the current estimate by one quasi-Newton step and updates the
+     * inverse-Jacobian approximation via the rank-1 Broyden formula:
+     *
+     * @f[
+     *   J^{-1}_{\text{new}} = J^{-1} +
+     *       \frac{(\Delta x - J^{-1}\,\Delta y)\,\Delta x^T J^{-1}}
+     *            {\Delta x^T J^{-1}\,\Delta y}
+     * @f]
+     *
+     * Call has_converged() after each call to decide whether to continue.
+     *
+     * @tparam F  Callable with the same signature as in initialize().
+     * @param fun The function whose zero is sought (same object as passed to initialize()).
+     * @return Always `true` (reserved for future error reporting).
+     */
     template <typename F>
-    bool iterate(F&& fun)
+    Status iterate(F&& fun)
     {
         /*
         UPDATE FORMULA
@@ -77,22 +131,24 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
         delta_y = fun(_zero.asarray());
         update_y();
         update_inv_jac();
-        return true;
+        return Status::ok;
     }
 
-    bool has_converged()
+    Status has_converged()
     {
+        // converged if f(x) == 0
         if (this->is_zero(_residual, _zero)) {
             this->flag = Flag::residual_zero;
-            return true;
+            return Status::converged;
         }
 
+        // converged if no improvement (maybe should be a failure condition?)
         if (this->is_zero(delta_x, _zero)) {
             this->flag = Flag::delta_x_zero;
-            return true;
+            return Status::converged;
         }
 
-        return false;
+        return Status::ok;
     }
 
     std::array<double, Dim> residual() const
