@@ -58,13 +58,14 @@ void stomata_water_stress_linear_v2::do_operation() const
     double soil_wilting_point = *soil_wilting_point_ip;
     double soil_field_capacity = *soil_field_capacity_ip;
     double soil_water_content = *soil_water_content_ip;
-
+     
+    double REW = (soil_water_content - soil_wilting_point) / (soil_field_capacity - soil_wilting_point);
     // This linear fitted equation is from a reverse engineering of fitting observed gs data
     // Ref: Gray, S., Dermody, O., Klein, S. et al. Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean. Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132
-    double linear_fit = 1.88 * soil_water_content + 0.379;
-    // From my data fitting, I do not see any StomataWS values beyond this range
-    double StomataWS_min = 0.5;
-    double StomataWS_max = 1.5;
+    double linear_fit = 0.641 + 0.139 * REW; 
+    // We assume StomataWS is between 0-1 
+    const double StomataWS_min = 0.0;
+    const double StomataWS_max = 1.0;
 
     // Update the output quantity list
     update(StomataWS_op, std::min(std::max(linear_fit, StomataWS_min), StomataWS_max));
