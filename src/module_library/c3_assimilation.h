@@ -3,8 +3,8 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
-#include "c3photo.h"
+#include "../math/roots/multidim/broyden.h"
+#include "c3_leaf_balance.h"
 
 namespace standardBML
 {
@@ -74,6 +74,9 @@ class c3_assimilation : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
+
+          absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
+          absorbed_shortwave{get_input(input_quantities, "absorbed_shortwave")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
@@ -81,7 +84,7 @@ class c3_assimilation : public direct_module
           Catm{get_input(input_quantities, "Catm")},
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
-          gbw{get_input(input_quantities, "gbw")},
+          gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
@@ -91,6 +94,7 @@ class c3_assimilation : public direct_module
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
           Ko_at_25{get_input(input_quantities, "Ko_at_25")},
           Ko_Ea{get_input(input_quantities, "Ko_Ea")},
+          leaf_width{get_input(input_quantities, "leaf_width")},
           O2{get_input(input_quantities, "O2")},
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
           phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
@@ -104,13 +108,14 @@ class c3_assimilation : public direct_module
           theta_0{get_input(input_quantities, "theta_0")},
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
-          Tleaf{get_input(input_quantities, "Tleaf")},
+
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
+          wind_speed{get_input(input_quantities, "wind_speed")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
@@ -122,6 +127,8 @@ class c3_assimilation : public direct_module
           RHs_op{get_op(output_quantities, "RHs")},
           RL_op{get_op(output_quantities, "RL")},
           Rp_op{get_op(output_quantities, "Rp")},
+
+          Tleaf_op{get_op(output_quantities, "Tleaf")},
           residual_C3_Assim_op{get_op(output_quantities, "residual_C3_Assim")},
           iteration_C3_Assim_op{get_op(output_quantities, "iteration_C3_Assim")}
     {
@@ -132,6 +139,8 @@ class c3_assimilation : public direct_module
 
    private:
     // References to input quantities
+    double const& absorbed_shortwave;  // J / m^2 / s
+    double const& absorbed_longwave;   // J / m^2 / s
     double const& atmospheric_pressure;
     double const& b0;
     double const& b1;
@@ -139,7 +148,7 @@ class c3_assimilation : public direct_module
     double const& Catm;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& gbw;
+    double const& gbw_canopy;
     double const& Gs_min;
     double const& Gstar_at_25;
     double const& Gstar_Ea;
@@ -149,6 +158,7 @@ class c3_assimilation : public direct_module
     double const& Kc_Ea;
     double const& Ko_at_25;
     double const& Ko_Ea;
+    double const& leaf_width;  // m
     double const& O2;
     double const& phi_PSII_0;
     double const& phi_PSII_1;
@@ -162,13 +172,13 @@ class c3_assimilation : public direct_module
     double const& theta_0;
     double const& theta_1;
     double const& theta_2;
-    double const& Tleaf;
     double const& Tp_at_25;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
     double const& Vcmax_Ea;
+    double const& wind_speed;  // m / s
 
     // Pointers to output quantities
     double* Assim_op;
@@ -180,6 +190,7 @@ class c3_assimilation : public direct_module
     double* RHs_op;
     double* RL_op;
     double* Rp_op;
+    double* Tleaf_op;
     double* residual_C3_Assim_op;
     double* iteration_C3_Assim_op;
 
@@ -190,6 +201,9 @@ class c3_assimilation : public direct_module
 string_vector c3_assimilation::get_inputs()
 {
     return {
+        "absorbed_shortwave",  // J / m^2 / s
+        "absorbed_longwave",   // J / m^2 / s
+
         "atmospheric_pressure",         // Pa
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
@@ -197,7 +211,7 @@ string_vector c3_assimilation::get_inputs()
         "Catm",                         // micromol / mol
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
-        "gbw",                          // mol / m^2 / s
+        "gbw_canopy",                   // m / s
         "Gs_min",                       // mol / m^2 / s
         "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
@@ -207,6 +221,7 @@ string_vector c3_assimilation::get_inputs()
         "Kc_Ea",                        // J / mol
         "Ko_at_25",                     // mmol / mol
         "Ko_Ea",                        // J / mol
+        "leaf_width",                   // m
         "O2",                           // millimol / mol
         "phi_PSII_0",                   // dimensionless
         "phi_PSII_1",                   // (degrees C)^(-1)
@@ -220,13 +235,13 @@ string_vector c3_assimilation::get_inputs()
         "theta_0",                      // dimensionless
         "theta_1",                      // (degrees C)^(-1)
         "theta_2",                      // (degrees C)^(-2)
-        "Tleaf",                        // degrees C
         "Tp_at_25",                     // micromol / m^2 / s
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
         "Vcmax_Ea",                     // J / mol
+        "wind_speed",                   // m / s
     };
 }
 
@@ -242,6 +257,7 @@ string_vector c3_assimilation::get_outputs()
         "RHs",                // dimensionless from Pa / Pa
         "RL",                 // micromol / m^2 / s
         "Rp",                 // micromol / m^2 / s
+        "Tleaf",              // degrees C
         "residual_C3_Assim",  // micromol / m^2 / s
         "iteration_C3_Assim"  // not a physical quantity
     };
@@ -267,31 +283,96 @@ void c3_assimilation::do_operation() const
         Tp_S,
         Vcmax_Ea};
 
-    photosynthesis_outputs c3_results = c3photoC(
+    // photosynthesis_outputs c3_results = c3photoC(
+    //     tr_param,
+    //     Qabs,
+    //     Tleaf,
+    //     Tambient,
+    //     rh,
+    //     Gstar_at_25,
+    //     Kc_at_25,
+    //     Ko_at_25,
+    //     Vcmax_at_25,
+    //     Jmax_at_25,
+    //     Tp_at_25,
+    //     RL_at_25,
+    //     b0,
+    //     b1,
+    //     Gs_min,
+    //     Catm,
+    //     atmospheric_pressure,
+    //     O2,
+    //     StomataWS,
+    //     electrons_per_carboxylation,
+    //     electrons_per_oxygenation,
+    //     beta_PSII,
+    //     gbw);
+    auto func = make_leaf_equation_residual(
+        // Ambient / fixed physical quantities
+        Tambient,              // degrees C
+        atmospheric_pressure,  // Pa
+        rh,                    // dimensionless
+        absorbed_shortwave,    // J / m^2 / s
+        absorbed_longwave,     // J / m^2 / s
+        gbw_canopy,            // m / s
+        wind_speed,            // m / s
+        leaf_width,            // m
+        // Photosynthesis parameters
         tr_param,
-        Qabs,
-        Tleaf,
+        Qabs,         // micromol / m^2 / s
+        Gstar_at_25,  // micromol / mol
+        Kc_at_25,     // micromol / mol
+        Ko_at_25,     // mmol / mol
+        Vcmax_at_25,  // micromol / m^2 / s
+        Jmax_at_25,   // micromol / m^2 / s
+        Tp_at_25,     // micromol / m^2 / s
+        RL_at_25,     // micromol / m^2 / s
+        b0,           // mol / m^2 / s
+        b1,           // dimensionless
+        Gs_min,       // mol / m^2 / s
+        Catm,         // micromol / mol
+        O2,           // mmol / mol
+        StomataWS,    // dimensionless
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        beta_PSII  // dimensionless
+    );
+
+    root_multidim::broyden<2> solver;
+    std::array<double, 2> x0 = {
+        0.7 * Catm,  // Ci: typical ci/ca ratio ~0.7  (micromol / mol)
+        Tambient     // T_leaf: start at air temp     (degrees C)
+    };
+    root_multidim::result_t<2> result = solver.solve(func, x0);
+
+    auto c3_results = unpack_c3_solution(
+        result,
         Tambient,
+        atmospheric_pressure,
         rh,
+        Catm,
+        O2,
+        StomataWS,
+        b0,
+        b1,
+        Gs_min,
+        gbw_canopy,
+        wind_speed,
+        leaf_width,
+        RL_at_25,
         Gstar_at_25,
         Kc_at_25,
         Ko_at_25,
         Vcmax_at_25,
         Jmax_at_25,
         Tp_at_25,
-        RL_at_25,
-        b0,
-        b1,
-        Gs_min,
-        Catm,
-        atmospheric_pressure,
-        O2,
-        StomataWS,
+        Qabs,
+        beta_PSII,
         electrons_per_carboxylation,
         electrons_per_oxygenation,
-        beta_PSII,
-        gbw);
-
+        tr_param,
+        absorbed_longwave,
+        absorbed_shortwave);
     // Update the output quantity list
     update(Assim_conductance_op, c3_results.Assim_conductance);
     update(Assim_op, c3_results.Assim);
@@ -304,6 +385,8 @@ void c3_assimilation::do_operation() const
     update(Rp_op, c3_results.Rp);
     update(residual_C3_Assim_op, c3_results.residual);
     update(iteration_C3_Assim_op, c3_results.iteration);
+
+    update(Tleaf_op, result.zero[1]);
 }
 
 }  // namespace standardBML

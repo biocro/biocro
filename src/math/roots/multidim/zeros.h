@@ -4,7 +4,7 @@
 #include <array>
 #include <algorithm>  // std::swap
 #include <cmath>      // std::sqrt, std::isnan
-
+#include <numeric>
 #include "../../linalg/base.h"
 namespace root_multidim
 {
@@ -50,6 +50,13 @@ struct result_t {
                         iteration{i},
                         flag{f},
                         success{success} {}
+
+    double residual_norm() const
+    {
+        double ssq = std::inner_product(
+            residual.begin(), residual.end(), residual.begin(), 0);
+        return std::sqrt(ssq);
+    }
 };
 
 enum class Status {
