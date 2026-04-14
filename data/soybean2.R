@@ -179,6 +179,8 @@ soybean2 <- list(
         soil_type_indicator_6       = 4,
         sowing_fractional_doy       = 0,
         Sp_thermal_time_decay       = 0,
+        StomataWS_gradient          = 0.139,
+        StomataWS_intercept         = 0.641,
         swcon                       = 0.00208333333333333,
         tbase                       = 10,
         Tbase_emr                   = 10,

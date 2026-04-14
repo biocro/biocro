@@ -16,6 +16,8 @@ class stomata_water_stress_linear_v2 : public direct_module
           soil_field_capacity{get_input(input_quantities, "soil_field_capacity")},
           soil_wilting_point{get_input(input_quantities, "soil_wilting_point")},
           soil_water_content{get_input(input_quantities, "soil_water_content")},
+          StomataWS_gradient{get_input(input_quantities, "StomataWS_gradient")},
+          StomataWS_intercept{get_input(input_quantities, "StomataWS_intercept")},
 
           // Get pointers to output quantities
           StomataWS_op{get_op(output_quantities, "StomataWS")}
@@ -27,9 +29,11 @@ class stomata_water_stress_linear_v2 : public direct_module
 
    private:
     // References to input quantities
-    const double& soil_field_capacity_ip;
-    const double& soil_wilting_point_ip;
-    const double& soil_water_content_ip;
+    const double& soil_field_capacityp;
+    const double& soil_wilting_point;
+    const double& soil_water_content;
+    const double& StomataWS_gradient;
+    const double& StomataWS_intercept;
 
     // Pointers to output quantities
     double* StomataWS_op;
@@ -43,7 +47,9 @@ string_vector stomata_water_stress_linear_v2::get_inputs()
     return {
         "soil_field_capacity",
         "soil_wilting_point",
-        "soil_water_content"};
+        "soil_water_content",
+        "StomataWS_gradient",
+        "StomataWS_intercept"};
 }
 
 string_vector stomata_water_stress_linear_v2::get_outputs()
@@ -60,7 +66,7 @@ void stomata_water_stress_linear_v2::do_operation() const
     const double REW = (soil_water_content - soil_wilting_point) / (soil_field_capacity - soil_wilting_point);
     // This linear fitted equation is from a reverse engineering of fitting observed gs data
     // Ref: Gray, S., Dermody, O., Klein, S. et al. Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean. Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132
-    double linear_fit = 0.641 + 0.139 * REW; 
+    double linear_fit = StomataWS_intercept + StomataWS_gradient * REW; 
 
     // Update the output quantity list
     update(StomataWS_op, std::min(std::max(linear_fit, StomataWS_min), StomataWS_max));
