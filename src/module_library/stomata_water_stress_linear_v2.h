@@ -29,7 +29,7 @@ class stomata_water_stress_linear_v2 : public direct_module
 
    private:
     // References to input quantities
-    const double& soil_field_capacityp;
+    const double& soil_field_capacity;
     const double& soil_wilting_point;
     const double& soil_water_content;
     const double& StomataWS_gradient;
