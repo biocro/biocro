@@ -66,11 +66,22 @@ enum class Status {
  * this class via the Curiously Recurring Template Pattern and must
  * implement three member functions:
  *
- * | Function | Signature | Purpose |
- * |---|---|---|
- * | `initialize` | `bool initialize(F&& fun, Args&&... args)` | Set up state from the initial guess; return `false` to abort immediately. |
- * | `iterate`    | `bool iterate(F&& fun)` | Advance the estimate by one step; return `false` to abort. |
- * | `has_converged` | `bool has_converged()` | Return `true` (and set `this->flag`) when a stopping criterion is met. |
+ * | Function        | Signature                                    | Purpose                                                   |
+ * |-----------------|----------------------------------------------|-----------------------------------------------------------|
+ * | `initialize`    | `Status initialize(F&& fun, Args&&... args)` | Set up state from the initial guess                       |
+ * | `iterate`       | `Status iterate(F&& fun)`                    | Perform one iteration of the method (e.g., Newton update) |
+ * | `has_converged` | `Status has_converged()`                     | Check if stopping criteria is met.                        |
+ *
+ * Each function returns a `Status` enum class; these are status codes, that allow the method
+ * to communicate success or failure to this interface class.
+ *
+ * | `Status`            | Meaning                                                                            |
+ * |---------------------|------------------------------------------------------------------------------------|
+ * | `Status::ok`        | Iteration state is valid but has not converged. Ok to continue iteration           |
+ * | `Status::invalid`   | Iteration state is invalid; initial guess does not satisfy requirements of method  |
+ * | `Status::converged` | Iteration state meets convergence or tolerance criteria.                           |
+ * | `Status::failed`    | Iteration state has failed to converge (e.g., exceeded maximum iterations)         |
+ *
  *
  * The derived class must also expose `zero()` and `residual()` accessors
  * returning `std::array<double, Dim>`.
