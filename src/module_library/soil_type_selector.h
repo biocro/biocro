@@ -44,15 +44,11 @@ soilText_str get_soil_properties(int soiltype);
 // is based on the list of book corrections published at
 // http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf.
 //
-// YH: Not sure where the satur comes from. I think it represents porosity
-// Therfore, based on Rawls et al 1982 (https://elibrary.asabe.org/abstract.asp?aid=33720)
-// Sandy soil should have lower porosity than silt/clay soil. I now changed the satur values
-// based on the table from Rawls et al 1982 using the total porosity
-
-// YH: I changed the fieldc, and wiltp values of the sandy_loam and loam types 
-// This is based on my calibration of soil water data against Gray et al 2016
-// https://www.nature.com/articles/nplants2016132 
-// I spefically looked at the high and low flows to roughly detemine these values
+// YH: Not sure where the satur values come from. They are not in Table 9.1 in Campbell and Norman.
+// I think it represents porosity. Rawls et al 1982 (https://elibrary.asabe.org/abstract.asp?aid=33720) provides a good source for the parameter value. However, the porosity value has large uncertainty as shown in the paper. This means they can be changed as needed.
+// Based on my calibration of soil water data against Gray et al 2016
+// (https://www.nature.com/articles/nplants2016132),
+// I modified some of them by aligning the high and low flows to observations.
 std::map<SoilType, soilText_str> soil_parameters =
     {
         //                             d = dimensionless
@@ -60,11 +56,11 @@ std::map<SoilType, soilText_str> soil_parameters =
         //                             silt  clay  sand  air_entry   b     Ks          satur fieldc wiltp bulk_density
         {SoilType::sand, {0.05, 0.03, 0.92, -0.7, 1.7, 5.8e-3, 0.437, 0.09, 0.03, 1.60}},
         {SoilType::loamy_sand, {0.12, 0.07, 0.81, -0.9, 2.1, 1.7e-3, 0.437, 0.13, 0.06, 1.55}},
-        {SoilType::sandy_loam, {0.25, 0.10, 0.65, -1.5, 3.1, 7.2e-4, 0.42, 0.15, 0.10, 1.50}},
-        {SoilType::loam, {0.39, 0.21, 0.40, -1.1, 4.5, 3.7e-4, 0.42, 0.30, 0.22, 1.30}}, 
-        {SoilType::silt_loam, {0.65, 0.15, 0.20, -2.1, 4.7, 1.9e-4, 0.501, 0.40, 0.30, 1.36}},
+        {SoilType::sandy_loam, {0.25, 0.10, 0.65, -1.5, 3.1, 7.2e-4, 0.42, 0.21, 0.10, 1.50}},
+        {SoilType::loam, {0.39, 0.21, 0.40, -1.1, 4.5, 3.7e-4, 0.42, 0.27, 0.12, 1.30}},
+        {SoilType::silt_loam, {0.65, 0.15, 0.20, -2.1, 4.7, 1.9e-4, 0.501, 0.33, 0.13, 1.36}},
         {SoilType::sandy_clay_loam, {0.13, 0.27, 0.60, -2.8, 4.0, 1.2e-4, 0.398, 0.26, 0.15, 1.39}},
-        {SoilType::clay_loam, {0.34, 0.34, 0.32, -2.6, 5.2, 6.4e-5, 0.464, 0.32, 0.20, 1.35}},
+        {SoilType::clay_loam, {0.34, 0.34, 0.32, -2.6, 5.2, 6.4e-5, 0.420, 0.32, 0.20, 1.35}},
         {SoilType::silty_clay_loam, {0.58, 0.33, 0.09, -3.3, 6.6, 4.2e-5, 0.471, 0.37, 0.21, 1.24}},
         {SoilType::sandy_clay, {0.07, 0.40, 0.53, -2.9, 6.0, 3.3e-5, 0.430, 0.34, 0.24, 1.30}},
         {SoilType::silty_clay, {0.45, 0.45, 0.10, -3.4, 7.9, 2.5e-5, 0.479, 0.39, 0.25, 1.28}},

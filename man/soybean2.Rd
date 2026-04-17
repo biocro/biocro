@@ -31,6 +31,16 @@
           indicating that these parameters do not change much for different
           crops. Here we use 1.15, 0, and 0.55 for soybean, where the \code{skc}
           value is the mean of the maize and cotton values.
+    \item Regarding soil types in Champaign County: according to 
+          \href{https://websoilsurvey.nrcs.usda.gov/app/}{the Web Soil Survey}, 
+          soils in this region are predominantly silty clay loam, loam, and silt loam,
+          with variation across soil depth. In BioCro, soil types 4--7 correspond to
+          loamy soils. Although this classification does not provide the most accurate
+          representation of soil hydraulic properties, it is reasonable to constrain 
+          our parameterization within this range for consistency. In our current setup,
+          we assign type 7 (silty clay loam) to layers 3--6 and type 6 (clay loam) to 
+          layers 1--2. This configuration produces reasonably good agreement with 
+          observed soil water dynamics at SoyFACE.
   }
 }
 
