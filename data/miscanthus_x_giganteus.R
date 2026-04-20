@@ -1,7 +1,7 @@
 miscanthus_x_giganteus <- list(
     direct_modules = list(
         "BioCro:format_time",
-        stomata_water_stress = "BioCro:stomata_water_stress_linear",
+        stomata_water_stress = "BioCro:stomata_water_stress_linear_v2",
         "BioCro:leaf_water_stress_exponential",
         specific_leaf_area = "BioCro:sla_linear",
         "BioCro:parameter_calculator",
@@ -164,6 +164,8 @@ miscanthus_x_giganteus <- list(
         sowing_fractional_doy       = 0,
         Sp_thermal_time_decay       = 0,
         specific_heat_of_air        = 1010,
+        StomataWS_gradient          = 1,
+        StomataWS_intercept         = 0,
         tbase                       = 0,
         theta                       = 0.83,
         timestep                    = 1,
