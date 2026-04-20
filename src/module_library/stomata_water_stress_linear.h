@@ -3,7 +3,37 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include <algorithm>  // for std::min and std::max
 
+/**
+ *  @class stomata_water_stress_linear
+ *
+ *  @brief Calculates a stomatal water stress factor, where 0 indicates
+ *  maximum stress (no stomatal opening) and 1 indicates minimum stress (full
+ *  stomatal opening).
+ *
+ *  In this module, the stomatal water stress factor (`StomataWS`) is calculated
+ *  as a linear function of the relative extractable soil water (`REW`):
+ *
+ *  > `StomataWS = StomataWS_intercept + StomataWS_gradient * REW` (Equation 1)
+ *
+ *  where
+ *
+ *  > `REW = (theta - theta_w) / (theta_c - theta_w)`
+ *
+ *  and `theta`, `theta_w`, and `theta_c` are the soil water content, the soil
+ *  wilting point (minimum water content that can be extracted by the roots),
+ *  and the soil field capacity (maximum water content that can be absorbed by
+ *  the soil), respectively. These are all volumetric water contents, defined as
+ *  (voume of water) / (volume of soil), and hence are dimensionless.
+ *
+ *  Following Equation 1, the value of `StomataWS` is clamped to lie between 0
+ *  and 1.
+ *
+ *  NOTE: In previous versions of BioCro, this module simply used
+ *  `StomataWS = REW`. This behavior can be reproduced by setting
+ *  `StomataWS_gradient` to 1 and `StomataWS_intercept` to 0.
+ */
 namespace standardBML
 {
 class stomata_water_stress_linear : public direct_module
@@ -45,34 +75,35 @@ class stomata_water_stress_linear : public direct_module
 string_vector stomata_water_stress_linear::get_inputs()
 {
     return {
-        "soil_field_capacity",   // cm3 [water] /cm3 [soil]. Volumetric water content
-        "soil_wilting_point",    // cm3 / cm3
-        "soil_water_content",    // cm3 / cm3
-        "StomataWS_gradient",    // dimensionless
-        "StomataWS_intercept"};  // dimensionless
+        "soil_field_capacity",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_wilting_point",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content",   // dimensionless from (m^3 water) / (m^3 soil)
+        "StomataWS_gradient",   // dimensionless
+        "StomataWS_intercept"   // dimensionless
+    };
 }
 
 string_vector stomata_water_stress_linear::get_outputs()
 {
     return {
-        "StomataWS"};  // dimensionless
+        "StomataWS"  // dimensionless
+    };
 }
 
 void stomata_water_stress_linear::do_operation() const
 {
-    // We assume StomataWS is between 0-1
-    constexpr double StomataWS_min = 0.0;
-    constexpr double StomataWS_max = 1.0;
-    // Relative extractable water. Dimensionless
-    const double REW = (soil_water_content - soil_wilting_point) / (soil_field_capacity - soil_wilting_point);
-    // This linear fitted equation is from a reverse engineering of fitting observed gs data
-    // Ref: Gray, S., Dermody, O., Klein, S. et al.
-    // Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean.
-    // Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132
-    double linear_fit = StomataWS_intercept + StomataWS_gradient * REW;
+    // Set limits for StomataWS
+    constexpr double StomataWS_min = 0.0;  // dimensionless
+    constexpr double StomataWS_max = 1.0;  // dimensionless
+
+    // Apply Equation 1 (see above)
+    double const REW = (soil_water_content - soil_wilting_point) /
+                       (soil_field_capacity - soil_wilting_point);  // dimensionless
+
+    double const StomataWS_raw = StomataWS_intercept + StomataWS_gradient * REW;  // dimensionless
 
     // Update the output quantity list
-    update(StomataWS_op, std::min(std::max(linear_fit, StomataWS_min), StomataWS_max));
+    update(StomataWS_op, std::min(std::max(StomataWS_raw, StomataWS_min), StomataWS_max));
 }
 
 }  // namespace standardBML
