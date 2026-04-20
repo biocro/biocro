@@ -1,15 +1,15 @@
-#ifndef STOMATA_WATER_STRESS_LINEAR_V2_H
-#define STOMATA_WATER_STRESS_LINEAR_V2_H
+#ifndef STOMATA_WATER_STRESS_LINEAR_H
+#define STOMATA_WATER_STRESS_LINEAR_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 
 namespace standardBML
 {
-class stomata_water_stress_linear_v2 : public direct_module
+class stomata_water_stress_linear : public direct_module
 {
    public:
-    stomata_water_stress_linear_v2(state_map const& input_quantities, state_map* output_quantities)
+    stomata_water_stress_linear(state_map const& input_quantities, state_map* output_quantities)
         : direct_module{},
 
           // Get references to input quantities
@@ -25,7 +25,7 @@ class stomata_water_stress_linear_v2 : public direct_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    static std::string get_name() { return "stomata_water_stress_linear_v2"; }
+    static std::string get_name() { return "stomata_water_stress_linear"; }
 
    private:
     // References to input quantities
@@ -42,7 +42,7 @@ class stomata_water_stress_linear_v2 : public direct_module
     void do_operation() const;
 };
 
-string_vector stomata_water_stress_linear_v2::get_inputs()
+string_vector stomata_water_stress_linear::get_inputs()
 {
     return {
         "soil_field_capacity",   // cm3 [water] /cm3 [soil]. Volumetric water content
@@ -52,13 +52,13 @@ string_vector stomata_water_stress_linear_v2::get_inputs()
         "StomataWS_intercept"};  // dimensionless
 }
 
-string_vector stomata_water_stress_linear_v2::get_outputs()
+string_vector stomata_water_stress_linear::get_outputs()
 {
     return {
         "StomataWS"};  // dimensionless
 }
 
-void stomata_water_stress_linear_v2::do_operation() const
+void stomata_water_stress_linear::do_operation() const
 {
     // We assume StomataWS is between 0-1
     constexpr double StomataWS_min = 0.0;

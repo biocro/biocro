@@ -109,8 +109,6 @@ for (i in 1:length(years)){
     parameters$chil = 1e8  #infinite chil means flat leaf
 
     #use the original linear function as the baseline
-    direct_modules = soybean2$direct_modules
-    direct_modules$stomata_water_stress = "BioCro:stomata_water_stress_linear_v2"
     parameters$StomataWS_gradient = 1
     parameters$StomataWS_intercept = 0
 
@@ -118,7 +116,7 @@ for (i in 1:length(years)){
       soybean2$initial_values,
       parameters,
       weather_growing_season,
-      direct_modules,
+      soybean2$direct_modules,
       soybean2$differential_modules
     )
 }

@@ -10,7 +10,7 @@ soybean <- list(
         "BioCro:height_from_lai",
         "BioCro:canopy_gbw_thornley",
         "BioCro:soil_evaporation",
-        stomata_water_stress = "BioCro:stomata_water_stress_linear_v2",
+        stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:format_time",
         "BioCro:soybean_development_rate_calculator",
         solar_coordinates = "BioCro:solar_position_michalsky",
