@@ -206,10 +206,6 @@ string_vector soil_water_tiledrain::get_outputs()
 {
     return {
         "td_layer_num",          // Dimensionless. Soil layer number containing the tile drain
-        // The naming of cumulative tile flow and total tile flow is confusing, especially if we want easy mapping of 
-        // variables between DSSAT and BioCro. In DSSAT, TDFD is per-timestep tile drain flow, which is named 'cumulative_tile_flow' here
-        // whereas total_tile_flow is equivalent to TDFC variable in DSSAT, which is defined as the cumulative tile drain flow over the course of the simulation. 
-        // in future perphaps reserve the cumulative term for the cumulative flow over the course of the simulation and rename cumulative_tile_flow to tile_drain_flow or something similar.
         "cumulative_tile_flow",  // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
         "total_tile_flow",     // cm / hr. //TODO - I think it currently equals cumulative_tile_flow of
                               // given timestep because total_tile_flow is reset to zero inside tile_flow() on each call; (see soil_water_flow_functions.cpp, line 345)
