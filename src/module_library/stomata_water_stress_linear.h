@@ -12,6 +12,9 @@
  *  maximum stress (no stomatal opening) and 1 indicates minimum stress (full
  *  stomatal opening).
  *
+ *  This is an empirical approach to modeling the influence of water stress on
+ *  stomatal behavior and it is not based on a particular publication.
+ *
  *  In this module, the stomatal water stress factor (`StomataWS`) is calculated
  *  as a linear function of the relative extractable soil water (`REW`):
  *
@@ -27,8 +30,8 @@
  *  the soil), respectively. These are all volumetric water contents, defined as
  *  (voume of water) / (volume of soil), and hence are dimensionless.
  *
- *  Following Equation 1, the value of `StomataWS` is clamped to lie between 0
- *  and 1.
+ *  Following the application of Equation 1, the value of `StomataWS` is clamped
+ *  to lie between 0 and 1.
  *
  *  NOTE: In previous versions of BioCro, this module simply used
  *  `StomataWS = REW`. This behavior can be reproduced by setting
