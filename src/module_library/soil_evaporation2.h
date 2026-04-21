@@ -2,6 +2,7 @@
 #define SOIL_EVAPORATION2_H
 
 #include <algorithm>  // for std::min, std::max
+#include <stdexcept>  // for std::logic_error
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_evaporation_functions.h"
@@ -11,20 +12,208 @@ namespace standardBML
 /**
  *  @class soil_evaporation2
  *
- *  @brief This module is based on the SOILEV subroutine from DSSAT,
- *  which calculates a daily soil evaporation rate. Here, we have made several
- *  changes to allow hourly calculation to match BioCro.
- *  Only compatible with a fixed-step Euler solver.
+ *  @brief Calculates the change in the soil evaporation rate that will occur
+ *  over the following (hourly) time step.
  *
  *  ### Model overview
  *
+ *  This module is based on a model for soil surface evaporation originally
+ *  presented in Ritchie (1972).
+ *
+ *  Broadly, this model divides soil surface water evaporation into two stages,
+ *  referred to as Stage 1 and Stage 2 evaporation. They are described in the
+ *  paper:
+ *
+ *  > In the constant rate stage (stage 1), the soil is sufficiently wet for the
+ *  > water to be transported to the surface at a rate at least equal to the
+ *  > evaporation potential. In the falling rate stage (stage 2), the surface
+ *  > soil water content has decreased below a threshold value, so that `ES`
+ *  > depends on the flux of water through the upper layer of soil to the
+ *  > evaporating site near the surface.
+ *
+ *  Here, `ES` the rate of evaporation of water from the soil surface.
+ *
+ *  In the model, Stage 1 evaporation generally proceeds at its potential rate
+ *  `EOS`. Stage 2 evaporation is independent of environmental conditions, and
+ *  instead depends on the total amount of time spent in Stage 2 evaporation.
+ *
+ *  The cumulative soil evaporation during Stage 2 is given by Equation (6) in
+ *  the paper:
+ *
+ *  > `sumes2 = alpha * sqrt(t)`,
+ *
+ *  where `sumes2` is the sum of evaporation during Stage 2, `t` is the time
+ *  spent during Stage 2, and `alpha` is a constant whose value depends on the
+ *  type of soil.
+ *
+ *  With this equation, it is possible to calculate the total water evaporated
+ *  during a time interval:
+ *
+ *  > Delta_sumes2 = alpha * sqrt(t + Delta_t) - sumes2(t)`,
+ *
+ *  where `Delta_sumes2` is the water evaporated during the interval, `Delta_t`
+ *  is the length of the time interval, and `sumes2(t)` is the cumulative
+ *  evaporation that had occurred at time `t`. With this, the average rate of
+ *  evaporation during the time interval can be found as
+ *
+ *  > ES = Delta_sumes2 / Delta_t = (alpha * sqrt(t + Delta_t) - sumes2(t)) / Delta_t`
+ *
+ *  This is Equation (8) in the paper. However, note that the version in the
+ *  paper omits the `Delta_t` denominator. Thus, it is inconsistent in terms of
+ *  units, because the left-hand-side is a rate (having units of mm / day in the
+ *  paper) and the right-hand-side is an amount of evaporation (having units of
+ *  mm in the original paper).
+ *
+ *  The infiltration of water from precipitation or irrigation counteracts
+ *  losses from evaporation. For example, infiltration can extend the time spend
+ *  in Stage 1 evaporation. Or, with enough infiltration, all cumulative losses
+ *  during Stage 1 evaporation can be compensated, returning the soil surface to
+ *  a fully wet state. Likewise, sufficiently large infiltration can compensate
+ *  for the cumulative losses in Stage 2, returning the soil to Stage 1. Each of
+ *  these scenarios is handled separately in the flow chart provided in
+ *  Ritchie (1972), where `P` is the rate of water infiltration into the soil
+ *  surface.
+ *
+ *  #### Additional considerations for Stage 2 evaporation
+ *
+ *  From the paper:
+ *
+ *  > Twice during Stage 2 drying `ES` as calculated by (8) does not apply.
+ *  >
+ *  > The first time is when `P < sumes2` as is shown in the flow diagram at D.
+ *  > The water content of the soil increases in proportion to `P`. The
+ *  > evaporation rate in this special case `ESX` is first approximated as
+ *  > `0.8 * infiltrated_water`. This relation was obtained locally from bare
+ *  > soil lysimeter evaporation measurements after small rains (1-6 mm) that
+ *  > came when the surface soil was relatively dry.
+ *  >
+ *  > There are two possibilities for modifying the first approximation of
+ *  > `ESX`. If `ESX` as calculated is less than or equal to `ES` calculated
+ *  > from (8), `ESX` is equated to the predicted `ES + P`, when `P` values are
+ *  > unusually small. However, if `P` is rather large, so that `ESX > EOS`,
+ *  > then `ESX` is limited to `EOS`.
+ *  >
+ *  > The second time in Stage 2 drying when (8) does not apply occurs when the
+ *  > predicted `ES > EOS`. Then `ES` is limited to `EOS` as shown in the flow
+ *  > diagram.
+ *  >
+ *  > A final step in calculating Stage 2 evaporation is shown at G in the flow
+ *  > diagram. An updated value for `sumes2` is calculated, and the time is
+ *  > adjusted if `ES` was determined where (8) did not apply.
+ *
+ *  In other words, when there is a small amount of infiltration during Stage 2
+ *  drying, it is assumed to completely evaporate, and hence, the total
+ *  evaporation rate becomes `ES + P`, where `ES` was the rate predicted using
+ *  Equation 8. When there is a larger amount of infiltration (but not enough to
+ *  end Stage 2 drying), the evaporation rate increases due to the infiltration,
+ *  but is limited to the potential rate `EOS`.
+ *
+ *  Note that the comparison `P < sumes2` does not make sense because `P` is a
+ *  rate (mm / day in the original model) and `sumes2` is a cumulative amount of
+ *  evaporated water (mm). Instead, it is likely that this comparison should  be
+ *  `P * Delta_t < sumes2` instead. This would describe a scenario where the
+ *  total water infiltrated over a single time step is unable to compensate for
+ *  the total amount lost during Stage 2 evaporation, which seems to agree with
+ *  the concepts explained in the quote above.
+ *
+ *  #### Additional adjustments to prevent conceptual errors
+ *
+ *  The DSSAT code includes additional calculations after the ones described in
+ *  Ritchie (1972). There are described in a comment:
+ *
+ *  > Soil evaporation can not be larger than the current extractable soil water
+ *  > in the top layer. If available soil water is less than soil evaporation,
+ *  > adjust first and second Stage evaporation and soil evaporation accordingly
+ *
+ *  In other words, if the evaporation rate is too high when using an Euler
+ *  solver, it can potentially "overdraw" on the available soil water reserves,
+ *  which could produce a negative soil water content (something that should not
+ *  be possible). To fix this, limits are placed on the evaporation rate besides
+ *  the ones discussed in the Ritchie (1972) paper.
+ *
+ *  These additional calculations do not seem to be fully described in any
+ *  publications. When possible, we have added our own comments in the code to
+ *  explain them, although some parts remain opaque.
+ *
+ *  ### Model implementation
+ *
+ *  Ritchie (1972) provides a flow chart and equations that can be used to
+ *  implement the model. Rather than basing our code directly on this resource,
+ *  we have also looked to DSSAT, and our code is largely based on its SOILEV
+ *  subroutine.
+ *
+ *  The DSSAT module cites Ritchie (1972) as its main reference, but there are
+ *  a few differences between the DSSAT code and the equations presented in
+ *  Ritchie (1972). For example, Ritchie (1972) represents the "rainfall or
+ *  irrigation rate" using the symbol `P`, with units of `mm / day`. Comparing
+ *  the equations in Ritchie (1972) against those in SOILEV, it is clear that
+ *  the variable `WINF`, defined as the "potential precipitation for
+ *  infiltration," is intended to be identical to `P`. Yet, the units of `WINF`
+ *  are given as `mm` rather than `mm / day`. In cases such as this, we try to
+ *  follow Ritchie (1972) when possible, since some of the units given in SOILEV
+ *  are not consistent with each other (see below for more info). Even so, some
+ *  of the units in Ritchie (1972) are also inconsistent; for an example, see
+ *  the discussion of Equation (8) above.
+ *
+ *  The original model and its DSSAT implementation assume a daily time step,
+ *  and rates are expressed as mm / day. In our implementation, we have
+ *  assumed an hourly timestep and expressed rates in units of mm / hr for
+ *  consistency with other BioCro modules.
+ *
+ *  ### Notes about solver
+ *
+ *  The original model (and its DSSAT implementation) is formulated using
+ *  difference equations rather than differential equations. For this and
+ *  several other reasons, this module is only compatible with an Euler solver
+ *  using a time step of 1 hour. Here are several (but not all) reasons for why
+ *  such a solver is required:
+ *
+ *  1. For several quantities (`days_stage2`, `soil_evaporation_rate`, `sumes1`,
+ *     and `sumes2`), this module returns the change relative to the value at
+ *     the current time step. In other words, it calculates Delta_V =
+ *     V_next_step - V_current_step with the expectation that the value at the
+ *     next step will be equal to V_current_step + Delta_V. This is only
+ *     guaranteed when using an Euler solver with a time step of 1 hour.
+ *
+ *  2. During Stage 2 evaporation, the next value of `days_stage2` is found by
+ *     adding 1 hour to its current value, which only makes sense when using an
+ *     Euler solver with a time step of 1 hour.
+ *
+ *  3. In some of the original calculations, no distinction was made between
+ *     soil water content and its rate of change. For example, one line reads
+ *     `ES = 3.5 * T**0.5 - SUMES2`. Here, `ES` is the soil water evaporation
+ *     rate (in mm / day) and `SUMES2` is the cumulative soil water evaporated
+ *     during Stage 2 drying (in mm). This seems to imply an "invisible"
+ *     division of the change in soil water content (in mm) by the time step
+ *     size (one day) to produce an output rate with the correct units
+ *     (mm / day).
+ *
+ *  To clarify these points, we have defined a `timestep` variable in the code
+ *  below. Note that this is highly unusual, and BioCro modules generally should
+ *  not need to know the size of the time step being used to solve the set of
+ *  coupled differential equations.
+ *
+ *  ### Definitions for some parameters
+ *
+ *  - `bare_soil_albedo_max`: Maximum bare soil albedo
+ *
+ *  - `days_stage2`: Time elapsed in Stage 2 evaporation
+
+ *  - `infiltrated_water`: Rate of water infiltration, equal to rainfall
+ *     minus runoff plus net irrigation
+ *
+ *  - `sumes1`: Cumulative soil evaporation in Stage 1
+ *
+ *  - `sumes2`: Cumulative soil evaporation in Stage 2
+ *
  *  ### Source
  *
- *  - Ritchie, J. T. (1972), Model for predicting evaporation from a row crop
- *  with incomplete cover, Water Resour. Res., 8(5), 1204–1213,
- *  doi:10.1029/WR008i005p01204.
+ *  - [Ritchie, J. T. "Model for predicting evaporation from a row crop with incomplete cover."
+ *    Water Resources Research 8, 1204–1213 (1972)]
+ *    (https://doi.org/10.1029/WR008i005p01204)
+ *
  *  - DSSAT Fortran source code:
- *  github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
+ *    github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
  */
 class soil_evaporation2 : public differential_module
 {
@@ -203,78 +392,79 @@ string_vector soil_evaporation2::get_inputs()
 {
     return {
         "atmospheric_pressure",              // Pa
-        "bare_soil_albedo_max",              // Maximum bare soil albedo - dimensionless
+        "bare_soil_albedo_max",              // dimensionless
         "cosine_zenith_angle",               // dimensionless
-        "days_stage2",                       // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "days_stage2",                       // day
         "fractional_doy",                    // day
-        "infiltrated_water",                 // Water available for infiltration - rainfall minus runoff plus net irrigation (mm)
+        "infiltrated_water",                 // mm / hr
         "irradiance_diffuse_transmittance",  // dimensionless
         "irradiance_direct_transmittance",   // dimensionless
         "kcbmax",                            // dimensionless
         "kcbmin",                            // dimensionless
-        "lai",                               // Healthy leaf area index (m2[leaf] / m2[ground])
+        "lai",                               // dimensionless from (m^2 leaf) / (m^2 ground)
         "par_energy_content",                // J / micromol
         "par_energy_fraction",               // dimensionless
-        "rh",                                // fraction. dimensionless
+        "rh",                                // dimensionless
         "skc",                               // dimensionless
-        "soil_evaporation_rate",             // Actual soil evaporation rate (mm/hr)
+        "soil_evaporation_rate",             // mm / hr
         "solar",                             // micromol / m^2 / s
-        "sumes1",                            // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2",                            // Cumulative soil evaporation in stage 2 (mm)
+        "sumes1",                            // mm
+        "sumes2",                            // mm
         "temp",                              // degrees C
-        "windspeed",                         // m/s
+        "windspeed",                         // m / s
         "windspeed_height",                  // m
 
-        "soil_depth_1",
-        "soil_wilting_point_1",
-        "soil_field_capacity_1",
-        "soil_water_content_1",
-        "deltaS_1",
-        "deltaU_1",
+        "soil_depth_1",           // cm
+        "soil_wilting_point_1",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_1",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_1",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_1",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_1",               // dimensionless from (m^3 water) / (m^3 soil)
 
-        "soil_depth_2",
-        "soil_wilting_point_2",
-        "soil_field_capacity_2",
-        "soil_water_content_2",
-        "deltaS_2",
-        "deltaU_2",
+        "soil_depth_2",           // cm
+        "soil_wilting_point_2",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_2",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_2",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_2",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_2",               // dimensionless from (m^3 water) / (m^3 soil)
 
-        "soil_depth_3",
-        "soil_wilting_point_3",
-        "soil_field_capacity_3",
-        "soil_water_content_3",
-        "deltaS_3",
-        "deltaU_3",
+        "soil_depth_3",           // cm
+        "soil_wilting_point_3",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_3",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_3",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_3",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_3",               // dimensionless from (m^3 water) / (m^3 soil)
 
-        "soil_depth_4",
-        "soil_wilting_point_4",
-        "soil_field_capacity_4",
-        "soil_water_content_4",
-        "deltaS_4",
-        "deltaU_4",
+        "soil_depth_4",           // cm
+        "soil_wilting_point_4",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_4",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_4",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_4",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_4",               // dimensionless from (m^3 water) / (m^3 soil)
 
-        "soil_depth_5",
-        "soil_wilting_point_5",
-        "soil_field_capacity_5",
-        "soil_water_content_5",
-        "deltaS_5",
-        "deltaU_5",
+        "soil_depth_5",           // cm
+        "soil_wilting_point_5",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_5",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_5",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_5",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_5",               // dimensionless from (m^3 water) / (m^3 soil)
 
-        "soil_depth_6",
-        "soil_wilting_point_6",
-        "soil_field_capacity_6",
-        "soil_water_content_6",
-        "deltaS_6",
-        "deltaU_6"};
+        "soil_depth_6",           // cm
+        "soil_wilting_point_6",   // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_field_capacity_6",  // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_6",   // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_6",               // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_6"                // dimensionless from (m^3 water) / (m^3 soil)
+    };
 }
 
 string_vector soil_evaporation2::get_outputs()
 {
     return {
-        "days_stage2",            // Days elapsed in Stage-2 evaporation (decimal allowed)
+        "days_stage2",            // day
         "soil_evaporation_rate",  // mm / hr
-        "sumes1",                 // Cumulative soil evaporation in stage 1 (mm)
-        "sumes2"                  // Cumulative soil evaporation in stage 2 (mm)
+        "sumes1",                 // mm
+        "sumes2"                  // mm
     };
 }
 
@@ -283,30 +473,31 @@ void soil_evaporation2::do_operation() const
     using std::max;
     using std::min;
 
-    double constexpr hours_per_day = 24.0;
+    // Define conversion constants to avoid magic numbers
+    double constexpr cm_to_mm = 10.0;       // mm / cm
+    double constexpr hours_per_day = 24.0;  // hr / day
 
-    int constexpr nlayers = 6;
+    // Hard-coded model parameter values
     double constexpr canopyHeight = 1.0;  // m
-    // soil hydraulic properties. Yolo Loam 
-    // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
-    double constexpr soil_evaporation_alpha = 4.0;  // mm/day^(0.5)
+    double constexpr SWEF_depth = 30;     // cm
+    double constexpr timestep = 1;        // hr
+    int constexpr nlayers = 6;            // not a physical quantity
 
-    // Upper Limit of Stage 1 Cumulative Evaporation. Yolo Loam 
+    // Soil hydraulic properties. Yolo Loam
+    // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
+    double constexpr soil_evaporation_alpha = 4.0;  // mm / day^(0.5)
+
+    // Upper Limit of Stage 1 Cumulative Evaporation. Yolo Loam
     // Table 1. Ritchie (1972)
     double constexpr evap_limit = 9.0;  // mm
 
-    double actual_soil_evap = soil_evaporation_rate;
-    double sumes1_temp = sumes1;
-    double sumes2_temp = sumes2;
-    double days_stage2_temp = days_stage2;
-    double old_soil_evap = soil_evaporation_rate;
     double soil_depth[] = {
         soil_depth_1,
         soil_depth_2,
         soil_depth_3,
         soil_depth_4,
         soil_depth_5,
-        soil_depth_6};
+        soil_depth_6};  // cm
 
     double soil_water_content[] = {
         soil_water_content_1,
@@ -314,7 +505,7 @@ void soil_evaporation2::do_operation() const
         soil_water_content_3,
         soil_water_content_4,
         soil_water_content_5,
-        soil_water_content_6};
+        soil_water_content_6};  // dimensionless from (m^3 water) / (m^3 soil)
 
     double soil_field_capacity[] = {
         soil_field_capacity_1,
@@ -322,7 +513,7 @@ void soil_evaporation2::do_operation() const
         soil_field_capacity_3,
         soil_field_capacity_4,
         soil_field_capacity_5,
-        soil_field_capacity_6};
+        soil_field_capacity_6};  // dimensionless from (m^3 water) / (m^3 soil)
 
     double soil_wilting_point[] = {
         soil_wilting_point_1,
@@ -330,7 +521,7 @@ void soil_evaporation2::do_operation() const
         soil_wilting_point_3,
         soil_wilting_point_4,
         soil_wilting_point_5,
-        soil_wilting_point_6};
+        soil_wilting_point_6};  // dimensionless from (m^3 water) / (m^3 soil)
 
     double swdeltS[] = {
         deltaS_1,
@@ -338,7 +529,7 @@ void soil_evaporation2::do_operation() const
         deltaS_3,
         deltaS_4,
         deltaS_5,
-        deltaS_6};
+        deltaS_6};  // dimensionless from (m^3 water) / (m^3 soil)
 
     double swdeltU[] = {
         deltaU_1,
@@ -346,9 +537,9 @@ void soil_evaporation2::do_operation() const
         deltaU_3,
         deltaU_4,
         deltaU_5,
-        deltaU_6};
+        deltaU_6};  // dimensionless from (m^3 water) / (m^3 soil)
 
-    double const surface_soil_depth_in_mm = soil_depth[0] * 10.0;  // mm
+    double const surface_soil_depth_in_mm = soil_depth[0] * cm_to_mm;  // mm
 
     double reference_et = reference_evapotranspiration(
         atmospheric_pressure,
@@ -362,144 +553,279 @@ void soil_evaporation2::do_operation() const
         solar,
         temp,
         windspeed,
-        windspeed_height);
+        windspeed_height);  // mm / hr
 
-    double potential_soil_evap = potential_soil_evaporation(
+    double EOS = potential_soil_evaporation(
         skc,
         kcbmax,
         kcbmin,
         lai,
         canopyHeight,
-        reference_et);
+        reference_et);  // mm / hr
 
-    if (potential_soil_evap > 1e-6) {
-        // Ritchie soil evaporation routine
+    // Initialize temporary variables used to determine the values of key
+    // quantities at the next time step.
+    double ES = soil_evaporation_rate;             // mm / hr
+    double sumes1_next = sumes1;                   // mm
+    double sumes2_next = sumes2;                   // mm
+    double days_stage2_next = days_stage2;         // day
+    double old_soil_evap = soil_evaporation_rate;  // mm / hr
+
+    // If the potential evaporation rate is nonzero, calculate new values of key
+    // quantities using the Ritchie soil evaporation routine
+    if (EOS > 1e-6) {
         // Calculate the availability of soil water
         double sw_avail[nlayers];
         for (int l = 0; l < nlayers; l++) {
-            sw_avail[l] = max(0.0, soil_water_content[l] + swdeltS[l] + swdeltU[l]);
+            sw_avail[l] = max(0.0, soil_water_content[l] + swdeltS[l] + swdeltU[l]);  // dimensionless from (m^3 water) / (m^3 soil)
         }
-        // Set air dry water content for top soil layer
-        // Here the 30 seems to still be in cm.
-        // See Fortran source here: https://github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
-        double soil_water_air_dry = 0.9 - 0.00038 * pow((soil_depth[0] - 30.0), 2);
-        // Adjust soil evaporation, and the sum of stage 1 (SUMES1) and stage 2
-        // (SUMES2) evaporation based on infiltration (WINF), potential
-        // soil evaporation (EOS), and stage 1 evaporation (evap_limit = U).
 
-        if ((sumes1 >= evap_limit) && (infiltrated_water >= sumes2)) {
-            // Stage 1 Evaporation
-            double temp_wat_infil = infiltrated_water - sumes2;  // Interim value of WINF, water available for infiltration (mm)
-            sumes1_temp = evap_limit - temp_wat_infil;
-            sumes2_temp = 0.0;
-            days_stage2_temp = 0.0;
-            if (temp_wat_infil > evap_limit) sumes1_temp = 0.0;
-            evap_str evap_comp;
-            evap_comp = supplemetal_evap_computation(
-                potential_soil_evap,
-                sumes1_temp,
-                sumes2_temp,
+        // Intermediate calculations to help identify which scenario applies.
+        //
+        // Here it is assumed that the total water infiltrated during the next
+        // time step is `infiltrated_water * timestep`, so these calculations
+        // require an Euler solver.
+        double const new_infil = infiltrated_water * timestep;  // mm
+        bool const S1_over_thresh = sumes1 >= evap_limit;       // Cumulative Stage 1 evaporation has exceeded its threshold
+        bool const S2_undone = new_infil >= sumes2;             // New infiltration exceeds total evaporation in Stage 2
+        bool const S1_undone = new_infil >= sumes1;             // New infiltration exceeds total evaporation in Stage 1
+
+        if (S1_over_thresh && S2_undone) {
+            // Scenario A (Stage 1): Here the cumulative evaporation in Stage 1
+            // is above the threshold, which would normally indicate Stage 2
+            // evaporation. However, the amount of infiltrated water is enough
+            // to trigger the end of Stage 2 evaporation, so we remain in
+            // Stage 1.
+
+            // Calculate the infiltrated water that remains after compensating
+            // for the cumulative losses during Stage 2 evaporation
+            double const excess_infil = new_infil - sumes2;  // mm
+
+            // The excess infiltration begins to compensate for cumulative
+            // losses during Stage 1 evaporation
+            sumes1_next = max(0.0, evap_limit - excess_infil);  // mm
+
+            // Stage 2 has ended, so reset the Stage 2 counters
+            sumes2_next = 0.0;       // mm
+            days_stage2_next = 0.0;  // day
+
+            // Handle a (possible) transition from Stage 1 to Stage 2
+            evap_str const evap_comp = ritchie_s1_to_s2(
+                days_stage2_next,
+                EOS,
                 evap_limit,
                 soil_evaporation_alpha,
-                days_stage2_temp);
-            sumes1_temp = evap_comp.sumes1;
-            sumes2_temp = evap_comp.sumes2;
-            days_stage2_temp = evap_comp.days_stage2;
-            actual_soil_evap = evap_comp.actual_soil_evap;
-        } else if ((sumes1 >= evap_limit) && (infiltrated_water < sumes2)) {
-            // Stage 2 Evaporation
-            days_stage2_temp = days_stage2 + 1.0 / hours_per_day;
-            actual_soil_evap = soil_evaporation_alpha * pow(days_stage2_temp, 0.5) - sumes2;
+                sumes1_next,
+                sumes2_next,
+                timestep);
+
+            sumes1_next = evap_comp.sumes1_next;            // mm
+            sumes2_next = evap_comp.sumes2_next;            // mm
+            days_stage2_next = evap_comp.days_stage2_next;  // day
+            ES = evap_comp.ES;                              // mm / hr
+        } else if (S1_over_thresh && !S2_undone) {
+            // Scenario B (Stage 2): Here the cumulative evaporation in Stage 1
+            // is above the threshold, indicating Stage 2 evaporation. There is
+            // not enough water infiltration to end Stage 2 evaporation, so we
+            // remain in Stage 2.
+
+            // Increment the amount of time spent in Stage 2 evaporation
+            days_stage2_next = days_stage2 + timestep / hours_per_day;  // day
+
+            // Use Equation (8) from Ritchie (1972) to calculate the soil
+            // evaporation rate
+            ES = (soil_evaporation_alpha * pow(days_stage2_next, 0.5) - sumes2) / timestep;  // mm / hr
+
+            // Handle the special sub-cases of Stage 2 evaporation
             if (infiltrated_water > 0.0) {
-                double esx = 0.8 * infiltrated_water;  // Interim value of evaporation rate for Stage 2 evaporation
-                if (esx <= actual_soil_evap) esx = actual_soil_evap + infiltrated_water;
-                if (esx > potential_soil_evap) esx = potential_soil_evap;
-                actual_soil_evap = esx;
-            } else if (actual_soil_evap > potential_soil_evap) {
-                actual_soil_evap = potential_soil_evap;
+                // This is the first scenario where Equation (8) does not apply
+                double ESX = 0.8 * infiltrated_water;  // mm / hr
+
+                if (ESX <= ES) {
+                    ESX = ES + infiltrated_water;  // mm / hr
+                }
+
+                if (ESX > EOS) {
+                    ESX = EOS;  // mm / hr
+                }
+
+                ES = ESX;  // mm / hr
+            } else if (ES > EOS) {
+                // The is the second scenario where Equation (8) does not apply
+                ES = EOS;  // mm / hr
             }
-            sumes2_temp = sumes2 + actual_soil_evap - infiltrated_water;
-            days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
-        } else if (infiltrated_water >= sumes1) {
-            // Stage 1 evaporation
-            sumes1_temp = 0.0;
-            evap_str evap_comp;
-            evap_comp = supplemetal_evap_computation(
-                potential_soil_evap,
-                sumes1_temp,
-                sumes2_temp,
+
+            // Calculate the new value of sumes2, and find the value of
+            // days_stage2 that would produce this value of sumes2 when using
+            // Equation 6
+            sumes2_next = sumes2 + ES * timestep - new_infil;                   // mm
+            days_stage2_next = pow((sumes2_next / soil_evaporation_alpha), 2);  // day
+        } else if (!S1_over_thresh && S1_undone) {
+            // Scenario 3 (Stage 1): Here the cumulative evaporation in Stage 1
+            // is below the threshold, so we remain in Stage 1. There is also
+            // enough water infitration to return the soil surface to a fully
+            // wet state.
+
+            // Reset Stage 1 evaporation
+            sumes1_next = 0.0;  // mm
+
+            // Handle a (possible) transition from Stage 1 to Stage 2
+            evap_str const evap_comp = ritchie_s1_to_s2(
+                days_stage2_next,
+                EOS,
                 evap_limit,
                 soil_evaporation_alpha,
-                days_stage2_temp);
-            sumes1_temp = evap_comp.sumes1;
-            sumes2_temp = evap_comp.sumes2;
-            days_stage2_temp = evap_comp.days_stage2;
-            actual_soil_evap = evap_comp.actual_soil_evap;
+                sumes1_next,
+                sumes2_next,
+                timestep);
+
+            sumes1_next = evap_comp.sumes1_next;            // mm
+            sumes2_next = evap_comp.sumes2_next;            // mm
+            days_stage2_next = evap_comp.days_stage2_next;  // day
+            ES = evap_comp.ES;                              // mm / hr
+        } else if (!S1_over_thresh && !S1_undone) {
+            // Scenario 4 (Stage 1): Here the cumulative evaporation in Stage 1
+            // is below the threshold, and there is not enough water
+            // infiltration to return the soil to its saturated state, so we
+            // remain in Stage 1.
+
+            // The new water infiltration compensates Stage 1 evaporative losses
+            sumes1_next = sumes1 - new_infil;  // mm
+
+            // Handle a (possible) transition from Stage 1 to Stage 2
+            evap_str const evap_comp = ritchie_s1_to_s2(
+                days_stage2_next,
+                EOS,
+                evap_limit,
+                soil_evaporation_alpha,
+                sumes1_next,
+                sumes2_next,
+                timestep);
+
+            sumes1_next = evap_comp.sumes1_next;            // mm
+            sumes2_next = evap_comp.sumes2_next;            // mm
+            days_stage2_next = evap_comp.days_stage2_next;  // day
+            ES = evap_comp.ES;                              // mm / hr
         } else {
-            // Stage 1 evaporation
-            sumes1_temp = sumes1 - infiltrated_water;
-            evap_str evap_comp;
-            evap_comp = supplemetal_evap_computation(
-                potential_soil_evap,
-                sumes1_temp,
-                sumes2_temp,
-                evap_limit,
-                soil_evaporation_alpha,
-                days_stage2_temp);
-            sumes1_temp = evap_comp.sumes1;
-            sumes2_temp = evap_comp.sumes2;
-            days_stage2_temp = evap_comp.days_stage2;
-            actual_soil_evap = evap_comp.actual_soil_evap;
+            throw std::logic_error("Thrown in soil_evaporation2: unusual conditions detected in main calculations.");
         }
-        // -----------------------------------------------------------------------
-        //    Soil evaporation can not be larger than the current extractable soil
-        //    water in the top layer.
-        //    If available soil water is less than soil evaporation, adjust first
-        //    and second stage evaporation and soil evaporation accordingly
-        // -----------------------------------------------------------------------
 
-        double sw_avail_evap = (soil_water_content[0] - soil_wilting_point[0] *
-                                                            soil_water_air_dry) *
-                               surface_soil_depth_in_mm;  // Available water for soil evaporation (mm)
-        sw_avail_evap = max(0.0, sw_avail_evap);
+        // The remaining calculations are not described in the original
+        // Ritchie (1972) paper
 
-        if (sw_avail_evap < actual_soil_evap) {
-            if ((sumes1_temp >= evap_limit) && (sumes2_temp > actual_soil_evap)) {
-                sumes2_temp = sumes2_temp - actual_soil_evap + sw_avail_evap;
-                days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
-                actual_soil_evap = sw_avail_evap;
-            } else if ((sumes1_temp >= evap_limit) && (sumes2_temp < actual_soil_evap) &&
-                       (sumes2_temp > 0.0)) {
-                sumes1_temp = sumes1_temp - (actual_soil_evap - sumes2_temp);
-                sumes2_temp = max(sumes1_temp + sw_avail_evap - evap_limit, 0.0);
-                sumes1_temp = min(sumes1_temp + sw_avail_evap, evap_limit);
-                days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
-                actual_soil_evap = sw_avail_evap;
+        // Transpiration by a crop can reduce the soil water content to the
+        // wilting point, but evaporation can reduce it further in the top soil
+        // layer. The lower limit for evaporation is related to the wilting
+        // point via a multiplicative factor, which is called the "soil water
+        // evaporation fraction" or `SWEF` in DSSAT.
+        double const SWEF = 0.9 - 0.00038 * pow((soil_depth[0] - SWEF_depth), 2);  // dimensionless
+
+        // Find the water available for evaporation
+        double const sw_avail_evap =
+            max(0.0, surface_soil_depth_in_mm *
+                         (soil_water_content[0] - soil_wilting_point[0] * SWEF));  // mm
+
+        // Find the total evaporative losses over the next time step
+        double const es_total = ES * timestep;  // mm
+
+        // Find the excess evaporative loss
+        double const exess_evap = es_total - sw_avail_evap;  // mm
+
+        // If the available soil water is less than the evaporative losses over
+        // the next time step, there would be an "excess loss." Two steps must
+        // be taken to prevent that from occurring:
+        //  1. The cumulative evaporation in Stage 1, Stage 2, or both must be
+        //     reduced.
+        //  2. The evaporation rate must be adjusted to a lower value.
+        if (exess_evap > 0.0) {
+            // Intermediate calculations to help identify which scenario applies
+            //
+            // Note from EL on 2026-04-23: I do not understand why we would
+            // check for `sumes2_next > es_total`. I think it would make more
+            // sense to check for `sumes2_next > excess_evap`, since this would
+            // be the appropriate check to ensure `sumes2_next` does not become
+            // negative in Scenario A below.
+            bool const S1_over_thresh = sumes1_next >= evap_limit;  // Cumulative Stage 1 evaporation at the next step will exceed its threshold
+            bool const large_S2 = sumes2_next > es_total;           // Cumulative evaporation in Stage 2 at the next step is large
+            bool const nonzero_S2 = sumes1_next > 0.0;              // Cumulative evaporation in Stage 2 at the next step is nonzero
+
+            if (S1_over_thresh && large_S2) {
+                // Scenario A: Here we are in Stage 2 and the cumulative
+                // evaporation in Stage 2 is large, so we can just reduce the
+                // Stage 2 losses without considering a potential transition
+                // back to Stage 1
+                sumes2_next = sumes2_next - exess_evap;                             // mm
+                days_stage2_next = pow((sumes2_next / soil_evaporation_alpha), 2);  // day
+            } else if (S1_over_thresh && !large_S2 && nonzero_S2) {
+                // Scenario B: Here we are in Stage 2 and the cumulative
+                // evaporation in Stage 2 is not large, so we reduce both
+                // Stage 2 and Stage 1 losses.
+                //
+                // Note from EL on 2026-04-23: I do not understand what's going
+                // on here. I would have expected to reduce `sumes1_next` by
+                // `excess_evap - sumes2_next`, and then to reduce `sumes2_next`
+                // to 0. In other words, to reduce Stage 2 evaporation as much
+                // as possible (until it resets to 0), and then accomplish the
+                // remaining reduction by reducing Stage 1 evaporation. But the
+                // code here seems to do something else.
+                sumes1_next = sumes1_next - (es_total - sumes2_next);               // mm
+                sumes2_next = max(sumes1_next + sw_avail_evap - evap_limit, 0.0);   // mm
+                sumes1_next = min(sumes1_next + sw_avail_evap, evap_limit);         // mm
+                days_stage2_next = pow((sumes2_next / soil_evaporation_alpha), 2);  // day
+            } else if (!S1_over_thresh || (S1_over_thresh && !large_S2 && !nonzero_S2)) {
+                // Scenario C: Here we are in Stage 1, or possibly right at the
+                // start of Stage 2 (where sumes2 is still 0). In either case,
+                // we just reduce the Stage 1 losses
+                sumes1_next = sumes1_next - excess_evap;  // mm
             } else {
-                sumes1_temp = sumes1_temp - actual_soil_evap + sw_avail_evap;
-                actual_soil_evap = sw_avail_evap;
+                throw std::logic_error("Thrown in soil_evaporation2: unusual conditions detected in adjustment for limited water availability.");
             }
-        }
-        //-----------------------------------------------------------------------
-        // Available water = SW - air dry limit + infil. or sat. flow
-        double sw_min = max(0.0, sw_avail[0] - soil_water_air_dry * soil_wilting_point[0]);
 
-        // Limit actual_soil_evap to between zero and avail water in soil layer 1
-        if (actual_soil_evap > sw_min * surface_soil_depth_in_mm) {
-            actual_soil_evap = sw_min * surface_soil_depth_in_mm;
+            // Limit the evaporation rate
+            ES = sw_avail_evap / timestep;  // mm / hr
         }
 
-        actual_soil_evap = max(actual_soil_evap, 0.0);
+        // Find the water available for evaporation
+        //
+        // Note from EL on 2026-04-23: This is very similar to the calculation
+        // of `sw_avail_evap` above. The difference is that here we use
+        // `sw_avail[0] = soil_water_content[0] + swdeltS[0] + swdeltU[0]`
+        // rather than `soil_water_content[0]`.  This was originally described
+        // in DSSAT as:
+        //
+        // "Available water = SW - air dry limit + infil. or sat. flow"
+        double const sw_min =
+            max(0.0, surface_soil_depth_in_mm *
+                         (sw_avail[0] - soil_wilting_point[0]) * SWEF);  // mm
+
+        // Limit ES to between zero and avail water in soil layer 1
+        //
+        // Note from EL on 2026-04-23: This check is very similar to the more
+        // elaborate one applied above using `sw_avail_evap` as the limit. I
+        // do not understand why this check only reduces the soil evaporation
+        // rate without also reducing the cumulative totals in Stages 1 and 2.
+        // My guess is that this check is not implemented properly. It might
+        // make more sense to use the smaller of `sw_avail_evap` and `sw_min`
+        // as the limit, and then apply the full scenario-dependent adjustment
+        // of `ES`, `sumes1_next`, and `sumes2_next`.
+        if (ES * timestep > sw_min) {
+            ES = sw_min / timestep;  // mm / hr
+        }
+
+        ES = max(ES, 0.0);  // mm / hr
     }
-    double delta_sumes1 = sumes1_temp - sumes1;
-    double delta_sumes2 = sumes2_temp - sumes2;
-    double delta_days_stage2 = days_stage2_temp - days_stage2;
-    double delta_actual_soil_evap = actual_soil_evap - old_soil_evap;
+
+    // Determine the changes in key variables relative to the current time step
+    double const delta_sumes1 = sumes1_next - sumes1;                 // mm
+    double const delta_sumes2 = sumes2_next - sumes2;                 // mm
+    double const delta_days_stage2 = days_stage2_next - days_stage2;  // day
+    double const delta_ES = ES - old_soil_evap;                       // mm / hr
+
     // Update the output quantity list
     update(sumes1_op, delta_sumes1);
     update(sumes2_op, delta_sumes2);
     update(days_stage2_op, delta_days_stage2);
-    update(soil_evaporation_rate_op, delta_actual_soil_evap);
+    update(soil_evaporation_rate_op, delta_ES);
 }
 
 }  // namespace standardBML
