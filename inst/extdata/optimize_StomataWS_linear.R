@@ -199,7 +199,7 @@ df_final$bestx = best_x
 df_final$REW_model = (df_final$swc - df_final$wiltp)/(df_final$fieldc - df_final$wiltp)
 
 #Here we estimate the observed SWC (root-depth-based average) to get "observed" REW
-obs_data = readRDS("data/soil_moisture_data_rearranged.rds")
+obs_data = read.csv("data/soil_moisture_data_rearranged.csv")
 obs_data$sm = obs_data$sm/100
 model_soil_depths = c(5,10,20,20,20,25)
 df_final$swc_obs = NA
