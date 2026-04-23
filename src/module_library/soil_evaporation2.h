@@ -622,7 +622,7 @@ void soil_evaporation2::do_operation() const
 
         double const sw_min =
             max(0.0, surface_soil_depth_in_mm *
-                         (sw_avail_1 - soil_wilting_point_1) * SWEF);  // mm
+                         (sw_avail_1 - soil_wilting_point_1 * SWEF));  // mm
 
         // Limit ES to between zero and avail water in soil layer 1
         //
