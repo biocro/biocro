@@ -246,53 +246,11 @@ class soil_evaporation2 : public differential_module
           temp{get_input(input_quantities, "temp")},
           windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
-
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
-          soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           deltaS_1{get_input(input_quantities, "deltaS_1")},
           deltaU_1{get_input(input_quantities, "deltaU_1")},
-
-          // Parameters for layer 2
-          soil_depth_2{get_input(input_quantities, "soil_depth_2")},
-          soil_wilting_point_2{get_input(input_quantities, "soil_wilting_point_2")},
-          soil_field_capacity_2{get_input(input_quantities, "soil_field_capacity_2")},
-          soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
-          deltaS_2{get_input(input_quantities, "deltaS_2")},
-          deltaU_2{get_input(input_quantities, "deltaU_2")},
-
-          // Parameters for layer 3
-          soil_depth_3{get_input(input_quantities, "soil_depth_3")},
-          soil_wilting_point_3{get_input(input_quantities, "soil_wilting_point_3")},
-          soil_field_capacity_3{get_input(input_quantities, "soil_field_capacity_3")},
-          soil_water_content_3{get_input(input_quantities, "soil_water_content_3")},
-          deltaS_3{get_input(input_quantities, "deltaS_3")},
-          deltaU_3{get_input(input_quantities, "deltaU_3")},
-
-          // Parameters for layer 4
-          soil_depth_4{get_input(input_quantities, "soil_depth_4")},
-          soil_wilting_point_4{get_input(input_quantities, "soil_wilting_point_4")},
-          soil_field_capacity_4{get_input(input_quantities, "soil_field_capacity_4")},
-          soil_water_content_4{get_input(input_quantities, "soil_water_content_4")},
-          deltaS_4{get_input(input_quantities, "deltaS_4")},
-          deltaU_4{get_input(input_quantities, "deltaU_4")},
-
-          // Parameters for layer 5
-          soil_depth_5{get_input(input_quantities, "soil_depth_5")},
-          soil_wilting_point_5{get_input(input_quantities, "soil_wilting_point_5")},
-          soil_field_capacity_5{get_input(input_quantities, "soil_field_capacity_5")},
-          soil_water_content_5{get_input(input_quantities, "soil_water_content_5")},
-          deltaS_5{get_input(input_quantities, "deltaS_5")},
-          deltaU_5{get_input(input_quantities, "deltaU_5")},
-
-          // Parameters for layer 6
-          soil_depth_6{get_input(input_quantities, "soil_depth_6")},
-          soil_wilting_point_6{get_input(input_quantities, "soil_wilting_point_6")},
-          soil_field_capacity_6{get_input(input_quantities, "soil_field_capacity_6")},
-          soil_water_content_6{get_input(input_quantities, "soil_water_content_6")},
-          deltaS_6{get_input(input_quantities, "deltaS_6")},
-          deltaU_6{get_input(input_quantities, "deltaU_6")},
 
           // Get pointers to output quantities
           days_stage2_op{get_op(output_quantities, "days_stage2")},
@@ -329,54 +287,11 @@ class soil_evaporation2 : public differential_module
     double const& temp;
     double const& windspeed;
     double const& windspeed_height;
-
-    // Inputs for layer 1
     double const& soil_depth_1;
     double const& soil_wilting_point_1;
-    double const& soil_field_capacity_1;
     double const& soil_water_content_1;
     double const& deltaS_1;
     double const& deltaU_1;
-
-    // Inputs for layer 2
-    double const& soil_depth_2;
-    double const& soil_wilting_point_2;
-    double const& soil_field_capacity_2;
-    double const& soil_water_content_2;
-    double const& deltaS_2;
-    double const& deltaU_2;
-
-    // Inputs for layer 3
-    double const& soil_depth_3;
-    double const& soil_wilting_point_3;
-    double const& soil_field_capacity_3;
-    double const& soil_water_content_3;
-    double const& deltaS_3;
-    double const& deltaU_3;
-
-    // Inputs for layer 4
-    double const& soil_depth_4;
-    double const& soil_wilting_point_4;
-    double const& soil_field_capacity_4;
-    double const& soil_water_content_4;
-    double const& deltaS_4;
-    double const& deltaU_4;
-
-    // Inputs for layer 5
-    double const& soil_depth_5;
-    double const& soil_wilting_point_5;
-    double const& soil_field_capacity_5;
-    double const& soil_water_content_5;
-    double const& deltaS_5;
-    double const& deltaU_5;
-
-    // Inputs for layer 6
-    double const& soil_depth_6;
-    double const& soil_wilting_point_6;
-    double const& soil_field_capacity_6;
-    double const& soil_water_content_6;
-    double const& deltaS_6;
-    double const& deltaU_6;
 
     // Pointers to output quantities
     double* days_stage2_op;
@@ -413,48 +328,11 @@ string_vector soil_evaporation2::get_inputs()
         "temp",                              // degrees C
         "windspeed",                         // m / s
         "windspeed_height",                  // m
-
-        "soil_depth_1",           // cm
-        "soil_wilting_point_1",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_1",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_1",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_1",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_1",               // dimensionless from (m^3 water) / (m^3 soil)
-
-        "soil_depth_2",           // cm
-        "soil_wilting_point_2",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_2",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_2",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_2",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_2",               // dimensionless from (m^3 water) / (m^3 soil)
-
-        "soil_depth_3",           // cm
-        "soil_wilting_point_3",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_3",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_3",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_3",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_3",               // dimensionless from (m^3 water) / (m^3 soil)
-
-        "soil_depth_4",           // cm
-        "soil_wilting_point_4",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_4",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_4",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_4",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_4",               // dimensionless from (m^3 water) / (m^3 soil)
-
-        "soil_depth_5",           // cm
-        "soil_wilting_point_5",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_5",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_5",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_5",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_5",               // dimensionless from (m^3 water) / (m^3 soil)
-
-        "soil_depth_6",           // cm
-        "soil_wilting_point_6",   // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_field_capacity_6",  // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_6",   // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_6",               // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_6"                // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_depth_1",                      // cm
+        "soil_wilting_point_1",              // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_1",              // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_1",                          // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_1"                           // dimensionless from (m^3 water) / (m^3 soil)
     };
 }
 
@@ -481,7 +359,6 @@ void soil_evaporation2::do_operation() const
     double constexpr canopyHeight = 1.0;  // m
     double constexpr SWEF_depth = 30;     // cm
     double constexpr timestep = 1;        // hr
-    int constexpr nlayers = 6;            // not a physical quantity
 
     // Soil hydraulic properties. Yolo Loam
     // See Table 1 in Ritchie (1972), https://doi.org/10.1029/WR008i005p01204
@@ -491,55 +368,7 @@ void soil_evaporation2::do_operation() const
     // Table 1. Ritchie (1972)
     double constexpr evap_limit = 9.0;  // mm
 
-    double soil_depth[] = {
-        soil_depth_1,
-        soil_depth_2,
-        soil_depth_3,
-        soil_depth_4,
-        soil_depth_5,
-        soil_depth_6};  // cm
-
-    double soil_water_content[] = {
-        soil_water_content_1,
-        soil_water_content_2,
-        soil_water_content_3,
-        soil_water_content_4,
-        soil_water_content_5,
-        soil_water_content_6};  // dimensionless from (m^3 water) / (m^3 soil)
-
-    double soil_field_capacity[] = {
-        soil_field_capacity_1,
-        soil_field_capacity_2,
-        soil_field_capacity_3,
-        soil_field_capacity_4,
-        soil_field_capacity_5,
-        soil_field_capacity_6};  // dimensionless from (m^3 water) / (m^3 soil)
-
-    double soil_wilting_point[] = {
-        soil_wilting_point_1,
-        soil_wilting_point_2,
-        soil_wilting_point_3,
-        soil_wilting_point_4,
-        soil_wilting_point_5,
-        soil_wilting_point_6};  // dimensionless from (m^3 water) / (m^3 soil)
-
-    double swdeltS[] = {
-        deltaS_1,
-        deltaS_2,
-        deltaS_3,
-        deltaS_4,
-        deltaS_5,
-        deltaS_6};  // dimensionless from (m^3 water) / (m^3 soil)
-
-    double swdeltU[] = {
-        deltaU_1,
-        deltaU_2,
-        deltaU_3,
-        deltaU_4,
-        deltaU_5,
-        deltaU_6};  // dimensionless from (m^3 water) / (m^3 soil)
-
-    double const surface_soil_depth_in_mm = soil_depth[0] * cm_to_mm;  // mm
+    double const surface_soil_depth_in_mm = soil_depth_1 * cm_to_mm;  // mm
 
     double reference_et = reference_evapotranspiration(
         atmospheric_pressure,
@@ -574,12 +403,6 @@ void soil_evaporation2::do_operation() const
     // If the potential evaporation rate is nonzero, calculate new values of key
     // quantities using the Ritchie soil evaporation routine
     if (EOS > 1e-6) {
-        // Calculate the availability of soil water
-        double sw_avail[nlayers];
-        for (int l = 0; l < nlayers; l++) {
-            sw_avail[l] = max(0.0, soil_water_content[l] + swdeltS[l] + swdeltU[l]);  // dimensionless from (m^3 water) / (m^3 soil)
-        }
-
         // Intermediate calculations to help identify which scenario applies.
         //
         // Here it is assumed that the total water infiltrated during the next
@@ -718,18 +541,18 @@ void soil_evaporation2::do_operation() const
         // layer. The lower limit for evaporation is related to the wilting
         // point via a multiplicative factor, which is called the "soil water
         // evaporation fraction" or `SWEF` in DSSAT.
-        double const SWEF = 0.9 - 0.00038 * pow((soil_depth[0] - SWEF_depth), 2);  // dimensionless
+        double const SWEF = 0.9 - 0.00038 * pow((soil_depth_1 - SWEF_depth), 2);  // dimensionless
 
         // Find the water available for evaporation
         double const sw_avail_evap =
             max(0.0, surface_soil_depth_in_mm *
-                         (soil_water_content[0] - soil_wilting_point[0] * SWEF));  // mm
+                         (soil_water_content_1 - soil_wilting_point_1 * SWEF));  // mm
 
         // Find the total evaporative losses over the next time step
         double const es_total = ES * timestep;  // mm
 
         // Find the excess evaporative loss
-        double const exess_evap = es_total - sw_avail_evap;  // mm
+        double const excess_evap = es_total - sw_avail_evap;  // mm
 
         // If the available soil water is less than the evaporative losses over
         // the next time step, there would be an "excess loss." Two steps must
@@ -737,7 +560,7 @@ void soil_evaporation2::do_operation() const
         //  1. The cumulative evaporation in Stage 1, Stage 2, or both must be
         //     reduced.
         //  2. The evaporation rate must be adjusted to a lower value.
-        if (exess_evap > 0.0) {
+        if (excess_evap > 0.0) {
             // Intermediate calculations to help identify which scenario applies
             //
             // Note from EL on 2026-04-23: I do not understand why we would
@@ -754,7 +577,7 @@ void soil_evaporation2::do_operation() const
                 // evaporation in Stage 2 is large, so we can just reduce the
                 // Stage 2 losses without considering a potential transition
                 // back to Stage 1
-                sumes2_next = sumes2_next - exess_evap;                             // mm
+                sumes2_next = sumes2_next - excess_evap;                            // mm
                 days_stage2_next = pow((sumes2_next / soil_evaporation_alpha), 2);  // day
             } else if (S1_over_thresh && !large_S2 && nonzero_S2) {
                 // Scenario B: Here we are in Stage 2 and the cumulative
@@ -789,14 +612,17 @@ void soil_evaporation2::do_operation() const
         //
         // Note from EL on 2026-04-23: This is very similar to the calculation
         // of `sw_avail_evap` above. The difference is that here we use
-        // `sw_avail[0] = soil_water_content[0] + swdeltS[0] + swdeltU[0]`
-        // rather than `soil_water_content[0]`.  This was originally described
+        // `sw_avail_1 = soil_water_content_1 + deltaS_1 + deltaU_1`
+        // rather than `soil_water_content_1`.  This was originally described
         // in DSSAT as:
         //
         // "Available water = SW - air dry limit + infil. or sat. flow"
+        double const sw_avail_1 =
+            max(0.0, soil_water_content_1 + deltaS_1 + deltaU_1);  // dimensionless from (m^3 water) / (m^3 soil)
+
         double const sw_min =
             max(0.0, surface_soil_depth_in_mm *
-                         (sw_avail[0] - soil_wilting_point[0]) * SWEF);  // mm
+                         (sw_avail_1 - soil_wilting_point_1) * SWEF);  // mm
 
         // Limit ES to between zero and avail water in soil layer 1
         //
