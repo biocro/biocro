@@ -395,8 +395,8 @@ double reference_evapotranspiration(
  *  the highest rate possible given the contraints placed by the available solar
  *  energy and the crop itself. The availability and distribution of water
  *  within the soil may reduce the actual rate to a lower value, but these
- *  calculations are handled elsewhere (typically by the `soil_evaporation2`
- *  module).
+ *  calculations are handled elsewhere (typically by the
+ *  `soil_evaporation_ritchie` module).
  *
  *  This function was originally based on the `PETASCE` and `PSE` subroutines of
  *  `PET.for`, and the `SPAM` subroutine of `SPAM.for`, all of which are parts
@@ -570,7 +570,7 @@ struct evap_str {
  *
  *  This function is based on the `ESUP` subroutine from DSSAT (found in the
  *  file `SOILEV.for`), which implements part of the model described in
- *  Ritchie (1972). It is called by the `soil_evaporation2` module.
+ *  Ritchie (1972). It is called by the `soil_evaporation_ritchie` module.
  *
  *  These calculations are described in the paper as follows:
  *

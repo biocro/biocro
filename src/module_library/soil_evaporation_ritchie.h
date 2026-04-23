@@ -1,5 +1,5 @@
-#ifndef SOIL_EVAPORATION2_H
-#define SOIL_EVAPORATION2_H
+#ifndef SOIL_EVAPORATION_RITCHIE_H
+#define SOIL_EVAPORATION_RITCHIE_H
 
 #include <algorithm>  // for std::min, std::max
 #include <stdexcept>  // for std::logic_error
@@ -10,7 +10,7 @@
 namespace standardBML
 {
 /**
- *  @class soil_evaporation2
+ *  @class soil_evaporation_ritchie
  *
  *  @brief Calculates the change in the soil evaporation rate that will occur
  *  over the following (hourly) time step.
@@ -215,10 +215,10 @@ namespace standardBML
  *  - DSSAT Fortran source code:
  *    github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
  */
-class soil_evaporation2 : public differential_module
+class soil_evaporation_ritchie : public differential_module
 {
    public:
-    soil_evaporation2(
+    soil_evaporation_ritchie(
         state_map const& input_quantities,
         state_map* output_quantities)
         : differential_module(true),
@@ -228,6 +228,8 @@ class soil_evaporation2 : public differential_module
           bare_soil_albedo_max{get_input(input_quantities, "bare_soil_albedo_max")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           days_stage2{get_input(input_quantities, "days_stage2")},
+          deltaS_1{get_input(input_quantities, "deltaS_1")},
+          deltaU_1{get_input(input_quantities, "deltaU_1")},
           fractional_doy{get_input(input_quantities, "fractional_doy")},
           infiltrated_water{get_input(input_quantities, "infiltrated_water")},
           irradiance_diffuse_transmittance{get_input(input_quantities, "irradiance_diffuse_transmittance")},
@@ -239,18 +241,16 @@ class soil_evaporation2 : public differential_module
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           rh{get_input(input_quantities, "rh")},
           skc{get_input(input_quantities, "skc")},
+          soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
+          soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
+          soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
           solar{get_input(input_quantities, "solar")},
           sumes1{get_input(input_quantities, "sumes1")},
           sumes2{get_input(input_quantities, "sumes2")},
           temp{get_input(input_quantities, "temp")},
           windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
-          soil_depth_1{get_input(input_quantities, "soil_depth_1")},
-          soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
-          soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
-          deltaS_1{get_input(input_quantities, "deltaS_1")},
-          deltaU_1{get_input(input_quantities, "deltaU_1")},
 
           // Get pointers to output quantities
           days_stage2_op{get_op(output_quantities, "days_stage2")},
@@ -261,7 +261,7 @@ class soil_evaporation2 : public differential_module
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    static std::string get_name() { return "soil_evaporation2"; }
+    static std::string get_name() { return "soil_evaporation_ritchie"; }
 
    private:
     // References to input quantities
@@ -269,6 +269,8 @@ class soil_evaporation2 : public differential_module
     double const& bare_soil_albedo_max;
     double const& cosine_zenith_angle;
     double const& days_stage2;
+    double const& deltaS_1;
+    double const& deltaU_1;
     double const& fractional_doy;
     double const& infiltrated_water;
     double const& irradiance_diffuse_transmittance;
@@ -280,18 +282,16 @@ class soil_evaporation2 : public differential_module
     double const& par_energy_fraction;
     double const& rh;
     double const& skc;
+    double const& soil_depth_1;
     double const& soil_evaporation_rate;
+    double const& soil_water_content_1;
+    double const& soil_wilting_point_1;
     double const& solar;
     double const& sumes1;
     double const& sumes2;
     double const& temp;
     double const& windspeed;
     double const& windspeed_height;
-    double const& soil_depth_1;
-    double const& soil_wilting_point_1;
-    double const& soil_water_content_1;
-    double const& deltaS_1;
-    double const& deltaU_1;
 
     // Pointers to output quantities
     double* days_stage2_op;
@@ -303,13 +303,15 @@ class soil_evaporation2 : public differential_module
     void do_operation() const;
 };
 
-string_vector soil_evaporation2::get_inputs()
+string_vector soil_evaporation_ritchie::get_inputs()
 {
     return {
         "atmospheric_pressure",              // Pa
         "bare_soil_albedo_max",              // dimensionless
         "cosine_zenith_angle",               // dimensionless
         "days_stage2",                       // day
+        "deltaS_1",                          // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaU_1",                          // dimensionless from (m^3 water) / (m^3 soil)
         "fractional_doy",                    // day
         "infiltrated_water",                 // mm / hr
         "irradiance_diffuse_transmittance",  // dimensionless
@@ -321,22 +323,20 @@ string_vector soil_evaporation2::get_inputs()
         "par_energy_fraction",               // dimensionless
         "rh",                                // dimensionless
         "skc",                               // dimensionless
+        "soil_depth_1",                      // cm
         "soil_evaporation_rate",             // mm / hr
+        "soil_water_content_1",              // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_wilting_point_1",              // dimensionless from (m^3 water) / (m^3 soil)
         "solar",                             // micromol / m^2 / s
         "sumes1",                            // mm
         "sumes2",                            // mm
         "temp",                              // degrees C
         "windspeed",                         // m / s
-        "windspeed_height",                  // m
-        "soil_depth_1",                      // cm
-        "soil_wilting_point_1",              // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_water_content_1",              // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaS_1",                          // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_1"                           // dimensionless from (m^3 water) / (m^3 soil)
+        "windspeed_height"                   // m
     };
 }
 
-string_vector soil_evaporation2::get_outputs()
+string_vector soil_evaporation_ritchie::get_outputs()
 {
     return {
         "days_stage2",            // day
@@ -346,7 +346,7 @@ string_vector soil_evaporation2::get_outputs()
     };
 }
 
-void soil_evaporation2::do_operation() const
+void soil_evaporation_ritchie::do_operation() const
 {
     using std::max;
     using std::min;
@@ -530,7 +530,7 @@ void soil_evaporation2::do_operation() const
             days_stage2_next = evap_comp.days_stage2_next;  // day
             ES = evap_comp.ES;                              // mm / hr
         } else {
-            throw std::logic_error("Thrown in soil_evaporation2: unusual conditions detected in main calculations.");
+            throw std::logic_error("Thrown in soil_evaporation_ritchie: unusual conditions detected in main calculations.");
         }
 
         // The remaining calculations are not described in the original
@@ -601,7 +601,7 @@ void soil_evaporation2::do_operation() const
                 // we just reduce the Stage 1 losses
                 sumes1_next = sumes1_next - excess_evap;  // mm
             } else {
-                throw std::logic_error("Thrown in soil_evaporation2: unusual conditions detected in adjustment for limited water availability.");
+                throw std::logic_error("Thrown in soil_evaporation_ritchie: unusual conditions detected in adjustment for limited water availability.");
             }
 
             // Limit the evaporation rate
