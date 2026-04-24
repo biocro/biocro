@@ -8,7 +8,7 @@ soybean2 <- list(
         "BioCro:soybean_development_rate_calculator",
         "BioCro:soil_type_selector",
         "BioCro:multilayer_soil_profile_avg",
-        stomata_water_stress = "BioCro:stomata_water_stress_linear_v2",
+        stomata_water_stress = "BioCro:stomata_water_stress_linear",
         "BioCro:soil_surface_runoff",
         "BioCro:soil_water_downflow",
         "BioCro:soil_water_upflow",

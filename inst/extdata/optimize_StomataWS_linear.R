@@ -1,15 +1,24 @@
-#This script runs an optimization on the StomataWS's linear coeffcients 
-#to fit the observed Gs data by Gray, S., Dermody, O., Klein, S. et al.
-#Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean.
-#Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132 
-#this has two steps: 1. we fit to each Gs point by adjusting the StomataWS value
-#to achieve a "perfect" fit with module c3_leaf_photosynthesis; 
-#2. we create a linear function between the optimized StomataWS and REW
-#Last used with BioCro version with commit:
+# This script runs an optimization on the StomataWS's linear coeffcients
+# to fit the observed Gs data by Gray, S., Dermody, O., Klein, S. et al.
+# Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean.
+# Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132
+#
+# this has two steps: 1. we fit to each Gs point by adjusting the StomataWS value
+# to achieve a "perfect" fit with module c3_leaf_photosynthesis;
+# 2. we create a linear function between the optimized StomataWS and REW.
+#
+# When the script is done running, the new values of StomataWS_gradient and
+# StomataWS_intercept will be printed to the R terminal. If necessary, the
+# stored values in data/soybean2.R should be updated to the new ones, and a note
+# about the reparameterization should be included in man/soybean2.R
+#
+# Last used with BioCro version with commit: db12f4a0
+
 library(BioCro)
 library(dplyr)
 library(tidyr)
 rm(list=ls())
+
 ## STEP 1: calibrate StomataWS to fit Gs data
 # Define a function that runs the clock modules to determine the photoperiod
 # length during a year's worth of weather data, adding it to the data so it can
@@ -26,24 +35,26 @@ add_photoperiod_length <- function(weather_data) {
   weather_data[['day_length']] <- clock_output[['day_length']]
   return(weather_data)
 }
-# Define the RMSE function  
+
+# Define the RMSE function
 rmse <- function(observed, predicted) {
   # Check if the lengths of the observed and predicted vectors are the same
   if (length(observed) != length(predicted)) {
     stop("The lengths of observed and predicted values must be the same.")
-  }                         
-  
+  }
+
   # Calculate the squared differences
   squared_diff <- (observed - predicted)^2
-  
+
   # Calculate the mean of the squared differences
   mean_squared_diff <- mean(squared_diff)
-  
+
   # Calculate the square root of the mean squared differences (RMSE)
   rmse_value <- sqrt(mean_squared_diff)
-  
+
   return(rmse_value)
 }
+
 CO2_cond = "AC" #ambient CO2 is used for optimization
 #get observed Gs at different DOYs and Years
 #YH: I collected and arranged the data from the paper
@@ -63,12 +74,12 @@ years = sort(unique(obs_gs_mean$year))
 Vcmax_sf = 1.22
 Jmax_sf  = 1.06
 
-#EL:I just checked some of my Licor log files. They have a gbw column that's always between 2.90 - 2.93 mol m-2 s-1. 
+#EL:I just checked some of my Licor log files. They have a gbw column that's always between 2.90 - 2.93 mol m-2 s-1.
 #the module expects conductances in m/s.
 #YH: assuming 30 C, the molar volume of air Vm=0.02487. So 2.9*0.02446 = 0.072 m/s
 gbw_canopy = 0.072
 
-#To drive c3_leaf_photosynthesis, we need the absorbed PPFD 
+#To drive c3_leaf_photosynthesis, we need the absorbed PPFD
 #To match experimental condition, we also want "flat leaf" absorption
 #therefore, run biocro for the 2009-2011 and extract midday conditions on the observed DOYs
 obs_weather_Gray<-read.csv('data/soyFACE_weather_data_2004thru2011.csv') #Gray's weather data for determining growing season
@@ -76,14 +87,14 @@ results = list()
 
 for (i in 1:length(years)){
     year = years[i]
-    weatherData <- weather[[as.character(year)]] 
+    weatherData <- weather[[as.character(year)]]
     weatherData <- add_photoperiod_length(weatherData)
     #further subset from the start of obs DOY
     obs_weather_Gray_yeari = obs_weather_Gray[obs_weather_Gray$Year==year,]
     DOY_start = obs_weather_Gray_yeari$DOY[1]
     DOY_end = tail(obs_weather_Gray_yeari$DOY,1)
     weather_growing_season = weatherData[weatherData$doy>=DOY_start & weatherData$doy<=DOY_end,]
-    
+
     #Use Gray's rainfall data for this calibration
     obs_weather_Gray_yeari_hourly <- obs_weather_Gray_yeari %>%
       # Add an hourly sequence per day
@@ -92,20 +103,20 @@ for (i in 1:length(years)){
       mutate(hour = hour - 1,
              precip = precip.mm. / 24)
     weather_growing_season$precip = obs_weather_Gray_yeari_hourly$precip
-    
+
     parameters = soybean2$parameters
-    parameters$Catm = catm_data$Catm[catm_data$year==year] 
+    parameters$Catm = catm_data$Catm[catm_data$year==year]
     parameters$chil = 1e8  #infinite chil means flat leaf
-    
+
     #use the original linear function as the baseline
-    direct_modules = soybean2$direct_modules
-    direct_modules$stomata_water_stress = "BioCro:stomata_water_stress_linear"
-    
+    parameters$StomataWS_gradient = 1
+    parameters$StomataWS_intercept = 0
+
     results[[i]] <- run_biocro(
       soybean2$initial_values,
       parameters,
       weather_growing_season,
-      direct_modules,
+      soybean2$direct_modules,
       soybean2$differential_modules
     )
 }
@@ -137,16 +148,16 @@ obj_func<-function(x,return_df = FALSE){
                                                    )
                           )
   }
-  
+
   obs_and_model$ID = 1:nrow(obs_and_model)
-  
+
   my_para = soybean2$parameters
   my_para$atmospheric_pressure = soybean$parameters$atmospheric_pressure
   my_para$gbw_canopy = gbw_canopy
   #for simplicity for c3_leaf_photosynthesis, just use average Catm from 2009-2011
   Current_Catm = mean(catm_data$Catm[catm_data$year<=2011 & catm_data$year>=2009])
   my_para$Catm = Current_Catm
-  
+
   #these are updated parameters for soybean from Ed
   my_para$Gstar_at_25     = 37.99046
   my_para$Gstar_Ea        = 26.0038851874699e3
@@ -154,7 +165,7 @@ obj_func<-function(x,return_df = FALSE){
   my_para$Kc_Ea           = 90.4762601430278e3
   my_para$Ko_at_25        = 446.7409
   my_para$Ko_Ea           = 16.5650822025287e3
-  
+
   #use observed Vcmax25 and Jmax25
   my_para$Vcmax_at_25 = NULL
   my_para$Jmax_at_25 = NULL
@@ -162,7 +173,7 @@ obj_func<-function(x,return_df = FALSE){
   my_df =  obs_and_model[,col2use]
   colnames(my_df)[colnames(my_df)=="Vcmax25"]="Vcmax_at_25"
   colnames(my_df)[colnames(my_df)=="Jmax25"]="Jmax_at_25"
-  #scale their means 
+  #scale their means
   my_df$Vcmax_at_25 = my_df$Vcmax_at_25 / Vcmax_sf
   my_df$Jmax_at_25  = my_df$Jmax_at_25  / Jmax_sf
   rc <- module_response_curve("BioCro:c3_leaf_photosynthesis",
@@ -186,8 +197,10 @@ best_x = opt_result$par
 
 # A quick plot to compare gs.
 df_final <- obj_func(best_x, return_df = TRUE)
-plot(df_final$obs, df_final$model, 
-     xlab = "Observed gs", ylab = "Modelled gs", 
+
+dev.new()
+plot(df_final$obs, df_final$model,
+     xlab = "Observed gs", ylab = "Modelled gs",
      main = "Optimization Results")
 abline(0, 1, col = "red")
 
@@ -219,18 +232,25 @@ for (j in 1:nrow(obs_gs_mean)){
   obs_avg_j <- obs_avg$sm[nearest_idx]
   df_final$swc_obs[j] = obs_avg_j
 }
+
 #this is REW using observed SWC
 df_final$REW_obs = (df_final$swc_obs - df_final$wiltp)/(df_final$fieldc - df_final$wiltp)
 
 #we use observed REW for the fitting
 fit_linear <- lm(bestx ~ REW_obs, data = df_final)
-summary(fit_linear)
+print(summary(fit_linear))
 
 # A quick plot to check bestx vs REW
 # To get the predicted values for plotting
 linear_pred <- predict(fit_linear)
-plot(df_final$REW_obs, df_final$bestx, 
+
+dev.new()
+plot(df_final$REW_obs, df_final$bestx,
      xlab = "REW", ylab = "StomataWS*")
 lines(df_final$REW_obs,linear_pred,col='red')
 
 ##END of STEP2
+
+# Print out new values to use
+cat('New value of StomataWS_gradient:',  fit_linear$coefficients[2], '\n')
+cat('New value of StomataWS_intercept:', fit_linear$coefficients[1], '\n')

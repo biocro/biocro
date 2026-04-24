@@ -168,6 +168,8 @@ willow <- list(
         sowing_fractional_doy        = 0,
         Sp_thermal_time_decay        = 0,
         specific_heat_of_air         = 1010,
+        StomataWS_gradient           = 1,
+        StomataWS_intercept          = 0,
         tbase                        = 0,
         Tfrosthigh                   = 5,
         Tfrostlow                    = 0,
