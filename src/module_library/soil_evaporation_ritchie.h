@@ -324,7 +324,7 @@ string_vector soil_evaporation_ritchie::get_inputs()
         "rh",                                // dimensionless
         "skc",                               // dimensionless
         "soil_depth_1",                      // cm
-        "soil_evaporation_rate",             // mm / hr
+        "soil_evaporation_rate",             // Mg / ha / hr
         "soil_water_content_1",              // dimensionless from (m^3 water) / (m^3 soil)
         "soil_wilting_point_1",              // dimensionless from (m^3 water) / (m^3 soil)
         "solar",                             // micromol / m^2 / s
@@ -340,7 +340,7 @@ string_vector soil_evaporation_ritchie::get_outputs()
 {
     return {
         "days_stage2",            // day
-        "soil_evaporation_rate",  // mm / hr
+        "soil_evaporation_rate",  // Mg / ha / hr
         "sumes1",                 // mm
         "sumes2"                  // mm
     };
@@ -354,6 +354,7 @@ void soil_evaporation_ritchie::do_operation() const
     // Define conversion constants to avoid magic numbers
     double constexpr cm_to_mm = 10.0;       // mm / cm
     double constexpr hours_per_day = 24.0;  // hr / day
+    double constexpr mm_to_Mg_per_ha = 10;  // (Mg / ha) / mm
 
     // Hard-coded model parameter values
     double constexpr canopyHeight = 1.0;  // m
@@ -394,11 +395,11 @@ void soil_evaporation_ritchie::do_operation() const
 
     // Initialize temporary variables used to determine the values of key
     // quantities at the next time step.
-    double ES = soil_evaporation_rate;             // mm / hr
-    double sumes1_next = sumes1;                   // mm
-    double sumes2_next = sumes2;                   // mm
-    double days_stage2_next = days_stage2;         // day
-    double old_soil_evap = soil_evaporation_rate;  // mm / hr
+    double ES = soil_evaporation_rate / mm_to_Mg_per_ha;  // mm / hr
+    double sumes1_next = sumes1;                          // mm
+    double sumes2_next = sumes2;                          // mm
+    double days_stage2_next = days_stage2;                // day
+    double old_ES = ES;                                   // mm / hr
 
     // If the potential evaporation rate is nonzero, calculate new values of key
     // quantities using the Ritchie soil evaporation routine
@@ -645,13 +646,13 @@ void soil_evaporation_ritchie::do_operation() const
     double const delta_sumes1 = sumes1_next - sumes1;                 // mm
     double const delta_sumes2 = sumes2_next - sumes2;                 // mm
     double const delta_days_stage2 = days_stage2_next - days_stage2;  // day
-    double const delta_ES = ES - old_soil_evap;                       // mm / hr
+    double const delta_ES = ES - old_ES;                              // mm / hr
 
     // Update the output quantity list
-    update(sumes1_op, delta_sumes1);
-    update(sumes2_op, delta_sumes2);
-    update(days_stage2_op, delta_days_stage2);
-    update(soil_evaporation_rate_op, delta_ES);
+    update(sumes1_op, delta_sumes1);                               // mm
+    update(sumes2_op, delta_sumes2);                               // mm
+    update(days_stage2_op, delta_days_stage2);                     // day
+    update(soil_evaporation_rate_op, delta_ES * mm_to_Mg_per_ha);  // Mg / ha / hr
 }
 
 }  // namespace standardBML
