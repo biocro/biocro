@@ -10,6 +10,12 @@ namespace standardBML
 /**
  * @class multi_layer_soil_profile
  *
+ * @brief Collects all Deltas of water mass for each layer and
+ * updates layer-wise soil water content.
+ * The surface soil water content is particularly updated with soil evaporation.
+ * This module is used with other DSSAT-based water modules,
+ * but is homemade (not based on any DSSAT codes).
+ *
  */
 
 class multi_layer_soil_profile : public differential_module
@@ -23,9 +29,7 @@ class multi_layer_soil_profile : public differential_module
 
           // Get references to input quantities
 
-          // soil_reflectance{get_input(input_quantities, "soil_reflectance")}, //Albedo
           soil_evaporation_rate{get_input(input_quantities, "soil_evaporation_rate")},
-          surface_runoff{get_input(input_quantities, "surface_runoff")},
 
           // Parameters for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
@@ -92,9 +96,7 @@ class multi_layer_soil_profile : public differential_module
 
    private:
     // References to input quantities
-    // double const& soil_reflectance;
     double const& soil_evaporation_rate;
-    double const& surface_runoff;
 
     // Parameters for layer 1
     double const& soil_depth_1;
@@ -159,16 +161,14 @@ class multi_layer_soil_profile : public differential_module
 string_vector multi_layer_soil_profile::get_inputs()
 {
     return {
-        // "soil_reflectance",
-        "soil_evaporation_rate",  // Mg/ha/hr
-        "surface_runoff",
+        "soil_evaporation_rate",  // mm/hr
 
-        "soil_depth_1",
-        "soil_water_content_1",
-        "deltaS_1",
-        "deltaU_1",
-        "deltaT_1",
-        "uptake_layer_1",
+        "soil_depth_1",          // cm
+        "soil_water_content_1",  // cm^3/cm^3
+        "deltaS_1",              // cm^3/cm^3/hr
+        "deltaU_1",              // cm^3/cm^3/hr
+        "deltaT_1",              // cm^3/cm^3/hr
+        "uptake_layer_1",        //  Mg/ha/hr
 
         "soil_depth_2",
         "soil_water_content_2",
@@ -210,7 +210,7 @@ string_vector multi_layer_soil_profile::get_inputs()
 string_vector multi_layer_soil_profile::get_outputs()
 {
     return {
-        "soil_water_content_1",
+        "soil_water_content_1",  // cm^3/cm^3
         "soil_water_content_2",
         "soil_water_content_3",
         "soil_water_content_4",
@@ -221,68 +221,67 @@ string_vector multi_layer_soil_profile::get_outputs()
 void multi_layer_soil_profile::do_operation() const
 {
     int nlayers = 6;
-    double soil_depth[] = {
-        soil_depth_1,
-        soil_depth_2,
-        soil_depth_3,
-        soil_depth_4,
-        soil_depth_5,
-        soil_depth_6};
-    double soil_water_content[] = {
-        soil_water_content_1,
-        soil_water_content_2,
-        soil_water_content_3,
-        soil_water_content_4,
-        soil_water_content_5,
-        soil_water_content_6};
+    double soil_depth[] = {// cm
+                           soil_depth_1,
+                           soil_depth_2,
+                           soil_depth_3,
+                           soil_depth_4,
+                           soil_depth_5,
+                           soil_depth_6};
+    double soil_water_content[] = {// cm^3/cm^3
+                                   soil_water_content_1,
+                                   soil_water_content_2,
+                                   soil_water_content_3,
+                                   soil_water_content_4,
+                                   soil_water_content_5,
+                                   soil_water_content_6};
 
-    double swdeltS[] = {
-        deltaS_1,
-        deltaS_2,
-        deltaS_3,
-        deltaS_4,
-        deltaS_5,
-        deltaS_6};
-    double swdeltU[] = {
-        deltaU_1,
-        deltaU_2,
-        deltaU_3,
-        deltaU_4,
-        deltaU_5,
-        deltaU_6};
-    double swdeltT[] = {
-        deltaT_1,
-        deltaT_2,
-        deltaT_3,
-        deltaT_4,
-        deltaT_5,
-        deltaT_6};
-    double uptake[] = {
-        uptake_layer_1,
-        uptake_layer_2,
-        uptake_layer_3,
-        uptake_layer_4,
-        uptake_layer_5,
-        uptake_layer_6};
+    double swdeltS[] = {// cm^3/cm^3/hr
+                        deltaS_1,
+                        deltaS_2,
+                        deltaS_3,
+                        deltaS_4,
+                        deltaS_5,
+                        deltaS_6};
+    double swdeltU[] = {// cm^3/cm^3/hr
+                        deltaU_1,
+                        deltaU_2,
+                        deltaU_3,
+                        deltaU_4,
+                        deltaU_5,
+                        deltaU_6};
+    double swdeltT[] = {// cm^3/cm^3/hr
+                        deltaT_1,
+                        deltaT_2,
+                        deltaT_3,
+                        deltaT_4,
+                        deltaT_5,
+                        deltaT_6};
+    double uptake[] = {// Mg/ha/hr
+                       uptake_layer_1,
+                       uptake_layer_2,
+                       uptake_layer_3,
+                       uptake_layer_4,
+                       uptake_layer_5,
+                       uptake_layer_6};
 
+    constexpr double cm_to_mm = 10.0;
+    constexpr double MG_HA_to_mm = 0.1;  // Mg/ha of water = 0.1 mm
     // Calculate total change in soil water content
-    double delta_soil_water_content[nlayers];
+    double delta_soil_water_content[nlayers];  // cm^3/cm^3/hr
     for (int l = 0; l < nlayers; l++) {
         // adding uptake because value is negative
-        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] / (100 * soil_depth[l]));
+        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] * MG_HA_to_mm / (cm_to_mm * soil_depth[l]));
         if (soil_water_content[l] + delta_soil_water_content[l] < 0) {
             delta_soil_water_content[l] = -soil_water_content[l];
         }
     }
 
-    // Mg/ha/hr
-    // double soil_evap = soil_evaporation_rate/ 10.0; // Mg/ha/hr to mm/hr
-    // remove soil evaporation from first layer, but don't let water content go
-    // negative. This is a crude, and hopefully temporary, fix. -mlm
-    // soil_evaporation_rate from the new soil evapo function is in mm/hr? -YH
-    delta_soil_water_content[0] = delta_soil_water_content[0] - soil_evaporation_rate / (10.0 * soil_depth[0]);
+    // convert evaporation to water cotent: E(mm/hr)/depth(mm)
+    const double evaporated_water_cotent = soil_evaporation_rate / (soil_depth[0] * cm_to_mm);  // cm^3 / cm^3 / hr
+    delta_soil_water_content[0] = delta_soil_water_content[0] - evaporated_water_cotent;
 
-    update(soil_water_content_1_op, delta_soil_water_content[0]);
+    update(soil_water_content_1_op, delta_soil_water_content[0]);  // cm^3/cm^3
     update(soil_water_content_2_op, delta_soil_water_content[1]);
     update(soil_water_content_3_op, delta_soil_water_content[2]);
     update(soil_water_content_4_op, delta_soil_water_content[3]);
