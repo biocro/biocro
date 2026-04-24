@@ -161,7 +161,7 @@ class multi_layer_soil_profile : public differential_module
 string_vector multi_layer_soil_profile::get_inputs()
 {
     return {
-        "soil_evaporation_rate",  // mm/hr
+        "soil_evaporation_rate",  // Mg/ha/hr
 
         "soil_depth_1",          // cm
         "soil_water_content_1",  // cm^3/cm^3
@@ -277,8 +277,8 @@ void multi_layer_soil_profile::do_operation() const
         }
     }
 
-    // convert evaporation to water cotent: E(mm/hr)/depth(mm)
-    const double evaporated_water_cotent = soil_evaporation_rate / (soil_depth[0] * cm_to_mm);  // cm^3 / cm^3 / hr
+    // convert evaporation to water cotent: (E(Mg/ha/hr)*MG_HA_to_mm)/depth(mm)
+    const double evaporated_water_cotent = (soil_evaporation_rate * MG_HA_to_mm) / (soil_depth[0] * cm_to_mm);  // cm^3 / cm^3 / hr
     delta_soil_water_content[0] = delta_soil_water_content[0] - evaporated_water_cotent;
 
     update(soil_water_content_1_op, delta_soil_water_content[0]);  // cm^3/cm^3
