@@ -85,7 +85,7 @@
 #include "sla_linear.h"
 #include "sla_logistic.h"
 #include "soil_evaporation.h"
-#include "soil_evaporation2.h"
+#include "soil_evaporation_ritchie.h"
 #include "soil_sunlight.h"
 #include "soil_surface_runoff.h"
 #include "soil_type_selector.h"
@@ -195,7 +195,7 @@ creator_map standardBML::module_library::library_entries =
      {"sla_linear",                                            &create_mc<sla_linear>},
      {"sla_logistic",                                          &create_mc<sla_logistic>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
-     {"soil_evaporation2",                                     &create_mc<soil_evaporation2>},
+     {"soil_evaporation_ritchie",                              &create_mc<soil_evaporation_ritchie>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
      {"soil_surface_runoff",                                   &create_mc<soil_surface_runoff>},
      {"soil_type_selector",                                    &create_mc<soil_type_selector>},
