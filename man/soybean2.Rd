@@ -38,6 +38,16 @@
           included with the BioCro package; its location can be found by typing
           \code{system.file('extdata', 'optimize_StomataWS_linear.R', package = 'BioCro')}
           in an R session.
+    \item Regarding soil types in Champaign County: according to 
+          \href{https://websoilsurvey.nrcs.usda.gov/app/}{the Web Soil Survey}, 
+          soils in this region are predominantly silty clay loam, loam, and silt loam,
+          with variation across soil depth. In BioCro, soil types 4--7 correspond to
+          loamy soils. Although this classification does not provide the most accurate
+          representation of soil hydraulic properties, it is reasonable to constrain 
+          our parameterization within this range for consistency. In our current setup,
+          we assign type 7 (silty clay loam) to layers 3--6 and type 6 (clay loam) to 
+          layers 1--2. This configuration produces reasonably good agreement with 
+          observed soil water dynamics at SoyFACE.
   }
 }
 
