@@ -33,7 +33,7 @@ soybean2 <- list(
         senescence = "BioCro:senescence_logistic",
         "BioCro:maintenance_respiration",
         "BioCro:partitioning_growth",
-        "BioCro:soil_evaporation2",
+        "BioCro:soil_evaporation_ritchie",
         "BioCro:multi_layer_soil_profile",
         "BioCro:development_index",
         thermal_time = "BioCro:thermal_time_linear"
