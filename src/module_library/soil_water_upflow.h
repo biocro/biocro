@@ -25,7 +25,6 @@ class soil_water_upflow : public direct_module
         : direct_module(),
 
           // Get references to input quantities
-          surface_runoff{get_input(input_quantities, "surface_runoff")},
 
           // Inputs for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
@@ -97,7 +96,6 @@ class soil_water_upflow : public direct_module
 
    private:
     // References to input quantities
-    double const& surface_runoff;
 
     // Inputs for layer 1
     double const& soil_depth_1;
@@ -169,8 +167,6 @@ class soil_water_upflow : public direct_module
 string_vector soil_water_upflow::get_inputs()
 {
     return {
-        "surface_runoff",  // mm / hr. Excess water to check for the flooded conditions. Soil_surface_runoff.h calculates surface runoff in mm / hr.
-
         "soil_depth_1",  // cm. Thickness of soil layer 1
         "soil_saturation_capacity_1",  // cm^3 / cm^3.
         "soil_wilting_point_1",  // cm^3 / cm^3.
