@@ -285,8 +285,7 @@ void soil_water_upflow::do_operation() const
         deltaS_6};  // cm^3 / cm^3
 
     upwardFlo_str upFlow;
-    // if flood <= 0??? // Current depth of flooding (mm)
-    // if (surface_runoff <= 0) {
+   
     double sw_avail[nlayers];  // cm^3 / cm^3
     for (int l = 0; l < nlayers; l++) {
         sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);  // cm^3 / cm^3
@@ -302,11 +301,6 @@ void soil_water_upflow::do_operation() const
         soil_wilting_point,
         soil_field_capacity,
         soil_water_content);
-    // } else {
-    //     for (int l = 0; l < nlayers; l++){
-    //           upFlow.sw_delta_U[l] = 0.0;
-    //       }
-    // }
 
     // Update the output quantity list
     update(upflow_1_op, upFlow.upwardFlo[0]);
