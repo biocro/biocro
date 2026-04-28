@@ -32,14 +32,15 @@ struct tileDrain_str {
 };
 
 infilWater_str infil(
-    int nlayers,
-    double potential_infiltration,
-    double swcon,
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_field_capacity[],
-    double soil_water_content[],
-    double soil_saturated_conductivity[]);
+    int const nlayers,                          // not a physical quantity
+    double potential_infiltration,              // cm / hr
+    double const swcon,                         // hr^(-1)
+    double const soil_depth[],                  // cm
+    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[]  // cm / hr
+);
 
 infilWater_str satflo(
     int nlayers,
