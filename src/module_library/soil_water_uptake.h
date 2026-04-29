@@ -109,7 +109,7 @@ class soil_water_uptake : public direct_module
     double const& canopy_transpiration_rate;
 
     // pointers to output quantities
-    double* uptake_layer_1_op;  // Mg/ha/hr
+    double* uptake_layer_1_op;  // Mg / ha /hr
     double* uptake_layer_2_op;
     double* uptake_layer_3_op;
     double* uptake_layer_4_op;
@@ -126,37 +126,37 @@ string_vector soil_water_uptake::get_inputs()
     return {
 
         "soil_depth_1",           // cm
-        "soil_water_content_1",   // cm3 [water] /cm3 [soil]. Volumetric water content
-        "soil_wilting_point_1",   // cm3/cm3
-        "soil_field_capacity_1",  // cm3/cm3
+        "soil_water_content_1",   // cm^3 / cm^3. Volumetric water content
+        "soil_wilting_point_1",   // cm^3 / cm^3 
+        "soil_field_capacity_1",  // cm^3 / cm^3 
 
         "soil_depth_2",           // cm
-        "soil_water_content_2",   // cm3/cm3
-        "soil_wilting_point_2",   // cm3/cm3
-        "soil_field_capacity_2",  // cm3/cm3
+        "soil_water_content_2",   // cm^3 / cm^3 
+        "soil_wilting_point_2",   // cm^3 / cm^3 
+        "soil_field_capacity_2",  // cm^3 / cm^3 
 
         "soil_depth_3",           // cm
-        "soil_water_content_3",   // cm3/cm3
-        "soil_wilting_point_3",   // cm3/cm3
-        "soil_field_capacity_3",  // cm3/cm3
+        "soil_water_content_3",   // cm^3 / cm^3 
+        "soil_wilting_point_3",   // cm^3 / cm^3 
+        "soil_field_capacity_3",  // cm^3 / cm^3 
 
         "soil_depth_4",           // cm
-        "soil_water_content_4",   // cm3/cm3
-        "soil_wilting_point_4",   // cm3/cm3
-        "soil_field_capacity_4",  // cm3/cm3
+        "soil_water_content_4",   // cm^3 / cm^3 
+        "soil_wilting_point_4",   // cm^3 / cm^3 
+        "soil_field_capacity_4",  // cm^3 / cm^3 
 
         "soil_depth_5",           // cm
-        "soil_water_content_5",   // cm3/cm3
-        "soil_wilting_point_5",   // cm3/cm3
-        "soil_field_capacity_5",  // cm3/cm3
+        "soil_water_content_5",   // cm^3 / cm^3 
+        "soil_wilting_point_5",   // cm^3 / cm^3 
+        "soil_field_capacity_5",  // cm^3 / cm^3 
 
         "soil_depth_6",           // cm
-        "soil_water_content_6",   // cm3/cm3
-        "soil_wilting_point_6",   // cm3/cm3
-        "soil_field_capacity_6",  // cm3/cm3
+        "soil_water_content_6",   // cm^3 / cm^3 
+        "soil_wilting_point_6",   // cm^3 / cm^3 
+        "soil_field_capacity_6",  // cm^3 / cm^3 
 
         "max_rooting_layer",         // dimensionless
-        "canopy_transpiration_rate"  // Mg/ha/hr
+        "canopy_transpiration_rate"  // Mg / ha / hr
 
     };
 }
@@ -165,13 +165,13 @@ string_vector soil_water_uptake::get_outputs()
 {
     return {
 
-        "uptake_layer_1",  // Mg/ha/hr
-        "uptake_layer_2",  // Mg/ha/hr
-        "uptake_layer_3",  // Mg/ha/hr
-        "uptake_layer_4",  // Mg/ha/hr
-        "uptake_layer_5",  // Mg/ha/hr
-        "uptake_layer_6",  // Mg/ha/hr
-        "unmet_demand"     // Mg/ha/hr
+        "uptake_layer_1",  // Mg /ha / hr
+        "uptake_layer_2",  // Mg /ha / hr
+        "uptake_layer_3",  // Mg /ha / hr
+        "uptake_layer_4",  // Mg /ha / hr
+        "uptake_layer_5",  // Mg /ha / hr
+        "uptake_layer_6",  // Mg /ha / hr
+        "unmet_demand"     // Mg /ha / hr
 
     };
 }
@@ -179,7 +179,7 @@ string_vector soil_water_uptake::get_outputs()
 void soil_water_uptake::do_operation() const
 {
     // define empty array for uptake
-    double uptake[6] = {0}; // Mg/ha/hr
+    double uptake[6] = {0}; // Mg / ha / hr
     // create array of soil depths
     double soil_depth[] = { // cm
         soil_depth_1,
@@ -189,7 +189,7 @@ void soil_water_uptake::do_operation() const
         soil_depth_5,
         soil_depth_6};
 
-    double soil_field_capacity[] = { // cm3/cm3
+    double soil_field_capacity[] = { // cm^3 / cm^3 
         soil_field_capacity_1,
         soil_field_capacity_2,
         soil_field_capacity_3,
@@ -197,7 +197,7 @@ void soil_water_uptake::do_operation() const
         soil_field_capacity_5,
         soil_field_capacity_6};
 
-    double soil_wilting_point[] = { // cm3/cm3
+    double soil_wilting_point[] = { // cm^3 / cm^3 
         soil_wilting_point_1,
         soil_wilting_point_2,
         soil_wilting_point_3,
@@ -205,7 +205,7 @@ void soil_water_uptake::do_operation() const
         soil_wilting_point_5,
         soil_wilting_point_6};
 
-    double soil_water_content[] = { // cm3/cm3
+    double soil_water_content[] = { // cm^3 / cm^3 
         soil_water_content_1,
         soil_water_content_2,
         soil_water_content_3,
@@ -222,7 +222,7 @@ void soil_water_uptake::do_operation() const
     // Or 1 mm of water equals 10 Mg/ha.
     // For soil_water_content theta (cm3/cm3) = theta (mm/mm) in a D (cm)-thick soil,
     // Total water is theta * 10D (mm) = theta * 10D * 10 (Mg/ha) = theta * 100 * D
-    double const volume_to_mass = 100;  // Mg/ha/cm
+    double const volume_to_mass = 100;  // Mg / ha / cm
 
     // get total root depth
     for (int i = 0; i < max_rooting_layer; i++) {
@@ -241,7 +241,7 @@ void soil_water_uptake::do_operation() const
         current_top_depth = current_top_depth + soil_depth[i];
     }
 
-    // uptake in layer = ET*(depth of layer/total depth of root zone)
+    // uptake in layer = ET*(weighted root fraction in that layer)
     // we track the water demand for each layer.
     // If the demand cannot be met in one layer, try the next layer upto max_rooting_layer
     // The unmet_demand can still be there after exhausting all layers
@@ -252,15 +252,15 @@ void soil_water_uptake::do_operation() const
     for (int i = 0; i < max_rooting_layer; i++) {
         // Check if all dirt is totally dry
         if (total_weight > 0.0) {
-            double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);  // Mg/ha/hr
-            double requested_uptake = base_request + unmet_demand;                               // Mg/ha/hr
+            double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);  // Mg / ha / hr
+            double requested_uptake = base_request + unmet_demand;                               // Mg / ha / hr
             double max_water = 0.0;
             // Only calculate volume if we are above the WP
             if (soil_water_content[i] > soil_wilting_point[i]) {
-                max_water = (soil_water_content[i] - soil_wilting_point[i]) * volume_to_mass * soil_depth[i];  // Mg/ha
+                max_water = (soil_water_content[i] - soil_wilting_point[i]) * volume_to_mass * soil_depth[i];  // Mg / ha
             }
             // Make it negative because uptake is negative
-            double max_negative_uptake = -max_water/timestep; // Mg/ha/hr
+            double max_negative_uptake = -max_water/timestep; // Mg / ha / hr
             if (requested_uptake < max_negative_uptake) {
                 // The plant takes all the available water
                 uptake[i] = max_negative_uptake;
@@ -278,13 +278,13 @@ void soil_water_uptake::do_operation() const
     }
 
     // update uptake, they are negative
-    update(uptake_layer_1_op, uptake[0]);  // Mg/ha/hr
-    update(uptake_layer_2_op, uptake[1]);  // Mg/ha/hr
-    update(uptake_layer_3_op, uptake[2]);  // Mg/ha/hr
-    update(uptake_layer_4_op, uptake[3]);  // Mg/ha/hr
-    update(uptake_layer_5_op, uptake[4]);  // Mg/ha/hr
-    update(uptake_layer_6_op, uptake[5]);  // Mg/ha/hr
-    update(unmet_demand_op, unmet_demand);  // Mg/ha/hr
+    update(uptake_layer_1_op, uptake[0]);  // Mg / ha /hr
+    update(uptake_layer_2_op, uptake[1]);  // Mg / ha /hr
+    update(uptake_layer_3_op, uptake[2]);  // Mg / ha /hr
+    update(uptake_layer_4_op, uptake[3]);  // Mg / ha /hr
+    update(uptake_layer_5_op, uptake[4]);  // Mg / ha /hr
+    update(uptake_layer_6_op, uptake[5]);  // Mg / ha /hr
+    update(unmet_demand_op, unmet_demand); // Mg / ha /hr
 }
 
 }  // namespace standardBML
