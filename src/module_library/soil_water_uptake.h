@@ -7,6 +7,15 @@
 
 namespace standardBML
 {
+/**
+ *  @class soil_water_uptake
+ *
+ *  @brief Computes the root water uptake for each soil layer 
+ *  using canopy_transpiration_rate as proxy.
+ *  This module is used with other DSSAT-based water modules,
+ *  but is homemade (not based on any DSSAT codes).
+ *
+ */
 class soil_water_uptake : public direct_module
 {
    public:
@@ -146,7 +155,7 @@ string_vector soil_water_uptake::get_inputs()
         "soil_wilting_point_6",   // cm3/cm3
         "soil_field_capacity_6",  // cm3/cm3
 
-        "max_rooting_layer",         // number of layers
+        "max_rooting_layer",         // dimensionless
         "canopy_transpiration_rate"  // Mg/ha/hr
 
     };
@@ -170,9 +179,9 @@ string_vector soil_water_uptake::get_outputs()
 void soil_water_uptake::do_operation() const
 {
     // define empty array for uptake
-    double uptake[6] = {0};
+    double uptake[6] = {0}; // Mg/ha/hr
     // create array of soil depths
-    double soil_depth[] = {
+    double soil_depth[] = { // cm
         soil_depth_1,
         soil_depth_2,
         soil_depth_3,
@@ -180,7 +189,7 @@ void soil_water_uptake::do_operation() const
         soil_depth_5,
         soil_depth_6};
 
-    double soil_field_capacity[] = {
+    double soil_field_capacity[] = { // cm3/cm3
         soil_field_capacity_1,
         soil_field_capacity_2,
         soil_field_capacity_3,
@@ -188,7 +197,7 @@ void soil_water_uptake::do_operation() const
         soil_field_capacity_5,
         soil_field_capacity_6};
 
-    double soil_wilting_point[] = {
+    double soil_wilting_point[] = { // cm3/cm3
         soil_wilting_point_1,
         soil_wilting_point_2,
         soil_wilting_point_3,
@@ -196,7 +205,7 @@ void soil_water_uptake::do_operation() const
         soil_wilting_point_5,
         soil_wilting_point_6};
 
-    double soil_water_content[] = {
+    double soil_water_content[] = { // cm3/cm3
         soil_water_content_1,
         soil_water_content_2,
         soil_water_content_3,
@@ -205,9 +214,10 @@ void soil_water_uptake::do_operation() const
         soil_water_content_6};
 
     // Calculate the weight of roots in each layer
-    double root_weight[6] = {0.0};
-    double total_weight = 0.0;
+    double root_weight[6] = {0.0}; // dimensionless
+    double total_weight = 0.0;    // dimensionless
     double current_top_depth = 0.0;  // cm. top depth of the rooting layer
+    constexpr double timestep = 1; // hr 
     // 1 Mg/ha = 0.1  kg/m^2 = 0.1 mm of water because 1 mm of water on a 1 m2 area equals 1 kg.
     // Or 1 mm of water equals 10 Mg/ha.
     // For soil_water_content theta (cm3/cm3) = theta (mm/mm) in a D (cm)-thick soil,
@@ -237,7 +247,7 @@ void soil_water_uptake::do_operation() const
     // The unmet_demand can still be there after exhausting all layers
     // This should be a feedback to the leaf level to lower gs/ET to make sure
     // water is balanced. However, it's difficult to solve this canopy to leaf feedback
-    // Also, one should check how often unmet_demand becomes non-zeros for diagnostic
+    // Also, one should check how often unmet_demand becomes non-zeros for diagnosis
     double unmet_demand = 0.0;
     for (int i = 0; i < max_rooting_layer; i++) {
         // Check if all dirt is totally dry
@@ -250,7 +260,7 @@ void soil_water_uptake::do_operation() const
                 max_water = (soil_water_content[i] - soil_wilting_point[i]) * volume_to_mass * soil_depth[i];  // Mg/ha
             }
             // Make it negative because uptake is negative
-            double max_negative_uptake = -max_water;
+            double max_negative_uptake = -max_water/timestep; // Mg/ha/hr
             if (requested_uptake < max_negative_uptake) {
                 // The plant takes all the available water
                 uptake[i] = max_negative_uptake;
