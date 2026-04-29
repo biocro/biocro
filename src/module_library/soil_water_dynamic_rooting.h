@@ -9,7 +9,12 @@ namespace standardBML
 /**
  *  @class soil_water_dynamic_rooting
  *
- *  @brief Allows max_rooting_layer to change over time
+ *  @brief Allows max_rooting_layer to change over time based on DVI
+ *  This is a very simple segment function to increase the maximum number of
+ *  soil layers that roots are able to access for root water uptake calculation. 
+ *  Another key concept for root water uptake is the root distribution, which
+ *  is handled in soil_water_uptake.h with an exponential decay function.
+ *  The decay function simulates most roots accumulate at top layers. 
  *
  */
 class soil_water_dynamic_rooting : public direct_module
@@ -52,16 +57,18 @@ string_vector soil_water_dynamic_rooting::get_inputs()
 string_vector soil_water_dynamic_rooting::get_outputs()
 {
     return {
-        "max_rooting_layer"  //
+        "max_rooting_layer"  // dimensionless. number of layer the root can access
     };
 }
 
 void soil_water_dynamic_rooting::do_operation() const
 {
     double max_rooting_layer{};
-    if (DVI < 1.0) {
+    DVI_of_end_vegetative_stage = 1.0; // dimensionless
+    DVI_of_middle_reproductive_stage = 1.5;  // dimensionless
+    if (DVI < DVI_of_end_vegetative_stage) {
         max_rooting_layer = 3;
-    } else if (DVI < 1.5) {
+    } else if (DVI < DVI_of_middle_reproductive_stage) {
         max_rooting_layer = 4;
     } else {
         max_rooting_layer = 5;
