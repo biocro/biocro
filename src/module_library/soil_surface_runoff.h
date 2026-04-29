@@ -106,52 +106,53 @@ class soil_surface_runoff : public direct_module
 string_vector soil_surface_runoff::get_inputs()
 {
     return {
-        "precip",        // Precipitation depth for current hour (mm)
-        "irrigation",    // Irrigation amount in an hour (mm/hr)
-        "curve_number",  // Runoff Curve Number (unitless) - measure of runoff potential based on
-                         //  soil type and current soil water content.
-        "soil_water_content_1",
-        "soil_wilting_point_1",
-        "soil_saturation_capacity_1",
+        "precip",        // mm / hr
+        "irrigation",    // mm / hr
+        "curve_number",  // unitless
 
-        "soil_water_content_2",
-        "soil_wilting_point_2",
-        "soil_saturation_capacity_2",
+        "soil_water_content_1",        // m^3 / m^3
+        "soil_wilting_point_1",        // m^3 / m^3
+        "soil_saturation_capacity_1",  // m^3 / m^3
 
-        "soil_water_content_3",
-        "soil_wilting_point_3",
-        "soil_saturation_capacity_3",
+        "soil_water_content_2",        // m^3 / m^3
+        "soil_wilting_point_2",       // m^3 / m^3
+        "soil_saturation_capacity_2", // m^3 / m^3
 
-        "soil_water_content_4",
-        "soil_wilting_point_4",
-        "soil_saturation_capacity_4",
+        "soil_water_content_3",    // m^3 / m^3
+        "soil_wilting_point_3", // m^3 / m^3
+        "soil_saturation_capacity_3", // m^3 / m^3
 
-        "soil_water_content_5",
-        "soil_wilting_point_5",
-        "soil_saturation_capacity_5",
+        "soil_water_content_4", // m^3 / m^3
+        "soil_wilting_point_4", // m^3 / m^3
+        "soil_saturation_capacity_4", // m^3 / m^3
 
-        "soil_water_content_6",
-        "soil_wilting_point_6",
-        "soil_saturation_capacity_6"  // Volumetric soil water content in soil layer 2 at wilting point limit (cm3 [water] / cm3 [soil])
+        "soil_water_content_5", // m^3 / m^3
+        "soil_wilting_point_5", // m^3 / m^3
+        "soil_saturation_capacity_5", // m^3 / m^3
+
+        "soil_water_content_6", // m^3 / m^3
+        "soil_wilting_point_6", // m^3 / m^3
+        "soil_saturation_capacity_6"  // m^3 / m^3
     };
 }
 
 string_vector soil_surface_runoff::get_outputs()
 {
     return {
-        "surface_runoff",            // Calculated runoff (mm/hr)
-        "soil_storage",              // units?
-        "pb",                        // units?
-        "soil_initial_abstraction",  // units?
-        "available_water"            // units?
+        "surface_runoff",            // mm / hr
+        "soil_storage",              // mm / hr
+        "pb",                        // mm / hr
+        "soil_initial_abstraction",  // unitless
+        "available_water"            // mm / hr
     };
 }
 
 void soil_surface_runoff::do_operation() const
 {
     int nlayers = 6;
-    double available_water = precip + irrigation;                // mm
-    double soil_storage = 254.0 * (100.0 / curve_number - 1.0);  // in to mm
+    double available_water = precip + irrigation;                // mm / hr
+    double constexpr mm_per_inch = 254;
+    double soil_storage = mm_per_inch * (100.0 / curve_number - 1.0);  // mm / hr
 
     double soil_water_content[] = {
         soil_water_content_1,
@@ -193,12 +194,12 @@ void soil_surface_runoff::do_operation() const
         0.15 * ((soil_saturation_capacity[0] - soil_water_content[0]) /
                     (soil_saturation_capacity[0] - soil_wilting_point[0] * 0.5) +
                 (soil_saturation_capacity[1] - soil_water_content[1]) /
-                    (soil_saturation_capacity[1] - soil_wilting_point[1] * 0.5));
+                    (soil_saturation_capacity[1] - soil_wilting_point[1] * 0.5)); // unitless ratio
 
-    soil_initial_abstraction = std::max(0.0, soil_initial_abstraction);
+    soil_initial_abstraction = std::max(0.0, soil_initial_abstraction); // unitless ratio
 
     // Determine threshold amount of rainfall that will occur before
-    //      runoff starts (mm)
+    //      runoff starts (mm / hr)
     double pb = available_water - soil_initial_abstraction * soil_storage;
 
     double surface_runoff = 0.0;
@@ -208,14 +209,6 @@ void soil_surface_runoff::do_operation() const
                                                 (1.0 - soil_initial_abstraction) * soil_storage);
         }
     }
-
-    //excess surface runoff when near satuation
-    //double sm_max = soil_saturation_capacity[0] * 0.7;
-    //double layer0_excess = std::max(0.0, soil_water_content[0] - sm_max);
-    //if (layer0_excess > 0.0) {
-    //    // Add the excess as additional surface runoff
-    //    surface_runoff += layer0_excess;
-    //}
 
     // Update the output quantity list
     update(surface_runoff_op, surface_runoff);

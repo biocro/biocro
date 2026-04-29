@@ -257,82 +257,65 @@ class soil_type_selector : public direct_module
 string_vector soil_type_selector::get_inputs()
 {
     return {
-        "soil_type_indicator_1",
-        "soil_type_indicator_2",
-        "soil_type_indicator_3",
-        "soil_type_indicator_4",
-        "soil_type_indicator_5",
-        "soil_type_indicator_6"};
+        "soil_type_indicator_1",  // unitless int
+        "soil_type_indicator_2", // unitless int
+        "soil_type_indicator_3", // unitless int
+        "soil_type_indicator_4", // unitless int
+        "soil_type_indicator_5", // unitless int
+        "soil_type_indicator_6"}; // unitless int
 }
 
 string_vector soil_type_selector::get_outputs()
 {
     return {
-        "soil_silt_content_1",
-        "soil_clay_content_1",
-        // "soil_sand_content_1",
-        // "soil_air_entry_1",
-        // "soil_b_coefficient_1",
-        "soil_saturated_conductivity_1",
-        "soil_saturation_capacity_1",
-        "soil_field_capacity_1",
-        "soil_wilting_point_1",
-        "soil_bulk_density_1",
+        "soil_silt_content_1", // unitless
+        "soil_clay_content_1",  // unitless
+        "soil_saturated_conductivity_1", // kg s / m^3
+        "soil_saturation_capacity_1",    // m^3 / m^3
+        "soil_field_capacity_1",  // m^3 / m^3
+        "soil_wilting_point_1", // m^3 / m^3
+        "soil_bulk_density_1", // Mg / m^3
 
-        "soil_silt_content_2",
-        "soil_clay_content_2",
-        // "soil_sand_content_2",
-        // "soil_air_entry_2",
-        // "soil_b_coefficient_2",
-        "soil_saturated_conductivity_2",
-        "soil_saturation_capacity_2",
-        "soil_field_capacity_2",
-        "soil_wilting_point_2",
-        "soil_bulk_density_2",
+        "soil_silt_content_2", // unitless
+        "soil_clay_content_2", // unitless
+        "soil_saturated_conductivity_2", // kg s / m^3
+        "soil_saturation_capacity_2",  //
+        "soil_field_capacity_2",// m^3 / m^3
+        "soil_wilting_point_2",// m^3 / m^3
+        "soil_bulk_density_2",// Mg / m^3
 
-        "soil_silt_content_3",
-        "soil_clay_content_3",
-        // "soil_sand_content_3",
-        // "soil_air_entry_3",
-        // "soil_b_coefficient_3",
-        "soil_saturated_conductivity_3",
-        "soil_saturation_capacity_3",
-        "soil_field_capacity_3",
-        "soil_wilting_point_3",
-        "soil_bulk_density_3",
+        "soil_silt_content_3", // unitless
+        "soil_clay_content_3", // unitless
+        "soil_saturated_conductivity_3", // kg s / m^3
+        "soil_saturation_capacity_3",// m^3 / m^3
+        "soil_field_capacity_3",// m^3 / m^3
+        "soil_wilting_point_3",// m^3 / m^3
+        "soil_bulk_density_3",// Mg / m^3
 
-        "soil_silt_content_4",
-        "soil_clay_content_4",
-        // "soil_sand_content_4",
-        // "soil_air_entry_4",
-        // "soil_b_coefficient_4",
-        "soil_saturated_conductivity_4",
-        "soil_saturation_capacity_4",
-        "soil_field_capacity_4",
-        "soil_wilting_point_4",
-        "soil_bulk_density_4",
+        "soil_silt_content_4", // unitless
+        "soil_clay_content_4",  // unitless
+        "soil_saturated_conductivity_4", // kg s / m^3
+        "soil_saturation_capacity_4",// m^3 / m^3
+        "soil_field_capacity_4",// m^3 / m^3
+        "soil_wilting_point_4",// m^3 / m^3
+        "soil_bulk_density_4",// Mg / m^3
 
-        "soil_silt_content_5",
-        "soil_clay_content_5",
-        // "soil_sand_content_5",
-        // "soil_air_entry_5",
-        // "soil_b_coefficient_5",
-        "soil_saturated_conductivity_5",
-        "soil_saturation_capacity_5",
-        "soil_field_capacity_5",
-        "soil_wilting_point_5",
-        "soil_bulk_density_5",
+        "soil_silt_content_5", // unitless
+        "soil_clay_content_5", // unitless
+        "soil_saturated_conductivity_5", // kg s / m^3
+        "soil_saturation_capacity_5",// m^3 / m^3
+        "soil_field_capacity_5",// m^3 / m^3
+        "soil_wilting_point_5",// m^3 / m^3
+        "soil_bulk_density_5",// Mg / m^3
 
-        "soil_silt_content_6",
-        "soil_clay_content_6",
-        // "soil_sand_content_6",
-        // "soil_air_entry_6",
-        // "soil_b_coefficient_6",
-        "soil_saturated_conductivity_6",
-        "soil_saturation_capacity_6",
-        "soil_field_capacity_6",
-        "soil_wilting_point_6",
-        "soil_bulk_density_6"};
+        "soil_silt_content_6", // unitless
+        "soil_clay_content_6", // unitless
+        "soil_saturated_conductivity_6", // kg s / m^3
+        "soil_saturation_capacity_6",// m^3 / m^3
+        "soil_field_capacity_6",// m^3 / m^3
+        "soil_wilting_point_6",// m^3 / m^3
+        "soil_bulk_density_6"// Mg / m^3
+        };
 }
 
 void soil_type_selector::do_operation() const
@@ -355,9 +338,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 1
     update(soil_silt_content_1_op, soil_properties_1.silt);
     update(soil_clay_content_1_op, soil_properties_1.clay);
-    // update(soil_sand_content_1_op, soil_properties_1.sand);
-    // update(soil_air_entry_1_op, soil_properties_1.air_entry);
-    // update(soil_b_coefficient_1_op, soil_properties_1.b);
     update(soil_saturated_conductivity_1_op, saturated_conductivity_1);
     update(soil_saturation_capacity_1_op, soil_properties_1.satur);
     update(soil_field_capacity_1_op, soil_properties_1.fieldc);
@@ -367,9 +347,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 2
     update(soil_silt_content_2_op, soil_properties_2.silt);
     update(soil_clay_content_2_op, soil_properties_2.clay);
-    // update(soil_sand_content_2_op, soil_properties_2.sand);
-    // update(soil_air_entry_2_op, soil_properties_2.air_entry);
-    // update(soil_b_coefficient_2_op, soil_properties_2.b);
     update(soil_saturated_conductivity_2_op, saturated_conductivity_2);
     update(soil_saturation_capacity_2_op, soil_properties_2.satur);
     update(soil_field_capacity_2_op, soil_properties_2.fieldc);
@@ -379,9 +356,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 3
     update(soil_silt_content_3_op, soil_properties_3.silt);
     update(soil_clay_content_3_op, soil_properties_3.clay);
-    // update(soil_sand_content_3_op, soil_properties_3.sand);
-    // update(soil_air_entry_3_op, soil_properties_3.air_entry);
-    // update(soil_b_coefficient_3_op, soil_properties_3.b);
     update(soil_saturated_conductivity_3_op, saturated_conductivity_3);
     update(soil_saturation_capacity_3_op, soil_properties_3.satur);
     update(soil_field_capacity_3_op, soil_properties_3.fieldc);
@@ -391,9 +365,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 4
     update(soil_silt_content_4_op, soil_properties_4.silt);
     update(soil_clay_content_4_op, soil_properties_4.clay);
-    // update(soil_sand_content_4_op, soil_properties_4.sand);
-    // update(soil_air_entry_4_op, soil_properties_4.air_entry);
-    // update(soil_b_coefficient_4_op, soil_properties_4.b);
     update(soil_saturated_conductivity_4_op, saturated_conductivity_4);
     update(soil_saturation_capacity_4_op, soil_properties_4.satur);
     update(soil_field_capacity_4_op, soil_properties_4.fieldc);
@@ -403,9 +374,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 5
     update(soil_silt_content_5_op, soil_properties_5.silt);
     update(soil_clay_content_5_op, soil_properties_5.clay);
-    // update(soil_sand_content_5_op, soil_properties_5.sand);
-    // update(soil_air_entry_5_op, soil_properties_5.air_entry);
-    // update(soil_b_coefficient_5_op, soil_properties_5.b);
     update(soil_saturated_conductivity_5_op, saturated_conductivity_5);
     update(soil_saturation_capacity_5_op, soil_properties_5.satur);
     update(soil_field_capacity_5_op, soil_properties_5.fieldc);
@@ -415,9 +383,6 @@ void soil_type_selector::do_operation() const
     // Update the output quantity list for layer 6
     update(soil_silt_content_6_op, soil_properties_6.silt);
     update(soil_clay_content_6_op, soil_properties_6.clay);
-    // update(soil_sand_content_6_op, soil_properties_6.sand);
-    // update(soil_air_entry_6_op, soil_properties_6.air_entry);
-    // update(soil_b_coefficient_6_op, soil_properties_6.b);
     update(soil_saturated_conductivity_6_op, saturated_conductivity_6);
     update(soil_saturation_capacity_6_op, soil_properties_6.satur);
     update(soil_field_capacity_6_op, soil_properties_6.fieldc);
