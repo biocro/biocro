@@ -207,15 +207,9 @@ string_vector soil_water_tiledrain::get_outputs()
     return {
         "td_layer_num",          // Dimensionless. Soil layer number containing the tile drain
         "cumulative_tile_flow",  // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
-        "total_tile_flow",     // cm / hr. //TODO - I think it currently equals cumulative_tile_flow of
-                              // given timestep because total_tile_flow is reset to zero inside tile_flow() on each call; (see soil_water_flow_functions.cpp, line 345)
-                              // it is intended to correspond to DSSAT TDFC which is "Sum of tile drain flow from beginning of model run" 
-                              // and initialized once per simulation in DSSAT (TILEDRAIN.for)
-                              // but if my suspicion is correct, it is being assigned to zero on each timestep.
-                              // Correct units are cm but assuming at the moment total_tile_flow = cumulative tile flow
-                              // I am using cm / hr as its units.
+        "total_tile_flow",     // cm / hr
         "head",               // cm
-        "tdf_avail",          // cm. Technically cm^3 [water] / cm^2 [soil]. Soil water available to drain
+        "tdf_avail",          // cm
         "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain. topsat (DSSAT - TOPSAT) is not formally defined in DSSAT/../TILEDRAIN.for.
         "tile_conductivity",  // cm / hr
         "deltaT_1",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 1 
