@@ -8,7 +8,7 @@
 namespace standardBML
 {
 /**
- * @class soil_water_downflow
+ * @class soil_water_tiledrain
  *
  * @brief Calculates water flow through the soil.
  * Based on DSSAT source file:
@@ -71,7 +71,6 @@ class soil_water_tiledrain : public direct_module
           // Get pointers to output quantities
           td_layer_num_op{get_op(output_quantities, "td_layer_num")},
           cumulative_tile_flow_op{get_op(output_quantities, "cumulative_tile_flow")},
-          total_tile_flow_op{get_op(output_quantities, "total_tile_flow")},
 
           head_op{get_op(output_quantities, "head")},
           tdf_avail_op{get_op(output_quantities, "tdf_avail")},
@@ -141,7 +140,6 @@ class soil_water_tiledrain : public direct_module
     // Pointers to output quantities
     double* td_layer_num_op;
     double* cumulative_tile_flow_op;
-    double* total_tile_flow_op;
 
     double* head_op;
     double* tdf_avail_op;
@@ -207,7 +205,6 @@ string_vector soil_water_tiledrain::get_outputs()
     return {
         "td_layer_num",          // Dimensionless. Soil layer number containing the tile drain
         "cumulative_tile_flow",  // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
-        "total_tile_flow",     // cm / hr
         "head",               // cm
         "tdf_avail",          // cm
         "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain. topsat (DSSAT - TOPSAT) is not formally defined in DSSAT/../TILEDRAIN.for.
@@ -295,7 +292,6 @@ void soil_water_tiledrain::do_operation() const
             sw_delta_S);
         // Skip tile drain section if depth of tile is <= 0
     } else {
-        tileDrain.total_tile_flow = 0.0;
         tileDrain.cumulative_tile_flow = 0.0;
         for (int l = 0; l < nlayers; l++) {
             tileDrain.sw_delta_T[l] = 0.0;
@@ -304,7 +300,6 @@ void soil_water_tiledrain::do_operation() const
     // Update the output quantity list
     update(td_layer_num_op, td_layer_num);
     update(cumulative_tile_flow_op, tileDrain.cumulative_tile_flow);
-    update(total_tile_flow_op, tileDrain.total_tile_flow);
 
     update(head_op, tileDrain.head);
 
