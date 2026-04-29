@@ -207,7 +207,7 @@ string_vector soil_water_tiledrain::get_outputs()
         "cumulative_tile_flow",  // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
         "head",               // cm
         "tdf_avail",          // cm
-        "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain. topsat (DSSAT - TOPSAT) is not formally defined in DSSAT/../TILEDRAIN.for.
+        "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain. 
         "tile_conductivity",  // cm / hr
         "deltaT_1",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 1 
         "deltaT_2",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 2 
