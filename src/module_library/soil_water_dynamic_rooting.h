@@ -14,7 +14,10 @@ namespace standardBML
  *  soil layers that roots are able to access for root water uptake calculation. 
  *  Another key concept for root water uptake is the root distribution, which
  *  is handled in soil_water_uptake.h with an exponential decay function.
- *  The decay function simulates most roots accumulate at top layers. 
+ *  The decay function simulates most roots accumulate at top layers so not all layers
+ *  are extracted equally.
+ *  This module is used with other DSSAT-based water modules,
+ *  but is homemade (not based on any DSSAT codes).
  *
  */
 class soil_water_dynamic_rooting : public direct_module
