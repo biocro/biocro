@@ -67,8 +67,8 @@ string_vector soil_water_dynamic_rooting::get_outputs()
 void soil_water_dynamic_rooting::do_operation() const
 {
     double max_rooting_layer{};
-    DVI_of_end_vegetative_stage = 1.0; // dimensionless
-    DVI_of_middle_reproductive_stage = 1.5;  // dimensionless
+    double const DVI_of_end_vegetative_stage = 1.0; // dimensionless
+    double const DVI_of_middle_reproductive_stage = 1.5;  // dimensionless
     if (DVI < DVI_of_end_vegetative_stage) {
         max_rooting_layer = 3;
     } else if (DVI < DVI_of_middle_reproductive_stage) {
