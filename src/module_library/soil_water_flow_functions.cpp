@@ -264,85 +264,149 @@ infilWater_str infil(
 }
 
 /**
- * @brief Calculates saturated water flow through a multi-layer soil profile.
+ *  @brief Calculates saturated water flow through a multi-layer soil profile.
+ *
+ *  ### Model implementation
+ *
+ *  It is unknown whether these calculations are described in a publication.
+ *  This function is based on the subroutine `SATFLO` from DSSAT. Here we have
+ *  converted the units from a "per day" basis to a "per hour" basis.
+ *
+ *  The DSSAT submodule describes these calculations as follows:
+ *
+ *  > Calculates saturated flow on days with no rain or irrigation.
+ *  >
+ *  > Saturated flow is calculated for days with no irr or rain. Drainage is
+ *  > reduced when the flux exceeds the rate allowed by the saturated soil
+ *  > hydraulic conductivity, assuming unit gradient.  This allows for perched
+ *  > water tables in profile. Prevents flux from exceeding the most limiting
+ *  > layer below it.  If the sat. hyd. cond values are missing (neg) assume no
+ *  > perching of water table.
+ *
+ *  ### Source
+ *
+ *  - DSSAT Fortran source code:
+ *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/SATFLO.for
  */
 infilWater_str satflo(
-    int nlayers,
-    double potential_infiltration,
-    double swcon,
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_field_capacity[],
-    double soil_water_content[],
-    double soil_saturated_conductivity[])
+    int const nlayers,                          // not a physical quantity
+    double potential_infiltration,              // cm
+    double const swcon,                         // hr^(-1)
+    double const soil_depth[],                  // cm
+    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[]  // cm / hr
+)
 {
-    infilWater_str return_value;
-    double drn[nlayers];      // Drainage rate through soil layer L (cm/hr)
-    double swdelts[nlayers];  // Change in soil water content due to drainage in layer l
-    // double drainage_rate = 0.0; // Drainage rate from soil profile (cm/hr)
+    // Hard-coded constants
+    double constexpr timestep = 1.0;  // hr
 
-    double swtemp[nlayers];  //Soil water content in layer L (temporary value)
+    // Initialize layer-dependent variables
+    double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
+    double swdelts[nlayers];        // dimensionless - Change in soil water content due to drainage
+    double swtemp[nlayers];         // dimensionless - Soil water content
+
     for (int l = 0; l < nlayers; l++) {
-        drn[l] = 0.0;
-        swdelts[l] = 0.0;
-        swtemp[l] = soil_water_content[l];
+        downward_flux[l] = 0.0;             // cm / hr
+        swdelts[l] = 0.0;                   // dimensionless
+        swtemp[l] = soil_water_content[l];  // dimensionless
     }
 
-    double drmx[nlayers];  // Calculated maximum saturated flow from layer l (cm/hr)
-    double currentswcon = swcon;
-
-    // double excess = 0.0; //Excess water to be added to runoff (cm/hr)
+    // For each layer, determine the downward flux and the new soil water
+    // content
     for (int l = 0; l < nlayers; l++) {
-        drn[l] = 0.0;
-        drmx[l] = 0.0;
-        // double hold = (soil_saturation_capacity[l] - swtemp[l]) * soil_depth[l];
-        if (swtemp[l] >= soil_field_capacity[l] + 0.003) {
-            // Rprintf("swtemp[%i] > soil_field_capacity_%i. \n", l,l);
-            drmx[l] = (swtemp[l] - soil_field_capacity[l]) * currentswcon * soil_depth[l];
-            drmx[l] = std::max(0.0, drmx[l]);
-        }
+        // Drainage will occur if the soil water content in this layer is above
+        // the field capacity
+        double const drainage_rate =
+            swtemp[l] >= soil_field_capacity[l] + 0.003
+                ? std::max(0.0, swcon * (swtemp[l] - soil_field_capacity[l]) * soil_depth[l])
+                : 0;  // cm / hr
+
+        // Water freely drains downward from the top layer. For lower layers,
+        // any excess water beyond the holding capacity is passed downwards,
+        // including drainage from the layer above.
         if (l == 0) {
-            drn[l] = drmx[l];
+            // This is the top layer
+            downward_flux[l] = drainage_rate;  // cm / hr
         } else {
-            double hold = 0.0;
-            if (swtemp[l] < soil_field_capacity[l]) {
-                hold = (soil_field_capacity[l] - swtemp[l]) * soil_depth[l];
-            }
-            drn[l] = std::max((drn[l - 1] + drmx[l] - hold), 0.0);
+            // The holding capacity of the soil layer is the amount of water it
+            // could absorb before reaching its saturation capacity
+            double const hold =
+                swtemp[l] < soil_field_capacity[l]
+                    ? (soil_field_capacity[l] - swtemp[l]) * soil_depth[l]
+                    : 0;  // cm
+
+            // Total water drained
+            double const total_drained =
+                (downward_flux[l - 1] + drainage_rate) * timestep - hold;  // cm
+
+            // Total downward flow rate
+            downward_flux[l] = std::max(total_drained / timestep, 0.0);
         }
-        // Rprintf("drn[%i]: %f \n", l, drn[l]);
-        if (soil_saturated_conductivity[l] > 0.0 &&
-            drn[l] > soil_saturated_conductivity[l]) {
-            drn[l] = soil_saturated_conductivity[l];
+
+        // The total flux out of the soil layer cannot exceed the saturated soil
+        // conductivity
+        if (soil_saturated_conductivity[l] > 0.0 && downward_flux[l] > soil_saturated_conductivity[l]) {
+            // Adjust the total flux to avoid going over the upper flux limit
+            downward_flux[l] = soil_saturated_conductivity[l];  // cm / hr
         }
     }
     // Compute volumetric water contents after drainage in a day.
     // Prevent water content in any layer from exceeding saturation
     // as water drains down in the profile.
 
+    // Calculate the new soil water content in each of the lower soil layers. If
+    // there is excess water in a layer, redistribute it to the layer above
     for (int l = nlayers - 1; l >= 1; l--) {
-        double soil_water_old = swtemp[l];
-        swtemp[l] = swtemp[l] + (drn[l - 1] - drn[l]) / soil_depth[l];
+        // Keep a record of the initial soil water content in case the flux
+        // needs to be adjusted
+        double const soil_water_old = swtemp[l];  // dimensionless
+
+        // The soil water content increases due to downward flux from the layer
+        // above and decreases due to downward flux out of this layer
+        swtemp[l] = swtemp[l] + (downward_flux[l - 1] - downward_flux[l]) / soil_depth[l];  // dimensionless
+
+        // The soil water content cannot exceed the saturation capacity
         if (swtemp[l] > soil_saturation_capacity[l]) {
-            drn[l - 1] = std::max(0.0, ((soil_saturation_capacity[l] - soil_water_old) *
-                                            soil_depth[l] +
-                                        drn[l]));
+            // Limit the new water content to the saturation capacity
             swtemp[l] = soil_saturation_capacity[l];
+
+            // Find the amount of water this layer absorbed to reach its
+            // saturation capacity
+            double const absorbed =
+                (soil_saturation_capacity[l] - soil_water_old) * soil_depth[l];  // cm
+
+            // Conservation of mass requires that
+            //
+            //   absorbed = (mass_from_above - mass_to_below)
+            //            = (rate_from_above - rate_to_below) * timestep
+            //
+            // So, solving for rate_from_above, we can see that
+            //
+            //   rate_from_above = absorbed / timestep + rate_to_below
+            //
+            // Here we adjust the rate from above to match this value
+            downward_flux[l - 1] =
+                std::max(0.0, absorbed / timestep + downward_flux[l]);  // cm / hr
         }
     }
-    swtemp[0] = swtemp[0] - drn[0] / soil_depth[0];
-    double drain = drn[nlayers - 1] * 10.0;  // in mm
+
+    // Get the new soil water content in the top layer
+    swtemp[0] = swtemp[0] - downward_flux[0] / soil_depth[0];
+
+    infilWater_str return_value;
+
+    // The drainage rate for the profile as a whole is the downward flux out of
+    // the lowest layer
+    return_value.drain = downward_flux[nlayers - 1] * 10.0;  // mm
+
+    // There is no excess water at the soil surface
+    return_value.excess_water = 0.0;  // cm / hr
 
     for (int l = 0; l < nlayers; l++) {
-        swdelts[l] = swtemp[l] - soil_water_content[l];
-    }
-
-    return_value.drain = drain;
-    return_value.excess_water = 0.0;
-
-    for (int l = 0; l < nlayers; l++) {
-        return_value.drn[l] = drn[l];
-        return_value.sw_delta_S[l] = swdelts[l];
+        return_value.drn[l] = downward_flux[l];                          // cm / hr
+        return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // dimensionless
     }
 
     return return_value;
