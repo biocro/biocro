@@ -395,8 +395,8 @@ double reference_evapotranspiration(
  *  the highest rate possible given the contraints placed by the available solar
  *  energy and the crop itself. The availability and distribution of water
  *  within the soil may reduce the actual rate to a lower value, but these
- *  calculations are handled elsewhere (typically by the `soil_evaporation2`
- *  module).
+ *  calculations are handled elsewhere (typically by the
+ *  `soil_evaporation_ritchie` module).
  *
  *  This function was originally based on the `PETASCE` and `PSE` subroutines of
  *  `PET.for`, and the `SPAM` subroutine of `SPAM.for`, all of which are parts
@@ -553,40 +553,81 @@ double potential_soil_evaporation(
     return K_e * ET_0;  // same units as ET_0
 }
 
-// Calculate stage 1 soil evaporation
-//   If the sum for stage 1 soil evaporation (SUMES1) is larger than
-//   stage 1 evaporation limit (evap_limit), start stage 2 soil evaporation (SUMES2)
-//   and adjust soil evaporation (actual_soil_evap)
+/**
+ *  @brief A structure for holding the outputs from
+ *  `ritchie_s1_to_s2()`
+ */
 struct evap_str {
-    double sumes1;
-    double sumes2;
-    double days_stage2;
-    double actual_soil_evap;
+    double days_stage2_next;
+    double ES;
+    double sumes1_next;
+    double sumes2_next;
 };
 
-evap_str supplemetal_evap_computation(
-    double potential_soil_evap,
-    double sumes1_temp,
-    double sumes2_temp,
-    double evap_limit,
-    double soil_evaporation_alpha,
-    double days_stage2_temp)
+/**
+ *  @brief Calculates key soil water variables when there is a (potential)
+ *  transition from Stage 1 to Stage 2 evaporation.
+ *
+ *  This function is based on the `ESUP` subroutine from DSSAT (found in the
+ *  file `SOILEV.for`), which implements part of the model described in
+ *  Ritchie (1972). It is called by the `soil_evaporation_ritchie` module.
+ *
+ *  These calculations are described in the paper as follows:
+ *
+ *  > The equation given in the flow diagram (Figure 1) at B is used to predict
+ *  > `ES` on the day when the cumulative evaporation is in transition between
+ *  > Stage 1 drying and Stage 2 drying. On this day, `ES = EOS` until
+ *  > `sumes1 = evap_limit`; for the rest of the day, `ES = 0.6 * EOS`.
+ *
+ *  References:
+ *
+ *  - [Ritchie, J. T. "Model for predicting evaporation from a row crop with incomplete cover."
+ *    Water Resources Research 8, 1204–1213 (1972)]
+ *    (https://doi.org/10.1029/WR008i005p01204)
+ *
+ *  - DSSAT Fortran source code:
+ *    github.com/DSSAT/dssat-csm-os/blob/develop/SPAM/SOILEV.for
+ */
+evap_str ritchie_s1_to_s2(
+    double const days_stage2,             // day
+    double const EOS,                     // mm / hr
+    double const evap_limit,              // mm
+    double const soil_evaporation_alpha,  // mm / day^(0.5)
+    double const sumes1,                  // mm
+    double const sumes2,                  // mm
+    double const timestep                 // hr
+)
 {
-    evap_str return_value;
-    double actual_soil_evap = 0.0;
-    sumes1_temp += potential_soil_evap;
-    if (sumes1_temp > evap_limit) {
-        actual_soil_evap = potential_soil_evap - 0.4 * (sumes1_temp - evap_limit);
-        sumes2_temp = 0.6 * (sumes1_temp - evap_limit);
-        days_stage2_temp = pow((sumes2_temp / soil_evaporation_alpha), 2);
-        sumes1_temp = evap_limit;
-    } else
-        actual_soil_evap = potential_soil_evap;
+    // Determine the cumulative evaporation that would occur over the next time
+    // step if evaporation proceeds at its potential rate
+    double const potential_new_evap = EOS * timestep;  // mm
 
-    return_value.sumes1 = sumes1_temp;
-    return_value.sumes2 = sumes2_temp;
-    return_value.days_stage2 = days_stage2_temp;
-    return_value.actual_soil_evap = actual_soil_evap;
-    return return_value;
+    // Determine the amount of excess Stage 1 evaporation that would result if
+    // the potential evaporation were to occur
+    double const excess_s1_evap = sumes1 + potential_new_evap - evap_limit;  // mm
+
+    // Determine the values key parameters depending on whether we are
+    // transitioning to Stage 2
+    if (excess_s1_evap > 0) {
+        // The cumulative evaporation during Stage 1 will exceed the limit, so
+        // we are transitioning to Stage 2
+        double constexpr evap_frac = 0.6;                       // dimensionless
+        double const sumes2_next = evap_frac * excess_s1_evap;  // mm
+
+        return evap_str{
+            /* .days_stage2_next = */ pow((sumes2_next / soil_evaporation_alpha), 2),  // day
+            /* .ES = */ EOS - (1.0 - evap_frac) * excess_s1_evap / timestep,           // mm / hr
+            /* .sumes1_next = */ evap_limit,                                           // mm
+            /* .sumes2_next = */ sumes2_next                                           // mm
+        };
+    } else {
+        // We are still in Stage 1 so there is no transition to Stage 2
+        return evap_str{
+            /* .days_stage2_next = */ days_stage2,             // day
+            /* .ES = */ EOS,                                   // mm / hr
+            /* .sumes1_next = */ sumes1 + potential_new_evap,  // mm
+            /* .sumes2_next = */ sumes2                        // mm
+        };
+    }
 }
 #endif
