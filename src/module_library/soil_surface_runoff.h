@@ -50,6 +50,8 @@ class soil_surface_runoff : public direct_module
           soil_wilting_point_6{get_input(input_quantities, "soil_wilting_point_6")},
           soil_saturation_capacity_6{get_input(input_quantities, "soil_saturation_capacity_6")},
 
+          timestep{get_input(input_quantities, "timestep")},
+
           // Get pointers to output quantities
           surface_runoff_op{get_op(output_quantities, "surface_runoff")},
           soil_storage_op{get_op(output_quantities, "soil_storage")},
@@ -92,6 +94,7 @@ class soil_surface_runoff : public direct_module
     double const& soil_wilting_point_6;
     double const& soil_saturation_capacity_6;
 
+    double const& timestep;
     // Pointers to output quantities
     double* surface_runoff_op;
     double* soil_storage_op;
@@ -115,24 +118,26 @@ string_vector soil_surface_runoff::get_inputs()
         "soil_saturation_capacity_1",  // m^3 / m^3
 
         "soil_water_content_2",        // m^3 / m^3
-        "soil_wilting_point_2",       // m^3 / m^3
-        "soil_saturation_capacity_2", // m^3 / m^3
+        "soil_wilting_point_2",        // m^3 / m^3
+        "soil_saturation_capacity_2",  // m^3 / m^3
 
-        "soil_water_content_3",    // m^3 / m^3
-        "soil_wilting_point_3", // m^3 / m^3
-        "soil_saturation_capacity_3", // m^3 / m^3
+        "soil_water_content_3",        // m^3 / m^3
+        "soil_wilting_point_3",        // m^3 / m^3
+        "soil_saturation_capacity_3",  // m^3 / m^3
 
-        "soil_water_content_4", // m^3 / m^3
-        "soil_wilting_point_4", // m^3 / m^3
-        "soil_saturation_capacity_4", // m^3 / m^3
+        "soil_water_content_4",        // m^3 / m^3
+        "soil_wilting_point_4",        // m^3 / m^3
+        "soil_saturation_capacity_4",  // m^3 / m^3
 
-        "soil_water_content_5", // m^3 / m^3
-        "soil_wilting_point_5", // m^3 / m^3
-        "soil_saturation_capacity_5", // m^3 / m^3
+        "soil_water_content_5",        // m^3 / m^3
+        "soil_wilting_point_5",        // m^3 / m^3
+        "soil_saturation_capacity_5",  // m^3 / m^3
 
-        "soil_water_content_6", // m^3 / m^3
-        "soil_wilting_point_6", // m^3 / m^3
-        "soil_saturation_capacity_6"  // m^3 / m^3
+        "soil_water_content_6",        // m^3 / m^3
+        "soil_wilting_point_6",        // m^3 / m^3
+        "soil_saturation_capacity_6",  // m^3 / m^3
+
+        "timestep"  // hr
     };
 }
 
@@ -140,7 +145,7 @@ string_vector soil_surface_runoff::get_outputs()
 {
     return {
         "surface_runoff",            // mm / hr
-        "soil_storage",              // mm / hr
+        "soil_storage",              // mm
         "pb",                        // mm / hr
         "soil_initial_abstraction",  // unitless
         "available_water"            // mm / hr
@@ -150,7 +155,7 @@ string_vector soil_surface_runoff::get_outputs()
 void soil_surface_runoff::do_operation() const
 {
     int nlayers = 6;
-    double available_water = precip + irrigation;                // mm / hr
+    double available_water = precip + irrigation;  // mm / hr
     double constexpr mm_per_inch = 254;
     double soil_storage = mm_per_inch * (100.0 / curve_number - 1.0);  // mm / hr
 
@@ -194,9 +199,9 @@ void soil_surface_runoff::do_operation() const
         0.15 * ((soil_saturation_capacity[0] - soil_water_content[0]) /
                     (soil_saturation_capacity[0] - soil_wilting_point[0] * 0.5) +
                 (soil_saturation_capacity[1] - soil_water_content[1]) /
-                    (soil_saturation_capacity[1] - soil_wilting_point[1] * 0.5)); // unitless ratio
+                    (soil_saturation_capacity[1] - soil_wilting_point[1] * 0.5));  // unitless ratio
 
-    soil_initial_abstraction = std::max(0.0, soil_initial_abstraction); // unitless ratio
+    soil_initial_abstraction = std::max(0.0, soil_initial_abstraction);  // unitless ratio
 
     // Determine threshold amount of rainfall that will occur before
     //      runoff starts (mm / hr)
@@ -211,7 +216,7 @@ void soil_surface_runoff::do_operation() const
     }
 
     // Update the output quantity list
-    update(surface_runoff_op, surface_runoff);
+    update(surface_runoff_op, surface_runoff / timestep);
     update(soil_storage_op, soil_storage);
     update(pb_op, pb);
     update(soil_initial_abstraction_op, soil_initial_abstraction);
