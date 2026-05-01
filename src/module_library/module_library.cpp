@@ -211,7 +211,6 @@ creator_map standardBML::module_library::library_entries =
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
      {"stomata_water_stress_sigmoid",                          &create_mc<stomata_water_stress_sigmoid>},
-     {"surface_excess_water",                                  &create_mc<surface_excess_water>},
      {"ten_layer_c3_canopy",                                   &create_mc<ten_layer_c3_canopy>},
      {"ten_layer_c4_canopy",                                   &create_mc<ten_layer_c4_canopy>},
      {"ten_layer_canopy_integrator",                           &create_mc<ten_layer_canopy_integrator>},
