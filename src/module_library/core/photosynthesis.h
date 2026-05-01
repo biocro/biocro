@@ -105,12 +105,12 @@ struct CanopyIntegrand {
         LightProfile light_profile = canopy_light_model.get_light_profile(cumulative_lai);
 
         // Calculations for sunlit leaves.
-        double i_dir = light_profile.sunlit.incident_ppfd;       // micromol / m^2 / s
+        double i_dir = light_profile.sunlit.absorbed_ppfd;       // micromol / m^2 / s
         double j_dir = light_profile.sunlit.absorbed_shortwave;  // J / m^2 / s
         LeafAssim leaf_assim = leaf_photosynthesis(i_dir, j_dir, layer_wind_speed, layer_leafN) * light_profile.sunlit.fraction;
 
         // Calculations for shaded leaves.
-        double i_diff = light_profile.shaded.incident_ppfd;       // micromol / m^2 / s
+        double i_diff = light_profile.shaded.absorbed_ppfd;       // micromol / m^2 / s
         double j_diff = light_profile.shaded.absorbed_shortwave;  // J / m^2 / s
         leaf_assim += leaf_photosynthesis(i_diff, j_diff, layer_wind_speed, layer_leafN) * light_profile.shaded.fraction;
         return leaf_assim;
@@ -124,12 +124,12 @@ struct CanopyIntegrand {
     double wind_speed;
 };
 
-double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN)
+inline double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN)
 {
     return LeafN * std::exp(-kpLN * cumulative_lai);
 }
 
-double wind_speed_profile(double cumulative_lai, double wind_speed)
+inline double wind_speed_profile(double cumulative_lai, double wind_speed)
 {
     constexpr double k = 0.7;
     return wind_speed * std::exp(-k * cumulative_lai);
