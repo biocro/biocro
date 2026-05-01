@@ -102,7 +102,6 @@
 #include "stomata_water_stress_linear.h"
 #include "stomata_water_stress_linear_aba_response.h"
 #include "stomata_water_stress_sigmoid.h"
-#include "surface_excess_water.h"
 #include "thermal_time_and_frost_senescence.h"
 #include "thermal_time_beta.h"
 #include "thermal_time_bilinear.h"
