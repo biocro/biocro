@@ -54,6 +54,10 @@
  *  > layer(s), depending on their water holding capacity and actual soil water
  *  > content. Then saturated flow is calculated.
  *
+ *  Note: For some reason, this function should not be used when the potential
+ *  amount of infiltration is very small. Instead, the `satflo` function should
+ *  be used. This approach is taken in the `soil_water_downflow` module.
+ *
  *  ### Source
  *
  *  - [Ritchie, J. T. "Soil water balance and plant water stress" in "Understanding Options for Agricultural Production"
@@ -267,6 +271,10 @@ infilWater_str infil(
  *
  *  ### Model implementation
  *
+ *  For some reason, the `infil` function cannot be used when the potential
+ *  infiltration rate is very low. Instead, this function is used. This approach
+ *  is taken in the `soil_water_downflow` module.
+ *
  *  It is unknown whether these calculations are described in a publication.
  *  This function is based on the subroutine `SATFLO` from DSSAT. Here we have
  *  converted the units from a "per day" basis to a "per hour" basis.
@@ -282,10 +290,17 @@ infilWater_str infil(
  *  > layer below it.  If the sat. hyd. cond values are missing (neg) assume no
  *  > perching of water table.
  *
+ *  It is possible that these calculations are described in Suleiman and
+ *  Ritchie (2004), or one of the references cited in that paper.
+ *
  *  ### Source
  *
  *  - DSSAT Fortran source code:
  *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/SATFLO.for
+ *
+ *  - [Suleiman, A. A. & Ritchie, J. T. "MODIFICATIONS TO THE DSSAT VERTICAL DRAINAGE MODEL FOR
+ *    MORE ACCURATE SOIL WATER DYNAMICS ESTIMATION. Soil Science 169, 745 (2004)]
+ *    (https://doi.org/10.1097/01.ss.0000148740.90616.fd)
  */
 infilWater_str satflo(
     int const nlayers,                           // not a physical quantity
