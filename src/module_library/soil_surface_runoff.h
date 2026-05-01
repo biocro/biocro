@@ -12,6 +12,12 @@ namespace standardBML
  * @brief Calculates overland water runoff from the top two soil layers due to
  * inflow from precipitation and irrigation.
  *
+ * It is based off the RNOFF subroutine from DSSAT
+ * (https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/RNOFF.for)
+ * The DSSAT code implements the "Williams-SCS curve number technique."
+ * Williams et al. (2011) (https://doi.org/10.1061/(ASCE)HE.1943-5584.0000529)
+ * https://www.hec.usace.army.mil/confluence/rasdocs/ras1dtechref/6.4/overview-of-optional-capabilities/modeling-precipitation-and-infiltration/curve-number#:~:text=%E2%88%9210-,where,is%20in%20inches.,-The%20curve%20number
+ *
  */
 class soil_surface_runoff : public direct_module
 {
