@@ -219,8 +219,8 @@ string_vector soil_water_downflow::get_outputs()
 {
     return {
         "infiltrated_water",       // mm / hr. Water available for infiltration - rainfall minus runoff plus net irrigation
-        "excess_water",            // cm / hr. Excess water to be added to runoff
-        "drain",                   // mm. Drainage rate from soil profile.
+        "excess_water",            // mm / hr. Excess water to be added to runoff
+        "drain",                   // mm / hr. Drainage rate from soil profile.
 
         "deltaS_1",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 1
         "deltaS_2",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 2
@@ -331,8 +331,8 @@ void soil_water_downflow::do_operation() const
 
     // Update the output quantity list
     update(infiltrated_water_op, infiltrated_water);
-    update(excess_water_op, infilWater.excess_water);
-    update(drain_op, infilWater.drain);
+    update(excess_water_op, infilWater.excess_water_rate);
+    update(drain_op, infilWater.overall_drainage_rate);
 
     update(deltaS_1_op, infilWater.sw_delta_S[0]);
     update(deltaS_2_op, infilWater.sw_delta_S[1]);
@@ -341,12 +341,12 @@ void soil_water_downflow::do_operation() const
     update(deltaS_5_op, infilWater.sw_delta_S[4]);
     update(deltaS_6_op, infilWater.sw_delta_S[5]);
 
-    update(drn_1_op, infilWater.drn[0]);
-    update(drn_2_op, infilWater.drn[1]);
-    update(drn_3_op, infilWater.drn[2]);
-    update(drn_4_op, infilWater.drn[3]);
-    update(drn_5_op, infilWater.drn[4]);
-    update(drn_6_op, infilWater.drn[5]);
+    update(drn_1_op, infilWater.downward_flux[0]);
+    update(drn_2_op, infilWater.downward_flux[1]);
+    update(drn_3_op, infilWater.downward_flux[2]);
+    update(drn_4_op, infilWater.downward_flux[3]);
+    update(drn_5_op, infilWater.downward_flux[4]);
+    update(drn_6_op, infilWater.downward_flux[5]);
 }
 
 }  // namespace standardBML

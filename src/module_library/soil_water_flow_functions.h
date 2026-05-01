@@ -7,11 +7,10 @@ static int const max_soil_layers = 10;
  * @brief Structure for storing the output from `infil` and `satflo`.
  */
 struct infilWater_str {
-    double drain;                        // Drainage rate from soil profile (mm/hr)
-    double drn[max_soil_layers];         // Drainage rate through soil layer l (cm/hr)
-    double excess_water;                 // Excess water to be added to runoff (cm/hr)
-    double sw_delta_S[max_soil_layers];  // Change in soil water content due to drainage in layer l
-                                         // (cm3 [water] / cm3 [soil])
+    double overall_drainage_rate;           // mm / hr       - Drainage rate from the lowest soil layer
+    double downward_flux[max_soil_layers];  // cm / hr       - Rate of downward water flow out of this layer
+    double excess_water_rate;               // mm / hr       - Rate of excess water appearing at soil surface
+    double sw_delta_S[max_soil_layers];     // dimensionless - Change in soil water content due to downflow
 };
 
 struct upwardFlo_str {

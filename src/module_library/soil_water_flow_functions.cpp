@@ -75,10 +75,9 @@ infilWater_str infil(
     double const timestep                        // hr
 )
 {
-    // TO-DO: rename some of the outputs
-
     // Hard-coded constants
-    double constexpr swconrf = 0.9;  // dimensionless - swcon reduction factor
+    double constexpr mm_per_cm = 10.0;  // mm / cm
+    double constexpr swconrf = 0.9;     // dimensionless - swcon reduction factor
 
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
@@ -249,13 +248,14 @@ infilWater_str infil(
 
     // Any potential infiltration not absorbed by the soil profile flows out of
     // the bottom layer
-    return_value.drain = potential_infiltration * 10.0;  // mm
+    return_value.overall_drainage_rate =
+        potential_infiltration * mm_per_cm / timestep;  // mm / hr
 
     // Any excess infiltration at the top layer will contribute to runoff
-    return_value.excess_water = excess / timestep;  // cm / hr
+    return_value.excess_water_rate = excess * mm_per_cm / timestep;  // mm / hr
 
     for (int l = 0; l < nlayers; l++) {
-        return_value.drn[l] = downward_flux[l];                          // cm / hr
+        return_value.downward_flux[l] = downward_flux[l];                // cm / hr
         return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // dimensionless
     }
 
@@ -298,6 +298,9 @@ infilWater_str satflo(
     double const timestep                        // hr
 )
 {
+    // Specify hard-coded parameters
+    double constexpr mm_per_cm = 10.0;  // mm / cm
+
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
     double swdelts[nlayers];        // dimensionless - Change in soil water content due to drainage
@@ -389,19 +392,20 @@ infilWater_str satflo(
     }
 
     // Get the new soil water content in the top layer
-    swtemp[0] = swtemp[0] - downward_flux[0] / soil_depth[0];
+    swtemp[0] = swtemp[0] - downward_flux[0] / soil_depth[0];  // dimensionless
 
     infilWater_str return_value;
 
     // The drainage rate for the profile as a whole is the downward flux out of
     // the lowest layer
-    return_value.drain = downward_flux[nlayers - 1] * 10.0;  // mm
+    return_value.overall_drainage_rate =
+        downward_flux[nlayers - 1] * mm_per_cm;  // mm / hr
 
     // There is no excess water at the soil surface
-    return_value.excess_water = 0.0;  // cm / hr
+    return_value.excess_water_rate = 0.0;  // mm / hr
 
     for (int l = 0; l < nlayers; l++) {
-        return_value.drn[l] = downward_flux[l];                          // cm / hr
+        return_value.downward_flux[l] = downward_flux[l];                // cm / hr
         return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // dimensionless
     }
 
