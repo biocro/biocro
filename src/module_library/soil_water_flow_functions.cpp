@@ -83,12 +83,10 @@ infilWater_str infil(
 
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
-    double swdelts[nlayers];        // m^3 / m^3 - Change in soil water content due to drainage
     double swtemp[nlayers];         // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         downward_flux[l] = 0.0;             // cm / hr
-        swdelts[l] = 0.0;                   // m^3 / m^3
         swtemp[l] = soil_water_content[l];  // m^3 / m^3
     }
 
@@ -306,12 +304,10 @@ infilWater_str satflo(
 
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
-    double swdelts[nlayers];        // m^3 / m^3 - Change in soil water content due to drainage
     double swtemp[nlayers];         // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         downward_flux[l] = 0.0;             // cm / hr
-        swdelts[l] = 0.0;                   // m^3 / m^3
         swtemp[l] = soil_water_content[l];  // m^3 / m^3
     }
 
