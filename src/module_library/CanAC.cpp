@@ -133,7 +133,7 @@ canopy_photosynthesis_outputs CanAC(
         double i_dir = light_layer.sunlit_incident_ppfd;       // micromol / m^2 / s
         double j_dir = light_layer.sunlit_absorbed_shortwave;  // J / m^2 / s
         double pLeafsun = light_layer.sunlit_fraction;         // dimensionless. Fraction of LAI that is sunlit.
-        double Leafsun = LAIc * pLeafsun;                                       // dimensionless
+        double Leafsun = LAIc * pLeafsun;                      // dimensionless
 
         double direct_gsw_estimate =
             c4photoC(
@@ -152,7 +152,7 @@ canopy_photosynthesis_outputs CanAC(
                 gbw_canopy,
                 leafwidth,
                 RH,
-                direct_gsw_estimate,
+                current_gs,
                 layer_wind_speed);
 
             double leaf_temperature_dir =
@@ -185,7 +185,7 @@ canopy_photosynthesis_outputs CanAC(
         double i_diff = light_layer.shaded_incident_ppfd;       // micromol / m^2 / s
         double j_diff = light_layer.shaded_absorbed_shortwave;  // J / m^2 / s
         double pLeafshade = light_layer.shaded_fraction;        // dimensionless. Fraction of LAI that is shaded.
-        double Leafshade = LAIc * pLeafshade;                                    // dimensionless
+        double Leafshade = LAIc * pLeafshade;                   // dimensionless
 
         double diffuse_gsw_estimate =
             c4photoC(
