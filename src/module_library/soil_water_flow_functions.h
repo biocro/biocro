@@ -32,24 +32,26 @@ struct tileDrain_str {
 };
 
 infilWater_str infil(
-    int const nlayers,                          // not a physical quantity
-    double potential_infiltration,              // cm / hr
-    double const swcon,                         // hr^(-1)
-    double const soil_depth[],                  // cm
-    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_saturated_conductivity[]  // cm / hr
+    int const nlayers,                           // not a physical quantity
+    double const infiltration_rate,              // cm / hr
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
 );
 
 infilWater_str satflo(
-    int const nlayers,                          // not a physical quantity
-    double const swcon,                         // hr^(-1)
-    double const soil_depth[],                  // cm
-    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_saturated_conductivity[]  // cm / hr
+    int const nlayers,                           // not a physical quantity
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
 );
 
 upwardFlo_str up_flow(

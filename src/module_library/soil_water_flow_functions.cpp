@@ -64,23 +64,21 @@
  *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/INFIL.for
  */
 infilWater_str infil(
-    int const nlayers,                          // not a physical quantity
-    double potential_infiltration,              // cm
-    double const swcon,                         // hr^(-1)
-    double const soil_depth[],                  // cm
-    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_saturated_conductivity[]  // cm / hr
+    int const nlayers,                           // not a physical quantity
+    double const infiltration_rate,              // cm / hr
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
 )
 {
-    // TO-DO: Make timestep and infiltration rate inputs, rename some of the
-    // outputs. Then `potential_infiltration` can be defined here, where
-    // `excess` is defined.
+    // TO-DO: rename some of the outputs
 
     // Hard-coded constants
-    double constexpr swconrf = 0.9;   // dimensionless - swcon reduction factor
-    double constexpr timestep = 1.0;  // hr
+    double constexpr swconrf = 0.9;  // dimensionless - swcon reduction factor
 
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
@@ -94,7 +92,8 @@ infilWater_str infil(
     }
 
     // Initialize non-layer-dependent variables
-    double excess = 0.0;  // cm
+    double excess = 0.0;                                           // cm
+    double potential_infiltration = infiltration_rate * timestep;  // cm
 
     // For each layer, determine the downward flux and the new soil water
     // content
@@ -289,18 +288,16 @@ infilWater_str infil(
  *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/SATFLO.for
  */
 infilWater_str satflo(
-    int const nlayers,                          // not a physical quantity
-    double const swcon,                         // hr^(-1)
-    double const soil_depth[],                  // cm
-    double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],         // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_saturated_conductivity[]  // cm / hr
+    int const nlayers,                           // not a physical quantity
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
 )
 {
-    // Hard-coded constants
-    double constexpr timestep = 1.0;  // hr
-
     // Initialize layer-dependent variables
     double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
     double swdelts[nlayers];        // dimensionless - Change in soil water content due to drainage

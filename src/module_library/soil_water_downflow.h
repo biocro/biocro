@@ -77,7 +77,6 @@ class soil_water_downflow : public direct_module
 
           // Get pointers to output quantities
           infiltrated_water_op{get_op(output_quantities, "infiltrated_water")},
-          potential_infiltration_op{get_op(output_quantities, "potential_infiltration")},
           excess_water_op{get_op(output_quantities, "excess_water")},
           drain_op{get_op(output_quantities, "drain")},
 
@@ -150,7 +149,6 @@ class soil_water_downflow : public direct_module
 
     // Pointers to output quantities
     double* infiltrated_water_op;
-    double* potential_infiltration_op;
     double* excess_water_op;
     double* drain_op;
 
@@ -221,7 +219,6 @@ string_vector soil_water_downflow::get_outputs()
 {
     return {
         "infiltrated_water",       // mm / hr. Water available for infiltration - rainfall minus runoff plus net irrigation
-        "potential_infiltration",  // cm
         "excess_water",            // cm / hr. Excess water to be added to runoff
         "drain",                   // mm. Drainage rate from soil profile.
 
@@ -243,6 +240,8 @@ string_vector soil_water_downflow::get_outputs()
 
 void soil_water_downflow::do_operation() const
 {
+    // Define hard-coded parameter values
+    double constexpr timestep = 1.0;  // hr
     int nlayers = 6;
 
     double soil_depth[] = {
@@ -298,26 +297,26 @@ void soil_water_downflow::do_operation() const
         soil_sat_conductivity_6};  // cm / hr
 
     double infiltrated_water = available_water - surface_runoff;  // mm / hr
-    // Potential for infilitration
+
+    // Convert units
     double constexpr mm_to_cm = 0.1;  // cm / mm
-    double constexpr timestep = 1.0;  // hr
-    double potential_infiltration = infiltrated_water * mm_to_cm * timestep;  // cm
+    double const infiltrated_water_cm = infiltrated_water * mm_to_cm; // cm / hr
 
     infilWater_str infilWater;
 
     // Call INFIL to calculate infiltration rates on days with irrigation or rainfall.
     // Call SATFLO on days with no irrigation or rain to calculate saturated flow.
-    // double new_surface_runoff;
-    if (potential_infiltration > 0.0001) {
+    if (infiltrated_water_cm > 0.0001) {
         infilWater = infil(
             nlayers,
-            potential_infiltration,
+            infiltrated_water_cm,
             swcon,
             soil_depth,
             soil_saturation_capacity,
             soil_field_capacity,
             soil_water_content,
-            soil_saturated_conductivity);
+            soil_saturated_conductivity,
+            timestep);
     } else {
         infilWater = satflo(
             nlayers,
@@ -326,12 +325,12 @@ void soil_water_downflow::do_operation() const
             soil_saturation_capacity,
             soil_field_capacity,
             soil_water_content,
-            soil_saturated_conductivity);
+            soil_saturated_conductivity,
+            timestep);
     }
 
     // Update the output quantity list
     update(infiltrated_water_op, infiltrated_water);
-    update(potential_infiltration_op, potential_infiltration);
     update(excess_water_op, infilWater.excess_water);
     update(drain_op, infilWater.drain);
 
