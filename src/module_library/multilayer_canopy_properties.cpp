@@ -1,8 +1,7 @@
 #include <vector>
 #include "multilayer_canopy_properties.h"
-#include "BioCro.h"     // for WINDprof
-#include "AuxBioCro.h"  // for LNprof
-#include "core/canopy_light_distribution.h"
+#include "core/photosynthesis.h"             // for leaf_nitrogen_profile, wind_speed_profile
+#include "core/canopy_light_distribution.h"  // CanopyLight
 
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;
@@ -151,8 +150,8 @@ void multilayer_canopy_properties::run() const
 
         // windspeed is evaluated at top of layer, not midpoint
         double cumulative_lai_at_top = i * lai_per_layer;
-        update(windspeed_ops[i], wind_speed_profile(cumulative_lai_at_top, windspeed));
-        update(LeafN_ops[i], leaf_nitrogen_profile(cumulative_lai_at_top, LeafN, kpLN));
+        update(windspeed_ops[i], PhotoCore::wind_speed_profile(cumulative_lai_at_top, windspeed));
+        update(LeafN_ops[i], PhotoCore::leaf_nitrogen_profile(cumulative_lai_at_top, LeafN, kpLN));
     }
 
     // Update other outputs

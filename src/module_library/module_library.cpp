@@ -76,8 +76,6 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
-#include "root_onedim_test.h"
-#include "root_multidim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -117,7 +115,7 @@
 #include "water_vapor_properties_from_air_temperature.h"
 
 // modules for test
-#include "test_modules/broyden_test.h"
+#include "test_modules/root_multidim_test.h"
 #include "test_modules/root_onedim_test.h"
 
 creator_map standardBML::module_library::library_entries =
