@@ -68,9 +68,9 @@ infilWater_str infil(
     double const infiltration_rate,              // cm / hr
     double const swcon,                          // hr^(-1)
     double const soil_depth[],                   // cm
-    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturation_capacity[],     // m^3 / m^3
+    double const soil_field_capacity[],          // m^3 / m^3
+    double const soil_water_content[],           // m^3 / m^3
     double const soil_saturated_conductivity[],  // cm / hr
     double const timestep                        // hr
 )
@@ -80,14 +80,14 @@ infilWater_str infil(
     double constexpr swconrf = 0.9;     // dimensionless - swcon reduction factor
 
     // Initialize layer-dependent variables
-    double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
-    double swdelts[nlayers];        // dimensionless - Change in soil water content due to drainage
-    double swtemp[nlayers];         // dimensionless - Soil water content
+    double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
+    double swdelts[nlayers];        // m^3 / m^3 - Change in soil water content due to drainage
+    double swtemp[nlayers];         // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         downward_flux[l] = 0.0;             // cm / hr
-        swdelts[l] = 0.0;                   // dimensionless
-        swtemp[l] = soil_water_content[l];  // dimensionless
+        swdelts[l] = 0.0;                   // m^3 / m^3
+        swtemp[l] = soil_water_content[l];  // m^3 / m^3
     }
 
     // Initialize non-layer-dependent variables
@@ -139,14 +139,14 @@ infilWater_str infil(
 
             // Adjust the soil water content to account for water gained by
             // infiltration and lost through flux to lower soil layers
-            swtemp[l] = swtemp[l] + (potential_infiltration - downward_flux[l] * timestep) / soil_depth[l];  // dimensionless
+            swtemp[l] = swtemp[l] + (potential_infiltration - downward_flux[l] * timestep) / soil_depth[l];  // m^3 / m^3
 
             // The soil water content cannot exceed the saturation capacity
             if (swtemp[l] > soil_saturation_capacity[l]) {
                 // Restrict the soil water content and determine the amount of
                 // excess water
                 double tmpexcess = (swtemp[l] - soil_saturation_capacity[l]) * soil_depth[l];  // cm
-                swtemp[l] = soil_saturation_capacity[l];                                       // dimensionless
+                swtemp[l] = soil_saturation_capacity[l];                                       // m^3 / m^3
 
                 // If there is excess water in the top soil layer, it cannot be
                 // redistributed
@@ -172,7 +172,7 @@ infilWater_str infil(
 
                         // Adjust water content to account for excess water
                         // redistribution
-                        swtemp[lk] = swtemp[lk] + hold / soil_depth[lk];  // dimensionless
+                        swtemp[lk] = swtemp[lk] + hold / soil_depth[lk];  // m^3 / m^3
 
                         // Adjust flux from this layer to account for excess
                         // water redistribution
@@ -202,7 +202,7 @@ infilWater_str infil(
 
             // Adjust the soil water content to account for water gained by
             // infiltration
-            swtemp[l] = swtemp[l] + potential_infiltration / soil_depth[l];  // dimensionless
+            swtemp[l] = swtemp[l] + potential_infiltration / soil_depth[l];  // m^3 / m^3
 
             // The soil water content cannot exceed the saturation capacity;
             // drainage to lower layers would prevent this from happening
@@ -231,7 +231,7 @@ infilWater_str infil(
 
                 // Adjust the soil water content to account for water lost
                 // through drainage to lower soil layers
-                swtemp[l] = swtemp[l] - downward_flux[l] / soil_depth[l];  // dimensionless
+                swtemp[l] = swtemp[l] - downward_flux[l] / soil_depth[l];  // m^3 / m^3
 
                 // The potential infiltration for the next layer (below this one)
                 // is equal to the total flux out of this layer
@@ -256,7 +256,7 @@ infilWater_str infil(
 
     for (int l = 0; l < nlayers; l++) {
         return_value.downward_flux[l] = downward_flux[l];                // cm / hr
-        return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // dimensionless
+        return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // m^3 / m^3
     }
 
     return return_value;
@@ -291,9 +291,9 @@ infilWater_str satflo(
     int const nlayers,                           // not a physical quantity
     double const swcon,                          // hr^(-1)
     double const soil_depth[],                   // cm
-    double const soil_saturation_capacity[],     // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_field_capacity[],          // dimensionless from (m^3 water) / (m^3 soil)
-    double const soil_water_content[],           // dimensionless from (m^3 water) / (m^3 soil)
+    double const soil_saturation_capacity[],     // m^3 / m^3
+    double const soil_field_capacity[],          // m^3 / m^3
+    double const soil_water_content[],           // m^3 / m^3
     double const soil_saturated_conductivity[],  // cm / hr
     double const timestep                        // hr
 )
@@ -302,14 +302,14 @@ infilWater_str satflo(
     double constexpr mm_per_cm = 10.0;  // mm / cm
 
     // Initialize layer-dependent variables
-    double downward_flux[nlayers];  // cm / hr       - Total downward water flux (drainage and infiltration)
-    double swdelts[nlayers];        // dimensionless - Change in soil water content due to drainage
-    double swtemp[nlayers];         // dimensionless - Soil water content
+    double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
+    double swdelts[nlayers];        // m^3 / m^3 - Change in soil water content due to drainage
+    double swtemp[nlayers];         // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         downward_flux[l] = 0.0;             // cm / hr
-        swdelts[l] = 0.0;                   // dimensionless
-        swtemp[l] = soil_water_content[l];  // dimensionless
+        swdelts[l] = 0.0;                   // m^3 / m^3
+        swtemp[l] = soil_water_content[l];  // m^3 / m^3
     }
 
     // For each layer, determine the downward flux and the new soil water
@@ -360,11 +360,11 @@ infilWater_str satflo(
     for (int l = nlayers - 1; l >= 1; l--) {
         // Keep a record of the initial soil water content in case the flux
         // needs to be adjusted
-        double const soil_water_old = swtemp[l];  // dimensionless
+        double const soil_water_old = swtemp[l];  // m^3 / m^3
 
         // The soil water content increases due to downward flux from the layer
         // above and decreases due to downward flux out of this layer
-        swtemp[l] = swtemp[l] + (downward_flux[l - 1] - downward_flux[l]) / soil_depth[l];  // dimensionless
+        swtemp[l] = swtemp[l] + (downward_flux[l - 1] - downward_flux[l]) / soil_depth[l];  // m^3 / m^3
 
         // The soil water content cannot exceed the saturation capacity
         if (swtemp[l] > soil_saturation_capacity[l]) {
@@ -392,7 +392,7 @@ infilWater_str satflo(
     }
 
     // Get the new soil water content in the top layer
-    swtemp[0] = swtemp[0] - downward_flux[0] / soil_depth[0];  // dimensionless
+    swtemp[0] = swtemp[0] - downward_flux[0] / soil_depth[0];  // m^3 / m^3
 
     infilWater_str return_value;
 
@@ -406,7 +406,7 @@ infilWater_str satflo(
 
     for (int l = 0; l < nlayers; l++) {
         return_value.downward_flux[l] = downward_flux[l];                // cm / hr
-        return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // dimensionless
+        return_value.sw_delta_S[l] = swtemp[l] - soil_water_content[l];  // m^3 / m^3
     }
 
     return return_value;
