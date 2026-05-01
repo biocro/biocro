@@ -44,7 +44,6 @@ infilWater_str infil(
 
 infilWater_str satflo(
     int const nlayers,                          // not a physical quantity
-    double potential_infiltration,              // cm
     double const swcon,                         // hr^(-1)
     double const soil_depth[],                  // cm
     double const soil_saturation_capacity[],    // dimensionless from (m^3 water) / (m^3 soil)
