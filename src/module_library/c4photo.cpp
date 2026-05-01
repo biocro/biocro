@@ -167,6 +167,7 @@ photosynthesis_outputs c4photoC(
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .RL = */ RT,                             // micromol / m^2 / s
         /* .Rp = */ 0,                              // micromol / m^2 / s
-        /* .result = */ result
+        /* .residual = */ result.residual,          // micromol / m^2 / s
+        /* .iteration = */ result.iteration         // not a physical quantity
     };
 }

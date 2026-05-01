@@ -1,7 +1,8 @@
 #ifndef PHOTOSYNTHESIS_OUTPUTS_H
 #define PHOTOSYNTHESIS_OUTPUTS_H
 
-#include "../math/roots/onedim/roots.h" // for result
+#include <cstddef>  // for size_t
+
 /**
  * @brief A simple structure for holding the output of photosynthesis
  * calculations.
@@ -16,7 +17,8 @@ struct photosynthesis_outputs {
     double RHs;                //!< Relative humidity at the leaf surface (dimensionless)
     double RL;                 //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
     double Rp;                 //!< Rate of photorespiration (micromol / m^2 / s)
-    root_finding::result_t solver_result;       
+    double residual;           //!< Equals zero if loop has converged (micromol / m^2 / s)
+    size_t iteration;          //!< Number of iterations used by convergence loop
 };
 
 #endif

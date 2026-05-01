@@ -1,57 +1,61 @@
 #include <vector>
-#include "../framework/constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
-#include "BioCro.h"                  // for WINDprof
-#include "c3photo.h"                 // for c3photoC
-#include "leaf_energy_balance.h"     // for leaf_energy_balance
-#include "lightME.h"                 // for lightME
-#include "respiration.h"             // for growth_resp
-#include "sunML.h"                   // for sunML
+#include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
+#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "BioCro.h"                            // for WINDprof
+#include "c3photo.h"                           // for c3photoC
+#include "leaf_energy_balance.h"               // for leaf_energy_balance
+#include "lightME.h"                           // for lightME
+#include "respiration.h"                       // for growth_resp
+#include "sunML.h"                             // for sunML
 #include "c3CanAC.h"
 
 canopy_photosynthesis_outputs c3CanAC(
     c3_temperature_response_parameters const tr_param,
-    double absorbed_longwave,            // J / m^2 / s
-    double ambient_temperature,          // degrees C
-    double atmospheric_pressure,         // Pa
-    double atmospheric_scattering,       // dimensionless
-    double atmospheric_transmittance,    // dimensionless
-    double b0,                           // mol / m^2 / s
-    double b1,                           // dimensionless
-    double beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
-    double Catm,                         // ppm
-    double chil,                         // dimensionless
-    double cosine_zenith_angle,          // dimensionless
-    double electrons_per_carboxylation,  // self-explanatory units
-    double electrons_per_oxygenation,    // self-explanatory units
-    double gbw_canopy,                   // m / s
-    double growth_respiration_fraction,  // dimensionless
-    double Gs_min,                       // mol / m^2 / s
-    double heightf,                      // m^(-1)
-    double Jmax_at_25,                   // micromol / m^2 / s
-    double k_diffuse,                    // dimensionless
-    double kpLN,
-    double LAI,                     // dimensionless
-    double leaf_reflectance_nir,    // dimensionless
-    double leaf_reflectance_par,    // dimensionless
-    double leaf_transmittance_nir,  // dimensionless
-    double leaf_transmittance_par,  // dimensionless
-    double leaf_width,              // m
-    double leafN,
-    double lnb0,  // micromol / m^2 / s
-    double lnb1,
-    double o2,                   // mmol / mol
-    double par_energy_content,   // J / micromol
-    double par_energy_fraction,  // dimensionless
-    double RH,                   // Pa / Pa
-    double RL_at_25,             // micromol / m^2 / s
-    double solarR,               // micromol / m^2 / s
-    double StomataWS,            // dimensionless
-    double Tp_at_25,             // micromol / m^2 / s
-    double Vcmax_at_25,          // micromol / m^2 / s
-    double WindSpeed,            // m / s
-    double WindSpeedHeight,      // m
-    int lnfun,                   // dimensionless switch
-    int nlayers                  // dimensionless
+    double const absorbed_longwave,            // J / m^2 / s
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const atmospheric_scattering,       // dimensionless
+    double const atmospheric_transmittance,    // dimensionless
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
+    double const Catm,                         // ppm
+    double const chil,                         // dimensionless
+    double const cosine_zenith_angle,          // dimensionless
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw_canopy,                   // m / s
+    double const growth_respiration_fraction,  // dimensionless
+    double const Gs_min,                       // mol / m^2 / s
+    double const Gstar_at_25,                  // micromol / mol
+    double const heightf,                      // m^(-1)
+    double const Jmax_at_25,                   // micromol / m^2 / s
+    double const k_diffuse,                    // dimensionless
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
+    double const kpLN,
+    double const LAI,                     // dimensionless
+    double const leaf_reflectance_nir,    // dimensionless
+    double const leaf_reflectance_par,    // dimensionless
+    double const leaf_transmittance_nir,  // dimensionless
+    double const leaf_transmittance_par,  // dimensionless
+    double const leaf_width,              // m
+    double const leafN,
+    double const lnb0,  // micromol / m^2 / s
+    double const lnb1,
+    double const o2,                   // mmol / mol
+    double const par_energy_content,   // J / micromol
+    double const par_energy_fraction,  // dimensionless
+    double const RH,                   // Pa / Pa
+    double const RL_at_25,             // micromol / m^2 / s
+    double const solarR,               // micromol / m^2 / s
+    double const StomataWS,            // dimensionless
+    double const Tp_at_25,             // micromol / m^2 / s
+    double Vcmax_at_25,                // micromol / m^2 / s
+    double const WindSpeed,            // m / s
+    double const WindSpeedHeight,      // m
+    int const lnfun,                   // dimensionless switch
+    int const nlayers                  // dimensionless
 )
 {
     Light_model const light_model = lightME(
@@ -65,7 +69,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    const Light_profile light_profile = sunML(
+    const LightProfile light_profile = sunML(
         q_dir,
         q_diff,
         chil,
@@ -100,6 +104,16 @@ canopy_photosynthesis_outputs c3CanAC(
 
     double gbw_guess{1.2};  // mol / m^2 / s
 
+    energy_balance_outputs et_direct;
+    energy_balance_outputs et_diffuse;
+    photosynthesis_outputs direct_photo;
+    photosynthesis_outputs diffuse_photo;
+
+    using namespace root_finding;
+
+    // Set convergence criteria
+    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+
     for (int i = 0; i < nlayers; ++i) {
         // Calculations that are the same for sunlit and shaded leaves
         int current_layer = nlayers - 1 - i;
@@ -111,90 +125,118 @@ canopy_photosynthesis_outputs c3CanAC(
 
         double layer_wind_speed = wind_speed_profile[current_layer];  // m / s
 
+        const LightProfile::Layer& light_layer = light_profile[current_layer];
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_dir = light_profile.sunlit_absorbed_ppfd[current_layer];    // micromol / m^2 / s
-        double j_dir = light_profile.sunlit_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];         // dimensionless
+        double iabs_dir = light_layer.sunlit_absorbed_ppfd;    // micromol / m^2 / s
+        double j_dir = light_layer.sunlit_absorbed_shortwave;  // J / m^2 / s
+        double pLeafsun = light_layer.sunlit_fraction;         // dimensionless
         double Leafsun = LAIc * pLeafsun;                                       // dimensionless
 
+        // Initial guess
         double direct_gsw_estimate =
             c3photoC(
                 tr_param, iabs_dir, ambient_temperature, ambient_temperature,
-                RH, Vcmax_at_25, Jmax_at_25,
+                RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
-        energy_balance_outputs et_direct = leaf_energy_balance(
-            absorbed_longwave,
-            j_dir,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leaf_width,
-            RH,
-            direct_gsw_estimate,
-            layer_wind_speed);
+        auto func_direct = [=, &direct_photo, &et_direct](double current_gs) {
+            et_direct = leaf_energy_balance(
+                absorbed_longwave,
+                j_dir,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leaf_width,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-        double leaf_temperature_dir = ambient_temperature + et_direct.Deltat;  // degrees C
+            double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
 
-        photosynthesis_outputs direct_photo =
-            c3photoC(
-                tr_param, iabs_dir, leaf_temperature_dir, ambient_temperature,
-                RH, Vcmax_at_25, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et_direct.gbw_molecular);
+            direct_photo =
+                c3photoC(
+                    tr_param, iabs_dir, leaf_temperature_dir,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
+                    electrons_per_carboxylation, electrons_per_oxygenation,
+                    beta_PSII, et_direct.gbw_molecular);
+
+            return direct_photo.Gs;
+        };
+
+        result_t result_direct = solver.solve(func_direct, direct_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_direct.flag)) {
+            throw std::runtime_error(
+                "c3Canopy direct solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_direct.flag));
+        }
 
         // Calculations for shaded leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double iabs_diff = light_profile.shaded_absorbed_ppfd[current_layer];    // micromol / m^2 /s
-        double j_diff = light_profile.shaded_absorbed_shortwave[current_layer];  // J / m^2 / s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];        // dimensionless
+        double iabs_diff = light_layer.shaded_absorbed_ppfd;    // micromol / m^2 /s
+        double j_diff = light_layer.shaded_absorbed_shortwave;  // J / m^2 / s
+        double pLeafshade = light_layer.shaded_fraction;        // dimensionless
         double Leafshade = LAIc * pLeafshade;                                    // dimensionless
 
+        // Initial guess
         double diffuse_gsw_estimate =
             c3photoC(
                 tr_param, iabs_diff, ambient_temperature, ambient_temperature,
-                RH, Vcmax_at_25, Jmax_at_25,
+                RH, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS,
-                electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, gbw_guess)
+                o2, StomataWS, electrons_per_carboxylation,
+                electrons_per_oxygenation, beta_PSII, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
-        energy_balance_outputs et_diffuse = leaf_energy_balance(
-            absorbed_longwave,
-            j_diff,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leaf_width,
-            RH,
-            diffuse_gsw_estimate,
-            layer_wind_speed);
+        auto func_diffuse = [=, &diffuse_photo, &et_diffuse](double current_gs) {
+            et_diffuse = leaf_energy_balance(
+                absorbed_longwave,
+                j_diff,
+                atmospheric_pressure,
+                ambient_temperature,
+                gbw_canopy,
+                leaf_width,
+                RH,
+                current_gs,
+                layer_wind_speed);
 
-        double leaf_temperature_Idiffuse = ambient_temperature + et_diffuse.Deltat;  // degrees C
+            double leaf_temperature_Idiffuse =
+                ambient_temperature + et_diffuse.Deltat;  // degrees C
 
-        photosynthesis_outputs diffuse_photo =
-            c3photoC(
-                tr_param, iabs_diff, leaf_temperature_Idiffuse, ambient_temperature,
-                RH, Vcmax_at_25,
-                Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm,
-                atmospheric_pressure, o2, StomataWS,
-                electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII,
-                et_diffuse.gbw_molecular);
+            diffuse_photo =
+                c3photoC(
+                    tr_param, iabs_diff, leaf_temperature_Idiffuse,
+                    ambient_temperature, RH, Gstar_at_25, Kc_at_25, Ko_at_25,
+                    Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min,
+                    Catm, atmospheric_pressure, o2, StomataWS,
+                    electrons_per_carboxylation, electrons_per_oxygenation,
+                    beta_PSII, et_diffuse.gbw_molecular);
+
+            return diffuse_photo.Gs;
+        };
+
+        result_t result_diffuse = solver.solve(func_diffuse, diffuse_gsw_estimate);
+
+        // Throw exception if not converged
+        if (!is_successful(result_diffuse.flag)) {
+            throw std::runtime_error(
+                "c3Canopy diffuse solver reports failed convergence with termination flag:\n    " +
+                flag_message(result_diffuse.flag));
+        }
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s

@@ -1,177 +1,273 @@
-#ifndef ROOT_MULTIDIM_H
-#define ROOT_MULTIDIM_H
+#ifndef ZEROS_MULTIDIM_H
+#define ZEROS_MULTIDIM_H
 
 #include <array>
 #include <algorithm>  // std::swap
 #include <cmath>      // std::sqrt, std::isnan
-#include <numeric>    // std::inner_product
 
-// #include <iostream>
-
+#include "../../linalg/base.h"
 namespace root_multidim
 {
-// termination states
+/**
+ * @brief Termination status codes for zero-finding solvers.
+ *
+ * Returned inside result_t to indicate why iteration stopped.
+ * Successful termination is indicated by `residual_zero` or `delta_x_zero`;
+ * all other values indicate failure or a limit was reached.
+ */
 enum class Flag {
-    residual_zero,
-    delta_x_zero,
-    zero_is_nonfinite,
-    max_iterations,
-    function_is_nonfinite
+    residual_zero,          // f(x) == 0
+    delta_x_zero,           // current_x == last_x
+    zero_is_nonfinite,      // x = NaN, Inf, -Inf,
+    max_iterations,         //
+    function_is_nonfinite,  // f(x) = NaN, Inf, -Inf,
+    singular_matrix         // Esimtate
 };
 
-template <size_t dim>
+/**
+ * @brief Holds the outcome of a zero-finding solve.
+ *
+ * Aggregates the final estimate, residual, iteration count, and the
+ * reason iteration stopped.
+ *
+ * @tparam Dim Dimension of the system (number of equations = unknowns).
+ */
+template <size_t Dim>
 struct result_t {
-    std::array<double, dim> zero;
-    std::array<double, dim> residual;
+    std::array<double, Dim> zero;
+    std::array<double, Dim> residual;
     size_t iteration;
     Flag flag;
+    bool success;
+
+    result_t(
+        std::array<double, Dim> const& x,
+        std::array<double, Dim> const& y,
+        size_t i,
+        Flag f,
+        bool success) : zero{x},
+                        residual{y},
+                        iteration{i},
+                        flag{f},
+                        success{success} {}
 };
 
-template <size_t dim, typename Method>
+enum class Status {
+    ok,         // valid state, ok to continue iteration
+    invalid,    // invalid inputs, do not iterate
+    converged,  // successful termination
+    failed      // failed to converge
+};
+/**
+ * @brief CRTP base class for iterative zero-finding methods.
+ *
+ * Provides the outer solve loop, convergence tolerance helpers, and
+ * result packaging. Concrete methods (e.g. `broyden<Dim>`) derive from
+ * this class via the Curiously Recurring Template Pattern and must
+ * implement three member functions:
+ *
+ * | Function        | Signature                                    | Purpose                                                   |
+ * |-----------------|----------------------------------------------|-----------------------------------------------------------|
+ * | `initialize`    | `Status initialize(F&& fun, Args&&... args)` | Set up state from the initial guess                       |
+ * | `iterate`       | `Status iterate(F&& fun)`                    | Perform one iteration of the method (e.g., Newton update) |
+ * | `has_converged` | `Status has_converged()`                     | Check if stopping criteria is met.                        |
+ *
+ * Each function returns a `Status` enum class; these are status codes, that allow the method
+ * to communicate success or failure to this interface class.
+ *
+ * | `Status`            | Meaning                                                                            |
+ * |---------------------|------------------------------------------------------------------------------------|
+ * | `Status::ok`        | Iteration state is valid but has not converged. Ok to continue iteration           |
+ * | `Status::invalid`   | Iteration state is invalid; initial guess does not satisfy requirements of method  |
+ * | `Status::converged` | Iteration state meets convergence or tolerance criteria.                           |
+ * | `Status::failed`    | Iteration state has failed to converge (e.g., exceeded maximum iterations)         |
+ *
+ *
+ * The derived class must also expose `zero()` and `residual()` accessors
+ * returning `std::array<double, Dim>`.
+ *
+ * @tparam Dim    Dimension of the system.
+ * @tparam Method Concrete derived type (CRTP parameter).
+ *
+ * @par Typical usage (via a concrete method such as broyden)
+ * @code
+ * broyden<2> solver(200, 1e-10, 1e-10); // max_iter, abs_tol, rel_tol
+ *
+ * auto f = [](std::array<double, 2> x) -> std::array<double, 2> {
+ *     return { x[0]*x[0] + x[1] - 1.0,
+ *              x[0]      - x[1]*x[1] };
+ * };
+ *
+ * result_t<2> res = solver(f, std::array<double,2>{0.5, 0.5});
+ *
+ * if (res.success) {
+ *     // success — use res.zero
+ * }
+ * @endcode
+ *
+ * @note Tolerances apply dimension-aware norms: the vector overload of
+ *       `is_zero()` tests @f$ \|y\| < \varepsilon_\text{abs} +
+ *       \varepsilon_\text{rel}\|x\| @f$, so convergence criteria scale
+ *       consistently with problem size.
+ */
+template <size_t Dim, typename Method>
 struct zero_finding_method {
-    // declare types for solving
-    using vec_t = std::array<double, dim>;
-    using mat_t = std::array<vec_t, dim>;
-    using result_type = result_t<dim>;
-
-    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol) : max_iterations{max_iter}, _abs_tol{abs_tol}, _rel_tol{rel_tol} {}
-    // zero_finding_method(size_t max_iter, const double& abs_tol, const double& rel_tol) : max_iterations{max_iter}, _abs_tol{abs_tol}, _rel_tol{rel_tol} {}
-
-    size_t max_iterations = 100;
-    double _abs_tol = 1e-12;
-    double _rel_tol = 1e-12;
-    bool is_valid;
-    Flag flag;
-
-    template <typename F, typename... Args>
-    result_type solve(F&& fun, Args&&... args)
+    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol)
+        : max_iterations{max_iter},
+          _abs_tol{abs_tol},
+          _rel_tol{rel_tol}
     {
-        is_valid = static_cast<Method*>(this)->initialize(std::forward<F>(fun), std::forward<Args>(args)...);
+    }
+    zero_finding_method() = default;
+
+    // --- configuration --------------------------------------------------------
+
+    size_t max_iterations = 100;  ///< Maximum iterations before `Flag::max_iterations` is set.
+    double _abs_tol = 1e-12;      ///< Absolute tolerance used to test for `f(x) == 0`.
+    double _rel_tol = 1e-12;      ///< Relative tolerance used to test if `x == y`.
+
+    // --- state ----------------------------------------------------------------
+
+    Flag flag;                   ///< Reason for termination
+    Status status = Status::ok;  ///< Iteration status
+
+    // --- primary interface ----------------------------------------------------
+
+    /**
+     * @brief Runs the full solve loop.
+     *
+     * Calls `initialize`, then repeatedly calls `iterate` and
+     * `has_converged` until convergence, a failure signal, or
+     * `max_iterations` is reached.
+     *
+     * @tparam F    Callable representing the function whose zero is sought.
+     * @tparam Args Types of any additional arguments forwarded to `initialize`
+     *              (typically the initial guess).
+     * @param fun  The function f : R^Dim → R^Dim.
+     * @param args Additional arguments forwarded to `Method::initialize`.
+     * @return A `result_t<Dim>` describing the outcome.
+     */
+    template <typename F, typename... Args>
+    result_t<Dim> solve(F&& fun, Args&&... args)
+    {
+        // `initialize` internal state; forward method-specific arguments
+        // `initialize` checks if inputs satisfy requirements
+        status = static_cast<Method*>(this)->initialize(std::forward<F>(fun), std::forward<Args>(args)...);
+
+        // iteration loop;
+        // i counts the number of times `iterate` has been called
         for (size_t i = 0; i <= max_iterations; ++i) {
-            if (!is_valid) {
+            if (status != Status::ok) {
                 return make_result(i);
             }
 
-            is_valid = static_cast<Method*>(this)->iterate(std::forward<F>(fun));
+            status = static_cast<Method*>(this)->iterate(std::forward<F>(fun));
 
-            if (is_valid) {
-                is_valid = !(static_cast<Method*>(this)->has_converged());
+            if (status == Status::ok) {
+                status = static_cast<Method*>(this)->has_converged();
             }
         }
         flag = Flag::max_iterations;
         return make_result(max_iterations);
     }
 
+    /**
+     * @brief Convenience operator — equivalent to calling solve().
+     *
+     * Allows a solver object to be used as a callable:
+     * @code
+     *   result_t<N> res = solver(f, guess);
+     * @endcode
+     */
     template <typename F, typename... Args>
-    inline result_type operator()(F&& fun, Args&&... args)
+    inline result_t<Dim> operator()(F&& fun, Args&&... args)
     {
         return solve(std::forward<F>(fun), std::forward<Args>(args)...);
     }
 
    protected:
-    result_type make_result(size_t i)
+    // --- helpers available to derived classes ---------------------------------
+
+    /**
+     * @brief Packages the current solver state into a result_t.
+     * @param i Iteration index at the time of termination.
+     * @return  A `result_t` populated from the derived class's `zero()`,
+     *          `residual()`, and `this->flag`.
+     */
+    result_t<Dim> make_result(size_t i)
     {
-        result_type out;
-        out.zero = static_cast<Method*>(this)->zero();
-        out.residual = static_cast<Method*>(this)->residual();
-        out.iteration = i;
-        return out;
+        return result_t<Dim>(
+            static_cast<Method*>(this)->zero(),
+            static_cast<Method*>(this)->residual(),
+            i,
+            flag,
+            status == Status::converged);
     }
-    // All methods require tolerance-based floating point number equality tests.
-    // Are two floating point numbers equal?
-    // Equality is lax if both `x` and `y` are big.
+
+    /**
+     * @brief Scalar approximate-equality test with mixed absolute/relative tolerance.
+     *
+     * Returns `true` when
+     * @f$ |x - y| \le \max(\varepsilon_\text{abs},\, \varepsilon_\text{rel} \cdot \min(|x|,|y|)) @f$.
+     *
+     * The tolerance is anchored to the *smaller* magnitude, so equality is
+     * easier to satisfy when both values are large (lax near infinity) and
+     * harder when both are near zero (tight near the origin).
+     *
+     * @param x First value.
+     * @param y Second value.
+     * @return `true` if x and y are considered equal under the configured tolerances.
+     */
     inline bool is_close(double x, double y) const
     {
         double norm = std::min(std::abs(x), std::abs(y));
         return std::abs(x - y) <= std::max(_abs_tol, _rel_tol * norm);
     }
 
-    // Is a floating point number zero?
+    /**
+     * @brief Scalar zero test.
+     * @param x Value to test.
+     * @return `true` if @f$ |x| \le \varepsilon_\text{abs} @f$.
+     */
     inline bool is_zero(double x) const
     {
         return std::abs(x) <= _abs_tol;
     }
 
-    // floating point errors can increase with dimension
-    inline bool is_zero(const vec_t& y, const vec_t& x) const
+    /**
+     * @brief Vector zero test with dimension-aware mixed tolerance.
+     *
+     * Returns `true` when
+     * @f$ \|y\| < \varepsilon_\text{abs} + \varepsilon_\text{rel}\|x\| @f$.
+     *
+     * Using the norm of the current iterate `x` as the relative scale means
+     * the effective tolerance grows with the solution magnitude and does not
+     * tighten spuriously for large-valued problems.
+     *
+     * @param y Residual vector (the quantity being tested for smallness).
+     * @param x Current zero estimate (provides the relative scale).
+     * @return `true` if `y` is considered zero relative to `x`.
+     */
+    inline bool is_zero(
+        linalg::vector<double, Dim> const& y,
+        linalg::vector<double, Dim> const& x) const
     {
-        double ysq = std::inner_product(y.cbegin(), y.cend(), y.cbegin(), 0.0);
-        double xsq = std::inner_product(x.cbegin(), x.cend(), x.cbegin(), 0.0);
+        double ysq = linalg::dot(y, y);
+        double xsq = linalg::dot(x, x);
         return std::sqrt(ysq) < _abs_tol + _rel_tol * std::sqrt(xsq);
     }
 
-    inline bool is_nan(const vec_t& x) const
+    /**
+     * @brief Checks whether any component of a vector is NaN.
+     * @param x Vector to inspect.
+     * @return `true` if at least one component satisfies `std::isnan`.
+     */
+    inline bool is_nan(linalg::vector<double, Dim> const& x) const
     {
         for (const double& v : x) {
             if (std::isnan(v)) return true;
         }
         return false;
-    }
-
-    inline mat_t identity()
-    {
-        mat_t
-            out;
-        for (size_t i = 0; i < dim; ++i) {
-            for (size_t j = 0; j < dim; ++j) {
-                out[i][j] = 0;
-                if (i == j)
-                    out[i][j] = 1;
-            }
-        }
-        return out;
-    }
-
-    // inline mat_t invert(const mat_t& A)
-    // {
-    //     mat_t out = identity();
-    //     double b;
-    //     // gauss seidel method
-    //     for (size_t iteration = 0; iteration < 100; ++iteration) {
-    //         for (size_t i = 0; i < dim; ++i) {
-    //             for (size_t k = 0; k < dim; ++k) {
-    //                 b = i == k ? 1 : 0;
-    //                 out[i][k] = b;
-    //                 for (size_t j = 0; j < dim; ++j) {
-    //                     if (j != i)
-    //                         out[i][k] -= A[i][j] * out[j][k];
-    //                 }
-    //                 out[i][k] /= A[i][i];
-
-    //                 if (std::isnan(out[i][k])) {
-    //                     return identity();
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return out;
-    // }
-
-    // template <>
-    // inline mat_t<2> invert(const mat_t<2>& A)
-    // {
-    //     mat_t<2> out;
-    //     // analytic formula
-    //     double det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
-    //     out[0][0] = A[1][1] / det;
-    //     out[0][1] = -A[0][1] / det;
-    //     out[1][0] = -A[1][0] / det;
-    //     out[1][1] = A[0][0] / det;
-    //     return out;
-    // }
-
-    inline double dot(const vec_t& u, const vec_t& v)
-    {
-        return std::inner_product(u.cbegin(), u.cend(), v.cbegin(), 0.0);
-    }
-
-    vec_t dot(const mat_t& A, const vec_t& v)
-    {
-        vec_t out;
-        for (size_t i = 0; i < v.size(); ++i) {
-            out[i] = dot(A[i], v);
-        }
-        return out;
     }
 };
 

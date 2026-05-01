@@ -1,21 +1,51 @@
 #ifndef SUNML_H
 #define SUNML_H
 
-#include "AuxBioCro.h"  // for MAXLAY
+#include <string>
+#include <cmath>
+#include <stdexcept>
+#include <vector>
 
-struct Light_profile {
+struct LightProfile {
+    struct Layer {
+        double height;                       // m
+        double shaded_absorbed_ppfd;         // micromol / (m^2 leaf) / s
+        double shaded_absorbed_shortwave;    // J / (m^2 leaf) / s
+        double shaded_fraction;              // dimensionless
+        double shaded_incident_nir;          // J / (m^2 leaf) / s
+        double shaded_incident_ppfd;         // micromol / (m^2 leaf) / s
+        double sunlit_absorbed_ppfd;         // micromol / (m^2 leaf) / s
+        double sunlit_absorbed_shortwave;    // J / (m^2 leaf) / s
+        double sunlit_fraction;              // dimensionless
+        double sunlit_incident_nir;          // J / (m^2 leaf) / s
+        double sunlit_incident_ppfd;         // micromol / (m^2 leaf) / s
+    };
+
     double canopy_direct_transmission_fraction;  // dimensionless
-    double height[MAXLAY];                       // m
-    double shaded_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double shaded_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double shaded_fraction[MAXLAY];              // dimensionless
-    double shaded_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double shaded_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
-    double sunlit_absorbed_shortwave[MAXLAY];    // J / (m^2 leaf) / s
-    double sunlit_fraction[MAXLAY];              // dimensionless
-    double sunlit_incident_nir[MAXLAY];          // J / (m^2 leaf) / s
-    double sunlit_incident_ppfd[MAXLAY];         // micromol / (m^2 leaf) / s
+
+    std::vector<Layer> layers;
+
+    // default initialize to nlayers
+    explicit LightProfile(size_t nlayers) : layers(nlayers) {}
+
+    size_t nlayers() const { return layers.size(); }
+
+    Layer& operator[](size_t idx) {
+        return layers[idx];
+    }
+
+    const Layer& operator[](size_t idx) const {
+        return layers[idx];
+    }
+
+    // with bounds checking
+    Layer& at(size_t idx) {
+        return layers.at(idx);
+    }
+
+    const Layer& at(size_t idx) const {
+        return layers.at(idx);
+    }
 };
 
 double thin_layer_absorption(
@@ -71,7 +101,7 @@ double shaded_radiation(
     double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
-Light_profile sunML(
+LightProfile sunML(
     double ambient_ppfd_beam,       // micromol / (m^2 beam) / s
     double ambient_ppfd_diffuse,    // micromol / m^2 / s
     double chil,                    // dimensionless from m^2 / m^2

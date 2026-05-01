@@ -15,8 +15,9 @@ namespace standardBML
  *
  *  This module is not intended for use in crop models. Rather, it enables
  *  investigations into the leaf energy balance equations. To solve them, a
- *  value of `leaf_temperature` must be found such that `leaf_temp_check` is
- *  zero. See `leaf_energy_balance()` for more information.
+ *  value of `leaf_temperature` must be found such that
+ *  `residual_energy_balance_Tleaf` is zero. See `leaf_energy_balance()` for
+ *  more information.
  */
 class leaf_evapotranspiration_check : public direct_module
 {
@@ -38,7 +39,7 @@ class leaf_evapotranspiration_check : public direct_module
           windspeed{get_input(input_quantities, "windspeed")},
 
           // Get pointers to output quantities
-          leaf_temp_check_op{get_op(output_quantities, "leaf_temp_check")}
+          residual_energy_balance_Tleaf_op{get_op(output_quantities, "residual_energy_balance_Tleaf")}
     {
     }
     static string_vector get_inputs();
@@ -60,7 +61,7 @@ class leaf_evapotranspiration_check : public direct_module
     double const& windspeed;
 
     // Pointers to output quantities
-    double* leaf_temp_check_op;
+    double* residual_energy_balance_Tleaf_op;
 
     // Main operation
     void do_operation() const;
@@ -86,7 +87,7 @@ string_vector leaf_evapotranspiration_check::get_inputs()
 string_vector leaf_evapotranspiration_check::get_outputs()
 {
     return {
-        "leaf_temp_check"  // degrees C
+        "residual_energy_balance_Tleaf"  // degrees C
     };
 }
 
@@ -133,7 +134,7 @@ void leaf_evapotranspiration_check::do_operation() const
     double const J_a = absorbed_shortwave + absorbed_longwave;  // J / m^2 / s
 
     // Get the temperature difference
-    double const leaf_temp_check = check_leaf_temp(
+    double const residual_energy_balance_Tleaf = check_leaf_temp(
         atmospheric_pressure,
         temp,
         Delta_rho,
@@ -148,7 +149,7 @@ void leaf_evapotranspiration_check::do_operation() const
         Gs,
         windspeed);
 
-    update(leaf_temp_check_op, leaf_temp_check);
+    update(residual_energy_balance_Tleaf_op, residual_energy_balance_Tleaf);
 }
 
 }  // namespace standardBML
