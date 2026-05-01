@@ -76,6 +76,8 @@ infilWater_str infil(
 )
 {
     // Hard-coded constants
+    double constexpr eps_sfc = 0.003;   // m^3 / m^3 - small threshold value of soil field capacity
+    double constexpr eps_sw = 0.0001;   // cm - small threshold value of soil water
     double constexpr mm_per_cm = 10.0;  // mm / cm
     double constexpr swconrf = 0.9;     // dimensionless - swcon reduction factor
 
@@ -105,7 +107,7 @@ infilWater_str infil(
         // could absorb before reaching its saturation capacity
         double hold = (soil_saturation_capacity[l] - swtemp[l]) * soil_depth[l];  // cm
 
-        if (potential_infiltration > 0.0001 && potential_infiltration > hold) {
+        if (potential_infiltration > eps_sw && potential_infiltration > hold) {
             // The potential infiltration that could occur during the next time
             // step exceeds the holding capacity of the soil layer.
             //
@@ -158,7 +160,7 @@ infilWater_str infil(
                 // redistribute it to the layers above
                 if (l > 0) {
                     for (int lk = l - 1; lk >= 0; lk--) {
-                        if (tmpexcess < 0.0001) {
+                        if (tmpexcess < eps_sw) {
                             // There is no more excess water to redistribute, so
                             // we are done
                             break;
@@ -206,7 +208,7 @@ infilWater_str infil(
 
             // The soil water content cannot exceed the saturation capacity;
             // drainage to lower layers would prevent this from happening
-            if (swtemp[l] >= (soil_field_capacity[l] + 0.003)) {
+            if (swtemp[l] >= soil_field_capacity[l] + eps_sfc) {
                 // Calculate the drainage rate
                 drainage_rate = swcon * (swtemp[l] - soil_field_capacity[l]) * soil_depth[l];  // cm / hr
 
@@ -299,6 +301,7 @@ infilWater_str satflo(
 )
 {
     // Specify hard-coded parameters
+    double constexpr eps_sfc = 0.003;   // m^3 / m^3 - small threshold value of soil field capacity
     double constexpr mm_per_cm = 10.0;  // mm / cm
 
     // Initialize layer-dependent variables
@@ -318,7 +321,7 @@ infilWater_str satflo(
         // Drainage will occur if the soil water content in this layer is above
         // the field capacity
         double const drainage_rate =
-            swtemp[l] >= soil_field_capacity[l] + 0.003
+            swtemp[l] >= soil_field_capacity[l] + eps_sfc
                 ? std::max(0.0, swcon * (swtemp[l] - soil_field_capacity[l]) * soil_depth[l])
                 : 0;  // cm / hr
 

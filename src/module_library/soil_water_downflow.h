@@ -241,7 +241,9 @@ string_vector soil_water_downflow::get_outputs()
 void soil_water_downflow::do_operation() const
 {
     // Define hard-coded parameter values
-    double constexpr timestep = 1.0;  // hr
+    double constexpr eps_sw = 0.0001;  // cm - small threshold value of soil water
+    double constexpr mm_to_cm = 0.1;   // cm / mm
+    double constexpr timestep = 1.0;   // hr
     int nlayers = 6;
 
     double soil_depth[] = {
@@ -299,14 +301,13 @@ void soil_water_downflow::do_operation() const
     double infiltrated_water = available_water - surface_runoff;  // mm / hr
 
     // Convert units
-    double constexpr mm_to_cm = 0.1;  // cm / mm
     double const infiltrated_water_cm = infiltrated_water * mm_to_cm; // cm / hr
 
     infilWater_str infilWater;
 
     // Call INFIL to calculate infiltration rates on days with irrigation or rainfall.
     // Call SATFLO on days with no irrigation or rain to calculate saturated flow.
-    if (infiltrated_water_cm > 0.0001) {
+    if (infiltrated_water_cm * timestep > eps_sw) {
         infilWater = infil(
             nlayers,
             infiltrated_water_cm,
