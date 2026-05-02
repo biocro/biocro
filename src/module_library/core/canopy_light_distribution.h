@@ -1,6 +1,36 @@
 #ifndef CANOPY_LIGHT_DISTRIBUTION_H
 #define CANOPY_LIGHT_DISTRIBUTION_H
 #include "atmosphere_light_scattering.h"
+
+/**
+ * @file
+ * @brief Models the distribution of sunlight through a plant canopy.
+ *
+ * The model follows Campbell & Norman, _An Introduction to Environmental
+ * Biophysics_, 2nd edition (1998), Chapter 15.  Leaves are partitioned into
+ * two classes: **sunlit** leaves intercept direct beam radiation in addition
+ * to diffuse and scattered radiation; **shaded** leaves receive only diffuse
+ * and scattered radiation.
+ *
+ * **Key types:**
+ *
+ * - `CanopyLight` — the main model object.  Constructed once from canopy
+ *   structural and optical parameters (LAI, solar zenith angle, leaf
+ *   reflectance, transmittance, etc.); extinction coefficients and ambient
+ *   flux conversions are pre-computed in the constructor.  Call
+ *   `get_light_profile(cumulative_lai)` to evaluate the model at any depth.
+ *
+ * - `LightProfile` — returned by `get_light_profile`; holds incident PPFD,
+ *   incident NIR, absorbed shortwave energy, and leaf-area fraction for each
+ *   of the sunlit and shaded leaf classes at a given cumulative LAI depth.
+ *
+ * **Users of this file:**
+ * - `photosynthesis.h` — `CanopyIntegrand` calls `get_light_profile` at each
+ *   quadrature node to supply radiation inputs to the leaf photosynthesis
+ *   function.
+ * - `multilayer_canopy_properties` — samples `get_light_profile` at `nlayers`
+ *   discrete midpoints and writes per-layer values as BioCro module outputs.
+ */
 namespace PhotoCore
 {
 

@@ -4,9 +4,43 @@
 #include "canopy_light_distribution.h"    // CanopyLight, LightProfile
 #include "atmosphere_light_scattering.h"  // AtmosphereLightScattering
 #include "../../framework/constants.h"
-/*
-This file contains code used in photosynthesis modules to compute canopy photosynthesis integrals. However, this code is not a biocro module
-*/
+
+/**
+ * @file
+ * @brief Shared infrastructure for computing canopy-integrated photosynthesis.
+ *
+ * This file is **not** a BioCro module; it defines types and utilities used
+ * internally by the canopy photosynthesis functions `c3CanAC` (C3 crops) and
+ * `CanAC` (C4 crops).
+ *
+ * **Key types:**
+ *
+ * - `LeafAssim` — aggregates all per-leaf photosynthesis outputs (net
+ *   assimilation, stomatal conductance, transpiration, gross assimilation,
+ *   leaf respiration, photorespiration).  It satisfies the vector-space
+ *   interface required by the `quadrature::` library — `operator+=` and
+ *   scalar `operator*` are defined — so a canopy-integrated value is
+ *   obtained by passing a `CanopyIntegrand` directly to a quadrature
+ *   function with `T = LeafAssim`.
+ *
+ * - `CanopyIntegrand<LeafPhoto>` — a functor templated on a leaf
+ *   photosynthesis callable.  Given a cumulative LAI depth it queries a
+ *   `CanopyLight` object for the local radiation environment, calls
+ *   `LeafPhoto` separately for the sunlit and shaded leaf classes, and
+ *   returns their LAI-fraction-weighted sum as a `LeafAssim`.  This is the
+ *   integrand passed to `quadrature::gauss_legendre<2>`.
+ *
+ * **Typical call chain** in a canopy photosynthesis function:
+ * 1. Construct `PhotoCore::AtmosphereLightScattering` to split total solar
+ *    radiation into direct and diffuse components.
+ * 2. Construct `PhotoCore::CanopyLight` from those components plus canopy
+ *    structural parameters (LAI, leaf angle, optical properties, etc.).
+ * 3. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
+ *    model (e.g. `c3photoC`) with its energy balance convergence loop.
+ * 4. Construct `PhotoCore::CanopyIntegrand(leaf_photo, canopy_light, ...)`.
+ * 5. Call `quadrature::gauss_legendre<2, LeafAssim>(integrand, 0, LAI, n)`
+ *    to obtain the canopy-integrated `LeafAssim`.
+ */
 
 namespace PhotoCore
 {

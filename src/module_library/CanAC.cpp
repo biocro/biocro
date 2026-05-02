@@ -1,5 +1,6 @@
-#include <algorithm>  // for std::min, std::max
+#include <algorithm>                           // for std::min, std::max
 #include "../framework/constants.h"            // for molar_mass_of_water
+#include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
 #include "../math/roots/onedim/fixed_point.h"  // for fixed_point
 #include "c4photo.h"                           // for c4photoC
 #include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
@@ -144,37 +145,33 @@ canopy_photosynthesis_outputs CanAC(
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;
 
         return PhotoCore::LeafAssim{
-            /* .assim = */                      photo.Assim,
+            /* .assim = */ photo.Assim,
             /* .stomatal_vapor_conductance = */ photo.Gs,
-            /* .penman = */                     et.EPenman,
-            /* .priestly = */                   et.EPriestly,
-            /* .carboxylation = */              photo.GrossAssim,
-            /* .leaf_respiration = */           photo.RL,
-            /* .photorespiration = */           photo.Rp,
-            /* .transpiration = */              et.TransR * cf2
-        };
+            /* .penman = */ et.EPenman,
+            /* .priestly = */ et.EPriestly,
+            /* .carboxylation = */ photo.GrossAssim,
+            /* .leaf_respiration = */ photo.RL,
+            /* .photorespiration = */ photo.Rp,
+            /* .transpiration = */ et.TransR * cf2};
     };
 
     PhotoCore::CanopyIntegrand canopy_integrand(leaf_photo, canopy_light, kpLN, leafN, WindSpeed);
 
-    double const dLAI = LAI / nlayers;
-    PhotoCore::LeafAssim canopy{};
-    for (int i = 0; i < nlayers; ++i) {
-        canopy += canopy_integrand((i + 0.5) * dLAI) * dLAI;
-    }
+    PhotoCore::LeafAssim const canopy =
+        quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(canopy_integrand, 0.0, LAI, nlayers);
 
     double const whole_plant_gr =
         growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s
 
     return canopy_photosynthesis_outputs{
-        /* .Assim = */                        canopy.assim - whole_plant_gr,          // micromol / m^2 / s
-        /* .canopy_conductance = */           canopy.stomatal_vapor_conductance,      // mol / m^2 / s
-        /* .canopy_transpiration_penman = */  canopy.penman,                          // mmol / m^2 / s
-        /* .canopy_transpiration_priestly =*/ canopy.priestly,                        // mmol / m^2 / s
-        /* .GrossAssim = */                   canopy.carboxylation,                   // micromol / m^2 / s
-        /* .RL = */                           canopy.leaf_respiration,                // micromol / m^2 / s
-        /* .Rp = */                           canopy.photorespiration,                // micromol / m^2 / s
-        /* .Trans = */                        canopy.transpiration,                   // Mg / ha / hr
-        /* .whole_plant_gr = */               whole_plant_gr                          // micromol / m^2 / s
+        /* .Assim = */ canopy.assim - whole_plant_gr,                   // micromol / m^2 / s
+        /* .canopy_conductance = */ canopy.stomatal_vapor_conductance,  // mol / m^2 / s
+        /* .canopy_transpiration_penman = */ canopy.penman,             // mmol / m^2 / s
+        /* .canopy_transpiration_priestly =*/canopy.priestly,           // mmol / m^2 / s
+        /* .GrossAssim = */ canopy.carboxylation,                       // micromol / m^2 / s
+        /* .RL = */ canopy.leaf_respiration,                            // micromol / m^2 / s
+        /* .Rp = */ canopy.photorespiration,                            // micromol / m^2 / s
+        /* .Trans = */ canopy.transpiration,                            // Mg / ha / hr
+        /* .whole_plant_gr = */ whole_plant_gr                          // micromol / m^2 / s
     };
 }

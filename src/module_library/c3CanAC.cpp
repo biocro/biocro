@@ -1,13 +1,11 @@
-#include <vector>
 #include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
+#include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
 #include "../math/roots/onedim/fixed_point.h"  // for fixed_point
-#include "BioCro.h"                            // for WINDprof
 #include "c3photo.h"                           // for c3photoC
-#include "core/photosynthesis.h"               // for PhotoCore::LeafAssim
+#include "core/photosynthesis.h"               // for PhotoCore::LeafAssim, CanopyIntegrand
 #include "leaf_energy_balance.h"               // for leaf_energy_balance
 #include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
 #include "respiration.h"                       // for growth_resp
-#include "sunML.h"                             // for sunML
 #include "c3CanAC.h"
 
 canopy_photosynthesis_outputs c3CanAC(
@@ -136,7 +134,7 @@ canopy_photosynthesis_outputs c3CanAC(
 
         if (!is_successful(result.flag)) {
             throw std::runtime_error(
-                "c3Canopy solver reports failed convergence with termination flag:\n    " +
+                "c3Canopy solver reports failed convergence. Termination flag:\n    " +
                 flag_message(result.flag));
         }
 
@@ -163,35 +161,22 @@ canopy_photosynthesis_outputs c3CanAC(
 
     );
 
-    PhotoCore::LeafAssim canopy;
-    double delta_lai = LAI / nlayers;
-    for (int i = 0; i < nlayers; ++i) {
-        // Calculations that are the same for sunlit and shaded leaves
-
-        double midpoint = (i + 0.5) * delta_lai;
-        canopy += integrand(midpoint) * delta_lai;
-    }
+    PhotoCore::LeafAssim const canopy =
+        quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(integrand, 0.0, LAI, nlayers);
 
     // Calculate the rate of whole-plant growth respiration
     double const whole_plant_gr =
         growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s
 
-    // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
-    // using the molar mass of water in kg / mol, which can be accomplished by
-    // the following conversion factor:
-    // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
-    // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
-    double constexpr cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
-
     return canopy_photosynthesis_outputs{
         /* .Assim = */ canopy.assim - whole_plant_gr,                   // micromol / m^2 / s
         /* .canopy_conductance = */ canopy.stomatal_vapor_conductance,  // mol / m^2 / s
         /* .canopy_transpiration_penman = */ canopy.penman,             // mmol / m^2 / s
-        /* .canopy_transpiration_priestly = */ canopy.priestly,         // mmol / m^2 / s
+        /* .canopy_transpiration_priestly =*/canopy.priestly,           // mmol / m^2 / s
         /* .GrossAssim = */ canopy.carboxylation,                       // micromol / m^2 / s
         /* .RL = */ canopy.leaf_respiration,                            // micromol / m^2 / s
         /* .Rp = */ canopy.photorespiration,                            // micromol / m^2 / s
-        /* .Trans = */ canopy.transpiration * cf2,                      // Mg / ha / hr
+        /* .Trans = */ canopy.transpiration,                            // Mg / ha / hr
         /* .whole_plant_gr = */ whole_plant_gr                          // micromol / m^2 / s
     };
 }
