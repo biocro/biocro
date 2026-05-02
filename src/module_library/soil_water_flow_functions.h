@@ -7,11 +7,10 @@ static int const max_soil_layers = 10;
  * @brief Structure for storing the output from `infil` and `satflo`.
  */
 struct infilWater_str {
-    double drain;                        // Drainage rate from soil profile (mm/hr)
-    double drn[max_soil_layers];         // Drainage rate through soil layer l (cm/hr)
-    double excess_water;                 // Excess water to be added to runoff (cm/hr)
-    double sw_delta_S[max_soil_layers];  // Change in soil water content due to drainage in layer l
-                                         // (cm3 [water] / cm3 [soil])
+    double overall_drainage_rate;           // mm / hr   - Drainage rate from the lowest soil layer
+    double downward_flux[max_soil_layers];  // cm / hr   - Rate of downward water flow out of this layer
+    double excess_water_rate;               // mm / hr   - Rate of excess water appearing at soil surface
+    double sw_delta_S[max_soil_layers];     // m^3 / m^3 - Change in soil water content due to downflow
 };
 
 struct upwardFlo_str {
@@ -32,24 +31,27 @@ struct tileDrain_str {
 };
 
 infilWater_str infil(
-    int nlayers,
-    double potential_infiltration,
-    double swcon,
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_field_capacity[],
-    double soil_water_content[],
-    double soil_saturated_conductivity[]);
+    int const nlayers,                           // not a physical quantity
+    double const infiltration_rate,              // cm / hr
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // m^3 / m^3
+    double const soil_field_capacity[],          // m^3 / m^3
+    double const soil_water_content[],           // m^3 / m^3
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
+);
 
 infilWater_str satflo(
-    int nlayers,
-    double potential_infiltration,
-    double swcon,
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_field_capacity[],
-    double soil_water_content[],
-    double soil_saturated_conductivity[]);
+    int const nlayers,                           // not a physical quantity
+    double const swcon,                          // hr^(-1)
+    double const soil_depth[],                   // cm
+    double const soil_saturation_capacity[],     // m^3 / m^3
+    double const soil_field_capacity[],          // m^3 / m^3
+    double const soil_water_content[],           // m^3 / m^3
+    double const soil_saturated_conductivity[],  // cm / hr
+    double const timestep                        // hr
+);
 
 upwardFlo_str up_flow(
     int nlayers,
