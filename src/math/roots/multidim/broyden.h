@@ -3,9 +3,33 @@
 
 #include "zeros.h"
 #include "../../linalg/base.h"
+#include "../../linalg/lu.h"
 
 namespace root_multidim
 {
+
+/**
+ * @brief Tag passed to `broyden::solve` to request finite-difference
+ * Jacobian initialization instead of the default identity matrix.
+ *
+ * Pass an instance of this struct as the third argument to `solve`:
+ * @code
+ * broyden<2> solver(100, 1e-8, 1e-8);
+ * auto result = solver.solve(f, guess, root_multidim::fd_jacobian_t{});
+ * // or with a custom step size:
+ * auto result = solver.solve(f, guess, root_multidim::fd_jacobian_t{1e-4});
+ * @endcode
+ *
+ * The Jacobian is approximated by forward differences at the initial guess.
+ * Its inverse is computed via LU decomposition. If the Jacobian is singular
+ * at the initial guess the solver falls back to the identity matrix.
+ */
+struct fd_jacobian_t {
+    double h = 1e-5;  //!< Forward-difference step size
+};
+
+/// Convenience default-constructed tag value.
+inline constexpr fd_jacobian_t fd_jacobian{};
 
 /**
  * @brief Broyden's method for finding vector-valued zeros of nonlinear systems.
@@ -32,7 +56,7 @@ namespace root_multidim
  *
  * @endcode
  *
- * @note The inverse Jacobian is initialised to the identity matrix, so the
+ * @note The inverse Jacobian is initialized to the identity matrix, so the
  *       first step is equivalent to a Newton step with @f$ J = I @f$.
  *       Convergence may be slow if the true Jacobian at the starting point
  *       differs greatly from the identity.
@@ -67,11 +91,29 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
     template <typename F>
     Status initialize(F&& fun, std::array<double, Dim> const& guess)
     {
-        _zero = guess;
+        _zero     = guess;
         _residual = fun(guess);
-        inv_jac = linalg::matrix<double, Dim, Dim>::identity();
+        inv_jac   = mat_t::identity();
         return Status::ok;
     }
+
+    /**
+     * @brief Initialise with a finite-difference inverse Jacobian.
+     *
+     * Builds the Jacobian by forward differences (one additional function
+     * evaluation per dimension), then inverts it via LU decomposition.
+     * Falls back to the identity matrix if the Jacobian is singular at
+     * the initial guess.
+     */
+    template <typename F>
+    Status initialize(F&& fun, std::array<double, Dim> const& guess, fd_jacobian_t fd)
+    {
+        _zero     = guess;
+        _residual = fun(guess);
+        inv_jac   = _fd_inv_jacobian(std::forward<F>(fun), fd.h);
+        return Status::ok;
+    }
+
     /**
      * @brief Performs one Broyden iteration.
      *
@@ -180,6 +222,45 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
         _tmp_c = linalg::quadratic_form(inv_jac, delta_x, delta_y);
         // above equivalent to  delta_x * inv_jac * delta_y
         inv_jac += linalg::outer(_tmp_a, _tmp_b) / _tmp_c;
+    }
+
+    /**
+     * @brief Build J^{-1} from a forward-difference Jacobian approximation.
+     *
+     * For each column j, perturbs `_zero` by `h` in direction j and estimates
+     * the j-th column of J as `(f(x + h*e_j) - f(x)) / h`.  The inverse is
+     * then computed by solving `J * x = e_j` for each unit vector via LU
+     * decomposition.
+     *
+     * @param fun Callable representing the function whose zero is sought.
+     * @param h   Forward-difference step size.
+     * @return J^{-1}, or the identity matrix if J is singular at `_zero`.
+     */
+    template <typename F>
+    mat_t _fd_inv_jacobian(F&& fun, double h) const
+    {
+        // Build forward-difference Jacobian column by column
+        mat_t J;
+        for (size_t j = 0; j < Dim; ++j) {
+            vec_t x_pert = _zero;
+            x_pert[j] += h;
+            std::array<double, Dim> f_pert = fun(x_pert.asarray());
+            for (size_t i = 0; i < Dim; ++i) {
+                J(i, j) = (f_pert[i] - _residual[i]) / h;
+            }
+        }
+
+        // Invert J by solving J * e_j = col_j for each unit vector e_j
+        linalg::LU<double, Dim> lu{J};
+        mat_t inv_J;
+        for (size_t j = 0; j < Dim; ++j) {
+            vec_t e_j;
+            for (size_t i = 0; i < Dim; ++i) e_j[i] = (i == j) ? 1.0 : 0.0;
+            auto col = lu.solve(e_j);
+            if (!col) return mat_t::identity();  // singular: fall back to identity
+            for (size_t i = 0; i < Dim; ++i) inv_J(i, j) = (*col)[i];
+        }
+        return inv_J;
     }
 };
 

@@ -1,11 +1,11 @@
-#include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
-#include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
-#include "c3photo.h"                           // for c3photoC
-#include "core/photosynthesis.h"               // for PhotoCore::LeafAssim, CanopyIntegrand
-#include "leaf_energy_balance.h"               // for leaf_energy_balance
-#include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
-#include "respiration.h"                       // for growth_resp
+#include "../framework/constants.h"              // for molar_mass_of_water
+#include "../math/quadrature/quad.h"             // for quadrature::gauss_legendre
+#include "../math/roots/multidim/broyden.h"      // for root_multidim::broyden
+#include "core/atmosphere_light_scattering.h"    // for PhotoCore::AtmosphereLightScattering
+#include "core/leaf_photosynthesis.h"            // for PhotoCore::C3LeafResidual
+#include "core/photosynthesis.h"                 // for PhotoCore::LeafAssim, CanopyIntegrand
+#include "leaf_energy_balance.h"                 // for leaf_energy_balance_outputs_at
+#include "respiration.h"                         // for growth_resp
 #include "c3CanAC.h"
 
 canopy_photosynthesis_outputs c3CanAC(
@@ -83,73 +83,61 @@ canopy_photosynthesis_outputs c3CanAC(
         par_energy_content,
         par_energy_fraction);
 
-    using namespace root_finding;
-
-    // Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
-
     // Leaf-level photosynthesis function for use with PhotoCore::CanopyIntegrand.
-    // Solves the coupled stomatal conductance / energy balance system for a
-    // single leaf class (sunlit or shaded) and returns a LeafAssim summary.
+    // Solves the coupled carbon balance / energy balance system as a single 2D
+    // Broyden solve with unknowns (Ci, Tleaf), replacing three formerly nested
+    // 1D iterations (fixed-point over Gs, Dekker over Tleaf, Dekker over Ci).
     auto leaf_photo = [&](double iabs, double j_shortwave, double layer_wind_speed, double layer_leafN) -> PhotoCore::LeafAssim {
         double const effective_Vcmax = (lnfun != 0) ? layer_leafN * lnb1 + lnb0 : Vcmax_at_25;
-        double constexpr gbw_guess = 1.2;  // mol / m^2 / s
 
-        // Initial guess: evaluate photosynthesis at ambient leaf temperature
-        double gsw_estimate =
-            c3photoC(
-                tr_param, iabs, ambient_temperature, ambient_temperature,
-                RH, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS, electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII, gbw_guess)
-                .Gs;  // mol / m^2 / s
+        PhotoCore::C3LeafResidual residual{
+            tr_param, iabs, j_shortwave, absorbed_longwave,
+            ambient_temperature, atmospheric_pressure, RH,
+            Gstar_at_25, Kc_at_25, Ko_at_25,
+            effective_Vcmax, Jmax_at_25, Tp_at_25, RL_at_25,
+            b0, b1, Gs_min, StomataWS, Catm, o2,
+            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
+            gbw_canopy, leaf_width, layer_wind_speed};
 
-        energy_balance_outputs et;
-        photosynthesis_outputs photo;
+        root_multidim::broyden<2> solver{100, 1e-6, 1e-6};
+        auto result = solver.solve(residual, residual.initial_guess());
 
-        auto gs_func = [&](double current_gs) {
-            et = leaf_energy_balance(
-                absorbed_longwave,
-                j_shortwave,
-                atmospheric_pressure,
-                ambient_temperature,
-                gbw_canopy,
-                leaf_width,
-                RH,
-                current_gs,
-                layer_wind_speed);
-
-            photo = c3photoC(
-                tr_param, iabs, ambient_temperature + et.Deltat, ambient_temperature,
-                RH, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS, electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et.gbw_molecular);
-
-            return photo.Gs;
-        };
-
-        result_t result = solver.solve(gs_func, gsw_estimate);
-
-        if (!is_successful(result.flag)) {
+        if (!result.success) {
             throw std::runtime_error(
-                "c3Canopy solver reports failed convergence. Termination flag:\n    " +
-                flag_message(result.flag));
+                "c3Canopy leaf solver reports failed convergence");
         }
+
+        double const Ci    = result.zero[0];  // micromol / mol
+        double const Tleaf = result.zero[1];  // degrees C
+
+        // One forward pass for photosynthesis outputs
+        PhotoCore::C3LeafOutputs photo = residual.evaluate(Ci, Tleaf);
+
+        // One forward pass for energy balance outputs (transpiration etc.)
+        energy_balance_outputs et = leaf_energy_balance_outputs_at(
+            Tleaf,
+            j_shortwave,
+            absorbed_longwave,
+            atmospheric_pressure,
+            ambient_temperature,
+            gbw_canopy,
+            leaf_width,
+            RH,
+            photo.Gs,
+            layer_wind_speed);
 
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;
 
         return PhotoCore::LeafAssim{
-            /* .assim = */ photo.Assim,
+            /* .assim = */                      photo.An,
             /* .stomatal_vapor_conductance = */ photo.Gs,
-            /* .penman = */ et.EPenman,
-            /* .priestly = */ et.EPriestly,
-            /* .carboxylation = */ photo.GrossAssim,
-            /* .leaf_respiration = */ photo.RL,
-            /* .photorespiration = */ photo.Rp,
-            /* .transpiration = */ et.TransR * cf2};
+            /* .penman = */                     et.EPenman,
+            /* .priestly = */                   et.EPriestly,
+            /* .carboxylation = */              photo.Vc,
+            /* .leaf_respiration = */           photo.RL,
+            /* .photorespiration = */           photo.Rp,
+            /* .transpiration = */              et.TransR * cf2};
     };
 
     PhotoCore::CanopyIntegrand integrand(

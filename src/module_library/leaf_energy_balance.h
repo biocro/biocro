@@ -50,4 +50,30 @@ energy_balance_outputs leaf_energy_balance(
     double wind_speed                  // m / s
 );
 
+/**
+ * @brief Compute energy balance outputs given a known leaf temperature.
+ *
+ * This is the post-convergence output block of `leaf_energy_balance`, exposed
+ * as a standalone function for callers (e.g. `c3CanAC`, `CanAC`) that already
+ * have a converged leaf temperature from an external solver such as
+ * `root_multidim::broyden` and do not need to re-run the internal Dekker
+ * root-find.  All parameters are identical to `leaf_energy_balance`; the only
+ * addition is `leaf_temperature`.
+ *
+ * `residual_energy_balance_Tleaf` and `iteration_energy_balance_Tleaf` in the
+ * returned struct are set to 0 since no iteration is performed here.
+ */
+energy_balance_outputs leaf_energy_balance_outputs_at(
+    double leaf_temperature,           // degrees C  (converged, provided by caller)
+    double absorbed_longwave_energy,   // J / m^2 / s
+    double absorbed_shortwave_energy,  // J / m^2 / s
+    double air_pressure,               // Pa
+    double air_temperature,            // degrees C
+    double gbw_canopy,                 // m / s
+    double leaf_width,                 // m
+    double relative_humidity,          // dimensionless from Pa / Pa
+    double stomatal_conductance,       // mol / m^2 / s
+    double wind_speed                  // m / s
+);
+
 #endif

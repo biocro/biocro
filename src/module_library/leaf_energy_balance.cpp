@@ -283,3 +283,73 @@ energy_balance_outputs leaf_energy_balance(
         /* iterations = */ result.iteration       // not a physical quantity
     };
 }
+
+energy_balance_outputs leaf_energy_balance_outputs_at(
+    double const leaf_temperature,           // degrees C
+    double const absorbed_longwave_energy,   // J / m^2 / s
+    double const absorbed_shortwave_energy,  // J / m^2 / s
+    double const air_pressure,               // Pa
+    double const air_temperature,            // degrees C
+    double const gbw_canopy,                 // m / s
+    double const leaf_width,                 // m
+    double const relative_humidity,          // dimensionless from Pa / Pa
+    double const stomatal_conductance,       // mol / m^2 / s
+    double const wind_speed                  // m / s
+)
+{
+    double constexpr epsilon_s = 1.0;  // dimensionless
+
+    // Air and vapour properties — identical to the pre-computation in
+    // leaf_energy_balance(); duplicated here so this function is self-contained.
+    double const c_p     = TempToCp(air_temperature);                                        // J / kg / K
+    double const lambda  = water_latent_heat_of_vaporization_henderson(air_temperature);      // J / kg
+    double const p_w_sat = saturation_vapor_pressure(air_temperature);                        // Pa
+    double const rho_ta  = dry_air_density(air_temperature, air_pressure);                    // kg / m^3
+    double const s       = TempToSFS(air_temperature);                                        // kg / m^3 / K
+    double const gamma   = rho_ta * c_p / lambda;                                            // kg / m^3 / K
+    double const p_w_air = p_w_sat * relative_humidity;                                      // Pa
+    double const rho_w_air = vapor_density_from_pressure(rho_ta, air_pressure, p_w_air);     // kg / m^3
+    double const rho_w_sat = vapor_density_from_pressure(rho_ta, air_pressure, p_w_sat);     // kg / m^3
+    double const Delta_rho = rho_w_sat - rho_w_air;                                         // kg / m^3
+    double const J_a       = absorbed_shortwave_energy + absorbed_longwave_energy;            // J / m^2 / s
+
+    // Output calculations — identical to the post-convergence block in
+    // leaf_energy_balance(), with leaf_temperature supplied directly.
+    double const gsw         = g_to_mass(air_pressure, stomatal_conductance, leaf_temperature);  // m / s
+    double const gbw_leaf    = calculate_gbw_leaf(
+        air_pressure, air_temperature, leaf_temperature, leaf_width, wind_speed);              // m / s
+    double const gbw         = sequential_conductance(gbw_leaf, gbw_canopy);                   // m / s
+    double const gbw_molecular = g_to_molecular(air_pressure, gbw, leaf_temperature);          // mol / m^2 / s
+    double const gw          = sequential_conductance(gsw, gbw);                               // m / s
+    double const Phi_N       = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);             // J / m^2 / s
+    double const Delta_T     = leaf_temperature - air_temperature;                             // degrees C
+    double const E           = (Delta_rho + s * Delta_T) * gw;                                // kg / m^2 / s
+    double const H           = rho_ta * c_p * Delta_T * gbw;                                  // J / m^2 / s
+    double const storage     = Phi_N - H - lambda * E;                                        // J / m^2 / s
+    double const RH_canopy   = (rho_w_air + E / gbw_canopy) / rho_w_sat;                     // dimensionless
+    double const EPen        = (s * Phi_N + lambda * gamma * gbw * Delta_rho) /
+                               (lambda * (s + gamma));                                         // kg / m^2 / s
+    double constexpr dryness_coefficient = 1.26;
+    double const EPries      = dryness_coefficient * s * Phi_N /
+                               (lambda * (s + gamma));                                         // kg / m^2 / s
+    double constexpr cf = 1e3 / physical_constants::molar_mass_of_water;                      // mmol / kg
+
+    return energy_balance_outputs{
+        /* Deltat = */ Delta_T,          // degrees C
+        /* E_loss = */ lambda * E,       // J / m^2 / s
+        /* EPenman = */ EPen * cf,       // mmol / m^2 / s
+        /* EPriestly = */ EPries * cf,   // mmol / m^2 / s
+        /* gbw = */ gbw,                 // m / s
+        /* gbw_canopy = */ gbw_canopy,   // m / s
+        /* gbw_leaf = */ gbw_leaf,       // m / s
+        /* gbw_molecular = */ gbw_molecular,  // mol / m^2 / s
+        /* gsw = */ gsw,                 // m / s
+        /* H = */ H,                     // J / m^2 / s
+        /* leaf_temp_check = */ 0.0,     // not iterated; Tleaf supplied by caller
+        /* PhiN = */ Phi_N,              // J / m^2 / s
+        /* RH_canopy = */ RH_canopy,     // dimensionless
+        /* storage = */ storage,         // J / m^2 / s
+        /* TransR = */ E * cf,           // mmol / m^2 / s
+        /* iterations = */ 0             // not iterated; Tleaf supplied by caller
+    };
+}
