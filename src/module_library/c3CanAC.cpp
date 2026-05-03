@@ -161,6 +161,7 @@ canopy_photosynthesis_outputs c3CanAC(
 
     );
 
+    // use `quadrature::midpoint_rule` for previous behavior
     PhotoCore::LeafAssim const canopy =
         quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(integrand, 0.0, LAI, nlayers);
 
