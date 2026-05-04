@@ -12,7 +12,7 @@ namespace standardBML
  *
  * @brief Calculates water flow through the soil.
  * * Based on DSSAT source file:
- * - Soil/SoilWaterFlow/WBSUBS.for, subroutine UP_FLOW. 
+ * - Soil/SoilWaterFlow/WBSUBS.for, subroutine UP_FLOW.
  * * Calculates upward movement of water through the soil profile.
  *
  */
@@ -213,24 +213,25 @@ string_vector soil_water_upflow::get_inputs()
 string_vector soil_water_upflow::get_outputs()
 {
     return {
-        "upflow_1",  // cm / hr. Upward flow of water 
+        "upflow_1",  // cm / hr. Upward flow of water
         "upflow_2",  // cm / hr
         "upflow_3",  // cm / hr
         "upflow_4",  // cm / hr
         "upflow_5",  // cm / hr
         "upflow_6",  // cm / hr
-        "deltaU_1",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 1 
-        "deltaU_2",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 2 
-        "deltaU_3",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 3 
-        "deltaU_4",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 4 
-        "deltaU_5",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 5 
-        "deltaU_6"   // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 6 
+        "deltaU_1",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 1
+        "deltaU_2",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 2
+        "deltaU_3",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 3
+        "deltaU_4",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 4
+        "deltaU_5",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 5
+        "deltaU_6"   // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 6
     };
 }
 
 void soil_water_upflow::do_operation() const
 {
-    int nlayers = 6;
+    int constexpr nlayers = 6;
+    double constexpr timestep = 1; // hr
 
     double soil_depth[] = {
         soil_depth_1,  //cm
@@ -280,23 +281,22 @@ void soil_water_upflow::do_operation() const
         deltaS_5,  // cm^3 / cm^3
         deltaS_6};  // cm^3 / cm^3
 
-    upwardFlo_str upFlow;
-   
     double sw_avail[nlayers];  // cm^3 / cm^3
     for (int l = 0; l < nlayers; l++) {
         sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);  // cm^3 / cm^3
     }
+
     // Calculate upward movement of water due to evaporation and root
     // extraction for each soil layer.
-
-    upFlow = up_flow(
+    upwardFlo_str const upFlow = up_flow(
         nlayers,
         sw_avail,
         soil_depth,
         soil_saturation_capacity,
         soil_wilting_point,
         soil_field_capacity,
-        soil_water_content);
+        soil_water_content,
+        timestep);
 
     // Update the output quantity list
     update(upflow_1_op, upFlow.upwardFlo[0]);

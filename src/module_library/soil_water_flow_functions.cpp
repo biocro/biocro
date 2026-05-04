@@ -426,123 +426,169 @@ infilWater_str satflo(
     return return_value;
 }
 
+/**
+ *  @brief Calculates upward water flow due to evaporation through a multi-layer
+ *  soil profile.
+ *
+ *  ### Model overview
+ *
+ *  This module is based on a model for soil water infiltration originally
+ *  presented in Ritchie (1998). It can be found in the section titled
+ *  "Evapotranspiration and upward flow."
+ *
+ *  ### Model implementation
+ *
+ *  Ritchie (1998) provides equations that can be used to implement the model.
+ *  Rather than basing our code directly on this resource, we have also looked
+ *  to DSSAT, and our code is largely based on its UP_FLOW subroutine. This
+ *  subroutine is included in the file `WBSUBS.for`.
+ *
+ *  Here we have converted the units from a "per day" basis to a "per hour"
+ *  basis.
+ *
+ *  ### Source
+ *
+ *  - [Ritchie, J. T. "Soil water balance and plant water stress" in "Understanding Options for Agricultural Production"
+ *    (eds Tsuji, G. Y., Hoogenboom, G. & Thornton, P. K.) 41–54 (Springer Netherlands, Dordrecht, 1998)]
+ *    (https://doi.org/10.1007/978-94-017-3624-4_3)
+ *
+ *  - DSSAT Fortran source code:
+ *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/WBSUBS.for
+ *
+ *  @param [in] swc_plus_sat Soil water content estimated at the next time step
+ *              after accounting for downward flow (m^3 / m^3)
+ */
 upwardFlo_str up_flow(
-    int nlayers,
-    double sw_avail[],
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_wilting_point[],
-    double soil_field_capacity[],
-    double soil_water_content[])
+    int const nlayers,                        // not a physical quantity
+    double const swc_plus_sat[],              // m^3 / m^3
+    double const soil_depth[],                // cm
+    double const soil_saturation_capacity[],  // m^3 / m^3
+    double const soil_wilting_point[],        // m^3 / m^3
+    double const soil_field_capacity[],       // m^3 / m^3
+    double const soil_water_content[],        // m^3 / m^3
+    double const timestep                     // hr
+)
 {
-    // SW_AVAIL(L) Soil water content in layer L available for evaporation,
-    //            plant extraction, or movement through soil
-    upwardFlo_str return_value;
-    int ist;  //Beginning soil layer for upward flow calculations (=1 for
-              // layers 1 through 5, =2 for lower layers)
-    double upflow[nlayers];
-    double swdeltU[nlayers];
-    double swtemp[nlayers];  //Soil water content in layer L (temporary value)
+    // Specify hard-coded parameter values
+    double constexpr hours_per_day = 24.0;               // hr / day
+    double constexpr max_dbar = 100;                     // cm / day
+    double constexpr soil_diffusivity = 0.88;            // cm / day
+    double constexpr surface_thickness_threshold = 5.0;  // cm
+
+    double const max_dbar_hr = max_dbar / hours_per_day;                  // cm / hr
+    double const soil_diffusivity_hr = soil_diffusivity / hours_per_day;  // cm / hr
+
+    // Initialize layer-dependent values
+    double upward_flux[nlayers];  // cm / hr
+    double swtemp[nlayers];       // m^3 / m^3 - soil water content (temporary value)
+    double sw_inf[nlayers];       // m^3 / m^3 - soil water content including computed upward flow
+    double sw_avail[nlayers];     // m^3 / m^3 - soil water content available for evaporation, plant extraction, or movement through soil
+    double esw[nlayers];          // m^3 / m^3 - plant extractable soil water
 
     // Calculated flow will be limited by SW_INF and SW_AVAIL
-    double sw_inf[nlayers];  // Soil water content in layer L including computed upward flow (cm3 [water] / cm3 [soil])
 
-    double esw[nlayers];
     for (int l = 0; l < nlayers; l++) {
-        upflow[l] = 0.0;
-        swdeltU[l] = 0.0;
-        swtemp[l] = soil_water_content[l];  //Soil water content in layer l (temporary value)
-        sw_inf[l] = sw_avail[l];            // Includes saturated flow
-        sw_avail[l] = std::max(0.0, sw_avail[l] - soil_wilting_point[l]);
-        esw[l] = soil_field_capacity[l] - soil_wilting_point[l];  //Plant extractable soil water by layer (= DUL - LL)
+        upward_flux[l] = 0.0;                                                  // cm / hr
+        swtemp[l] = soil_water_content[l];                                     // m^3 / m^3
+        sw_inf[l] = swc_plus_sat[l];                                           // m^3 / m^3
+        sw_avail[l] = std::max(0.0, swc_plus_sat[l] - soil_wilting_point[l]);  // m^3 / m^3
+        esw[l] = soil_field_capacity[l] - soil_wilting_point[l];               // m^3 / m^3
     }
 
-    if (soil_depth[0] >= 5.0)  // soil_depth in cm
-        ist = 0;
-    else
-        ist = 1;
+    // Determine the beginning soil layer for upward flow calculations;
+    // typically the second layer is used, unless the first layer is very thick
+    int const first = soil_depth[0] >= surface_thickness_threshold ? 0 : 1;
 
-    for (int l = ist; l < nlayers - 1; l++) {
+    for (int l = first; l < nlayers - 1; l++) {
         int m = l + 1;
-        double soil_water_old = swtemp[l];
-        double thet1 = std::min(swtemp[l] - soil_wilting_point[l], esw[l]);
-        // Rprintf("New thet1 is %f \n", thet1);
-        thet1 = std::max(0.0, thet1);
-        // Rprintf("New thet1 is %f \n", thet1);
 
-        double thet2 = std::min(swtemp[m] - soil_wilting_point[m], esw[m]);
-        // Rprintf("thet2 is %f \n", thet2);
-        thet2 = std::max(0.0, thet2);
-        // Rprintf("thet2 is %f \n", thet2);
+        double const soil_water_old = swtemp[l];  // m^3 / m^3
 
-        constexpr double min_diffusivity = 0.88 / 24.0;  // 0.88 cm / day
-        constexpr double max_diffusivity = 100 / 24.0;   // 100 cm / day
-        double dbar = min_diffusivity * exp(35.4 * ((thet1 * soil_depth[l] + thet2 * soil_depth[m]) / (soil_depth[l] + soil_depth[m])) * 0.5);
-        dbar = std::min(dbar, max_diffusivity);
-        // Rprintf("dbar is %f \n", dbar);
+        double const thet1 =
+            std::max(0.0, std::min(swtemp[l] - soil_wilting_point[l], esw[l]));  // m^3 / m^3
 
-        double grad = (thet2 / esw[m] - thet1 / esw[l]) * (esw[m] * soil_depth[m] + esw[l] * soil_depth[l]) / (soil_depth[m] + soil_depth[l]);
-        // Rprintf("grad is %f \n", grad);
+        double const thet2 =
+            std::max(0.0, std::min(swtemp[m] - soil_wilting_point[m], esw[m]));  // m^3 / m^3
 
-        upflow[l] = dbar * grad / ((soil_depth[l] + soil_depth[m]) * 0.5);  // to cm/hr
-        // Rprintf("upflow is %f \n", upflow[l]);
-        double flowfix;  // Adjustment amount for upward flow calculations to prevent a
-                         // soil layer from exceeding the saturation content (cm3/cm3)
-                         // Upward flow from layer M to layer L
-        if (upflow[l] > 0.0) {
-            // Rprintf("upflow is greater than 0.0 %f. \n", upflow[l]);
+        double const normalized_wc =
+            0.5 * (thet1 * soil_depth[l] + thet2 * soil_depth[m]) /
+            (soil_depth[l] + soil_depth[m]);  // m^3 / m^3
+
+        double const dbar =
+            std::min(max_dbar_hr, soil_diffusivity_hr * exp(35.4 * normalized_wc));  // cm / hr
+
+        double const grad =
+            (thet2 / esw[m] - thet1 / esw[l]) *
+            (esw[m] * soil_depth[m] + esw[l] * soil_depth[l]) /
+            (soil_depth[m] + soil_depth[l]);  // m^3 / m^3
+
+        upward_flux[l] = dbar * grad / ((soil_depth[l] + soil_depth[m]) * 0.5);  // cm / hr
+
+        // Adjust upward flow calculations to ensure no soil layer exceeds its
+        // saturation water content at the next time step
+        if (upward_flux[l] > 0.0) {
+            // Water is flowing upward from layer M to layer L
             if (swtemp[l] <= soil_field_capacity[l]) {
-                swtemp[l] = swtemp[l] + upflow[l] / soil_depth[l];
-                sw_inf[l] = sw_inf[l] + upflow[l] / soil_depth[l];
-                if (swtemp[l] > soil_field_capacity[l] || sw_inf[l] >
-                                                              soil_saturation_capacity[l]) {
-                    flowfix = std::max({0.0,
-                                        (swtemp[l] - soil_field_capacity[l]) * soil_depth[l],
-                                        (sw_inf[l] - soil_saturation_capacity[l]) * soil_depth[l]});
-                    flowfix = std::min(upflow[l], flowfix);
-                    // Rprintf("New flowfix is %f \n", flowfix);
-                    upflow[l] = upflow[l] - flowfix;
-                    swtemp[l] = soil_water_old + upflow[l] / soil_depth[l];
+                swtemp[l] = swtemp[l] + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
+                sw_inf[l] = sw_inf[l] + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
+
+                if (swtemp[l] > soil_field_capacity[l] || sw_inf[l] > soil_saturation_capacity[l]) {
+                    double flowfix =
+                        std::max({0.0,
+                                  (swtemp[l] - soil_field_capacity[l]) * soil_depth[l],
+                                  (sw_inf[l] - soil_saturation_capacity[l]) * soil_depth[l]});  // cm
+                    flowfix = std::min(upward_flux[l] * timestep, flowfix);                     // cm
+
+                    upward_flux[l] = upward_flux[l] - flowfix / timestep;                    // cm / hr
+                    swtemp[l] = soil_water_old + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
                 }
-            } else {  // No upward flow if swtemp > soil_field_capacity
-                upflow[l] = 0.0;
+            } else {
+                // No upward flow if swtemp > soil_field_capacity
+                upward_flux[l] = 0.0;  // cm / hr
             }
-            if (upflow[l] / soil_depth[m] > sw_avail[m]) {
-                upflow[l] = sw_avail[m] * soil_depth[m];
-                swtemp[l] = soil_water_old + upflow[l] / soil_depth[l];
+
+            // Adjust upward flow calculations to ensure the flow does not
+            // transport more water than is available
+            if (upward_flux[l] * timestep / soil_depth[m] > sw_avail[m]) {
+                upward_flux[l] = sw_avail[m] * soil_depth[m] / timestep;                 // cm / hr
+                swtemp[l] = soil_water_old + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
             }
-            swtemp[m] = swtemp[m] - upflow[l] / soil_depth[m];
-        } else if (upflow[l] < 0.0) {  // Downward flow from layer L to layer M
+
+            swtemp[m] = swtemp[m] - upward_flux[l] * timestep / soil_depth[m];  // m^3 / m^3
+        } else if (upward_flux[l] < 0.0) {
+            // Water is flowing downward from layer L to layer M
             if (swtemp[l] >= soil_wilting_point[l]) {
-                if (fabs(upflow[l] / soil_depth[l]) > sw_avail[l]) {
-                    upflow[l] = -sw_avail[l] * soil_depth[l];
+                if (fabs(upward_flux[l] * timestep / soil_depth[l]) > sw_avail[l]) {
+                    upward_flux[l] = -sw_avail[l] * soil_depth[l] / timestep;  // cm / hr
                 }
 
-                swtemp[l] = swtemp[l] + upflow[l] / soil_depth[l];
-                swtemp[m] = swtemp[m] - upflow[l] / soil_depth[m];
-                sw_inf[m] = sw_inf[m] - upflow[l] / soil_depth[m];
+                swtemp[l] = swtemp[l] + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
+                swtemp[m] = swtemp[m] - upward_flux[l] * timestep / soil_depth[m];  // m^3 / m^3
+                sw_inf[m] = sw_inf[m] - upward_flux[l] * timestep / soil_depth[m];  // m^3 / m^3
 
                 if (sw_inf[m] > soil_saturation_capacity[m]) {
-                    flowfix = std::min(fabs(upflow[l]), (sw_inf[m] -
-                                                         soil_saturation_capacity[m]) *
-                                                            soil_depth[m]);
-                    upflow[l] = upflow[l] + flowfix;
-                    swtemp[l] = soil_water_old + upflow[l] / soil_depth[l];
-                    swtemp[m] = swtemp[m] - flowfix / soil_depth[m];
+                    double flowfix =
+                        std::min(fabs(upward_flux[l] * timestep),
+                                 (sw_inf[m] - soil_saturation_capacity[m]) * soil_depth[m]);  // cm
+
+                    upward_flux[l] = upward_flux[l] + flowfix / timestep;                    // cm / hr
+                    swtemp[l] = soil_water_old + upward_flux[l] * timestep / soil_depth[l];  // m^3 / m^3
+                    swtemp[m] = swtemp[m] - flowfix / soil_depth[m];                         // m^3 / m^3
                 }
-            } else {  // No downward flow if SWTEMP < LL
-                upflow[l] = 0.0;
+            } else {
+                // No downward flow if SWTEMP < LL
+                upward_flux[l] = 0.0;  // cm / hr
             }
         }
     }
-    for (int l = 0; l < nlayers; l++) {
-        swdeltU[l] = swtemp[l] - soil_water_content[l];
-    }
+
+    upwardFlo_str return_value;
 
     for (int l = 0; l < nlayers; l++) {
-        return_value.upwardFlo[l] = upflow[l];  // Not used anymore. Can be removed
-        return_value.sw_delta_U[l] = swdeltU[l];
+        return_value.upwardFlo[l] = upward_flux[l];                      // cm / hr
+        return_value.sw_delta_U[l] = swtemp[l] - soil_water_content[l];  // m^3 / m^3
     }
+
     return return_value;
 }
 

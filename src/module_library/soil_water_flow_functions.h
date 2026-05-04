@@ -14,9 +14,8 @@ struct infilWater_str {
 };
 
 struct upwardFlo_str {
-    double upwardFlo[max_soil_layers];   // Movement of water between unsaturated soil layers due to soil evaporation
-    double sw_delta_U[max_soil_layers];  // Change in soil water content due to evaporation and/or upward
-                                         // flow in layer l (cm3 [water] / cm3 [soil])
+    double upwardFlo[max_soil_layers];   // cm / hr   - Movement of water between unsaturated soil layers due to upward flow
+    double sw_delta_U[max_soil_layers];  // m^3 / m^3 - Change in soil water content due to upward flow
 };
 
 struct tileDrain_str {
@@ -54,13 +53,15 @@ infilWater_str satflo(
 );
 
 upwardFlo_str up_flow(
-    int nlayers,
-    double sw_avail[],
-    double soil_depth[],
-    double soil_saturation_capacity[],
-    double soil_wilting_point[],
-    double soil_field_capacity[],
-    double soil_water_content[]);
+    int const nlayers,                        // not a physical quantity
+    double const swc_plus_sat[],              // m^3 / m^3
+    double const soil_depth[],                // cm
+    double const soil_saturation_capacity[],  // m^3 / m^3
+    double const soil_wilting_point[],        // m^3 / m^3
+    double const soil_field_capacity[],       // m^3 / m^3
+    double const soil_water_content[],        // m^3 / m^3
+    double const timestep                     // hr
+);
 
 tileDrain_str tile_flow(
     int nlayers,
