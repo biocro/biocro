@@ -296,7 +296,7 @@ void soil_water_tiledrain::do_operation() const
             timestep);
         // Skip tile drain section if depth of tile is <= 0
     } else {
-        tileDrain.cumulative_tile_flow = 0.0;
+        tileDrain.tile_flow_rate = 0.0;
         for (int l = 0; l < nlayers; l++) {
             tileDrain.sw_delta_T[l] = 0.0;
         }
@@ -304,7 +304,7 @@ void soil_water_tiledrain::do_operation() const
 
     // Update the output quantity list
     update(td_layer_num_op, td_layer_num);
-    update(tile_flow_rate_op, tileDrain.cumulative_tile_flow);
+    update(tile_flow_rate_op, tileDrain.tile_flow_rate);
 
     update(head_op, tileDrain.head);
 

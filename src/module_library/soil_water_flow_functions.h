@@ -23,7 +23,7 @@ struct tileDrain_str {
     double tdf_avail;                    // cm
     double topsat;                       // Not a physical quantity - Top saturated layer above drain
     double tile_drain_conductivity;      // cm / hr                 - Tile capacity to drain water
-    double cumulative_tile_flow;         // cm / hr                 - Tile drain flow rate
+    double tile_flow_rate;               // cm / hr                 - Tile drain flow rate
     double sw_delta_T[max_soil_layers];  // m^3 / m^3               - Change in soil water content due to tile drainage
 };
 
