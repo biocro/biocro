@@ -262,22 +262,24 @@ void soil_water_tiledrain::do_operation() const
         deltaS_5,   // cm^3 / cm^3
         deltaS_6};  // cm^3 / cm^3
 
-    int td_layer_num = 0;         // Layer number containing the tile drain
-    if (tile_drain_depth <= 0.0)  // Missing data or no tile
-        td_layer_num = -99;
+    int td_layer_num = 0;  // Layer number containing the tile drain
 
-    // Find layer number for tile
-    else {
+    if (tile_drain_depth <= 0.0) {
+        // Missing data or no tile
+        td_layer_num = -99;
+    } else {
+        // Find layer number for tile
         double cumulative_depth = soil_depth[0];  //cm
         for (int l = 1; l < nlayers; l++) {
             cumulative_depth = cumulative_depth + soil_depth[l];  //cm
 
-            if ((cumulative_depth >= tile_drain_depth) &&
-                ((cumulative_depth - soil_depth[l]) < tile_drain_depth)) {
+            if (cumulative_depth >= tile_drain_depth &&
+                (cumulative_depth - soil_depth[l]) < tile_drain_depth) {
                 td_layer_num = l;  // Layer number containing the tile drain
             }
         }
     }
+
     tileDrain_str tileDrain;
 
     if (td_layer_num > 0) {
@@ -297,6 +299,7 @@ void soil_water_tiledrain::do_operation() const
             tileDrain.sw_delta_T[l] = 0.0;
         }
     }
+
     // Update the output quantity list
     update(td_layer_num_op, td_layer_num);
     update(tile_flow_rate_op, tileDrain.cumulative_tile_flow);
