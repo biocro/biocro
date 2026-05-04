@@ -592,107 +592,127 @@ upwardFlo_str up_flow(
     return return_value;
 }
 
+/**
+ *  @brief Calculates flow through a multi-layer soil profile due to tile
+ *  drainage.
+ *
+ *  ### Model implementation
+ *
+ *  It is unknown whether these calculations are described in a publication.
+ *  This function is based on the subroutine `TILEDRAIN` from DSSAT. Here we
+ *  have converted the units from a "per day" basis to a "per hour" basis.
+ *
+ *  ### Source
+ *
+ *  - DSSAT Fortran source code:
+ *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/TILEDRAIN.for
+ */
 tileDrain_str tile_flow(
-    int nlayers,
-    int td_layer_num,
-    double tile_drainage_rate,          // 1/hr
-    double soil_depth[],                // cm
-    double soil_water_content[],        // (cm3 [water] / cm3 [soil])
-    double soil_field_capacity[],       // (cm3 [water] / cm3 [soil])
-    double soil_saturation_capacity[],  // (cm3 [water] / cm3 [soil])
-    double sw_delta_S[])                // (cm3 [water] / cm3 [soil])
+    int const nlayers,                        // not a physical quantity
+    int const td_layer_num,                   // not a physical quantity
+    double const tile_drainage_rate,          // 1 / hr
+    double const soil_depth[],                // cm
+    double const soil_water_content[],        // m^3 / m^3
+    double const soil_field_capacity[],       // m^3 / m^3
+    double const soil_saturation_capacity[],  // m^3 / m^3
+    double const sw_delta_S[],                // m^3 / m^3
+    double const timestep                     // hr
+)
 {
-    tileDrain_str return_value;
+    // Specify hard-coded parameter values
+    double constexpr sat_thresh = 0.98;  // dimensionless
 
-    double total_tile_flow = 0.0;  // TDFC
-    double swdeltT[nlayers];
-    double drn[nlayers];
+    // Initialize layer-dependent values
+    double drn[nlayers];      // cm
+    double swdeltT[nlayers];  // m^3 / m^3
+
     for (int l = 0; l < nlayers; l++) {
-        drn[l] = 0.0;
-        swdeltT[l] = 0.0;
+        drn[l] = 0.0;      // cm
+        swdeltT[l] = 0.0;  // m^3 / m^3
     }
-    // Compute hydraulic head above drain defined as top-most saturated layer above the
-    // drain. All saturated layers above the drain must be continuous. Compute soil water
-    // available to drain (water in saturated zone in exceedance of soil field capacity).
-    double head = 0.0;       // cm
-    int topsat;              // top-most saturated layer above the drain.
-    double tdf_avail = 0.0;  // Soil water available to drain, cm
-    for (int l = td_layer_num; l >= 0; l--) {
-        if (soil_water_content[l] >= (0.98 * soil_saturation_capacity[l])) {
-            // Rprintf("the value of SW_%i is > 0.9 * SAT_%i \n", l,l);
 
-            head = head + soil_depth[l];
-            tdf_avail = tdf_avail + (soil_water_content[l] + sw_delta_S[l] -
-                                     soil_field_capacity[l]) *
-                                        soil_depth[l];
+    // Initialize non-layer-dependent variables
+    double head = 0.0;                  // cm
+    double cumulative_tile_flow = 0.0;  // cm - The most water that can be drained in a timestep
+    double tdf_avail = 0.0;             // cm - Soil water available to drain
+    int topsat = 0;                     // top-most saturated layer above the drain
+
+    // Compute hydraulic head above drain defined as top-most saturated layer
+    // above the drain. All saturated layers above the drain must be continuous.
+    // Compute soil water available to drain (water in saturated zone in
+    // exceedance of soil field capacity).
+    for (int l = td_layer_num; l >= 0; l--) {
+        if (soil_water_content[l] >= sat_thresh * soil_saturation_capacity[l]) {
+            head = head + soil_depth[l];  // cm
+
+            tdf_avail = tdf_avail +
+                        (soil_water_content[l] + sw_delta_S[l] - soil_field_capacity[l]) *
+                            soil_depth[l];  // cm
+
             topsat = l;
         } else {
-            // Rprintf("the value of SW_%i is %f \n", l,soil_water_content[l]);
             // Total head includes saturated portion of first unsaturated layer.
-
-            // Rprintf("the value of SW_%i is smaller than SAT_%i \n", l,l);
             head = head + ((soil_water_content[l] - soil_field_capacity[l]) /
                            (soil_saturation_capacity[l] - soil_field_capacity[l])) *
                               soil_depth[l];
-            head = std::max(head, 0.0);
-            tdf_avail = tdf_avail + (soil_water_content[l] + sw_delta_S[l] -
-                                     soil_field_capacity[l]) *
-                                        soil_depth[l];
+
+            head = std::max(head, 0.0);  // cm
+
+            tdf_avail = tdf_avail +
+                        (soil_water_content[l] + sw_delta_S[l] - soil_field_capacity[l]) *
+                            soil_depth[l];  // cm
+
             topsat = l;
             break;
         }
     }
 
-    double tile_drain_conductivity = tile_drainage_rate * head;  // Conductivity of tile drain cm/hr
-    double cumulative_tile_flow = 0.0;                           // cm/hr
+    double const tile_drain_conductivity = tile_drainage_rate * head;  // cm / hr
 
     // Drain water from tile layer if layer is saturated
     if (head > 0.0) {
-        cumulative_tile_flow = std::min(tile_drain_conductivity, tdf_avail);
+        cumulative_tile_flow = std::min(tile_drain_conductivity * timestep, tdf_avail);  // cm
 
-        // Redistribute water from upper layers
-        // Assume that water is limited by user-specified tile drainage rate
-        // rather than by each layer's Ksat.
-        double drn_total = 0.0;  // cm/hr
-        double swdeltT_total = 0.0;
+        // Redistribute water from upper layers. Assume that water is limited by
+        // user-specified tile drainage rate rather than by each layer's Ksat.
+        double drn_total = 0.0;  // cm
         double excess = 0.0;
+
         for (int l = topsat; l <= td_layer_num; l++) {  // top saturated layer down to tiledrain
             if (drn_total < cumulative_tile_flow) {
-                // Rprintf("the value of drn_total is : %f \n", drn_total);
                 // Reduce soil water from top saturated layers until tile
                 // drainage capacity is met.
                 swdeltT[l] = -(soil_water_content[l] + sw_delta_S[l] -
-                               soil_field_capacity[l]);
-                // Rprintf("the value of swdeltT[%i] is : %f \n", l, swdeltT[l]);
-                drn_total = drn_total - swdeltT[l] * soil_depth[l];
-                drn[l] = drn[l] + drn_total;
+                               soil_field_capacity[l]);  // m^3 / m^3
+
+                drn_total = drn_total - swdeltT[l] * soil_depth[l];  // cm
+                drn[l] = drn[l] + drn_total;                         // cm
+
                 if (drn_total > cumulative_tile_flow) {
-                    // Rprintf("the value of drn_total > cumulative_tile_flow");
-                    excess = drn_total - cumulative_tile_flow;
-                    swdeltT[l] = swdeltT[l] + excess / soil_depth[l];
-                    drn[l] = drn[l] - excess;
+                    excess = drn_total - cumulative_tile_flow;         // cm
+                    swdeltT[l] = swdeltT[l] + excess / soil_depth[l];  // m^3 / m^3
+                    drn[l] = drn[l] - excess;                          // cm
                 }
             } else {
                 // Lower soil layers will remain at saturation
-                swdeltT[l] = 0.0;
-                drn[l] = drn[l] + cumulative_tile_flow;
+                swdeltT[l] = 0.0;                        // m^3 / m^3
+                drn[l] = drn[l] + cumulative_tile_flow;  // cm
             }
-
-            swdeltT_total = swdeltT_total + swdeltT[l] * soil_depth[l];
         }
-
-        total_tile_flow = total_tile_flow + cumulative_tile_flow;
     } else {
-        cumulative_tile_flow = 0.0;
+        cumulative_tile_flow = 0.0;  // cm
     }
-    return_value.head = head;
-    return_value.topsat = topsat;
-    return_value.tile_drain_conductivity = tile_drain_conductivity;
-    return_value.tdf_avail = tdf_avail;
-    return_value.cumulative_tile_flow = cumulative_tile_flow;
-    return_value.total_tile_flow = total_tile_flow;
+
+    tileDrain_str return_value;
+
+    return_value.head = head;                                             // cm
+    return_value.topsat = topsat;                                         // not a physical quantity
+    return_value.tile_drain_conductivity = tile_drain_conductivity;       // cm / hr
+    return_value.tdf_avail = tdf_avail;                                   // cm
+    return_value.cumulative_tile_flow = cumulative_tile_flow / timestep;  // cm / hr
+
     for (int l = 0; l < nlayers; l++) {
-        return_value.sw_delta_T[l] = swdeltT[l];
+        return_value.sw_delta_T[l] = swdeltT[l];  // m^3 / m^3
     }
 
     return return_value;

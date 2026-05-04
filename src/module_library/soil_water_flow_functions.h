@@ -19,14 +19,12 @@ struct upwardFlo_str {
 };
 
 struct tileDrain_str {
-    double head;
-    double tdf_avail;
-    double topsat;                       // Top saturated layer above drain
-    double tile_drain_conductivity;      // Tile capacity to drain water
-    double cumulative_tile_flow;         // Cumulative Tile drain flow, cm/hr
-    double total_tile_flow;              // Sum of tile drain flow from beginning of model run, cm
-    double sw_delta_T[max_soil_layers];  // Change in soil water content due to tile drainage
-                                         // flow in layer l (cm3 [water] / cm3 [soil])
+    double head;                         // cm
+    double tdf_avail;                    // cm
+    double topsat;                       // Not a physical quantity - Top saturated layer above drain
+    double tile_drain_conductivity;      // cm / hr                 - Tile capacity to drain water
+    double cumulative_tile_flow;         // cm / hr                 - Tile drain flow rate
+    double sw_delta_T[max_soil_layers];  // m^3 / m^3               - Change in soil water content due to tile drainage
 };
 
 infilWater_str infil(
@@ -64,13 +62,15 @@ upwardFlo_str up_flow(
 );
 
 tileDrain_str tile_flow(
-    int nlayers,
-    int td_layer_num,
-    double tile_drainage_rate,
-    double soil_depth[],
-    double soil_water_content[],
-    double soil_field_capacity[],
-    double soil_saturation_capacity[],
-    double sw_delta_S[]);
+    int const nlayers,                        // not a physical quantity
+    int const td_layer_num,                   // not a physical quantity
+    double const tile_drainage_rate,          // 1 / hr
+    double const soil_depth[],                // cm
+    double const soil_water_content[],        // m^3 / m^3
+    double const soil_field_capacity[],       // m^3 / m^3
+    double const soil_saturation_capacity[],  // m^3 / m^3
+    double const sw_delta_S[],                // m^3 / m^3
+    double const timestep                     // hr
+);
 
 #endif

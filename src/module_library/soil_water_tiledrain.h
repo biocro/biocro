@@ -220,7 +220,8 @@ string_vector soil_water_tiledrain::get_outputs()
 
 void soil_water_tiledrain::do_operation() const
 {
-    int nlayers = 6;
+    int constexpr nlayers = 6;
+    double constexpr timestep = 1; // hr
 
     double soil_depth[] = {
         soil_depth_1,   // cm
@@ -291,7 +292,8 @@ void soil_water_tiledrain::do_operation() const
             soil_water_content,
             soil_field_capacity,
             soil_saturation_capacity,
-            sw_delta_S);
+            sw_delta_S,
+            timestep);
         // Skip tile drain section if depth of tile is <= 0
     } else {
         tileDrain.cumulative_tile_flow = 0.0;
