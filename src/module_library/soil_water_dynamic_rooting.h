@@ -71,7 +71,7 @@ class soil_water_dynamic_rooting : public direct_module
 string_vector soil_water_dynamic_rooting::get_inputs()
 {
     return {
-        "min_root_depth",  // dimensionless 
+        "min_root_depth",  // cm 
         "rsdf",  // m / Mg / ha. Constant conversion from biomass to depth  
         "Root",  // Mg / ha 
         "soil_depth_1",  // cm 
@@ -93,6 +93,7 @@ string_vector soil_water_dynamic_rooting::get_outputs()
 void soil_water_dynamic_rooting::do_operation() const
 {
     double constexpr m_to_cm = 100;
+    double constexpr epsilon = 0.01; // cm
     // Array of layer thicknesses for easy iteration
     double thicknesses[] = { // cm
         soil_depth_1, 
@@ -104,11 +105,13 @@ void soil_water_dynamic_rooting::do_operation() const
     };
 
     // Calculate root depth
-    double rootDepth = rsdf * Root * m_to_cm; // cm
+    // the minimal depth root can access is min_root_depth
+    double rootDepth = std::max(min_root_depth + epsilon,rsdf * Root * m_to_cm); // cm
     
     // Determine how many layers are within the root depth
     int layers_count = 0; // dimensionless
     double cumulative_depth = 0.0; // cm
+
     
     for (int i = 0; i < 6; ++i) {
         // If the top of the current layer is already beyond the root depth, stop.
@@ -120,8 +123,6 @@ void soil_water_dynamic_rooting::do_operation() const
         }
         cumulative_depth += thicknesses[i];
     }
-    // the minimal depth root can access is min_root_depth
-    layers_count = std::max(layers_count,static_cast<int>(min_root_depth));
     update(max_rooting_layer_op, static_cast<double>(layers_count));
 }
 
