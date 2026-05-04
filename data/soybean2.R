@@ -165,6 +165,7 @@ soybean2 <- list(
         RL_at_25                    = 1.28,
         RL_Ea                       = 46390,
         Rmax_emrV0                  = 0.199,
+        rsdf                        = 0.44,
         skc                         = 0.55,
         soil_depth_1                = 5,
         soil_depth_2                = 10,
