@@ -142,6 +142,7 @@ soybean2 <- list(
         longitude                   = -88,
         maturity_group              = 3,
         min_gbw_canopy              = 0.005,
+        min_root_depth              = 2,
         mrc_grain                   = 0,
         mrc_leaf                    = 0.00023313780,
         mrc_rhizome                 = 0,
