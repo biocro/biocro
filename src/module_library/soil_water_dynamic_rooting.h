@@ -12,6 +12,8 @@ namespace standardBML
  *  @brief Allows max_rooting_layer to change over time based on Root biomass 
  *  This is a very simple function to convert biomass to root depth, which is the number of
  *  soil layers that roots are able to access for root water uptake calculation. 
+ *  The constant conversion factor `rsdf` (0.44) is a legacy value inherited 
+ *  from early versions of BioCro, likely standing for Root Soil Depth Factor.
  *  Another key concept for root water uptake is the root distribution, which
  *  is handled in soil_water_uptake.h with an exponential decay function.
  *  The decay function simulates most roots accumulate at top layers so not all layers
