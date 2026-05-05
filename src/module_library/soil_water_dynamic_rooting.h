@@ -9,10 +9,10 @@ namespace standardBML
 /**
  *  @class soil_water_dynamic_rooting
  *
- *  @brief Allows max_rooting_layer to change over time based on Root biomass 
+ *  @brief Allows max_rooting_layer to change over time based on Root biomass
  *  This is a very simple function to convert biomass to root depth, which is the number of
- *  soil layers that roots are able to access for root water uptake calculation. 
- *  The constant conversion factor `rsdf` (0.44) is a legacy value inherited 
+ *  soil layers that roots are able to access for root water uptake calculation.
+ *  The constant conversion factor `rsdf` (0.44) is a legacy value inherited
  *  from early versions of BioCro, likely standing for Root Soil Depth Factor.
  *  Another key concept for root water uptake is the root distribution, which
  *  is handled in soil_water_uptake.h with an exponential decay function.
@@ -71,15 +71,15 @@ class soil_water_dynamic_rooting : public direct_module
 string_vector soil_water_dynamic_rooting::get_inputs()
 {
     return {
-        "min_root_depth",  // cm 
-        "rsdf",  // m / Mg / ha. Constant conversion from biomass to depth  
-        "Root",  // Mg / ha 
-        "soil_depth_1",  // cm 
-        "soil_depth_2",  // cm 
-        "soil_depth_3",  // cm 
-        "soil_depth_4",  // cm 
-        "soil_depth_5",  // cm 
-        "soil_depth_6"  //  cm 
+        "min_root_depth",  // cm
+        "rsdf",            // m / Mg / ha. Constant conversion from biomass to depth
+        "Root",            // Mg / ha
+        "soil_depth_1",    // cm
+        "soil_depth_2",    // cm
+        "soil_depth_3",    // cm
+        "soil_depth_4",    // cm
+        "soil_depth_5",    // cm
+        "soil_depth_6"     // cm
     };
 }
 
@@ -93,26 +93,26 @@ string_vector soil_water_dynamic_rooting::get_outputs()
 void soil_water_dynamic_rooting::do_operation() const
 {
     double constexpr m_to_cm = 100;
-    double constexpr epsilon = 0.01; // cm
+    double constexpr epsilon = 0.01;  // cm
+
     // Array of layer thicknesses for easy iteration
-    double thicknesses[] = { // cm
-        soil_depth_1, 
-        soil_depth_2, 
-        soil_depth_3, 
-        soil_depth_4, 
-        soil_depth_5, 
-        soil_depth_6
+    double thicknesses[] = {
+        soil_depth_1,  // cm
+        soil_depth_2,  // cm
+        soil_depth_3,  // cm
+        soil_depth_4,  // cm
+        soil_depth_5,  // cm
+        soil_depth_6   // cm
     };
 
     // Calculate root depth
     // the minimal depth root can access is min_root_depth
-    double rootDepth = std::max(min_root_depth + epsilon,rsdf * Root * m_to_cm); // cm
-    
-    // Determine how many layers are within the root depth
-    int layers_count = 0; // dimensionless
-    double cumulative_depth = 0.0; // cm
+    double rootDepth = std::max(min_root_depth + epsilon, rsdf * Root * m_to_cm);  // cm
 
-    
+    // Determine how many layers are within the root depth
+    int layers_count = 0;           // dimensionless
+    double cumulative_depth = 0.0;  // cm
+
     for (int i = 0; i < 6; ++i) {
         // If the top of the current layer is already beyond the root depth, stop.
         // However, usually we count a layer if the roots have entered it at all.

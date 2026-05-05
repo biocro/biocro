@@ -170,7 +170,7 @@ string_vector multi_layer_soil_profile::get_inputs()
         "deltaT_1",              // cm^3/cm^3
         "uptake_layer_1",        // Mg/ha/hr
 
-        "soil_depth_2",          // cm        
+        "soil_depth_2",          // cm
         "soil_water_content_2",  // cm^3/cm^3
         "deltaS_2",              // cm^3/cm^3
         "deltaU_2",              // cm^3/cm^3
@@ -215,64 +215,76 @@ string_vector multi_layer_soil_profile::get_outputs()
         "soil_water_content_3",  // cm^3/cm^3
         "soil_water_content_4",  // cm^3/cm^3
         "soil_water_content_5",  // cm^3/cm^3
-        "soil_water_content_6"}; // cm^3/cm^3 
+        "soil_water_content_6"   // cm^3/cm^3
+    };
 }
 
 void multi_layer_soil_profile::do_operation() const
 {
     int nlayers = 6;
-    double soil_depth[] = {// cm
-                           soil_depth_1,
-                           soil_depth_2,
-                           soil_depth_3,
-                           soil_depth_4,
-                           soil_depth_5,
-                           soil_depth_6};
-    double soil_water_content[] = {// cm^3/cm^3
-                                   soil_water_content_1,
-                                   soil_water_content_2,
-                                   soil_water_content_3,
-                                   soil_water_content_4,
-                                   soil_water_content_5,
-                                   soil_water_content_6};
 
-    double swdeltS[] = {// cm^3/cm^3/hr
-                        deltaS_1,
-                        deltaS_2,
-                        deltaS_3,
-                        deltaS_4,
-                        deltaS_5,
-                        deltaS_6};
-    double swdeltU[] = {// cm^3/cm^3/hr
-                        deltaU_1,
-                        deltaU_2,
-                        deltaU_3,
-                        deltaU_4,
-                        deltaU_5,
-                        deltaU_6};
-    double swdeltT[] = {// cm^3/cm^3/hr
-                        deltaT_1,
-                        deltaT_2,
-                        deltaT_3,
-                        deltaT_4,
-                        deltaT_5,
-                        deltaT_6};
-    double uptake[] = {// Mg/ha/hr
-                       uptake_layer_1,
-                       uptake_layer_2,
-                       uptake_layer_3,
-                       uptake_layer_4,
-                       uptake_layer_5,
-                       uptake_layer_6};
+    double soil_depth[] = {
+        soil_depth_1,  // cm
+        soil_depth_2,  // cm
+        soil_depth_3,  // cm
+        soil_depth_4,  // cm
+        soil_depth_5,  // cm
+        soil_depth_6   // cm
+    };
+
+    double soil_water_content[] = {
+        soil_water_content_1,  // cm^3/cm^3
+        soil_water_content_2,  // cm^3/cm^3
+        soil_water_content_3,  // cm^3/cm^3
+        soil_water_content_4,  // cm^3/cm^3
+        soil_water_content_5,  // cm^3/cm^3
+        soil_water_content_6   // cm^3/cm^3
+    };
+
+    double swdeltS[] = {
+        deltaS_1,  // cm^3/cm^3/hr
+        deltaS_2,  // cm^3/cm^3/hr
+        deltaS_3,  // cm^3/cm^3/hr
+        deltaS_4,  // cm^3/cm^3/hr
+        deltaS_5,  // cm^3/cm^3/hr
+        deltaS_6   // cm^3/cm^3/hr
+    };
+
+    double swdeltU[] = {
+        deltaU_1,  // cm^3/cm^3/hr
+        deltaU_2,  // cm^3/cm^3/hr
+        deltaU_3,  // cm^3/cm^3/hr
+        deltaU_4,  // cm^3/cm^3/hr
+        deltaU_5,  // cm^3/cm^3/hr
+        deltaU_6   // cm^3/cm^3/hr
+    };
+
+    double swdeltT[] = {
+        deltaT_1,  // cm^3/cm^3/hr
+        deltaT_2,  // cm^3/cm^3/hr
+        deltaT_3,  // cm^3/cm^3/hr
+        deltaT_4,  // cm^3/cm^3/hr
+        deltaT_5,  // cm^3/cm^3/hr
+        deltaT_6   // cm^3/cm^3/hr
+    };
+
+    double uptake[] = {
+        uptake_layer_1,  // Mg/ha/hr
+        uptake_layer_2,  // Mg/ha/hr
+        uptake_layer_3,  // Mg/ha/hr
+        uptake_layer_4,  // Mg/ha/hr
+        uptake_layer_5,  // Mg/ha/hr
+        uptake_layer_6   // Mg/ha/hr
+    };
 
     constexpr double cm_to_mm = 10.0;
     constexpr double MG_HA_to_mm = 0.1;  // Mg/ha of water = 0.1 mm
-    constexpr double timestep = 1; // hr
+    constexpr double timestep = 1;       // hr
     // Calculate total change in soil water content
     double delta_soil_water_content[nlayers];  // cm^3/cm^3
     for (int l = 0; l < nlayers; l++) {
         // adding uptake because value is negative
-        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] * timestep * MG_HA_to_mm / (cm_to_mm * soil_depth[l])); // cm^3/cm^3
+        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] * timestep * MG_HA_to_mm / (cm_to_mm * soil_depth[l]));  // cm^3/cm^3
         if (soil_water_content[l] + delta_soil_water_content[l] < 0) {
             delta_soil_water_content[l] = -soil_water_content[l];
         }
