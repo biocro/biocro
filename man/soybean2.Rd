@@ -31,6 +31,13 @@
           indicating that these parameters do not change much for different
           crops. Here we use 1.15, 0, and 0.55 for soybean, where the \code{skc}
           value is the mean of the maize and cotton values.
+    \item Stomatal water stress parameters: Values of \code{StomataWS_gradient}
+          and \code{StomataWS_intercept} were determined by matching predicted
+          and values of stomatal conductance with observed ones as reported in
+          Gray \emph{et al}. 2016. A script for determining the values is
+          included with the BioCro package; its location can be found by typing
+          \code{system.file('extdata', 'optimize_StomataWS_linear.R', package = 'BioCro')}
+          in an R session.
     \item Regarding soil types in Champaign County: according to 
           \href{https://websoilsurvey.nrcs.usda.gov/app/}{the Web Soil Survey}, 
           soils in this region are predominantly silty clay loam, loam, and silt loam,
