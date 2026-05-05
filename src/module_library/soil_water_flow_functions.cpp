@@ -518,21 +518,15 @@ upwardFlo_str up_flow(
         double const thet2 =
             std::max(0.0, std::min(swtemp[m] - soil_wilting_point[m], esw[m]));  // m^3 / m^3
 
-        // Note from EL on 2026-05-05: This seems to be a modification of the
-        // equation for `DBAR` from Ritchie (1998), which uses
-        // `theta_avg = 0.5 * (thet1 + thet2)`. This original version can be
-        // extended to layers of different thickness by using a
-        // thickness-weighted average:
-        // `theta_avg = (thet1 * d1 + thet2 * d2) / (d1 + d2)`. It looks like
-        // someone attempted to do this, but left the 0.5 in place, leading to
-        // `theta_avg = 0.5 * (thet1 * d1 + thet2 * d2) / (d1 + d2)`. This may
-        // not be correct.
+        // Note from EL on 2026-05-05: Our version of this equation is different
+        // from DSSAT, where `theta_avg_dssat = 0.5 * theta_avg_biocro`. We
+        // believe the factor of 0.5 in the DSSAT code is a typo.
         double const theta_avg =
-            0.5 * (thet1 * soil_depth[l] + thet2 * soil_depth[m]) /
+            (thet1 * soil_depth[l] + thet2 * soil_depth[m]) /
             (soil_depth[l] + soil_depth[m]);  // m^3 / m^3
 
         double const dbar =
-            std::min(max_dbar_hr, soil_diffusivity_hr * exp(35.4 * theta_avg));  // cm / hr
+            std::min(max_dbar_hr, soil_diffusivity_hr * exp(rose_const * theta_avg));  // cm / hr
 
         double const grad =
             (thet2 / esw[m] - thet1 / esw[l]) *
