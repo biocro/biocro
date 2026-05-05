@@ -77,7 +77,6 @@ class soil_water_downflow : public direct_module
 
           // Get pointers to output quantities
           infiltrated_water_op{get_op(output_quantities, "infiltrated_water")},
-          potential_infiltration_op{get_op(output_quantities, "potential_infiltration")},
           excess_water_op{get_op(output_quantities, "excess_water")},
           drain_op{get_op(output_quantities, "drain")},
 
@@ -102,7 +101,7 @@ class soil_water_downflow : public direct_module
 
    private:
     // References to input quantities
-    double const& available_water;  
+    double const& available_water;
     double const& surface_runoff;
     double const& swcon;
 
@@ -150,7 +149,6 @@ class soil_water_downflow : public direct_module
 
     // Pointers to output quantities
     double* infiltrated_water_op;
-    double* potential_infiltration_op;
     double* excess_water_op;
     double* drain_op;
 
@@ -175,30 +173,30 @@ class soil_water_downflow : public direct_module
 string_vector soil_water_downflow::get_inputs()
 {
     return {
-        "available_water",  // mm / hr. Water available for infiltration or runoff (rainfall plus irrigation) 
-        "surface_runoff",   // mm / hr. 
+        "available_water",  // mm / hr. Water available for infiltration or runoff (rainfall plus irrigation)
+        "surface_runoff",   // mm / hr.
         "swcon",            // 1 / hr. Soil water conductivity constant; whole profile drainage rate coefficient
 
         "soil_depth_1",  // cm
-        "soil_water_content_1",  // cm^3 / cm^3 
+        "soil_water_content_1",  // cm^3 / cm^3
         "soil_saturated_conductivity_1",  // kg s m^-3
-        "soil_saturation_capacity_1",  // cm^3 / cm^3 
+        "soil_saturation_capacity_1",  // cm^3 / cm^3
         "soil_field_capacity_1",  // cm^3 / cm^3
 
-        "soil_depth_2",  // cm 
+        "soil_depth_2",  // cm
         "soil_water_content_2",  // cm^3 / cm^3
         "soil_saturated_conductivity_2",  // kg s m^-3
         "soil_saturation_capacity_2",  // cm^3 / cm^3
         "soil_field_capacity_2",  // cm^3 / cm^3
 
-        "soil_depth_3",  // cm. 
+        "soil_depth_3",  // cm.
         "soil_water_content_3",  // cm^3 / cm^3
         "soil_saturated_conductivity_3",  // kg s m^-3
         "soil_saturation_capacity_3",  // cm^3 / cm^3
         "soil_field_capacity_3",  // cm^3 / cm^3
 
         "soil_depth_4",  // cm
-        "soil_water_content_4",  // cm^3 / cm^3  
+        "soil_water_content_4",  // cm^3 / cm^3
         "soil_saturated_conductivity_4",  // kg s m^-3
         "soil_saturation_capacity_4",  // cm^3 / cm^3
         "soil_field_capacity_4",  // cm^3 / cm^3
@@ -220,29 +218,32 @@ string_vector soil_water_downflow::get_inputs()
 string_vector soil_water_downflow::get_outputs()
 {
     return {
-        "infiltrated_water",       // mm / hr. Water available for infiltration - rainfall minus runoff plus net irrigation 
-        "potential_infiltration",  // cm 
-        "excess_water",            // cm / hr. Excess water to be added to runoff 
-        "drain",                   // mm. Drainage rate from soil profile.  
+        "infiltrated_water",       // mm / hr. Water available for infiltration - rainfall minus runoff plus net irrigation
+        "excess_water",            // mm / hr. Excess water to be added to runoff
+        "drain",                   // mm / hr. Drainage rate from soil profile.
 
-        "deltaS_1",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 1 
-        "deltaS_2",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 2 
-        "deltaS_3",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 3 
-        "deltaS_4",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 4 
-        "deltaS_5",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 5 
-        "deltaS_6",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 6 
+        "deltaS_1",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 1
+        "deltaS_2",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 2
+        "deltaS_3",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 3
+        "deltaS_4",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 4
+        "deltaS_5",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 5
+        "deltaS_6",  // cm^3 / cm^3. Change in soil water content due to drainage in layer 6
 
-        "drn_1",  // cm / hr. Drainage rate through soil layer 1 
-        "drn_2",  // cm / hr. Drainage rate through soil layer 2 
-        "drn_3",  // cm / hr. Drainage rate through soil layer 3 
-        "drn_4",  // cm / hr. Drainage rate through soil layer 4 
-        "drn_5",  // cm / hr. Drainage rate through soil layer 5 
-        "drn_6"   // cm / hr. Drainage rate through soil layer 6 
+        "drn_1",  // cm / hr. Drainage rate through soil layer 1
+        "drn_2",  // cm / hr. Drainage rate through soil layer 2
+        "drn_3",  // cm / hr. Drainage rate through soil layer 3
+        "drn_4",  // cm / hr. Drainage rate through soil layer 4
+        "drn_5",  // cm / hr. Drainage rate through soil layer 5
+        "drn_6"   // cm / hr. Drainage rate through soil layer 6
     };
 }
 
 void soil_water_downflow::do_operation() const
 {
+    // Define hard-coded parameter values
+    double constexpr eps_sw = 0.0001;  // cm - small threshold value of soil water
+    double constexpr mm_to_cm = 0.1;   // cm / mm
+    double constexpr timestep = 1.0;   // hr
     int nlayers = 6;
 
     double soil_depth[] = {
@@ -277,13 +278,13 @@ void soil_water_downflow::do_operation() const
         soil_water_content_5,  // cm^3 / cm^3
         soil_water_content_6};  // cm^3 / cm^3
 
-    // Convert saturated conductivity from kg s / m^3 to cm / hr    
+    // Convert saturated conductivity from kg s / m^3 to cm / hr
     // The data was plotted with values in both units to obtain a linear relationship
     // cm / hr = 3620.1 * (kg s / m^3) - 0.0104
     double constexpr kg_s_per_m3_to_cm_per_hr = 3620.1;  // (cm / hr) / (kg s m^-3)
-    double constexpr sat_conductivity_intercept = 0.0104; 
+    double constexpr sat_conductivity_intercept = 0.0104;
     double soil_sat_conductivity_1 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_1 - sat_conductivity_intercept;  // cm / hr
-    double soil_sat_conductivity_2 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_2 - sat_conductivity_intercept;  // cm / hr  
+    double soil_sat_conductivity_2 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_2 - sat_conductivity_intercept;  // cm / hr
     double soil_sat_conductivity_3 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_3 - sat_conductivity_intercept;  // cm / hr
     double soil_sat_conductivity_4 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_4 - sat_conductivity_intercept;  // cm / hr
     double soil_sat_conductivity_5 = kg_s_per_m3_to_cm_per_hr * soil_saturated_conductivity_5 - sat_conductivity_intercept;  // cm / hr
@@ -298,50 +299,41 @@ void soil_water_downflow::do_operation() const
         soil_sat_conductivity_6};  // cm / hr
 
     double infiltrated_water = available_water - surface_runoff;  // mm / hr
-    // Potential for infilitration
-    double constexpr mm_to_cm = 0.1;  // cm / mm
-    double constexpr timestep = 1.0;  // hr
-    double potential_infiltration = infiltrated_water * mm_to_cm * timestep;  // cm
+
+    // Convert units
+    double const infiltrated_water_cm = infiltrated_water * mm_to_cm; // cm / hr
 
     infilWater_str infilWater;
 
     // Call INFIL to calculate infiltration rates on days with irrigation or rainfall.
     // Call SATFLO on days with no irrigation or rain to calculate saturated flow.
-    // double new_surface_runoff;
-    if (potential_infiltration > 0.0001) {
+    if (infiltrated_water_cm * timestep > eps_sw) {
         infilWater = infil(
             nlayers,
-            potential_infiltration,
+            infiltrated_water_cm,
             swcon,
             soil_depth,
             soil_saturation_capacity,
             soil_field_capacity,
             soil_water_content,
-            soil_saturated_conductivity);
-        // if(infilWater.excess_water > 0) {
-        //   new_surface_runoff = surface_runoff + infilWater.excess_water * 10.0;
-        // } else {
-        //   new_surface_runoff = surface_runoff;
-        // }
+            soil_saturated_conductivity,
+            timestep);
     } else {
         infilWater = satflo(
             nlayers,
-            potential_infiltration,
             swcon,
             soil_depth,
             soil_saturation_capacity,
             soil_field_capacity,
             soil_water_content,
-            soil_saturated_conductivity);
-        // new_surface_runoff = surface_runoff;
+            soil_saturated_conductivity,
+            timestep);
     }
 
     // Update the output quantity list
-    // update(surface_runoff_op, new_surface_runoff);
     update(infiltrated_water_op, infiltrated_water);
-    update(potential_infiltration_op, potential_infiltration);
-    update(excess_water_op, infilWater.excess_water);
-    update(drain_op, infilWater.drain);
+    update(excess_water_op, infilWater.excess_water_rate);
+    update(drain_op, infilWater.overall_drainage_rate);
 
     update(deltaS_1_op, infilWater.sw_delta_S[0]);
     update(deltaS_2_op, infilWater.sw_delta_S[1]);
@@ -350,12 +342,12 @@ void soil_water_downflow::do_operation() const
     update(deltaS_5_op, infilWater.sw_delta_S[4]);
     update(deltaS_6_op, infilWater.sw_delta_S[5]);
 
-    update(drn_1_op, infilWater.drn[0]);
-    update(drn_2_op, infilWater.drn[1]);
-    update(drn_3_op, infilWater.drn[2]);
-    update(drn_4_op, infilWater.drn[3]);
-    update(drn_5_op, infilWater.drn[4]);
-    update(drn_6_op, infilWater.drn[5]);
+    update(drn_1_op, infilWater.downward_flux[0]);
+    update(drn_2_op, infilWater.downward_flux[1]);
+    update(drn_3_op, infilWater.downward_flux[2]);
+    update(drn_4_op, infilWater.downward_flux[3]);
+    update(drn_5_op, infilWater.downward_flux[4]);
+    update(drn_6_op, infilWater.downward_flux[5]);
 }
 
 }  // namespace standardBML
