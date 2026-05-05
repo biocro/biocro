@@ -436,6 +436,9 @@ infilWater_str satflo(
  *  presented in Ritchie (1998). It can be found in the section titled
  *  "Evapotranspiration and upward flow."
  *
+ *  One of the parameter values reported in Ritchie (1998) was found by fitting
+ *  data from Rose (1968).
+ *
  *  ### Model implementation
  *
  *  Ritchie (1998) provides equations that can be used to implement the model.
@@ -451,6 +454,10 @@ infilWater_str satflo(
  *  - [Ritchie, J. T. "Soil water balance and plant water stress" in "Understanding Options for Agricultural Production"
  *    (eds Tsuji, G. Y., Hoogenboom, G. & Thornton, P. K.) 41–54 (Springer Netherlands, Dordrecht, 1998)]
  *    (https://doi.org/10.1007/978-94-017-3624-4_3)
+ *
+ *  - [Rose, D. A. "Water movement in porous materials III. Evaporation of water
+ *    from soil." J. Phys. D: Appl. Phys. 1, 1779 (1968)]
+ *    (https://doi.org/10.1088/0022-3727/1/12/327)
  *
  *  - DSSAT Fortran source code:
  *    https://github.com/DSSAT/dssat-csm-os/blob/develop/Soil/SoilWater/WBSUBS.for
@@ -472,6 +479,7 @@ upwardFlo_str up_flow(
     // Specify hard-coded parameter values
     double constexpr hours_per_day = 24.0;               // hr / day
     double constexpr max_dbar = 100;                     // cm / day
+    double constexpr rose_const = 35.4;                  // dimensionless - fitted by Ritchie (1998) from data reported in Rose (1968)
     double constexpr soil_diffusivity = 0.88;            // cm / day
     double constexpr surface_thickness_threshold = 5.0;  // cm
 
@@ -510,12 +518,21 @@ upwardFlo_str up_flow(
         double const thet2 =
             std::max(0.0, std::min(swtemp[m] - soil_wilting_point[m], esw[m]));  // m^3 / m^3
 
-        double const normalized_wc =
+        // Note from EL on 2026-05-05: This seems to be a modification of the
+        // equation for `DBAR` from Ritchie (1998), which uses
+        // `theta_avg = 0.5 * (thet1 + thet2)`. This original version can be
+        // extended to layers of different thickness by using a
+        // thickness-weighted average:
+        // `theta_avg = (thet1 * d1 + thet2 * d2) / (d1 + d2)`. It looks like
+        // someone attempted to do this, but left the 0.5 in place, leading to
+        // `theta_avg = 0.5 * (thet1 * d1 + thet2 * d2) / (d1 + d2)`. This may
+        // not be correct.
+        double const theta_avg =
             0.5 * (thet1 * soil_depth[l] + thet2 * soil_depth[m]) /
             (soil_depth[l] + soil_depth[m]);  // m^3 / m^3
 
         double const dbar =
-            std::min(max_dbar_hr, soil_diffusivity_hr * exp(35.4 * normalized_wc));  // cm / hr
+            std::min(max_dbar_hr, soil_diffusivity_hr * exp(35.4 * theta_avg));  // cm / hr
 
         double const grad =
             (thet2 / esw[m] - thet1 / esw[l]) *
@@ -676,7 +693,7 @@ tileDrain_str tile_flow(
         // Redistribute water from upper layers. Assume that water is limited by
         // user-specified tile drainage rate rather than by each layer's Ksat.
         double drn_total = 0.0;  // cm
-        double excess = 0.0;
+        double excess = 0.0;     // cm
 
         for (int l = topsat; l <= td_layer_num; l++) {  // top saturated layer down to tiledrain
             if (drn_total < tile_flow) {
