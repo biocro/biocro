@@ -70,7 +70,7 @@ class soil_water_tiledrain : public direct_module
 
           // Get pointers to output quantities
           td_layer_num_op{get_op(output_quantities, "td_layer_num")},
-          tile_flow_rate_op{get_op(output_quantities, "tile_flow_rate")}, 
+          tile_flow_rate_op{get_op(output_quantities, "tile_flow_rate")},
 
           head_op{get_op(output_quantities, "head")},
           tdf_avail_op{get_op(output_quantities, "tdf_avail")},
@@ -139,7 +139,7 @@ class soil_water_tiledrain : public direct_module
 
     // Pointers to output quantities
     double* td_layer_num_op;
-    double* tile_flow_rate_op; 
+    double* tile_flow_rate_op;
 
     double* head_op;
     double* tdf_avail_op;
@@ -163,121 +163,124 @@ string_vector soil_water_tiledrain::get_inputs()
         "tile_drain_depth",    //  cm. Depth of the tile drain
         "tile_drainage_rate",  // 1 / hr. Tile drainage rate 0.2 (from DSSAT)
 
-        "soil_depth_1",  // cm 
-        "soil_water_content_1",  // cm^3 / cm^3
-        "soil_field_capacity_1",  // cm^3 / cm^3
+        "soil_depth_1",                // cm
+        "soil_water_content_1",        // cm^3 / cm^3
+        "soil_field_capacity_1",       // cm^3 / cm^3
         "soil_saturation_capacity_1",  // cm^3 / cm^3
-        "deltaS_1",  // cm^3 / cm^3. Change in soil water content due to drainage in soil layer l
+        "deltaS_1",                    // cm^3 / cm^3. Change in soil water content due to drainage in soil layer l
 
-        "soil_depth_2", // cm
-        "soil_water_content_2",  // cm^3 / cm^3
-        "soil_field_capacity_2",  // cm^3 / cm^3
+        "soil_depth_2",                // cm
+        "soil_water_content_2",        // cm^3 / cm^3
+        "soil_field_capacity_2",       // cm^3 / cm^3
         "soil_saturation_capacity_2",  // cm^3 / cm^3
-        "deltaS_2",  // cm^3 / cm^3
+        "deltaS_2",                    // cm^3 / cm^3
 
-        "soil_depth_3",  // cm
-        "soil_water_content_3",  // cm^3 / cm^3
-        "soil_field_capacity_3",  // cm^3 / cm^3
+        "soil_depth_3",                // cm
+        "soil_water_content_3",        // cm^3 / cm^3
+        "soil_field_capacity_3",       // cm^3 / cm^3
         "soil_saturation_capacity_3",  // cm^3 / cm^3
-        "deltaS_3",  // cm^3 / cm^3
+        "deltaS_3",                    // cm^3 / cm^3
 
-        "soil_depth_4",  // cm
-        "soil_water_content_4",  // cm^3 / cm^3
-        "soil_field_capacity_4",  // cm^3 / cm^3
+        "soil_depth_4",                // cm
+        "soil_water_content_4",        // cm^3 / cm^3
+        "soil_field_capacity_4",       // cm^3 / cm^3
         "soil_saturation_capacity_4",  // cm^3 / cm^3
-        "deltaS_4",  // cm^3 / cm^3
+        "deltaS_4",                    // cm^3 / cm^3
 
-        "soil_depth_5",  // cm
-        "soil_water_content_5",  // cm^3 / cm^3
-        "soil_field_capacity_5",  // cm^3 / cm^3
+        "soil_depth_5",                // cm
+        "soil_water_content_5",        // cm^3 / cm^3
+        "soil_field_capacity_5",       // cm^3 / cm^3
         "soil_saturation_capacity_5",  // cm^3 / cm^3
-        "deltaS_5",  // cm^3 / cm^3
+        "deltaS_5",                    // cm^3 / cm^3
 
-        "soil_depth_6",  // cm
-        "soil_water_content_6",  // cm^3 / cm^3
-        "soil_field_capacity_6",  // cm^3 / cm^3
+        "soil_depth_6",                // cm
+        "soil_water_content_6",        // cm^3 / cm^3
+        "soil_field_capacity_6",       // cm^3 / cm^3
         "soil_saturation_capacity_6",  // cm^3 / cm^3
-        "deltaS_6"};  // cm^3 / cm^3 
+        "deltaS_6"};                   // cm^3 / cm^3
 }
 
 string_vector soil_water_tiledrain::get_outputs()
 {
     return {
-        "td_layer_num",          // Dimensionless. Soil layer number containing the tile drain
-        "tile_flow_rate",  // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var 
+        "td_layer_num",       // Dimensionless. Soil layer number containing the tile drain
+        "tile_flow_rate",     // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
         "head",               // cm
         "tdf_avail",          // cm
-        "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain. 
+        "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain.
         "tile_conductivity",  // cm / hr
-        "deltaT_1",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 1 
-        "deltaT_2",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 2 
-        "deltaT_3",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 3 
-        "deltaT_4",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 4 
-        "deltaT_5",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 5 
-        "deltaT_6"            // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 6 
+        "deltaT_1",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 1
+        "deltaT_2",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 2
+        "deltaT_3",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 3
+        "deltaT_4",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 4
+        "deltaT_5",           // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 5
+        "deltaT_6"            // cm^3 / cm^3. Change in soil water content due to tile drainage in layer 6
     };
 }
 
 void soil_water_tiledrain::do_operation() const
 {
-    int nlayers = 6;
+    int constexpr nlayers = 6;
+    double constexpr timestep = 1; // hr
 
     double soil_depth[] = {
-        soil_depth_1,  // cm
-        soil_depth_2,  // cm
-        soil_depth_3,  // cm
-        soil_depth_4,  // cm
-        soil_depth_5,  // cm
+        soil_depth_1,   // cm
+        soil_depth_2,   // cm
+        soil_depth_3,   // cm
+        soil_depth_4,   // cm
+        soil_depth_5,   // cm
         soil_depth_6};  // cm
 
     double soil_water_content[] = {
-        soil_water_content_1,  // cm^3 / cm^3
-        soil_water_content_2,  // cm^3 / cm^3
-        soil_water_content_3,  // cm^3 / cm^3
-        soil_water_content_4,  // cm^3 / cm^3
-        soil_water_content_5,  // cm^3 / cm^3
+        soil_water_content_1,   // cm^3 / cm^3
+        soil_water_content_2,   // cm^3 / cm^3
+        soil_water_content_3,   // cm^3 / cm^3
+        soil_water_content_4,   // cm^3 / cm^3
+        soil_water_content_5,   // cm^3 / cm^3
         soil_water_content_6};  // cm^3 / cm^3
 
     double soil_field_capacity[] = {
-        soil_field_capacity_1,  // cm^3 / cm^3
-        soil_field_capacity_2,  // cm^3 / cm^3
-        soil_field_capacity_3,  // cm^3 / cm^3
-        soil_field_capacity_4,  // cm^3 / cm^3
-        soil_field_capacity_5,  // cm^3 / cm^3
+        soil_field_capacity_1,   // cm^3 / cm^3
+        soil_field_capacity_2,   // cm^3 / cm^3
+        soil_field_capacity_3,   // cm^3 / cm^3
+        soil_field_capacity_4,   // cm^3 / cm^3
+        soil_field_capacity_5,   // cm^3 / cm^3
         soil_field_capacity_6};  // cm^3 / cm^3
 
     double soil_saturation_capacity[] = {
-        soil_saturation_capacity_1,  // cm^3 / cm^3
-        soil_saturation_capacity_2,  // cm^3 / cm^3
-        soil_saturation_capacity_3,  // cm^3 / cm^3
-        soil_saturation_capacity_4,  // cm^3 / cm^3
-        soil_saturation_capacity_5,  // cm^3 / cm^3
+        soil_saturation_capacity_1,   // cm^3 / cm^3
+        soil_saturation_capacity_2,   // cm^3 / cm^3
+        soil_saturation_capacity_3,   // cm^3 / cm^3
+        soil_saturation_capacity_4,   // cm^3 / cm^3
+        soil_saturation_capacity_5,   // cm^3 / cm^3
         soil_saturation_capacity_6};  // cm^3 / cm^3
 
     double sw_delta_S[] = {
-        deltaS_1,  // cm^3 / cm^3
-        deltaS_2,  // cm^3 / cm^3
-        deltaS_3,  // cm^3 / cm^3
-        deltaS_4,  // cm^3 / cm^3
-        deltaS_5,  // cm^3 / cm^3
+        deltaS_1,   // cm^3 / cm^3
+        deltaS_2,   // cm^3 / cm^3
+        deltaS_3,   // cm^3 / cm^3
+        deltaS_4,   // cm^3 / cm^3
+        deltaS_5,   // cm^3 / cm^3
         deltaS_6};  // cm^3 / cm^3
 
-    int td_layer_num = 0;         // Layer number containing the tile drain
-    if (tile_drain_depth <= 0.0)  // Missing data or no tile
-        td_layer_num = -99;
+    int td_layer_num = 0;  // Layer number containing the tile drain
 
-    // Find layer number for tile
-    else {
+    if (tile_drain_depth <= 0.0) {
+        // Missing data or no tile
+        td_layer_num = -99;
+    } else {
+        // Find layer number for tile
         double cumulative_depth = soil_depth[0];  //cm
         for (int l = 1; l < nlayers; l++) {
             cumulative_depth = cumulative_depth + soil_depth[l];  //cm
 
-            if ((cumulative_depth >= tile_drain_depth) &&
-                ((cumulative_depth - soil_depth[l]) < tile_drain_depth)) {
+            if (cumulative_depth >= tile_drain_depth &&
+                (cumulative_depth - soil_depth[l]) < tile_drain_depth) {
                 td_layer_num = l;  // Layer number containing the tile drain
             }
         }
     }
+
     tileDrain_str tileDrain;
 
     if (td_layer_num > 0) {
@@ -289,17 +292,19 @@ void soil_water_tiledrain::do_operation() const
             soil_water_content,
             soil_field_capacity,
             soil_saturation_capacity,
-            sw_delta_S);
+            sw_delta_S,
+            timestep);
         // Skip tile drain section if depth of tile is <= 0
     } else {
-        tileDrain.cumulative_tile_flow = 0.0; 
+        tileDrain.tile_flow_rate = 0.0;
         for (int l = 0; l < nlayers; l++) {
             tileDrain.sw_delta_T[l] = 0.0;
         }
     }
+
     // Update the output quantity list
     update(td_layer_num_op, td_layer_num);
-    update(tile_flow_rate_op, tileDrain.cumulative_tile_flow);
+    update(tile_flow_rate_op, tileDrain.tile_flow_rate);
 
     update(head_op, tileDrain.head);
 
