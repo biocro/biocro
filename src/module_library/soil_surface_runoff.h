@@ -115,33 +115,27 @@ class soil_surface_runoff : public direct_module
 string_vector soil_surface_runoff::get_inputs()
 {
     return {
-        "precip",        // mm / hr
-        "irrigation",    // mm / hr
-        "curve_number",  // unitless
-
+        "precip",                      // mm / hr
+        "irrigation",                  // mm / hr
+        "curve_number",                // unitless
         "soil_water_content_1",        // m^3 / m^3
         "soil_wilting_point_1",        // m^3 / m^3
         "soil_saturation_capacity_1",  // m^3 / m^3
-
         "soil_water_content_2",        // m^3 / m^3
         "soil_wilting_point_2",        // m^3 / m^3
         "soil_saturation_capacity_2",  // m^3 / m^3
-
         "soil_water_content_3",        // m^3 / m^3
         "soil_wilting_point_3",        // m^3 / m^3
         "soil_saturation_capacity_3",  // m^3 / m^3
-
         "soil_water_content_4",        // m^3 / m^3
         "soil_wilting_point_4",        // m^3 / m^3
         "soil_saturation_capacity_4",  // m^3 / m^3
-
         "soil_water_content_5",        // m^3 / m^3
         "soil_wilting_point_5",        // m^3 / m^3
         "soil_saturation_capacity_5",  // m^3 / m^3
-
-        "soil_water_content_6",       // m^3 / m^3
-        "soil_wilting_point_6",       // m^3 / m^3
-        "soil_saturation_capacity_6"  // m^3 / m^3
+        "soil_water_content_6",        // m^3 / m^3
+        "soil_wilting_point_6",        // m^3 / m^3
+        "soil_saturation_capacity_6"   // m^3 / m^3
     };
 }
 

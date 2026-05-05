@@ -310,8 +310,8 @@ string_vector soil_evaporation_ritchie::get_inputs()
         "bare_soil_albedo_max",              // dimensionless
         "cosine_zenith_angle",               // dimensionless
         "days_stage2",                       // day
-        "deltaS_1",                          // dimensionless from (m^3 water) / (m^3 soil)
-        "deltaU_1",                          // dimensionless from (m^3 water) / (m^3 soil)
+        "deltaS_1",                          // m^3 / m^3
+        "deltaU_1",                          // m^3 / m^3
         "fractional_doy",                    // day
         "infiltrated_water",                 // mm / hr
         "irradiance_diffuse_transmittance",  // dimensionless
@@ -325,8 +325,8 @@ string_vector soil_evaporation_ritchie::get_inputs()
         "skc",                               // dimensionless
         "soil_depth_1",                      // cm
         "soil_evaporation_rate",             // Mg / ha / hr
-        "soil_water_content_1",              // dimensionless from (m^3 water) / (m^3 soil)
-        "soil_wilting_point_1",              // dimensionless from (m^3 water) / (m^3 soil)
+        "soil_water_content_1",              // m^3 / m^3
+        "soil_wilting_point_1",              // m^3 / m^3
         "solar",                             // micromol / m^2 / s
         "sumes1",                            // mm
         "sumes2",                            // mm
@@ -619,7 +619,7 @@ void soil_evaporation_ritchie::do_operation() const
         //
         // "Available water = SW - air dry limit + infil. or sat. flow"
         double const sw_avail_1 =
-            max(0.0, soil_water_content_1 + deltaS_1 + deltaU_1);  // dimensionless from (m^3 water) / (m^3 soil)
+            max(0.0, soil_water_content_1 + deltaS_1 + deltaU_1);  // m^3 / m^3
 
         double const sw_min =
             max(0.0, surface_soil_depth_in_mm *

@@ -222,12 +222,13 @@ class soil_type_selector : public direct_module
 string_vector soil_type_selector::get_inputs()
 {
     return {
-        "soil_type_indicator_1",   // unitless int
-        "soil_type_indicator_2",   // unitless int
-        "soil_type_indicator_3",   // unitless int
-        "soil_type_indicator_4",   // unitless int
-        "soil_type_indicator_5",   // unitless int
-        "soil_type_indicator_6"};  // unitless int
+        "soil_type_indicator_1",  // unitless int
+        "soil_type_indicator_2",  // unitless int
+        "soil_type_indicator_3",  // unitless int
+        "soil_type_indicator_4",  // unitless int
+        "soil_type_indicator_5",  // unitless int
+        "soil_type_indicator_6"   // unitless int
+    };
 }
 
 string_vector soil_type_selector::get_outputs()
@@ -240,7 +241,6 @@ string_vector soil_type_selector::get_outputs()
         "soil_field_capacity_1",          // m^3 / m^3
         "soil_wilting_point_1",           // m^3 / m^3
         "soil_bulk_density_1",            // Mg / m^3
-
         "soil_silt_content_2",            // unitless
         "soil_clay_content_2",            // unitless
         "soil_saturated_conductivity_2",  // kg s / m^3
@@ -248,7 +248,6 @@ string_vector soil_type_selector::get_outputs()
         "soil_field_capacity_2",          // m^3 / m^3
         "soil_wilting_point_2",           // m^3 / m^3
         "soil_bulk_density_2",            // Mg / m^3
-
         "soil_silt_content_3",            // unitless
         "soil_clay_content_3",            // unitless
         "soil_saturated_conductivity_3",  // kg s / m^3
@@ -256,7 +255,6 @@ string_vector soil_type_selector::get_outputs()
         "soil_field_capacity_3",          // m^3 / m^3
         "soil_wilting_point_3",           // m^3 / m^3
         "soil_bulk_density_3",            // Mg / m^3
-
         "soil_silt_content_4",            // unitless
         "soil_clay_content_4",            // unitless
         "soil_saturated_conductivity_4",  // kg s / m^3
@@ -264,7 +262,6 @@ string_vector soil_type_selector::get_outputs()
         "soil_field_capacity_4",          // m^3 / m^3
         "soil_wilting_point_4",           // m^3 / m^3
         "soil_bulk_density_4",            // Mg / m^3
-
         "soil_silt_content_5",            // unitless
         "soil_clay_content_5",            // unitless
         "soil_saturated_conductivity_5",  // kg s / m^3
@@ -272,7 +269,6 @@ string_vector soil_type_selector::get_outputs()
         "soil_field_capacity_5",          // m^3 / m^3
         "soil_wilting_point_5",           // m^3 / m^3
         "soil_bulk_density_5",            // Mg / m^3
-
         "soil_silt_content_6",            // unitless
         "soil_clay_content_6",            // unitless
         "soil_saturated_conductivity_6",  // kg s / m^3

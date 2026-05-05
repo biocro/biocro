@@ -168,46 +168,41 @@ string_vector soil_water_upflow::get_inputs()
 {
     return {
         "soil_depth_1",                // cm. Thickness of soil layer 1
-        "soil_saturation_capacity_1",  // cm^3 / cm^3.
-        "soil_wilting_point_1",        // cm^3 / cm^3.
-        "soil_field_capacity_1",       // cm^3 / cm^3.
-        "soil_water_content_1",        // cm^3 / cm^3.
-        "deltaS_1",                    // cm^3 / cm^3. Change in soil water content due to downward flow in layer 1.
-
+        "soil_saturation_capacity_1",  // m^3 / m^3
+        "soil_wilting_point_1",        // m^3 / m^3
+        "soil_field_capacity_1",       // m^3 / m^3
+        "soil_water_content_1",        // m^3 / m^3
+        "deltaS_1",                    // m^3 / m^3. Change in soil water content due to downward flow in layer 1.
         "soil_depth_2",                // cm. Thickness of soil layer 2
-        "soil_saturation_capacity_2",  // cm^3 / cm^3.
-        "soil_wilting_point_2",        // cm^3 / cm^3.
-        "soil_field_capacity_2",       // cm^3 / cm^3.
-        "soil_water_content_2",        // cm^3 / cm^3.
-        "deltaS_2",                    // cm^3 / cm^3. Change in soil water content due to downward flow in layer 2.
-
+        "soil_saturation_capacity_2",  // m^3 / m^3
+        "soil_wilting_point_2",        // m^3 / m^3
+        "soil_field_capacity_2",       // m^3 / m^3
+        "soil_water_content_2",        // m^3 / m^3
+        "deltaS_2",                    // m^3 / m^3. Change in soil water content due to downward flow in layer 2.
         "soil_depth_3",                // cm. Thickness of soil layer 3
-        "soil_saturation_capacity_3",  // cm^3 / cm^3.
-        "soil_wilting_point_3",        // cm^3 / cm^3.
-        "soil_field_capacity_3",       // cm^3 / cm^3.
-        "soil_water_content_3",        // cm^3 / cm^3.
-        "deltaS_3",                    // cm^3 / cm^3. Change in soil water content due to downward flow in layer 3.
-
+        "soil_saturation_capacity_3",  // m^3 / m^3
+        "soil_wilting_point_3",        // m^3 / m^3
+        "soil_field_capacity_3",       // m^3 / m^3
+        "soil_water_content_3",        // m^3 / m^3
+        "deltaS_3",                    // m^3 / m^3. Change in soil water content due to downward flow in layer 3.
         "soil_depth_4",                // cm. Thickness of soil layer 4
-        "soil_saturation_capacity_4",  // cm^3 / cm^3.
-        "soil_wilting_point_4",        // cm^3 / cm^3.
-        "soil_field_capacity_4",       // cm^3 / cm^3.
-        "soil_water_content_4",        // cm^3 / cm^3.
-        "deltaS_4",                    // cm^3 / cm^3. Change in soil water content due to downward flow in layer 4.
-
+        "soil_saturation_capacity_4",  // m^3 / m^3
+        "soil_wilting_point_4",        // m^3 / m^3
+        "soil_field_capacity_4",       // m^3 / m^3
+        "soil_water_content_4",        // m^3 / m^3
+        "deltaS_4",                    // m^3 / m^3. Change in soil water content due to downward flow in layer 4.
         "soil_depth_5",                // cm. Thickness of soil layer 5
-        "soil_saturation_capacity_5",  // cm^3 / cm^3.
-        "soil_wilting_point_5",        // cm^3 / cm^3.
-        "soil_field_capacity_5",       // cm^3 / cm^3.
-        "soil_water_content_5",        // cm^3 / cm^3.
-        "deltaS_5",                    // cm^3 / cm^3. Change in soil water content due to downward flow in layer 5.
-
+        "soil_saturation_capacity_5",  // m^3 / m^3
+        "soil_wilting_point_5",        // m^3 / m^3
+        "soil_field_capacity_5",       // m^3 / m^3
+        "soil_water_content_5",        // m^3 / m^3
+        "deltaS_5",                    // m^3 / m^3. Change in soil water content due to downward flow in layer 5.
         "soil_depth_6",                // cm. Thickness of soil layer 6
-        "soil_saturation_capacity_6",  // cm^3 / cm^3.
-        "soil_wilting_point_6",        // cm^3 / cm^3.
-        "soil_field_capacity_6",       // cm^3 / cm^3.
-        "soil_water_content_6",        // cm^3 / cm^3.
-        "deltaS_6"                     // cm^3 / cm^3. Change in soil water content due to downward flow in layer 6.
+        "soil_saturation_capacity_6",  // m^3 / m^3
+        "soil_wilting_point_6",        // m^3 / m^3
+        "soil_field_capacity_6",       // m^3 / m^3
+        "soil_water_content_6",        // m^3 / m^3
+        "deltaS_6"                     // m^3 / m^3. Change in soil water content due to downward flow in layer 6.
     };
 }
 
@@ -220,12 +215,12 @@ string_vector soil_water_upflow::get_outputs()
         "upflow_4",  // cm / hr
         "upflow_5",  // cm / hr
         "upflow_6",  // cm / hr
-        "deltaU_1",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 1
-        "deltaU_2",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 2
-        "deltaU_3",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 3
-        "deltaU_4",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 4
-        "deltaU_5",  // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 5
-        "deltaU_6"   // cm^3 / cm^3. Change in soil water content due to evaporation and/or upward flow in layer 6
+        "deltaU_1",  // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 1
+        "deltaU_2",  // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 2
+        "deltaU_3",  // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 3
+        "deltaU_4",  // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 4
+        "deltaU_5",  // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 5
+        "deltaU_6"   // m^3 / m^3. Change in soil water content due to evaporation and/or upward flow in layer 6
     };
 }
 
@@ -244,53 +239,53 @@ void soil_water_upflow::do_operation() const
     };
 
     double soil_saturation_capacity[] = {
-        soil_saturation_capacity_1,  // cm^3 / cm^3
-        soil_saturation_capacity_2,  // cm^3 / cm^3
-        soil_saturation_capacity_3,  // cm^3 / cm^3
-        soil_saturation_capacity_4,  // cm^3 / cm^3
-        soil_saturation_capacity_5,  // cm^3 / cm^3
-        soil_saturation_capacity_6   // cm^3 / cm^3
+        soil_saturation_capacity_1,  // m^3 / m^3
+        soil_saturation_capacity_2,  // m^3 / m^3
+        soil_saturation_capacity_3,  // m^3 / m^3
+        soil_saturation_capacity_4,  // m^3 / m^3
+        soil_saturation_capacity_5,  // m^3 / m^3
+        soil_saturation_capacity_6   // m^3 / m^3
     };
 
     double soil_wilting_point[] = {
-        soil_wilting_point_1,  // cm^3 / cm^3
-        soil_wilting_point_2,  // cm^3 / cm^3
-        soil_wilting_point_3,  // cm^3 / cm^3
-        soil_wilting_point_4,  // cm^3 / cm^3
-        soil_wilting_point_5,  // cm^3 / cm^3
-        soil_wilting_point_6   // cm^3 / cm^3
+        soil_wilting_point_1,  // m^3 / m^3
+        soil_wilting_point_2,  // m^3 / m^3
+        soil_wilting_point_3,  // m^3 / m^3
+        soil_wilting_point_4,  // m^3 / m^3
+        soil_wilting_point_5,  // m^3 / m^3
+        soil_wilting_point_6   // m^3 / m^3
     };
 
     double soil_field_capacity[] = {
-        soil_field_capacity_1,  // cm^3 / cm^3
-        soil_field_capacity_2,  // cm^3 / cm^3
-        soil_field_capacity_3,  // cm^3 / cm^3
-        soil_field_capacity_4,  // cm^3 / cm^3
-        soil_field_capacity_5,  // cm^3 / cm^3
-        soil_field_capacity_6   // cm^3 / cm^3
+        soil_field_capacity_1,  // m^3 / m^3
+        soil_field_capacity_2,  // m^3 / m^3
+        soil_field_capacity_3,  // m^3 / m^3
+        soil_field_capacity_4,  // m^3 / m^3
+        soil_field_capacity_5,  // m^3 / m^3
+        soil_field_capacity_6   // m^3 / m^3
     };
 
     double soil_water_content[] = {
-        soil_water_content_1,  // cm^3 / cm^3
-        soil_water_content_2,  // cm^3 / cm^3
-        soil_water_content_3,  // cm^3 / cm^3
-        soil_water_content_4,  // cm^3 / cm^3
-        soil_water_content_5,  // cm^3 / cm^3
-        soil_water_content_6   // cm^3 / cm^3
+        soil_water_content_1,  // m^3 / m^3
+        soil_water_content_2,  // m^3 / m^3
+        soil_water_content_3,  // m^3 / m^3
+        soil_water_content_4,  // m^3 / m^3
+        soil_water_content_5,  // m^3 / m^3
+        soil_water_content_6   // m^3 / m^3
     };
 
     double swdelts[] = {
-        deltaS_1,  // cm^3 / cm^3
-        deltaS_2,  // cm^3 / cm^3
-        deltaS_3,  // cm^3 / cm^3
-        deltaS_4,  // cm^3 / cm^3
-        deltaS_5,  // cm^3 / cm^3
-        deltaS_6   // cm^3 / cm^3
+        deltaS_1,  // m^3 / m^3
+        deltaS_2,  // m^3 / m^3
+        deltaS_3,  // m^3 / m^3
+        deltaS_4,  // m^3 / m^3
+        deltaS_5,  // m^3 / m^3
+        deltaS_6   // m^3 / m^3
     };
 
-    double sw_avail[nlayers];  // cm^3 / cm^3
+    double sw_avail[nlayers];  // m^3 / m^3
     for (int l = 0; l < nlayers; l++) {
-        sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);  // cm^3 / cm^3
+        sw_avail[l] = std::max(0.0, soil_water_content[l] + swdelts[l]);  // m^3 / m^3
     }
 
     // Calculate upward movement of water due to evaporation and root

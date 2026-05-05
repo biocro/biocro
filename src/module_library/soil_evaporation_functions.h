@@ -83,7 +83,7 @@
  *              for completely dry soil; dimensionless from W / W
  *
  *  @param [in] theta_surface Volumetric soil water content in the upper soil
- *              layer; dimensionless from (m^3 water) / (m^3 soil)
+ *              layer; m^3 / m^3.
  *
  *  @param [in] theta_fc_surface The field capacity of the upper soil level,
  *              expressed as a volumetric water content; dimensionless from
@@ -318,13 +318,13 @@ double reference_evapotranspiration(
 
     // Psychrometric constant; Equation 35 from ASCE (2005)
     double const psychrometric_const =
-        0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degree C
+        0.000665 * atmospheric_pressure * kPa_per_Pa;  // kPa / degrees C
 
     // Slope of the saturation vapor pressure-temperature curve; Equation 36
     // from ASCE (2005)
     double const udelta =
         2503.0 *
-        pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degree C
+        pow(exp(17.27 * temp / (temp + 237.3)) / (temp + 237.3), 2.0);  // kPa / degrees C
 
     // Actual water vapor pressure; Equation 41 from ASCE (2005)
     double const sat_vap_pressure = saturation_vapor_pressure(temp) * kPa_per_Pa;  // kPa
@@ -380,9 +380,9 @@ double reference_evapotranspiration(
     // Standardized reference evapotranspiration; Equation 1 from ASCE (2005)
     double const pm_top =
         et_coef * udelta * (rn - g) +
-        psychrometric_const * (Cn / tk) * wind2m * (sat_vap_pressure - ea);  // mm * kPa / degree C / hr
+        psychrometric_const * (Cn / tk) * wind2m * (sat_vap_pressure - ea);  // mm * kPa / degrees C / hr
 
-    double const pm_bottom = udelta + psychrometric_const * (1.0 + Cd * wind2m);  // kPa / degree C
+    double const pm_bottom = udelta + psychrometric_const * (1.0 + Cd * wind2m);  // kPa / degrees C
 
     return pm_top / pm_bottom;  // mm / hr
 }

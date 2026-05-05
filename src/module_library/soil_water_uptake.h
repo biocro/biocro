@@ -112,31 +112,24 @@ class soil_water_uptake : public direct_module
 string_vector soil_water_uptake::get_inputs()
 {
     return {
-
-        "soil_depth_1",          // cm
-        "soil_water_content_1",  // cm^3 / cm^3. Volumetric water content
-        "soil_wilting_point_1",  // cm^3 / cm^3
-
-        "soil_depth_2",          // cm
-        "soil_water_content_2",  // cm^3 / cm^3
-        "soil_wilting_point_2",  // cm^3 / cm^3
-
-        "soil_depth_3",          // cm
-        "soil_water_content_3",  // cm^3 / cm^3
-        "soil_wilting_point_3",  // cm^3 / cm^3
-
-        "soil_depth_4",          // cm
-        "soil_water_content_4",  // cm^3 / cm^3
-        "soil_wilting_point_4",  // cm^3 / cm^3
-
-        "soil_depth_5",          // cm
-        "soil_water_content_5",  // cm^3 / cm^3
-        "soil_wilting_point_5",  // cm^3 / cm^3
-
-        "soil_depth_6",          // cm
-        "soil_water_content_6",  // cm^3 / cm^3
-        "soil_wilting_point_6",  // cm^3 / cm^3
-
+        "soil_depth_1",              // cm
+        "soil_water_content_1",      // m^3 / m^3. Volumetric water content
+        "soil_wilting_point_1",      // m^3 / m^3
+        "soil_depth_2",              // cm
+        "soil_water_content_2",      // m^3 / m^3
+        "soil_wilting_point_2",      // m^3 / m^3
+        "soil_depth_3",              // cm
+        "soil_water_content_3",      // m^3 / m^3
+        "soil_wilting_point_3",      // m^3 / m^3
+        "soil_depth_4",              // cm
+        "soil_water_content_4",      // m^3 / m^3
+        "soil_wilting_point_4",      // m^3 / m^3
+        "soil_depth_5",              // cm
+        "soil_water_content_5",      // m^3 / m^3
+        "soil_wilting_point_5",      // m^3 / m^3
+        "soil_depth_6",              // cm
+        "soil_water_content_6",      // m^3 / m^3
+        "soil_wilting_point_6",      // m^3 / m^3
         "max_rooting_layer",         // dimensionless
         "canopy_transpiration_rate"  // Mg / ha / hr
     };
@@ -145,14 +138,13 @@ string_vector soil_water_uptake::get_inputs()
 string_vector soil_water_uptake::get_outputs()
 {
     return {
-
-        "uptake_layer_1",  // Mg /ha / hr
-        "uptake_layer_2",  // Mg /ha / hr
-        "uptake_layer_3",  // Mg /ha / hr
-        "uptake_layer_4",  // Mg /ha / hr
-        "uptake_layer_5",  // Mg /ha / hr
-        "uptake_layer_6",  // Mg /ha / hr
-        "unmet_demand"     // Mg /ha / hr
+        "uptake_layer_1",  // Mg / ha / hr
+        "uptake_layer_2",  // Mg / ha / hr
+        "uptake_layer_3",  // Mg / ha / hr
+        "uptake_layer_4",  // Mg / ha / hr
+        "uptake_layer_5",  // Mg / ha / hr
+        "uptake_layer_6",  // Mg / ha / hr
+        "unmet_demand"     // Mg / ha / hr
     };
 }
 
@@ -172,21 +164,21 @@ void soil_water_uptake::do_operation() const
     };
 
     double soil_wilting_point[] = {
-        soil_wilting_point_1,  // cm^3 / cm^3
-        soil_wilting_point_2,  // cm^3 / cm^3
-        soil_wilting_point_3,  // cm^3 / cm^3
-        soil_wilting_point_4,  // cm^3 / cm^3
-        soil_wilting_point_5,  // cm^3 / cm^3
-        soil_wilting_point_6   // cm^3 / cm^3
+        soil_wilting_point_1,  // m^3 / m^3
+        soil_wilting_point_2,  // m^3 / m^3
+        soil_wilting_point_3,  // m^3 / m^3
+        soil_wilting_point_4,  // m^3 / m^3
+        soil_wilting_point_5,  // m^3 / m^3
+        soil_wilting_point_6   // m^3 / m^3
     };
 
     double soil_water_content[] = {
-        soil_water_content_1,  // cm^3 / cm^3
-        soil_water_content_2,  // cm^3 / cm^3
-        soil_water_content_3,  // cm^3 / cm^3
-        soil_water_content_4,  // cm^3 / cm^3
-        soil_water_content_5,  // cm^3 / cm^3
-        soil_water_content_6   // cm^3 / cm^3
+        soil_water_content_1,  // m^3 / m^3
+        soil_water_content_2,  // m^3 / m^3
+        soil_water_content_3,  // m^3 / m^3
+        soil_water_content_4,  // m^3 / m^3
+        soil_water_content_5,  // m^3 / m^3
+        soil_water_content_6   // m^3 / m^3
     };
 
     // Calculate the weight of roots in each layer

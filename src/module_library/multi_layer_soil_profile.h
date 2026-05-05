@@ -161,61 +161,55 @@ class multi_layer_soil_profile : public differential_module
 string_vector multi_layer_soil_profile::get_inputs()
 {
     return {
-        "soil_evaporation_rate",  // Mg/ha/hr
-
-        "soil_depth_1",          // cm
-        "soil_water_content_1",  // cm^3/cm^3
-        "deltaS_1",              // cm^3/cm^3
-        "deltaU_1",              // cm^3/cm^3
-        "deltaT_1",              // cm^3/cm^3
-        "uptake_layer_1",        // Mg/ha/hr
-
-        "soil_depth_2",          // cm
-        "soil_water_content_2",  // cm^3/cm^3
-        "deltaS_2",              // cm^3/cm^3
-        "deltaU_2",              // cm^3/cm^3
-        "deltaT_2",              // cm^3/cm^3
-        "uptake_layer_2",        // Mg/ha/hr
-
-        "soil_depth_3",          // cm
-        "soil_water_content_3",  // cm^3/cm^3
-        "deltaS_3",              // cm^3/cm^3
-        "deltaU_3",              // cm^3/cm^3
-        "deltaT_3",              // cm^3/cm^3
-        "uptake_layer_3",        // Mg/ha/hr
-
-        "soil_depth_4",          // cm
-        "soil_water_content_4",  // cm^3/cm^3
-        "deltaS_4",              // cm^3/cm^3
-        "deltaU_4",              // cm^3/cm^3
-        "deltaT_4",              // cm^3/cm^3
-        "uptake_layer_4",        // Mg/ha/hr
-
-        "soil_depth_5",          // cm
-        "soil_water_content_5",  // cm^3/cm^3
-        "deltaS_5",              // cm^3/cm^3
-        "deltaU_5",              // cm^3/cm^3
-        "deltaT_5",              // cm^3/cm^3
-        "uptake_layer_5",        // Mg/ha/hr
-
-        "soil_depth_6",          // cm
-        "soil_water_content_6",  // cm^3/cm^3
-        "deltaS_6",              // cm^3/cm^3
-        "deltaU_6",              // cm^3/cm^3
-        "deltaT_6",              // cm^3/cm^3
-        "uptake_layer_6",        // Mg/ha/hr
+        "soil_evaporation_rate",  // Mg / ha / hr
+        "soil_depth_1",           // cm
+        "soil_water_content_1",   // m^3 / m^3
+        "deltaS_1",               // m^3 / m^3
+        "deltaU_1",               // m^3 / m^3
+        "deltaT_1",               // m^3 / m^3
+        "uptake_layer_1",         // Mg / ha / hr
+        "soil_depth_2",           // cm
+        "soil_water_content_2",   // m^3 / m^3
+        "deltaS_2",               // m^3 / m^3
+        "deltaU_2",               // m^3 / m^3
+        "deltaT_2",               // m^3 / m^3
+        "uptake_layer_2",         // Mg / ha / hr
+        "soil_depth_3",           // cm
+        "soil_water_content_3",   // m^3 / m^3
+        "deltaS_3",               // m^3 / m^3
+        "deltaU_3",               // m^3 / m^3
+        "deltaT_3",               // m^3 / m^3
+        "uptake_layer_3",         // Mg / ha / hr
+        "soil_depth_4",           // cm
+        "soil_water_content_4",   // m^3 / m^3
+        "deltaS_4",               // m^3 / m^3
+        "deltaU_4",               // m^3 / m^3
+        "deltaT_4",               // m^3 / m^3
+        "uptake_layer_4",         // Mg / ha / hr
+        "soil_depth_5",           // cm
+        "soil_water_content_5",   // m^3 / m^3
+        "deltaS_5",               // m^3 / m^3
+        "deltaU_5",               // m^3 / m^3
+        "deltaT_5",               // m^3 / m^3
+        "uptake_layer_5",         // Mg / ha / hr
+        "soil_depth_6",           // cm
+        "soil_water_content_6",   // m^3 / m^3
+        "deltaS_6",               // m^3 / m^3
+        "deltaU_6",               // m^3 / m^3
+        "deltaT_6",               // m^3 / m^3
+        "uptake_layer_6",         // Mg / ha / hr
     };
 }
 
 string_vector multi_layer_soil_profile::get_outputs()
 {
     return {
-        "soil_water_content_1",  // cm^3/cm^3
-        "soil_water_content_2",  // cm^3/cm^3
-        "soil_water_content_3",  // cm^3/cm^3
-        "soil_water_content_4",  // cm^3/cm^3
-        "soil_water_content_5",  // cm^3/cm^3
-        "soil_water_content_6"   // cm^3/cm^3
+        "soil_water_content_1",  // m^3 / m^3
+        "soil_water_content_2",  // m^3 / m^3
+        "soil_water_content_3",  // m^3 / m^3
+        "soil_water_content_4",  // m^3 / m^3
+        "soil_water_content_5",  // m^3 / m^3
+        "soil_water_content_6"   // m^3 / m^3
     };
 }
 
@@ -233,73 +227,73 @@ void multi_layer_soil_profile::do_operation() const
     };
 
     double soil_water_content[] = {
-        soil_water_content_1,  // cm^3/cm^3
-        soil_water_content_2,  // cm^3/cm^3
-        soil_water_content_3,  // cm^3/cm^3
-        soil_water_content_4,  // cm^3/cm^3
-        soil_water_content_5,  // cm^3/cm^3
-        soil_water_content_6   // cm^3/cm^3
+        soil_water_content_1,  // m^3 / m^3
+        soil_water_content_2,  // m^3 / m^3
+        soil_water_content_3,  // m^3 / m^3
+        soil_water_content_4,  // m^3 / m^3
+        soil_water_content_5,  // m^3 / m^3
+        soil_water_content_6   // m^3 / m^3
     };
 
     double swdeltS[] = {
-        deltaS_1,  // cm^3/cm^3/hr
-        deltaS_2,  // cm^3/cm^3/hr
-        deltaS_3,  // cm^3/cm^3/hr
-        deltaS_4,  // cm^3/cm^3/hr
-        deltaS_5,  // cm^3/cm^3/hr
-        deltaS_6   // cm^3/cm^3/hr
+        deltaS_1,  // m^3 / m^3/hr
+        deltaS_2,  // m^3 / m^3/hr
+        deltaS_3,  // m^3 / m^3/hr
+        deltaS_4,  // m^3 / m^3/hr
+        deltaS_5,  // m^3 / m^3/hr
+        deltaS_6   // m^3 / m^3/hr
     };
 
     double swdeltU[] = {
-        deltaU_1,  // cm^3/cm^3/hr
-        deltaU_2,  // cm^3/cm^3/hr
-        deltaU_3,  // cm^3/cm^3/hr
-        deltaU_4,  // cm^3/cm^3/hr
-        deltaU_5,  // cm^3/cm^3/hr
-        deltaU_6   // cm^3/cm^3/hr
+        deltaU_1,  // m^3 / m^3/hr
+        deltaU_2,  // m^3 / m^3/hr
+        deltaU_3,  // m^3 / m^3/hr
+        deltaU_4,  // m^3 / m^3/hr
+        deltaU_5,  // m^3 / m^3/hr
+        deltaU_6   // m^3 / m^3/hr
     };
 
     double swdeltT[] = {
-        deltaT_1,  // cm^3/cm^3/hr
-        deltaT_2,  // cm^3/cm^3/hr
-        deltaT_3,  // cm^3/cm^3/hr
-        deltaT_4,  // cm^3/cm^3/hr
-        deltaT_5,  // cm^3/cm^3/hr
-        deltaT_6   // cm^3/cm^3/hr
+        deltaT_1,  // m^3 / m^3/hr
+        deltaT_2,  // m^3 / m^3/hr
+        deltaT_3,  // m^3 / m^3/hr
+        deltaT_4,  // m^3 / m^3/hr
+        deltaT_5,  // m^3 / m^3/hr
+        deltaT_6   // m^3 / m^3/hr
     };
 
     double uptake[] = {
-        uptake_layer_1,  // Mg/ha/hr
-        uptake_layer_2,  // Mg/ha/hr
-        uptake_layer_3,  // Mg/ha/hr
-        uptake_layer_4,  // Mg/ha/hr
-        uptake_layer_5,  // Mg/ha/hr
-        uptake_layer_6   // Mg/ha/hr
+        uptake_layer_1,  // Mg / ha / hr
+        uptake_layer_2,  // Mg / ha / hr
+        uptake_layer_3,  // Mg / ha / hr
+        uptake_layer_4,  // Mg / ha / hr
+        uptake_layer_5,  // Mg / ha / hr
+        uptake_layer_6   // Mg / ha / hr
     };
 
     constexpr double cm_to_mm = 10.0;
     constexpr double MG_HA_to_mm = 0.1;  // Mg/ha of water = 0.1 mm
     constexpr double timestep = 1;       // hr
     // Calculate total change in soil water content
-    double delta_soil_water_content[nlayers];  // cm^3/cm^3
+    double delta_soil_water_content[nlayers];  // m^3 / m^3
     for (int l = 0; l < nlayers; l++) {
         // adding uptake because value is negative
-        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] * timestep * MG_HA_to_mm / (cm_to_mm * soil_depth[l]));  // cm^3/cm^3
+        delta_soil_water_content[l] = swdeltS[l] + swdeltU[l] + swdeltT[l] + (uptake[l] * timestep * MG_HA_to_mm / (cm_to_mm * soil_depth[l]));  // m^3 / m^3
         if (soil_water_content[l] + delta_soil_water_content[l] < 0) {
             delta_soil_water_content[l] = -soil_water_content[l];
         }
     }
 
-    // convert evaporation to water cotent: (E(Mg/ha/hr)*MG_HA_to_mm)/depth(mm)
-    const double evaporated_water_cotent = (soil_evaporation_rate * timestep * MG_HA_to_mm) / (soil_depth[0] * cm_to_mm);  // cm^3 / cm^3
+    // convert evaporation to water cotent: (E(Mg / ha / hr)*MG_HA_to_mm)/depth(mm)
+    const double evaporated_water_cotent = (soil_evaporation_rate * timestep * MG_HA_to_mm) / (soil_depth[0] * cm_to_mm);  // m^3 / m^3
     delta_soil_water_content[0] = delta_soil_water_content[0] - evaporated_water_cotent;
 
-    update(soil_water_content_1_op, delta_soil_water_content[0]);  // cm^3/cm^3
-    update(soil_water_content_2_op, delta_soil_water_content[1]);  // cm^3/cm^3
-    update(soil_water_content_3_op, delta_soil_water_content[2]);  // cm^3/cm^3
-    update(soil_water_content_4_op, delta_soil_water_content[3]);  // cm^3/cm^3
-    update(soil_water_content_5_op, delta_soil_water_content[4]);  // cm^3/cm^3
-    update(soil_water_content_6_op, delta_soil_water_content[5]);  // cm^3/cm^3
+    update(soil_water_content_1_op, delta_soil_water_content[0]);  // m^3 / m^3
+    update(soil_water_content_2_op, delta_soil_water_content[1]);  // m^3 / m^3
+    update(soil_water_content_3_op, delta_soil_water_content[2]);  // m^3 / m^3
+    update(soil_water_content_4_op, delta_soil_water_content[3]);  // m^3 / m^3
+    update(soil_water_content_5_op, delta_soil_water_content[4]);  // m^3 / m^3
+    update(soil_water_content_6_op, delta_soil_water_content[5]);  // m^3 / m^3
 }
 }  // namespace standardBML
 #endif

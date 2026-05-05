@@ -159,60 +159,55 @@ class multilayer_soil_profile_avg : public direct_module
 string_vector multilayer_soil_profile_avg::get_inputs()
 {
     return {
-
-        "max_rooting_layer",  // dimensionless; number of layer the root can access
-
+        "max_rooting_layer",              // dimensionless; number of layer the root can access
         "soil_depth_1",                   // cm
-        "soil_water_content_1",           // cm^3/cm^3
-        "soil_saturated_conductivity_1",  // kg s m^-3
-        "soil_saturation_capacity_1",     // cm^3/cm^3
-        "soil_field_capacity_1",          // cm^3/cm^3
-        "soil_wilting_point_1",           // cm^3/cm^3
-
+        "soil_water_content_1",           // m^3 / m^3
+        "soil_saturated_conductivity_1",  // kg s / m^3
+        "soil_saturation_capacity_1",     // m^3 / m^3
+        "soil_field_capacity_1",          // m^3 / m^3
+        "soil_wilting_point_1",           // m^3 / m^3
         "soil_depth_2",                   // cm
-        "soil_water_content_2",           // cm^3/cm^3
-        "soil_saturated_conductivity_2",  // kg s m^-3
-        "soil_saturation_capacity_2",     // cm^3/cm^3
-        "soil_field_capacity_2",          // cm^3/cm^3
-        "soil_wilting_point_2",           // cm^3/cm^3
-
+        "soil_water_content_2",           // m^3 / m^3
+        "soil_saturated_conductivity_2",  // kg s / m^3
+        "soil_saturation_capacity_2",     // m^3 / m^3
+        "soil_field_capacity_2",          // m^3 / m^3
+        "soil_wilting_point_2",           // m^3 / m^3
         "soil_depth_3",                   // cm
-        "soil_water_content_3",           // cm^3/cm^3
-        "soil_saturated_conductivity_3",  // kg s m^-3
-        "soil_saturation_capacity_3",     // cm^3/cm^3
-        "soil_field_capacity_3",          // cm^3/cm^3
-        "soil_wilting_point_3",           // cm^3/cm^3
-
+        "soil_water_content_3",           // m^3 / m^3
+        "soil_saturated_conductivity_3",  // kg s / m^3
+        "soil_saturation_capacity_3",     // m^3 / m^3
+        "soil_field_capacity_3",          // m^3 / m^3
+        "soil_wilting_point_3",           // m^3 / m^3
         "soil_depth_4",                   // cm
-        "soil_water_content_4",           // cm^3/cm^3
-        "soil_saturated_conductivity_4",  // kg s m^-3
-        "soil_saturation_capacity_4",     // cm^3/cm^3
-        "soil_field_capacity_4",          // cm^3/cm^3
-        "soil_wilting_point_4",           // cm^3/cm^3
-
+        "soil_water_content_4",           // m^3 / m^3
+        "soil_saturated_conductivity_4",  // kg s / m^3
+        "soil_saturation_capacity_4",     // m^3 / m^3
+        "soil_field_capacity_4",          // m^3 / m^3
+        "soil_wilting_point_4",           // m^3 / m^3
         "soil_depth_5",                   // cm
-        "soil_water_content_5",           // cm^3/cm^3
-        "soil_saturated_conductivity_5",  // kg s m^-3
-        "soil_saturation_capacity_5",     // cm^3/cm^3
-        "soil_field_capacity_5",          // cm^3/cm^3
-        "soil_wilting_point_5",           // cm^3/cm^3
-
+        "soil_water_content_5",           // m^3 / m^3
+        "soil_saturated_conductivity_5",  // kg s / m^3
+        "soil_saturation_capacity_5",     // m^3 / m^3
+        "soil_field_capacity_5",          // m^3 / m^3
+        "soil_wilting_point_5",           // m^3 / m^3
         "soil_depth_6",                   // cm
-        "soil_water_content_6",           // cm^3/cm^3
-        "soil_saturated_conductivity_6",  // kg s m^-3
-        "soil_saturation_capacity_6",     // cm^3/cm^3
-        "soil_field_capacity_6",          // cm^3/cm^3
-        "soil_wilting_point_6"};          // cm^3/cm^3
+        "soil_water_content_6",           // m^3 / m^3
+        "soil_saturated_conductivity_6",  // kg s / m^3
+        "soil_saturation_capacity_6",     // m^3 / m^3
+        "soil_field_capacity_6",          // m^3 / m^3
+        "soil_wilting_point_6"            // m^3 / m^3
+    };
 }
 
 string_vector multilayer_soil_profile_avg::get_outputs()
 {
     return {
-        "soil_water_content",           // cm^3/cm^3
-        "soil_saturated_conductivity",  // kg s m^-3
-        "soil_saturation_capacity",     // cm^3/cm^3
-        "soil_field_capacity",          // cm^3/cm^3
-        "soil_wilting_point"};          // cm^3/cm^3
+        "soil_water_content",           // m^3 / m^3
+        "soil_saturated_conductivity",  // kg s / m^3
+        "soil_saturation_capacity",     // m^3 / m^3
+        "soil_field_capacity",          // m^3 / m^3
+        "soil_wilting_point"            // m^3 / m^3
+    };
 }
 
 void multilayer_soil_profile_avg::do_operation() const
@@ -227,56 +222,56 @@ void multilayer_soil_profile_avg::do_operation() const
     };
 
     double soil_water_content_arr[] = {
-        soil_water_content_1,  // cm^3/cm^3
-        soil_water_content_2,  // cm^3/cm^3
-        soil_water_content_3,  // cm^3/cm^3
-        soil_water_content_4,  // cm^3/cm^3
-        soil_water_content_5,  // cm^3/cm^3
-        soil_water_content_6   // cm^3/cm^3
+        soil_water_content_1,  // m^3 / m^3
+        soil_water_content_2,  // m^3 / m^3
+        soil_water_content_3,  // m^3 / m^3
+        soil_water_content_4,  // m^3 / m^3
+        soil_water_content_5,  // m^3 / m^3
+        soil_water_content_6   // m^3 / m^3
     };
 
     double soil_saturated_conductivity_arr[] = {
-        soil_saturated_conductivity_1,  // kg s m^-3
-        soil_saturated_conductivity_2,  // kg s m^-3
-        soil_saturated_conductivity_3,  // kg s m^-3
-        soil_saturated_conductivity_4,  // kg s m^-3
-        soil_saturated_conductivity_5,  // kg s m^-3
-        soil_saturated_conductivity_6   // kg s m^-3
+        soil_saturated_conductivity_1,  // kg s / m^3
+        soil_saturated_conductivity_2,  // kg s / m^3
+        soil_saturated_conductivity_3,  // kg s / m^3
+        soil_saturated_conductivity_4,  // kg s / m^3
+        soil_saturated_conductivity_5,  // kg s / m^3
+        soil_saturated_conductivity_6   // kg s / m^3
     };
 
     double soil_saturation_capacity_arr[] = {
-        soil_saturation_capacity_1,  // cm^3/cm^3
-        soil_saturation_capacity_2,  // cm^3/cm^3
-        soil_saturation_capacity_3,  // cm^3/cm^3
-        soil_saturation_capacity_4,  // cm^3/cm^3
-        soil_saturation_capacity_5,  // cm^3/cm^3
-        soil_saturation_capacity_6   // cm^3/cm^3
+        soil_saturation_capacity_1,  // m^3 / m^3
+        soil_saturation_capacity_2,  // m^3 / m^3
+        soil_saturation_capacity_3,  // m^3 / m^3
+        soil_saturation_capacity_4,  // m^3 / m^3
+        soil_saturation_capacity_5,  // m^3 / m^3
+        soil_saturation_capacity_6   // m^3 / m^3
     };
 
     double soil_field_capacity_arr[] = {
-        soil_field_capacity_1,  // cm^3/cm^3
-        soil_field_capacity_2,  // cm^3/cm^3
-        soil_field_capacity_3,  // cm^3/cm^3
-        soil_field_capacity_4,  // cm^3/cm^3
-        soil_field_capacity_5,  // cm^3/cm^3
-        soil_field_capacity_6   // cm^3/cm^3
+        soil_field_capacity_1,  // m^3 / m^3
+        soil_field_capacity_2,  // m^3 / m^3
+        soil_field_capacity_3,  // m^3 / m^3
+        soil_field_capacity_4,  // m^3 / m^3
+        soil_field_capacity_5,  // m^3 / m^3
+        soil_field_capacity_6   // m^3 / m^3
     };
 
     double soil_wilting_point_arr[] = {
-        soil_wilting_point_1,  // cm^3/cm^3
-        soil_wilting_point_2,  // cm^3/cm^3
-        soil_wilting_point_3,  // cm^3/cm^3
-        soil_wilting_point_4,  // cm^3/cm^3
-        soil_wilting_point_5,  // cm^3/cm^3
-        soil_wilting_point_6   // cm^3/cm^3
+        soil_wilting_point_1,  // m^3 / m^3
+        soil_wilting_point_2,  // m^3 / m^3
+        soil_wilting_point_3,  // m^3 / m^3
+        soil_wilting_point_4,  // m^3 / m^3
+        soil_wilting_point_5,  // m^3 / m^3
+        soil_wilting_point_6   // m^3 / m^3
     };
 
     double tot_soil_depth = 0.0;                   // cm
-    double tot_soil_water_content = 0.0;           // cm^3/cm^3 * cm
-    double tot_soil_saturated_conductivity = 0.0;  // kg s m^-3 * cm
-    double tot_soil_saturation_capacity = 0.0;     // cm^3/cm^3 * cm
-    double tot_soil_field_capacity = 0.0;          // cm^3/cm^3 * cm
-    double tot_soil_wilting_point = 0.0;           // cm^3/cm^3 * cm
+    double tot_soil_water_content = 0.0;           // m^3 / m^3 * cm
+    double tot_soil_saturated_conductivity = 0.0;  // kg s / m^3 * cm
+    double tot_soil_saturation_capacity = 0.0;     // m^3 / m^3 * cm
+    double tot_soil_field_capacity = 0.0;          // m^3 / m^3 * cm
+    double tot_soil_wilting_point = 0.0;           // m^3 / m^3 * cm
 
     for (int l = 0; l < max_rooting_layer; l++) {
         tot_soil_depth += soil_depth_arr[l];
