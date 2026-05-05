@@ -123,7 +123,7 @@ void soil_water_dynamic_rooting::do_operation() const
         }
         cumulative_depth += thicknesses[i];
     }
-    update(max_rooting_layer_op, static_cast<double>(layers_count));
+    update(max_rooting_layer_op, layers_count);
 }
 
 }  // namespace standardBML

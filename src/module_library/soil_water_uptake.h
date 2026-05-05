@@ -28,32 +28,26 @@ class soil_water_uptake : public direct_module
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
-          soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
 
           soil_depth_2{get_input(input_quantities, "soil_depth_2")},
           soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
           soil_wilting_point_2{get_input(input_quantities, "soil_wilting_point_2")},
-          soil_field_capacity_2{get_input(input_quantities, "soil_field_capacity_2")},
 
           soil_depth_3{get_input(input_quantities, "soil_depth_3")},
           soil_water_content_3{get_input(input_quantities, "soil_water_content_3")},
           soil_wilting_point_3{get_input(input_quantities, "soil_wilting_point_3")},
-          soil_field_capacity_3{get_input(input_quantities, "soil_field_capacity_3")},
 
           soil_depth_4{get_input(input_quantities, "soil_depth_4")},
           soil_water_content_4{get_input(input_quantities, "soil_water_content_4")},
           soil_wilting_point_4{get_input(input_quantities, "soil_wilting_point_4")},
-          soil_field_capacity_4{get_input(input_quantities, "soil_field_capacity_4")},
 
           soil_depth_5{get_input(input_quantities, "soil_depth_5")},
           soil_water_content_5{get_input(input_quantities, "soil_water_content_5")},
           soil_wilting_point_5{get_input(input_quantities, "soil_wilting_point_5")},
-          soil_field_capacity_5{get_input(input_quantities, "soil_field_capacity_5")},
 
           soil_depth_6{get_input(input_quantities, "soil_depth_6")},
           soil_water_content_6{get_input(input_quantities, "soil_water_content_6")},
           soil_wilting_point_6{get_input(input_quantities, "soil_wilting_point_6")},
-          soil_field_capacity_6{get_input(input_quantities, "soil_field_capacity_6")},
 
           max_rooting_layer{get_input(input_quantities, "max_rooting_layer")},
           canopy_transpiration_rate{get_input(input_quantities, "canopy_transpiration_rate")},
@@ -78,32 +72,26 @@ class soil_water_uptake : public direct_module
     double const& soil_depth_1;
     double const& soil_water_content_1;
     double const& soil_wilting_point_1;
-    double const& soil_field_capacity_1;
 
     double const& soil_depth_2;
     double const& soil_water_content_2;
     double const& soil_wilting_point_2;
-    double const& soil_field_capacity_2;
 
     double const& soil_depth_3;
     double const& soil_water_content_3;
     double const& soil_wilting_point_3;
-    double const& soil_field_capacity_3;
 
     double const& soil_depth_4;
     double const& soil_water_content_4;
     double const& soil_wilting_point_4;
-    double const& soil_field_capacity_4;
 
     double const& soil_depth_5;
     double const& soil_water_content_5;
     double const& soil_wilting_point_5;
-    double const& soil_field_capacity_5;
 
     double const& soil_depth_6;
     double const& soil_water_content_6;
     double const& soil_wilting_point_6;
-    double const& soil_field_capacity_6;
 
     double const& max_rooting_layer;
     double const& canopy_transpiration_rate;
@@ -125,35 +113,29 @@ string_vector soil_water_uptake::get_inputs()
 {
     return {
 
-        "soil_depth_1",           // cm
-        "soil_water_content_1",   // cm^3 / cm^3. Volumetric water content
-        "soil_wilting_point_1",   // cm^3 / cm^3
-        "soil_field_capacity_1",  // cm^3 / cm^3
+        "soil_depth_1",          // cm
+        "soil_water_content_1",  // cm^3 / cm^3. Volumetric water content
+        "soil_wilting_point_1",  // cm^3 / cm^3
 
-        "soil_depth_2",           // cm
-        "soil_water_content_2",   // cm^3 / cm^3
-        "soil_wilting_point_2",   // cm^3 / cm^3
-        "soil_field_capacity_2",  // cm^3 / cm^3
+        "soil_depth_2",          // cm
+        "soil_water_content_2",  // cm^3 / cm^3
+        "soil_wilting_point_2",  // cm^3 / cm^3
 
-        "soil_depth_3",           // cm
-        "soil_water_content_3",   // cm^3 / cm^3
-        "soil_wilting_point_3",   // cm^3 / cm^3
-        "soil_field_capacity_3",  // cm^3 / cm^3
+        "soil_depth_3",          // cm
+        "soil_water_content_3",  // cm^3 / cm^3
+        "soil_wilting_point_3",  // cm^3 / cm^3
 
-        "soil_depth_4",           // cm
-        "soil_water_content_4",   // cm^3 / cm^3
-        "soil_wilting_point_4",   // cm^3 / cm^3
-        "soil_field_capacity_4",  // cm^3 / cm^3
+        "soil_depth_4",          // cm
+        "soil_water_content_4",  // cm^3 / cm^3
+        "soil_wilting_point_4",  // cm^3 / cm^3
 
-        "soil_depth_5",           // cm
-        "soil_water_content_5",   // cm^3 / cm^3
-        "soil_wilting_point_5",   // cm^3 / cm^3
-        "soil_field_capacity_5",  // cm^3 / cm^3
+        "soil_depth_5",          // cm
+        "soil_water_content_5",  // cm^3 / cm^3
+        "soil_wilting_point_5",  // cm^3 / cm^3
 
-        "soil_depth_6",           // cm
-        "soil_water_content_6",   // cm^3 / cm^3
-        "soil_wilting_point_6",   // cm^3 / cm^3
-        "soil_field_capacity_6",  // cm^3 / cm^3
+        "soil_depth_6",          // cm
+        "soil_water_content_6",  // cm^3 / cm^3
+        "soil_wilting_point_6",  // cm^3 / cm^3
 
         "max_rooting_layer",         // dimensionless
         "canopy_transpiration_rate"  // Mg / ha / hr
@@ -187,15 +169,6 @@ void soil_water_uptake::do_operation() const
         soil_depth_4,  // cm
         soil_depth_5,  // cm
         soil_depth_6   // cm
-    };
-
-    double soil_field_capacity[] = {
-        soil_field_capacity_1,  // cm^3 / cm^3
-        soil_field_capacity_2,  // cm^3 / cm^3
-        soil_field_capacity_3,  // cm^3 / cm^3
-        soil_field_capacity_4,  // cm^3 / cm^3
-        soil_field_capacity_5,  // cm^3 / cm^3
-        soil_field_capacity_6   // cm^3 / cm^3
     };
 
     double soil_wilting_point[] = {
