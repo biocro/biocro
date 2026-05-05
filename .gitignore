@@ -91,3 +91,4 @@ about_pkgdown_documentation.md
 /inst/extdata/soybean_validation_2002.pdf
 /inst/extdata/soybean_validation_2005.pdf
 /inst/extdata/trace_log.md
+/tests/testthat/_problems

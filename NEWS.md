@@ -49,6 +49,20 @@ be directly added to this file to describe the related changes.
   and one year of globally-averaged atmospheric CO2 concentration (2025) to the
   `catm_data` data set.
 
+- Added several new modules for simulating soil water dynamics, which are
+  generally based on DSSAT and its original sources:
+  - `BioCro:atmospheric_pressure_from_elevation`
+  - `BioCro:multi_layer_soil_profile`
+  - `BioCro:multilayer_soil_profile_avg`
+  - `BioCro:soil_evaporation_ritchie`
+  - `BioCro:soil_surface_runoff`
+  - `BioCro:soil_type_selector`
+  - `BioCro:soil_water_downflow`
+  - `BioCro:soil_water_dynamic_rooting`
+  - `BioCro:soil_water_tiledrain`
+  - `BioCro:soil_water_upflow`
+  - `BioCro:soil_water_uptake`
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from

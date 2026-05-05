@@ -9,6 +9,7 @@
 
 // Include all the header files that define the modules.
 #include "aba_decay.h"
+#include "atmospheric_pressure_from_elevation.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
 #include "buck_swvp.h"
@@ -50,11 +51,13 @@
 #include "maintenance_respiration.h"
 #include "maintenance_respiration_calculator.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
+#include "multi_layer_soil_profile.h"
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
 #include "multilayer_canopy_integrator.h"
 #include "multilayer_canopy_properties.h"
 #include "multilayer_rue_canopy.h"
+#include "multilayer_soil_profile_avg.h"
 #include "night_and_day_trackers.h"
 #include "nr_ex.h"
 #include "one_layer_soil_profile.h"
@@ -82,7 +85,15 @@
 #include "sla_linear.h"
 #include "sla_logistic.h"
 #include "soil_evaporation.h"
+#include "soil_evaporation_ritchie.h"
 #include "soil_sunlight.h"
+#include "soil_surface_runoff.h"
+#include "soil_type_selector.h"
+#include "soil_water_downflow.h"
+#include "soil_water_dynamic_rooting.h"
+#include "soil_water_tiledrain.h"
+#include "soil_water_upflow.h"
+#include "soil_water_uptake.h"
 #include "solar_position_michalsky.h"
 #include "song_flowering.h"
 #include "soybean_development_rate_calculator.h"
@@ -108,6 +119,7 @@
 creator_map standardBML::module_library::library_entries =
 {
      {"aba_decay",                                             &create_mc<aba_decay>},
+     {"atmospheric_pressure_from_elevation",                   &create_mc<atmospheric_pressure_from_elevation>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
@@ -153,6 +165,8 @@ creator_map standardBML::module_library::library_entries =
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},
+     {"multi_layer_soil_profile",                              &create_mc<multi_layer_soil_profile>},
+     {"multilayer_soil_profile_avg",                           &create_mc<multilayer_soil_profile_avg>},
      {"night_and_day_trackers",                                &create_mc<night_and_day_trackers>},
      {"nr_ex",                                                 &create_mc<nr_ex>},
      {"one_layer_soil_profile",                                &create_mc<one_layer_soil_profile>},
@@ -180,7 +194,15 @@ creator_map standardBML::module_library::library_entries =
      {"sla_linear",                                            &create_mc<sla_linear>},
      {"sla_logistic",                                          &create_mc<sla_logistic>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
+     {"soil_evaporation_ritchie",                              &create_mc<soil_evaporation_ritchie>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
+     {"soil_surface_runoff",                                   &create_mc<soil_surface_runoff>},
+     {"soil_type_selector",                                    &create_mc<soil_type_selector>},
+     {"soil_water_downflow",                                   &create_mc<soil_water_downflow>},
+     {"soil_water_dynamic_rooting",                            &create_mc<soil_water_dynamic_rooting>},
+     {"soil_water_tiledrain",                                  &create_mc<soil_water_tiledrain>},
+     {"soil_water_upflow",                                     &create_mc<soil_water_upflow>},
+     {"soil_water_uptake",                                     &create_mc<soil_water_uptake>},
      {"solar_position_michalsky",                              &create_mc<solar_position_michalsky>},
      {"song_flowering",                                        &create_mc<song_flowering>},
      {"soybean_development_rate_calculator",                   &create_mc<soybean_development_rate_calculator>},
