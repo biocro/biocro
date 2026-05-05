@@ -55,6 +55,7 @@ c3_param_at_tleaf c3_temperature_response(
     double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
 
     return c3_param_at_tleaf{
+        /* gm_norm = */ 1,  // temporary
         /* Gstar_norm = */ arrhenius_exponential(param.Gstar_Ea, Tref_K, Tleaf_K),
         /* Jmax_norm =  */ arrhenius_exponential(param.Jmax_Ea, Tref_K, Tleaf_K),
         /* Kc_norm =    */ arrhenius_exponential(param.Kc_Ea, Tref_K, Tleaf_K),

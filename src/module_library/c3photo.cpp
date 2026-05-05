@@ -12,22 +12,23 @@
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
-/*
 
-  The secant method is used to solve for assimilation, Ci, and stomatal conductance,
-  because of known convergence issues when using fixed-point iteration, based on
-  Sun et al. (2012) "A numerical issue in calculating the coupled carbon and
-  water fluxes in a climate model." *Journal of Geophysical Research*
-  https://dx.doi.org/10.1029/2012JD018059
-
-*/
-
+/**
+ *  @brief Solves for An, Cc, Ci, and gs
+ *
+ *  The Dekker method is used to solve the set of coupled equations, because of
+ *  known convergence issues when using fixed-point iteration, based on Sun et
+ *  al. (2012) "A numerical issue in calculating the coupled carbon and water
+ *  fluxes in a climate model." *Journal of Geophysical Research*
+ *  https://dx.doi.org/10.1029/2012JD018059
+ */
 photosynthesis_outputs c3photoC(
     c3_temperature_response_parameters const tr_param,
     double const absorbed_ppfd,                // micromol / m^2 / s
     double const Tleaf,                        // degrees C
     double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
+    double const gm_at_25,                     // mol / m^2 / s / bar
     double const Gstar_at_25,                  // micromol / mol
     double const Kc_at_25,                     // micromol / mol
     double const Ko_at_25,                     // mmol / mol
@@ -39,7 +40,7 @@ photosynthesis_outputs c3photoC(
     double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double const Ca,                           // micromol / mol
-    double const AP,                           // Pa (TEMPORARILY UNUSED)
+    double const AP,                           // Pa
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const StomWS,                       // dimensionless
     double const electrons_per_carboxylation,  // self-explanatory units
@@ -56,18 +57,23 @@ photosynthesis_outputs c3photoC(
         throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
     }
 
+    // Get the atmospheric pressure in bar
+    double constexpr Pa_per_bar = 1e5;        // Pa / bar
+    double const pressure = AP / Pa_per_bar;  // bar
+
     // Calculate values of key parameters at leaf temperature
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
-    double const dark_adapted_phi_PSII = c3_param.phi_PSII;  // dimensionless
-    double const Gstar = Gstar_at_25 * c3_param.Gstar_norm;  // micromol / mol
-    double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;     // micromol / m^2 / s
-    double const Kc = Kc_at_25 * c3_param.Kc_norm;           // micromol / mol
-    double const Ko = Ko_at_25 * c3_param.Ko_norm;           // mmol / mol
-    double const RL = RL_at_25 * c3_param.RL_norm;           // micromol / m^2 / s
-    double const theta = c3_param.theta;                     // dimensionless
-    double const TPU = TPU_rate_max * c3_param.Tp_norm;      // micromol / m^2 / s
-    double const Vcmax = Vcmax_at_25 * c3_param.Vcmax_norm;  // micromol / m^2 / s
+    double const dark_adapted_phi_PSII = c3_param.phi_PSII;    // dimensionless
+    double const gm = gm_at_25 * c3_param.gm_norm * pressure;  // mol / m^2 / s
+    double const Gstar = Gstar_at_25 * c3_param.Gstar_norm;    // micromol / mol
+    double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;       // micromol / m^2 / s
+    double const Kc = Kc_at_25 * c3_param.Kc_norm;             // micromol / mol
+    double const Ko = Ko_at_25 * c3_param.Ko_norm;             // mmol / mol
+    double const RL = RL_at_25 * c3_param.RL_norm;             // micromol / m^2 / s
+    double const theta = c3_param.theta;                       // dimensionless
+    double const TPU = TPU_rate_max * c3_param.Tp_norm;        // micromol / m^2 / s
+    double const Vcmax = Vcmax_at_25 * c3_param.Vcmax_norm;    // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the
@@ -102,12 +108,12 @@ photosynthesis_outputs c3photoC(
     double Gs{1e3};     // mol / m^2 / s  (initial guess)
     double Assim{0.0};  // micromol / mol (initial guess)
 
-    // This lambda function equals zero only if Ci satisfies both the FvCB and
-    // Ball-Berry models. Here, Ci should be expressed in micromol / mol.
-    auto check_assim_rate = [=, &FvCB_res, &BB_res, &Gs, &Assim](double Ci) {
-        // Use Ci to compute the assimilation rate according to the FvCB model.
+    // This lambda function equals zero only if Cc satisfies both the FvCB and
+    // Ball-Berry models. Here, Cc should be expressed in micromol / mol.
+    auto check_assim_rate = [=, &FvCB_res, &BB_res, &Gs, &Assim](double Cc) {
+        // Use Cc to compute the assimilation rate according to the FvCB model.
         FvCB_res = FvCB_assim(
-            Ci, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
+            Cc, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
             electrons_per_carboxylation,
             electrons_per_oxygenation);
 
@@ -116,8 +122,8 @@ photosynthesis_outputs c3photoC(
         // Use Assim to compute the stomatal conductance according to the
         // Ball-Berry model. If Assim is too high, Cs will take a negative
         // value, which is not allowed by the Ball-Berry model. To avoid this,
-        // we clamp Assim to the value that produces Cs = 0; this will result
-        // in Gs = infinity.
+        // we clamp Assim to the value that produces Cc = 0, which will also
+        // ensure that Cs > 0.
         BB_res = ball_berry_gs(
             std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
             Ca * 1e-6,
@@ -130,17 +136,18 @@ photosynthesis_outputs c3photoC(
 
         Gs = BB_res.gsw;  // mol / m^2 / s
 
-        // Using Ci and Gs, make a new estimate of the assimilation rate. If
-        // the initial value of Ci was correct, this should be identical to
-        // Assim.
-        double Gt = sequential_conductance(gbw / dr_boundary, Gs / dr_stomata);  // mol / m^2 / s
+        // Using Cc, gm, Gbw, and Gs, make a new estimate of the assimilation
+        // rate. If the initial value of Cc was correct, this should be
+        // identical to Assim.
+        double Gt =
+            sequential_conductance(gbw / dr_boundary, Gs / dr_stomata, gm);  // mol / m^2 / s
 
-        return Assim - Gt * (Ca - Ci);  // micromol / m^2 / s
+        return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
     };
 
-    // Get an upper bound for Ci by finding the most negative value of An (which
-    // occurs when Ci = 0), the smallest total conductance to CO2 (which occurs
-    // when gsw takes its minimum value b0), and then using Ci = Ca - An / gtc.
+    // Get an upper bound for Cc by finding the most negative value of An (which
+    // occurs when Cc = 0), the smallest total conductance to CO2 (which occurs
+    // when gsw takes its minimum value b0), and then using Cc = Ca - An / gtc.
     double const A_min =
         FvCB_assim(
             0.0, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
@@ -148,8 +155,10 @@ photosynthesis_outputs c3photoC(
             electrons_per_oxygenation)
             .An;  // micromol / m^2 / s
 
-    double const Ci_max =
-        Ca - A_min * (dr_boundary / gbw + dr_stomata / b0_adj);  // micromol / mol
+    double const g_min =
+        sequential_conductance(gbw / dr_boundary, b0_adj / dr_stomata, gm);  // mol / m^2 / s
+
+    double const Cc_max = Ca - A_min / g_min;  // micromol / mol
 
     // Run the Dekker method
     using namespace root_finding;
@@ -158,29 +167,31 @@ photosynthesis_outputs c3photoC(
         check_assim_rate,
         0.718 * Ca,
         0,
-        Ci_max * 1.01);
+        Cc_max * 1.01);
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "Ci solver reports failed convergence with termination flag:\n    " +
+            "Cc solver reports failed convergence with termination flag:\n    " +
             flag_message(result.flag));
     }
 
     // Get final values
-    double const Ci = result.root;                                         // micromol / mol
+    double const Cc = result.root;                                         // micromol / mol
+    double const Ci = Cc + Assim / gm;                                     // micromol / mol
     double const an_conductance = conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
     return photosynthesis_outputs{
         /* .Assim = */ Assim,                       // micromol / m^2 / s
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
+        /* .Cc = */ Cc,                             // micromol / mol
         /* .Ci = */ Ci,                             // micromol / mol
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .GrossAssim = */ FvCB_res.Vc,            // micromol / m^2 / s
         /* .Gs = */ Gs,                             // mol / m^2 / s
         /* .RHs = */ BB_res.hs,                     // dimensionless from Pa / Pa
         /* .RL = */ RL,                             // micromol / m^2 / s
-        /* .Rp = */ FvCB_res.Vc * Gstar / Ci,       // micromol / m^2 / s
+        /* .Rp = */ FvCB_res.Vc * Gstar / Cc,       // micromol / m^2 / s
         /* .residual = */ result.residual,          // micromol / m^2 / s
         /* .iteration = */ result.iteration         // not a physical quantity
     };

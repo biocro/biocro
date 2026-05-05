@@ -10,6 +10,7 @@ photosynthesis_outputs c3photoC(
     double const Tleaf,
     double const Tambient,
     double const RH,
+    double const gm_at_25,
     double const Gstar_at_25,
     double const Kc_at_25,
     double const Ko_at_25,

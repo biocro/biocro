@@ -104,6 +104,7 @@ soybean2 <- list(
         electrons_per_oxygenation   = 5.25,
         elevation                   = 219,
         emissivity_sky              = 1,
+        gm_at_25                    = Inf,
         grc_grain                   = 0,
         grc_leaf                    = 0,
         grc_rhizome                 = 0,

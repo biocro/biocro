@@ -20,7 +20,8 @@ struct c3_temperature_response_parameters {
 };
 
 struct c3_param_at_tleaf {
-    double Gstar_norm;  //!< Gstar normalized to its value at 25 degrees C (micromol / mol)
+    double gm_norm;     //!< gm normalized to its value at 25 degrees C (dimensionless)
+    double Gstar_norm;  //!< Gstar normalized to its value at 25 degrees C (dimensionless)
     double Jmax_norm;   //!< Jmax normalized to its value at 25 degrees C (dimensionless)
     double Kc_norm;     //!< Kc normalized to its value at 25 degrees C (dimensionless)
     double Ko_norm;     //!< Ko normalized to its value at 25 degrees C (dimensionless)

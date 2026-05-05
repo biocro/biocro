@@ -87,6 +87,7 @@ soybean <- list(
         electrons_per_carboxylation = 4.5,
         electrons_per_oxygenation   = 5.25,
         emissivity_sky              = 1,
+        gm_at_25                    = Inf,
         grc_grain                   = 0,
         grc_leaf                    = 0,
         grc_rhizome                 = 0,

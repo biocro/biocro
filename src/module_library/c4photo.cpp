@@ -160,6 +160,7 @@ photosynthesis_outputs c4photoC(
     return photosynthesis_outputs{
         /* .Assim = */ Assim,                       // micromol / m^2 /s
         /* .Assim_conductance = */ an_conductance,  // micromol / m^2 / s
+        /* .Cc = */ 0,                              // micromol / mol
         /* .Ci = */ Ci,                             // micromol / mol
         /* .Cs = */ BB_res.cs,                      // micromol / m^2 / s
         /* .GrossAssim = */ Assim + RT,             // micromol / m^2 / s

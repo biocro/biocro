@@ -116,4 +116,18 @@ inline double sequential_conductance(
     return 1.0 / (1.0 / conductance_1 + 1.0 / conductance_2);  // same units as conductance_1
 }
 
+/**
+ *  @brief Calculates the total conductance across three sequential gas paths.
+ *
+ *  This is simply an extension of the two-path version.
+ */
+inline double sequential_conductance(
+    double const conductance_1,  // any conductance units
+    double const conductance_2,  // same units as conductance_1
+    double const conductance_3   // same units as conductance_1
+)
+{
+    return 1.0 / (1.0 / conductance_1 + 1.0 / conductance_2 + 1.0 / conductance_3);  // same units as conductance_1
+}
+
 #endif

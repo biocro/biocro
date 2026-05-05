@@ -82,6 +82,7 @@ class c3_assimilation : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw{get_input(input_quantities, "gbw")},
+          gm_at_25{get_input(input_quantities, "gm_at_25")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
@@ -115,6 +116,7 @@ class c3_assimilation : public direct_module
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
           Assim_conductance_op{get_op(output_quantities, "Assim_conductance")},
+          Cc_op{get_op(output_quantities, "Cc")},
           Ci_op{get_op(output_quantities, "Ci")},
           Cs_op{get_op(output_quantities, "Cs")},
           GrossAssim_op{get_op(output_quantities, "GrossAssim")},
@@ -140,6 +142,7 @@ class c3_assimilation : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw;
+    double const& gm_at_25;
     double const& Gs_min;
     double const& Gstar_at_25;
     double const& Gstar_Ea;
@@ -173,6 +176,7 @@ class c3_assimilation : public direct_module
     // Pointers to output quantities
     double* Assim_op;
     double* Assim_conductance_op;
+    double* Cc_op;
     double* Ci_op;
     double* Cs_op;
     double* GrossAssim_op;
@@ -198,6 +202,7 @@ string_vector c3_assimilation::get_inputs()
         "electrons_per_carboxylation",  // self-explanatory units
         "electrons_per_oxygenation",    // self-explanatory units
         "gbw",                          // mol / m^2 / s
+        "gm_at_25",                     // mol / m^2 / s/ bar
         "Gs_min",                       // mol / m^2 / s
         "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
@@ -235,6 +240,7 @@ string_vector c3_assimilation::get_outputs()
     return {
         "Assim",              // micromol / m^2 / s
         "Assim_conductance",  // micromol / m^2 / s
+        "Cc",                 // micromol / mol
         "Ci",                 // micromol / mol
         "Cs",                 // micromol / m^2 / s
         "GrossAssim",         // micromol / m^2 / s
@@ -273,6 +279,7 @@ void c3_assimilation::do_operation() const
         Tleaf,
         Tambient,
         rh,
+        gm_at_25,
         Gstar_at_25,
         Kc_at_25,
         Ko_at_25,
@@ -295,6 +302,7 @@ void c3_assimilation::do_operation() const
     // Update the output quantity list
     update(Assim_conductance_op, c3_results.Assim_conductance);
     update(Assim_op, c3_results.Assim);
+    update(Cc_op, c3_results.Cc);
     update(Ci_op, c3_results.Ci);
     update(Cs_op, c3_results.Cs);
     update(GrossAssim_op, c3_results.GrossAssim);

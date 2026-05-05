@@ -20,6 +20,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
     double const gbw_canopy,                   // m / s
+    double const gm_at_25,                     // mol / m^2 / s / bar
     double const growth_respiration_fraction,  // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
