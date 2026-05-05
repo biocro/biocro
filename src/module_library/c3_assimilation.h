@@ -83,6 +83,9 @@ class c3_assimilation : public direct_module
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw{get_input(input_quantities, "gbw")},
           gm_at_25{get_input(input_quantities, "gm_at_25")},
+          gm_Ha{get_input(input_quantities, "gm_Ha")},
+          gm_Hd{get_input(input_quantities, "gm_Hd")},
+          gm_S{get_input(input_quantities, "gm_S")},
           Gs_min{get_input(input_quantities, "Gs_min")},
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
@@ -143,6 +146,9 @@ class c3_assimilation : public direct_module
     double const& electrons_per_oxygenation;
     double const& gbw;
     double const& gm_at_25;
+    double const& gm_Ha;
+    double const& gm_Hd;
+    double const& gm_S;
     double const& Gs_min;
     double const& Gstar_at_25;
     double const& Gstar_Ea;
@@ -203,6 +209,9 @@ string_vector c3_assimilation::get_inputs()
         "electrons_per_oxygenation",    // self-explanatory units
         "gbw",                          // mol / m^2 / s
         "gm_at_25",                     // mol / m^2 / s/ bar
+        "gm_Ha",                        // J / mol
+        "gm_Hd",                        // J / mol
+        "gm_S",                         // J / K / mol
         "Gs_min",                       // mol / m^2 / s
         "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
@@ -257,6 +266,9 @@ void c3_assimilation::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
+        gm_Ha,
+        gm_Hd,
+        gm_S,
         Gstar_Ea,
         Jmax_Ea,
         Kc_Ea,

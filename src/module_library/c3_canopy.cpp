@@ -22,6 +22,9 @@ string_vector c3_canopy::get_inputs()
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
         "gm_at_25",                     // mol / m^2 / s / bar
+        "gm_Ha",                        // J / mol
+        "gm_Hd",                        // J / mol
+        "gm_S",                         // J / K / mol
         "growth_respiration_fraction",  // dimensionless
         "Gs_min",                       // mol / m^2 / s
         "Gstar_at_25",                  // micromol / mol
@@ -89,6 +92,9 @@ void c3_canopy::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
+        gm_Ha,
+        gm_Hd,
+        gm_S,
         Gstar_Ea,
         Jmax_Ea,
         Kc_Ea,
