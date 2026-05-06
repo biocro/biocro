@@ -18,8 +18,8 @@ class canopy_light_distribution : public direct_module
 
           // Get references to input quantities
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
+          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           chil{get_input(input_quantities, "chil")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           cumulative_lai{get_input(input_quantities, "cumulative_lai")},  
