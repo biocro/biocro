@@ -101,7 +101,6 @@
 #include "stomata_water_stress_linear.h"
 #include "stomata_water_stress_linear_aba_response.h"
 #include "stomata_water_stress_sigmoid.h"
-#include "surface_excess_water.h"
 #include "thermal_time_and_frost_senescence.h"
 #include "thermal_time_beta.h"
 #include "thermal_time_bilinear.h"
@@ -216,7 +215,6 @@ creator_map standardBML::module_library::library_entries =
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
      {"stomata_water_stress_sigmoid",                          &create_mc<stomata_water_stress_sigmoid>},
-     {"surface_excess_water",                                  &create_mc<surface_excess_water>},
      {"ten_layer_c3_canopy",                                   &create_mc<ten_layer_c3_canopy>},
      {"ten_layer_c4_canopy",                                   &create_mc<ten_layer_c4_canopy>},
      {"ten_layer_canopy_integrator",                           &create_mc<ten_layer_canopy_integrator>},
