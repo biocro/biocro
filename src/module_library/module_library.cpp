@@ -9,6 +9,7 @@
 
 // Include all the header files that define the modules.
 #include "aba_decay.h"
+#include "atmospheric_pressure_from_elevation.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
 #include "buck_swvp.h"
@@ -83,11 +84,12 @@
 #include "sla_linear.h"
 #include "sla_logistic.h"
 #include "soil_evaporation.h"
-#include "soil_evaporation2.h"
+#include "soil_evaporation_ritchie.h"
 #include "soil_sunlight.h"
 #include "soil_surface_runoff.h"
 #include "soil_type_selector.h"
 #include "soil_water_downflow.h"
+#include "soil_water_dynamic_rooting.h"
 #include "soil_water_tiledrain.h"
 #include "soil_water_upflow.h"
 #include "soil_water_uptake.h"
@@ -121,6 +123,7 @@
 creator_map standardBML::module_library::library_entries =
 {
      {"aba_decay",                                             &create_mc<aba_decay>},
+     {"atmospheric_pressure_from_elevation",                   &create_mc<atmospheric_pressure_from_elevation>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
@@ -196,11 +199,12 @@ creator_map standardBML::module_library::library_entries =
      {"sla_linear",                                            &create_mc<sla_linear>},
      {"sla_logistic",                                          &create_mc<sla_logistic>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
-     {"soil_evaporation2",                                     &create_mc<soil_evaporation2>},
+     {"soil_evaporation_ritchie",                              &create_mc<soil_evaporation_ritchie>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
      {"soil_surface_runoff",                                   &create_mc<soil_surface_runoff>},
      {"soil_type_selector",                                    &create_mc<soil_type_selector>},
      {"soil_water_downflow",                                   &create_mc<soil_water_downflow>},
+     {"soil_water_dynamic_rooting",                            &create_mc<soil_water_dynamic_rooting>},
      {"soil_water_tiledrain",                                  &create_mc<soil_water_tiledrain>},
      {"soil_water_upflow",                                     &create_mc<soil_water_upflow>},
      {"soil_water_uptake",                                     &create_mc<soil_water_uptake>},
