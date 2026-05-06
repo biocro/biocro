@@ -2,6 +2,9 @@
 #define C3_TEMPERATURE_RESPONSE_H
 
 struct c3_temperature_response_parameters {
+    double gm_Ha;       //!< Peaked Arrhenius enthalpy of activation for gm (J / mol)
+    double gm_Hd;       //!< Peaked Arrhenius enthalpy of deactivation for gm (J / mol)
+    double gm_S;        //!< Peaked Arrhenius entropy for gm (J / K / mol)
     double Gstar_Ea;    //!< Arrhenius activation energy for Gstar (J / mol)
     double Jmax_Ea;     //!< Arrhenius activation energy for Jmax_norm (J / mol)
     double Kc_Ea;       //!< Arrhenius activation energy for Kc (J / mol)
@@ -20,7 +23,8 @@ struct c3_temperature_response_parameters {
 };
 
 struct c3_param_at_tleaf {
-    double Gstar_norm;  //!< Gstar normalized to its value at 25 degrees C (micromol / mol)
+    double gm_norm;     //!< gm normalized to its value at 25 degrees C (dimensionless)
+    double Gstar_norm;  //!< Gstar normalized to its value at 25 degrees C (dimensionless)
     double Jmax_norm;   //!< Jmax normalized to its value at 25 degrees C (dimensionless)
     double Kc_norm;     //!< Kc normalized to its value at 25 degrees C (dimensionless)
     double Ko_norm;     //!< Ko normalized to its value at 25 degrees C (dimensionless)

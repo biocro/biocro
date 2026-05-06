@@ -83,7 +83,7 @@ using calculation_constants::eps_zero;
  *  cannot limit carboxylation or determine the net CO2 assimilation rate when
  *  \f$ C = 0 \f$.
  *
- *  @param [in] Ci The value of \f$ C \f$ in units of micromol / mol.
+ *  @param [in] Cc The value of \f$ C \f$ in units of micromol / mol.
  *
  *  @param [in] Gstar The value of \f$ \Gamma^* \f$ in units of
  *              micromol / mol.
@@ -115,7 +115,7 @@ using calculation_constants::eps_zero;
  *          in units of micromol / m^2 / s.
  */
 FvCB_outputs FvCB_assim(
-    double Ci,                           // micromol / mol
+    double Cc,                           // micromol / mol
     double Gstar,                        // micromol / mol
     double J,                            // micromol / m^2 / s
     double Kc,                           // micromol / mol
@@ -136,20 +136,20 @@ FvCB_outputs FvCB_assim(
     FvCB_outputs result;
 
     // Calculate rates
-    if (Ci < -eps_zero) {
-        throw std::range_error("Thrown in FvCB_assim: Ci is negative.");
-    } else if (Ci <= eps_zero) {
-        // RuBP-saturated net assimilation rate when Ci is 0
+    if (Cc < -eps_zero) {
+        throw std::range_error("Thrown in FvCB_assim: Cc is negative.");
+    } else if (Cc <= eps_zero) {
+        // RuBP-saturated net assimilation rate when Cc is 0
         double Ac0 =
             -Gstar * Vcmax / (Kc * (1 + Oi / Ko)) - RL;  // micromol / m^2 / s
 
-        // RuBP-regeneration-limited net assimilation when Ci is 0
+        // RuBP-regeneration-limited net assimilation when Cc is 0
         double Aj0 =
             -J / (2.0 * electrons_per_oxygenation) - RL;  // micromol / m^2 / s
 
         // Store results; note that TPU cannot be limiting when
-        // Ci < Gstar * (1 + 3 * alpha_TPU) and that An = max(Ac, Aj) when
-        // Ci < Gstar.
+        // Cc < Gstar * (1 + 3 * alpha_TPU) and that An = max(Ac, Aj) when
+        // Cc < Gstar.
         result.An = std::max(Ac0, Aj0);  // micromol / m^2 / s
         result.Ac = Ac0;                 // micromol / m^2 / s
         result.Aj = Aj0;                 // micromol / m^2 / s
@@ -161,27 +161,27 @@ FvCB_outputs FvCB_assim(
 
     } else {
         // RuBP-saturated carboxylation rate
-        double Wc = Vcmax * Ci /
-                    (Ci + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
+        double Wc = Vcmax * Cc /
+                    (Cc + Kc * (1.0 + Oi / Ko));  // micromol / m^2 / s
 
         // RuBP-regeneration-limited carboxylation rate (micromol / m^2 / s)
-        double Wj = J * Ci /
-                    (electrons_per_carboxylation * Ci +
+        double Wj = J * Cc /
+                    (electrons_per_carboxylation * Cc +
                      2.0 * electrons_per_oxygenation * Gstar);
 
         // Triose-phosphate-utilization-limited carboxylation rate. There is an
-        // asymptote at Ci = Gstar * (1 + 3 * alpha_TPU), and TPU cannot limit
-        // the carboxylation rate for values of Ci below this asymptote. A
+        // asymptote at Cc = Gstar * (1 + 3 * alpha_TPU), and TPU cannot limit
+        // the carboxylation rate for values of Cc below this asymptote. A
         // simple way to handle this is to make Wp infinite for
-        // Ci <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting in
+        // Cc <= Gstar * (1 + 3 * alpha_TPU), so that it is never limiting in
         // this case.
         double Wp =
-            Ci > Gstar * (1.0 + 3.0 * alpha_TPU)
-                ? 3.0 * TPU * Ci / (Ci - Gstar * (1.0 + 3.0 * alpha_TPU))
+            Cc > Gstar * (1.0 + 3.0 * alpha_TPU)
+                ? 3.0 * TPU * Cc / (Cc - Gstar * (1.0 + 3.0 * alpha_TPU))
                 : inf;  // micromol / m^2 / s
 
         // Assimilated carbon per carboxylation
-        double a_per_c = (1.0 - Gstar / Ci);  // dimensionless
+        double a_per_c = (1.0 - Gstar / Cc);  // dimensionless
 
         // Limiting carboxylation rate
         double Vc = std::min(Wc, std::min(Wj, Wp));  // micromol / m^2 / s

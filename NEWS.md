@@ -63,6 +63,10 @@ be directly added to this file to describe the related changes.
   - `BioCro:soil_water_upflow`
   - `BioCro:soil_water_uptake`
 
+- The C3 photosynthesis calculations now include mesophyll conductance, and
+  they determine `Cc` along with `Ci`. Setting `gm_at_25` to infinity will
+  ensure that `Cc = Ci`, reproducing the behavior of previous BioCro versions.
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from

@@ -20,6 +20,9 @@ class c3_parameters : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
+          gm_Ha{get_input(input_quantities, "gm_Ha")},
+          gm_Hd{get_input(input_quantities, "gm_Hd")},
+          gm_S{get_input(input_quantities, "gm_S")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
@@ -38,6 +41,7 @@ class c3_parameters : public direct_module
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
 
           // Get pointers to output quantities
+          gm_norm_op{get_op(output_quantities, "gm_norm")},
           Gstar_norm_op{get_op(output_quantities, "Gstar_norm")},
           Jmax_norm_op{get_op(output_quantities, "Jmax_norm")},
           Kc_norm_op{get_op(output_quantities, "Kc_norm")},
@@ -55,6 +59,9 @@ class c3_parameters : public direct_module
 
    private:
     // References to input quantities
+    double const& gm_Ha;
+    double const& gm_Hd;
+    double const& gm_S;
     double const& Gstar_Ea;
     double const& Jmax_Ea;
     double const& Kc_Ea;
@@ -73,6 +80,7 @@ class c3_parameters : public direct_module
     double const& Vcmax_Ea;
 
     // Pointers to output quantities
+    double* gm_norm_op;
     double* Gstar_norm_op;
     double* Jmax_norm_op;
     double* Kc_norm_op;
@@ -90,6 +98,9 @@ class c3_parameters : public direct_module
 string_vector c3_parameters::get_inputs()
 {
     return {
+        "gm_Ha",       // J / mol
+        "gm_Hd",       // J / mol
+        "gm_S",        // J / K / mol
         "Gstar_Ea",    // J / mol
         "Jmax_Ea",     // J / mol
         "Kc_Ea",       // J / mol
@@ -112,6 +123,7 @@ string_vector c3_parameters::get_inputs()
 string_vector c3_parameters::get_outputs()
 {
     return {
+        "gm_norm",     // dimensionless
         "Gstar_norm",  // dimensionless
         "Jmax_norm",   // dimensionless
         "Kc_norm",     // dimensionless
@@ -128,6 +140,9 @@ void c3_parameters::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
+        gm_Ha,
+        gm_Hd,
+        gm_S,
         Gstar_Ea,
         Jmax_Ea,
         Kc_Ea,
@@ -148,6 +163,7 @@ void c3_parameters::do_operation() const
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
     // Update the output quantity list
+    update(gm_norm_op, c3_param.gm_norm);
     update(Gstar_norm_op, c3_param.Gstar_norm);
     update(Jmax_norm_op, c3_param.Jmax_norm);
     update(Kc_norm_op, c3_param.Kc_norm);

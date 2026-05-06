@@ -88,7 +88,7 @@ void c4_leaf_photosynthesis::do_operation() const
         photo = c4photoC(incident_ppfd, leaf_temperature, ambient_temperature,
                          rh, Vcmax_at_25, alpha1, kparm, theta, beta, RL_at_25,
                          b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
-                         upperT, lowerT, et.gbw_molecular);
+                         upperT, lowerT, et.gbw_molar);
         return photo.Gs;
     };
 
@@ -109,7 +109,7 @@ void c4_leaf_photosynthesis::do_operation() const
     update(Cs_op, photo.Cs);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
-    update(gbw_op, et.gbw_molecular);
+    update(gbw_op, et.gbw_molar);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
     update(leaf_temperature_op, ambient_temperature + et.Deltat);

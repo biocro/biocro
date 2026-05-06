@@ -1,4 +1,4 @@
-input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,"description"
-Gstar_Ea,Jmax_Ea,Kc_Ea,Ko_Ea,RL_Ea,Tleaf,Tp_Ha,Tp_Hd,Tp_S,Vcmax_Ea,phi_PSII_0,phi_PSII_1,phi_PSII_2,theta_0,theta_1,theta_2,Gstar_norm,Jmax_norm,Kc_norm,Ko_norm,RL_norm,Tp_norm,Vcmax_norm,phi_PSII,theta,NA
-37830,43540,79430,36380,46390,25,62990,182140,588,65330,0.352,0.022,-0.00034,0.76,0.018,-0.00037,1,1,1,1,1,1,1,0.6895,0.97875,"Tobacco at 25 C"
-37830,43540,79430,36380,46390,30,62990,182140,588,65330,0.352,0.022,-0.00034,0.76,0.018,-0.00037,1.28620755115371,1.33601179281693,1.69635073554276,1.27385862303802,1.36158720704967,1.35477608953465,1.54444777765174,0.706,0.967,"Tobacco at 30 C"
+input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,output,output,"description"
+Gstar_Ea,Jmax_Ea,Kc_Ea,Ko_Ea,RL_Ea,Tleaf,Tp_Ha,Tp_Hd,Tp_S,Vcmax_Ea,gm_Ha,gm_Hd,gm_S,phi_PSII_0,phi_PSII_1,phi_PSII_2,theta_0,theta_1,theta_2,Gstar_norm,Jmax_norm,Kc_norm,Ko_norm,RL_norm,Tp_norm,Vcmax_norm,gm_norm,phi_PSII,theta,NA
+37830,43540,79430,36380,46390,25,62990,182140,588,65330,49600,437400,1400,0.352,0.022,-0.00034,0.76,0.018,-0.00037,1,1,1,1,1,1,1,1,0.6895,0.97875,"Tobacco at 25 C"
+37830,43540,79430,36380,46390,30,62990,182140,588,65330,49600,437400,1400,0.352,0.022,-0.00034,0.76,0.018,-0.00037,1.28620755115371,1.33601179281693,1.69635073554276,1.27385862303802,1.36158720704967,1.35477608953465,1.54444777765174,1.3834241113255,0.706,0.967,"Tobacco at 30 C"

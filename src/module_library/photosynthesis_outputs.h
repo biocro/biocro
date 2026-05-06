@@ -10,6 +10,7 @@
 struct photosynthesis_outputs {
     double Assim;              //!< Net CO2 assimilation rate (micromol / m^2 / s)
     double Assim_conductance;  //!< Conductance-limited net CO2 assim. rate (micromol / m^2 / s)
+    double Cc;                 //!< CO2 concentration in the chloroplast (micromol / mol)
     double Ci;                 //!< CO2 concentration in intercellular spaces (micromol / mol)
     double Cs;                 //!< CO2 concentration at the leaf surface (micromol / mol)
     double GrossAssim;         //!< Gross CO2 assimilation rate (micromol / m^2 / s)

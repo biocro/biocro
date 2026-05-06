@@ -33,6 +33,11 @@ using conversion_constants::celsius_to_kelvin;
  *  - `TPU_norm`
  *  A reference temperature of 25 degrees C is used.
  *
+ *  The following parameters are calculating using a peaked Arrhenius response
+ *  (`peaked_arrhenius_response()`) as in Bernacchi et al. (2002):
+ *  - `gm_norm`
+ *  A reference temperature of 25 degrees C is used.
+ *
  *  References:
  *  - [Yang, J. T., Preiser, A. L., Li, Z., Weise, S. E. & Sharkey, T. D. Planta
  *    243, 687–698 (2016)](https://doi/org/10.1007/s00425-015-2436-8)
@@ -55,6 +60,7 @@ c3_param_at_tleaf c3_temperature_response(
     double const Tleaf_K = Tleaf + celsius_to_kelvin;  // K
 
     return c3_param_at_tleaf{
+        /* gm_norm =    */ peaked_arrhenius_response(param.gm_Ha, param.gm_Hd, Tref_K, param.gm_S, Tleaf_K),
         /* Gstar_norm = */ arrhenius_exponential(param.Gstar_Ea, Tref_K, Tleaf_K),
         /* Jmax_norm =  */ arrhenius_exponential(param.Jmax_Ea, Tref_K, Tleaf_K),
         /* Kc_norm =    */ arrhenius_exponential(param.Kc_Ea, Tref_K, Tleaf_K),

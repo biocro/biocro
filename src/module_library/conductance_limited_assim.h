@@ -68,15 +68,41 @@
  *              micromol / m^2 / s.
  */
 inline double conductance_limited_assim(
-    double Ca,   // micromol / mol
-    double gbw,  // mol / m^2 / s
-    double gsw   // mol / m^2 / s
+    double const Ca,   // micromol / mol
+    double const gbw,  // mol / m^2 / s
+    double const gsw   // mol / m^2 / s
 )
 {
     using physical_constants::dr_boundary;
     using physical_constants::dr_stomata;
 
-    return Ca * sequential_conductance(gbw / dr_boundary, gsw / dr_stomata);  // micromol / m^2 / s
+    return Ca * sequential_conductance({gbw / dr_boundary, gsw / dr_stomata});  // micromol / m^2 / s
+}
+
+/**
+ *  @brief Computes the conductance-limited net CO2 assimilation rate.
+ *
+ *  This is simply an extension of the two-path version above, where the
+ *  conductance to CO2 diffusion in the mesophyll (gm) is also considered, and
+ *  assimilation is chosen to prevent Cc < 0 rather than Ci < 0. By convention,
+ *  mesophyll conductance is expressed as a conductance to CO2 diffusion,
+ *  unlike the stomatal and boundary layer conductances, which are given as
+ *  conductances to H2O diffusion.
+ *
+ *  @param [in] gm: The conductance to CO2 diffusion across the mesophyll with
+ *              units of mol / m^2 / s.
+ */
+inline double conductance_limited_assim(
+    double const Ca,   // micromol / mol
+    double const gbw,  // mol / m^2 / s
+    double const gsw,  // mol / m^2 / s
+    double const gm    // mol / m^2 / s
+)
+{
+    using physical_constants::dr_boundary;
+    using physical_constants::dr_stomata;
+
+    return Ca * sequential_conductance({gbw / dr_boundary, gsw / dr_stomata, gm});  // micromol / m^2 / s
 }
 
 #endif

@@ -16,7 +16,7 @@ struct FvCB_outputs {
 };
 
 FvCB_outputs FvCB_assim(
-    double Ci,
+    double Cc,
     double Gstar,
     double J,
     double Kc,

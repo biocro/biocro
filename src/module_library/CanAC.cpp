@@ -164,7 +164,7 @@ canopy_photosynthesis_outputs CanAC(
                     RH, Vcmax_at_25, Alpha, Kparm,
                     theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                     atmospheric_pressure, upperT, lowerT,
-                    et_direct.gbw_molecular);
+                    et_direct.gbw_molar);
 
             return direct_photo.Gs;
         };
@@ -216,7 +216,7 @@ canopy_photosynthesis_outputs CanAC(
                     RH, Vcmax_at_25, Alpha, Kparm,
                     theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
                     atmospheric_pressure, upperT, lowerT,
-                    et_diffuse.gbw_molecular);
+                    et_diffuse.gbw_molar);
 
             return diffuse_photo.Gs;
         };
