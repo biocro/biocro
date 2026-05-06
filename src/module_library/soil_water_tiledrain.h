@@ -27,7 +27,9 @@ class soil_water_tiledrain : public direct_module
           tile_drainage_rate{get_input(input_quantities, "tile_drainage_rate")},
           soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
           soil_saturation_capacity_1{get_input(input_quantities, "soil_saturation_capacity_1")},
-
+          soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
+          soil_depth_1{get_input(input_quantities, "soil_depth_1")},
+          deltaS_1{get_input(input_quantities, "deltaS_1")},
           // Inputs for layer 2
           soil_depth_2{get_input(input_quantities, "soil_depth_2")},
           soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
