@@ -114,7 +114,7 @@ inline LeafAssim operator*(double scalar, const LeafAssim& rhs)
     return out;
 }
 
-template <typename LeafPhoto>
+template <typename LeafPhoto, bool UseAbsorbed = true>
 struct CanopyIntegrand {
     CanopyIntegrand(
         LeafPhoto photo_func,
@@ -122,7 +122,6 @@ struct CanopyIntegrand {
         double kpLN,
         double leafN,      // micromol / m^2 / s
         double wind_speed  // m / s
-
         ) : leaf_photosynthesis{photo_func},
             canopy_light_model{light_model},
             kpLN{kpLN},
@@ -138,13 +137,21 @@ struct CanopyIntegrand {
         double layer_wind_speed = wind_speed_profile(cumulative_lai, wind_speed);
         LightProfile light_profile = canopy_light_model.get_light_profile(cumulative_lai);
 
+        // currently c4 model uses incident ppfd rather than absorbed ppfd but c3 model uses absorbed
+        auto select_ppfd = [](LightProfile::LightType const& lt) -> double {
+            if constexpr (UseAbsorbed)
+                return lt.absorbed_ppfd;
+            else
+                return lt.incident_ppfd;
+        };
+
         // Calculations for sunlit leaves.
-        double i_dir = light_profile.sunlit.absorbed_ppfd;       // micromol / m^2 / s
+        double i_dir = select_ppfd(light_profile.sunlit);        // micromol / m^2 / s
         double j_dir = light_profile.sunlit.absorbed_shortwave;  // J / m^2 / s
         LeafAssim leaf_assim = leaf_photosynthesis(i_dir, j_dir, layer_wind_speed, layer_leafN) * light_profile.sunlit.fraction;
 
         // Calculations for shaded leaves.
-        double i_diff = light_profile.shaded.absorbed_ppfd;       // micromol / m^2 / s
+        double i_diff = select_ppfd(light_profile.shaded);
         double j_diff = light_profile.shaded.absorbed_shortwave;  // J / m^2 / s
         leaf_assim += leaf_photosynthesis(i_diff, j_diff, layer_wind_speed, layer_leafN) * light_profile.shaded.fraction;
         return leaf_assim;
@@ -156,6 +163,7 @@ struct CanopyIntegrand {
     double kpLN;
     double leafN;
     double wind_speed;
+    bool use_absorbed;
 };
 
 inline double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN)

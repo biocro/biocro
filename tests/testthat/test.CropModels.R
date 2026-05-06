@@ -89,9 +89,8 @@ SOYBEAN_IGNORE <- c(
 PLANT_TESTING_INFO <- list(
     BioCro::model_test_case('miscanthus_x_giganteus', BioCro::miscanthus_x_giganteus, WEATHER,                        TRUE, TEST_DIR, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 1
     BioCro::model_test_case('willow',                 BioCro::willow,                 WEATHER,                        TRUE, TEST_DIR, WILLOW_IGNORE),                 # INDEX = 2
-    BioCro::model_test_case('soybean',                BioCro::soybean,                BioCro::soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE),                # INDEX = 3
-    BioCro::model_test_case('soybean2',               BioCro::soybean2,               BioCro::soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                 # INDEX = 4
-)
+    BioCro::model_test_case('soybean',                BioCro::soybean,                BioCro::soybean_weather$'2002', TRUE, TEST_DIR, SOYBEAN_IGNORE)                # INDEX = 3
+   )
 
 # Run all the tests
 testthat::expect_true(

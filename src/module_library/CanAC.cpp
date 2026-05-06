@@ -155,7 +155,7 @@ canopy_photosynthesis_outputs CanAC(
             /* .transpiration = */ et.TransR * cf2};
     };
 
-    PhotoCore::CanopyIntegrand canopy_integrand(leaf_photo, canopy_light, kpLN, leafN, WindSpeed);
+    PhotoCore::CanopyIntegrand<decltype(leaf_photo), false> canopy_integrand(leaf_photo, canopy_light, kpLN, leafN, WindSpeed);
     // use `quadrature::midpoint_rule` for previous behavior
     PhotoCore::LeafAssim const canopy =
         quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(canopy_integrand, 0.0, LAI, nlayers);
