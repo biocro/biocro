@@ -20,7 +20,7 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
-        "gm_at_25",                     // mol / m^2 / s / bar
+        "gm_at_25",                     // mol / m^2 / s / Pa
         "gm_Ha",                        // J / mol
         "gm_Hd",                        // J / mol
         "gm_S",                         // J / K / mol

@@ -28,7 +28,7 @@ photosynthesis_outputs c3photoC(
     double const Tleaf,                        // degrees C
     double const Tambient,                     // degrees C
     double const RH,                           // dimensionless
-    double const gm_at_25,                     // mol / m^2 / s / bar
+    double const gm_at_25,                     // mol / m^2 / s / Pa
     double const Gstar_at_25,                  // micromol / mol
     double const Kc_at_25,                     // micromol / mol
     double const Ko_at_25,                     // mmol / mol
@@ -57,23 +57,19 @@ photosynthesis_outputs c3photoC(
         throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
     }
 
-    // Get the atmospheric pressure in bar
-    double constexpr Pa_per_bar = 1e5;                          // Pa / bar
-    double const pressure = atmospheric_pressure / Pa_per_bar;  // bar
-
     // Calculate values of key parameters at leaf temperature
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
 
-    double const dark_adapted_phi_PSII = c3_param.phi_PSII;    // dimensionless
-    double const gm = gm_at_25 * c3_param.gm_norm * pressure;  // mol / m^2 / s
-    double const Gstar = Gstar_at_25 * c3_param.Gstar_norm;    // micromol / mol
-    double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;       // micromol / m^2 / s
-    double const Kc = Kc_at_25 * c3_param.Kc_norm;             // micromol / mol
-    double const Ko = Ko_at_25 * c3_param.Ko_norm;             // mmol / mol
-    double const RL = RL_at_25 * c3_param.RL_norm;             // micromol / m^2 / s
-    double const theta = c3_param.theta;                       // dimensionless
-    double const TPU = TPU_rate_max * c3_param.Tp_norm;        // micromol / m^2 / s
-    double const Vcmax = Vcmax_at_25 * c3_param.Vcmax_norm;    // micromol / m^2 / s
+    double const dark_adapted_phi_PSII = c3_param.phi_PSII;                // dimensionless
+    double const gm = gm_at_25 * c3_param.gm_norm * atmospheric_pressure;  // mol / m^2 / s
+    double const Gstar = Gstar_at_25 * c3_param.Gstar_norm;                // micromol / mol
+    double const Jmax = Jmax_at_25 * c3_param.Jmax_norm;                   // micromol / m^2 / s
+    double const Kc = Kc_at_25 * c3_param.Kc_norm;                         // micromol / mol
+    double const Ko = Ko_at_25 * c3_param.Ko_norm;                         // mmol / mol
+    double const RL = RL_at_25 * c3_param.RL_norm;                         // micromol / m^2 / s
+    double const theta = c3_param.theta;                                   // dimensionless
+    double const TPU = TPU_rate_max * c3_param.Tp_norm;                    // micromol / m^2 / s
+    double const Vcmax = Vcmax_at_25 * c3_param.Vcmax_norm;                // micromol / m^2 / s
 
     // The variable that we call `I2` here has been described as "the useful
     // light absorbed by photosystem II" (S. von Caemmerer (2002)) and "the

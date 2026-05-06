@@ -21,14 +21,15 @@
  *     expressed as length per time (typically m / s).
  *
  *  2. The "molar" basis: In this convention, gas concentrations are expressed
- *     as a fraction of the total number of molecules (typically mol / mol) and
- *     gas fluxes are expressed as a number of molecules per area per time
- *     (typically mol / m^2 / s). Thus, conductance must be expressed as a
- *     number of molecules per area per time (typically mol / m^2 / s).
+ *     as a fraction of the total number of molecules (typically mol / mol),
+ *     often referred to as "mole fractions", and gas fluxes are expressed as a
+ *     number of molecules per area per time (typically mol / m^2 / s). Thus,
+ *     conductance must be expressed as a number of molecules per area per time
+ *     (typically mol / m^2 / s).
  *
  *  Converting between these conventions is not always straightforward. In the
  *  simple case where temperature and pressure are constant across the gas path,
- *  it can be shown that G_mass = G_molecular * molar_volume, where molar_volume
+ *  it can be shown that G_mass = G_molar * molar_volume, where molar_volume
  *  is the molar volume of an ideal gas at the given temperature and pressure.
  *
  *  We often use this conversion in BioCro, even when temperature is not
