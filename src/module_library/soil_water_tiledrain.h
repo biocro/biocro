@@ -25,11 +25,14 @@ class soil_water_tiledrain : public direct_module
           // Get references to input quantities
           tile_drain_depth{get_input(input_quantities, "tile_drain_depth")},
           tile_drainage_rate{get_input(input_quantities, "tile_drainage_rate")},
+
+          // Inputs for layer 1
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           soil_field_capacity_1{get_input(input_quantities, "soil_field_capacity_1")},
           soil_saturation_capacity_1{get_input(input_quantities, "soil_saturation_capacity_1")},
           deltaS_1{get_input(input_quantities, "deltaS_1")},
+
           // Inputs for layer 2
           soil_depth_2{get_input(input_quantities, "soil_depth_2")},
           soil_water_content_2{get_input(input_quantities, "soil_water_content_2")},
@@ -267,9 +270,9 @@ void soil_water_tiledrain::do_operation() const
         td_layer_num = -99;
     } else {
         // Find layer number for tile
-        double cumulative_depth = soil_depth[0];  // cm
+        double cumulative_depth = soil_depth[0];  //cm
         for (int l = 1; l < nlayers; l++) {
-            cumulative_depth = cumulative_depth + soil_depth[l];  // cm
+            cumulative_depth = cumulative_depth + soil_depth[l];  //cm
 
             if (cumulative_depth >= tile_drain_depth &&
                 (cumulative_depth - soil_depth[l]) < tile_drain_depth) {
@@ -277,6 +280,7 @@ void soil_water_tiledrain::do_operation() const
             }
         }
     }
+
     tileDrain_str tileDrain;
 
     if (td_layer_num > 0) {

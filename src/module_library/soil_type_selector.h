@@ -30,6 +30,7 @@ enum class SoilType { sand,
                       sandy_clay,
                       silty_clay,
                       clay };
+
 const soilText_str get_soil_properties(SoilType soiltype);
 
 // For backward compatibility:

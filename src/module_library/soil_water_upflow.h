@@ -230,12 +230,12 @@ void soil_water_upflow::do_operation() const
     double constexpr timestep = 1;  // hr
 
     double soil_depth[] = {
-        soil_depth_1,  // cm
-        soil_depth_2,  // cm
-        soil_depth_3,  // cm
-        soil_depth_4,  // cm
-        soil_depth_5,  // cm
-        soil_depth_6   // cm
+        soil_depth_1,  //cm
+        soil_depth_2,  //cm
+        soil_depth_3,  //cm
+        soil_depth_4,  //cm
+        soil_depth_5,  //cm
+        soil_depth_6   //cm
     };
 
     double soil_saturation_capacity[] = {
