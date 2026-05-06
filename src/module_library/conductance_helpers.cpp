@@ -1,5 +1,4 @@
-#include <numeric>     // for std::transform_reduce
-#include <functional>  // for std::plus
+#include <numeric>  // for std::accumulate
 #include "conductance_helpers.h"
 
 /**
@@ -47,12 +46,14 @@ double sequential_conductance(
     // Lambda for calculating a reciprocal
     auto recip = [](double k) { return 1.0 / k; };
 
+    // Lambda for accumulating reciprocals
+    auto accum_recip = [&recip](double acc, double g) { return acc + recip(g); };
+
     // Total resistance along the path
-    double const resistance = std::transform_reduce(
+    double const resistance = std::accumulate(
         conductances.begin(), conductances.end(),
         0.0,
-        std::plus<>{},
-        recip);  // reciprocal of original conductance units
+        accum_recip);  // reciprocal of original conductance units
 
     // Total conductance along the path
     return recip(resistance);  // original conductance units
