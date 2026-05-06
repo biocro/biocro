@@ -12,6 +12,10 @@ test_that("c3photoC is sensitive to changes in vcmax", {
         electrons_per_carboxylation = 4.5,
         electrons_per_oxygenation = 5.25,
         gbw = 1.2,
+        gm_at_25 = Inf,
+        gm_Ha = 49600,
+        gm_Hd = 437400,
+        gm_S = 1400,
         Gs_min = 1e-3,
         Gstar_at_25 = 42.9291,
         Gstar_Ea = 37.83e3,
@@ -73,7 +77,7 @@ test_that('c3photoC produces self-consistent outputs', {
         )
     )
 
-    # Now we have values of Ci; check to see if the FvCB module reproduces the
+    # Now we have values of Cc; check to see if the FvCB module reproduces the
     # same assimilation rates. First, we will need to calculate values of key
     # parameters at leaf temperature.
     c3_parameters_inputs <-
@@ -117,7 +121,7 @@ test_that('c3photoC produces self-consistent outputs', {
             alpha_TPU = 0 # hard-coded to 0 in c3photoC
         ),
         data.frame(
-            Ci = c3photo_res$Ci,
+            Cc = c3photo_res$Cc,
             Gstar = c3_parameters_res$Gstar_norm * soybean$parameters$Gstar_at_25,
             J = J,
             Kc = c3_parameters_res$Kc_norm * soybean$parameters$Kc_at_25,

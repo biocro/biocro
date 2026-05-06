@@ -24,6 +24,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
     double const gbw_canopy,                   // m / s
+    double const gm_at_25,                     // mol / m^2 / s / Pa
     double const growth_respiration_fraction,  // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
@@ -102,7 +103,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS, electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII, gbw_guess)
+                electrons_per_oxygenation, beta_PSII, gbw_guess, gbw_guess)
                 .Gs;  // mol / m^2 / s
 
         energy_balance_outputs et;
@@ -120,12 +121,15 @@ canopy_photosynthesis_outputs c3CanAC(
                 current_gs,
                 layer_wind_speed);
 
+                double leaf_temperature_dir =
+                ambient_temperature + et_direct.Deltat;  // degrees C
+
             photo = c3photoC(
                 tr_param, iabs, ambient_temperature + et.Deltat, ambient_temperature,
                 RH, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
                 Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
                 o2, StomataWS, electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et.gbw_molecular);
+                beta_PSII, et.gbw_molar);
 
             return photo.Gs;
         };

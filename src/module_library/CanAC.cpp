@@ -78,7 +78,6 @@ canopy_photosynthesis_outputs CanAC(
         par_energy_content,
         par_energy_fraction);
 
-    double gbw_guess{1.2};  // mol / m^2 / s
 
     using namespace root_finding;
 
@@ -98,6 +97,7 @@ canopy_photosynthesis_outputs CanAC(
             eff_RL = nitroP.Rdb1 * layer_leafN + nitroP.Rdb0;
         }
 
+        double constexpr gbw_guess = 1.2;  // mol / m^2 / s
         // Initial guess: evaluate photosynthesis at ambient leaf temperature
         double gsw_estimate =
             c4photoC(
@@ -123,15 +123,20 @@ canopy_photosynthesis_outputs CanAC(
                 current_gs,
                 layer_wind_speed);
 
-            photo = c4photoC(
-                i_ppfd, ambient_temperature + et.Deltat, ambient_temperature,
-                RH, eff_Vcmax, eff_Alpha, Kparm,
-                theta, beta, eff_RL, b0, b1, Gs_min, StomataWS, Catm,
-                atmospheric_pressure, upperT, lowerT,
-                et.gbw_molecular);
+            double leaf_temperature_dir =
+                ambient_temperature + et.Deltat;  // degrees C
+
+            photo =
+                c4photoC(
+                    i_ppfd, leaf_temperature_dir, ambient_temperature,
+                    RH, Vcmax_at_25, Alpha, Kparm,
+                    theta, beta, RL_at_25, b0, b1, Gs_min, StomataWS, Catm,
+                    atmospheric_pressure, upperT, lowerT,
+                    et.gbw_molar);
 
             return photo.Gs;
         };
+
 
         result_t result = solver.solve(gs_func, gsw_estimate);
 
