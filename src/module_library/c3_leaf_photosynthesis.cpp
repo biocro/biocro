@@ -145,7 +145,7 @@ void c3_leaf_photosynthesis::do_operation() const
                 rh, gm_at_25, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25,
                 Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm,
                 atmospheric_pressure, O2, StomataWS, electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII, et.gbw_molecular);
+                electrons_per_oxygenation, beta_PSII, et.gbw_molar);
 
         return photo.Gs;
     };
@@ -167,7 +167,7 @@ void c3_leaf_photosynthesis::do_operation() const
     update(Cs_op, photo.Cs);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
-    update(gbw_op, et.gbw_molecular);
+    update(gbw_op, et.gbw_molar);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
     update(leaf_temperature_op, ambient_temperature + et.Deltat);

@@ -11,7 +11,7 @@ struct energy_balance_outputs {
     double gbw;                             //!< Total boundary layer conductance to water vapor, for mass fluxes (m / s)
     double gbw_canopy;                      //!< Canopy boundary layer conductance to water vapor, for mass fluxes (m / s)
     double gbw_leaf;                        //!< Leaf boundary layer conductance to water vapor, for mass fluxes (m / s)
-    double gbw_molecular;                   //!< Total boundary layer conductance to water vapor, for molecular fluxes (mol / m^2 / s)
+    double gbw_molar;                       //!< Total boundary layer conductance to water vapor, for molar fluxes (mol / m^2 / s)
     double gsw;                             //!< Stomatal conductance to water vapor, for mass fluxes (m / s)
     double H;                               //!< Rate of sensible heat loss (J / m^2 / s)
     double residual_energy_balance_Tleaf;   //!< Equals zero if loop has converged (degrees C)

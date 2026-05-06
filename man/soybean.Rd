@@ -313,7 +313,9 @@
           \code{RL_at_25} is from Davey et al. 2004
           [\doi{10.1104/pp.103.030569}] (Table 3, cv Pana, co2 368 ppm).
           \code{Tp_at_25} was estimated from unpublished data provided by
-          A. Digrado (UIUC, August 2019).
+          A. Digrado (UIUC, August 2019). These are all "apparent" values that
+          were estimated assuming \code{Cc = Ci}, so they should only be used
+          with infinite mesophyll conductance (see below).
 
     \item Ball-Berry model: \code{b0} and \code{b1} are from Leakey et al. 2006
           [\doi{10.1111/j.1365-3040.2006.01556.x}].

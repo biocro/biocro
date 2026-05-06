@@ -40,7 +40,7 @@ photosynthesis_outputs c3photoC(
     double const b1,                           // dimensionless
     double const Gs_min,                       // mol / m^2 / s
     double const Ca,                           // micromol / mol
-    double const AP,                           // Pa
+    double const atmospheric_pressure,         // Pa
     double const O2,                           // millimol / mol (atmospheric oxygen mole fraction)
     double const StomWS,                       // dimensionless
     double const electrons_per_carboxylation,  // self-explanatory units
@@ -58,8 +58,8 @@ photosynthesis_outputs c3photoC(
     }
 
     // Get the atmospheric pressure in bar
-    double constexpr Pa_per_bar = 1e5;        // Pa / bar
-    double const pressure = AP / Pa_per_bar;  // bar
+    double constexpr Pa_per_bar = 1e5;                          // Pa / bar
+    double const pressure = atmospheric_pressure / Pa_per_bar;  // bar
 
     // Calculate values of key parameters at leaf temperature
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);
@@ -140,7 +140,7 @@ photosynthesis_outputs c3photoC(
         // rate. If the initial value of Cc was correct, this should be
         // identical to Assim.
         double Gt =
-            sequential_conductance(gbw / dr_boundary, Gs / dr_stomata, gm);  // mol / m^2 / s
+            sequential_conductance({gbw / dr_boundary, Gs / dr_stomata, gm});  // mol / m^2 / s
 
         return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
     };
@@ -156,7 +156,7 @@ photosynthesis_outputs c3photoC(
             .An;  // micromol / m^2 / s
 
     double const g_min =
-        sequential_conductance(gbw / dr_boundary, b0_adj / dr_stomata, gm);  // mol / m^2 / s
+        sequential_conductance({gbw / dr_boundary, b0_adj / dr_stomata, gm});  // mol / m^2 / s
 
     double const Cc_max = Ca - A_min / g_min;  // micromol / mol
 

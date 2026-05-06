@@ -76,7 +76,7 @@ inline double conductance_limited_assim(
     using physical_constants::dr_boundary;
     using physical_constants::dr_stomata;
 
-    return Ca * sequential_conductance(gbw / dr_boundary, gsw / dr_stomata);  // micromol / m^2 / s
+    return Ca * sequential_conductance({gbw / dr_boundary, gsw / dr_stomata});  // micromol / m^2 / s
 }
 
 /**
@@ -102,7 +102,7 @@ inline double conductance_limited_assim(
     using physical_constants::dr_boundary;
     using physical_constants::dr_stomata;
 
-    return Ca * sequential_conductance(gbw / dr_boundary, gsw / dr_stomata, gm);  // micromol / m^2 / s
+    return Ca * sequential_conductance({gbw / dr_boundary, gsw / dr_stomata, gm});  // micromol / m^2 / s
 }
 
 #endif

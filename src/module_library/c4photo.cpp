@@ -126,7 +126,7 @@ photosynthesis_outputs c4photoC(
         // Using Ci and Gs, make a new estimate of the assimilation rate. If
         // the initial value of Ci was correct, this should be identical to
         // Assim.
-        double Gt = sequential_conductance(gbw / dr_boundary, Gs / dr_stomata);  // mol / m^2 / s
+        double Gt = sequential_conductance({gbw / dr_boundary, Gs / dr_stomata});  // mol / m^2 / s
 
         return Gt * (Ca_pa - Ci_pa) / atmospheric_pressure * 1e6 - Assim;  // micromol / m^2 / s
     };

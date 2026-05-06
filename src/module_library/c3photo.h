@@ -22,7 +22,7 @@ photosynthesis_outputs c3photoC(
     double const b1,
     double const Gs_min,
     double const Ca,
-    double const AP,
+    double const atmospheric_pressure,
     double const O2,
     double const StomWS,
     double const electrons_per_carboxylation,

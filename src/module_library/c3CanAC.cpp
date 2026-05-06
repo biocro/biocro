@@ -169,7 +169,7 @@ canopy_photosynthesis_outputs c3CanAC(
                     Ko_at_25, Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0,
                     b1, Gs_min, Catm, atmospheric_pressure, o2, StomataWS,
                     electrons_per_carboxylation, electrons_per_oxygenation,
-                    beta_PSII, et_direct.gbw_molecular);
+                    beta_PSII, et_direct.gbw_molar);
 
             return direct_photo.Gs;
         };
@@ -225,7 +225,7 @@ canopy_photosynthesis_outputs c3CanAC(
                     Ko_at_25, Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0,
                     b1, Gs_min, Catm, atmospheric_pressure, o2, StomataWS,
                     electrons_per_carboxylation, electrons_per_oxygenation,
-                    beta_PSII, et_diffuse.gbw_molecular);
+                    beta_PSII, et_diffuse.gbw_molar);
 
             return diffuse_photo.Gs;
         };
