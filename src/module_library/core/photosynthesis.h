@@ -66,7 +66,8 @@ struct LeafAssim {
 
     LeafAssim() = default;
 
-    LeafAssim& operator+=(const LeafAssim& rhs)
+    LeafAssim&
+    operator+=(const LeafAssim& rhs)
     {
         assim += rhs.assim;
         stomatal_vapor_conductance += rhs.stomatal_vapor_conductance;
@@ -163,7 +164,6 @@ struct CanopyIntegrand {
     double kpLN;
     double leafN;
     double wind_speed;
-    bool use_absorbed;
 };
 
 inline double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN)
