@@ -271,7 +271,7 @@ struct C3LeafPhoto {
      */
     std::array<double, 2> initial_guess() const
     {
-        return {0.718 * Ca, ambient_temperature};
+        return {0.5 * Ca, ambient_temperature};
     }
 
    private:

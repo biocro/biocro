@@ -272,4 +272,174 @@ struct zero_finding_method {
 };
 
 }  // namespace root_multidim
+
+/*
+ * =============================================================================
+ * DESIGN NOTES: Replacing CRTP with Policy-Based Design
+ * =============================================================================
+ *
+ * The CRTP base class (`zero_finding_method`) forces step logic (Broyden,
+ * Newton) and cross-cutting behaviours (constraints, line search, convergence)
+ * into the same class hierarchy, making it awkward to mix them independently.
+ * A policy-based design separates those axes cleanly.
+ *
+ * -----------------------------------------------------------------------------
+ * POLICY AXES
+ * -----------------------------------------------------------------------------
+ *
+ * Three natural independent dimensions:
+ *
+ *   template <size_t Dim,
+ *             typename StepPolicy,                        // BroydenStep, NewtonStep
+ *             typename ConstraintPolicy = NoConstraints,  // BoxConstraints, ...
+ *             typename LineSearchPolicy = NoLineSearch>   // Backtracking, ...
+ *   struct solver { ... };
+ *
+ * Each policy is a member object, not a base class. The `solver` owns the
+ * solve loop directly — no CRTP base is needed.
+ *
+ * -----------------------------------------------------------------------------
+ * WHAT EACH POLICY OWNS
+ * -----------------------------------------------------------------------------
+ *
+ * StepPolicy — owns the step-direction computation and any associated state
+ *   (e.g. `inv_jac` for Broyden):
+ *
+ *   void initialize(F& fun, vec_t& x, vec_t& residual);
+ *   vec_t propose(vec_t const& residual);                  // returns proposed p
+ *   void update(vec_t const& delta_x, vec_t const& delta_y); // post-step Jacobian update
+ *
+ * ConstraintPolicy — owns feasibility:
+ *
+ *   void project(vec_t& x) const;                         // clamp x into the feasible set
+ *   double max_alpha(vec_t const& x, vec_t const& p) const; // largest α keeping x+α·p feasible
+ *
+ * LineSearchPolicy — owns step-length selection:
+ *
+ *   double find_alpha(F& fun, vec_t const& x, vec_t const& p,
+ *                     vec_t const& residual) const;
+ *
+ * The solver loop sequences these:
+ *
+ *   p       = step.propose(residual)
+ *   α_max   = constraints.max_alpha(x, p)
+ *   α       = line_search.find_alpha(f, x, p, residual, α_max)
+ *   delta_x = α * p
+ *   x      += delta_x
+ *   delta_y = f(x) - residual    (via evaluate + swap)
+ *   step.update(delta_x, delta_y)   // Broyden uses actual step, not proposed
+ *
+ * The critical point: step.update receives delta_x after line search and
+ * constraint capping, keeping the Broyden secant condition consistent with
+ * the true step taken.
+ *
+ * -----------------------------------------------------------------------------
+ * POLICY INTERACTION WITH NEWTON
+ * -----------------------------------------------------------------------------
+ *
+ * Newton is the awkward case: it needs f.jacobian(x), while Broyden only
+ * needs f(x). Options:
+ *
+ * 1. Newton takes a combined callable FJ with both operator() and jacobian().
+ *    The solver loop calls fun(x) for all policies; the Newton step policy
+ *    calls fun.jacobian(x) internally. Broyden ignores the jacobian method.
+ *
+ * 2. Newton is kept separate from this framework, since its interface
+ *    requirement differs fundamentally. The policy framework covers only
+ *    quasi-Newton and derivative-free methods.
+ *
+ * Option 2 is simpler and honest: Newton does not benefit from pluggable line
+ * search or constraints in the same way since it recomputes the Jacobian every
+ * iteration anyway.
+ *
+ * -----------------------------------------------------------------------------
+ * STATELESS VS. STATEFUL POLICIES
+ * -----------------------------------------------------------------------------
+ *
+ *   Policy                    Stateless (tag + static)   Stateful (member object)
+ *   ------------------------  -------------------------  ------------------------
+ *   NoConstraints             natural                    also works
+ *   BoxConstraints            needs Dim-sized arrays     natural
+ *   BacktrackingLineSearch    possible (template args)   natural (c, rho as members)
+ *   BroydenStep               not possible (needs inv_jac) natural
+ *
+ * Stateful member objects are the uniform choice; stateless policies just
+ * have trivial members.
+ *
+ * -----------------------------------------------------------------------------
+ * CONFIGURATION INTERFACE
+ * -----------------------------------------------------------------------------
+ *
+ * Preferred: member assignment (aggregate-style), consistent with how
+ * tolerances are currently set:
+ *
+ *   solver<2, BroydenStep, BoxConstraints<2>> s;
+ *   s.max_iterations = 100;
+ *   s.constraints.lo = {0.0, -10.0};
+ *   s.constraints.hi = {Ca,   80.0};
+ *
+ * Requires no constructor proliferation and matches the existing style
+ * (_abs_tol, _rel_tol as public members).
+ *
+ * -----------------------------------------------------------------------------
+ * CONVERGENCE
+ * -----------------------------------------------------------------------------
+ *
+ * Currently `has_converged` is inside the derived class. With policies,
+ * convergence checking is simple enough to live directly in the solver loop
+ * using `is_zero` helpers — no separate policy is needed unless custom criteria
+ * are anticipated (e.g. per-component tolerances).
+ *
+ * Three distinct outcomes to distinguish when constraints are active:
+ *
+ *   Situation                                    Meaning
+ *   -------------------------------------------- ---------------------------
+ *   ||f(x)|| ≈ 0, x interior                    True root found
+ *   ||f(x)|| ≈ 0, x on boundary                 Root coincidentally on boundary
+ *   ||f(x)|| > tol, x on boundary, step rejected Boundary stagnation
+ *
+ * The third case is not currently representable. A new Flag value
+ * (boundary_stagnation) and a `feasible` field in result_t would make it
+ * diagnosable.
+ *
+ * -----------------------------------------------------------------------------
+ * LINE SEARCH
+ * -----------------------------------------------------------------------------
+ *
+ * Merit function for root-finding: φ(α) = ½||f(x + α·p)||².
+ *
+ * Backtracking Armijo (sufficient-decrease condition):
+ *   φ(α) ≤ φ(0) + c·α·∇φ(0)
+ * where ∇φ(0) = f(x)ᵀ·J·p = -f(x)ᵀ·f(x)  (with Newton/Broyden direction p).
+ * Start at α = 1, multiply by ρ ∈ (0,1) until satisfied.
+ * One extra f evaluation per backtrack step.
+ *
+ * -----------------------------------------------------------------------------
+ * BACKWARD COMPATIBILITY
+ * -----------------------------------------------------------------------------
+ *
+ * Type aliases preserve existing call sites:
+ *
+ *   template <size_t Dim>
+ *   using broyden = solver<Dim, BroydenStep>;
+ *
+ * result_t, Flag, and Status remain in zeros.h unchanged.
+ * Flag::boundary_stagnation can be added here when constraints are implemented.
+ *
+ * -----------------------------------------------------------------------------
+ * SUMMARY: WHAT GETS DELETED VS. ADDED
+ * -----------------------------------------------------------------------------
+ *
+ *   Component               CRTP design              Policy design
+ *   ----------------------  -----------------------  --------------------------
+ *   zero_finding_method     CRTP base with solve()   Deleted; loop → solver
+ *   broyden                 Derives from base        BroydenStep + alias
+ *   newton                  Derives from base        Kept separate
+ *   Constraints             Not present              NoConstraints, BoxConstraints<Dim>
+ *   Line search             Not present              NoLineSearch, BacktrackingLineSearch
+ *   zeros.h                 result_t, Flag, Status,  result_t, Flag, Status only
+ *                           base class
+ * =============================================================================
+ */
+
 #endif

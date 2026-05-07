@@ -69,7 +69,20 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
     {
         _zero = guess;
         _residual = fun(guess);
+        vec_t fwd = guess;
+        double constexpr eps = 1e-8;
         inv_jac = linalg::matrix<double, Dim, Dim>::identity();
+        for (size_t i = 0; i < Dim; ++i) {
+            if (i > 0) {
+                delta_x[i - 1] = 0.0;
+                fwd[i - 1] = guess[i - 1];
+            }
+            delta_x[i] = eps;
+            fwd[i] += eps;
+            delta_y = fun(fwd.asarray());
+            delta_y -= _residual;
+            update_inv_jac();
+        }
         return Status::ok;
     }
     /**
