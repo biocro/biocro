@@ -38,6 +38,9 @@ struct vector : Vector<Scalar, Dim, vector<Scalar, Dim>> {
     }
 
     vector() : data{} {}
+    explicit vector(double val) : data{} {
+        data.fill(val);
+    }
     vector(std::initializer_list<Scalar> ilist) : data{}
     {
         if (ilist.size() != Dim)

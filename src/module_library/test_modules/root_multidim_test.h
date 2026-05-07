@@ -9,6 +9,8 @@
 #include "../framework/state_map.h"
 
 // biocro
+
+#include "../math/roots/multidim/zeros.h"
 #include "../math/roots/multidim/broyden.h"
 #include "../math/roots/multidim/newton.h"
 #include "../math/linalg/base.h"
@@ -49,7 +51,7 @@ class root_multidim_test : public direct_module
        double* y1;
        double* y2;
        double* iteration;
-       double* flag; 
+       double* flag;
 
         test_result(state_map* output_quantities, std::string method_name) :
         x1{get_op(output_quantities, method_name + "_x1" )},
@@ -66,7 +68,7 @@ class root_multidim_test : public direct_module
             *y2 = result.residual[1];
             *iteration = static_cast<double>(result.iteration);
             *flag =static_cast<double>(result.flag);
-        }        
+        }
    };
 
    public:
@@ -122,7 +124,7 @@ string_vector root_multidim_test::get_outputs()
         "broyden",
         "newton"};
     string_vector test_outputs = {
-        "_x1", "_x2", "_y1", "_y2", "_iteration", "_flag" 
+        "_x1", "_x2", "_y1", "_y2", "_iteration", "_flag"
     };
     string_vector outputs;
     outputs.reserve(methods.size() * test_outputs.size());
@@ -132,7 +134,7 @@ string_vector root_multidim_test::get_outputs()
         }
     }
     return outputs;
-    
+
 }
 
 void root_multidim_test::do_operation() const
@@ -141,16 +143,16 @@ void root_multidim_test::do_operation() const
     std::array<double, 2> guess = {guess_1, guess_2};
     test_function func;
 
-    
+
     size_t max_iter = static_cast<size_t>(max_iterations);
 
-    broyden<2> bs(max_iter, abs_tol, rel_tol);
-    auto result = bs(func, guess);    
+    Broyden<2> bs(max_iter, abs_tol, rel_tol);
+    auto result = bs.solve(func, guess);
     broyden_result.set(result);
 
-    newton<2> ns(max_iter, abs_tol, rel_tol);
-    result = ns(func, guess);
-    newton_result.set(result);    
+    Newton<2> ns(max_iter, abs_tol, rel_tol);
+    result = ns.solve(func, guess);
+    newton_result.set(result);
 }
 
 }  // namespace standardBML

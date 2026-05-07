@@ -6,6 +6,8 @@
 #include <cmath>      // std::sqrt, std::isnan
 
 #include "../../linalg/base.h"
+#include "../../linalg/lu.h"
+
 namespace root_multidim
 {
 /**
@@ -39,7 +41,7 @@ struct result_t {
     size_t iteration;
     Flag flag;
     bool success;
-
+    result_t() = default;
     result_t(
         std::array<double, Dim> const& x,
         std::array<double, Dim> const& y,
@@ -270,6 +272,283 @@ struct zero_finding_method {
         return false;
     }
 };
+
+
+template<size_t Dim>
+struct QuasiNewtonState {
+    using vec_t = typename linalg::vector<double, Dim>;
+    vec_t x;  //  x
+    vec_t dx; // dx
+    vec_t y;  //  y
+    vec_t dy; // dy
+    Flag flag;
+};
+
+template<size_t Dim, typename Stepper>
+struct QuasiNewton : Stepper {
+
+    using vec_t = typename linalg::vector<double, Dim>;
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;
+    QuasiNewton(size_t max_iter, double abs_tol, double rel_tol)
+        : max_iterations{max_iter},
+          _abs_tol{abs_tol},
+          _rel_tol{rel_tol}
+    {
+    }
+
+    QuasiNewton() = default;
+
+    // --- configuration --------------------------------------------------------
+
+    size_t max_iterations = 100;  ///< Maximum iterations before `Flag::max_iterations` is set.
+    double _abs_tol = 1e-12;      ///< Absolute tolerance used to test for `f(x) == 0`.
+    double _rel_tol = 1e-12;      ///< Relative tolerance used to test if `x == y`.
+
+    // --- state ----------------------------------------------------------------
+
+    Status status = Status::ok;  ///< Iteration status
+
+    Stepper stepper;
+    // LineSearch line_search;
+    // Constraints constraints;
+
+    QuasiNewtonState<Dim> state;
+
+    // --- primary interface ----------------------------------------------------
+
+    /**
+     * @brief Runs the full solve loop.
+     *
+     * Calls `initialize`, then repeatedly calls `iterate` and
+     * `has_converged` until convergence, a failure signal, or
+     * `max_iterations` is reached.
+     *
+     * @tparam F    Callable representing the function whose zero is sought.
+     * @tparam Args Types of any additional arguments forwarded to `initialize`
+     *              (typically the initial guess).
+     * @param fun  The function f : R^Dim → R^Dim.
+     * @param args Additional arguments forwarded to `Method::initialize`.
+     * @return A `result_t<Dim>` describing the outcome.
+     */
+    template <typename F>
+    result_t<Dim> solve(F&& fun, std::array<double, Dim> const& x0)
+    {
+        // `initialize` internal state; forward method-specific arguments
+        // `initialize` checks if inputs satisfy requirements
+        state.x = x0;
+        state.y = fun(x0);
+        if (this->is_zero(linalg::norm(state.y))) {
+            state.flag = Flag::residual_zero;
+            status = Status::converged;
+        }
+        if (status == Status::ok) {
+            status = stepper.initialize(std::forward<F>(fun), state);
+        }
+        // iteration loop;
+        // i counts the number of times `iterate` has been called
+        for (size_t i = 0; i <= max_iterations; ++i) {
+            if (status != Status::ok) {
+                return make_result(i);
+            }
+
+            status = stepper.propose(std::forward<F>(fun), state);
+            state.x += state.dx;
+            vec_t y = fun(state.x.asarray());
+            state.dy = y - state.y;
+            state.y = y;
+            status = stepper.update(state);
+
+            // converged if f(x) == 0
+            if (this->is_zero(linalg::norm(state.y))) {
+                state.flag = Flag::residual_zero;
+                status = Status::converged;
+            }
+
+            // converged if no improvement (maybe should be a failure condition?)
+            if (this->is_zero(linalg::norm(state.dx))) {
+                state.flag = Flag::delta_x_zero;
+                status = Status::converged;
+            }
+
+        }
+        state.flag = Flag::max_iterations;
+        return make_result(max_iterations);
+    }
+
+
+   protected:
+    // --- helpers available to derived classes ---------------------------------
+
+    /**
+     * @brief Packages the current solver state into a result_t.
+     * @param i Iteration index at the time of termination.
+     * @return  A `result_t` populated from the derived class's `zero()`,
+     *          `residual()`, and `this->flag`.
+     */
+    result_t<Dim> make_result(size_t i)
+    {
+        result_t<Dim> out;
+        out.zero = state.x.asarray();
+        out.residual = state.y.asarray();
+        out.iteration = i;
+        out.flag = state.flag;
+        out.success = status == Status::converged;
+        return out;
+    }
+
+    /**
+     * @brief Scalar approximate-equality test with mixed absolute/relative tolerance.
+     *
+     * Returns `true` when
+     * @f$ |x - y| \le \max(\varepsilon_\text{abs},\, \varepsilon_\text{rel} \cdot \min(|x|,|y|)) @f$.
+     *
+     * The tolerance is anchored to the *smaller* magnitude, so equality is
+     * easier to satisfy when both values are large (lax near infinity) and
+     * harder when both are near zero (tight near the origin).
+     *
+     * @param x First value.
+     * @param y Second value.
+     * @return `true` if x and y are considered equal under the configured tolerances.
+     */
+    inline bool is_close(double x, double y) const
+    {
+        double norm = std::min(std::abs(x), std::abs(y));
+        return std::abs(x - y) <= std::max(_abs_tol, _rel_tol * norm);
+    }
+
+    /**
+     * @brief Scalar zero test.
+     * @param x Value to test.
+     * @return `true` if @f$ |x| \le \varepsilon_\text{abs} @f$.
+     */
+    inline bool is_zero(double x) const
+    {
+        return std::abs(x) <= _abs_tol;
+    }
+
+    /**
+     * @brief Vector zero test with dimension-aware mixed tolerance.
+     *
+     * Returns `true` when
+     * @f$ \|y\| < \varepsilon_\text{abs} + \varepsilon_\text{rel}\|x\| @f$.
+     *
+     * Using the norm of the current iterate `x` as the relative scale means
+     * the effective tolerance grows with the solution magnitude and does not
+     * tighten spuriously for large-valued problems.
+     *
+     * @param y Residual vector (the quantity being tested for smallness).
+     * @param x Current zero estimate (provides the relative scale).
+     * @return `true` if `y` is considered zero relative to `x`.
+     */
+    inline bool is_zero(vec_t const& y, vec_t const& x) const
+    {
+        double ysq = linalg::dot(y, y);
+        double xsq = linalg::dot(x, x);
+        return std::sqrt(ysq) < _abs_tol + _rel_tol * std::sqrt(xsq);
+    }
+
+    /**
+     * @brief Checks whether any component of a vector is NaN.
+     * @param x Vector to inspect.
+     * @return `true` if at least one component satisfies `std::isnan`.
+     */
+    inline bool is_nan(vec_t const& x) const
+    {
+        for (const double& v : x) {
+            if (std::isnan(v)) return true;
+        }
+        return false;
+    }
+};
+
+
+
+template<size_t Dim>
+struct NewtonStep {
+
+    template<typename F>
+    Status initialize(F&& fun, QuasiNewtonState<Dim>& state)
+    {
+        return Status::ok;
+    }
+
+    template <typename F>
+    Status propose(F&& fun, QuasiNewtonState<Dim>& state)
+    {
+        linalg::LU<double, Dim> lu(fun.jacobian(state.x));
+        auto sol = lu.solve(-1.0 * state.y);
+
+        if (!sol) {
+            state.flag = Flag::singular_matrix;
+            return Status::failed;
+        }
+        state.dx = sol.value();
+        return Status::ok;
+    }
+
+    Status update(QuasiNewtonState<Dim>& state)
+    {
+        return Status::ok;
+    }
+
+};
+
+
+template<size_t Dim>
+using Newton= typename QuasiNewton<Dim, NewtonStep<Dim>>;
+
+template<size_t Dim>
+struct BroydenStep {
+
+    using vec_t = typename linalg::vector<double, Dim>;  ///< Dense matrix type.
+    using mat_t = typename linalg::matrix<double, Dim, Dim>;  ///< Dense matrix type.
+    mat_t inv_jac;
+
+    template<typename F>
+    Status initialize(F&& fun, QuasiNewtonState<Dim>& state) {
+        vec_t dx(0);
+        vec_t dy;
+        vec_t y;
+        vec_t fwd = state.x;
+        double constexpr eps = 1e-8;
+        inv_jac = linalg::matrix<double, Dim, Dim>::identity();
+        for (size_t i = 0; i < Dim; ++i) {
+            if (i > 0) {
+                dx[i - 1] = 0.0;
+                fwd[i - 1] = state.x[i - 1];
+            }
+            dx[i] = eps;
+            fwd[i] += eps;
+            y =  fun(fwd.asarray());
+            dy = y - state.y;
+            vec_t a = dx - inv_jac * dy;
+            vec_t b = dx * inv_jac;
+            double c = linalg::quadratic_form(inv_jac, dx, dy);
+            inv_jac += linalg::outer(a, b) / c;
+        }
+        return Status::ok;
+    }
+
+    template <typename F>
+    Status propose(F&& fun, QuasiNewtonState<Dim>& state)
+    {
+        state.dx = inv_jac * (-1.0 * state.y);
+        return Status::ok;
+    }
+
+    Status update(QuasiNewtonState<Dim>& state)
+    {
+        vec_t a = state.dx - inv_jac * state.dy;
+        vec_t b = state.dx * inv_jac;
+        double c = linalg::quadratic_form(inv_jac, state.dx, state.dy);
+        inv_jac += linalg::outer(a, b) / c;
+        return Status::ok;
+    }
+
+};
+
+template<size_t Dim>
+using Broyden = QuasiNewton<Dim, BroydenStep<Dim>>;
 
 }  // namespace root_multidim
 
