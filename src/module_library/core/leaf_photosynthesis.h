@@ -7,17 +7,17 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../framework/constants.h"          // for dr_boundary, dr_stomata
-#include "../ball_berry_gs.h"                   // for ball_berry_gs
-#include "../boundary_layer_conductance.h"      // for leaf_boundary_layer_conductance_campbell
-#include "../c3_temperature_response.h"         // for c3_temperature_response, c3_temperature_response_parameters
-#include "../conductance_helpers.h"             // for g_to_molecular, sequential_conductance
-#include "../conductance_limited_assim.h"       // for conductance_limited_assim
-#include "../FvCB_assim.h"                      // for FvCB_assim
-#include "../leaf_energy_balance.h"             // for check_leaf_temp
-#include "../water_and_air_properties.h"        // for TempToCp, dry_air_density, etc.
-#include "photosynthesis.h"                     // for LeafAssim
-#include "../../math/roots/multidim/broyden.h"  // for Broyden
+#include "../../framework/constants.h"        // for dr_boundary, dr_stomata
+#include "../ball_berry_gs.h"                 // for ball_berry_gs
+#include "../boundary_layer_conductance.h"    // for leaf_boundary_layer_conductance_campbell
+#include "../c3_temperature_response.h"       // for c3_temperature_response, c3_temperature_response_parameters
+#include "../conductance_helpers.h"           // for g_to_molecular, sequential_conductance
+#include "../conductance_limited_assim.h"     // for conductance_limited_assim
+#include "../FvCB_assim.h"                    // for FvCB_assim
+#include "../leaf_energy_balance.h"           // for check_leaf_temp
+#include "../water_and_air_properties.h"      // for TempToCp, dry_air_density, etc.
+#include "photosynthesis.h"                   // for LeafAssim
+#include "../../math/roots/multidim/zeros.h"  // for root_multidim::Broyden
 /**
  * @file
  * @brief Two-dimensional residual functor for the coupled C3 leaf
@@ -31,7 +31,7 @@
  * `C3LeafPhoto` collapses all three into a single 2D system with unknowns
  * `x = {Ci (micromol/mol), Tleaf (°C)}`.  Both residual equations can be
  * evaluated in closed form once `(Ci, Tleaf)` are known — no inner iteration
- * is required — making it suitable for `root_multidim::broyden<2>`.
+ * is required — making it suitable for `root_multidim::Broyden<2>`.
  *
  * **Residual equations:**
  *
@@ -195,7 +195,7 @@ struct C3LeafPhoto {
      *
      * Updates the layer-specific radiation environment, wind speed, and leaf
      * nitrogen concentration, then finds the steady-state `(Cc, Tleaf)` via
-     * `root_multidim::broyden<2>` and returns a fully populated `LeafAssim`.
+     * `root_multidim::Broyden<2>` and returns a fully populated `LeafAssim`.
      *
      * **Nitrogen → Vcmax convention:**  pass `lnb0 = Vcmax_at_25, lnb1 = 0`
      * to the constructor when nitrogen scaling is disabled (`lnfun == 0`); pass
@@ -215,27 +215,48 @@ struct C3LeafPhoto {
         layer.wind_speed = wind_speed;
         layer.Vcmax_at_25 = leafN * lnb1 + lnb0;
 
-        root_multidim::broyden<2> solver(200, 1e-6, 1e-6);
-        auto result = solver.solve(
-            [&](std::array<double, 2> x) { return layer.residual(x); },
-            layer.initial_guess());
+        auto result = layer.solve();
 
         if (!result.success) {
-            throw std::runtime_error("C3LeafPhoto: Broyden solver failed to converge");
+            throw std::runtime_error(
+                "C3LeafPhoto::operator(): solver " + result.status_message() +
+                "; iabs=" + std::to_string(iabs) +
+                " micromol/m2/s, j_shortwave=" + std::to_string(j_shortwave) +
+                " J/m2/s, wind_speed=" + std::to_string(wind_speed) +
+                " m/s, leafN=" + std::to_string(leafN) +
+                " micromol/m2/s, gbw_canopy=" + std::to_string(gbw_canopy) +
+                " m/s");
         }
-        return layer.evaluate(result.zero[0], result.zero[1]);
+        return layer.evaluate(result.zero[0], result.zero[1], result.zero[2]);
     }
 
+    root_multidim::result_t<3> solve() const
+    {
+        root_multidim::SafeBroyden<3> solver;
+        // Cc bounds
+        solver.constraints.lower[0] = 0.0;     // Cc can't be negative
+        solver.constraints.upper[0] = 5000.0;  // bounds Cc above to improve convergence at low light
+        // bounds on leaf temp
+        solver.constraints.lower[1] = 0.0;  // photosynthesis code breaks at low temperature
+        solver.constraints.upper[1] = 50.0;
+
+        solver.constraints.lower[2] = b0_adj;  // can't be lower than this
+        solver.constraints.upper[2] = 3.0;     // upper bound to prevent going to high
+
+        return solver.solve(
+            [this](std::array<double, 3> x) { return this->residual(x); },
+            this->initial_guess());
+    }
     /**
      * @brief Evaluate the 2D residual at `x = {Cc, Tleaf}`.
      *
      * @param x `x[0]` = Cc (micromol/mol), `x[1]` = Tleaf (degrees C)
      * @return `{r_carbon (micromol/m²/s), r_energy (degrees C)}`
      */
-    std::array<double, 2> residual(std::array<double, 2> x) const
+    std::array<double, 3> residual(std::array<double, 3> x) const
     {
-        auto const s = _compute(x[0], x[1]);
-        return {s.r_carbon, s.r_energy};
+        auto const s = _compute(x[0], x[1], x[2]);
+        return {s.r_carbon, s.r_energy, s.r_stomata};
     }
 
     /**
@@ -244,16 +265,16 @@ struct C3LeafPhoto {
      * Call this once after the Broyden solver has converged to obtain `An`,
      * `Gs`, etc. without repeating any root-finding.
      */
-    LeafAssim evaluate(double Cc, double Tleaf) const
+    LeafAssim evaluate(double Cc, double Tleaf, double Gs) const
     {
-        auto const st = _compute(Cc, Tleaf);
+        auto const st = _compute(Cc, Tleaf, Gs);
         double const Rp = (Cc > 0.0) ? st.Vc * st.Gstar / Cc : 0.0;  // micromol / m^2 / s
 
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;
         return {
             /* assim = */ st.An,
-            /* stomatal_vapor_conductance = */ st.Gs,
+            /* stomatal_vapor_conductance = */ Gs,
             /* penman = */ st.EPenman,
             /* priestly = */ st.EPriestly,
             /* carboxylation = */ st.Vc,
@@ -263,33 +284,30 @@ struct C3LeafPhoto {
             /* whole_plant_growth_respiration = */ 0.0};
     }
 
-    /**
-     * @brief Recommended initial guess: `{Cc, Tleaf} = {0.718 * Ca, ambient_temperature}`.
-     *
-     * `0.718 * Ca` matches the starting bracket midpoint used by the Dekker
-     * solver inside `c3photoC` for Cc.
-     */
-    std::array<double, 2> initial_guess() const
+    std::array<double, 3> initial_guess() const
     {
-        return {0.5 * Ca, ambient_temperature};
+        double u = 2.0 / (1.0 + iabs / 50.0);
+        double constexpr gsw_guess = 0.2;
+        return {Ca * u, ambient_temperature, gsw_guess};
     }
 
    private:
+    // store state for final computation.
     struct _State {
         double An;         // net assimilation (micromol / m^2 / s)
-        double Gs;         // stomatal conductance to H2O (mol / m^2 / s)
         double Vc;         // RuBP carboxylation rate (micromol / m^2 / s)
         double RL;         // leaf respiration (micromol / m^2 / s)
         double Gstar;      // CO2 compensation point at Tleaf (micromol / mol)
         double gm;         // mesophyll conductance to CO2 at Tleaf (mol / m^2 / s)
         double r_carbon;   // carbon balance residual (micromol / m^2 / s)
         double r_energy;   // energy balance residual (degrees C)
+        double r_stomata;  // ball berry equation residual
         double EPenman;    // Penman potential transpiration (mmol / m^2 / s)
         double EPriestly;  // Priestly potential transpiration (mmol / m^2 / s)
         double TransR;     // actual transpiration (mmol / m^2 / s)
     };
 
-    _State _compute(double Cc, double leaf_temperature) const
+    _State _compute(double Cc, double leaf_temperature, double Gs) const
     {
         // --- 1. Temperature-adjusted kinetic parameters ----------------------
         c3_param_at_tleaf const c3p = c3_temperature_response(tr_param, leaf_temperature);
@@ -329,16 +347,16 @@ struct C3LeafPhoto {
 
         // --- 5. Stomatal conductance via Ball-Berry -------------------------
         double const inf = std::numeric_limits<double>::infinity();
-        double const Gs = ball_berry_gs(
-                              std::min(An, conductance_limited_assim(Ca, gbw_mol, inf)) * 1e-6,  // mol / m^2 / s
-                              Ca * 1e-6,                                                         // mol / mol
-                              RH,
-                              b0_adj, b1_adj,
-                              gbw_mol,
-                              leaf_temperature,
-                              ambient_temperature)
-                              .gsw;  // mol / m^2 / s
 
+        double const r_stomata = Gs - ball_berry_gs(
+                                          std::min(An, conductance_limited_assim(Ca, gbw_mol, inf)) * 1e-6,  // mol / m^2 / s
+                                          Ca * 1e-6,                                                         // mol / mol
+                                          RH,
+                                          b0_adj, b1_adj,
+                                          gbw_mol,
+                                          leaf_temperature,
+                                          ambient_temperature)
+                                          .gsw;
         // --- 6. Carbon balance residual ------------------------------------
         using physical_constants::dr_boundary;
         using physical_constants::dr_stomata;
@@ -365,7 +383,7 @@ struct C3LeafPhoto {
                                (lambda * (s + gamma)) * cf;                       // mmol / m^2 / s
         double const EPriestly = 1.26 * s * Phi_N / (lambda * (s + gamma)) * cf;  // mmol / m^2 / s
 
-        return {An, Gs, fvcb.Vc, RL, Gstar, gm, r_carbon, r_energy, EPenman, EPriestly, TransR};
+        return {An, fvcb.Vc, RL, Gstar, gm, r_carbon, r_energy, r_stomata, EPenman, EPriestly, TransR};
     }
 };
 

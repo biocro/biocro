@@ -69,8 +69,7 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
 
         auto sol = lu.solve(-1.0 * y);
         if (!sol) {
-            this->flag = Flag::singular_matrix;
-            return Status::failed;
+            return Status::singular_matrix;
         }
         delta_x = sol.value();
         x += delta_x;
@@ -81,8 +80,7 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     Status has_converged()
     {
         if (this->is_zero(y, x)) {
-            this->flag = Flag::residual_zero;
-            return Status::converged;
+            return Status::residual_zero;
         }
         return Status::ok;
     }

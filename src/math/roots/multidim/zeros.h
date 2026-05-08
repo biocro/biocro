@@ -1,724 +1,587 @@
 #ifndef ZEROS_MULTIDIM_H
 #define ZEROS_MULTIDIM_H
 
+#include <algorithm>  // std::min
 #include <array>
-#include <algorithm>  // std::swap
-#include <cmath>      // std::sqrt, std::isnan
+#include <cmath>  // std::sqrt, std::isfinite
 
 #include "../../linalg/base.h"
 #include "../../linalg/lu.h"
+// #include "common.h"
+// #include "stepper.h"
 
 namespace root_multidim
 {
+
 /**
- * @brief Termination status codes for zero-finding solvers.
+ * @brief Unified termination status for zero-finding solvers.
  *
- * Returned inside result_t to indicate why iteration stopped.
- * Successful termination is indicated by `residual_zero` or `delta_x_zero`;
- * all other values indicate failure or a limit was reached.
+ * `Status::ok` is the only non-terminal state. All other values are terminal
+ * and encode both the fact that iteration has ended and the reason why. Use
+ * `is_terminal()` to test for any terminal state, and `is_success()` to
+ * distinguish convergence from failure.
  */
-enum class Flag {
-    residual_zero,          // f(x) == 0
-    delta_x_zero,           // current_x == last_x
-    zero_is_nonfinite,      // x = NaN, Inf, -Inf,
-    max_iterations,         //
-    function_is_nonfinite,  // f(x) = NaN, Inf, -Inf,
-    singular_matrix         // Esimtate
+enum class Status {
+    // --- continuing ---
+    ok,
+    // --- success (terminal) ---
+    residual_zero,  ///< ||f(x)|| < tolerance
+    // --- failure (terminal) ---
+    stagnated,              ///< ||dx|| < tolerance; step stagnated
+    max_iterations,         ///< iteration limit reached without convergence
+    zero_is_nonfinite,      ///< x contains NaN or Inf
+    function_is_nonfinite,  ///< f(x) contains NaN or Inf
+    singular_matrix,        ///< Jacobian is singular; no valid step exists
 };
+
+/// Returns `true` for any terminal Status (success or failure).
+constexpr bool is_terminal(Status s) { return s != Status::ok; }
+
+/// Returns `true` only for successful terminal states.
+constexpr bool is_success(Status s)
+{
+    return s == Status::residual_zero;
+}
 
 /**
  * @brief Holds the outcome of a zero-finding solve.
- *
- * Aggregates the final estimate, residual, iteration count, and the
- * reason iteration stopped.
  *
  * @tparam Dim Dimension of the system (number of equations = unknowns).
  */
 template <size_t Dim>
 struct result_t {
-    std::array<double, Dim> zero;
-    std::array<double, Dim> residual;
-    size_t iteration;
-    Flag flag;
-    bool success;
+    std::array<double, Dim> zero;      ///< Final estimate of the root.
+    std::array<double, Dim> residual;  ///< f(zero) at termination.
+    size_t iteration;                  ///< Number of iterations performed.
+    Status status;                     ///< Reason iteration stopped.
+    bool success;                      ///< True iff status is a success code.
+    double residual_norm = 0;
+    double residual_norm_inf = 0;
+
     result_t() = default;
     result_t(
         std::array<double, Dim> const& x,
         std::array<double, Dim> const& y,
         size_t i,
-        Flag f,
-        bool success) : zero{x},
-                        residual{y},
-                        iteration{i},
-                        flag{f},
-                        success{success} {}
+        Status s)
+        : zero{x}, residual{y}, iteration{i}, status{s}, success{is_success(s)}
+    {
+        for (size_t i = 0; i < Dim; ++i) {
+            residual_norm += residual[i] * residual[i];
+            double a = std::abs(residual[i]);
+            if (a > residual_norm_inf)
+                residual_norm_inf = a;
+        }
+        residual_norm = std::sqrt(residual_norm);
+    }
+
+    /// Returns a human-readable description of a `Status` value.
+    inline const std::string status_to_string()
+    {
+        switch (status) {
+            case Status::ok:
+                return "ok: iteration continuing";
+            case Status::residual_zero:
+                return "converged: ||f(x)|| < tolerance";
+            case Status::stagnated:
+                return "stagnated: ||dx|| < tolerance";
+            case Status::max_iterations:
+                return "failed: maximum iterations reached";
+            case Status::zero_is_nonfinite:
+                return "failed: x contains NaN or Inf";
+            case Status::function_is_nonfinite:
+                return "failed: f(x) contains NaN or Inf";
+            case Status::singular_matrix:
+                return "failed: Jacobian is singular";
+            default:
+                return "unknown status";
+        }
+    }
+
+    inline const std::string status_message()
+    {
+        return status_to_string() + "; |residual|^2 = " + std::to_string(residual_norm);
+    }
 };
 
-enum class Status {
-    ok,         // valid state, ok to continue iteration
-    invalid,    // invalid inputs, do not iterate
-    converged,  // successful termination
-    failed      // failed to converge
-};
+// ============================================================================
+// Default policies
+// ============================================================================
+
 /**
- * @brief CRTP base class for iterative zero-finding methods.
+ * @brief No-op constraint policy: imposes no feasibility requirements.
  *
- * Provides the outer solve loop, convergence tolerance helpers, and
- * result packaging. Concrete methods (e.g. `broyden<Dim>`) derive from
- * this class via the Curiously Recurring Template Pattern and must
- * implement three member functions:
- *
- * | Function        | Signature                                    | Purpose                                                   |
- * |-----------------|----------------------------------------------|-----------------------------------------------------------|
- * | `initialize`    | `Status initialize(F&& fun, Args&&... args)` | Set up state from the initial guess                       |
- * | `iterate`       | `Status iterate(F&& fun)`                    | Perform one iteration of the method (e.g., Newton update) |
- * | `has_converged` | `Status has_converged()`                     | Check if stopping criteria is met.                        |
- *
- * Each function returns a `Status` enum class; these are status codes, that allow the method
- * to communicate success or failure to this interface class.
- *
- * | `Status`            | Meaning                                                                            |
- * |---------------------|------------------------------------------------------------------------------------|
- * | `Status::ok`        | Iteration state is valid but has not converged. Ok to continue iteration           |
- * | `Status::invalid`   | Iteration state is invalid; initial guess does not satisfy requirements of method  |
- * | `Status::converged` | Iteration state meets convergence or tolerance criteria.                           |
- * | `Status::failed`    | Iteration state has failed to converge (e.g., exceeded maximum iterations)         |
- *
- *
- * The derived class must also expose `zero()` and `residual()` accessors
- * returning `std::array<double, Dim>`.
- *
- * @tparam Dim    Dimension of the system.
- * @tparam Method Concrete derived type (CRTP parameter).
- *
- * @par Typical usage (via a concrete method such as broyden)
- * @code
- * broyden<2> solver(200, 1e-10, 1e-10); // max_iter, abs_tol, rel_tol
- *
- * auto f = [](std::array<double, 2> x) -> std::array<double, 2> {
- *     return { x[0]*x[0] + x[1] - 1.0,
- *              x[0]      - x[1]*x[1] };
- * };
- *
- * result_t<2> res = solver(f, std::array<double,2>{0.5, 0.5});
- *
- * if (res.success) {
- *     // success — use res.zero
- * }
- * @endcode
- *
- * @note Tolerances apply dimension-aware norms: the vector overload of
- *       `is_zero()` tests @f$ \|y\| < \varepsilon_\text{abs} +
- *       \varepsilon_\text{rel}\|x\| @f$, so convergence criteria scale
- *       consistently with problem size.
+ * `max_step_size` always returns 1.0; `project` is a no-op. Both are trivial
+ * inlines that the compiler eliminates entirely when this is the active
+ * `ConstraintPolicy`.
  */
-template <size_t Dim, typename Method>
-struct zero_finding_method {
-    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol)
-        : max_iterations{max_iter},
-          _abs_tol{abs_tol},
-          _rel_tol{rel_tol}
+struct NoConstraints {
+    static constexpr bool is_active = false;
+};
+
+/**
+ * @brief No-op line-search policy: always takes the full quasi-Newton step.
+ *
+ * `find_alpha` returns 1.0 without evaluating `fun`. The compiler eliminates
+ * all calls when this is the active `LineSearchPolicy`.
+ */
+struct NoLineSearch {
+    static constexpr bool is_active = false;
+};
+
+template <size_t Dim>
+struct BoxConstraints {
+    static constexpr bool is_active = true;
+
+    std::array<double, Dim> lower;
+    std::array<double, Dim> upper;
+
+    double max_step_size(
+        linalg::vector<double, Dim> const& x,
+        linalg::vector<double, Dim> const& dx) const
     {
-    }
-    zero_finding_method() = default;
-
-    // --- configuration --------------------------------------------------------
-
-    size_t max_iterations = 100;  ///< Maximum iterations before `Flag::max_iterations` is set.
-    double _abs_tol = 1e-12;      ///< Absolute tolerance used to test for `f(x) == 0`.
-    double _rel_tol = 1e-12;      ///< Relative tolerance used to test if `x == y`.
-
-    // --- state ----------------------------------------------------------------
-
-    Flag flag;                   ///< Reason for termination
-    Status status = Status::ok;  ///< Iteration status
-
-    // --- primary interface ----------------------------------------------------
-
-    /**
-     * @brief Runs the full solve loop.
-     *
-     * Calls `initialize`, then repeatedly calls `iterate` and
-     * `has_converged` until convergence, a failure signal, or
-     * `max_iterations` is reached.
-     *
-     * @tparam F    Callable representing the function whose zero is sought.
-     * @tparam Args Types of any additional arguments forwarded to `initialize`
-     *              (typically the initial guess).
-     * @param fun  The function f : R^Dim → R^Dim.
-     * @param args Additional arguments forwarded to `Method::initialize`.
-     * @return A `result_t<Dim>` describing the outcome.
-     */
-    template <typename F, typename... Args>
-    result_t<Dim> solve(F&& fun, Args&&... args)
-    {
-        // `initialize` internal state; forward method-specific arguments
-        // `initialize` checks if inputs satisfy requirements
-        status = static_cast<Method*>(this)->initialize(std::forward<F>(fun), std::forward<Args>(args)...);
-
-        // iteration loop;
-        // i counts the number of times `iterate` has been called
-        for (size_t i = 0; i <= max_iterations; ++i) {
-            if (status != Status::ok) {
-                return make_result(i);
+        double step_size = 1.0;
+        for (size_t i = 0; i < Dim; ++i) {
+            if (dx[i] < 0) {
+                step_size = std::min(step_size, (x[i] - lower[i]) / -dx[i]);
             }
 
-            status = static_cast<Method*>(this)->iterate(std::forward<F>(fun));
-
-            if (status == Status::ok) {
-                status = static_cast<Method*>(this)->has_converged();
+            if (dx[i] > 0) {
+                step_size = std::min(step_size, (upper[i] - x[i]) / dx[i]);
             }
         }
-        flag = Flag::max_iterations;
-        return make_result(max_iterations);
+        return step_size;
     }
 
-    /**
-     * @brief Convenience operator — equivalent to calling solve().
-     *
-     * Allows a solver object to be used as a callable:
-     * @code
-     *   result_t<N> res = solver(f, guess);
-     * @endcode
-     */
-    template <typename F, typename... Args>
-    inline result_t<Dim> operator()(F&& fun, Args&&... args)
+    void project(linalg::vector<double, Dim>& x) const
     {
-        return solve(std::forward<F>(fun), std::forward<Args>(args)...);
+        for (size_t i = 0; i < Dim; ++i) {
+            x[i] = std::clamp(x[i], lower[i], upper[i]);
+        }
     }
+};
 
-   protected:
-    // --- helpers available to derived classes ---------------------------------
+/**
+ * @brief Armijo backtracking line search.
+ *
+ * Shrinks the step length by factor `rho` until the sufficient-decrease
+ * (Armijo) condition is satisfied:
+ *
+ *   φ(α) ≤ φ(0) · (1 − 2·c·α)
+ *
+ * where φ(α) = ‖f(x + α·p)‖². The gradient of φ at α = 0 along the
+ * quasi-Newton direction p equals −‖f(x)‖², so the condition is exact for
+ * Newton steps and approximate for Broyden steps.
+ *
+ * **Members** (configure before calling `solve`):
+ * - `c` — sufficient-decrease constant, `c ∈ (0, 0.5)`. Default: 1e-4.
+ * - `rho` — step reduction factor per backtrack. Default: 0.5.
+ * - `max_backtracks` — iteration cap; returns the last `alpha` if never
+ *   satisfied. Default: 50.
+ */
+struct BacktrackingLineSearch {
+    static constexpr bool is_active = true;
+    double c = 1e-4;
+    double rho = 0.5;
+    size_t max_backtracks = 5;
 
-    /**
-     * @brief Packages the current solver state into a result_t.
-     * @param i Iteration index at the time of termination.
-     * @return  A `result_t` populated from the derived class's `zero()`,
-     *          `residual()`, and `this->flag`.
-     */
-    result_t<Dim> make_result(size_t i)
-    {
-        return result_t<Dim>(
-            static_cast<Method*>(this)->zero(),
-            static_cast<Method*>(this)->residual(),
-            i,
-            flag,
-            status == Status::converged);
-    }
-
-    /**
-     * @brief Scalar approximate-equality test with mixed absolute/relative tolerance.
-     *
-     * Returns `true` when
-     * @f$ |x - y| \le \max(\varepsilon_\text{abs},\, \varepsilon_\text{rel} \cdot \min(|x|,|y|)) @f$.
-     *
-     * The tolerance is anchored to the *smaller* magnitude, so equality is
-     * easier to satisfy when both values are large (lax near infinity) and
-     * harder when both are near zero (tight near the origin).
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @return `true` if x and y are considered equal under the configured tolerances.
-     */
-    inline bool is_close(double x, double y) const
-    {
-        double norm = std::min(std::abs(x), std::abs(y));
-        return std::abs(x - y) <= std::max(_abs_tol, _rel_tol * norm);
-    }
-
-    /**
-     * @brief Scalar zero test.
-     * @param x Value to test.
-     * @return `true` if @f$ |x| \le \varepsilon_\text{abs} @f$.
-     */
-    inline bool is_zero(double x) const
-    {
-        return std::abs(x) <= _abs_tol;
-    }
-
-    /**
-     * @brief Vector zero test with dimension-aware mixed tolerance.
-     *
-     * Returns `true` when
-     * @f$ \|y\| < \varepsilon_\text{abs} + \varepsilon_\text{rel}\|x\| @f$.
-     *
-     * Using the norm of the current iterate `x` as the relative scale means
-     * the effective tolerance grows with the solution magnitude and does not
-     * tighten spuriously for large-valued problems.
-     *
-     * @param y Residual vector (the quantity being tested for smallness).
-     * @param x Current zero estimate (provides the relative scale).
-     * @return `true` if `y` is considered zero relative to `x`.
-     */
-    inline bool is_zero(
+    template <typename F, size_t Dim>
+    double find_alpha(
+        F& fun,
+        linalg::vector<double, Dim> const& x,
+        linalg::vector<double, Dim> const& dx,
         linalg::vector<double, Dim> const& y,
-        linalg::vector<double, Dim> const& x) const
+        double max_step_size) const
     {
-        double ysq = linalg::dot(y, y);
-        double xsq = linalg::dot(x, x);
-        return std::sqrt(ysq) < _abs_tol + _rel_tol * std::sqrt(xsq);
-    }
-
-    /**
-     * @brief Checks whether any component of a vector is NaN.
-     * @param x Vector to inspect.
-     * @return `true` if at least one component satisfies `std::isnan`.
-     */
-    inline bool is_nan(linalg::vector<double, Dim> const& x) const
-    {
-        for (const double& v : x) {
-            if (std::isnan(v)) return true;
+        double const phi0 = linalg::dot(y, y);
+        double alpha = max_step_size;
+        for (size_t k = 0; k < max_backtracks; ++k) {
+            linalg::vector<double, Dim> x_trial = x + alpha * dx;
+            linalg::vector<double, Dim> y_trial = fun(x_trial.asarray());
+            double const phi = linalg::dot(y_trial, y_trial);
+            if (phi <= phi0 * (1.0 - 2.0 * c * alpha)) {
+                return alpha;
+            }
+            alpha *= rho;
         }
-        return false;
+
+        // linalg::vector<double, Dim> x_trial = x + alpha * dx;
+        // linalg::vector<double, Dim> y_trial = fun(x_trial.asarray());
+        // double const phi = linalg::dot(y_trial, y_trial);
+        // std::cout << " max depth in line search " << alpha << "  " << phi / phi0 << '\n';
+        return alpha;
     }
 };
 
+// struct CubicLineSearch {
+//     static constexpr bool is_active = true;
+//     double c = 1e-4;
+//     size_t max_backtracks = 10;
 
-template<size_t Dim>
-struct QuasiNewtonState {
-    using vec_t = typename linalg::vector<double, Dim>;
-    vec_t x;  //  x
-    vec_t dx; // dx
-    vec_t y;  //  y
-    vec_t dy; // dy
-    Flag flag;
-};
+//     template <typename F, size_t Dim>
+//     double find_alpha(
+//         F& fun,
+//         linalg::vector<double, Dim> const& x,
+//         linalg::vector<double, Dim> const& dx,
+//         linalg::vector<double, Dim> const& y,
+//         double max_step_size) const
+//     {
+//         double const phi0 = linalg::dot(y, y);
+//         // coefficients of a cubic
+//         std::array<double, 4> coef;
+//         coef[0] = phi0;
+//         // step direction is chosen so that d_phi0 =
+//         coef[1] = -2.0 * phi0;
 
-template<size_t Dim, typename Stepper>
-struct QuasiNewton : Stepper {
+//         // perform one first step
+//         double alpha = max_step_size;
 
-    using vec_t = typename linalg::vector<double, Dim>;
-    using mat_t = typename linalg::matrix<double, Dim, Dim>;
-    QuasiNewton(size_t max_iter, double abs_tol, double rel_tol)
-        : max_iterations{max_iter},
-          _abs_tol{abs_tol},
-          _rel_tol{rel_tol}
-    {
-    }
+//         double step;
+
+//         // perform cubic
+
+//         for (size_t k = 0; k < max_backtracks; ++k) {
+//             linalg::vector<double, Dim> x_trial = x + alpha * dx;
+//             linalg::vector<double, Dim> y_trial = fun(x_trial.asarray());
+//             double phi = linalg::dot(y_trial, y_trial);
+
+//             if (armijo_rule(phi, phi0, alpha)) {
+//                 return alpha;
+//             }
+
+//             if (k == 0) {
+//                 // compute quadratic coef
+//                 coef[2] = phi - coef[0] - coef[1];
+//                 // minimizer of quadratic with guard to ensure alpha >= 0.1
+//                 alpha = std::min(-coef[1] / (2.0 * coef[2]), 0.1 * alpha);
+
+//             } else {
+//             }
+//         }
+//         return alpha;
+//     }
+
+//    private:
+//     inline bool armijo_rule(double phi, double phi0, double alpha)
+//     {
+//         return phi <= phi0 * (1.0 - 2.0 * c * alpha);
+//     }
+// };
+
+// ============================================================================
+// QuasiNewton
+// ============================================================================
+
+/**
+ * @brief Quasi-Newton root-finding solver with pluggable step, constraint,
+ * and line-search policies.
+ *
+ * The solver owns the iteration state (`x`, `dx`, `y`, `dy`) directly as
+ * members. Policies are stateful member objects configured before calling
+ * `solve`. Policy types default to `NoConstraints` and `NoLineSearch`; the
+ * compiler eliminates their calls entirely for the default case.
+ *
+ * **Stepper interface** — `Stepper` must provide:
+ * @code
+ *   Status initialize(F& fun, vec_t const& x, vec_t const& y);
+ *   Status propose   (F& fun, vec_t const& x, vec_t const& y, vec_t& dx);
+ *   Status update    (vec_t const& dx, vec_t const& dy);
+ * @endcode
+ * `propose` writes the search direction into `dx` and returns `Status::ok`,
+ * or returns a terminal failure code without writing `dx`. `update` returns
+ * `Status::ok`; degenerate updates are skipped silently.
+ *
+ * @tparam Dim              Dimension of the system.
+ * @tparam Stepper          Step-direction policy (`BroydenStep`, `NewtonStep`).
+ * @tparam ConstraintPolicy Feasibility policy; default `NoConstraints`.
+ * @tparam LineSearchPolicy Step-length policy; default `NoLineSearch`.
+ */
+template <size_t Dim,
+          typename Stepper,
+          typename Constraint = NoConstraints,
+          typename LineSearch = NoLineSearch>
+struct QuasiNewton {
+    using vec_t = linalg::vector<double, Dim>;
+
+    // --- policies ---
+    Stepper stepper;
+    Constraint constraints;
+    LineSearch line_search;
+
+    // --- configuration ---
+    size_t max_iterations = 100;
+    double abs_tol = 1e-8;
+    double rel_tol = 1e-8;
+    double xtol = 1e-8;
+
+    size_t max_stagnant_iterations = 5;
+
+    // --- iteration state (valid only during solve) ---
+    vec_t x;   ///< Current estimate of the root.
+    vec_t dx;  ///< Step taken in the last iteration.
+    vec_t y;   ///< Residual f(x) at the current estimate.
+    vec_t dy;  ///< Change in residual across the last step.
+
+    double y_norm;
+    double initial_y_norm;
 
     QuasiNewton() = default;
-
-    // --- configuration --------------------------------------------------------
-
-    size_t max_iterations = 100;  ///< Maximum iterations before `Flag::max_iterations` is set.
-    double _abs_tol = 1e-12;      ///< Absolute tolerance used to test for `f(x) == 0`.
-    double _rel_tol = 1e-12;      ///< Relative tolerance used to test if `x == y`.
-
-    // --- state ----------------------------------------------------------------
-
-    Status status = Status::ok;  ///< Iteration status
-
-    Stepper stepper;
-    // LineSearch line_search;
-    // Constraints constraints;
-
-    QuasiNewtonState<Dim> state;
-
-    // --- primary interface ----------------------------------------------------
+    QuasiNewton(size_t max_iter, double abs_tol_, double rel_tol_, double xtol_)
+        : max_iterations{max_iter}, abs_tol{abs_tol_}, rel_tol{rel_tol_}, xtol{xtol_}
+    {
+    }
 
     /**
-     * @brief Runs the full solve loop.
+     * @brief Find a zero of `fun` starting from `x0`.
      *
-     * Calls `initialize`, then repeatedly calls `iterate` and
-     * `has_converged` until convergence, a failure signal, or
-     * `max_iterations` is reached.
-     *
-     * @tparam F    Callable representing the function whose zero is sought.
-     * @tparam Args Types of any additional arguments forwarded to `initialize`
-     *              (typically the initial guess).
-     * @param fun  The function f : R^Dim → R^Dim.
-     * @param args Additional arguments forwarded to `Method::initialize`.
-     * @return A `result_t<Dim>` describing the outcome.
+     * @tparam F Callable: `std::array<double,Dim>(std::array<double,Dim>)`.
+     *           `NewtonStep` additionally requires `fun.jacobian(x)`.
+     * @param fun The function whose zero is sought.
+     * @param x0  Initial guess; projected onto the feasible set on entry.
      */
     template <typename F>
     result_t<Dim> solve(F&& fun, std::array<double, Dim> const& x0)
     {
-        // `initialize` internal state; forward method-specific arguments
-        // `initialize` checks if inputs satisfy requirements
-        state.x = x0;
-        state.y = fun(x0);
-        if (this->is_zero(linalg::norm(state.y))) {
-            state.flag = Flag::residual_zero;
-            status = Status::converged;
-        }
-        if (status == Status::ok) {
-            status = stepper.initialize(std::forward<F>(fun), state);
-        }
-        // iteration loop;
-        // i counts the number of times `iterate` has been called
-        for (size_t i = 0; i <= max_iterations; ++i) {
-            if (status != Status::ok) {
-                return make_result(i);
+        size_t stagnant_iterations = 0;
+        x = x0;
+        if constexpr (Constraint::is_active)
+            constraints.project(x);
+        y = fun(x.asarray());
+
+        if (is_nonfinite(x)) return make_result(0, Status::zero_is_nonfinite);
+        if (is_nonfinite(y)) return make_result(0, Status::function_is_nonfinite);
+        y_norm = norm_inf(y);
+        initial_y_norm = y_norm;
+        if (y_norm < abs_tol) return make_result(0, Status::residual_zero);
+
+        Status s = stepper.initialize(fun, x, y);
+        if (is_terminal(s)) return make_result(0, s);
+
+        for (size_t i = 1; i <= max_iterations; ++i) {
+            s = stepper.propose(fun, x, y, dx);
+            if (is_terminal(s)) return make_result(i, s);
+
+            double step_size = 1.0;
+            if constexpr (Constraint::is_active) {
+                step_size = constraints.max_step_size(x, dx);
+                // The proposed direction points entirely outside the feasible
+                // region. A Broyden reset at the same boundary point would face
+                // the same constraint, so terminate rather than retry.
+                if (step_size < xtol) {
+                    return make_result(i, Status::stagnated);
+                }
             }
 
-            status = stepper.propose(std::forward<F>(fun), state);
-            state.x += state.dx;
-            vec_t y = fun(state.x.asarray());
-            state.dy = y - state.y;
-            state.y = y;
-            status = stepper.update(state);
-
-            // converged if f(x) == 0
-            if (this->is_zero(linalg::norm(state.y))) {
-                state.flag = Flag::residual_zero;
-                status = Status::converged;
+            if constexpr (LineSearch::is_active) {
+                step_size = line_search.find_alpha(fun, x, dx, y, step_size);
             }
 
-            // converged if no improvement (maybe should be a failure condition?)
-            if (this->is_zero(linalg::norm(state.dx))) {
-                state.flag = Flag::delta_x_zero;
-                status = Status::converged;
+            dx *= step_size;
+            x += dx;
+
+            if constexpr (Constraint::is_active)
+                constraints.project(x);
+
+            if (is_nonfinite(x)) return make_result(i, Status::zero_is_nonfinite);
+
+            vec_t y_new = fun(x.asarray());
+            if (is_nonfinite(y_new)) return make_result(i, Status::function_is_nonfinite);
+
+            dy = y_new - y;
+            y = y_new;
+            y_norm = norm_inf(y);
+            stepper.update(dx, dy);
+            // convergence check
+            if (y_norm < abs_tol + rel_tol * initial_y_norm)
+                return make_result(i, Status::residual_zero);
+
+            // Stagnation check: if dx is zero for too many consecutive iterations,
+            // then terminate early.
+            if (scaled_norm_inf(dx, x) < xtol) {
+                if (stagnant_iterations >= max_stagnant_iterations)
+                    return make_result(i, Status::stagnated);
+                ++stagnant_iterations;
+            } else {
+                stagnant_iterations = 0;
             }
-
         }
-        state.flag = Flag::max_iterations;
-        return make_result(max_iterations);
+        return make_result(max_iterations, Status::max_iterations);
     }
 
-
-   protected:
-    // --- helpers available to derived classes ---------------------------------
-
-    /**
-     * @brief Packages the current solver state into a result_t.
-     * @param i Iteration index at the time of termination.
-     * @return  A `result_t` populated from the derived class's `zero()`,
-     *          `residual()`, and `this->flag`.
-     */
-    result_t<Dim> make_result(size_t i)
+    template <typename F>
+    result_t<Dim> operator()(F&& fun, std::array<double, Dim> const& x0)
     {
-        result_t<Dim> out;
-        out.zero = state.x.asarray();
-        out.residual = state.y.asarray();
-        out.iteration = i;
-        out.flag = state.flag;
-        out.success = status == Status::converged;
-        return out;
+        return solve(std::forward<F>(fun), x0);
     }
 
-    /**
-     * @brief Scalar approximate-equality test with mixed absolute/relative tolerance.
-     *
-     * Returns `true` when
-     * @f$ |x - y| \le \max(\varepsilon_\text{abs},\, \varepsilon_\text{rel} \cdot \min(|x|,|y|)) @f$.
-     *
-     * The tolerance is anchored to the *smaller* magnitude, so equality is
-     * easier to satisfy when both values are large (lax near infinity) and
-     * harder when both are near zero (tight near the origin).
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @return `true` if x and y are considered equal under the configured tolerances.
-     */
-    inline bool is_close(double x, double y) const
+   private:
+    result_t<Dim> make_result(size_t i, Status s)
     {
-        double norm = std::min(std::abs(x), std::abs(y));
-        return std::abs(x - y) <= std::max(_abs_tol, _rel_tol * norm);
+        return result_t<Dim>(x.asarray(), y.asarray(), i, s);
     }
 
-    /**
-     * @brief Scalar zero test.
-     * @param x Value to test.
-     * @return `true` if @f$ |x| \le \varepsilon_\text{abs} @f$.
-     */
-    inline bool is_zero(double x) const
+    bool is_nonfinite(vec_t const& v) const
     {
-        return std::abs(x) <= _abs_tol;
-    }
-
-    /**
-     * @brief Vector zero test with dimension-aware mixed tolerance.
-     *
-     * Returns `true` when
-     * @f$ \|y\| < \varepsilon_\text{abs} + \varepsilon_\text{rel}\|x\| @f$.
-     *
-     * Using the norm of the current iterate `x` as the relative scale means
-     * the effective tolerance grows with the solution magnitude and does not
-     * tighten spuriously for large-valued problems.
-     *
-     * @param y Residual vector (the quantity being tested for smallness).
-     * @param x Current zero estimate (provides the relative scale).
-     * @return `true` if `y` is considered zero relative to `x`.
-     */
-    inline bool is_zero(vec_t const& y, vec_t const& x) const
-    {
-        double ysq = linalg::dot(y, y);
-        double xsq = linalg::dot(x, x);
-        return std::sqrt(ysq) < _abs_tol + _rel_tol * std::sqrt(xsq);
-    }
-
-    /**
-     * @brief Checks whether any component of a vector is NaN.
-     * @param x Vector to inspect.
-     * @return `true` if at least one component satisfies `std::isnan`.
-     */
-    inline bool is_nan(vec_t const& x) const
-    {
-        for (const double& v : x) {
-            if (std::isnan(v)) return true;
-        }
+        for (double d : v)
+            if (!std::isfinite(d)) return true;
         return false;
     }
+
+    double norm_inf(vec_t const& v) const
+    {
+        double a = 0.0;
+        for (double vi : v) {
+            double y = std::abs(vi);
+            if (y > a)
+                a = y;
+        }
+        return a;
+    }
+
+    double scaled_norm_inf(vec_t const& dx, vec_t const& x) const
+    {
+        double a = 0.0;
+        for (size_t i = 0; i < Dim; ++i) {
+            double y = std::abs(dx[i]) / std::max(1.0, std::abs(x[i]));
+            if (y > a)
+                a = y;
+        }
+        return a;
+    }
+
+    bool is_zero(vec_t const& v) const
+    {
+        return linalg::norm(v) < abs_tol;
+    }
+
+    bool is_zero(vec_t const& y_vec, vec_t const& x_vec) const
+    {
+        double yn = linalg::norm(y_vec);
+        double xn = linalg::norm(x_vec);
+        return yn < abs_tol + rel_tol * xn;
+    }
 };
 
+// ============================================================================
+// Steppers
+// ============================================================================
 
-
-template<size_t Dim>
+/**
+ * @brief Newton step policy.
+ *
+ * Requires `fun.jacobian(x)` returning a `linalg::matrix<double, Dim, Dim>`.
+ * Recomputes the Jacobian and solves the linear system at every step.
+ * Returns `Status::singular_matrix` when LU decomposition fails.
+ * `initialize` and `update` are no-ops.
+ */
+template <size_t Dim>
 struct NewtonStep {
+    using vec_t = linalg::vector<double, Dim>;
 
-    template<typename F>
-    Status initialize(F&& fun, QuasiNewtonState<Dim>& state)
+    template <typename F>
+    Status initialize(F&, vec_t const&, vec_t const&)
     {
         return Status::ok;
     }
 
     template <typename F>
-    Status propose(F&& fun, QuasiNewtonState<Dim>& state)
+    Status propose(F& fun, vec_t const& x, vec_t const& y, vec_t& dx)
     {
-        linalg::LU<double, Dim> lu(fun.jacobian(state.x));
-        auto sol = lu.solve(-1.0 * state.y);
-
-        if (!sol) {
-            state.flag = Flag::singular_matrix;
-            return Status::failed;
-        }
-        state.dx = sol.value();
+        linalg::LU<double, Dim> lu(fun.jacobian(x));
+        auto sol = lu.solve(-1.0 * y);
+        if (!sol) return Status::singular_matrix;
+        dx = sol.value();
         return Status::ok;
     }
 
-    Status update(QuasiNewtonState<Dim>& state)
-    {
-        return Status::ok;
-    }
-
+    Status update(vec_t const&, vec_t const&) { return Status::ok; }
 };
 
-
-template<size_t Dim>
-using Newton= typename QuasiNewton<Dim, NewtonStep<Dim>>;
-
-template<size_t Dim>
+/**
+ * @brief Broyden "good" step policy.
+ *
+ * Maintains a running rank-1 approximation to the inverse Jacobian,
+ * initialised via finite-difference probes along each coordinate axis.
+ * Rank-1 updates whose denominator falls below `1e-14` are skipped silently
+ * to prevent `inv_jac` from being corrupted near degenerate steps.
+ */
+template <size_t Dim>
 struct BroydenStep {
+    using vec_t = linalg::vector<double, Dim>;
+    using mat_t = linalg::matrix<double, Dim, Dim>;
 
-    using vec_t = typename linalg::vector<double, Dim>;  ///< Dense matrix type.
-    using mat_t = typename linalg::matrix<double, Dim, Dim>;  ///< Dense matrix type.
     mat_t inv_jac;
+    size_t max_degenerate_updates = 3;
+    size_t _degenerate_updates = 0;
 
-    template<typename F>
-    Status initialize(F&& fun, QuasiNewtonState<Dim>& state) {
-        vec_t dx(0);
-        vec_t dy;
-        vec_t y;
-        vec_t fwd = state.x;
+    template <typename F>
+    Status initialize(F& fun, vec_t const& x0, vec_t const& y0)
+    {
         double constexpr eps = 1e-8;
-        inv_jac = linalg::matrix<double, Dim, Dim>::identity();
+        inv_jac = mat_t::identity();
+        vec_t probe_dx(0.0);
+        vec_t fwd = x0;
+
         for (size_t i = 0; i < Dim; ++i) {
             if (i > 0) {
-                dx[i - 1] = 0.0;
-                fwd[i - 1] = state.x[i - 1];
+                fwd[i - 1] = x0[i - 1];
+                probe_dx[i - 1] = 0;
             }
-            dx[i] = eps;
             fwd[i] += eps;
-            y =  fun(fwd.asarray());
-            dy = y - state.y;
-            vec_t a = dx - inv_jac * dy;
-            vec_t b = dx * inv_jac;
-            double c = linalg::quadratic_form(inv_jac, dx, dy);
-            inv_jac += linalg::outer(a, b) / c;
+            probe_dx[i] = eps;
+
+            vec_t y_fwd = fun(fwd.asarray());
+            vec_t dy = y_fwd - y0;
+            _rank1_update(probe_dx, dy);
         }
+        _degenerate_updates = 0;
         return Status::ok;
     }
 
     template <typename F>
-    Status propose(F&& fun, QuasiNewtonState<Dim>& state)
+    Status propose(F& fun, vec_t const& x, vec_t const& y, vec_t& dx)
     {
-        state.dx = inv_jac * (-1.0 * state.y);
+        if (_degenerate_updates >= max_degenerate_updates) {
+            Status s = initialize(fun, x, y);  // FD reset
+            if (is_terminal(s)) return s;
+        }
+        dx = inv_jac * (-1.0 * y);
         return Status::ok;
     }
 
-    Status update(QuasiNewtonState<Dim>& state)
+    Status update(vec_t const& dx, vec_t const& dy)
     {
-        vec_t a = state.dx - inv_jac * state.dy;
-        vec_t b = state.dx * inv_jac;
-        double c = linalg::quadratic_form(inv_jac, state.dx, state.dy);
+        _rank1_update(dx, dy);
+        return Status::ok;
+    }
+
+   private:
+    void _rank1_update(vec_t const& dx, vec_t const& dy)
+    {
+        double c = linalg::quadratic_form(inv_jac, dx, dy);
+        if (std::abs(c) < 1e-14) {
+            ++_degenerate_updates;
+            return;
+        }
+        vec_t a = dx - inv_jac * dy;
+        vec_t b = dx * inv_jac;
         inv_jac += linalg::outer(a, b) / c;
-        return Status::ok;
     }
-
 };
 
-template<size_t Dim>
+// ============================================================================
+// Type aliases
+// ============================================================================
+
+template <size_t Dim>
+using Newton = QuasiNewton<Dim, NewtonStep<Dim>>;
+
+template <size_t Dim>
 using Broyden = QuasiNewton<Dim, BroydenStep<Dim>>;
 
-}  // namespace root_multidim
+template <size_t Dim>
+using SafeBroyden = QuasiNewton<Dim, BroydenStep<Dim>, BoxConstraints<Dim>, BacktrackingLineSearch>;
 
-/*
- * =============================================================================
- * DESIGN NOTES: Replacing CRTP with Policy-Based Design
- * =============================================================================
- *
- * The CRTP base class (`zero_finding_method`) forces step logic (Broyden,
- * Newton) and cross-cutting behaviours (constraints, line search, convergence)
- * into the same class hierarchy, making it awkward to mix them independently.
- * A policy-based design separates those axes cleanly.
- *
- * -----------------------------------------------------------------------------
- * POLICY AXES
- * -----------------------------------------------------------------------------
- *
- * Three natural independent dimensions:
- *
- *   template <size_t Dim,
- *             typename StepPolicy,                        // BroydenStep, NewtonStep
- *             typename ConstraintPolicy = NoConstraints,  // BoxConstraints, ...
- *             typename LineSearchPolicy = NoLineSearch>   // Backtracking, ...
- *   struct solver { ... };
- *
- * Each policy is a member object, not a base class. The `solver` owns the
- * solve loop directly — no CRTP base is needed.
- *
- * -----------------------------------------------------------------------------
- * WHAT EACH POLICY OWNS
- * -----------------------------------------------------------------------------
- *
- * StepPolicy — owns the step-direction computation and any associated state
- *   (e.g. `inv_jac` for Broyden):
- *
- *   void initialize(F& fun, vec_t& x, vec_t& residual);
- *   vec_t propose(vec_t const& residual);                  // returns proposed p
- *   void update(vec_t const& delta_x, vec_t const& delta_y); // post-step Jacobian update
- *
- * ConstraintPolicy — owns feasibility:
- *
- *   void project(vec_t& x) const;                         // clamp x into the feasible set
- *   double max_alpha(vec_t const& x, vec_t const& p) const; // largest α keeping x+α·p feasible
- *
- * LineSearchPolicy — owns step-length selection:
- *
- *   double find_alpha(F& fun, vec_t const& x, vec_t const& p,
- *                     vec_t const& residual) const;
- *
- * The solver loop sequences these:
- *
- *   p       = step.propose(residual)
- *   α_max   = constraints.max_alpha(x, p)
- *   α       = line_search.find_alpha(f, x, p, residual, α_max)
- *   delta_x = α * p
- *   x      += delta_x
- *   delta_y = f(x) - residual    (via evaluate + swap)
- *   step.update(delta_x, delta_y)   // Broyden uses actual step, not proposed
- *
- * The critical point: step.update receives delta_x after line search and
- * constraint capping, keeping the Broyden secant condition consistent with
- * the true step taken.
- *
- * -----------------------------------------------------------------------------
- * POLICY INTERACTION WITH NEWTON
- * -----------------------------------------------------------------------------
- *
- * Newton is the awkward case: it needs f.jacobian(x), while Broyden only
- * needs f(x). Options:
- *
- * 1. Newton takes a combined callable FJ with both operator() and jacobian().
- *    The solver loop calls fun(x) for all policies; the Newton step policy
- *    calls fun.jacobian(x) internally. Broyden ignores the jacobian method.
- *
- * 2. Newton is kept separate from this framework, since its interface
- *    requirement differs fundamentally. The policy framework covers only
- *    quasi-Newton and derivative-free methods.
- *
- * Option 2 is simpler and honest: Newton does not benefit from pluggable line
- * search or constraints in the same way since it recomputes the Jacobian every
- * iteration anyway.
- *
- * -----------------------------------------------------------------------------
- * STATELESS VS. STATEFUL POLICIES
- * -----------------------------------------------------------------------------
- *
- *   Policy                    Stateless (tag + static)   Stateful (member object)
- *   ------------------------  -------------------------  ------------------------
- *   NoConstraints             natural                    also works
- *   BoxConstraints            needs Dim-sized arrays     natural
- *   BacktrackingLineSearch    possible (template args)   natural (c, rho as members)
- *   BroydenStep               not possible (needs inv_jac) natural
- *
- * Stateful member objects are the uniform choice; stateless policies just
- * have trivial members.
- *
- * -----------------------------------------------------------------------------
- * CONFIGURATION INTERFACE
- * -----------------------------------------------------------------------------
- *
- * Preferred: member assignment (aggregate-style), consistent with how
- * tolerances are currently set:
- *
- *   solver<2, BroydenStep, BoxConstraints<2>> s;
- *   s.max_iterations = 100;
- *   s.constraints.lo = {0.0, -10.0};
- *   s.constraints.hi = {Ca,   80.0};
- *
- * Requires no constructor proliferation and matches the existing style
- * (_abs_tol, _rel_tol as public members).
- *
- * -----------------------------------------------------------------------------
- * CONVERGENCE
- * -----------------------------------------------------------------------------
- *
- * Currently `has_converged` is inside the derived class. With policies,
- * convergence checking is simple enough to live directly in the solver loop
- * using `is_zero` helpers — no separate policy is needed unless custom criteria
- * are anticipated (e.g. per-component tolerances).
- *
- * Three distinct outcomes to distinguish when constraints are active:
- *
- *   Situation                                    Meaning
- *   -------------------------------------------- ---------------------------
- *   ||f(x)|| ≈ 0, x interior                    True root found
- *   ||f(x)|| ≈ 0, x on boundary                 Root coincidentally on boundary
- *   ||f(x)|| > tol, x on boundary, step rejected Boundary stagnation
- *
- * The third case is not currently representable. A new Flag value
- * (boundary_stagnation) and a `feasible` field in result_t would make it
- * diagnosable.
- *
- * -----------------------------------------------------------------------------
- * LINE SEARCH
- * -----------------------------------------------------------------------------
- *
- * Merit function for root-finding: φ(α) = ½||f(x + α·p)||².
- *
- * Backtracking Armijo (sufficient-decrease condition):
- *   φ(α) ≤ φ(0) + c·α·∇φ(0)
- * where ∇φ(0) = f(x)ᵀ·J·p = -f(x)ᵀ·f(x)  (with Newton/Broyden direction p).
- * Start at α = 1, multiply by ρ ∈ (0,1) until satisfied.
- * One extra f evaluation per backtrack step.
- *
- * -----------------------------------------------------------------------------
- * BACKWARD COMPATIBILITY
- * -----------------------------------------------------------------------------
- *
- * Type aliases preserve existing call sites:
- *
- *   template <size_t Dim>
- *   using broyden = solver<Dim, BroydenStep>;
- *
- * result_t, Flag, and Status remain in zeros.h unchanged.
- * Flag::boundary_stagnation can be added here when constraints are implemented.
- *
- * -----------------------------------------------------------------------------
- * SUMMARY: WHAT GETS DELETED VS. ADDED
- * -----------------------------------------------------------------------------
- *
- *   Component               CRTP design              Policy design
- *   ----------------------  -----------------------  --------------------------
- *   zero_finding_method     CRTP base with solve()   Deleted; loop → solver
- *   broyden                 Derives from base        BroydenStep + alias
- *   newton                  Derives from base        Kept separate
- *   Constraints             Not present              NoConstraints, BoxConstraints<Dim>
- *   Line search             Not present              NoLineSearch, BacktrackingLineSearch
- *   zeros.h                 result_t, Flag, Status,  result_t, Flag, Status only
- *                           base class
- * =============================================================================
- */
+}  // namespace root_multidim
 
 #endif
