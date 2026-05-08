@@ -6,7 +6,7 @@
 #include <cmath>    // std::sqrt, std::isfinite
 #include <sstream>  // std::ostringstream
 #include <string>
-
+#include <iostream>
 #include "../../linalg/base.h"
 #include "../../linalg/lu.h"
 // #include "common.h"
@@ -170,21 +170,34 @@ struct BoxConstraints {
     {
         double step_size = 1.0;
         for (size_t i = 0; i < Dim; ++i) {
-            if (dx[i] < 0) {
+            if (dx[i] < 0 && x[i] > lower[i]) {
                 step_size = std::min(step_size, (x[i] - lower[i]) / -dx[i]);
             }
 
-            if (dx[i] > 0) {
+            if (dx[i] > 0 && x[i] < upper[i]) {
                 step_size = std::min(step_size, (upper[i] - x[i]) / dx[i]);
             }
         }
         return step_size;
     }
 
-    void project(linalg::vector<double, Dim>& x) const
+    void clamp(linalg::vector<double, Dim>& x) const
     {
         for (size_t i = 0; i < Dim; ++i) {
             x[i] = std::clamp(x[i], lower[i], upper[i]);
+        }
+    }
+
+
+    void project(linalg::vector<double, Dim> const& x, linalg::vector<double, Dim>& dx) const
+    {
+        for (size_t i = 0; i < Dim; ++i) {
+            if (dx[i] < 0.0 && x[i] == lower[i]) {
+                dx[i] = 0.0;
+            }
+            if (dx[i] > 0.0 && x[i] == upper[i]) {
+                dx[i] = 0.0;
+            }
         }
     }
 };
@@ -209,34 +222,28 @@ struct BoxConstraints {
  */
 struct BacktrackingLineSearch {
     static constexpr bool is_active = true;
-    double c = 1e-4;
+    double c0 = 1e-4;
+    double c1 = 0.5;
     double rho = 0.5;
     size_t max_backtracks = 5;
 
-    template <typename F, size_t Dim>
+    template <typename F>
     double find_alpha(
-        F& fun,
-        linalg::vector<double, Dim> const& x,
-        linalg::vector<double, Dim> const& dx,
-        linalg::vector<double, Dim> const& y,
+        F& phi,
         double max_step_size) const
     {
-        double const phi0 = linalg::dot(y, y);
         double alpha = max_step_size;
+        double const phi0 = phi(0);
         for (size_t k = 0; k < max_backtracks; ++k) {
-            linalg::vector<double, Dim> x_trial = x + alpha * dx;
-            linalg::vector<double, Dim> y_trial = fun(x_trial.asarray());
-            double const phi = linalg::dot(y_trial, y_trial);
-            if (phi <= phi0 * (1.0 - 2.0 * c * alpha)) {
+            double const phi_a = phi(alpha);
+            if (phi_a <= phi0 *(1  - 2.0 * c0 * alpha)) {
                 return alpha;
             }
             alpha *= rho;
         }
 
-        // linalg::vector<double, Dim> x_trial = x + alpha * dx;
-        // linalg::vector<double, Dim> y_trial = fun(x_trial.asarray());
-        // double const phi = linalg::dot(y_trial, y_trial);
-        // std::cout << " max depth in line search " << alpha << "  " << phi / phi0 << '\n';
+        double const phi_a = phi(alpha);
+        std::cout << " max depth in line search " << alpha << "  " << phi_a / phi0 << '\n';
         return alpha;
     }
 };
@@ -373,7 +380,7 @@ struct QuasiNewton {
         size_t stagnant_iterations = 0;
         x = x0;
         if constexpr (Constraint::is_active)
-            constraints.project(x);
+            constraints.clamp(x);
         y = fun(x.asarray());
 
         if (is_nonfinite(x)) return make_result(0, Status::zero_is_nonfinite);
@@ -388,36 +395,63 @@ struct QuasiNewton {
         for (size_t i = 1; i <= max_iterations; ++i) {
             s = stepper.propose(fun, x, y, dx);
             if (is_terminal(s)) return make_result(i, s);
-
             double step_size = 1.0;
+            std::cout << i << '\n';
+
+            for (size_t j = 0; j < Dim; ++j )
+                std::cout << "x[" << j << "] = " << x[j] << " ";
+                            std::cout << '\n';
+
+            for (size_t j = 0; j < Dim; ++j )
+                std::cout << "dx[" << j << "] = " << dx[j] << " ";
+            std::cout << '\n';
             if constexpr (Constraint::is_active) {
-                step_size = constraints.max_step_size(x, dx);
+                // constraints.project(x, dx);
+                // step_size = constraints.max_step_size(x, dx);
                 // The proposed direction points entirely outside the feasible
                 // region. A Broyden reset at the same boundary point would face
                 // the same constraint, so terminate rather than retry.
                 // if (step_size == 0.0) {
-                //     return make_result(i, Status::boundary);
-                // }
-            }
+                    //     return make_result(i, Status::boundary);
+                    // }
+                    // std::cout <<step_size  << '\n';
+
+                }
 
             if constexpr (LineSearch::is_active) {
-                step_size = line_search.find_alpha(fun, x, dx, y, step_size);
+                auto phi = [&](double alpha){
+                    vec_t x_trial = x + alpha * dx;
+                    if constexpr (Constraint::is_active) {
+                        constraints.clamp(x_trial);
+                    }
+                    vec_t y_trial = fun(x_trial.asarray());
+                    return linalg::dot(y_trial, y_trial);
+                };
+                step_size = line_search.find_alpha(phi, step_size);
             }
 
+            std::cout <<step_size  << '\n';
+
+
             dx *= step_size;
+            vec_t x_old = x;
             x += dx;
 
-            if constexpr (Constraint::is_active)
-                constraints.project(x);
+            if constexpr (Constraint::is_active) {
+                constraints.clamp(x);
+                dx = x - x_old;
+            }
 
             if (is_nonfinite(x)) return make_result(i, Status::zero_is_nonfinite);
 
             vec_t y_new = fun(x.asarray());
+
             if (is_nonfinite(y_new)) return make_result(i, Status::function_is_nonfinite);
 
             dy = y_new - y;
             y = y_new;
             y_norm = norm_inf(y);
+            std::cout << y_norm << '\n';
             stepper.update(dx, dy);
             // convergence check
             if (y_norm < abs_tol + rel_tol * initial_y_norm)
@@ -426,12 +460,12 @@ struct QuasiNewton {
             // Stagnation check: if dx is zero for too many consecutive iterations,
             // then terminate early.
             if (scaled_norm_inf(dx, x) < xtol) {
-                if (stagnant_iterations >= max_stagnant_iterations)
-                    return make_result(i, Status::stagnated);
                 ++stagnant_iterations;
             } else {
                 stagnant_iterations = 0;
             }
+            if (stagnant_iterations >= max_stagnant_iterations)
+                return make_result(i, Status::stagnated);
         }
         return make_result(max_iterations, Status::max_iterations);
     }
@@ -570,6 +604,7 @@ struct BroydenStep {
     Status propose(F& fun, vec_t const& x, vec_t const& y, vec_t& dx)
     {
         if (_degenerate_updates >= max_degenerate_updates) {
+            std::cout <<"degen update\n";
             Status s = initialize(fun, x, y);  // FD reset
             if (is_terminal(s)) return s;
         }
