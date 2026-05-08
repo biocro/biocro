@@ -3,7 +3,9 @@
 
 #include <algorithm>  // std::min
 #include <array>
-#include <cmath>  // std::sqrt, std::isfinite
+#include <cmath>    // std::sqrt, std::isfinite
+#include <sstream>  // std::ostringstream
+#include <string>
 
 #include "../../linalg/base.h"
 #include "../../linalg/lu.h"
@@ -27,7 +29,8 @@ enum class Status {
     // --- success (terminal) ---
     residual_zero,  ///< ||f(x)|| < tolerance
     // --- failure (terminal) ---
-    stagnated,              ///< ||dx|| < tolerance; step stagnated
+    stagnated,  ///< ||dx|| < tolerance; step stagnated
+    boundary,
     max_iterations,         ///< iteration limit reached without convergence
     zero_is_nonfinite,      ///< x contains NaN or Inf
     function_is_nonfinite,  ///< f(x) contains NaN or Inf
@@ -75,32 +78,57 @@ struct result_t {
         residual_norm = std::sqrt(residual_norm);
     }
 
-    /// Returns a human-readable description of a `Status` value.
-    inline const std::string status_to_string()
+    /// Returns a string describing the solver outcome and all result fields.
+    std::string status_message(bool verbose = false) const
     {
+        std::ostringstream oss;
         switch (status) {
             case Status::ok:
-                return "ok: iteration continuing";
+                oss << "ok: iteration continuing";
+                break;
             case Status::residual_zero:
-                return "converged: ||f(x)|| < tolerance";
+                oss << "converged: ||f(x)|| < tolerance";
+                break;
             case Status::stagnated:
-                return "stagnated: ||dx|| < tolerance";
+                oss << "stagnated: ||dx|| < tolerance";
+                break;
+            case Status::boundary:
+                oss << "no feasible step";
+                break;
             case Status::max_iterations:
-                return "failed: maximum iterations reached";
+                oss << "failed: maximum iterations reached";
+                break;
             case Status::zero_is_nonfinite:
-                return "failed: x contains NaN or Inf";
+                oss << "failed: x contains NaN or Inf";
+                break;
             case Status::function_is_nonfinite:
-                return "failed: f(x) contains NaN or Inf";
+                oss << "failed: f(x) contains NaN or Inf";
+                break;
             case Status::singular_matrix:
-                return "failed: Jacobian is singular";
+                oss << "failed: Jacobian is singular";
+                break;
             default:
-                return "unknown status";
+                oss << "unknown status";
+                break;
         }
-    }
-
-    inline const std::string status_message()
-    {
-        return status_to_string() + "; |residual|^2 = " + std::to_string(residual_norm);
+        if (verbose) {
+            oss << "\n  iteration      = " << iteration;
+            oss << "\n  success        = " << (success ? "true" : "false");
+            oss << "\n  residual_norm  = " << residual_norm;
+            oss << "\n  residual_norm_inf = " << residual_norm_inf;
+            oss << "\n  zero     = [";
+            for (size_t i = 0; i < Dim; ++i) {
+                if (i > 0) oss << ", ";
+                oss << zero[i];
+            }
+            oss << "]\n  residual = [";
+            for (size_t i = 0; i < Dim; ++i) {
+                if (i > 0) oss << ", ";
+                oss << residual[i];
+            }
+            oss << "]";
+        }
+        return oss.str();
     }
 };
 
@@ -312,7 +340,7 @@ struct QuasiNewton {
     size_t max_iterations = 100;
     double abs_tol = 1e-8;
     double rel_tol = 1e-8;
-    double xtol = 1e-8;
+    double xtol = 1e-12;
 
     size_t max_stagnant_iterations = 5;
 
@@ -367,9 +395,9 @@ struct QuasiNewton {
                 // The proposed direction points entirely outside the feasible
                 // region. A Broyden reset at the same boundary point would face
                 // the same constraint, so terminate rather than retry.
-                if (step_size < xtol) {
-                    return make_result(i, Status::stagnated);
-                }
+                // if (step_size == 0.0) {
+                //     return make_result(i, Status::boundary);
+                // }
             }
 
             if constexpr (LineSearch::is_active) {

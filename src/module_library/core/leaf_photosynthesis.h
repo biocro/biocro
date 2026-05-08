@@ -219,7 +219,7 @@ struct C3LeafPhoto {
 
         if (!result.success) {
             throw std::runtime_error(
-                "C3LeafPhoto::operator(): solver " + result.status_message() +
+                "C3LeafPhoto::operator(): solver " + result.status_message(true) +
                 "; iabs=" + std::to_string(iabs) +
                 " micromol/m2/s, j_shortwave=" + std::to_string(j_shortwave) +
                 " J/m2/s, wind_speed=" + std::to_string(wind_speed) +

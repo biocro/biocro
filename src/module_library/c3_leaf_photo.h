@@ -303,7 +303,7 @@ void c3_leaf_photo::do_operation() const
 
     if (!result.success) {
         throw std::runtime_error(
-            "c3_leaf_photo: Broyden solver: " + result.status_message());
+            "c3_leaf_photo: Broyden solver: " + result.status_message(true));
     }
 
     double const Cc = result.zero[0];     // micromol / mol
