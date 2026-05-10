@@ -70,7 +70,7 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
         _zero = guess;
         _residual = fun(guess);
         inv_jac = linalg::matrix<double, Dim, Dim>::identity();
-        return Status::ok;
+        return Status::Flag::ok;
     }
     /**
      * @brief Performs one Broyden iteration.
@@ -131,24 +131,22 @@ struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
         delta_y = fun(_zero.asarray());
         update_y();
         update_inv_jac();
-        return Status::ok;
+        return Status::Flag::ok;
     }
 
     Status has_converged()
     {
         // converged if f(x) == 0
         if (this->is_zero(_residual, _zero)) {
-            this->flag = Flag::residual_zero;
-            return Status::converged;
+            return Status::Flag::residual_zero;
         }
 
         // converged if no improvement (maybe should be a failure condition?)
         if (this->is_zero(delta_x, _zero)) {
-            this->flag = Flag::delta_x_zero;
-            return Status::converged;
+            return Status::Flag::stagnated;
         }
 
-        return Status::ok;
+        return Status::Flag::ok;
     }
 
     std::array<double, Dim> residual() const

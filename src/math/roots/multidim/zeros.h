@@ -9,54 +9,155 @@
 namespace root_multidim
 {
 /**
- * @brief Termination status codes for zero-finding solvers.
+ * @brief Unified termination status for zero-finding solvers.
  *
- * Returned inside result_t to indicate why iteration stopped.
- * Successful termination is indicated by `residual_zero` or `delta_x_zero`;
- * all other values indicate failure or a limit was reached.
+ * `Status::ok` is the only non-terminal state. All other values are terminal
+ * and encode both the fact that iteration has ended and the reason why. Use
+ * `is_terminal()` to test for any terminal state, and `is_success()` to
+ * distinguish convergence from failure.
  */
-enum class Flag {
-    residual_zero,          // f(x) == 0
-    delta_x_zero,           // current_x == last_x
-    zero_is_nonfinite,      // x = NaN, Inf, -Inf,
-    max_iterations,         //
-    function_is_nonfinite,  // f(x) = NaN, Inf, -Inf,
-    singular_matrix         // Esimtate
+class Status
+{
+   public:
+    enum Flag {
+        // --- continuing ---
+        ok,
+        // --- success (terminal) ---
+        residual_zero,  ///< ||f(x)|| < tolerance
+        // --- failure (terminal) ---
+        stagnated,  ///< ||dx|| < tolerance; step stagnated
+        boundary,
+        max_iterations,         ///< iteration limit reached without convergence
+        zero_is_nonfinite,      ///< x contains NaN or Inf
+        function_is_nonfinite,  ///< f(x) contains NaN or Inf
+        singular_matrix,        ///< Jacobian is singular; no valid step exists
+    };
+
+    Status() : flag{Flag::ok} {}
+    Status(Flag f) : flag{f} {}
+
+    void set(Flag f)
+    {
+        flag = f;
+    }
+
+    /// Returns `true` only for successful terminal states.
+    constexpr bool is_success() const
+    {
+        return flag == Flag::residual_zero;
+    }
+
+    /// Returns `true` for any terminal Status (success or failure).
+    constexpr bool is_ok() const
+    {
+        return flag != Flag::ok;
+    }
+
+    /// Returns `true` for any terminal Status (success or failure).
+    constexpr bool is_terminal() const
+    {
+        return !is_ok();
+    }
+
+    std::string str() const
+    {
+        std::ostringstream oss;
+        switch (flag) {
+            case Flag::ok:
+                oss << "ok: iteration continuing";
+                break;
+            case Flag::residual_zero:
+                oss << "converged: ||f(x)|| < tolerance";
+                break;
+            case Flag::stagnated:
+                oss << "stagnated: ||dx|| < tolerance";
+                break;
+            case Flag::boundary:
+                oss << "no feasible step";
+                break;
+            case Flag::max_iterations:
+                oss << "failed: maximum iterations reached";
+                break;
+            case Flag::zero_is_nonfinite:
+                oss << "failed: x contains NaN or Inf";
+                break;
+            case Flag::function_is_nonfinite:
+                oss << "failed: f(x) contains NaN or Inf";
+                break;
+            case Flag::singular_matrix:
+                oss << "failed: Jacobian is singular";
+                break;
+            default:
+                oss << "unknown status";
+                break;
+        }
+        return oss.str();
+    }
+
+   private:
+    Flag flag;
 };
 
 /**
  * @brief Holds the outcome of a zero-finding solve.
  *
- * Aggregates the final estimate, residual, iteration count, and the
- * reason iteration stopped.
- *
  * @tparam Dim Dimension of the system (number of equations = unknowns).
  */
 template <size_t Dim>
 struct result_t {
-    std::array<double, Dim> zero;
-    std::array<double, Dim> residual;
-    size_t iteration;
-    Flag flag;
-    bool success;
+    std::array<double, Dim> zero;      ///< Final estimate of the root.
+    std::array<double, Dim> residual;  ///< f(zero) at termination.
+    size_t iteration;                  ///< Number of iterations performed.
+    Status status;                     ///< Reason iteration stopped.
+    double residual_norm = 0;
+    double residual_norm_inf = 0;
 
+    result_t() = default;
     result_t(
         std::array<double, Dim> const& x,
         std::array<double, Dim> const& y,
         size_t i,
-        Flag f,
-        bool success) : zero{x},
-                        residual{y},
-                        iteration{i},
-                        flag{f},
-                        success{success} {}
-};
+        Status s)
+        : zero{x}, residual{y}, iteration{i}, status{s}
+    {
+        for (size_t i = 0; i < Dim; ++i) {
+            residual_norm += residual[i] * residual[i];
+            double a = std::abs(residual[i]);
+            if (a > residual_norm_inf)
+                residual_norm_inf = a;
+        }
+        residual_norm = std::sqrt(residual_norm);
+    }
 
-enum class Status {
-    ok,         // valid state, ok to continue iteration
-    invalid,    // invalid inputs, do not iterate
-    converged,  // successful termination
-    failed      // failed to converge
+    /// Returns a string describing the solver outcome and all result fields.
+    std::string status_message(bool verbose = false) const
+    {
+        std::ostringstream oss;
+        oss << status.str();
+        if (verbose) {
+            oss << "\n  iteration      = " << iteration;
+            oss << "\n  success        = " << (is_success() ? "true" : "false");
+            oss << "\n  residual_norm  = " << residual_norm;
+            oss << "\n  residual_norm_inf = " << residual_norm_inf;
+            oss << "\n  zero     = [";
+            for (size_t i = 0; i < Dim; ++i) {
+                if (i > 0) oss << ", ";
+                oss << zero[i];
+            }
+            oss << "]\n  residual = [";
+            for (size_t i = 0; i < Dim; ++i) {
+                if (i > 0) oss << ", ";
+                oss << residual[i];
+            }
+            oss << "]";
+        }
+        return oss.str();
+    }
+
+    bool is_success() const
+    {
+        return status.is_success();
+    }
 };
 /**
  * @brief CRTP base class for iterative zero-finding methods.
@@ -128,8 +229,7 @@ struct zero_finding_method {
 
     // --- state ----------------------------------------------------------------
 
-    Flag flag;                   ///< Reason for termination
-    Status status = Status::ok;  ///< Iteration status
+    Status status;  ///< Iteration status
 
     // --- primary interface ----------------------------------------------------
 
@@ -157,17 +257,17 @@ struct zero_finding_method {
         // iteration loop;
         // i counts the number of times `iterate` has been called
         for (size_t i = 0; i <= max_iterations; ++i) {
-            if (status != Status::ok) {
+            if (status.is_terminal()) {
                 return make_result(i);
             }
 
             status = static_cast<Method*>(this)->iterate(std::forward<F>(fun));
 
-            if (status == Status::ok) {
+            if (status.is_ok()) {
                 status = static_cast<Method*>(this)->has_converged();
             }
         }
-        flag = Flag::max_iterations;
+        status.set(Status::Flag::max_iterations);
         return make_result(max_iterations);
     }
 
@@ -200,8 +300,7 @@ struct zero_finding_method {
             static_cast<Method*>(this)->zero(),
             static_cast<Method*>(this)->residual(),
             i,
-            flag,
-            status == Status::converged);
+            status);
     }
 
     /**

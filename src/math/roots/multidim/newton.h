@@ -59,7 +59,7 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
     {
         x = guess;
         y = fun(guess);
-        return Status::ok;
+        return Status::Flag::ok;
     }
 
     template <typename F>
@@ -69,22 +69,20 @@ struct newton : public zero_finding_method<Dim, newton<Dim>> {
 
         auto sol = lu.solve(-1.0 * y);
         if (!sol) {
-            this->flag = Flag::singular_matrix;
-            return Status::failed;
+            return Status::Flag::singular_matrix;
         }
         delta_x = sol.value();
         x += delta_x;
         y = fun(x.asarray());
-        return Status::ok;
+        return Status::Flag::ok;
     }
 
     Status has_converged()
     {
         if (this->is_zero(y, x)) {
-            this->flag = Flag::residual_zero;
-            return Status::converged;
+            return Status::Flag::residual_zero;
         }
-        return Status::ok;
+        return Status::Flag::ok;
     }
 
     std::array<double, Dim> residual() const
