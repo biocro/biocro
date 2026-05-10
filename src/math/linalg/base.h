@@ -38,7 +38,8 @@ struct vector : Vector<Scalar, Dim, vector<Scalar, Dim>> {
     }
 
     vector() : data{} {}
-    explicit vector(double val) : data{} {
+    explicit vector(double val) : data{}
+    {
         data.fill(val);
     }
     vector(std::initializer_list<Scalar> ilist) : data{}
@@ -99,20 +100,43 @@ struct vector : Vector<Scalar, Dim, vector<Scalar, Dim>> {
 
 template <typename Scalar, size_t Row, size_t Col>
 struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
-    using container = std::array<std::array<Scalar, Col>, Row>;
+    static constexpr size_t NUM = Row * Col;
+    using container = std::array<Scalar, NUM>;
     static constexpr bool IS_LEAF = true;
+
+    inline size_t offset(size_t i, size_t j) const
+    {
+        return i * Col + j;
+    }
 
     const Scalar& operator()(size_t i, size_t j) const
     {
-        return data[i][j];
+        return data[offset(i, j)];
     }
 
     Scalar& operator()(size_t i, size_t j)
     {
-        return data[i][j];
+        return data[offset(i, j)];
     }
 
     matrix() = default;
+
+    template <typename E>
+    matrix(Matrix<Scalar, Row, Col, E> const& expr)
+    {
+        for (size_t i = 0; i < Row; ++i)
+            for (size_t j = 0; j < Col; ++j)
+                data[offset(i, j)] = expr(i, j);
+    }
+
+    template <typename E>
+    matrix& operator=(Matrix<Scalar, Row, Col, E> const& expr)
+    {
+        for (size_t i = 0; i < Row; ++i)
+            for (size_t j = 0; j < Col; ++j)
+                data[offset(i, j)] = expr(i, j);
+        return *this;
+    }
 
     matrix(std::initializer_list<Scalar> ilist) : data{}
     {
@@ -122,7 +146,7 @@ struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
         auto it = ilist.begin();
         for (size_t i = 0; i < Row; ++i) {
             for (size_t j = 0; j < Col; ++j) {
-                data[i][j] = *it;
+                data[offset(i, j)] = *it;
                 ++it;
             }
         }
@@ -182,14 +206,15 @@ struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
 
     matrix& swap_row(size_t i, size_t j)
     {
-        std::swap(data[i], data[j]);
+        for (size_t k = 0; k < Col; ++k)
+            std::swap(data[offset(i, k)], data[offset(j, k)]);
         return *this;
     }
 
     matrix& swap_col(size_t i, size_t j)
     {
         for (size_t k = 0; k < Row; ++k)
-            std::swap(data[k][i], data[k][j]);
+            std::swap(data[offset(k, i)], data[offset(k, j)]);
         return *this;
     }
 

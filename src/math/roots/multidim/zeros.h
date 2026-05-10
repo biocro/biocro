@@ -188,7 +188,6 @@ struct BoxConstraints {
         }
     }
 
-
     void project(linalg::vector<double, Dim> const& x, linalg::vector<double, Dim>& dx) const
     {
         for (size_t i = 0; i < Dim; ++i) {
@@ -232,19 +231,25 @@ struct BacktrackingLineSearch {
         F& phi,
         double max_step_size) const
     {
+        double step_size = max_step_size;
         double alpha = max_step_size;
         double const phi0 = phi(0);
+        double phi_min = phi0;
         for (size_t k = 0; k < max_backtracks; ++k) {
             double const phi_a = phi(alpha);
-            if (phi_a <= phi0 *(1  - 2.0 * c0 * alpha)) {
+            if (phi_a <= phi0 * (1 - 2.0 * c0 * alpha)) {
                 return alpha;
+            }
+            if (phi_a < phi_min) {
+                phi_min = phi_a;
+                step_size = alpha;
             }
             alpha *= rho;
         }
 
-        double const phi_a = phi(alpha);
-        std::cout << " max depth in line search " << alpha << "  " << phi_a / phi0 << '\n';
-        return alpha;
+        // double const phi_a = phi(alpha);
+        // std::cout << " max depth in line search " << alpha << "  " << phi_a / phi0 << '\n';
+        return step_size;
     }
 };
 
@@ -344,7 +349,7 @@ struct QuasiNewton {
     LineSearch line_search;
 
     // --- configuration ---
-    size_t max_iterations = 100;
+    size_t max_iterations = 200;
     double abs_tol = 1e-8;
     double rel_tol = 1e-8;
     double xtol = 1e-12;
@@ -398,49 +403,46 @@ struct QuasiNewton {
             double step_size = 1.0;
             std::cout << i << '\n';
 
-            for (size_t j = 0; j < Dim; ++j )
+            for (size_t j = 0; j < Dim; ++j)
                 std::cout << "x[" << j << "] = " << x[j] << " ";
-                            std::cout << '\n';
+            std::cout << '\n';
 
-            for (size_t j = 0; j < Dim; ++j )
-                std::cout << "dx[" << j << "] = " << dx[j] << " ";
+            for (size_t j = 0; j < Dim; ++j)
+                std::cout << "y[" << j << "] = " << y[j] << " ";
             std::cout << '\n';
             if constexpr (Constraint::is_active) {
+                vec_t x_trial = x + dx;
+                constraints.clamp(x_trial);
+                dx = x_trial - x;
                 // constraints.project(x, dx);
                 // step_size = constraints.max_step_size(x, dx);
                 // The proposed direction points entirely outside the feasible
                 // region. A Broyden reset at the same boundary point would face
                 // the same constraint, so terminate rather than retry.
                 // if (step_size == 0.0) {
-                    //     return make_result(i, Status::boundary);
-                    // }
-                    // std::cout <<step_size  << '\n';
-
-                }
+                //     return make_result(i, Status::boundary);
+                // }
+                // std::cout <<step_size  << '\n';
+            }
 
             if constexpr (LineSearch::is_active) {
-                auto phi = [&](double alpha){
+                auto phi = [&](double alpha) {
                     vec_t x_trial = x + alpha * dx;
-                    if constexpr (Constraint::is_active) {
-                        constraints.clamp(x_trial);
-                    }
                     vec_t y_trial = fun(x_trial.asarray());
                     return linalg::dot(y_trial, y_trial);
                 };
                 step_size = line_search.find_alpha(phi, step_size);
             }
 
-            std::cout <<step_size  << '\n';
-
+            // std::cout << step_size << '\n';
 
             dx *= step_size;
-            vec_t x_old = x;
             x += dx;
 
-            if constexpr (Constraint::is_active) {
-                constraints.clamp(x);
-                dx = x - x_old;
-            }
+            // if constexpr (Constraint::is_active) {
+            //     constraints.clamp(x);
+            //     dx = x - x_old;
+            // }
 
             if (is_nonfinite(x)) return make_result(i, Status::zero_is_nonfinite);
 
@@ -451,7 +453,7 @@ struct QuasiNewton {
             dy = y_new - y;
             y = y_new;
             y_norm = norm_inf(y);
-            std::cout << y_norm << '\n';
+            // std::cout << y_norm << '\n';
             stepper.update(dx, dy);
             // convergence check
             if (y_norm < abs_tol + rel_tol * initial_y_norm)
@@ -604,7 +606,6 @@ struct BroydenStep {
     Status propose(F& fun, vec_t const& x, vec_t const& y, vec_t& dx)
     {
         if (_degenerate_updates >= max_degenerate_updates) {
-            std::cout <<"degen update\n";
             Status s = initialize(fun, x, y);  // FD reset
             if (is_terminal(s)) return s;
         }
@@ -644,6 +645,207 @@ using Broyden = QuasiNewton<Dim, BroydenStep<Dim>>;
 
 template <size_t Dim>
 using SafeBroyden = QuasiNewton<Dim, BroydenStep<Dim>, BoxConstraints<Dim>, BacktrackingLineSearch>;
+
+// ============================================================================
+// Levenberg-Marquardt
+// ============================================================================
+
+/**
+ * @brief Levenberg-Marquardt solver for square nonlinear systems f(x) = 0.
+ *
+ * Minimises φ(x) = ½‖f(x)‖² via a trust-region Newton method.  At each
+ * iteration the damped normal equations are solved:
+ *
+ *   (JᵀJ + λI) δ = −Jᵀf
+ *
+ * λ is updated with Nielsen's schedule: accepted steps reduce λ (more Newton-
+ * like); rejected steps increase it (more gradient-descent-like).  J is
+ * initialised by forward finite differences and updated cheaply by a rank-1
+ * Broyden step after each accepted step.
+ *
+ * **Convergence criteria** (evaluated on accepted steps only):
+ *   1. ‖f(x)‖ < `abs_tol` + `rel_tol`·‖f(x₀)‖  → `residual_zero`
+ *   2. ‖Jᵀf‖∞ < `gtol`                           → `stagnated` (cost minimum)
+ *   3. max_i |δᵢ|/max(|xᵢ|,1) < `xtol`           → `stagnated` (tiny step)
+ *
+ * `fun` must satisfy `std::array<double,Dim> fun(std::array<double,Dim>)`.
+ * No analytic Jacobian is required.
+ */
+template <size_t Dim>
+struct LevenbergMarquardt {
+    using vec_t = linalg::vector<double, Dim>;
+    using mat_t = linalg::matrix<double, Dim, Dim>;
+
+    // --- configuration ---
+    size_t max_iterations = 200;
+    double abs_tol = 1e-8;  ///< absolute tolerance on ‖f‖
+    double rel_tol = 1e-8;  ///< relative tolerance on ‖f‖ vs initial
+    double xtol = 1e-12;    ///< scaled step-size stagnation threshold
+    double gtol = 1e-12;    ///< gradient (‖Jᵀf‖∞) stagnation threshold
+    double tau = 1e-3;      ///< initial λ = tau · max(diag(JᵀJ))
+
+    double raise_factor = 2.0;
+    double shrink_factor = 1.0 / 3.0;
+
+    // --- state (valid after solve returns) ---
+    vec_t x;    ///< Final estimate of the root.
+    vec_t dx;   ///< Most recent accepted step.
+    vec_t y;    ///< f(x) at the final estimate.
+    mat_t jac;  ///< Jacobian approximation at the final estimate.
+
+    LevenbergMarquardt() = default;
+
+    template <typename F>
+    result_t<Dim> solve(F&& fun, std::array<double, Dim> const& x0)
+    {
+        // --- Initialise x, y, J ------------------------------------------
+        x = x0;
+        y = fun(x.asarray());
+        if (_is_nonfinite(y)) return _make_result(0, Status::function_is_nonfinite);
+
+        double const y_norm0 = linalg::norm(y);
+        if (y_norm0 < abs_tol) return _make_result(0, Status::residual_zero);
+
+        _fd_jacobian(fun);  // fills jac column-by-column via forward differences
+
+        // --- Initialise λ = tau · max(diag(JᵀJ)) -------------------------
+        mat_t JtJ = linalg::transpose(jac) * jac;
+        double lambda = tau;
+        for (size_t i = 0; i < Dim; ++i)
+            lambda = std::max(lambda, tau * JtJ(i, i));
+        double nu = 2.0;
+
+        // --- Main loop ----------------------------------------------------
+        for (size_t iter = 1; iter <= max_iterations; ++iter) {
+            // Gradient of φ: g = Jᵀ f
+            vec_t g = linalg::transpose(jac) * y;
+
+            // Criterion 2: gradient too small — at a local minimum of φ
+            {
+                double g_norm = 0.0;
+                for (size_t i = 0; i < Dim; ++i)
+                    g_norm = std::max(g_norm, std::abs(g[i]));
+                if (g_norm < gtol)
+                    return _make_result(iter, Status::stagnated);
+            }
+
+            // Solve (JᵀJ + λI) δ = −g
+            mat_t A = JtJ;
+            for (size_t i = 0; i < Dim; ++i) A(i, i) += lambda;
+
+            auto sol = linalg::LU<double, Dim>(A).solve(-1.0 * g);
+            if (!sol) {
+                // Singular: increase damping and retry
+                lambda = std::min(lambda * nu, 1e16);
+                nu *= 2.0;
+                continue;
+            }
+            dx = sol.value();
+
+            // Predicted decrease: ½(λ‖δ‖² − gᵀδ)
+            // Derivation: L(0)−L(δ) using (JᵀJ+λI)δ = −g eliminates JᵀJ·δ term.
+            double const predicted =
+                0.5 * (lambda * linalg::dot(dx, dx) - linalg::dot(g, dx));
+            if (predicted <= 0.0) {
+                lambda = std::min(lambda * nu, 1e16);
+                nu *= 2.0;
+                continue;
+            }
+
+            // --- Trial evaluation ----------------------------------------
+            vec_t const x_trial = x + dx;
+            vec_t const y_trial = fun(x_trial.asarray());
+            if (_is_nonfinite(y_trial)) {
+                lambda = std::min(lambda * nu, 1e16);
+                nu *= 2.0;
+                continue;
+            }
+
+            // Gain ratio ρ = actual_decrease / predicted_decrease
+            double const phi_old = 0.5 * linalg::dot(y, y);
+            double const phi_new = 0.5 * linalg::dot(y_trial, y_trial);
+            double const rho = (phi_old - phi_new) / predicted;
+
+            if (rho > 0.0) {
+                // --- Accept step -----------------------------------------
+                vec_t const dy = y_trial - y;
+                x = x_trial;
+                y = y_trial;
+
+                // Criterion 1: residual small enough
+                if (linalg::norm(y) < abs_tol + rel_tol * y_norm0)
+                    return _make_result(iter, Status::residual_zero);
+
+                // Criterion 3: step too small relative to x
+                {
+                    double step_scale = 0.0;
+                    for (size_t i = 0; i < Dim; ++i)
+                        step_scale = std::max(
+                            step_scale,
+                            std::abs(dx[i]) / std::max(1.0, std::abs(x[i])));
+                    if (step_scale < xtol)
+                        return _make_result(iter, Status::stagnated);
+                }
+
+                // Rank-1 Broyden update of J (secant condition: J_new dx = dy)
+                _broyden_update(dx, dy);
+                JtJ = linalg::transpose(jac) * jac;
+
+                // Nielsen λ schedule: reduce damping proportional to gain quality
+                double const factor = 1.0 - std::pow(2.0 * rho - 1.0, 3);
+                lambda *= std::max(1.0 / 3.0, factor);
+                nu = 2.0;
+            } else {
+                // --- Reject step: increase damping -----------------------
+                lambda = std::min(lambda * nu, 1e16);
+                nu *= raise_factor;
+            }
+        }
+        return _make_result(max_iterations, Status::max_iterations);
+    }
+
+    template <typename F>
+    result_t<Dim> operator()(F&& fun, std::array<double, Dim> const& x0)
+    {
+        return solve(std::forward<F>(fun), x0);
+    }
+
+   private:
+    result_t<Dim> _make_result(size_t i, Status s)
+    {
+        return result_t<Dim>(x.asarray(), y.asarray(), i, s);
+    }
+
+    bool _is_nonfinite(vec_t const& v) const
+    {
+        for (double d : v)
+            if (!std::isfinite(d)) return true;
+        return false;
+    }
+
+    // Forward-difference Jacobian: column i = (f(x + ε eᵢ) − f(x)) / ε.
+    // Step size scales with |xᵢ| to maintain relative accuracy.
+    template <typename F>
+    void _fd_jacobian(F& fun)
+    {
+        for (size_t i = 0; i < Dim; ++i) {
+            double const eps = 1e-7 * std::max(1.0, std::abs(x[i]));
+            vec_t x_fwd = x;
+            x_fwd[i] += eps;
+            vec_t y_fwd = fun(x_fwd.asarray());
+            for (size_t j = 0; j < Dim; ++j)
+                jac(j, i) = (y_fwd[j] - y[j]) / eps;
+        }
+    }
+
+    // Rank-1 Broyden update of J satisfying the secant condition J_new dx = dy.
+    void _broyden_update(vec_t const& dx, vec_t const& dy)
+    {
+        double const c = linalg::dot(dx, dx);
+        if (std::abs(c) < 1e-14) return;  // skip degenerate steps
+        jac += linalg::outer(dy - jac * dx, dx) / c;
+    }
+};
 
 }  // namespace root_multidim
 

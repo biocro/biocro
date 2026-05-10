@@ -306,11 +306,11 @@ void c3_leaf_photo::do_operation() const
             "c3_leaf_photo: Broyden solver: " + result.status_message(true));
     }
 
-    double const Cc = result.zero[0];     // micromol / mol
-    double const Tleaf = result.zero[1];  // degrees C
-    double const Gs = result.zero[2];
+    double const Cc    = result.zero[0] * 1e3;  // mmol/mol → micromol/mol
+    double const Tleaf = result.zero[1];         // degrees C
+    // result.zero[2] = Gs (mol / m^2 / s)
 
-    PhotoCore::LeafAssim la = leaf_photo.evaluate(Cc, Tleaf, Gs);
+    PhotoCore::LeafAssim la = leaf_photo.evaluate(result.zero[0], Tleaf, result.zero[2]);
 
     update(Cc_op, Cc);
     update(leaf_temperature_op, Tleaf);

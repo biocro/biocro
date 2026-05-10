@@ -201,7 +201,60 @@ struct OuterProd : Matrix<Scalar, Row, Col, OuterProd<Scalar, Row, Col, E1, E2>>
 template <typename Scalar, size_t Row, size_t Col, typename E1, typename E2>
 OuterProd<Scalar, Row, Col, E1, E2> outer(Vector<Scalar, Row, E1> const& u, Vector<Scalar, Col, E2> const& v)
 {
-    return OuterProd<Scalar, Row, Col, E1, E2>(*static_cast<const E1*>(&u), *static_cast<const E1*>(&v));
+    return OuterProd<Scalar, Row, Col, E1, E2>(*static_cast<const E1*>(&u), *static_cast<const E2*>(&v));
+}
+
+template <typename Scalar, size_t Row, size_t Mid, size_t Col, typename E1, typename E2>
+struct MatMatMul : Matrix<Scalar, Row, Col, MatMatMul<Scalar, Row, Mid, Col, E1, E2>> {
+   private:
+    typename std::conditional<E1::IS_LEAF, const E1&, const E1>::type A;
+    typename std::conditional<E2::IS_LEAF, const E2&, const E2>::type B;
+
+   public:
+    static constexpr bool IS_LEAF = false;
+
+    MatMatMul(E1 const& a, E2 const& b) : A{a}, B{b} {}
+
+    [[nodiscard]]
+    Scalar operator()(size_t i, size_t j) const noexcept
+    {
+        Scalar out = 0;
+        for (size_t k = 0; k < Mid; ++k)
+            out += A(i, k) * B(k, j);
+        return out;
+    }
+};
+
+template <typename Scalar, size_t Row, size_t Mid, size_t Col, typename E1, typename E2>
+MatMatMul<Scalar, Row, Mid, Col, E1, E2> operator*(
+    Matrix<Scalar, Row, Mid, E1> const& A,
+    Matrix<Scalar, Mid, Col, E2> const& B)
+{
+    return MatMatMul<Scalar, Row, Mid, Col, E1, E2>(
+        *static_cast<const E1*>(&A),
+        *static_cast<const E2*>(&B));
+}
+
+template <typename Scalar, size_t Row, size_t Col, typename E>
+struct Transpose : Matrix<Scalar, Col, Row, Transpose<Scalar, Row, Col, E>> {
+   private:
+    // cref if leaf, copy otherwise
+    typename std::conditional<E::IS_LEAF, const E&, const E>::type mat;
+
+   public:
+    Transpose(E const& a) : mat{a} {}
+
+    [[nodiscard]]
+    Scalar operator()(size_t i, size_t j) const noexcept
+    {
+        return mat(j, i);
+    }
+};
+
+template <typename Scalar, size_t Row, size_t Col, typename E>
+Transpose<Scalar, Row, Col, E> transpose(Matrix<Scalar, Col, Row, E> const& a)
+{
+    return Transpose<Scalar, Row, Col, E>(*static_cast<const E*>(&a));
 }
 
 }  // namespace linalg
