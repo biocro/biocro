@@ -4,7 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/constants.h"
 #include "../framework/state_map.h"
-#include "lightME.h"  // for lightME
+#include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
 
 namespace standardBML
 {
@@ -78,7 +78,7 @@ string_vector shortwave_atmospheric_scattering::get_outputs()
 
 void shortwave_atmospheric_scattering::do_operation() const
 {
-    Light_model scattering = lightME(
+    PhotoCore::AtmosphereLightScattering const scattering(
         cosine_zenith_angle,
         atmospheric_pressure,
         atmospheric_transmittance,
