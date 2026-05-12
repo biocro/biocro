@@ -4,7 +4,6 @@
 #include "photosynthesis_outputs.h"   // for photosynthesis_outputs
 #include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 
-
 photosynthesis_outputs c3photoC(
     c3_temperature_response_parameters const tr_param,
     double const absorbed_ppfd,
