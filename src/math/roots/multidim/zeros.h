@@ -4,8 +4,9 @@
 #include <array>
 #include <algorithm>  // std::swap
 #include <cmath>      // std::sqrt, std::isnan
-
+#include <sstream>
 #include "../../linalg/base.h"
+#include "../../linalg/lu.h"
 namespace root_multidim
 {
 /**
@@ -50,7 +51,7 @@ class Status
     /// Returns `true` for any terminal Status (success or failure).
     constexpr bool is_ok() const
     {
-        return flag != Flag::ok;
+        return flag == Flag::ok;
     }
 
     /// Returns `true` for any terminal Status (success or failure).
@@ -110,7 +111,6 @@ struct result_t {
     size_t iteration;                  ///< Number of iterations performed.
     Status status;                     ///< Reason iteration stopped.
     double residual_norm = 0;
-    double residual_norm_inf = 0;
 
     result_t() = default;
     result_t(
@@ -120,12 +120,8 @@ struct result_t {
         Status s)
         : zero{x}, residual{y}, iteration{i}, status{s}
     {
-        for (size_t i = 0; i < Dim; ++i) {
-            residual_norm += residual[i] * residual[i];
-            double a = std::abs(residual[i]);
-            if (a > residual_norm_inf)
-                residual_norm_inf = a;
-        }
+        for (double r : residual)
+            residual_norm += r * r;
         residual_norm = std::sqrt(residual_norm);
     }
 
@@ -138,7 +134,6 @@ struct result_t {
             oss << "\n  iteration      = " << iteration;
             oss << "\n  success        = " << (is_success() ? "true" : "false");
             oss << "\n  residual_norm  = " << residual_norm;
-            oss << "\n  residual_norm_inf = " << residual_norm_inf;
             oss << "\n  zero     = [";
             for (size_t i = 0; i < Dim; ++i) {
                 if (i > 0) oss << ", ";
@@ -159,216 +154,235 @@ struct result_t {
         return status.is_success();
     }
 };
-/**
- * @brief CRTP base class for iterative zero-finding methods.
- *
- * Provides the outer solve loop, convergence tolerance helpers, and
- * result packaging. Concrete methods (e.g. `broyden<Dim>`) derive from
- * this class via the Curiously Recurring Template Pattern and must
- * implement three member functions:
- *
- * | Function        | Signature                                    | Purpose                                                   |
- * |-----------------|----------------------------------------------|-----------------------------------------------------------|
- * | `initialize`    | `Status initialize(F&& fun, Args&&... args)` | Set up state from the initial guess                       |
- * | `iterate`       | `Status iterate(F&& fun)`                    | Perform one iteration of the method (e.g., Newton update) |
- * | `has_converged` | `Status has_converged()`                     | Check if stopping criteria is met.                        |
- *
- * Each function returns a `Status` enum class; these are status codes, that allow the method
- * to communicate success or failure to this interface class.
- *
- * | `Status`            | Meaning                                                                            |
- * |---------------------|------------------------------------------------------------------------------------|
- * | `Status::ok`        | Iteration state is valid but has not converged. Ok to continue iteration           |
- * | `Status::invalid`   | Iteration state is invalid; initial guess does not satisfy requirements of method  |
- * | `Status::converged` | Iteration state meets convergence or tolerance criteria.                           |
- * | `Status::failed`    | Iteration state has failed to converge (e.g., exceeded maximum iterations)         |
- *
- *
- * The derived class must also expose `zero()` and `residual()` accessors
- * returning `std::array<double, Dim>`.
- *
- * @tparam Dim    Dimension of the system.
- * @tparam Method Concrete derived type (CRTP parameter).
- *
- * @par Typical usage (via a concrete method such as broyden)
- * @code
- * broyden<2> solver(200, 1e-10, 1e-10); // max_iter, abs_tol, rel_tol
- *
- * auto f = [](std::array<double, 2> x) -> std::array<double, 2> {
- *     return { x[0]*x[0] + x[1] - 1.0,
- *              x[0]      - x[1]*x[1] };
- * };
- *
- * result_t<2> res = solver(f, std::array<double,2>{0.5, 0.5});
- *
- * if (res.success) {
- *     // success — use res.zero
- * }
- * @endcode
- *
- * @note Tolerances apply dimension-aware norms: the vector overload of
- *       `is_zero()` tests @f$ \|y\| < \varepsilon_\text{abs} +
- *       \varepsilon_\text{rel}\|x\| @f$, so convergence criteria scale
- *       consistently with problem size.
- */
-template <size_t Dim, typename Method>
-struct zero_finding_method {
-    zero_finding_method(size_t max_iter, double abs_tol, double rel_tol)
-        : max_iterations{max_iter},
-          _abs_tol{abs_tol},
-          _rel_tol{rel_tol}
-    {
-    }
-    zero_finding_method() = default;
 
-    // --- configuration --------------------------------------------------------
-
-    size_t max_iterations = 100;  ///< Maximum iterations before `Flag::max_iterations` is set.
-    double _abs_tol = 1e-12;      ///< Absolute tolerance used to test for `f(x) == 0`.
-    double _rel_tol = 1e-12;      ///< Relative tolerance used to test if `x == y`.
-
-    // --- state ----------------------------------------------------------------
-
-    Status status;  ///< Iteration status
-
-    // --- primary interface ----------------------------------------------------
-
-    /**
-     * @brief Runs the full solve loop.
-     *
-     * Calls `initialize`, then repeatedly calls `iterate` and
-     * `has_converged` until convergence, a failure signal, or
-     * `max_iterations` is reached.
-     *
-     * @tparam F    Callable representing the function whose zero is sought.
-     * @tparam Args Types of any additional arguments forwarded to `initialize`
-     *              (typically the initial guess).
-     * @param fun  The function f : R^Dim → R^Dim.
-     * @param args Additional arguments forwarded to `Method::initialize`.
-     * @return A `result_t<Dim>` describing the outcome.
-     */
-    template <typename F, typename... Args>
-    result_t<Dim> solve(F&& fun, Args&&... args)
-    {
-        // `initialize` internal state; forward method-specific arguments
-        // `initialize` checks if inputs satisfy requirements
-        status = static_cast<Method*>(this)->initialize(std::forward<F>(fun), std::forward<Args>(args)...);
-
-        // iteration loop;
-        // i counts the number of times `iterate` has been called
-        for (size_t i = 0; i <= max_iterations; ++i) {
-            if (status.is_terminal()) {
-                return make_result(i);
-            }
-
-            status = static_cast<Method*>(this)->iterate(std::forward<F>(fun));
-
-            if (status.is_ok()) {
-                status = static_cast<Method*>(this)->has_converged();
-            }
+// ---------------------------------------------------------------------------
+// detail: shared implementation helpers
+// ---------------------------------------------------------------------------
+namespace detail
+{
+/// Fills `jac` column-by-column using forward finite differences.
+template <size_t N, typename F>
+void fd_jacobian(
+    linalg::matrix<double, N, N>& jac,
+    F& fun,
+    linalg::vector<double, N> const& x,
+    linalg::vector<double, N> const& y)
+{
+    using vec_t = linalg::vector<double, N>;
+    vec_t f1;
+    for (size_t i = 0; i < N; ++i) {
+        vec_t x1 = x;
+        double const eps = 1e-8 * std::max(1.0, std::abs(x[i]));
+        x1[i] += eps;
+        f1 = fun(x1.asarray());
+        for (size_t j = 0; j < N; ++j) {
+            jac(j, i) = (f1[j] - y[j]) / eps;
         }
-        status.set(Status::Flag::max_iterations);
-        return make_result(max_iterations);
+    }
+}
+}  // namespace detail
+
+// ---------------------------------------------------------------------------
+// Jacobian strategies — satisfy the Jacobian concept:
+//
+//   void initialize(F& fun, vec_t const& x, vec_t const& y)
+//   void update(F& fun, vec_t const& x, vec_t const& y,
+//               vec_t const& dx, vec_t const& dy)
+//   mat_t jac   (public member read by NewtonMethod)
+// ---------------------------------------------------------------------------
+
+/// Jacobian supplied analytically by the function object (`fun.jacobian(x)`).
+template <size_t N>
+struct Exact {
+    using vec_t = linalg::vector<double, N>;
+    using mat_t = linalg::matrix<double, N, N>;
+
+    mat_t jac;
+
+    template <typename F>
+    void initialize(F& fun, vec_t const& x, vec_t const&)
+    {
+        jac = fun.jacobian(x.asarray());
     }
 
-    /**
-     * @brief Convenience operator — equivalent to calling solve().
-     *
-     * Allows a solver object to be used as a callable:
-     * @code
-     *   result_t<N> res = solver(f, guess);
-     * @endcode
-     */
-    template <typename F, typename... Args>
-    inline result_t<Dim> operator()(F&& fun, Args&&... args)
+    template <typename F>
+    void update(F& fun, vec_t const& x, vec_t const&, vec_t const&, vec_t const&)
     {
-        return solve(std::forward<F>(fun), std::forward<Args>(args)...);
-    }
-
-   protected:
-    // --- helpers available to derived classes ---------------------------------
-
-    /**
-     * @brief Packages the current solver state into a result_t.
-     * @param i Iteration index at the time of termination.
-     * @return  A `result_t` populated from the derived class's `zero()`,
-     *          `residual()`, and `this->flag`.
-     */
-    result_t<Dim> make_result(size_t i)
-    {
-        return result_t<Dim>(
-            static_cast<Method*>(this)->zero(),
-            static_cast<Method*>(this)->residual(),
-            i,
-            status);
-    }
-
-    /**
-     * @brief Scalar approximate-equality test with mixed absolute/relative tolerance.
-     *
-     * Returns `true` when
-     * @f$ |x - y| \le \max(\varepsilon_\text{abs},\, \varepsilon_\text{rel} \cdot \min(|x|,|y|)) @f$.
-     *
-     * The tolerance is anchored to the *smaller* magnitude, so equality is
-     * easier to satisfy when both values are large (lax near infinity) and
-     * harder when both are near zero (tight near the origin).
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @return `true` if x and y are considered equal under the configured tolerances.
-     */
-    inline bool is_close(double x, double y) const
-    {
-        double norm = std::min(std::abs(x), std::abs(y));
-        return std::abs(x - y) <= std::max(_abs_tol, _rel_tol * norm);
-    }
-
-    /**
-     * @brief Scalar zero test.
-     * @param x Value to test.
-     * @return `true` if @f$ |x| \le \varepsilon_\text{abs} @f$.
-     */
-    inline bool is_zero(double x) const
-    {
-        return std::abs(x) <= _abs_tol;
-    }
-
-    /**
-     * @brief Vector zero test with dimension-aware mixed tolerance.
-     *
-     * Returns `true` when
-     * @f$ \|y\| < \varepsilon_\text{abs} + \varepsilon_\text{rel}\|x\| @f$.
-     *
-     * Using the norm of the current iterate `x` as the relative scale means
-     * the effective tolerance grows with the solution magnitude and does not
-     * tighten spuriously for large-valued problems.
-     *
-     * @param y Residual vector (the quantity being tested for smallness).
-     * @param x Current zero estimate (provides the relative scale).
-     * @return `true` if `y` is considered zero relative to `x`.
-     */
-    inline bool is_zero(
-        linalg::vector<double, Dim> const& y,
-        linalg::vector<double, Dim> const& x) const
-    {
-        double ysq = linalg::dot(y, y);
-        double xsq = linalg::dot(x, x);
-        return std::sqrt(ysq) < _abs_tol + _rel_tol * std::sqrt(xsq);
-    }
-
-    /**
-     * @brief Checks whether any component of a vector is NaN.
-     * @param x Vector to inspect.
-     * @return `true` if at least one component satisfies `std::isnan`.
-     */
-    inline bool is_nan(linalg::vector<double, Dim> const& x) const
-    {
-        for (const double& v : x) {
-            if (std::isnan(v)) return true;
-        }
-        return false;
+        jac = fun.jacobian(x.asarray());
     }
 };
+
+/// Jacobian approximated by forward finite differences at every iteration.
+template <size_t N>
+struct ForwardDiff {
+    using vec_t = linalg::vector<double, N>;
+    using mat_t = linalg::matrix<double, N, N>;
+
+    mat_t jac;
+
+    template <typename F>
+    void initialize(F& fun, vec_t const& x, vec_t const& y)
+    {
+        detail::fd_jacobian(jac, fun, x, y);
+    }
+
+    template <typename F>
+    void update(F& fun, vec_t const& x, vec_t const& y, vec_t const&, vec_t const&)
+    {
+        detail::fd_jacobian(jac, fun, x, y);
+    }
+};
+
+/**
+ * @brief Broyden rank-1 Jacobian update (Broyden's "good" method).
+ *
+ * Initialises with a forward-difference Jacobian, then maintains the
+ * approximation via the secant condition:
+ * @f[
+ *   J_{\text{new}} = J + \frac{(\Delta y - J\,\Delta x)\,\Delta x^T}
+ *                             {\|\Delta x\|^2}
+ * @f]
+ */
+template <size_t N>
+struct BroydenJacobian {
+    using vec_t = linalg::vector<double, N>;
+    using mat_t = linalg::matrix<double, N, N>;
+
+    mat_t jac;
+
+    template <typename F>
+    void initialize(F& fun, vec_t const& x, vec_t const& y)
+    {
+        detail::fd_jacobian(jac, fun, x, y);
+    }
+
+    template <typename F>
+    void update(F&, vec_t const&, vec_t const&, vec_t const& dx, vec_t const& dy)
+    {
+        double dx_sq = linalg::dot(dx, dx);
+        if (dx_sq < 1e-30) return;
+        vec_t r = dy - jac * dx;
+        jac += linalg::outer(r, dx) / dx_sq;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// NewtonMethod — solve loop parameterised by Jacobian strategy
+// ---------------------------------------------------------------------------
+
+/**
+ * @brief Newton-type solver parameterised by a Jacobian strategy.
+ *
+ * At each iteration:
+ *  1. Solves @f$ J\,\delta x = -f(x) @f$ via LU factorisation.
+ *  2. Updates @f$ x \leftarrow x + \delta x @f$.
+ *  3. Calls `Jacobian::update` with the new @f$(x, f(x), \delta x, \delta f)@f$.
+ *
+ * Three aliases are provided for common strategies:
+ * @code
+ *   Newton<N>   — exact Jacobian supplied by the function object
+ *   NewtonFD<N> — Jacobian re-computed by forward differences each iteration
+ *   Broyden<N>  — Jacobian maintained by the rank-1 Broyden update
+ * @endcode
+ *
+ * @tparam N        Dimension of the system.
+ * @tparam Jacobian A type satisfying the Jacobian concept (see above).
+ */
+template <size_t N, typename Jacobian>
+struct NewtonMethod {
+    using vec_t = linalg::vector<double, N>;
+    using mat_t = linalg::matrix<double, N, N>;
+
+    NewtonMethod(size_t max_iter, double abs_tol, double rel_tol)
+        : max_iter{max_iter}, atol{abs_tol}, rtol{rel_tol}
+    {
+    }
+    NewtonMethod() = default;
+
+    size_t max_iter = 100;
+    double atol = 1e-10;
+    double rtol = 1e-10;
+
+    vec_t x, y, dx, dy;
+    Jacobian jacobian;
+    double y_norm;
+    double y_norm0;
+
+    template <typename F>
+    result_t<N> solve(F&& fun, std::array<double, N> const& x0)
+    {
+        x = x0;
+        evaluate(fun);
+        y_norm0 = y_norm;
+        if (residual_is_zero())
+            return make_result(0, Status::Flag::residual_zero);
+
+        jacobian.initialize(fun, x, y);
+
+        for (size_t iter = 1; iter <= max_iter; ++iter) {
+            linalg::LU<double, N> lu(jacobian.jac);
+            auto sol = lu.solve(-1.0 * y);
+            if (!sol) {
+                // Jacobian is singular: apply Tikhonov regularisation to a
+                // temporary copy so the stored Jacobian is not corrupted.
+                mat_t jac_reg = jacobian.jac;
+                for (size_t i = 0; i < N; ++i)
+                    jac_reg(i, i) += 1e-3;
+                linalg::LU<double, N> lu2(jac_reg);
+                sol = lu2.solve(-1.0 * y);
+                if (!sol)
+                    return make_result(iter, Status::Flag::singular_matrix);
+            }
+
+            dx = sol.value();
+            x += dx;
+
+            dy = y;
+            evaluate(fun);
+            dy = y - dy;
+
+            jacobian.update(fun, x, y, dx, dy);
+
+            if (residual_is_zero())
+                return make_result(iter, Status::Flag::residual_zero);
+        }
+
+        return make_result(max_iter, Status::Flag::max_iterations);
+    }
+
+    template <typename F>
+    inline result_t<N> operator()(F&& fun, std::array<double, N> const& x0)
+    {
+        return solve(std::forward<F>(fun), x0);
+    }
+
+   private:
+    result_t<N> make_result(size_t i, Status s)
+    {
+        return {x.asarray(), y.asarray(), i, s};
+    }
+
+    template <typename F>
+    void evaluate(F& fun)
+    {
+        y = fun(x.asarray());
+        y_norm = linalg::norm(y);
+    }
+
+    bool residual_is_zero() const
+    {
+        return y_norm < atol + rtol * y_norm0;
+    }
+};
+
+template <size_t N>
+using Newton = NewtonMethod<N, Exact<N>>;
+
+template <size_t N>
+using NewtonFD = NewtonMethod<N, ForwardDiff<N>>;
+
+template <size_t N>
+using Broyden = NewtonMethod<N, BroydenJacobian<N>>;
 
 }  // namespace root_multidim
 #endif

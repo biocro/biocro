@@ -9,8 +9,7 @@
 #include "../framework/state_map.h"
 
 // biocro
-#include "../math/roots/multidim/broyden.h"
-#include "../math/roots/multidim/newton.h"
+#include "../math/roots/multidim/zeros.h"
 #include "../math/linalg/base.h"
 
 namespace standardBML
@@ -26,14 +25,14 @@ struct test_function {
         return y;
     }
 
-    linalg::matrix<double, 2, 2> jacobian(linalg::vector<double, 2> const& x)
+    linalg::matrix<double, 2, 2> jacobian(std::array<double, 2> const& x)
     {
         linalg::matrix<double, 2, 2> jac;
 
-        jac(0, 0) = -20 * x[0];
-        jac(0, 1) = 10;
-        jac(1, 0) = -1;
-        jac(1, 1) = 0;
+        jac(0, 0) = -20.0 * x[0];
+        jac(0, 1) = 10.0;
+        jac(1, 0) = -1.0;
+        jac(1, 1) = 0.0;
         return jac;
     }
 };
@@ -73,9 +72,11 @@ class root_multidim_test : public direct_module
           rel_tol{get_input(input_quantities, "rel_tol")},
           guess_1{get_input(input_quantities, "guess_1")},
           guess_2{get_input(input_quantities, "guess_2")},
+          // Get pointers to output quantities
           broyden_result(output_quantities, "broyden"),
-          newton_result(output_quantities, "newton")
-    // Get pointers to output quantities
+
+          newton_result(output_quantities, "newton"),
+          newton_fd_result(output_quantities, "newton_fd")
 
     {
     }
@@ -94,6 +95,7 @@ class root_multidim_test : public direct_module
     // Pointers to output quantities
     test_result broyden_result;
     test_result newton_result;
+    test_result newton_fd_result;
 
     // Main operation
     void do_operation() const;
@@ -113,7 +115,7 @@ string_vector root_multidim_test::get_outputs()
 {
     string_vector methods = {
         "broyden",
-        "newton"};
+        "newton", "newton_fd"};
     string_vector test_outputs = {
         "_x1", "_x2", "_y1", "_y2", "_iteration"};
     string_vector outputs;
@@ -134,13 +136,17 @@ void root_multidim_test::do_operation() const
 
     size_t max_iter = static_cast<size_t>(max_iterations);
 
-    broyden<2> bs(max_iter, abs_tol, rel_tol);
+    Broyden<2> bs(max_iter, abs_tol, rel_tol);
     auto result = bs(func, guess);
     broyden_result.set(result);
 
-    newton<2> ns(max_iter, abs_tol, rel_tol);
-    result = ns(func, guess);
+    Newton<2> ns(max_iter, abs_tol, rel_tol);
+    result = ns.solve(func, guess);
     newton_result.set(result);
+
+    NewtonFD<2> nfd(max_iter, abs_tol, rel_tol);
+    result = nfd.solve(func, guess);
+    newton_fd_result.set(result);
 }
 
 }  // namespace standardBML
