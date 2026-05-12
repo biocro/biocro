@@ -9,12 +9,12 @@
 #include <vector>
 #include "c4photo.h"
 #include "BioCro.h"
-#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "sunML.h"                       // for thick_layer_absorption
-#include "water_and_air_properties.h"    // for saturation_vapor_pressure,
-                                         // TempToDdryA, TempToLHV, TempToSFS
-#include "../framework/constants.h"      // for pi, e, molar_mass_of_water,
-                                         // celsius_to_kelvin, stefan_boltzmann
+#include "boundary_layer_conductance.h"      // for leaf_boundary_layer_conductance_nikolov
+#include "core/canopy_light_distribution.h"  // for PhotoCore::thick_layer_absorption
+#include "water_and_air_properties.h"        // for saturation_vapor_pressure,
+                                             // TempToDdryA, TempToLHV, TempToSFS
+#include "../framework/constants.h"          // for pi, e, molar_mass_of_water,
+                                             // celsius_to_kelvin, stefan_boltzmann
 
 using std::vector;
 
@@ -191,7 +191,6 @@ void LNprof(double LeafN, double LAI, double kpLN, vector<double>& leafN_profile
     }
 }
 
-
 /* Soil Evaporation Function */
 /* Variables I need */
 /* LAI = Leaf Area Index */
@@ -263,11 +262,11 @@ double SoilEvapo(
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
     // Here we calculate the total amount of PAR energy absorbed by the soil
-    // using `thick_layer_absorption`. We assume half of the solar energy lies
-    // in the PAR band, so we multiply by 2 to get the total absorbed solar
-    // energy. This is almost certainly untrue for light that has passed through
-    // a plant canopy.
-    double Ja = 2 * thick_layer_absorption(
+    // using `PhotoCore::thick_layer_absorption`. We assume half of the solar
+    // energy lies in the PAR band, so we multiply by 2 to get the total
+    // absorbed solar energy. This is almost certainly untrue for light that has
+    // passed through a plant canopy.
+    double Ja = 2 * PhotoCore::thick_layer_absorption(
                         soil_reflectance,
                         soil_transmission,
                         TotalRadiation);

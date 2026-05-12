@@ -103,9 +103,9 @@ void multilayer_canopy_properties::run() const
 {
     // Calculate values of incident photosynthetically active photon flux
     // density (PPFD) and absorbed shortwave energy throughout the canopy. Note
-    // that the `sunML` function expects input expects PPFD values, so we must
-    // convert photosynthetically active radiation (PAR) to PPFD using the
-    // energy content of light in the PAR band
+    // that the `PhotoCore::CanopyLight` constructor expects input expects PPFD
+    // values, so we must convert photosynthetically active radiation (PAR) to
+    // PPFD using the energy content of light in the PAR band
     PhotoCore::CanopyLight canopy_light_model(
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
