@@ -2,18 +2,27 @@
 TOLERANCE      <- 1e-6
 DEFAULT_NLAYER <- 10
 
-# Get the first 100 hours of the 2002 soybean weather data
-WEATHER <- soybean_weather[['2002']][seq_len(100), ]
+# Helping function that takes a subset of rows from a data frame
+df_subset <- function(x) {
+    row_to_keep <- seq(from = 1, to = nrow(x), by = 23)
+    x[row_to_keep, ]
+}
+
+# Get the first 2000 hours of the 2002 soybean weather data; this should be
+# enough time to reach the peak LAI
+WEATHER <- soybean_weather[['2002']][seq_len(2000), ]
 
 # Run the default soybean model
-default_soybean_result <- with(soybean, {run_biocro(
-    initial_values,
-    parameters,
-    WEATHER,
-    direct_modules,
-    differential_modules,
-    ode_solver
-)})
+default_soybean_result <- df_subset(
+    with(soybean, {run_biocro(
+        initial_values,
+        parameters,
+        WEATHER,
+        direct_modules,
+        differential_modules,
+        ode_solver
+    )})
+)
 
 # Define an alternate version of the soybean model using the `BioCro:c3_canopy`
 # module
@@ -56,7 +65,7 @@ pfunc <- with(alternate_soybean, {partial_run_biocro(
 test_that('c3_canopy module produces the same results as the default soybean modules', {
     # Simulation must run without errors
     alternate_soybean_result <- expect_silent(
-        pfunc(list(nlayers = DEFAULT_NLAYER))
+        df_subset(pfunc(list(nlayers = DEFAULT_NLAYER)))
     )
 
     # Some columns should be in the default result but not the alternate result
@@ -95,7 +104,8 @@ test_that('c3_canopy module with fewer layers produces different results', {
     # Check the canopy assimilation rate when fewer layers are used
     assim_col <- 'canopy_assimilation_rate'
 
-    alternate_soybean_result_fewer <- pfunc(list(nlayers = DEFAULT_NLAYER - 1))
+    alternate_soybean_result_fewer <-
+        df_subset(pfunc(list(nlayers = DEFAULT_NLAYER - 1)))
 
     expect_false(
         isTRUE(all.equal(
@@ -107,7 +117,8 @@ test_that('c3_canopy module with fewer layers produces different results', {
 
     # Check the canopy assimilation rate when the minimum number of layers is
     # used
-    alternate_soybean_result_min <- pfunc(list(nlayers = 1))
+    alternate_soybean_result_min <-
+        df_subset(pfunc(list(nlayers = 1)))
 
     expect_false(
         isTRUE(all.equal(
