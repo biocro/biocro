@@ -44,7 +44,6 @@
 
 namespace core
 {
-
 // forward declarations
 double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN);
 double wind_speed_profile(double cumulative_lai, double wind_speed);
@@ -57,15 +56,14 @@ double wind_speed_profile(double cumulative_lai, double wind_speed);
  * weighted summation inside the quadrature loop.
  */
 struct leaf_assim {
-    double assim = 0;                           //!< Net CO2 assimilation rate (micromol / m^2 / s)
-    double stomatal_vapor_conductance = 0;      //!< Stomatal conductance to water vapor (mol / m^2 / s)
-    double penman = 0;                          //!< P-M transpiration rate (mmol / m^2 / s)
-    double priestly = 0;                        //!< Priestly transpiration rate (mmol / m^2 / s)
-    double carboxylation = 0;                   //!< Gross CO2 assimilation rate (micromol / m^2 / s)
-    double leaf_respiration = 0;                //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
-    double photorespiration = 0;                //!< Rate of photorespiration (micromol / m^2 / s)
-    double transpiration = 0;                   //!< Transpiration rate (Mg / ha / hr)
-    double whole_plant_growth_respiration = 0;  //!< Whole-plant growth respiration rate (micromol / m^2 / s)
+    double assim = 0;                       //!< Net CO2 assimilation rate (micromol / m^2 / s)
+    double stomatal_vapor_conductance = 0;  //!< Stomatal conductance to water vapor (mol / m^2 / s)
+    double penman = 0;                      //!< P-M transpiration rate (mmol / m^2 / s)
+    double priestly = 0;                    //!< Priestly transpiration rate (mmol / m^2 / s)
+    double carboxylation = 0;               //!< Gross CO2 assimilation rate (micromol / m^2 / s)
+    double leaf_respiration = 0;            //!< Rate of non-photorespiratory CO2 release in the light (micromol / m^2 / s)
+    double photorespiration = 0;            //!< Rate of photorespiration (micromol / m^2 / s)
+    double transpiration = 0;               //!< Transpiration rate (Mg / ha / hr)
 
     leaf_assim() = default;
 
@@ -148,7 +146,7 @@ struct canopy_integrand {
         };
 
         // Sunlit leaves
-        double i_dir = select_ppfd(lp.sunlit);       // micromol / m^2 / s
+        double i_dir = select_ppfd(lp.sunlit);        // micromol / m^2 / s
         double j_dir = lp.sunlit.absorbed_shortwave;  // J / m^2 / s
         leaf_assim la = leaf_photosynthesis(i_dir, j_dir, layer_wind_speed, layer_leafN) * lp.sunlit.fraction;
 
