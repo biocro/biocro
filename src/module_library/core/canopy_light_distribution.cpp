@@ -2,7 +2,7 @@
 #include <stdexcept>  // std::out_of_range
 
 #include "canopy_light_distribution.h"
-namespace PhotoCore {
+namespace core {
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.
@@ -408,7 +408,7 @@ double shaded_radiation(
  *          the canopy, including several photon flux densities and
  *          the relative fractions of shaded and sunlit leaves
  */
-CanopyLight::CanopyLight(
+canopy_light::canopy_light(
     double ambient_ppfd_beam,
     double ambient_ppfd_diffuse,
     double chil,                    // dimensionless from m^2 / m^2
@@ -483,11 +483,12 @@ CanopyLight::CanopyLight(
     // sunlit; this corresponds to the case where cosine_zenith_angle is close
     // to or below zero.
     canopy_direct_transmission_fraction =
-        cosine_zenith_angle <= 1E-10 ? 0.0 : exp(-k_direct * lai);  // dimensionless
+        cosine_zenith_angle <= 1e-10 ? 0.0 : exp(-k_direct * lai);  // dimensionless
 
     // Calculate the ambient direct PPFD through a surface parallel to the ground
     ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
-                                                                         // Calculate related NIR energy fluxes
+
+    // Calculate related NIR energy fluxes
     ambient_nir_beam = nir_from_ppfd(
         ambient_ppfd_beam, par_energy_content, par_energy_fraction);  // J / (m^2 beam) / s
 
@@ -499,7 +500,7 @@ CanopyLight::CanopyLight(
     // For values of cosine_zenith_angle close to or less than 0, in place
     // of the calculations above, we want to use the limits of the above
     // expressions as cosine_zenith_angle approaches 0 from the right:
-    if (cosine_zenith_angle <= 1E-10) {
+    if (cosine_zenith_angle <= 1e-10) {
         ambient_ppfd_beam_leaf = ambient_ppfd_beam / k1;
         ambient_nir_beam_leaf = ambient_nir_beam / k1;
     } else {
@@ -510,14 +511,13 @@ CanopyLight::CanopyLight(
     }
 }
 
-LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
+light_profile canopy_light::get_light_profile(double cumulative_lai) const
 {
-    
-    LightProfile profile;
+    light_profile profile;
     // For values of cosine_zenith_angle close to or less than 0, in place
     // of the calculations above, we want to use the limits of the above
     // expressions as cosine_zenith_angle approaches 0 from the right:
-    if (cosine_zenith_angle <= 1E-10) {
+    if (cosine_zenith_angle <= 1e-10) {
         profile.shaded.incident_ppfd = ambient_ppfd_diffuse * std::exp(-k_diffuse * cumulative_lai);
         profile.shaded.incident_nir = ambient_nir_diffuse * std::exp(-k_diffuse * cumulative_lai);
         // Calculate the fraction of sunlit and shaded leaves in this canopy
@@ -582,7 +582,7 @@ LightProfile CanopyLight::get_light_profile(double cumulative_lai) const
 }
 
 
-CanopyLight CanopyLight::from_solar(
+canopy_light canopy_light::from_solar(
         double solarR,
         double direct_fraction,
         double diffuse_fraction,
@@ -599,8 +599,8 @@ CanopyLight CanopyLight::from_solar(
         double par_energy_fraction      // dimensionless
     ) {
         double ambient_ppfd_beam = direct_fraction * solarR;
-        double ambient_ppfd_diffuse = diffuse_fraction * solarR; 
-    return CanopyLight(
+        double ambient_ppfd_diffuse = diffuse_fraction * solarR;
+    return canopy_light(
          ambient_ppfd_beam,
          ambient_ppfd_diffuse,
          chil,                    // dimensionless from m^2 / m^2
@@ -613,8 +613,7 @@ CanopyLight CanopyLight::from_solar(
          leaf_transmittance_nir,  // dimensionless
          leaf_transmittance_par,  // dimensionless
          par_energy_content,      // J / micromol
-         par_energy_fraction);      // dimensionless
-    
+         par_energy_fraction);  // dimensionless
 }
-    
-}
+
+}  // namespace core
