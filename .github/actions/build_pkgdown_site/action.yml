@@ -32,7 +32,6 @@ runs:
     - name: Install TinyTex
       run: |
         install.packages('tinytex')
-        tinytex::install_tinytex()
 
         # (tinytex::pdflatex, which is called by the
         # pdf_vignette_index.Rmd vignette, will automatically install
