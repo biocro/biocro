@@ -20,13 +20,25 @@ runs:
         r-version: "release"
         use-public-rspm: true
 
-    - name: Install TinyTex
+    - name: Set up TinyTex
       uses: r-lib/actions/setup-tinytex@v2
 
     - name: Update TeX Live
       run: |
         tlmgr update --self
         tlmgr update --all
+      shell: bash
+
+    - name: Install TinyTex
+      run: |
+        install.packages('tinytex')
+        tinytex::install_tinytex()
+
+        # (tinytex::pdflatex, which is called by the
+        # pdf_vignette_index.Rmd vignette, will automatically install
+        # any additional needed LaTeX packages needed by the Rnw
+        # vignettes.)
+      shell: Rscript {0}
 
     - name: Add the appropriate URL setting to the configuration file
       working-directory: ${{ inputs.package_root }}/pkgdown
