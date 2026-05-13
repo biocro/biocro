@@ -2,9 +2,9 @@
 #include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
 #include "../math/roots/onedim/fixed_point.h"  // for fixed_point
 #include "c3photo.h"                           // for c3photoC
-#include "core/photosynthesis.h"               // for PhotoCore::LeafAssim, CanopyIntegrand
+#include "core/photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
 #include "leaf_energy_balance.h"               // for leaf_energy_balance
-#include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
+#include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
 #include "respiration.h"                       // for growth_resp
 #include "c3CanAC.h"
 
@@ -58,7 +58,7 @@ canopy_photosynthesis_outputs c3CanAC(
     int const nlayers                  // dimensionless
 )
 {
-    PhotoCore::AtmosphereLightScattering const light_model(
+    core::atmosphere_light_scattering const light_model(
         cosine_zenith_angle,
         atmospheric_pressure,
         atmospheric_transmittance,
@@ -69,7 +69,7 @@ canopy_photosynthesis_outputs c3CanAC(
     double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
     double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
 
-    PhotoCore::CanopyLight canopy_light_model(
+    core::canopy_light light_dist(
         q_dir,
         q_diff,  // micromol / m^2 / s
         chil,
@@ -89,10 +89,10 @@ canopy_photosynthesis_outputs c3CanAC(
     // Set convergence criteria
     root_finding::fixed_point solver(50, 1e-3, 1e-3);
 
-    // Leaf-level photosynthesis function for use with PhotoCore::CanopyIntegrand.
+    // Leaf-level photosynthesis function for use with core::canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a
     // single leaf class (sunlit or shaded) and returns a LeafAssim summary.
-    auto leaf_photo = [&](double iabs, double j_shortwave, double layer_wind_speed, double layer_leafN) -> PhotoCore::LeafAssim {
+    auto leaf_photo = [&](double iabs, double j_shortwave, double layer_wind_speed, double layer_leafN) -> core::leaf_assim {
         double const effective_Vcmax = (lnfun != 0) ? layer_leafN * lnb1 + lnb0 : Vcmax_at_25;
         double constexpr gbw_guess = 1.2;  // mol / m^2 / s
 
@@ -121,7 +121,7 @@ canopy_photosynthesis_outputs c3CanAC(
                 current_gs,
                 layer_wind_speed);
 
-                double leaf_temperature_dir =
+            double leaf_temperature_dir =
                 ambient_temperature + et.Deltat;  // degrees C
 
             photo = c3photoC(
@@ -145,7 +145,7 @@ canopy_photosynthesis_outputs c3CanAC(
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;
 
-        return PhotoCore::LeafAssim{
+        return core::leaf_assim{
             /* .assim = */ photo.Assim,
             /* .stomatal_vapor_conductance = */ photo.Gs,
             /* .penman = */ et.EPenman,
@@ -156,9 +156,9 @@ canopy_photosynthesis_outputs c3CanAC(
             /* .transpiration = */ et.TransR * cf2};
     };
 
-    PhotoCore::CanopyIntegrand integrand(
+    core::canopy_integrand integrand(
         leaf_photo,
-        canopy_light_model,
+        light_dist,
         kpLN,
         leafN,     // micromol / m^2 / s
         WindSpeed  // m / s
@@ -166,8 +166,8 @@ canopy_photosynthesis_outputs c3CanAC(
     );
 
     // use `quadrature::midpoint_rule` for previous behavior
-    PhotoCore::LeafAssim const canopy =
-        quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(integrand, 0.0, LAI, nlayers);
+    core::leaf_assim const canopy =
+        quadrature::gauss_legendre<2, core::leaf_assim>(integrand, 0.0, LAI, nlayers);
 
     // Calculate the rate of whole-plant growth respiration
     double const whole_plant_gr =

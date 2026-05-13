@@ -14,28 +14,28 @@
  *
  * **Key types:**
  *
- * - `CanopyLight` — the main model object.  Constructed once from canopy
+ * - `canopy_light` — the main model object.  Constructed once from canopy
  *   structural and optical parameters (LAI, solar zenith angle, leaf
  *   reflectance, transmittance, etc.); extinction coefficients and ambient
  *   flux conversions are pre-computed in the constructor.  Call
  *   `get_light_profile(cumulative_lai)` to evaluate the model at any depth.
  *
- * - `LightProfile` — returned by `get_light_profile`; holds incident PPFD,
+ * - `light_profile` — returned by `get_light_profile`; holds incident PPFD,
  *   incident NIR, absorbed shortwave energy, and leaf-area fraction for each
  *   of the sunlit and shaded leaf classes at a given cumulative LAI depth.
  *
  * **Users of this file:**
- * - `photosynthesis.h` — `CanopyIntegrand` calls `get_light_profile` at each
+ * - `photosynthesis.h` — `canopy_integrand` calls `get_light_profile` at each
  *   quadrature node to supply radiation inputs to the leaf photosynthesis
  *   function.
  * - `multilayer_canopy_properties` — samples `get_light_profile` at `nlayers`
  *   discrete midpoints and writes per-layer values as BioCro module outputs.
  */
-namespace PhotoCore
+namespace core
 {
 
-struct LightProfile {
-    struct LightType {
+struct light_profile {
+    struct light_type {
         double fraction;
         double absorbed_ppfd;
         double absorbed_shortwave;
@@ -43,23 +43,21 @@ struct LightProfile {
         double incident_ppfd;
     };
 
-    double height;     // m
-    LightType shaded;  // micromol / (m^2 leaf) / s
-    LightType sunlit;  // micromol / (m^2 leaf) / s
+    double height;      // m
+    light_type shaded;  // micromol / (m^2 leaf) / s
+    light_type sunlit;  // micromol / (m^2 leaf) / s
 };
 
 double thin_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
-    double incident_light       // Light units such as `micromol / m^2 / s` or
-                                //   `J / m^2 / s`
+    double incident_light       // micromol / m^2 / s or J / m^2 / s
 );
 
 double thick_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
-    double incident_light       // Light units such as `micromol / m^2 / s` or
-                                //   `J / m^2 / s`
+    double incident_light       // micromol / m^2 / s or J / m^2 / s
 );
 
 double nir_from_ppfd(
@@ -79,29 +77,29 @@ double absorbed_shortwave(
 );
 
 double total_radiation(
-    double Q_o,    // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double Q_o,    // micromol / m^2 / s or J / m^2 / s
     double k,      // dimensionless
     double alpha,  // dimensionless
     double ell     // dimensionless from m^2 leaf / m^2 ground
 );
 
 double downscattered_radiation(
-    double Q_ob,   // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
+    double Q_ob,   // micromol / m^2 / s or J / m^2 / s
     double k,      // dimensionless
     double alpha,  // dimensionless
     double ell     // dimensionless from m^2 leaf / m^2 ground
 );
 
 double shaded_radiation(
-    double Q_ob,       // Light units such as `micromol / m^2 / s` or `J / m^2 / s`
-    double Q_od,       // same units as `Q_ob`
+    double Q_ob,       // micromol / m^2 / s or J / m^2 / s
+    double Q_od,       // same units as Q_ob
     double k_direct,   // dimensionless
     double k_diffuse,  // dimensionless
     double alpha,      // dimensionless
     double ell         // dimensionless from m^2 leaf / m^2 ground
 );
 
-struct CanopyLight {
+struct canopy_light {
     const double ambient_ppfd_beam;       // micromol / (m^2 beam) / s
     const double ambient_ppfd_diffuse;    // micromol / m^2 / s
     const double chil;                    // dimensionless from m^2 / m^2
@@ -116,9 +114,9 @@ struct CanopyLight {
     const double par_energy_content;      // J / micromol
     const double par_energy_fraction;     // dimensionless
 
-    LightProfile get_light_profile(double cumulative_lai) const;
+    light_profile get_light_profile(double cumulative_lai) const;
 
-    CanopyLight(
+    canopy_light(
         double ambient_ppfd_beam,
         double ambient_ppfd_diffuse,
         double chil,                    // dimensionless from m^2 / m^2
@@ -134,7 +132,7 @@ struct CanopyLight {
         double par_energy_fraction      // dimensionless
     );
 
-    static CanopyLight from_solar(
+    static canopy_light from_solar(
         double solarR,
         double direct_fraction,
         double diffuse_fraction,
@@ -158,18 +156,13 @@ struct CanopyLight {
     double k_direct;
     double canopy_direct_transmission_fraction;  // dimensionless
 
-    // Calculate the ambient direct PPFD through a surface parallel to the ground
     double ambient_ppfd_beam_ground;  // micromol / (m^2 ground) / s
-
-    // Calculate the ambient direct PPFD through a unit area of leaf surface
-    double ambient_ppfd_beam_leaf;  // micromol / (m^2 leaf) / s
-
-    // Calculate related NIR energy fluxes
-    double ambient_nir_beam;         // J / (m^2 beam) / s
-    double ambient_nir_beam_ground;  // J / (m^2 ground) / s
-    double ambient_nir_diffuse;      // J / (m^2 ground) / s
-    double ambient_nir_beam_leaf;
+    double ambient_ppfd_beam_leaf;    // micromol / (m^2 leaf) / s
+    double ambient_nir_beam;          // J / (m^2 beam) / s
+    double ambient_nir_beam_ground;   // J / (m^2 ground) / s
+    double ambient_nir_diffuse;       // J / (m^2 ground) / s
+    double ambient_nir_beam_leaf;     // J / (m^2 leaf) / s
 };
 
-}  // namespace PhotoCore
+}  // namespace core
 #endif
