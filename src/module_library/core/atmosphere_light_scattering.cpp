@@ -2,7 +2,7 @@
 #include "../framework/constants.h"  // for atmospheric_pressure_at_sea_level
 #include <cmath>
 using physical_constants::atmospheric_pressure_at_sea_level;
-namespace PhotoCore {
+namespace core {
 /**
  * @brief Calculates the "light macro environment"; in other words, the amount
  * of sunlight scattered out of the direct beam by the atmosphere.
@@ -53,7 +53,7 @@ namespace PhotoCore {
  * @return A structure containing values of the transmittances and fractions of
  *         direct and diffuse light just above the canopy.
  */
-AtmosphereLightScattering::AtmosphereLightScattering(
+atmosphere_light_scattering::atmosphere_light_scattering(
     double cosine_zenith_angle,        // dimensionless
     double atmospheric_pressure,       // Pa
     double atmospheric_transmittance,  // dimensionless
@@ -94,8 +94,6 @@ AtmosphereLightScattering::AtmosphereLightScattering(
 
     // The remaining irradiance is diffuse (dimensionless).
     diffuse_fraction = 1.0 - direct_fraction;
-
-    
 }
 
-}
+}  // namespace core

@@ -1,8 +1,8 @@
 #ifndef CANOPY_PHOTO_CORE_H
 #define CANOPY_PHOTO_CORE_H
 #include <cmath>
-#include "canopy_light_distribution.h"    // CanopyLight, LightProfile
-#include "atmosphere_light_scattering.h"  // AtmosphereLightScattering
+#include "canopy_light_distribution.h"    // canopy_light, light_profile
+#include "atmosphere_light_scattering.h"  // atmosphere_light_scattering
 #include "../../framework/constants.h"
 
 /**
@@ -15,34 +15,34 @@
  *
  * **Key types:**
  *
- * - `LeafAssim` — aggregates all per-leaf photosynthesis outputs (net
+ * - `leaf_assim` — aggregates all per-leaf photosynthesis outputs (net
  *   assimilation, stomatal conductance, transpiration, gross assimilation,
  *   leaf respiration, photorespiration).  It satisfies the vector-space
  *   interface required by the `quadrature::` library — `operator+=` and
  *   scalar `operator*` are defined — so a canopy-integrated value is
- *   obtained by passing a `CanopyIntegrand` directly to a quadrature
- *   function with `T = LeafAssim`.
+ *   obtained by passing a `canopy_integrand` directly to a quadrature
+ *   function with `T = leaf_assim`.
  *
- * - `CanopyIntegrand<LeafPhoto>` — a functor templated on a leaf
+ * - `canopy_integrand<leaf_photo>` — a functor templated on a leaf
  *   photosynthesis callable.  Given a cumulative LAI depth it queries a
- *   `CanopyLight` object for the local radiation environment, calls
- *   `LeafPhoto` separately for the sunlit and shaded leaf classes, and
- *   returns their LAI-fraction-weighted sum as a `LeafAssim`.  This is the
+ *   `canopy_light` object for the local radiation environment, calls
+ *   `leaf_photo` separately for the sunlit and shaded leaf classes, and
+ *   returns their LAI-fraction-weighted sum as a `leaf_assim`.  This is the
  *   integrand passed to `quadrature::gauss_legendre<2>`.
  *
  * **Typical call chain** in a canopy photosynthesis function:
- * 1. Construct `PhotoCore::AtmosphereLightScattering` to split total solar
+ * 1. Construct `core::atmosphere_light_scattering` to split total solar
  *    radiation into direct and diffuse components.
- * 2. Construct `PhotoCore::CanopyLight` from those components plus canopy
+ * 2. Construct `core::canopy_light` from those components plus canopy
  *    structural parameters (LAI, leaf angle, optical properties, etc.).
  * 3. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
  *    model (e.g. `c3photoC`) with its energy balance convergence loop.
- * 4. Construct `PhotoCore::CanopyIntegrand(leaf_photo, canopy_light, ...)`.
- * 5. Call `quadrature::gauss_legendre<2, LeafAssim>(integrand, 0, LAI, n)`
- *    to obtain the canopy-integrated `LeafAssim`.
+ * 4. Construct `core::canopy_integrand(leaf_photo, canopy_light, ...)`.
+ * 5. Call `quadrature::gauss_legendre<2, leaf_assim>(integrand, 0, LAI, n)`
+ *    to obtain the canopy-integrated `leaf_assim`.
  */
 
-namespace PhotoCore
+namespace core
 {
 
 // forward declarations
@@ -50,10 +50,13 @@ double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN);
 double wind_speed_profile(double cumulative_lai, double wind_speed);
 
 /**
- * @brief A simple structure for holding the output of leaf photosynthesis
- * calculations; which will be summed into canopy photosynthesis rates. This type must have vector space operations: vector addition and scalar multiplication.
+ * @brief Aggregates per-leaf photosynthesis outputs for canopy integration.
+ *
+ * Satisfies the vector-space interface required by `quadrature::`: defines
+ * `operator+=` and scalar `operator*` so canopy totals are formed by
+ * weighted summation inside the quadrature loop.
  */
-struct LeafAssim {
+struct leaf_assim {
     double assim = 0;                           //!< Net CO2 assimilation rate (micromol / m^2 / s)
     double stomatal_vapor_conductance = 0;      //!< Stomatal conductance to water vapor (mol / m^2 / s)
     double penman = 0;                          //!< P-M transpiration rate (mmol / m^2 / s)
@@ -64,9 +67,9 @@ struct LeafAssim {
     double transpiration = 0;                   //!< Transpiration rate (Mg / ha / hr)
     double whole_plant_growth_respiration = 0;  //!< Whole-plant growth respiration rate (micromol / m^2 / s)
 
-    LeafAssim() = default;
+    leaf_assim() = default;
 
-    LeafAssim& operator+=(const LeafAssim& rhs)
+    leaf_assim& operator+=(const leaf_assim& rhs)
     {
         assim += rhs.assim;
         stomatal_vapor_conductance += rhs.stomatal_vapor_conductance;
@@ -79,7 +82,7 @@ struct LeafAssim {
         return *this;
     }
 
-    LeafAssim& operator*=(double scalar)
+    leaf_assim& operator*=(double scalar)
     {
         assim *= scalar;
         stomatal_vapor_conductance *= scalar;
@@ -93,32 +96,32 @@ struct LeafAssim {
     }
 };
 
-inline LeafAssim operator+(const LeafAssim& lhs, const LeafAssim& rhs)
+inline leaf_assim operator+(const leaf_assim& lhs, const leaf_assim& rhs)
 {
-    LeafAssim out = lhs;
+    leaf_assim out = lhs;
     out += rhs;
     return out;
 }
 
-inline LeafAssim operator*(const LeafAssim& lhs, double scalar)
+inline leaf_assim operator*(const leaf_assim& lhs, double scalar)
 {
-    LeafAssim out = lhs;
+    leaf_assim out = lhs;
     out *= scalar;
     return out;
 }
 
-inline LeafAssim operator*(double scalar, const LeafAssim& rhs)
+inline leaf_assim operator*(double scalar, const leaf_assim& rhs)
 {
-    LeafAssim out = rhs;
+    leaf_assim out = rhs;
     out *= scalar;
     return out;
 }
 
-template <typename LeafPhoto, bool UseAbsorbed = true>
-struct CanopyIntegrand {
-    CanopyIntegrand(
-        LeafPhoto photo_func,
-        CanopyLight light_model,
+template <typename leaf_photo, bool use_absorbed = true>
+struct canopy_integrand {
+    canopy_integrand(
+        leaf_photo photo_func,
+        canopy_light light_model,
         double kpLN,
         double leafN,      // micromol / m^2 / s
         double wind_speed  // m / s
@@ -130,40 +133,38 @@ struct CanopyIntegrand {
     {
     }
 
-    LeafAssim operator()(double cumulative_lai)
+    leaf_assim operator()(double cumulative_lai)
     {
-        // Calculations that are the same for sunlit and shaded leaves
         double layer_leafN = leaf_nitrogen_profile(cumulative_lai, leafN, kpLN);
         double layer_wind_speed = wind_speed_profile(cumulative_lai, wind_speed);
-        LightProfile light_profile = canopy_light_model.get_light_profile(cumulative_lai);
+        light_profile lp = canopy_light_model.get_light_profile(cumulative_lai);
 
-        // currently c4 model uses incident ppfd rather than absorbed ppfd but c3 model uses absorbed
-        auto select_ppfd = [](LightProfile::LightType const& lt) -> double {
-            if constexpr (UseAbsorbed)
+        // c4 model uses incident ppfd; c3 model uses absorbed ppfd
+        auto select_ppfd = [](light_profile::light_type const& lt) -> double {
+            if constexpr (use_absorbed)
                 return lt.absorbed_ppfd;
             else
                 return lt.incident_ppfd;
         };
 
-        // Calculations for sunlit leaves.
-        double i_dir = select_ppfd(light_profile.sunlit);        // micromol / m^2 / s
-        double j_dir = light_profile.sunlit.absorbed_shortwave;  // J / m^2 / s
-        LeafAssim leaf_assim = leaf_photosynthesis(i_dir, j_dir, layer_wind_speed, layer_leafN) * light_profile.sunlit.fraction;
+        // Sunlit leaves
+        double i_dir = select_ppfd(lp.sunlit);       // micromol / m^2 / s
+        double j_dir = lp.sunlit.absorbed_shortwave;  // J / m^2 / s
+        leaf_assim la = leaf_photosynthesis(i_dir, j_dir, layer_wind_speed, layer_leafN) * lp.sunlit.fraction;
 
-        // Calculations for shaded leaves.
-        double i_diff = select_ppfd(light_profile.shaded);
-        double j_diff = light_profile.shaded.absorbed_shortwave;  // J / m^2 / s
-        leaf_assim += leaf_photosynthesis(i_diff, j_diff, layer_wind_speed, layer_leafN) * light_profile.shaded.fraction;
-        return leaf_assim;
+        // Shaded leaves
+        double i_diff = select_ppfd(lp.shaded);
+        double j_diff = lp.shaded.absorbed_shortwave;  // J / m^2 / s
+        la += leaf_photosynthesis(i_diff, j_diff, layer_wind_speed, layer_leafN) * lp.shaded.fraction;
+        return la;
     }
 
    private:
-    LeafPhoto leaf_photosynthesis;
-    CanopyLight canopy_light_model;
+    leaf_photo leaf_photosynthesis;
+    canopy_light canopy_light_model;
     double kpLN;
     double leafN;
     double wind_speed;
-    bool use_absorbed;
 };
 
 inline double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN)
@@ -177,5 +178,5 @@ inline double wind_speed_profile(double cumulative_lai, double wind_speed)
     return wind_speed * std::exp(-k * cumulative_lai);
 }
 
-}  // namespace PhotoCore
+}  // namespace core
 #endif
