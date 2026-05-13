@@ -83,6 +83,11 @@ jobs:
       if: inputs.bookdown-build && !inputs.pkgdown-build
       uses: r-lib/actions/setup-r-dependencies@v2
 
+    - name: 3c. Update TeX Live
+      run: |
+        tlmgr update --self
+        tlmgr update --all
+
     - name: 4. Build Bookdown book
       if: inputs.bookdown-build
       uses: './.github/actions/render_bookdown_book'
