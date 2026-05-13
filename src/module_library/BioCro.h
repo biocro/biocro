@@ -68,6 +68,4 @@ soilML_str soilML(
     double specific_heat_of_air,
     double par_energy_content);
 
-double AbiotEff(double smoist, double stemp);
-
 #endif
