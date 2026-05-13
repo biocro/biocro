@@ -75,7 +75,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v6.0.2
         with:
           submodules: true
 
