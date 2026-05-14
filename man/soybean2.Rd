@@ -21,6 +21,8 @@
 
 \source{
   \strong{parameters}
+
+  \itemize{
     \item \emph{2026-05-13}: The soil water modules were updated by migrating the 
           soil water modules from DSSAT into BioCro. This process required many changes 
           to make the modules work with an hourly time step. 
