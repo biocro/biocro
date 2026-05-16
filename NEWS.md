@@ -35,6 +35,16 @@ be directly added to this file to describe the related changes.
 
 ## Minor User-Facing Changes
 
+- Made canopy photosynthesis integral explicit for `c3_canopy` and `c4_canopy` modules: canopy photosynthesis is now computed using numerical quadrature, making the integration over canopy depth explicit. This change addresses a long-standing design goal and results in a significant performance imrpovement. Several other changes are related to this change.
+  - Added numerical quadrature library: A new C++ header file quad.h in src/math/quadrature/
+  - New canopy_light_distribution module: Added a new module that computes light distribution through the canopy at any given cumulative LAI depth, allowing users to examine canopy light profiles by layer.
+  - Refactored code organization:
+    - Renamed sunML struct/function to canopy_light and Light_model to atmosphere_light_scattering for improved clarity
+    - Created new src/module_library/core/ directory for C++ utilities that support modules but are not themselves modules
+    - Moved canopy light distribution functions to core/canopy_light_distribution.h
+    - Moved atmospheric light scattering calculations to core/atmosphere_light_scattering.h
+    - Added photosynthesis utilities including the new leaf_assim vector-space type and canopy_integrand functor to core/photosynthesis.h
+
 - The internal temperature response functions, such as `arrhenius_exponential`,
   now return values normalized to the parameter value at a reference temperature
   (25 degrees C). Because of this, several "scaling" parameters such as

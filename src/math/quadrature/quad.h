@@ -42,6 +42,19 @@
 namespace quadrature
 {
 
+namespace detail
+{
+
+template <int order>
+void validate(int n)
+{
+    static_assert(order > 0, "quadrature order must be a positive integer");
+    if (n <= 0)
+        throw std::invalid_argument("\nthe number of quadrature subintervals must be a positive integer (n > 0) but n = " + std::to_string(n));
+}
+
+}  // namespace detail
+
 /**
  * @brief Rule traits for composite closed Newton-Cotes quadrature.
  *
@@ -101,6 +114,7 @@ struct closed_newton_cotes_rule<4> {
 template <int order, typename T = double, typename integrand>
 T closed_newton_cotes(integrand&& f, double a, double b, int n)
 {
+    detail::validate<order>(n);
     using rule = closed_newton_cotes_rule<order>;
     int num = order * n;
     double const dx = (b - a) / num;
@@ -183,6 +197,7 @@ struct open_newton_cotes_rule<3> {
 template <int order, typename T = double, typename integrand>
 T open_newton_cotes(integrand&& f, double a, double b, int n)
 {
+    detail::validate<order>(n);
     using rule = open_newton_cotes_rule<order>;
     double const dx = (b - a) / n;
     double const h = dx / (order + 1);
@@ -261,6 +276,7 @@ struct gauss_legendre_rule<4> {
 template <int order, typename T = double, typename integrand>
 T gauss_legendre(integrand&& f, double a, double b, int n)
 {
+    detail::validate<order>(n);
     using rule = gauss_legendre_rule<order>;
     double const dx = (b - a) / n;
     T result{};
