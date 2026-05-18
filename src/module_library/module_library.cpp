@@ -22,6 +22,7 @@
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
+#include "canopy_light_distribution.h"
 #include "carbon_assimilation_to_biomass.h"
 #include "cumulative_carbon_dynamics.h"
 #include "cumulative_water_dynamics.h"
@@ -76,8 +77,6 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
-#include "root_onedim_test.h"
-#include "root_multidim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -116,6 +115,10 @@
 #include "varying_Jmax25.h"
 #include "water_vapor_properties_from_air_temperature.h"
 
+// modules for test
+#include "test_modules/root_multidim_test.h"
+#include "test_modules/root_onedim_test.h"
+
 creator_map standardBML::module_library::library_entries =
 {
      {"aba_decay",                                             &create_mc<aba_decay>},
@@ -132,6 +135,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"canopy_light_distribution",                             &create_mc<canopy_light_distribution>},
      {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"cumulative_carbon_dynamics",                            &create_mc<cumulative_carbon_dynamics>},
      {"cumulative_water_dynamics",                             &create_mc<cumulative_water_dynamics>},
