@@ -29,7 +29,10 @@ INPUT                  = ../src \
                          ../src/framework \
                          ../src/framework/ode_solver_library \
                          ../src/framework/utils \
+                         ../src/math \
                          ../src/module_library \
+                         ../src/module_library/core \
+                         ../src/module_library/test_modules \
                          markdown
 FILE_PATTERNS          = *.cpp \
                          *.h \

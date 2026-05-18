@@ -64,25 +64,18 @@ canopy_photosynthesis_outputs c3CanAC(
         atmospheric_transmittance,
         atmospheric_scattering);
 
-    // q_dir: flux through a plane perpendicular to the rays of the sun
-    // q_diff: flux through any surface
-    double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
-    double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
-
-    core::canopy_light light_dist(
-        q_dir,
-        q_diff,  // micromol / m^2 / s
-        chil,
-        cosine_zenith_angle,
-        heightf,
-        k_diffuse,
-        LAI,
-        leaf_reflectance_nir,
-        leaf_reflectance_par,
-        leaf_transmittance_nir,
-        leaf_transmittance_par,
-        par_energy_content,
-        par_energy_fraction);
+    core::canopy_light::parameters params = {chil,
+                                             cosine_zenith_angle,
+                                             heightf,
+                                             k_diffuse,
+                                             LAI,
+                                             leaf_reflectance_nir,
+                                             leaf_reflectance_par,
+                                             leaf_transmittance_nir,
+                                             leaf_transmittance_par,
+                                             par_energy_content,
+                                             par_energy_fraction};
+    core::canopy_light light_dist = core::canopy_light::from_solar(solarR, light_model, params);
 
     using namespace root_finding;
 

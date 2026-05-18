@@ -106,21 +106,22 @@ void multilayer_canopy_properties::run() const
     // that the `core::canopy_light` constructor expects input expects PPFD
     // values, so we must convert photosynthetically active radiation (PAR)
     // to PPFD using the energy content of light in the PAR band
-    core::canopy_light canopy_light_model(
+    core::canopy_light::parameters params = {chil,
+                                             cosine_zenith_angle,
+                                             heightf,
+                                             k_diffuse,
+                                             lai,
+                                             leaf_reflectance_nir,
+                                             leaf_reflectance_par,
+                                             leaf_transmittance_nir,
+                                             leaf_transmittance_par,
+                                             par_energy_content,
+                                             par_energy_fraction};
+
+    core::canopy_light canopy_light_model = {
         par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
         par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
-        chil,
-        cosine_zenith_angle,
-        heightf,
-        k_diffuse,
-        lai,
-        leaf_reflectance_nir,
-        leaf_reflectance_par,
-        leaf_transmittance_nir,
-        leaf_transmittance_par,
-        par_energy_content,
-        par_energy_fraction);
-
+        params};
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {
         throw std::logic_error("Thrown by the multilayer_canopy_properties module: lnfun != 0 is not yet supported.");
@@ -155,7 +156,7 @@ void multilayer_canopy_properties::run() const
     }
 
     // Update other outputs
-    update(canopy_direct_transmission_fraction_op, canopy_light_model.canopy_direct_transmission_fraction);
+    update(canopy_direct_transmission_fraction_op, canopy_light_model.direct_transmission_fraction());
 }
 
 ////////////////////////////////////////
