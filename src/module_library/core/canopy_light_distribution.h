@@ -56,30 +56,24 @@ struct light_profile {
     light_type sunlit;  //!< Radiation quantities for sunlit leaves
 };
 
-/// @brief Radiation absorbed by an infinitely thick layer of material; see the
-///        full documentation in `canopy_light_distribution.cpp`.
 double thick_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
     double incident_light       // micromol / m^2 / s or J / m^2 / s
 );
 
-/// @brief Radiation absorbed by a thin layer of material; see the full
-///        documentation in `canopy_light_distribution.cpp`.
 double thin_layer_absorption(
     double leaf_reflectance,    // dimensionless
     double leaf_transmittance,  // dimensionless
     double incident_light       // micromol / m^2 / s or J / m^2 / s
 );
 
-/// @brief Near-infrared energy flux corresponding to a given photon flux density.
 double nir_from_ppfd(
     double ppfd,                // micromol / m^2 / s
     double par_energy_content,  // J / micromol
     double par_energy_fraction  // dimensionless
 );
 
-/// @brief Total shortwave energy absorbed by a leaf (PAR + NIR bands).
 double absorbed_shortwave(
     double incident_nir,            // J / m^2 / s
     double incident_ppfd,           // micromol / m^2 / s
@@ -90,7 +84,6 @@ double absorbed_shortwave(
     double leaf_transmittance_nir   // dimensionless
 );
 
-/// @brief Total radiation (direct beam + downscattered) at depth `ell` in the canopy.
 double total_radiation(
     double Q_o,    // micromol / m^2 / s or J / m^2 / s
     double k,      // dimensionless
@@ -98,7 +91,6 @@ double total_radiation(
     double ell     // dimensionless from m^2 leaf / m^2 ground
 );
 
-/// @brief Downscattered radiation at depth `ell` in the canopy.
 double downscattered_radiation(
     double Q_ob,   // micromol / m^2 / s or J / m^2 / s
     double k,      // dimensionless
@@ -106,7 +98,6 @@ double downscattered_radiation(
     double ell     // dimensionless from m^2 leaf / m^2 ground
 );
 
-/// @brief Radiation incident on shaded leaves at depth `ell` in the canopy.
 double shaded_radiation(
     double Q_ob,       // micromol / m^2 / s or J / m^2 / s
     double Q_od,       // same units as Q_ob

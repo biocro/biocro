@@ -5,8 +5,6 @@
 #include "canopy_light_distribution.h"
 namespace core
 {
-// forward declarations
-
 light_profile canopy_light::get_light_profile(double cumulative_lai) const
 {
     light_profile profile;
