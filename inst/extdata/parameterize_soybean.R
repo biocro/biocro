@@ -100,7 +100,7 @@ if (!dir.exists(OUTPUT_DIR)) {
 ERROR_LOG_FILE <- file.path(OUTPUT_DIR, 'error_log.md')            # a record of any BioCro errors
 TRACE_LOG_FILE <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the optimizer
 COMPARE_FILE   <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
-MODEL_FILE     <- file.path(OUTPUT_DIR, 'soybean.R')               # a script defining the optimized model
+MODEL_FILE     <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
 
 # Get Catm values for 2002 and 2005
 Catm_2002 <- with(BioCro::catm_data, {Catm[year == '2002']})
@@ -111,7 +111,7 @@ Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
 ###
 
 # Specify the base model definition
-base_model_definition <- soybean
+base_model_definition <- soybean2
 
 # Make sure the Euler solver is used
 base_model_definition$ode_solver <- default_ode_solvers[['homemade_euler']]
@@ -530,9 +530,9 @@ PhotoGEA::pdf_print(
     file = 'soybean_validation_2005.pdf'
 )
 
-# Convert the re-parameterized soybean model to an R command string
+# Convert the re-parameterized soybean2 model to an R command string
 r_cmd_string <- with(soybean_reparam, write_model(
-  'soybean',
+  'soybean2',
   direct_modules,
   differential_modules,
   initial_values,
