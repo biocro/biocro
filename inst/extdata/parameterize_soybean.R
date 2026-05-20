@@ -63,9 +63,6 @@ if (compareVersion(expected_version, installed_version) != 0) {
   )
 }
 
-#option to use this on biocluster
-run_on_biocluster = FALSE
-
 # Check for required variables
 required_var <- c('NCORES', 'SEED')
 
@@ -82,6 +79,9 @@ if (any(!var_exists)) {
 
 # Clear the workspace of everything except the required variables
 rm(list = setdiff(ls(), required_var))
+
+#option to use this on biocluster
+run_on_biocluster = FALSE
 
 # Choose the number of optimizer iterations
 ITERMAX <- 2000
