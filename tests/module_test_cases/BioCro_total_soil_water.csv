@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,input,input,input,output,"description"
+soil_depth_1,soil_depth_2,soil_depth_3,soil_depth_4,soil_depth_5,soil_depth_6,soil_water_content_1,soil_water_content_2,soil_water_content_3,soil_water_content_4,soil_water_content_5,soil_water_content_6,total_soil_water,NA
+1,2,3,4,5,6,0.12,0.23,0.34,0.45,0.56,0.67,1022,"simple test"
