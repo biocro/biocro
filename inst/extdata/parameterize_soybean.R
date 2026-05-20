@@ -63,6 +63,9 @@ if (compareVersion(expected_version, installed_version) != 0) {
   )
 }
 
+#option to use this on biocluster
+run_on_biocluster = FALSE
+
 # Check for required variables
 required_var <- c('NCORES', 'SEED')
 
@@ -318,7 +321,10 @@ extra_penalty_function <- function(sim_res, long_form_data) {
 ###
 ### Create the objective function
 ###
-
+normalization_method <- 'mean_max'
+stdev_weight_method  <- 'logarithm'
+stdev_weight_param   <- 1e-5
+regularization_method <- 'none'
 # Create the objective function
 obj_fun <- objective_function(
   base_model_definition,
@@ -326,10 +332,10 @@ obj_fun <- objective_function(
   independent_args,
   quantity_weights,
   data_definitions       = data_definitions,
-  normalization_method   = 'mean_max',
-  stdev_weight_method    = 'logarithm',
-  stdev_weight_param     = 1e-5,
-  regularization_method  = 'none',
+  normalization_method   = normalization_method,
+  stdev_weight_method    = stdev_weight_method, 
+  stdev_weight_param     = stdev_weight_param,
+  regularization_method  = regularization_method,
   dependent_arg_function = dependent_arg_function,
   post_process_function  = post_process_function,
   extra_penalty_function = extra_penalty_function
@@ -378,6 +384,26 @@ cl = makeCluster(NCORES, outfile = ERROR_LOG_FILE)
 # Set a seed
 set.seed(SEED)
 
+parVars <- c(
+    'base_model_definition',
+    'data_driver_pairs',
+    'independent_args',
+    'quantity_weights',
+    'data_definitions',
+    'normalization_method',
+    'stdev_weight_method',
+    'regularization_method',
+    'dependent_arg_function',
+    'post_process_function',
+    'extra_penalty_function'
+)
+  
+if(run_on_biocluster){
+  # Broadcast the vars to cluster
+  clusterExport(cl, parVars, envir = environment())
+}
+
+
 # Run the optimizer, storing its "trace" outputs in a dedicated log file
 sink(TRACE_LOG_FILE)
 
@@ -388,7 +414,8 @@ optim_result <- DEoptim(
     control = list(
         itermax = ITERMAX,
         parallelType = 1,
-        cl = cl,
+        parVar=parVars,
+        cluster = cl,
         trace = 1
     )
 )
@@ -496,7 +523,7 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = 'soybean_validation_2002.pdf'
+    file = paste0(OUTPUT_DIR,'/soybean_validation_2002.pdf')
 )
 
 
@@ -527,7 +554,7 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = 'soybean_validation_2005.pdf'
+    file = paste0(OUTPUT_DIR,'/soybean_validation_2005.pdf')
 )
 
 # Convert the re-parameterized soybean2 model to an R command string
