@@ -59,7 +59,7 @@ class soil_water_uptake : public direct_module
           uptake_layer_4_op{get_op(output_quantities, "uptake_layer_4")},
           uptake_layer_5_op{get_op(output_quantities, "uptake_layer_5")},
           uptake_layer_6_op{get_op(output_quantities, "uptake_layer_6")},
-          unmet_demand_op{get_op(output_quantities, "unmet_demand")}
+          unmet_demand_op{get_op(output_quantities, "unmet_demand_rate")}
     {
     }
     static string_vector get_inputs();
@@ -138,13 +138,13 @@ string_vector soil_water_uptake::get_inputs()
 string_vector soil_water_uptake::get_outputs()
 {
     return {
-        "uptake_layer_1",  // Mg / ha / hr
-        "uptake_layer_2",  // Mg / ha / hr
-        "uptake_layer_3",  // Mg / ha / hr
-        "uptake_layer_4",  // Mg / ha / hr
-        "uptake_layer_5",  // Mg / ha / hr
-        "uptake_layer_6",  // Mg / ha / hr
-        "unmet_demand"     // Mg / ha / hr
+        "uptake_layer_1",    // Mg / ha / hr
+        "uptake_layer_2",    // Mg / ha / hr
+        "uptake_layer_3",    // Mg / ha / hr
+        "uptake_layer_4",    // Mg / ha / hr
+        "uptake_layer_5",    // Mg / ha / hr
+        "uptake_layer_6",    // Mg / ha / hr
+        "unmet_demand_rate"  // Mg / ha / hr
     };
 }
 
@@ -213,16 +213,16 @@ void soil_water_uptake::do_operation() const
     // uptake in layer = ET*(weighted root fraction in that layer)
     // we track the water demand for each layer.
     // If the demand cannot be met in one layer, try the next layer upto max_rooting_layer
-    // The unmet_demand can still be there after exhausting all layers
+    // The unmet_demand_rate can still be there after exhausting all layers
     // This should be a feedback to the leaf level to lower gs/ET to make sure
     // water is balanced. However, it's difficult to solve this canopy to leaf feedback
-    // Also, one should check how often unmet_demand becomes non-zeros for diagnosis
-    double unmet_demand = 0.0;
+    // Also, one should check how often unmet_demand_rate becomes non-zeros for diagnosis
+    double unmet_demand_rate = 0.0;
     for (int i = 0; i < max_rooting_layer; i++) {
         // Check if all dirt is totally dry
         if (total_weight > 0.0) {
             double base_request = -canopy_transpiration_rate * (root_weight[i] / total_weight);  // Mg / ha / hr
-            double requested_uptake = base_request + unmet_demand;                               // Mg / ha / hr
+            double requested_uptake = base_request + unmet_demand_rate;                          // Mg / ha / hr
             double max_water = 0.0;
             // Only calculate volume if we are above the WP
             if (soil_water_content[i] > soil_wilting_point[i]) {
@@ -234,12 +234,12 @@ void soil_water_uptake::do_operation() const
                 // The plant takes all the available water
                 uptake[i] = max_negative_uptake;
                 // The plant saves the missing amount for the next layer
-                unmet_demand = requested_uptake - max_negative_uptake;
+                unmet_demand_rate = requested_uptake - max_negative_uptake;
             } else {
                 // The dirt has enough water
                 uptake[i] = requested_uptake;
                 // The plant has no missing demand
-                unmet_demand = 0.0;
+                unmet_demand_rate = 0.0;
             }
         } else {
             uptake[i] = 0.0;
@@ -247,13 +247,13 @@ void soil_water_uptake::do_operation() const
     }
 
     // update uptake, they are negative
-    update(uptake_layer_1_op, uptake[0]);   // Mg / ha /hr
-    update(uptake_layer_2_op, uptake[1]);   // Mg / ha /hr
-    update(uptake_layer_3_op, uptake[2]);   // Mg / ha /hr
-    update(uptake_layer_4_op, uptake[3]);   // Mg / ha /hr
-    update(uptake_layer_5_op, uptake[4]);   // Mg / ha /hr
-    update(uptake_layer_6_op, uptake[5]);   // Mg / ha /hr
-    update(unmet_demand_op, unmet_demand);  // Mg / ha /hr
+    update(uptake_layer_1_op, uptake[0]);        // Mg / ha /hr
+    update(uptake_layer_2_op, uptake[1]);        // Mg / ha /hr
+    update(uptake_layer_3_op, uptake[2]);        // Mg / ha /hr
+    update(uptake_layer_4_op, uptake[3]);        // Mg / ha /hr
+    update(uptake_layer_5_op, uptake[4]);        // Mg / ha /hr
+    update(uptake_layer_6_op, uptake[5]);        // Mg / ha /hr
+    update(unmet_demand_op, unmet_demand_rate);  // Mg / ha /hr
 }
 
 }  // namespace standardBML

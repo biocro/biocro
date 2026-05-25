@@ -1,7 +1,7 @@
 # Helping function for checking carbon and water accounting for a particular
 # growth calculator module using the soybean2 model as a base. Here we use a
 # nonzero `growth_respiration_fraction` to test that it is properly accounted
-# for, and we include a non-zero irrigation in the drivers.
+# for, and we include a non-zero irrigation_rate in the drivers.
 test_soybean_carbon_accounting <- function(partitioning_calculator) {
     description <- paste0(
         'the soybean2 model accounts for all carbon when using `',
@@ -19,6 +19,8 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
             canopy_non_photorespiratory_CO2_release = 0,
             canopy_photorespiration = 0,
             canopy_transpiration = 0,
+            drainage = 0,
+            excess_water = 0,
             Grain_gr = 0,
             Grain_mr = 0,
             Leaf_gr = 0,
@@ -33,19 +35,17 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
             soil_evaporation = 0,
             Stem_gr = 0,
             Stem_mr = 0,
+            surface_runoff = 0,
             tile_flow = 0,
-            total_drainage = 0,
-            total_excess_water = 0,
-            total_irrigation = 0,
+            irrigation = 0,
             total_precip = 0,
-            total_surface_runoff = 0,
-            total_unmet_demand = 0,
+            unmet_demand = 0,
             whole_plant_growth_respiration = 0
         )
     )
 
     model$parameters$growth_respiration_fraction <- 0.01
-    model$parameters$irrigation <- NULL
+    model$parameters$irrigation_rate <- NULL
 
     model$direct_modules$partitioning_growth_calculator <- partitioning_calculator
     model$direct_modules <- c(
@@ -66,8 +66,8 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
     )
 
     drivers <- soybean_weather[['2002']]
-    drivers$irrigation <- 0.0
-    drivers[drivers$doy == 200, 'irrigation'] <- 0.1 # irrigate at 0.1 mm / hr on day 200
+    drivers$irrigation_rate <- 0.0
+    drivers[drivers$doy == 200, 'irrigation_rate'] <- 0.1 # irrigate at 0.1 mm / hr on day 200
 
     test_that(description, {
         soybean_res <- expect_silent(
@@ -145,17 +145,17 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         # due to transpiration, evaporation, drainage, and runoff.
         soybean_res$total_water_inputs <- with(soybean_res, {
             # Unmet demand is negative by convention
-            total_irrigation + total_precip - total_unmet_demand
+            irrigation + total_precip - unmet_demand
         })
 
         soybean_res$total_water_use <- with(soybean_res, {
             (total_soil_water - total_soil_water[1]) +
             canopy_transpiration +
+            drainage +
+            excess_water +
             soil_evaporation +
-            tile_flow +
-            total_drainage +
-            total_excess_water +
-            total_surface_runoff
+            surface_runoff +
+            tile_flow
         })
 
         # As of 2026-05-25, the water mass balance test fails with the default
@@ -180,19 +180,19 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         # Check that all water loss rates are non-negative
         with(soybean_res, {
             expect_true(all(canopy_transpiration_rate >= 0))
-            expect_true(all(drain >= 0))
-            expect_true(all(excess_water >= 0))
+            expect_true(all(drainage_rate >= 0))
+            expect_true(all(excess_water_rate >= 0))
             expect_true(all(soil_evaporation_rate >= 0))
-            expect_true(all(surface_runoff >= 0))
+            expect_true(all(surface_runoff_rate >= 0))
             expect_true(all(tile_flow_rate >= 0))
         })
 
         # Check that all water input rates are non-negative (except unmet
         # demand, which should be non-positive)
         with(soybean_res, {
-            expect_true(all(irrigation >= 0))
+            expect_true(all(irrigation_rate >= 0))
             expect_true(all(precip >= 0))
-            expect_true(all(unmet_demand <= 0))
+            expect_true(all(unmet_demand_rate <= 0))
         })
     })
 }

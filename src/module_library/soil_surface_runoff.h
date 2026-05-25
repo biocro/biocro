@@ -32,7 +32,7 @@ class soil_surface_runoff : public direct_module
 
           // Get references to input quantities
           precip{get_input(input_quantities, "precip")},
-          irrigation{get_input(input_quantities, "irrigation")},
+          irrigation_rate{get_input(input_quantities, "irrigation_rate")},
           curve_number{get_input(input_quantities, "curve_number")},
 
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
@@ -60,7 +60,7 @@ class soil_surface_runoff : public direct_module
           soil_saturation_capacity_6{get_input(input_quantities, "soil_saturation_capacity_6")},
 
           // Get pointers to output quantities
-          surface_runoff_op{get_op(output_quantities, "surface_runoff")},
+          surface_runoff_op{get_op(output_quantities, "surface_runoff_rate")},
           soil_storage_op{get_op(output_quantities, "soil_storage")},
           pb_op{get_op(output_quantities, "pb")},
           soil_initial_abstraction_op{get_op(output_quantities, "soil_initial_abstraction")},
@@ -74,7 +74,7 @@ class soil_surface_runoff : public direct_module
    private:
     // References to input quantities
     double const& precip;
-    double const& irrigation;
+    double const& irrigation_rate;
     double const& curve_number;
 
     double const& soil_water_content_1;
@@ -116,7 +116,7 @@ string_vector soil_surface_runoff::get_inputs()
 {
     return {
         "precip",                      // mm / hr
-        "irrigation",                  // mm / hr
+        "irrigation_rate",             // mm / hr
         "curve_number",                // unitless
         "soil_water_content_1",        // m^3 / m^3
         "soil_wilting_point_1",        // m^3 / m^3
@@ -142,7 +142,7 @@ string_vector soil_surface_runoff::get_inputs()
 string_vector soil_surface_runoff::get_outputs()
 {
     return {
-        "surface_runoff",            // mm / hr
+        "surface_runoff_rate",       // mm / hr
         "soil_storage",              // mm
         "pb",                        // mm
         "soil_initial_abstraction",  // unitless
@@ -153,8 +153,8 @@ string_vector soil_surface_runoff::get_outputs()
 void soil_surface_runoff::do_operation() const
 {
     int nlayers = 6;
-    double constexpr one_hour = 1;                 // hour
-    double available_water = precip + irrigation;  // mm
+    double constexpr one_hour = 1;                      // hour
+    double available_water = precip + irrigation_rate;  // mm / hr
     double constexpr mm_per_inch = 254;
     double soil_storage = mm_per_inch * (100.0 / curve_number - 1.0);  // mm
 
@@ -208,17 +208,17 @@ void soil_surface_runoff::do_operation() const
     double pb = excess_water - soil_initial_abstraction * soil_storage;  // mm
 
     // Equation 1 in Williams (2012)
-    double surface_runoff = 0.0;         // mm
+    double surface_runoff_rate = 0.0;    // mm
     double constexpr threshold = 0.001;  // mm / hr
     if (available_water > threshold) {
         if (pb > 0.0) {
-            surface_runoff = std::pow(pb, 2) / (excess_water +
-                                                (1 - soil_initial_abstraction) * soil_storage);  // mm
+            surface_runoff_rate = std::pow(pb, 2) / (excess_water +
+                                                     (1 - soil_initial_abstraction) * soil_storage);  // mm
         }
     }
 
     // Update the output quantity list
-    update(surface_runoff_op, surface_runoff / one_hour);  // mm / hr
+    update(surface_runoff_op, surface_runoff_rate / one_hour);  // mm / hr
     update(soil_storage_op, soil_storage);
     update(pb_op, pb);
     update(soil_initial_abstraction_op, soil_initial_abstraction);
