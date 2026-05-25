@@ -67,7 +67,7 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
 
     drivers <- soybean_weather[['2002']]
     drivers$irrigation_rate <- 0.0
-    drivers[drivers$doy == 200, 'irrigation_rate'] <- 0.1 # irrigate at 0.1 mm / hr on day 200
+    drivers[drivers$doy == 200, 'irrigation_rate'] <- 1.0 # Irrigate at 1 Mg / ha / hr on day 200
 
     test_that(description, {
         soybean_res <- expect_silent(
@@ -100,6 +100,12 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         expect_equal(
             soybean_res$canopy_gross_assimilation,
             soybean_res$total_carbon_use
+        )
+
+        # Make sure a reasonable amount of carbon use has occurred; otherwise we
+        # aren't really testing anything
+        expect_true(
+            soybean_res$total_carbon_use[nrow(soybean_res)] >= 20
         )
 
         ## Uncomment this when debugging test failures to visually check whether
@@ -166,6 +172,12 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
             tolerance = 1.5e-6
         )
 
+        # Make sure a reasonable amount of carbon use has occurred; otherwise we
+        # aren't really testing anything
+        expect_true(
+            soybean_res$total_water_use[nrow(soybean_res)] >= 3000
+        )
+
         ## Uncomment this when debugging test failures to visually check whether
         ## the difference is real
         #dev.new()
@@ -194,6 +206,20 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
             expect_true(all(precip >= 0))
             expect_true(all(unmet_demand_rate <= 0))
         })
+
+        ## Uncomment this when debugging test failures to check where a rate
+        ## has the wrong sign
+        #dev.new()
+        #rate_to_plot <- 'soil_evaporation_rate'
+        #print(lattice::xyplot(
+        #    soybean_res[[rate_to_plot]] ~ soybean_res[['fractional_doy']],
+        #    group = soybean_res[[rate_to_plot]] >= 0,
+        #    type = 'l',
+        #    auto.key = list(space = 'top', title = 'Is rate >= 0?', cex.title = 1),
+        #    xlab = 'fractional_doy',
+        #    ylab = rate_to_plot,
+        #    main = partitioning_calculator
+        #))
     })
 }
 
