@@ -199,7 +199,7 @@ string_vector soil_water_tiledrain::get_outputs()
 {
     return {
         "td_layer_num",       // Dimensionless. Soil layer number containing the tile drain
-        "tile_flow_rate",     // cm / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
+        "tile_flow_rate",     // Mg / ha / hr.  per-timestep tile drain flow; corresponds to DSSAT's TDFD var
         "head",               // cm
         "tdf_avail",          // cm
         "topsat",             // dimensionless. Index of uppermost layer in the continuous saturated zone above the tile drain.
@@ -215,8 +215,11 @@ string_vector soil_water_tiledrain::get_outputs()
 
 void soil_water_tiledrain::do_operation() const
 {
+    // Define hard-coded constants
+    double constexpr cm_to_mm = 10;         // 10 mm / cm
+    double constexpr mm_to_Mg_per_ha = 10;  // (Mg / ha) / mm
+    double constexpr timestep = 1;          // hr
     int constexpr nlayers = 6;
-    double constexpr timestep = 1;  // hr
 
     double soil_depth[] = {
         soil_depth_1,  // cm
@@ -304,7 +307,7 @@ void soil_water_tiledrain::do_operation() const
 
     // Update the output quantity list
     update(td_layer_num_op, td_layer_num);
-    update(tile_flow_rate_op, tileDrain.tile_flow_rate);
+    update(tile_flow_rate_op, tileDrain.tile_flow_rate * cm_to_mm * mm_to_Mg_per_ha);
 
     update(head_op, tileDrain.head);
 

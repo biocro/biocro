@@ -94,13 +94,13 @@ string_vector cumulative_water_dynamics::get_inputs()
 {
     return {
         "canopy_transpiration_rate",  // Mg / ha / hr
-        "drainage_rate",              // mm / hr
-        "excess_water_rate",          // mm / hr
-        "irrigation_rate",            // mm / hr
+        "drainage_rate",              // Mg / ha / hr
+        "excess_water_rate",          // Mg / ha / hr
+        "irrigation_rate",            // Mg / ha / hr
         "precip",                     // mm / hr
         "soil_evaporation_rate",      // Mg / ha / hr
-        "surface_runoff_rate",        // mm / hr
-        "tile_flow_rate",             // cm / hr
+        "surface_runoff_rate",        // Mg / ha / hr
+        "tile_flow_rate",             // Mg / ha / hr
         "unmet_demand_rate"           // Mg / ha / hr
 
     };
@@ -124,17 +124,16 @@ string_vector cumulative_water_dynamics::get_outputs()
 void cumulative_water_dynamics::do_operation() const
 {
     // Define unit conversion constants
-    double constexpr cm_to_mm = 10;         // 10 mm / cm
     double constexpr mm_to_Mg_per_ha = 10;  // (Mg / ha) / mm
 
     // Use `update` to set outputs
     update(canopy_transpiration_op, canopy_transpiration_rate);
-    update(drainage_op, drainage_rate * mm_to_Mg_per_ha);
-    update(excess_water_op, excess_water_rate * mm_to_Mg_per_ha);
+    update(drainage_op, drainage_rate);
+    update(excess_water_op, excess_water_rate);
     update(soil_evaporation_op, soil_evaporation_rate);
-    update(surface_runoff_op, surface_runoff_rate * mm_to_Mg_per_ha);
-    update(tile_flow_op, tile_flow_rate * cm_to_mm * mm_to_Mg_per_ha);
-    update(irrigation_op, irrigation_rate * mm_to_Mg_per_ha);
+    update(surface_runoff_op, surface_runoff_rate);
+    update(tile_flow_op, tile_flow_rate);
+    update(irrigation_op, irrigation_rate);
     update(total_precip_op, precip * mm_to_Mg_per_ha);
     update(unmet_demand_op, unmet_demand_rate);
 }
