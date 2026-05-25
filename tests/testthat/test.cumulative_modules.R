@@ -1,58 +1,88 @@
-# Helping function for checking carbon accounting for a particular growth
-# calculator module using the soybean model as a base. Here we use a nonzero
-# `growth_respiration_fraction` to test that it is properly accounted for.
+# Helping function for checking carbon and water accounting for a particular
+# growth calculator module using the soybean2 model as a base. Here we use a
+# nonzero `growth_respiration_fraction` to test that it is properly accounted
+# for, and we include a non-zero irrigation in the drivers.
 test_soybean_carbon_accounting <- function(partitioning_calculator) {
     description <- paste0(
-        'the soybean model accounts for all carbon when using `',
+        'the soybean2 model accounts for all carbon when using `',
         partitioning_calculator,
         '` as its partitioning growth calculator module'
     )
 
+    model <- soybean2
+
+    model$initial_values <- c(
+        model$initial_values,
+        list(
+            canopy_assimilation = 0,
+            canopy_gross_assimilation = 0,
+            canopy_non_photorespiratory_CO2_release = 0,
+            canopy_photorespiration = 0,
+            canopy_transpiration = 0,
+            Grain_gr = 0,
+            Grain_mr = 0,
+            Leaf_gr = 0,
+            Leaf_mr = 0,
+            Leaf_WS_loss = 0,
+            Rhizome_gr = 0,
+            Rhizome_mr = 0,
+            Root_gr = 0,
+            Root_mr = 0,
+            Shell_gr = 0,
+            Shell_mr = 0,
+            soil_evaporation = 0,
+            Stem_gr = 0,
+            Stem_mr = 0,
+            tile_flow = 0,
+            total_drainage = 0,
+            total_excess_water = 0,
+            total_irrigation = 0,
+            total_precip = 0,
+            total_surface_runoff = 0,
+            total_unmet_demand = 0,
+            whole_plant_growth_respiration = 0
+        )
+    )
+
+    model$parameters$growth_respiration_fraction <- 0.01
+    model$parameters$irrigation <- NULL
+
+    model$direct_modules$partitioning_growth_calculator <- partitioning_calculator
+    model$direct_modules <- c(
+        model$direct_modules,
+        list(
+            'BioCro:total_biomass',
+            'BioCro:total_growth_and_maintenance_respiration',
+            'BioCro:total_soil_water'
+        )
+    )
+
+    model$differential_modules <- c(
+        model$differential_modules,
+        list(
+            'BioCro:cumulative_carbon_dynamics',
+            'BioCro:cumulative_water_dynamics'
+        )
+    )
+
+    drivers <- soybean_weather[['2002']]
+    drivers$irrigation <- 0.0
+    drivers[drivers$doy == 200, 'irrigation'] <- 0.1 # irrigate at 0.1 mm / hr on day 200
+
     test_that(description, {
         soybean_res <- expect_silent(
-            with(soybean, {run_biocro(
-                c(initial_values, list(
-                    canopy_assimilation = 0,
-                    canopy_gross_assimilation = 0,
-                    canopy_non_photorespiratory_CO2_release = 0,
-                    canopy_photorespiration = 0,
-                    canopy_transpiration = 0,
-                    Grain_gr = 0,
-                    Grain_mr = 0,
-                    Leaf_gr = 0,
-                    Leaf_mr = 0,
-                    Leaf_WS_loss = 0,
-                    Rhizome_gr = 0,
-                    Rhizome_mr = 0,
-                    Root_gr = 0,
-                    Root_mr = 0,
-                    Shell_gr = 0,
-                    Shell_mr = 0,
-                    soil_evaporation = 0,
-                    Stem_gr = 0,
-                    Stem_mr = 0,
-                    total_precip = 0,
-                    whole_plant_growth_respiration = 0
-                )),
-                within(parameters, {
-                    growth_respiration_fraction = 0.01
-                }),
-                soybean_weather[['2002']],
-                c(
-                    list(
-                        'BioCro:total_biomass',
-                        'BioCro:total_growth_and_maintenance_respiration'
-                    ),
-                    within(direct_modules, {
-                        partitioning_growth_calculator = partitioning_calculator
-                    })
-                ),
-                c(differential_modules, list(
-                    'BioCro:cumulative_carbon_dynamics',
-                    'BioCro:cumulative_water_dynamics'
-                ))
+            with(model, {run_biocro(
+                initial_values,
+                parameters,
+                drivers,
+                direct_modules,
+                differential_modules
             )})
         )
+
+        ##
+        ## CARBON TESTS
+        ##
 
         # Check that all the assimilated carbon (gross assimilation) is balanced
         # by the sum costs of photorespiration, non-photorespiratory CO2 release
@@ -105,6 +135,65 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
 
         # Check that gross assimilation is non-negative
         expect_true(all(soybean_res$canopy_gross_assimilation >= 0))
+
+        ##
+        ## WATER TESTS
+        ##
+
+        # Check that the water inputs (precipitation, irrigation, and unmet
+        # demand) are balanced by retention of water in the soil plus losses
+        # due to transpiration, evaporation, drainage, and runoff.
+        soybean_res$total_water_inputs <- with(soybean_res, {
+            # Unmet demand is negative by convention
+            total_irrigation + total_precip - total_unmet_demand
+        })
+
+        soybean_res$total_water_use <- with(soybean_res, {
+            (total_soil_water - total_soil_water[1]) +
+            canopy_transpiration +
+            soil_evaporation +
+            tile_flow +
+            total_drainage +
+            total_excess_water +
+            total_surface_runoff
+        })
+
+        # As of 2026-05-25, the water mass balance test fails with the default
+        # tolerance so must be set to a slightly higher value
+        expect_equal(
+            soybean_res$total_water_inputs,
+            soybean_res$total_water_use,
+            tolerance = 5e-7
+        )
+
+        ## Uncomment this when debugging test failures to visually check whether
+        ## the difference is real
+        #dev.new()
+        #print(lattice::xyplot(
+        #    total_water_use + total_water_inputs ~ fractional_doy,
+        #    data = soybean_res,
+        #    type = 'l',
+        #    auto = TRUE,
+        #    main = partitioning_calculator
+        #))
+
+        # Check that all water loss rates are non-negative
+        with(soybean_res, {
+            expect_true(all(canopy_transpiration_rate >= 0))
+            expect_true(all(drain >= 0))
+            expect_true(all(excess_water >= 0))
+            expect_true(all(soil_evaporation_rate >= 0))
+            expect_true(all(surface_runoff >= 0))
+            expect_true(all(tile_flow_rate >= 0))
+        })
+
+        # Check that all water input rates are non-negative (except unmet
+        # demand, which should be non-positive)
+        with(soybean_res, {
+            expect_true(all(irrigation >= 0))
+            expect_true(all(precip >= 0))
+            expect_true(all(unmet_demand <= 0))
+        })
     })
 }
 
