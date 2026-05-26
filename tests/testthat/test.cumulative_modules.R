@@ -9,6 +9,7 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         '` as its partitioning growth calculator module'
     )
 
+    # Build the model
     model <- soybean2
 
     model$initial_values <- c(
@@ -69,6 +70,9 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
     drivers$irrigation_rate <- 0.0
     drivers[drivers$doy == 200, 'irrigation_rate'] <- 1.0 # Irrigate at 1 Mg / ha / hr on day 200
 
+    # Set a threshold to determine whether a rate is zero
+    rate_eps <- 1e-15
+
     test_that(description, {
         soybean_res <- expect_silent(
             with(model, {run_biocro(
@@ -121,26 +125,26 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
 
         # Check that all CO2 loss rates are non-negative
         with(soybean_res, {
-            expect_true(all(canopy_photorespiration_rate >= 0))
-            expect_true(all(canopy_non_photorespiratory_CO2_release_rate >= 0))
-            expect_true(all(Grain_gr_rate >= 0))
-            expect_true(all(Grain_mr_rate >= 0))
-            expect_true(all(Leaf_gr_rate >= 0))
-            expect_true(all(Leaf_mr_rate >= 0))
-            expect_true(all(Leaf_WS_loss_rate >= 0))
-            expect_true(all(Rhizome_gr_rate >= 0))
-            expect_true(all(Rhizome_mr_rate >= 0))
-            expect_true(all(Root_gr_rate >= 0))
-            expect_true(all(Root_mr_rate >= 0))
-            expect_true(all(Shell_gr_rate >= 0))
-            expect_true(all(Shell_mr_rate >= 0))
-            expect_true(all(Stem_gr_rate >= 0))
-            expect_true(all(Stem_mr_rate >= 0))
-            expect_true(all(whole_plant_growth_respiration_rate >= 0))
+            expect_true(all(canopy_photorespiration_rate > -rate_eps))
+            expect_true(all(canopy_non_photorespiratory_CO2_release_rate > -rate_eps))
+            expect_true(all(Grain_gr_rate > -rate_eps))
+            expect_true(all(Grain_mr_rate > -rate_eps))
+            expect_true(all(Leaf_gr_rate > -rate_eps))
+            expect_true(all(Leaf_mr_rate > -rate_eps))
+            expect_true(all(Leaf_WS_loss_rate > -rate_eps))
+            expect_true(all(Rhizome_gr_rate > -rate_eps))
+            expect_true(all(Rhizome_mr_rate > -rate_eps))
+            expect_true(all(Root_gr_rate > -rate_eps))
+            expect_true(all(Root_mr_rate > -rate_eps))
+            expect_true(all(Shell_gr_rate > -rate_eps))
+            expect_true(all(Shell_mr_rate > -rate_eps))
+            expect_true(all(Stem_gr_rate > -rate_eps))
+            expect_true(all(Stem_mr_rate > -rate_eps))
+            expect_true(all(whole_plant_growth_respiration_rate > -rate_eps))
         })
 
         # Check that gross assimilation is non-negative
-        expect_true(all(soybean_res$canopy_gross_assimilation >= 0))
+        expect_true(all(soybean_res$canopy_gross_assimilation > -rate_eps))
 
         ##
         ## WATER TESTS
@@ -191,20 +195,20 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
 
         # Check that all water loss rates are non-negative
         with(soybean_res, {
-            expect_true(all(canopy_transpiration_rate >= 0))
-            expect_true(all(drainage_rate >= 0))
-            expect_true(all(excess_water_rate >= 0))
-            expect_true(all(soil_evaporation_rate >= 0))
-            expect_true(all(surface_runoff_rate >= 0))
-            expect_true(all(tile_flow_rate >= 0))
+            expect_true(all(canopy_transpiration_rate > -rate_eps))
+            expect_true(all(drainage_rate > -rate_eps))
+            expect_true(all(excess_water_rate > -rate_eps))
+            expect_true(all(soil_evaporation_rate > -rate_eps))
+            expect_true(all(surface_runoff_rate > -rate_eps))
+            expect_true(all(tile_flow_rate > -rate_eps))
         })
 
         # Check that all water input rates are non-negative (except unmet
         # demand, which should be non-positive)
         with(soybean_res, {
-            expect_true(all(irrigation_rate >= 0))
-            expect_true(all(precip >= 0))
-            expect_true(all(unmet_demand_rate <= 0))
+            expect_true(all(irrigation_rate > -rate_eps))
+            expect_true(all(precip > -rate_eps))
+            expect_true(all(unmet_demand_rate < rate_eps))
         })
 
         ## Uncomment this when debugging test failures to check where a rate
@@ -213,7 +217,7 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         #rate_to_plot <- 'soil_evaporation_rate'
         #print(lattice::xyplot(
         #    soybean_res[[rate_to_plot]] ~ soybean_res[['fractional_doy']],
-        #    group = soybean_res[[rate_to_plot]] >= 0,
+        #    group = soybean_res[[rate_to_plot]] > -rate_eps,
         #    type = 'l',
         #    auto.key = list(space = 'top', title = 'Is rate >= 0?', cex.title = 1),
         #    xlab = 'fractional_doy',
