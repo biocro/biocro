@@ -30,7 +30,7 @@ class soil_water_downflow : public direct_module
 
           // Get references to input quantities
           available_water{get_input(input_quantities, "available_water")},
-          surface_runoff{get_input(input_quantities, "surface_runoff")},
+          surface_runoff_rate{get_input(input_quantities, "surface_runoff_rate")},
           swcon{get_input(input_quantities, "swcon")},
 
           // Inputs for layer 1
@@ -77,8 +77,8 @@ class soil_water_downflow : public direct_module
 
           // Get pointers to output quantities
           infiltrated_water_op{get_op(output_quantities, "infiltrated_water")},
-          excess_water_op{get_op(output_quantities, "excess_water")},
-          drain_op{get_op(output_quantities, "drain")},
+          excess_water_rate_op{get_op(output_quantities, "excess_water_rate")},
+          drainage_rate_op{get_op(output_quantities, "drainage_rate")},
 
           deltaS_1_op{get_op(output_quantities, "deltaS_1")},
           deltaS_2_op{get_op(output_quantities, "deltaS_2")},
@@ -102,7 +102,7 @@ class soil_water_downflow : public direct_module
    private:
     // References to input quantities
     double const& available_water;
-    double const& surface_runoff;
+    double const& surface_runoff_rate;
     double const& swcon;
 
     // Inputs for layer 1
@@ -149,8 +149,8 @@ class soil_water_downflow : public direct_module
 
     // Pointers to output quantities
     double* infiltrated_water_op;
-    double* excess_water_op;
-    double* drain_op;
+    double* excess_water_rate_op;
+    double* drainage_rate_op;
 
     double* deltaS_1_op;
     double* deltaS_2_op;
@@ -174,7 +174,7 @@ string_vector soil_water_downflow::get_inputs()
 {
     return {
         "available_water",                // mm / hr. Water available for infiltration or runoff (rainfall plus irrigation)
-        "surface_runoff",                 // mm / hr
+        "surface_runoff_rate",            // Mg / ha / hr
         "swcon",                          // 1 / hr. Soil water conductivity constant; whole profile drainage rate coefficient
         "soil_depth_1",                   // cm
         "soil_water_content_1",           // m^3 / m^3
@@ -213,8 +213,8 @@ string_vector soil_water_downflow::get_outputs()
 {
     return {
         "infiltrated_water",  // mm / hr. Water available for infiltration - rainfall minus runoff plus net irrigation
-        "excess_water",       // mm / hr. Excess water to be added to runoff
-        "drain",              // mm / hr. Drainage rate from soil profile.
+        "excess_water_rate",  // Mg / ha / hr. Excess water to be added to runoff
+        "drainage_rate",      // Mg / ha / hr. Drainage rate from soil profile.
         "deltaS_1",           // m^3 / m^3. Change in soil water content due to drainage in layer 1
         "deltaS_2",           // m^3 / m^3. Change in soil water content due to drainage in layer 2
         "deltaS_3",           // m^3 / m^3. Change in soil water content due to drainage in layer 3
@@ -233,9 +233,10 @@ string_vector soil_water_downflow::get_outputs()
 void soil_water_downflow::do_operation() const
 {
     // Define hard-coded parameter values
-    double constexpr eps_sw = 0.0001;  // cm - small threshold value of soil water
-    double constexpr mm_to_cm = 0.1;   // cm / mm
-    double constexpr timestep = 1.0;   // hr
+    double constexpr eps_sw = 0.0001;       // cm - small threshold value of soil water
+    double constexpr mm_to_cm = 0.1;        // cm / mm
+    double constexpr mm_to_Mg_per_ha = 10;  // (Mg / ha) / mm
+    double constexpr timestep = 1.0;        // hr
     int nlayers = 6;
 
     double soil_depth[] = {
@@ -295,7 +296,8 @@ void soil_water_downflow::do_operation() const
         soil_sat_conductivity_6   // cm / hr
     };
 
-    double infiltrated_water = available_water - surface_runoff;  // mm / hr
+    double infiltrated_water =
+        available_water - surface_runoff_rate / mm_to_Mg_per_ha;  // mm / hr
 
     // Convert units
     double const infiltrated_water_cm = infiltrated_water * mm_to_cm;  // cm / hr
@@ -329,8 +331,8 @@ void soil_water_downflow::do_operation() const
 
     // Update the output quantity list
     update(infiltrated_water_op, infiltrated_water);
-    update(excess_water_op, infilWater.excess_water_rate);
-    update(drain_op, infilWater.overall_drainage_rate);
+    update(excess_water_rate_op, infilWater.excess_water_rate * mm_to_Mg_per_ha);
+    update(drainage_rate_op, infilWater.overall_drainage_rate * mm_to_Mg_per_ha);
 
     update(deltaS_1_op, infilWater.sw_delta_S[0]);
     update(deltaS_2_op, infilWater.sw_delta_S[1]);

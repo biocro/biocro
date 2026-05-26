@@ -119,7 +119,7 @@ soybean2 <- list(
         Gstar_at_25                 = 42.9291,
         Gstar_Ea                    = 37830,
         heightf                     = 6,
-        irrigation                  = 0,
+        irrigation_rate             = 0,
         iSp                         = 2.97920486112772,
         Jmax_at_25                  = 195,
         Jmax_Ea                     = 43540,
