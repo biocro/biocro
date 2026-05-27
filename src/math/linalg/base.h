@@ -96,7 +96,13 @@ template <typename Scalar, size_t Row, size_t Col>
 struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
     using container = std::array<Scalar, Col * Row>;
     static constexpr bool IS_LEAF = true;
-    inline size_t offset(size_t i, size_t j) { return i * Col + j;}
+
+    inline size_t offset(size_t i, size_t j) const {
+        if (i >= Row || j >= Col) {
+            throw std::out_of_range("matrix index out of bounds");
+        }
+        return i * Col + j;
+    }
 
     const Scalar& operator()(size_t i, size_t j) const
     {
