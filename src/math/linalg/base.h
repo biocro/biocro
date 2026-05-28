@@ -18,6 +18,8 @@ struct vector : Vector<Scalar, Dim, vector<Scalar, Dim>> {
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
 
+    constexpr size_t dim() const {return Dim;}
+
     [[nodiscard]]
     double operator[](size_t i) const noexcept
     {
@@ -103,6 +105,14 @@ struct matrix : Matrix<Scalar, Row, Col, matrix<Scalar, Row, Col>> {
     static constexpr size_t NUM = Row * Col;
     using container = std::array<Scalar, NUM>;
     static constexpr bool IS_LEAF = true;
+
+    constexpr size_t nrow() const {
+        return Row;
+    }
+
+    constexpr size_t ncol() const {
+        return Row;
+    }
 
     inline size_t offset(size_t i, size_t j) const
     {
