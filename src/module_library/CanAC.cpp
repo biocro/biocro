@@ -3,8 +3,8 @@
 #include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
 #include "../math/roots/onedim/fixed_point.h"  // for fixed_point
 #include "c4photo.h"                           // for c4photoC
-#include "core/atmosphere_light_scattering.h"  // for PhotoCore::AtmosphereLightScattering
-#include "core/photosynthesis.h"               // for PhotoCore::LeafAssim, CanopyIntegrand
+#include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
+#include "core/photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
 #include "leaf_energy_balance.h"               // for leaf_energy_balance
 #include "respiration.h"                       // for growth_resp
 #include "CanAC.h"
@@ -51,43 +51,35 @@ canopy_photosynthesis_outputs CanAC(
     int nlayers                  // dimensionless
 )
 {
-    PhotoCore::AtmosphereLightScattering const light_model(
+    core::atmosphere_light_scattering const light_model(
         cosine_zenith_angle,
         atmospheric_pressure,
         atmospheric_transmittance,
         atmospheric_scattering);
 
-    // q_dir: flux through a plane perpendicular to the rays of the sun
-    // q_diff: flux through any surface
-    double const q_dir = light_model.direct_fraction * solarR;    // micromol / m^2 / s
-    double const q_diff = light_model.diffuse_fraction * solarR;  // micromol / m^2 / s
-
-    // heightf = 1 since canopy height is not used anywhere in this function.
-    PhotoCore::CanopyLight const canopy_light(
-        q_dir,
-        q_diff,
-        chil,
-        cosine_zenith_angle,
-        1.0,
-        k_diffuse,
-        LAI,
-        leaf_reflectance_nir,
-        leaf_reflectance_par,
-        leaf_transmittance_nir,
-        leaf_transmittance_par,
-        par_energy_content,
-        par_energy_fraction);
-
+    double heightf = 1.0;
+    core::canopy_light::parameters params = {chil,
+                                             cosine_zenith_angle,
+                                             heightf,
+                                             k_diffuse,
+                                             LAI,
+                                             leaf_reflectance_nir,
+                                             leaf_reflectance_par,
+                                             leaf_transmittance_nir,
+                                             leaf_transmittance_par,
+                                             par_energy_content,
+                                             par_energy_fraction};
+    core::canopy_light light_dist = core::canopy_light::from_solar(solarR, light_model, params);
 
     using namespace root_finding;
 
     // Set convergence criteria
     root_finding::fixed_point solver(50, 1e-3, 1e-3);
 
-    // Leaf-level photosynthesis function for use with PhotoCore::CanopyIntegrand.
+    // Leaf-level photosynthesis function for use with core::canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a
     // single leaf class (sunlit or shaded) and returns a LeafAssim summary.
-    auto leaf_photo = [&](double i_ppfd, double j_shortwave, double layer_wind_speed, double layer_leafN) -> PhotoCore::LeafAssim {
+    auto leaf_photo = [&](double i_ppfd, double j_shortwave, double layer_wind_speed, double layer_leafN) -> core::leaf_assim {
         double eff_Vcmax = Vcmax_at_25;
         double eff_Alpha = Alpha;
         double eff_RL = RL_at_25;
@@ -137,7 +129,6 @@ canopy_photosynthesis_outputs CanAC(
             return photo.Gs;
         };
 
-
         result_t result = solver.solve(gs_func, gsw_estimate);
 
         if (!is_successful(result.flag)) {
@@ -149,7 +140,7 @@ canopy_photosynthesis_outputs CanAC(
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;
 
-        return PhotoCore::LeafAssim{
+        return core::leaf_assim{
             /* .assim = */ photo.Assim,
             /* .stomatal_vapor_conductance = */ photo.Gs,
             /* .penman = */ et.EPenman,
@@ -160,10 +151,10 @@ canopy_photosynthesis_outputs CanAC(
             /* .transpiration = */ et.TransR * cf2};
     };
 
-    PhotoCore::CanopyIntegrand<decltype(leaf_photo), false> canopy_integrand(leaf_photo, canopy_light, kpLN, leafN, WindSpeed);
+    core::canopy_integrand<decltype(leaf_photo), false> canopy_integrand(leaf_photo, light_dist, kpLN, leafN, WindSpeed);
     // use `quadrature::midpoint_rule` for previous behavior
-    PhotoCore::LeafAssim const canopy =
-        quadrature::gauss_legendre<2, PhotoCore::LeafAssim>(canopy_integrand, 0.0, LAI, nlayers);
+    core::leaf_assim const canopy =
+        quadrature::gauss_legendre<2, core::leaf_assim>(canopy_integrand, 0.0, LAI, nlayers);
 
     double const whole_plant_gr =
         growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s

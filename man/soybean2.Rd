@@ -23,6 +23,13 @@
   \strong{parameters}
 
   \itemize{
+    \item \emph{2026-05-13}: The soil water modules were updated by migrating the 
+          soil water modules from DSSAT into BioCro. This process required many changes 
+          to make the modules work with an hourly time step. 
+          Also, the StomataWS function was changed based on a calibration on stomatal 
+          conductance data from Gray et al. (2016).
+          These changes caused large differences in the calculated biomass, therefore 
+          the partitioning coefficients were reparameterized. 
     \item Basal crop coefficient: Values of \code{kcbmax}, \code{kcbmin}, and
           \code{skc} for maize and cotton are reported in Table 3 of DeJonge &
           Thorp (2017) [\doi{10.13031/trans.12321}]. The two crops have the same

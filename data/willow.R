@@ -132,7 +132,7 @@ willow <- list(
         lnfun                        = 0,
         longitude                    = -88,
         min_gbw_canopy               = 0.005,
-        nlayers                      = 10,
+        nlayers                      = 2,
         O2                           = 210,
         par_energy_content           = 0.219,
         par_energy_fraction          = 0.5,

@@ -95,5 +95,4 @@ struct crop_phenology {
     } leaf, stem, root, rhiz;
 };
 
-void LNprof(double LeafN, double LAI, double kpLN, std::vector<double>& leafNla);
 #endif

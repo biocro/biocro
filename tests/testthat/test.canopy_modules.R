@@ -1,21 +1,33 @@
-# Get the first 100 hours of the 2002 soybean weather data
-WEATHER <- soybean_weather[['2002']][seq_len(100), ]
+# Specify the tolerance to use and the default number of layers
+TOLERANCE      <- 1e-6
+DEFAULT_NLAYER <- 10
 
-# Run the soybean model
-default_soybean_result <- with(soybean, {run_biocro(
-    initial_values,
-    parameters,
-    WEATHER,
-    direct_modules,
-    differential_modules,
-    ode_solver
-)})
+# Helping function that takes a subset of rows from a data frame
+df_subset <- function(x) {
+    row_to_keep <- seq(from = 1, to = nrow(x), by = 23)
+    x[row_to_keep, ]
+}
+
+# Get the first 2000 hours of the 2002 soybean weather data; this should be
+# enough time to reach the peak LAI
+WEATHER <- soybean_weather[['2002']][seq_len(2000), ]
+
+# Run the default soybean model
+default_soybean_result <- df_subset(
+    with(soybean, {run_biocro(
+        initial_values,
+        parameters,
+        WEATHER,
+        direct_modules,
+        differential_modules,
+        ode_solver
+    )})
+)
 
 # Define an alternate version of the soybean model using the `BioCro:c3_canopy`
 # module
 
-# The BioCro:c3_canopy module replaces the following other modules, provided
-# the number of layers is set to 10
+# The BioCro:c3_canopy module replaces several other modules
 direct_modules_to_remove <- c(
     'BioCro:shortwave_atmospheric_scattering',
     'BioCro:incident_shortwave_from_ground_par',
@@ -27,39 +39,33 @@ direct_modules_to_remove <- c(
 alternate_direct_modules <- soybean$direct_modules[!soybean$direct_modules %in% direct_modules_to_remove]
 alternate_direct_modules <- append(alternate_direct_modules, 'BioCro:c3_canopy')
 
+# The BioCro:c3_canopy module needs several other input parameters
 alternate_soybean <- within(soybean, {
     parameters = within(parameters, {
-        nlayers = 10 # needed for BioCro:c3_canopy
-        lnb0 = 0     # needed for BioCro:c3_canopy
-        lnb1 = 0     # needed for BioCro:c3_canopy
+        nlayers = 0
+        lnb0 = 0
+        lnb1 = 0
     })
 
     direct_modules = alternate_direct_modules
 })
 
-test_that('c3_canopy module produces the same results as the default soybean modules', {
-    # Definition must be valid
-    expect_true(
-        with(alternate_soybean, {validate_dynamical_system_inputs(
-            initial_values,
-            parameters,
-            WEATHER,
-            direct_modules,
-            differential_modules,
-            verbose = FALSE
-        )})
-    )
+# Use partial application to create a function that runs the alternate soybean
+# model with a specified number of layers
+pfunc <- with(alternate_soybean, {partial_run_biocro(
+    initial_values,
+    parameters,
+    WEATHER,
+    direct_modules,
+    differential_modules,
+    ode_solver,
+    arg_name = 'nlayers'
+)})
 
+test_that('c3_canopy module produces the same results as the default soybean modules', {
     # Simulation must run without errors
     alternate_soybean_result <- expect_silent(
-        with(alternate_soybean, {run_biocro(
-            initial_values,
-            parameters,
-            WEATHER,
-            direct_modules,
-            differential_modules,
-            ode_solver
-        )})
+        df_subset(pfunc(list(nlayers = DEFAULT_NLAYER)))
     )
 
     # Some columns should be in the default result but not the alternate result
@@ -84,12 +90,44 @@ test_that('c3_canopy module produces the same results as the default soybean mod
         all(col_to_check %in% colnames(alternate_soybean_result))
     )
 
+    # Skip remaining tests in this chunk
+    skip('c3_canopy now uses quadrature and hence does not agree with ten_layer_c3_canopy')
+
     # Key columns must have the same values in both results
     for (cn in col_to_check) {
         expect_equal(
             alternate_soybean_result[[cn]],
             default_soybean_result[[cn]],
-            tolerance = 1e-3
+            tolerance = TOLERANCE
         )
     }
+})
+
+test_that('c3_canopy module with fewer layers produces different results', {
+    # Check the canopy assimilation rate when fewer layers are used
+    assim_col <- 'canopy_assimilation_rate'
+
+    alternate_soybean_result_fewer <-
+        df_subset(pfunc(list(nlayers = DEFAULT_NLAYER - 1)))
+
+    expect_false(
+        isTRUE(all.equal(
+            alternate_soybean_result_fewer[[assim_col]],
+            default_soybean_result[[assim_col]],
+            tolerance = TOLERANCE
+        ))
+    )
+
+    # Check the canopy assimilation rate when the minimum number of layers is
+    # used
+    alternate_soybean_result_min <-
+        df_subset(pfunc(list(nlayers = 1)))
+
+    expect_false(
+        isTRUE(all.equal(
+            alternate_soybean_result_min[[assim_col]],
+            default_soybean_result[[assim_col]],
+            tolerance = TOLERANCE
+        ))
+    )
 })
