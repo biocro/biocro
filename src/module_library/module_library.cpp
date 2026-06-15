@@ -22,6 +22,7 @@
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
+#include "canopy_light_distribution.h"
 #include "carbon_assimilation_to_biomass.h"
 #include "cumulative_carbon_dynamics.h"
 #include "cumulative_water_dynamics.h"
@@ -76,8 +77,6 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
-#include "root_onedim_test.h"
-#include "root_multidim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -113,9 +112,14 @@
 #include "thermal_time_trilinear.h"
 #include "total_biomass.h"
 #include "total_growth_and_maintenance_respiration.h"
+#include "total_soil_water.h"
 #include "two_layer_soil_profile.h"
 #include "varying_Jmax25.h"
 #include "water_vapor_properties_from_air_temperature.h"
+
+// modules for test
+#include "test_modules/root_multidim_test.h"
+#include "test_modules/root_onedim_test.h"
 
 creator_map standardBML::module_library::library_entries =
 {
@@ -133,6 +137,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"canopy_light_distribution",                             &create_mc<canopy_light_distribution>},
      {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"cumulative_carbon_dynamics",                            &create_mc<cumulative_carbon_dynamics>},
      {"cumulative_water_dynamics",                             &create_mc<cumulative_water_dynamics>},
@@ -228,6 +233,7 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_trilinear",                                &create_mc<thermal_time_trilinear>},
      {"total_biomass",                                         &create_mc<total_biomass>},
      {"total_growth_and_maintenance_respiration",              &create_mc<total_growth_and_maintenance_respiration>},
+     {"total_soil_water",                                      &create_mc<total_soil_water>},
      {"two_layer_soil_profile",                                &create_mc<two_layer_soil_profile>},
      {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
      {"water_vapor_properties_from_air_temperature",           &create_mc<water_vapor_properties_from_air_temperature>}

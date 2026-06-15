@@ -2,7 +2,7 @@
 #define C4CANAC_H
 
 #include "AuxBioCro.h"                      // for nitroParms
-#include "canopy_photosynthesis_outputs.h"  // for canopy_photosynthesis_outputs
+#include "canopy_photosynthesis_outputs.h" 
 
 canopy_photosynthesis_outputs CanAC(
     const nitroParms& nitroP,

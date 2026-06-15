@@ -90,6 +90,9 @@ test_that('c3_canopy module produces the same results as the default soybean mod
         all(col_to_check %in% colnames(alternate_soybean_result))
     )
 
+    # Skip remaining tests in this chunk
+    skip('c3_canopy now uses quadrature and hence does not agree with ten_layer_c3_canopy')
+
     # Key columns must have the same values in both results
     for (cn in col_to_check) {
         expect_equal(
