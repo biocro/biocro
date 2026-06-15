@@ -69,6 +69,7 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
     drivers <- soybean_weather[['2002']]
     drivers$irrigation_rate <- 0.0
     drivers[drivers$doy == 200, 'irrigation_rate'] <- 1.0 # Irrigate at 1 Mg / ha / hr on day 200
+    drivers[drivers$doy >= 220, 'precip'] <- 0.0          # Ensure severe drought late in the season
 
     # Set a threshold to determine whether a rate is zero
     rate_eps <- 1e-15
@@ -146,6 +147,30 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         # Check that gross assimilation is non-negative
         expect_true(all(soybean_res$canopy_gross_assimilation > -rate_eps))
 
+        # Check that all biomass values are non-negative
+        with(soybean_res, {
+            expect_true(all(Grain > -rate_eps))
+            expect_true(all(Leaf > -rate_eps))
+            expect_true(all(Rhizome > -rate_eps))
+            expect_true(all(Root > -rate_eps))
+            expect_true(all(Shell > -rate_eps))
+            expect_true(all(Stem > -rate_eps))
+        })
+
+        ## Uncomment this when debugging test failures to check where a biomass
+        ## has the wrong sign
+        #tissue_to_plot <- 'Grain'
+        #print(lattice::xyplot(
+        #    soybean_res[[tissue_to_plot]] ~ soybean_res[['fractional_doy']],
+        #    group = soybean_res[[tissue_to_plot]] > -rate_eps,
+        #    type = 'p',
+        #    pch = 16,
+        #    auto.key = list(space = 'top', title = 'Is biomass >= 0?', cex.title = 1),
+        #    xlab = 'fractional_doy',
+        #    ylab = tissue_to_plot,
+        #    main = partitioning_calculator
+        #))
+
         ##
         ## WATER TESTS
         ##
@@ -179,7 +204,7 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         # Make sure a reasonable amount of carbon use has occurred; otherwise we
         # aren't really testing anything
         expect_true(
-            soybean_res$total_water_use[nrow(soybean_res)] >= 3000
+            soybean_res$total_water_use[nrow(soybean_res)] >= 1000
         )
 
         ## Uncomment this when debugging test failures to visually check whether
@@ -218,7 +243,8 @@ test_soybean_carbon_accounting <- function(partitioning_calculator) {
         #print(lattice::xyplot(
         #    soybean_res[[rate_to_plot]] ~ soybean_res[['fractional_doy']],
         #    group = soybean_res[[rate_to_plot]] > -rate_eps,
-        #    type = 'l',
+        #    type = 'p',
+        #    pch = 16,
         #    auto.key = list(space = 'top', title = 'Is rate >= 0?', cex.title = 1),
         #    xlab = 'fractional_doy',
         #    ylab = rate_to_plot,
