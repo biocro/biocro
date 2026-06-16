@@ -19,7 +19,7 @@
 ## 3. Run one of the models and create a plot by typing the following:
 ##
 ##    compare_crop_output <- BioCro::compare_model_output(PLANT_TESTING_INFO[[INDEX]])
-##    lattice::xyplot(Leaf + Stem + Root + Grain ~ time, group = version, data = compare_crop_output, type = 'l', auto = TRUE, grid = TRUE)
+##    lattice::xyplot(Leaf + Stem + Root + Grain ~ time, group = version, data = compare_crop_output, type = 'l', auto = TRUE, grid = TRUE, main = PLANT_TESTING_INFO[[INDEX]]$test_case_name)
 ##
 ##    Here, the value of `INDEX` corresponds to the desired crop as defined in
 ##    the `PLANT_TESTING_INFO` list below. For example, INDEX = 1 corresponds to

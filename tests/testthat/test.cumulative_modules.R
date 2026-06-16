@@ -263,11 +263,15 @@ for (pm in partitioning_calculator_modules) {
     test_soybean_carbon_accounting(pm)
 }
 
-# Make sure all partitioning growth calculators have the same inputs and outputs
+# Make sure all partitioning growth calculators have the same inputs and
+# outputs, other than tissue biomass inputs, which are only needed for one of
+# the modules
 test_that('all partitioning calculators have the same inputs and outputs', {
+    inputs_to_ignore <- c('Grain', 'Leaf', 'Rhizome', 'Root', 'Shell', 'Stem')
+
     expect_equal(
-        module_info('BioCro:partitioning_growth_calculator', verbose = FALSE)$inputs,
-        module_info('BioCro:partitioning_growth_calculator_leaf_costs', verbose = FALSE)$inputs
+        setdiff(module_info('BioCro:partitioning_growth_calculator', verbose = FALSE)$inputs, inputs_to_ignore),
+        setdiff(module_info('BioCro:partitioning_growth_calculator_leaf_costs', verbose = FALSE)$inputs, inputs_to_ignore)
     )
 
     expect_equal(
