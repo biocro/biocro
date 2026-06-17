@@ -1,7 +1,7 @@
 # This script is used to parameterize a particular BioCro model called
 # "Soybean-BioCro," which was originally published in Matthews et al. (2022)
 # (https://doi.org/10.1093/insilicoplants/diab032). The model is included with
-# the main BioCro R package and can be found in `data/soybean.R`.
+# the main BioCro R package and can be found in `data/soybean2.R`.
 #
 # In the original paper, the model was parameterized and tested using biomass
 # data collected at the SoyFACE facility during the years 2002 - 2006. The
@@ -26,7 +26,7 @@
 # parallel operation). Then, the script can be run using `source`. For example,
 # to use a single seed and all but one available core, type:
 #
-#   NCORES <- detectCores() - 1; SEED <- 1234; source('path/to/this_script.R')
+#   NCORES <- parallel::detectCores() - 1; SEED <- 1234; source('path/to/this_script.R')
 #
 # Or, to use 8 cores and run the script with two different seeds, type:
 #
@@ -36,7 +36,7 @@
 # be created in the current working directory. Subdirectories corresponding to
 # the value of SEED will also be created to avoid overwriting the outputs.
 #
-# If the results are satisfactory, copy the resulting `soybean.R` file to the
+# If the results are satisfactory, copy the resulting `soybean2.R` file to the
 # `data` directory of the BioCro repository.
 
 ###
@@ -80,8 +80,8 @@ if (any(!var_exists)) {
 # Clear the workspace of everything except the required variables
 rm(list = setdiff(ls(), required_var))
 
-#option to use this on biocluster
-run_on_biocluster = FALSE
+# Option to use this on biocluster
+RUN_ON_BIOCLUSTER = FALSE
 
 # Choose the number of optimizer iterations
 ITERMAX <- 2000
@@ -114,7 +114,7 @@ Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
 ###
 
 # Specify the base model definition
-base_model_definition <- soybean2
+base_model_definition <- BioCro::soybean2
 
 # Make sure the Euler solver is used
 base_model_definition$ode_solver <- default_ode_solvers[['homemade_euler']]
@@ -258,7 +258,7 @@ independent_arg_names <- c(
   'iSp'
 )
 
-independent_args <- soybean$parameters[independent_arg_names]
+independent_args <- base_model_definition$parameters[independent_arg_names]
 
 # Define a function that sets `mrc_stem` to the value of `mrc_leaf`
 dependent_arg_function <- function(ind_args) {
@@ -333,7 +333,7 @@ obj_fun <- objective_function(
   quantity_weights,
   data_definitions       = data_definitions,
   normalization_method   = normalization_method,
-  stdev_weight_method    = stdev_weight_method, 
+  stdev_weight_method    = stdev_weight_method,
   stdev_weight_param     = stdev_weight_param,
   regularization_method  = regularization_method,
   dependent_arg_function = dependent_arg_function,
@@ -397,12 +397,11 @@ parVars <- c(
     'post_process_function',
     'extra_penalty_function'
 )
-  
-if(run_on_biocluster){
+
+if (RUN_ON_BIOCLUSTER) {
   # Broadcast the vars to cluster
   clusterExport(cl, parVars, envir = environment())
 }
-
 
 # Run the optimizer, storing its "trace" outputs in a dedicated log file
 sink(TRACE_LOG_FILE)
@@ -444,7 +443,7 @@ sink()
 
 # Get model definition lists for the re-parameterized version of Soybean-BioCro
 soybean_reparam <- update_model(
-  BioCro::soybean,
+  base_model_definition,
   independent_args,
   optim_result$optim$bestmem,
   dependent_arg_function = dependent_arg_function
@@ -464,13 +463,13 @@ run_soybean <- function(model_definition, year, Catm_year) {
 
 # Run each model for 2002 and 2005 and combine the results by year
 full_res_2002 <- rbind(
-  within(run_soybean(BioCro::soybean, '2002', Catm_2002), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam, '2002', Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, '2002', Catm_2002), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       '2002', Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 full_res_2005 <- rbind(
-  within(run_soybean(BioCro::soybean, '2005', Catm_2005), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam, '2005', Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, '2005', Catm_2005), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       '2005', Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 # Add a total litter column
