@@ -146,8 +146,12 @@ process_table <- function(data_table, type) {
 
   # Define new `Root_Mg_per_ha` column, which has just one non-NA value, which
   # occurs at the time point where the observed above-ground biomass is highest.
-  row_to_use <- which(data_table$AGB_Mg_per_ha == max(data_table$AGB_Mg_per_ha))
+  row_to_use <- which(data_table$AGB_Mg_per_ha == max(data_table$AGB_Mg_per_ha, na.rm = TRUE))
   data_table$Root_Mg_per_ha <- NA # Initialize all values to NA
+
+  if (length(row_to_use) != 1) {
+    stop('row_to_use for Root was not successfully found')
+  }
 
   if (type == 'biomass') {
     # Estimate a mass at one time point
@@ -325,6 +329,7 @@ normalization_method <- 'mean_max'
 stdev_weight_method  <- 'logarithm'
 stdev_weight_param   <- 1e-5
 regularization_method <- 'none'
+
 # Create the objective function
 obj_fun <- objective_function(
   base_model_definition,
@@ -524,7 +529,6 @@ PhotoGEA::pdf_print(
     save_to_pdf = TRUE,
     file = paste0(OUTPUT_DIR,'/soybean_validation_2002.pdf')
 )
-
 
 PhotoGEA::pdf_print(
     lattice::xyplot(
