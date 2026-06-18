@@ -232,7 +232,7 @@ data_definitions <- list(
 
 # Define a list of independent arguments and their initial values
 independent_arg_names <- c(
-  # Partitioning for leaf, stem, and shell
+  # Partitioning for leaf, root, stem, and shell
   'alphaLeaf',
   'betaLeaf',
   'alphaRoot',
@@ -307,10 +307,6 @@ extra_penalty_function <- function(sim_res, long_form_data) {
     return(PENALTY)
   } else if (abs(time_leaf - time_stem) > 5 * hpd) {
     # The starts of leaf and stem growth are more than 5 days apart
-    return(PENALTY)
-  } else if (time_leaf - time[1] > 20 * hpd | time_leaf - time[1] < 10 * hpd) {
-    # The start of leaf growth is too late (more than 20 days after sowing) or
-    # too early (fewer than 10 days after sowing)
     return(PENALTY)
   } else if (time_grain < last_seedless - 14 * hpd) {
     # Seeds have started growing too early (more than 2 weeks before the last
