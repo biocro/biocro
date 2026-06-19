@@ -144,6 +144,10 @@ process_table <- function(data_table, type) {
     data_table$Leaf_Mg_per_ha + data_table$Stem_Mg_per_ha +
         data_table$Rep_Mg_per_ha
 
+  # Find the value of standard deviation that produces a weight of 1 with the
+  # "logarithm" method
+  unity_weight_stdev <- 1 / exp(1) - 1e-5
+
   # Define new `Root_Mg_per_ha` column, which has just one non-NA value, which
   # occurs at the time point where the observed above-ground biomass is highest.
   row_to_use <- which(data_table$AGB_Mg_per_ha == max(data_table$AGB_Mg_per_ha, na.rm = TRUE))
@@ -158,8 +162,9 @@ process_table <- function(data_table, type) {
     data_table[row_to_use, 'Root_Mg_per_ha'] <-
         0.17 * data_table[row_to_use, 'AGB_Mg_per_ha']
   } else {
-    # Estimate standard deviation at one time point
-    data_table[row_to_use, 'Root_Mg_per_ha'] <- 1 / exp(1) - 1e-5
+    # Ensure the weights for Root and LAI will be unity
+    data_table[row_to_use, 'Root_Mg_per_ha'] <- unity_weight_stdev
+    data_table$LAI                           <- unity_weight_stdev
   }
 
   # Remove columns by setting them to NULL
@@ -349,7 +354,7 @@ obj_fun <- objective_function(
 # Specify some bounds
 aul <- 50   # Upper limit for alpha parameters
 bll <- -50  # Lower limit for beta parameters
-mll <- 1e-6 # Lower limit for mrc parameters
+mll <- 1e-5 # Lower limit for mrc parameters
 mul <- 1e-2 # Upper limit for mrc parameters
 
 # Define a table with the bounds in the same order as `independent_args`
@@ -374,7 +379,7 @@ bounds <- bounds_table(
     mrc_root      = c(mll,    mul),
     grc_stem      = c(8e-4,   0.08),
     grc_root      = c(0.0025, 0.075),
-    iSp           = c(1,      5)
+    iSp           = c(2.5,    3.5)
   )
 )
 
