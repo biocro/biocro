@@ -1,7 +1,7 @@
 # This script is used to parameterize a particular BioCro model called
 # "Soybean-BioCro," which was originally published in Matthews et al. (2022)
 # (https://doi.org/10.1093/insilicoplants/diab032). The model is included with
-# the main BioCro R package and can be found in `data/soybean.R`.
+# the main BioCro R package and can be found in `data/soybean2.R`.
 #
 # In the original paper, the model was parameterized and tested using biomass
 # data collected at the SoyFACE facility during the years 2002 - 2006. The
@@ -26,7 +26,7 @@
 # parallel operation). Then, the script can be run using `source`. For example,
 # to use a single seed and all but one available core, type:
 #
-#   NCORES <- detectCores() - 1; SEED <- 1234; source('path/to/this_script.R')
+#   NCORES <- parallel::detectCores() - 1; SEED <- 1234; source('path/to/this_script.R')
 #
 # Or, to use 8 cores and run the script with two different seeds, type:
 #
@@ -36,7 +36,7 @@
 # be created in the current working directory. Subdirectories corresponding to
 # the value of SEED will also be created to avoid overwriting the outputs.
 #
-# If the results are satisfactory, copy the resulting `soybean.R` file to the
+# If the results are satisfactory, copy the resulting `soybean2.R` file to the
 # `data` directory of the BioCro repository.
 
 ###
@@ -80,8 +80,8 @@ if (any(!var_exists)) {
 # Clear the workspace of everything except the required variables
 rm(list = setdiff(ls(), required_var))
 
-#option to use this on biocluster
-run_on_biocluster = FALSE
+# Option to use this on biocluster
+RUN_ON_BIOCLUSTER = FALSE
 
 # Choose the number of optimizer iterations
 ITERMAX <- 2000
@@ -114,7 +114,7 @@ Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
 ###
 
 # Specify the base model definition
-base_model_definition <- soybean2
+base_model_definition <- BioCro::soybean2
 
 # Make sure the Euler solver is used
 base_model_definition$ode_solver <- default_ode_solvers[['homemade_euler']]
@@ -144,18 +144,27 @@ process_table <- function(data_table, type) {
     data_table$Leaf_Mg_per_ha + data_table$Stem_Mg_per_ha +
         data_table$Rep_Mg_per_ha
 
+  # Find the value of standard deviation that produces a weight of 1 with the
+  # "logarithm" method
+  unity_weight_stdev <- 1 / exp(1) - 1e-5
+
   # Define new `Root_Mg_per_ha` column, which has just one non-NA value, which
   # occurs at the time point where the observed above-ground biomass is highest.
-  row_to_use <- which(data_table$AGB_Mg_per_ha == max(data_table$AGB_Mg_per_ha))
+  row_to_use <- which(data_table$AGB_Mg_per_ha == max(data_table$AGB_Mg_per_ha, na.rm = TRUE))
   data_table$Root_Mg_per_ha <- NA # Initialize all values to NA
+
+  if (length(row_to_use) != 1) {
+    stop('row_to_use for Root was not successfully found')
+  }
 
   if (type == 'biomass') {
     # Estimate a mass at one time point
     data_table[row_to_use, 'Root_Mg_per_ha'] <-
         0.17 * data_table[row_to_use, 'AGB_Mg_per_ha']
   } else {
-    # Estimate standard deviation at one time point
-    data_table[row_to_use, 'Root_Mg_per_ha'] <- 1 / exp(1) - 1e-5
+    # Ensure the weights for Root and LAI will be unity
+    data_table[row_to_use, 'Root_Mg_per_ha'] <- unity_weight_stdev
+    data_table$LAI                           <- unity_weight_stdev
   }
 
   # Remove columns by setting them to NULL
@@ -228,7 +237,7 @@ data_definitions <- list(
 
 # Define a list of independent arguments and their initial values
 independent_arg_names <- c(
-  # Partitioning for leaf, stem, and shell
+  # Partitioning for leaf, root, stem, and shell
   'alphaLeaf',
   'betaLeaf',
   'alphaRoot',
@@ -258,7 +267,7 @@ independent_arg_names <- c(
   'iSp'
 )
 
-independent_args <- soybean$parameters[independent_arg_names]
+independent_args <- base_model_definition$parameters[independent_arg_names]
 
 # Define a function that sets `mrc_stem` to the value of `mrc_leaf`
 dependent_arg_function <- function(ind_args) {
@@ -304,10 +313,6 @@ extra_penalty_function <- function(sim_res, long_form_data) {
   } else if (abs(time_leaf - time_stem) > 5 * hpd) {
     # The starts of leaf and stem growth are more than 5 days apart
     return(PENALTY)
-  } else if (time_leaf - time[1] > 20 * hpd | time_leaf - time[1] < 10 * hpd) {
-    # The start of leaf growth is too late (more than 20 days after sowing) or
-    # too early (fewer than 10 days after sowing)
-    return(PENALTY)
   } else if (time_grain < last_seedless - 14 * hpd) {
     # Seeds have started growing too early (more than 2 weeks before the last
     # seedless day in the observations)
@@ -325,6 +330,7 @@ normalization_method <- 'mean_max'
 stdev_weight_method  <- 'logarithm'
 stdev_weight_param   <- 1e-5
 regularization_method <- 'none'
+
 # Create the objective function
 obj_fun <- objective_function(
   base_model_definition,
@@ -333,7 +339,7 @@ obj_fun <- objective_function(
   quantity_weights,
   data_definitions       = data_definitions,
   normalization_method   = normalization_method,
-  stdev_weight_method    = stdev_weight_method, 
+  stdev_weight_method    = stdev_weight_method,
   stdev_weight_param     = stdev_weight_param,
   regularization_method  = regularization_method,
   dependent_arg_function = dependent_arg_function,
@@ -348,7 +354,7 @@ obj_fun <- objective_function(
 # Specify some bounds
 aul <- 50   # Upper limit for alpha parameters
 bll <- -50  # Lower limit for beta parameters
-mll <- 1e-6 # Lower limit for mrc parameters
+mll <- 1e-5 # Lower limit for mrc parameters
 mul <- 1e-2 # Upper limit for mrc parameters
 
 # Define a table with the bounds in the same order as `independent_args`
@@ -373,7 +379,7 @@ bounds <- bounds_table(
     mrc_root      = c(mll,    mul),
     grc_stem      = c(8e-4,   0.08),
     grc_root      = c(0.0025, 0.075),
-    iSp           = c(1,      5)
+    iSp           = c(2.5,    3.5)
   )
 )
 
@@ -397,12 +403,11 @@ parVars <- c(
     'post_process_function',
     'extra_penalty_function'
 )
-  
-if(run_on_biocluster){
+
+if (RUN_ON_BIOCLUSTER) {
   # Broadcast the vars to cluster
   clusterExport(cl, parVars, envir = environment())
 }
-
 
 # Run the optimizer, storing its "trace" outputs in a dedicated log file
 sink(TRACE_LOG_FILE)
@@ -444,18 +449,18 @@ sink()
 
 # Get model definition lists for the re-parameterized version of Soybean-BioCro
 soybean_reparam <- update_model(
-  BioCro::soybean,
+  base_model_definition,
   independent_args,
   optim_result$optim$bestmem,
   dependent_arg_function = dependent_arg_function
 )
 
 # Define a helper function that runs a single model for a single year
-run_soybean <- function(model_definition, year, Catm_year) {
+run_soybean <- function(model_definition, drivers, Catm_year) {
   with(model_definition, {run_biocro(
     initial_values,
     within(parameters, {Catm = Catm_year}),
-    soybean_weather[[year]],
+    drivers,
     direct_modules,
     differential_modules,
     ode_solver
@@ -464,13 +469,13 @@ run_soybean <- function(model_definition, year, Catm_year) {
 
 # Run each model for 2002 and 2005 and combine the results by year
 full_res_2002 <- rbind(
-  within(run_soybean(BioCro::soybean, '2002', Catm_2002), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam, '2002', Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 full_res_2005 <- rbind(
-  within(run_soybean(BioCro::soybean, '2005', Catm_2005), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam, '2005', Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 # Add a total litter column
@@ -525,7 +530,6 @@ PhotoGEA::pdf_print(
     save_to_pdf = TRUE,
     file = paste0(OUTPUT_DIR,'/soybean_validation_2002.pdf')
 )
-
 
 PhotoGEA::pdf_print(
     lattice::xyplot(
