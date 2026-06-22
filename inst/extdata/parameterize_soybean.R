@@ -456,11 +456,11 @@ soybean_reparam <- update_model(
 )
 
 # Define a helper function that runs a single model for a single year
-run_soybean <- function(model_definition, year, Catm_year) {
+run_soybean <- function(model_definition, drivers, Catm_year) {
   with(model_definition, {run_biocro(
     initial_values,
     within(parameters, {Catm = Catm_year}),
-    soybean_weather[[year]],
+    drivers,
     direct_modules,
     differential_modules,
     ode_solver
@@ -469,13 +469,13 @@ run_soybean <- function(model_definition, year, Catm_year) {
 
 # Run each model for 2002 and 2005 and combine the results by year
 full_res_2002 <- rbind(
-  within(run_soybean(base_model_definition, '2002', Catm_2002), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       '2002', Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 full_res_2005 <- rbind(
-  within(run_soybean(base_model_definition, '2005', Catm_2005), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       '2005', Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 # Add a total litter column
