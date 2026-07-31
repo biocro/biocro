@@ -23,7 +23,6 @@
 
 namespace standardBML
 {
-
 /**
  * @brief Function object for Kepler's equation. Kepler's equation relates
  * the mean anomaly \f$y\f$ to the eccentric anomaly \f$x\f$ of an elliptical orbit of
@@ -46,29 +45,40 @@ namespace standardBML
  *
  * For test purposes, we compute `y` from `x` so that correct root is known.
  *
+ * In BioCro applications, the function whose root is to be found often updates
+ * other variables as side-effects. It is crucial that whenever a root is found,
+ * the function was most recently evaluated at the root. Here this is checked
+ * via the `last_x_diff` output, which is the difference between the root and
+ * the most recent value of `x` passed to the function; `last_x_diff` should
+ * always be zero.
+ *
  */
 struct root_test_function {
     double epsilon;
     double answer;
     double y;
+    double& last_x;
 
-    root_test_function(double ep, double ans) : epsilon{ep}, answer{ans}
+    root_test_function(double ep, double ans, double& last_x) : epsilon{ep}, answer{ans}, last_x{last_x}
     {
         y = ans - ep * std::sin(ans);
     }
 
     double operator()(double x)
     {
+        last_x = x;
         return x - epsilon * std::sin(x) - y;
     }
 
     double derivative(double x)
     {
+        last_x = x;
         return 1 - epsilon * std::cos(x);
     }
 
     double second_derivative(double x)
     {
+        last_x = x;
         return epsilon * std::sin(x);
     }
 };
@@ -130,6 +140,7 @@ class root_onedim_test : public direct_module
         double* residual_op;
         double* iteration_op;
         double* flag_op;
+        double* last_x_diff_op;
 
         result(
             state_map* output_quantities,
@@ -137,7 +148,8 @@ class root_onedim_test : public direct_module
             : root_op{get_op(output_quantities, name + "_root")},
               residual_op{get_op(output_quantities, name + "_residual")},
               iteration_op{get_op(output_quantities, name + "_iteration")},
-              flag_op{get_op(output_quantities, name + "_flag")}
+              flag_op{get_op(output_quantities, name + "_flag")},
+              last_x_diff_op{get_op(output_quantities, name + "_last_x_diff")}
         {
         }
     };
@@ -170,6 +182,7 @@ class root_onedim_test : public direct_module
           pegasus_result{output_quantities, "pegasus"},
           anderson_bjorck_result{output_quantities, "anderson_bjorck"},
           dekker_result{output_quantities, "dekker"},
+          dekker_sg_result{output_quantities, "dekker_sg"},
           dekker_newton_result{output_quantities, "dekker_newton"}
 
     {
@@ -202,6 +215,7 @@ class root_onedim_test : public direct_module
     result pegasus_result;
     result anderson_bjorck_result;
     result dekker_result;
+    result dekker_sg_result;
     result dekker_newton_result;
 
     // Main operation
@@ -213,16 +227,18 @@ class root_onedim_test : public direct_module
             name + "_root",
             name + "_residual",
             name + "_iteration",
-            name + "_flag"};
+            name + "_flag",
+            name + "_last_x_diff"};
     }
 
     void inline update_result(
-        const result& r, root_finding::result_t& result) const
+        const result& r, root_finding::result_t& result, double last_x) const
     {
         update(r.root_op, result.root);
         update(r.residual_op, result.residual);
         update(r.iteration_op, result.iteration);
         update(r.flag_op, static_cast<int>(result.flag));
+        update(r.last_x_diff_op, last_x - result.root);
     }
 };
 
@@ -245,7 +261,7 @@ string_vector root_onedim_test::get_outputs()
     const string_vector methods = {
         "secant", "fixed_point", "newton", "halley", "steffensen",
         "bisection", "regula_falsi", "ridder",
-        "illinois", "pegasus", "anderson_bjorck", "dekker",
+        "illinois", "pegasus", "anderson_bjorck", "dekker", "dekker_sg",
         "dekker_newton"};
     for (auto name : methods) {
         string_vector sv = make_qname(name);
@@ -260,62 +276,68 @@ void root_onedim_test::do_operation() const
     // Collect inputs and make calculations
     using namespace root_finding;
     result_t result;
-    root_test_function test{ecc, answer};
+    double most_recent_x{};
+    root_test_function test{ecc, answer, most_recent_x};
 
     fixed_point_test_function fix_pt_test{ecc, answer};
     size_t iter = static_cast<size_t>(max_iterations);
 
     result = secant(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(secant_result, result);
+    update_result(secant_result, result, most_recent_x);
 
     result = fixed_point(iter, abs_tol, rel_tol)
                  .solve(fix_pt_test, single_guess);
-    update_result(fixed_point_result, result);
+    update_result(fixed_point_result, result, most_recent_x);
 
     result = newton(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
-    update_result(newton_result, result);
+    update_result(newton_result, result, most_recent_x);
 
     result = halley(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
-    update_result(halley_result, result);
+    update_result(halley_result, result, most_recent_x);
 
     result = steffensen(iter, abs_tol, rel_tol)
                  .solve(test, single_guess);
-    update_result(steffensen_result, result);
+    update_result(steffensen_result, result, most_recent_x);
 
     result = bisection(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(bisection_result, result);
+    update_result(bisection_result, result, most_recent_x);
 
     result = regula_falsi(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(regula_falsi_result, result);
+    update_result(regula_falsi_result, result, most_recent_x);
 
     result = ridder(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(ridder_result, result);
+    update_result(ridder_result, result, most_recent_x);
 
     result = illinois(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(illinois_result, result);
+    update_result(illinois_result, result, most_recent_x);
 
     result = pegasus(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(pegasus_result, result);
+    update_result(pegasus_result, result, most_recent_x);
 
     result = anderson_bjorck(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(anderson_bjorck_result, result);
+    update_result(anderson_bjorck_result, result, most_recent_x);
 
+    // Here we test the Dekker method with and without the single guess
     result = dekker(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(dekker_result, result);
+    update_result(dekker_result, result, most_recent_x);
+
+    result = dekker(iter, abs_tol, rel_tol)
+                 .solve(test, single_guess, lower_bracket, upper_bracket);
+    update_result(dekker_sg_result, result, most_recent_x);
 
     result = dekker_newton(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
-    update_result(dekker_newton_result, result);
+    update_result(dekker_newton_result, result, most_recent_x);
 }
 
 }  // namespace standardBML
