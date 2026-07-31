@@ -6,6 +6,10 @@
 #
 # - There should be one test case where `single_guess` equals `answer`
 #
+# - There should be one test case where `lower_bracket` equals `answer`
+
+# - There should be one test case where `upper_bracket` equals `answer`
+#
 # - All of the `*_last_x_diff` outputs must be zero
 
 module <- 'BioCro:root_onedim_test'
@@ -25,6 +29,14 @@ correct_initial_guess <- sapply(cases, function(x) {
     x$inputs$single_guess == x$inputs$answer
 })
 
+correct_lower_bracket <- sapply(cases, function(x) {
+    x$inputs$lower_bracket == x$inputs$answer
+})
+
+correct_upper_bracket <- sapply(cases, function(x) {
+    x$inputs$upper_bracket == x$inputs$answer
+})
+
 last_x_diff_zero <- sapply(cases, function(x) {
     all(x$expected_outputs[last_x_diff_col] == 0)
 })
@@ -35,6 +47,14 @@ test_that('At least one 1D root solver test case has an incorrect starting guess
 
 test_that('At least one 1D root solver test case has a correct starting guess', {
     expect_true(any(correct_initial_guess))
+})
+
+test_that('At least one 1D root solver test case has a lower bracket equal to the root', {
+    expect_true(any(correct_lower_bracket))
+})
+
+test_that('At least one 1D root solver test case has a lower bracket equal to the root', {
+    expect_true(any(correct_upper_bracket))
 })
 
 test_that('All last_x_diff outputs are expected to be zero', {
