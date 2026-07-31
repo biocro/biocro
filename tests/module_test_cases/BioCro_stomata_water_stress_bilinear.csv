@@ -1,0 +1,4 @@
+input,input,input,input,input,input,input,output,"description"
+REW_0,StomataWS_gradient,StomataWS_intercept,StomataWS_min,soil_field_capacity,soil_water_content,soil_wilting_point,StomataWS,NA
+0.3,0.31,0.45,0.01,0.42,0.21,0.2,0.0907575757575756,"REW below REW_0"
+0.3,0.31,0.45,0.01,0.42,0.41,0.2,0.745909090909091,"REW above REW_0"

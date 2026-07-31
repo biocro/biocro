@@ -15,9 +15,22 @@
 # Last used with BioCro version with commit: db12f4a0
 
 library(BioCro)
+library(BioCroValidation)
 library(dplyr)
 library(tidyr)
 rm(list=ls())
+
+# Check the BioCroValidation version
+expected_version  <- '0.3.0-1'
+installed_version <- as.character(packageVersion('BioCroValidation'))
+
+if (compareVersion(expected_version, installed_version) != 0) {
+  warning(
+    'This script was written for BioCroValidation version ', expected_version,
+    ' but version ', installed_version,
+    ' is installed; this may cause unexpected errors to occur.'
+  )
+}
 
 ## STEP 1: calibrate StomataWS to fit Gs data
 # Define a function that runs the clock modules to determine the photoperiod
@@ -82,7 +95,6 @@ gbw_canopy = 0.072
 #To drive c3_leaf_photosynthesis, we need the absorbed PPFD
 #To match experimental condition, we also want "flat leaf" absorption
 #therefore, run biocro for the 2009-2011 and extract midday conditions on the observed DOYs
-obs_weather_Gray<-read.csv('data/soyFACE_weather_data_2004thru2011.csv') #Gray's weather data for determining growing season
 results = list()
 
 for (i in 1:length(years)){
@@ -90,18 +102,12 @@ for (i in 1:length(years)){
     weatherData <- weather[[as.character(year)]]
     weatherData <- add_photoperiod_length(weatherData)
     #further subset from the start of obs DOY
-    obs_weather_Gray_yeari = obs_weather_Gray[obs_weather_Gray$Year==year,]
-    DOY_start = obs_weather_Gray_yeari$DOY[1]
-    DOY_end = tail(obs_weather_Gray_yeari$DOY,1)
+    obs_weather_Gray_yeari_hourly = soyface_precip[[as.character(year)]]
+    DOY_start = obs_weather_Gray_yeari_hourly$doy[1]
+    DOY_end = tail(obs_weather_Gray_yeari_hourly$doy,1)
     weather_growing_season = weatherData[weatherData$doy>=DOY_start & weatherData$doy<=DOY_end,]
 
     #Use Gray's rainfall data for this calibration
-    obs_weather_Gray_yeari_hourly <- obs_weather_Gray_yeari %>%
-      # Add an hourly sequence per day
-      uncount(weights = 24, .id = "hour") %>%
-      # Adjust the hour (0 to 23)
-      mutate(hour = hour - 1,
-             precip = precip.mm. / 24)
     weather_growing_season$precip = obs_weather_Gray_yeari_hourly$precip
 
     parameters = soybean2$parameters

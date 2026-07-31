@@ -20,6 +20,11 @@ double strength_term(double const alpha, double const beta, double const DVI);
  * - `partitioning_growth_calculator_leaf_costs`
  * - `partitioning_growth_calculator`
  *
+ * Note: The "partitioning growth calculator" modules listed above override
+ * these coefficients when the net canopy CO2 assimilation rate is negative.
+ * Thus, the coefficients calculated here are best understood as coefficients
+ * for new growth only.
+ *
  * Using the following function, calculates the percentage of carbon allocated
  * to the grain, leaf, rhizome, root, shell, and stem at a given development
  * index:

@@ -22,9 +22,9 @@ namespace standardBML
  *  are assimilating through photosynthesis. This situation typically occurs
  *  when the incident light is low.
  *
- *  In this module, no distinction is made between positive and negative canopy
- *  assimilation rates. Thus, respiratory losses in the leaf that result in a
- *  negative canopy assimilation rate are spread out to the other organs.
+ *  In this module, respiratory losses in the leaf that result in a negative
+ *  canopy assimilation rate are spread out to the other organs. When this
+ *  occurs, the rate of loss from each tissue is proportional to its mass.
  *
  *  ### Partitioning overview
  *
@@ -87,6 +87,7 @@ class partitioning_growth_calculator : public direct_module
 
           // Get references to input quantities
           canopy_assim{get_input(input_quantities, "canopy_assimilation_rate")},
+          Grain{get_input(input_quantities, "Grain")},
           grc_grain{get_input(input_quantities, "grc_grain")},
           grc_leaf{get_input(input_quantities, "grc_leaf")},
           grc_rhizome{get_input(input_quantities, "grc_rhizome")},
@@ -99,7 +100,12 @@ class partitioning_growth_calculator : public direct_module
           kRoot{get_input(input_quantities, "kRoot")},
           kShell{get_input(input_quantities, "kShell")},
           kStem{get_input(input_quantities, "kStem")},
+          Leaf{get_input(input_quantities, "Leaf")},
           LeafWS{get_input(input_quantities, "LeafWS")},
+          Rhizome{get_input(input_quantities, "Rhizome")},
+          Root{get_input(input_quantities, "Root")},
+          Shell{get_input(input_quantities, "Shell")},
+          Stem{get_input(input_quantities, "Stem")},
           temp{get_input(input_quantities, "temp")},
 
           // Get pointers to output quantities
@@ -125,6 +131,7 @@ class partitioning_growth_calculator : public direct_module
    private:
     // References to input quantities
     const double& canopy_assim;
+    const double& Grain;
     const double& grc_grain;
     const double& grc_leaf;
     const double& grc_rhizome;
@@ -137,7 +144,12 @@ class partitioning_growth_calculator : public direct_module
     const double& kRoot;
     const double& kShell;
     const double& kStem;
+    const double& Leaf;
     const double& LeafWS;
+    const double& Rhizome;
+    const double& Root;
+    const double& Shell;
+    const double& Stem;
     const double& temp;
 
     // Pointers to output quantities
@@ -163,6 +175,7 @@ string_vector partitioning_growth_calculator::get_inputs()
 {
     return {
         "canopy_assimilation_rate",  // Mg / ha / hour
+        "Grain",                     // Mg / ha
         "grc_grain",                 // dimensionless
         "grc_leaf",                  // dimensionless
         "grc_rhizome",               // dimensionless
@@ -175,7 +188,12 @@ string_vector partitioning_growth_calculator::get_inputs()
         "kRoot",                     // dimensionless
         "kShell",                    // dimensionless
         "kStem",                     // dimensionless
+        "Leaf",                      // Mg / ha
         "LeafWS",                    // dimensionless
+        "Rhizome",                   // Mg / ha
+        "Root",                      // Mg / ha
+        "Shell",                     // Mg / ha
+        "Stem",                      // Mg / ha
         "temp"                       // degrees C
     };
 }
@@ -204,9 +222,24 @@ void partitioning_growth_calculator::do_operation() const
     // Specify the base temperature for Q10 growth respiration
     double constexpr Tref = 0.0;  // degrees C
 
+    // When assimilation is negative, losses should be subtracted from each
+    // tissue according to its fraction of the total biomass
+    double const total_biomass{Grain + Leaf + Root + Rhizome + Shell + Stem};  // Mg / ha
+
+    auto k_mod = [=](double mass, double coef) {
+        return canopy_assim < 0 ? mass / total_biomass : coef;
+    };
+
+    double const kGrain_mod{k_mod(Grain, kGrain)};        // dimensionless
+    double const kLeaf_mod{k_mod(Leaf, kLeaf)};           // dimensionless
+    double const kRhizome_mod{k_mod(Rhizome, kRhizome)};  // dimensionless
+    double const kRoot_mod{k_mod(Root, kRoot)};           // dimensionless
+    double const kShell_mod{k_mod(Shell, kShell)};        // dimensionless
+    double const kStem_mod{k_mod(Stem, kStem)};           // dimensionless
+
     // Calculate the base rate of new leaf production, accounting for water
     // stress and the associated respiratory costs (Mg / ha / hr)
-    double const base_rate_leaf{kLeaf > 0 ? canopy_assim * kLeaf : 0};
+    double const base_rate_leaf{kLeaf > 0 ? canopy_assim * kLeaf_mod : 0};
 
     double const Leaf_WS_loss_rate{growth_resp(
         base_rate_leaf,
@@ -217,25 +250,25 @@ void partitioning_growth_calculator::do_operation() const
 
     // Calculate the base rate of new stem production and the associated
     // respiratory costs (Mg / ha / hr)
-    double const base_rate_stem{kStem > 0 ? canopy_assim * kStem : 0};
+    double const base_rate_stem{kStem > 0 ? canopy_assim * kStem_mod : 0};
     double const Stem_gr_rate{growth_resp_Q10(base_rate_stem, grc_stem, temp, Tref)};
 
     // Calculate the base rate of new root production and the associated
     // respiratory costs (Mg / ha / hr)
-    double const base_rate_root{kRoot > 0 ? canopy_assim * kRoot : 0};
+    double const base_rate_root{kRoot > 0 ? canopy_assim * kRoot_mod : 0};
     double const Root_gr_rate{growth_resp_Q10(base_rate_root, grc_root, temp, Tref)};
 
     // Calculate the base rate of new rhizome production and the associated
     // respiratory costs (Mg / ha / hr)
-    double const base_rate_rhizome{kRhizome > 0 ? canopy_assim * kRhizome : 0};
+    double const base_rate_rhizome{kRhizome > 0 ? canopy_assim * kRhizome_mod : 0};
     double const Rhizome_gr_rate{growth_resp_Q10(base_rate_rhizome, grc_rhizome, temp, Tref)};
 
     // Calculate the base rate of new grain production (Mg / ha / hr)
-    double const base_rate_grain{kGrain > 0 ? canopy_assim * kGrain : 0};
+    double const base_rate_grain{kGrain > 0 ? canopy_assim * kGrain_mod : 0};
     double const Grain_gr_rate{growth_resp_Q10(base_rate_grain, grc_grain, temp, Tref)};
 
     // Calculate the base rate of new shell production (Mg / ha / hr)
-    double const base_rate_shell{kShell > 0 ? canopy_assim * kShell : 0};
+    double const base_rate_shell{kShell > 0 ? canopy_assim * kShell_mod : 0};
     double const Shell_gr_rate{growth_resp_Q10(base_rate_shell, grc_shell, temp, Tref)};
 
     // Update the output quantity list
