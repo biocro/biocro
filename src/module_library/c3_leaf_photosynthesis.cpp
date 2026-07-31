@@ -1,7 +1,7 @@
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
-#include "c3_temperature_response.h"           // for c3_temperature_response_parameters
-#include "c3photo.h"                           // for c3photoC
-#include "leaf_energy_balance.h"               // for leaf_energy_balance
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "c3_temperature_response.h"      // for c3_temperature_response_parameters
+#include "c3photo.h"                      // for c3photoC
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c3_leaf_photosynthesis.h"
 
 using standardBML::c3_leaf_photosynthesis;
@@ -121,7 +121,7 @@ void c3_leaf_photosynthesis::do_operation() const
     energy_balance_outputs et;
 
     // 1. Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+    root_finding::dekker solver(50, 1e-3, 1e-3);
 
     auto func = [=, &photo, &et](double current_gs) {
         // 2. Solve Energy Balance with current g_s
@@ -147,17 +147,17 @@ void c3_leaf_photosynthesis::do_operation() const
                 atmospheric_pressure, O2, StomataWS, electrons_per_carboxylation,
                 electrons_per_oxygenation, beta_PSII, et.gbw_molar);
 
-        return photo.Gs;
+        return photo.Gs - current_gs;
     };
 
     using namespace root_finding;
-    result_t result = solver.solve(func, initial_stomatal_conductance);
+    result_t result = solver.solve(func, initial_stomatal_conductance, Gs_min, 100.0 * initial_stomatal_conductance + 0.1);
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "c3_leaf_photosynthesis solver reports failed convergence with termination flag:\n    " +
-            flag_message(result.flag));
+            "c3_leaf_photosynthesis solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Update the outputs

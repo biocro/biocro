@@ -1,4 +1,4 @@
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "../math/roots/onedim/dekker.h"  // for dekker
 #include "c4_leaf_photosynthesis.h"
 #include "c4photo.h"              // for c4photoC
 #include "leaf_energy_balance.h"  // for leaf_energy_balance
@@ -73,7 +73,7 @@ void c4_leaf_photosynthesis::do_operation() const
     energy_balance_outputs et;
 
     // 1. Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+    root_finding::dekker solver(50, 1e-3, 1e-3);
 
     auto func = [=, &photo, &et](double current_gs) {
         // 2. Solve Energy Balance with current g_s
@@ -89,18 +89,17 @@ void c4_leaf_photosynthesis::do_operation() const
                          rh, Vcmax_at_25, alpha1, kparm, theta, beta, RL_at_25,
                          b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
                          upperT, lowerT, et.gbw_molar);
-        return photo.Gs;
+        return photo.Gs - current_gs;
     };
 
     using namespace root_finding;
-    result_t result = solver.solve(func, initial_stomatal_conductance);
+    result_t result = solver.solve(func, initial_stomatal_conductance, Gs_min, 100.0 * initial_stomatal_conductance + 0.1);
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "c4_leaf_photosynthesis solver reports failed convergence with "
-            "termination flag:\n    " +
-            flag_message(result.flag));
+            "c4_leaf_photosynthesis solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Update the outputs

@@ -168,8 +168,8 @@ photosynthesis_outputs c3photoC(
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "Cc solver reports failed convergence with termination flag:\n    " +
-            flag_message(result.flag));
+            "Cc solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Get final values

@@ -111,6 +111,11 @@ struct pegasus : public root_finding_method<pegasus> {
     {
         return proposal.y;
     }
+
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(left, right);
+    }
 };
 }  // namespace root_finding
 #endif

@@ -1,7 +1,7 @@
 #include <algorithm>                           // for std::min, std::max
 #include "../framework/constants.h"            // for molar_mass_of_water
 #include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "../math/roots/onedim/dekker.h"       // for dekker
 #include "c4photo.h"                           // for c4photoC
 #include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
 #include "core/photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
@@ -74,7 +74,7 @@ canopy_photosynthesis_outputs CanAC(
     using namespace root_finding;
 
     // Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+    root_finding::dekker solver(50, 1e-3, 1e-3);
 
     // Leaf-level photosynthesis function for use with core::canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a
@@ -126,15 +126,15 @@ canopy_photosynthesis_outputs CanAC(
                     atmospheric_pressure, upperT, lowerT,
                     et.gbw_molar);
 
-            return photo.Gs;
+            return photo.Gs - current_gs;
         };
 
-        result_t result = solver.solve(gs_func, gsw_estimate);
+        result_t result = solver.solve(gs_func, gsw_estimate, Gs_min, 10.0 * gsw_estimate + 0.1);
 
         if (!is_successful(result.flag)) {
             throw std::runtime_error(
-                "CanAC solver reports failed convergence with termination flag:\n    " +
-                flag_message(result.flag));
+                "CanAC solver reports failed convergence:\n    " +
+                result.message());
         }
 
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)

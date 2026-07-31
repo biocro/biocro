@@ -149,8 +149,8 @@ photosynthesis_outputs c4photoC(
     // throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "Ci solver reports failed convergence with termination flag:\n    " +
-            flag_message(result.flag));
+            "Ci solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Get final values

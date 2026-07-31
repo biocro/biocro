@@ -120,6 +120,11 @@ struct ridder : public root_finding_method<ridder> {
         return proposal.y;
     }
 
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(left, right);
+    }
+
     void update_bracket()
     {
         if (same_signs(left.y, proposal.y)) {

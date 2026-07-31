@@ -159,6 +159,11 @@ struct dekker_newton : public root_finding_method<dekker_newton> {
     {
         return best.y;
     };
+
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(best, contrapoint);
+    }
 };
 
 }  // namespace root_finding

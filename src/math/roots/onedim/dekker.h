@@ -161,6 +161,11 @@ struct dekker : public root_finding_method<dekker> {
     {
         return best.y;
     };
+
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(best, contrapoint);
+    }
 };
 
 }  // namespace root_finding
