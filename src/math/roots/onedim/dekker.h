@@ -90,29 +90,27 @@ struct dekker : public root_finding_method<dekker> {
     bool initialize(F&& fun, double a, double b, double c)
     {
         best.x = a;
+        last.x = b;
+        contrapoint.x = c;
+
         best.y = fun(a);
 
         if (is_zero(best.y)) {
-            last.x = std::numeric_limits<double>::quiet_NaN();
             last.y = std::numeric_limits<double>::quiet_NaN();
-            contrapoint.x = std::numeric_limits<double>::quiet_NaN();
             contrapoint.y = std::numeric_limits<double>::quiet_NaN();
             flag = Flag::residual_zero;
             return false;
         }
 
-        last.x = b;
         last.y = fun(b);
 
         if (is_zero(last.y)) {
             best = last;
-            contrapoint.x = std::numeric_limits<double>::quiet_NaN();
             contrapoint.y = std::numeric_limits<double>::quiet_NaN();
             flag = Flag::residual_zero;
             return false;
         }
 
-        contrapoint.x = c;
         contrapoint.y = fun(c);
 
         if (is_zero(contrapoint.y)) {

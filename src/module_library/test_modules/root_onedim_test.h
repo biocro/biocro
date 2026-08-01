@@ -183,7 +183,8 @@ class root_onedim_test : public direct_module
           anderson_bjorck_result{output_quantities, "anderson_bjorck"},
           dekker_result{output_quantities, "dekker"},
           dekker_sg_result{output_quantities, "dekker_sg"},
-          dekker_newton_result{output_quantities, "dekker_newton"}
+          dekker_newton_result{output_quantities, "dekker_newton"},
+          dekker_newton_sg_result{output_quantities, "dekker_newton_sg"}
 
     {
     }
@@ -217,6 +218,7 @@ class root_onedim_test : public direct_module
     result dekker_result;
     result dekker_sg_result;
     result dekker_newton_result;
+    result dekker_newton_sg_result;
 
     // Main operation
     void do_operation() const;
@@ -262,7 +264,7 @@ string_vector root_onedim_test::get_outputs()
         "secant", "fixed_point", "newton", "halley", "steffensen",
         "bisection", "regula_falsi", "ridder",
         "illinois", "pegasus", "anderson_bjorck", "dekker", "dekker_sg",
-        "dekker_newton"};
+        "dekker_newton", "dekker_newton_sg"};
     for (auto name : methods) {
         string_vector sv = make_qname(name);
         out.insert(out.end(), sv.begin(), sv.end());
@@ -326,7 +328,7 @@ void root_onedim_test::do_operation() const
                  .solve(test, lower_bracket, upper_bracket);
     update_result(anderson_bjorck_result, result, most_recent_x);
 
-    // Here we test the Dekker method with and without the single guess
+    // Here we test the Dekker methods with and without the single guess
     result = dekker(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_result, result, most_recent_x);
@@ -338,6 +340,10 @@ void root_onedim_test::do_operation() const
     result = dekker_newton(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_newton_result, result, most_recent_x);
+
+    result = dekker_newton(iter, abs_tol, rel_tol)
+                 .solve(test, single_guess, lower_bracket, upper_bracket);
+    update_result(dekker_newton_sg_result, result, most_recent_x);
 }
 
 }  // namespace standardBML
