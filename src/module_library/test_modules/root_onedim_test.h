@@ -59,7 +59,7 @@ struct root_test_function {
     double y;
     double& last_x;
 
-    root_test_function(double ep, double ans, double& last_x) : epsilon{ep}, answer{ans}, last_x{last_x}
+    root_test_function(double ep, double ans, double& lx) : epsilon{ep}, answer{ans}, last_x{lx}
     {
         y = ans - ep * std::sin(ans);
     }
@@ -86,11 +86,13 @@ struct root_test_function {
 struct fixed_point_test_function {
     double epsilon;
     double answer;
+    double& last_x;
 
-    fixed_point_test_function(double ep, double a) : epsilon{ep}, answer{a} {}
+    fixed_point_test_function(double ep, double a, double& lx) : epsilon{ep}, answer{a}, last_x{lx} {}
 
     double operator()(double x)
     {
+        last_x = x;
         return answer + epsilon * std::sin(x - answer);
     }
 };
@@ -281,7 +283,7 @@ void root_onedim_test::do_operation() const
     double most_recent_x{};
     root_test_function test{ecc, answer, most_recent_x};
 
-    fixed_point_test_function fix_pt_test{ecc, answer};
+    fixed_point_test_function fix_pt_test{ecc, answer, most_recent_x};
     size_t iter = static_cast<size_t>(max_iterations);
 
     result = secant(iter, abs_tol, rel_tol)
