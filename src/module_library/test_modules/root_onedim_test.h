@@ -59,7 +59,7 @@ struct root_test_function {
     double y;
     double& last_x;
 
-    root_test_function(double ep, double ans, double& last_x) : epsilon{ep}, answer{ans}, last_x{last_x}
+    root_test_function(double ep, double ans, double& lx) : epsilon{ep}, answer{ans}, last_x{lx}
     {
         y = ans - ep * std::sin(ans);
     }
@@ -86,11 +86,13 @@ struct root_test_function {
 struct fixed_point_test_function {
     double epsilon;
     double answer;
+    double& last_x;
 
-    fixed_point_test_function(double ep, double a) : epsilon{ep}, answer{a} {}
+    fixed_point_test_function(double ep, double a, double& lx) : epsilon{ep}, answer{a}, last_x{lx} {}
 
     double operator()(double x)
     {
+        last_x = x;
         return answer + epsilon * std::sin(x - answer);
     }
 };
@@ -183,7 +185,8 @@ class root_onedim_test : public direct_module
           anderson_bjorck_result{output_quantities, "anderson_bjorck"},
           dekker_result{output_quantities, "dekker"},
           dekker_sg_result{output_quantities, "dekker_sg"},
-          dekker_newton_result{output_quantities, "dekker_newton"}
+          dekker_newton_result{output_quantities, "dekker_newton"},
+          dekker_newton_sg_result{output_quantities, "dekker_newton_sg"}
 
     {
     }
@@ -217,6 +220,7 @@ class root_onedim_test : public direct_module
     result dekker_result;
     result dekker_sg_result;
     result dekker_newton_result;
+    result dekker_newton_sg_result;
 
     // Main operation
     void do_operation() const;
@@ -262,7 +266,7 @@ string_vector root_onedim_test::get_outputs()
         "secant", "fixed_point", "newton", "halley", "steffensen",
         "bisection", "regula_falsi", "ridder",
         "illinois", "pegasus", "anderson_bjorck", "dekker", "dekker_sg",
-        "dekker_newton"};
+        "dekker_newton", "dekker_newton_sg"};
     for (auto name : methods) {
         string_vector sv = make_qname(name);
         out.insert(out.end(), sv.begin(), sv.end());
@@ -279,7 +283,7 @@ void root_onedim_test::do_operation() const
     double most_recent_x{};
     root_test_function test{ecc, answer, most_recent_x};
 
-    fixed_point_test_function fix_pt_test{ecc, answer};
+    fixed_point_test_function fix_pt_test{ecc, answer, most_recent_x};
     size_t iter = static_cast<size_t>(max_iterations);
 
     result = secant(iter, abs_tol, rel_tol)
@@ -326,7 +330,7 @@ void root_onedim_test::do_operation() const
                  .solve(test, lower_bracket, upper_bracket);
     update_result(anderson_bjorck_result, result, most_recent_x);
 
-    // Here we test the Dekker method with and without the single guess
+    // Here we test the Dekker methods with and without the single guess
     result = dekker(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_result, result, most_recent_x);
@@ -338,6 +342,10 @@ void root_onedim_test::do_operation() const
     result = dekker_newton(iter, abs_tol, rel_tol)
                  .solve(test, lower_bracket, upper_bracket);
     update_result(dekker_newton_result, result, most_recent_x);
+
+    result = dekker_newton(iter, abs_tol, rel_tol)
+                 .solve(test, single_guess, lower_bracket, upper_bracket);
+    update_result(dekker_newton_sg_result, result, most_recent_x);
 }
 
 }  // namespace standardBML

@@ -5,7 +5,6 @@
 
 namespace root_finding
 {
-
 /**
  * @brief Fixed Point Method.
  *
@@ -63,7 +62,11 @@ struct fixed_point : root_finding_method<fixed_point> {
 
     double root() const
     {
-        return y;
+        // In case the function `fun` has side-effects, it is necessary that it
+        // was most recently called at the root. When a root has been found, the
+        // most recent function call was `fun(x)`, so we consider `x` to be the
+        // root rather than `y`
+        return x;
     }
 
     double residual() const
