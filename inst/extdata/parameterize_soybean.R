@@ -47,6 +47,7 @@
 library(BioCro)
 library(BioCroValidation)
 library(DEoptim)
+library(dfoptim)
 library(lattice)
 library(parallel)
 library(PhotoGEA)
@@ -83,8 +84,16 @@ rm(list = setdiff(ls(), required_var))
 # Option to use this on biocluster
 RUN_ON_BIOCLUSTER = FALSE
 
-# Choose the number of optimizer iterations
+# Choose the number of DEoptim optimizer iterations
 ITERMAX <- 2000
+
+# Choose the tolerance for the nmkb optimizer
+TOL <- 1e-7
+
+# Decide whether to run optimization stages; setting these to FALSE can be
+# useful if you just want to change some plotting parameters for the figures
+MAKE_NEW_CALCULATIONS_EVOLUTIONARY <- TRUE
+MAKE_NEW_CALCULATIONS_NELDER_MEAD  <- TRUE
 
 # Make sure the output directory exists
 BASE_OUTPUT_DIR <- 'outputs'
@@ -100,10 +109,15 @@ if (!dir.exists(OUTPUT_DIR)) {
 }
 
 # Specify log file names
-ERROR_LOG_FILE <- file.path(OUTPUT_DIR, 'error_log.md')            # a record of any BioCro errors
-TRACE_LOG_FILE <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the optimizer
-COMPARE_FILE   <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
-MODEL_FILE     <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
+ERROR_LOG_FILE      <- file.path(OUTPUT_DIR, 'error_log.md')            # a record of any BioCro errors
+TRACE_LOG_FILE      <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the DEoptim optimizer
+TRACE_LOG_FILE_NMKB <- file.path(OUTPUT_DIR, 'trace_log_nmkb.md')       # a trace of the nmkb optimizer
+COMPARE_FILE        <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
+MODEL_FILE          <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
+
+# Specify Rdata file names
+RDATA_FILE      <- file.path(OUTPUT_DIR, 'optim_res.Rdata')
+RDATA_FILE_NMKB <- file.path(OUTPUT_DIR, 'optim_res_nmkb.Rdata')
 
 # Get Catm values for 2002 and 2005
 Catm_2002 <- with(BioCro::catm_data, {Catm[year == '2002']})
@@ -326,30 +340,6 @@ extra_penalty_function <- function(sim_res, long_form_data) {
 ###
 ### Create the objective function
 ###
-normalization_method <- 'mean_max'
-stdev_weight_method  <- 'logarithm'
-stdev_weight_param   <- 1e-5
-regularization_method <- 'none'
-
-# Create the objective function
-obj_fun <- objective_function(
-  base_model_definition,
-  data_driver_pairs,
-  independent_args,
-  quantity_weights,
-  data_definitions       = data_definitions,
-  normalization_method   = normalization_method,
-  stdev_weight_method    = stdev_weight_method,
-  stdev_weight_param     = stdev_weight_param,
-  regularization_method  = regularization_method,
-  dependent_arg_function = dependent_arg_function,
-  post_process_function  = post_process_function,
-  extra_penalty_function = extra_penalty_function
-)
-
-###
-### Use an optimizer to choose parameter values
-###
 
 # Specify some bounds
 aul <- 50   # Upper limit for alpha parameters
@@ -383,49 +373,131 @@ bounds <- bounds_table(
   )
 )
 
-# Specify cores for parallel operation, and store any messages in a dedicated
-# log file
-cl = makeCluster(NCORES, outfile = ERROR_LOG_FILE)
+# Specify objective function settings
+normalization_method <- 'mean_max'
+stdev_weight_method  <- 'logarithm'
+stdev_weight_param   <- 1e-5
+regularization_method <- 'none'
 
-# Set a seed
-set.seed(SEED)
-
-parVars <- c(
-    'base_model_definition',
-    'data_driver_pairs',
-    'independent_args',
-    'quantity_weights',
-    'data_definitions',
-    'normalization_method',
-    'stdev_weight_method',
-    'regularization_method',
-    'dependent_arg_function',
-    'post_process_function',
-    'extra_penalty_function'
+# Create the objective function
+obj_fun <- objective_function(
+  base_model_definition,
+  data_driver_pairs,
+  independent_args,
+  quantity_weights,
+  data_definitions       = data_definitions,
+  normalization_method   = normalization_method,
+  stdev_weight_method    = stdev_weight_method,
+  stdev_weight_param     = stdev_weight_param,
+  regularization_method  = regularization_method,
+  dependent_arg_function = dependent_arg_function,
+  post_process_function  = post_process_function,
+  extra_penalty_function = extra_penalty_function
 )
 
-if (RUN_ON_BIOCLUSTER) {
-  # Broadcast the vars to cluster
-  clusterExport(cl, parVars, envir = environment())
+###
+### Use an evolutionary optimizer to get a good guess
+###
+
+if (MAKE_NEW_CALCULATIONS_EVOLUTIONARY) {
+    # Remove any previous log files
+    if (file.exists(ERROR_LOG_FILE)) {
+        file.remove(ERROR_LOG_FILE)
+    }
+
+    if (file.exists(TRACE_LOG_FILE)) {
+        file.remove(TRACE_LOG_FILE)
+    }
+
+    # Specify cores for parallel operation, and store any messages in a dedicated
+    # log file
+    cl = makeCluster(NCORES, outfile = ERROR_LOG_FILE)
+
+    # Set a seed
+    set.seed(SEED)
+
+    parVars <- c(
+        'base_model_definition',
+        'data_driver_pairs',
+        'independent_args',
+        'quantity_weights',
+        'data_definitions',
+        'normalization_method',
+        'stdev_weight_method',
+        'regularization_method',
+        'dependent_arg_function',
+        'post_process_function',
+        'extra_penalty_function'
+    )
+
+    if (RUN_ON_BIOCLUSTER) {
+      # Broadcast the vars to cluster
+      clusterExport(cl, parVars, envir = environment())
+    }
+
+    # Run the optimizer, storing its "trace" outputs in a dedicated log file
+    sink(TRACE_LOG_FILE)
+
+    optim_result <- DEoptim(
+        fn = obj_fun,
+        lower = bounds$lower,
+        upper = bounds$upper,
+        control = list(
+            itermax = ITERMAX,
+            parallelType = 1,
+            parVar=parVars,
+            cluster = cl,
+            trace = 1
+        )
+    )
+
+    sink()
+
+    # Save the results
+    save(optim_result, file = RDATA_FILE)
+} else {
+    load(RDATA_FILE)
 }
 
-# Run the optimizer, storing its "trace" outputs in a dedicated log file
-sink(TRACE_LOG_FILE)
+optim_param <- optim_result$optim$bestmem
 
-optim_result <- DEoptim(
-    fn = obj_fun,
-    lower = bounds$lower,
-    upper = bounds$upper,
-    control = list(
-        itermax = ITERMAX,
-        parallelType = 1,
-        parVar=parVars,
-        cluster = cl,
-        trace = 1
+###
+### Use a Nelder-Mead optimizer to improve on the best guess from the
+### evolutionary optimizer
+###
+
+if (MAKE_NEW_CALCULATIONS_NELDER_MEAD) {
+    # Remove any previous log files
+    if (file.exists(TRACE_LOG_FILE_NMKB)) {
+        file.remove(TRACE_LOG_FILE_NMKB)
+    }
+
+    # Run the optimizer, storing its "trace" outputs in a dedicated log file
+    sink(TRACE_LOG_FILE_NMKB)
+
+    optim_result_nmkb <- nmkb(
+        as.numeric(optim_param),
+        obj_fun,
+        lower = bounds$lower,
+        upper = bounds$upper,
+        control = list(
+            tol = TOL,
+            maxfeval = 50000,
+            restarts.max = 10,
+            trace = TRUE
+        ),
+        debug_mode = FALSE # passed to obj_fun
     )
-)
 
-sink()
+    sink()
+
+    # Save the results
+    save(optim_result_nmkb, file = RDATA_FILE_NMKB)
+} else {
+    load(RDATA_FILE_NMKB)
+}
+
+optim_param_nmkb <- optim_result_nmkb$par
 
 ###
 ### Check and record the new values
@@ -435,7 +507,7 @@ sink()
 ind_arg_table <- data.frame(
   arg_name      = independent_arg_names,
   defaults      = as.numeric(independent_args),
-  optimized     = optim_result$optim$bestmem,
+  optimized     = optim_param_nmkb,
   stringsAsFactors = FALSE
 )
 
@@ -451,7 +523,7 @@ sink()
 soybean_reparam <- update_model(
   base_model_definition,
   independent_args,
-  optim_result$optim$bestmem,
+  optim_param_nmkb,
   dependent_arg_function = dependent_arg_function
 )
 
