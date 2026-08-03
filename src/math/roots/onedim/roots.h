@@ -3,7 +3,10 @@
 
 #include <cmath>
 #include <limits>
+#include <optional>
+#include <sstream>
 #include <string>
+#include <utility>
 
 /**
  * BioCro's library for solving 1D equations.
@@ -42,7 +45,7 @@ inline bool is_between(double x, double a, double b);                 // true if
 inline double get_midpoint(const graph_t& a, const graph_t& b);       // return (a.x + b.x)/2
 inline double get_secant_update(const graph_t& a, const graph_t& b);  // computes secant formula; may return NaN
 inline bool is_successful(Flag flag);                                 // assuming continuous function.
-inline std::string flag_message(Flag flag);
+inline std::string termination_message(Flag flag);                    // describes the reason for termination
 
 /**
  * @class result_t
@@ -64,6 +67,19 @@ struct result_t {
     double residual;
     size_t iteration;
     Flag flag;
+
+    // The two endpoints found to share the same sign, set only by
+    // bracketing methods when `flag == Flag::invalid_bracket`. Methods
+    // with no notion of a bracket leave this empty.
+    std::optional<std::pair<graph_t, graph_t>> bracket;
+
+    /**
+     * @brief Produces a human-readable summary of this result: the root,
+     * iteration count, and residual, along with a description of the
+     * reason for termination. If `flag == Flag::invalid_bracket` and the
+     * method reported its bracket endpoints, those are included too.
+     */
+    std::string message() const;
 };
 
 /**
@@ -212,6 +228,13 @@ struct result_t {
  * double residual() const;
  * // Extract the residual from the state. For user to evaluate if a root
  * // has been found.
+ *
+ * std::optional<std::pair<graph_t, graph_t>> bracket() const;
+ * // Optional. Only bracketing methods need to define this; the base
+ * // class default returns `std::nullopt`. Return the two endpoints
+ * // found to have the same sign when `flag` is set to
+ * // `Flag::invalid_bracket`, so that `result_t::message()` can report
+ * // them.
  * };
  * @endcode
  *
@@ -296,11 +319,25 @@ struct root_finding_method {
         return std::abs(x) <= _abs_tol;
     }
 
+    // Reports the two endpoints of an invalid bracket (same-signed
+    // function values) for use in `result_t::message()`. Bracketing
+    // methods override this; other methods have no notion of a bracket,
+    // so this default is used instead.
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::nullopt;
+    }
+
    protected:
     // extract info
     result_t make_result(size_t iteration)
     {
-        return result_t{static_cast<Method*>(this)->root(), static_cast<Method*>(this)->residual(), iteration, flag};
+        return result_t{
+            static_cast<Method*>(this)->root(),
+            static_cast<Method*>(this)->residual(),
+            iteration,
+            flag,
+            static_cast<Method*>(this)->bracket()};
     }
 };
 
@@ -343,7 +380,7 @@ inline bool is_successful(Flag flag)
     return (flag == Flag::residual_zero || flag == Flag::bracket_width_zero);
 }
 
-std::string flag_message(Flag flag)
+inline std::string termination_message(Flag flag)
 {
     switch (flag) {
         case Flag::residual_zero:
@@ -367,6 +404,23 @@ std::string flag_message(Flag flag)
         default:
             return "Flag not recognized.";
     }
+}
+
+inline std::string result_t::message() const
+{
+    std::ostringstream msg;
+    msg << "root = " << root
+        << ", iteration = " << iteration
+        << ", residual = " << residual
+        << ": " << termination_message(flag);
+
+    if (bracket.has_value()) {
+        msg << " Bracket endpoints: ("
+            << bracket->first.x << ", " << bracket->first.y << "), ("
+            << bracket->second.x << ", " << bracket->second.y << ")";
+    }
+
+    return msg.str();
 }
 
 }  // namespace root_finding

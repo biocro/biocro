@@ -220,8 +220,8 @@ energy_balance_outputs leaf_energy_balance(
     // Throw exception if not converged
     if (!root_finding::is_successful(result.flag)) {
         throw std::runtime_error(
-            "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_finding::flag_message(result.flag));
+            "leaf_temperature solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Get final value

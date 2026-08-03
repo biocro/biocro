@@ -5,7 +5,6 @@
 
 namespace root_finding
 {
-
 /**
  * @brief Ridder's Method. Provide a function object and an initial
  * valid bracket. Bracket is valid if the sign of the function differs at
@@ -72,20 +71,25 @@ struct ridder : public root_finding_method<ridder> {
     {
         left.x = a;
         right.x = b;
+
         left.y = fun(a);
-        right.y = fun(b);
-        proposal = left;
 
         if (is_zero(left.y)) {
+            right.y = std::numeric_limits<double>::quiet_NaN();
+            proposal = left;
             flag = Flag::residual_zero;
             return false;
         }
 
+        right.y = fun(b);
+
         if (is_zero(right.y)) {
-            flag = Flag::residual_zero;
             proposal = right;
+            flag = Flag::residual_zero;
             return false;
         }
+
+        proposal = left;
 
         if (same_signs(left.y, right.y)) {
             flag = Flag::invalid_bracket;
@@ -118,6 +122,11 @@ struct ridder : public root_finding_method<ridder> {
     double residual() const
     {
         return proposal.y;
+    }
+
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(left, right);
     }
 
     void update_bracket()
