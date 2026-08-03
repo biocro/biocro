@@ -1,6 +1,6 @@
 #include "../math/roots/onedim/dekker.h"  // for dekker
 #include "c3_temperature_response.h"      // for c3_temperature_response_parameters
-#include "c3photo.h"                      // for c3photoC
+#include "c3photo.h"                      // for c3photoC, check_c3_gs
 #include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c3_leaf_photosynthesis.h"
 
@@ -117,41 +117,51 @@ void c3_leaf_photosynthesis::do_operation() const
             electrons_per_oxygenation, beta_PSII, gbw_guess)
             .Gs;  // mol / m^2 / s
 
-    photosynthesis_outputs photo;
-    energy_balance_outputs et;
-
-    // 1. Set convergence criteria
-    root_finding::dekker solver(50, 1e-3, 1e-3);
-
-    auto func = [=, &photo, &et](double current_gs) {
-        // 2. Solve Energy Balance with current g_s
-        et = leaf_energy_balance(
-            absorbed_longwave,
-            absorbed_shortwave,
-            atmospheric_pressure,
-            ambient_temperature,
-            gbw_canopy,
-            leafwidth,
-            rh,
-            current_gs,
-            windspeed);
-
-        double current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
-
-        // 3. Recalculate g_s with current Tleaf
-        photo =
-            c3photoC(
-                tr_param, absorbed_ppfd, current_Tleaf, ambient_temperature,
-                rh, gm_at_25, Gstar_at_25, Kc_at_25, Ko_at_25, Vcmax_at_25,
-                Jmax_at_25, Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm,
-                atmospheric_pressure, O2, StomataWS, electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII, et.gbw_molar);
-
-        return photo.Gs - current_gs;
+    // Use partial application to fix all inputs to `check_c3_gs` except
+    // current_gs. To solve the photosynthesis equations, a root of this
+    // function must be found.
+    auto check_c3_gs_partial = [=](double const current_gs) {
+        return check_c3_gs(
+            tr_param,
+            absorbed_longwave,            // J / (m^2 leaf) / s
+            absorbed_ppfd,                // micromol / (m^2 leaf) / s
+            absorbed_shortwave,           // J / (m^2 leaf) / s
+            ambient_temperature,          // degrees C
+            atmospheric_pressure,         // Pa
+            b0,                           // mol / m^2 / s
+            b1,                           // dimensionless
+            beta_PSII,                    // dimensionless
+            Catm,                         // micromol / mol
+            current_gs,                   // mol / m^2 / s
+            electrons_per_carboxylation,  // self-explanatory units
+            electrons_per_oxygenation,    // self-explanatory units
+            gbw_canopy,                   // mol / m^2 / s
+            gm_at_25,                     // mol / m^2 / s / Pa
+            Gs_min,                       // mol / m^2 / s
+            Gstar_at_25,                  // micromol / mol
+            Jmax_at_25,                   // micromol / m^2 / s
+            Kc_at_25,                     // micromol / mol
+            Ko_at_25,                     // mmol / mol
+            leafwidth,                    // m
+            O2,                           // mmol / mol
+            rh,                           // dimensionless
+            RL_at_25,                     // micromol / m^2 / s
+            StomataWS,                    // dimensionless
+            Tp_at_25,                     // micromol / m^2 / s
+            Vcmax_at_25,                  // micromol / m^2 / s
+            windspeed                     // m / s
+        );
     };
 
+    // Run the Dekker method
     using namespace root_finding;
-    result_t result = solver.solve(func, initial_stomatal_conductance, Gs_min, 100.0 * initial_stomatal_conductance + 0.1);
+    dekker solve(50, 1e-3, 1e-3);
+    result_t result = solve(
+        check_c3_gs_partial,
+        initial_stomatal_conductance,               // guess
+        Gs_min,                                     // lower
+        100.0 * initial_stomatal_conductance + 0.1  // upper
+    );
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
@@ -159,6 +169,48 @@ void c3_leaf_photosynthesis::do_operation() const
             "c3_leaf_photosynthesis solver reports failed convergence:\n    " +
             result.message());
     }
+
+    // Get final values
+    double const Gs = result.root;  // mol / m^2 / s
+
+    energy_balance_outputs const et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        Gs,
+        windspeed);
+
+    double const Tleaf = ambient_temperature + et.Deltat;  // degrees C
+
+    photosynthesis_outputs const photo = c3photoC(
+        tr_param,
+        absorbed_ppfd,
+        Tleaf,
+        ambient_temperature,
+        rh,
+        gm_at_25,
+        Gstar_at_25,
+        Kc_at_25,
+        Ko_at_25,
+        Vcmax_at_25,
+        Jmax_at_25,
+        Tp_at_25,
+        RL_at_25,
+        b0,
+        b1,
+        Gs_min,
+        Catm,
+        atmospheric_pressure,
+        O2,
+        StomataWS,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        beta_PSII,
+        et.gbw_molar);
 
     // Update the outputs
     update(Assim_op, photo.Assim);
@@ -170,7 +222,7 @@ void c3_leaf_photosynthesis::do_operation() const
     update(gbw_op, et.gbw_molar);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, ambient_temperature + et.Deltat);
+    update(leaf_temperature_op, Tleaf);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);

@@ -53,6 +53,37 @@ photosynthesis_outputs c3photoC(
     double const gbw                           // mol / m^2 / s
 );
 
+double check_c3_gs(
+    c3_temperature_response_parameters const tr_param,
+    double const absorbed_longwave,            // J / (m^2 leaf) / s
+    double const absorbed_ppfd,                // micromol / (m^2 leaf) / s
+    double const absorbed_shortwave,           // J / (m^2 leaf) / s
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta_PSII,                    // dimensionless
+    double const Catm,                         // micromol / mol
+    double const current_gs,                   // mol / m^2 / s
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw_canopy,                   // mol / m^2 / s
+    double const gm_at_25,                     // mol / m^2 / s / Pa
+    double const Gs_min,                       // mol / m^2 / s
+    double const Gstar_at_25,                  // micromol / mol
+    double const Jmax_at_25,                   // micromol / m^2 / s
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
+    double const leafwidth,                    // m
+    double const O2,                           // mmol / mol
+    double const rh,                           // dimensionless
+    double const RL_at_25,                     // micromol / m^2 / s
+    double const StomataWS,                    // dimensionless
+    double const Tp_at_25,                     // micromol / m^2 / s
+    double const Vcmax_at_25,                  // micromol / m^2 / s
+    double const windspeed                     // m / s
+);
+
 double solo(double LeafT);
 
 #endif

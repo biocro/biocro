@@ -2,12 +2,13 @@
 #include <cmath>                          // for pow, sqrt
 #include <limits>                         // for std::numeric_limits
 #include "../framework/constants.h"       // for dr_stomata, dr_boundary
+#include "../math/roots/onedim/dekker.h"  // for dekker
 #include "ball_berry_gs.h"                // for ball_berry_gs
 #include "c3_temperature_response.h"      // for c3_temperature_response
 #include "conductance_helpers.h"          // for sequential_conductance
 #include "conductance_limited_assim.h"    // for conductance_limited_assim
 #include "FvCB_assim.h"                   // for FvCB_assim
-#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c3photo.h"
 
 using physical_constants::dr_boundary;
@@ -275,6 +276,87 @@ photosynthesis_outputs c3photoC(
         /* .iteration = */ result.iteration         // not a physical quantity
     };
 }
+
+/**
+ *  @brief Calculates a difference in stomatal conductance; this function will
+ *  return zero only if Gs satisfies the energy balance + FvCB + Ball-Berry + 1D
+ *  gas flow equations.
+ */
+double check_c3_gs(
+    c3_temperature_response_parameters const tr_param,
+    double const absorbed_longwave,            // J / (m^2 leaf) / s
+    double const absorbed_ppfd,                // micromol / (m^2 leaf) / s
+    double const absorbed_shortwave,           // J / (m^2 leaf) / s
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta_PSII,                    // dimensionless
+    double const Catm,                         // micromol / mol
+    double const current_gs,                   // mol / m^2 / s
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw_canopy,                   // mol / m^2 / s
+    double const gm_at_25,                     // mol / m^2 / s / Pa
+    double const Gs_min,                       // mol / m^2 / s
+    double const Gstar_at_25,                  // micromol / mol
+    double const Jmax_at_25,                   // micromol / m^2 / s
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
+    double const leafwidth,                    // m
+    double const O2,                           // mmol / mol
+    double const rh,                           // dimensionless
+    double const RL_at_25,                     // micromol / m^2 / s
+    double const StomataWS,                    // dimensionless
+    double const Tp_at_25,                     // micromol / m^2 / s
+    double const Vcmax_at_25,                  // micromol / m^2 / s
+    double const windspeed                     // m / s
+)
+{
+    // Solve energy balance with current gs
+    energy_balance_outputs const et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        current_gs,
+        windspeed);
+
+    // Get new leaf temperature
+    double const current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
+
+    // Recalculate gs with current Tleaf
+    photosynthesis_outputs const photo = c3photoC(
+        tr_param,
+        absorbed_ppfd,
+        current_Tleaf,
+        ambient_temperature,
+        rh,
+        gm_at_25,
+        Gstar_at_25,
+        Kc_at_25,
+        Ko_at_25,
+        Vcmax_at_25,
+        Jmax_at_25,
+        Tp_at_25,
+        RL_at_25,
+        b0,
+        b1,
+        Gs_min,
+        Catm,
+        atmospheric_pressure,
+        O2,
+        StomataWS,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        beta_PSII,
+        et.gbw_molar);
+
+    return photo.Gs - current_gs;  // mol / m^2 / s
+};
 
 // This function returns the solubility of O2 in H2O relative to its value at
 // 25 degrees C. The equation used here was developed by forming a polynomial
