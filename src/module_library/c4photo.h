@@ -1,7 +1,8 @@
 #ifndef C4PHOTO_H
 #define C4PHOTO_H
 
-#include "photosynthesis_outputs.h"  // for photosynthesis_outputs
+#include "../math/roots/onedim/roots.h"  // for root_finding::result_t
+#include "photosynthesis_outputs.h"      // for photosynthesis_outputs
 
 double collatz_assim(
     double const atmospheric_pressure,  // Pa
@@ -62,6 +63,31 @@ double check_c4_gs(
     double const beta,                  // dimensionless
     double const Catm,                  // micromol / mol
     double const current_gs,            // mol / m^2 / s
+    double const gbw_canopy,            // m / s
+    double const Gs_min,                // mol / m^2 / s
+    double const incident_ppfd,         // micromol / m^2 / s
+    double const kparm,                 // mol / m^2 / s
+    double const leafwidth,             // m
+    double const lowerT,                // degrees C
+    double const rh,                    // dimensionless
+    double const RL_at_25,              // micromol / m^2 / s
+    double const StomataWS,             // dimensionless
+    double const theta,                 // dimensionless
+    double const upperT,                // degrees C
+    double const Vcmax_at_25,           // micromol / m^2 / s
+    double const windspeed              // m / s
+);
+
+root_finding::result_t solve_c4_gs(
+    double const absorbed_longwave,     // J / (m^2 leaf) / s
+    double const absorbed_shortwave,    // J / (m^2 leaf) / s
+    double const alpha,                 // mol / mol
+    double const ambient_temperature,   // degrees C
+    double const atmospheric_pressure,  // Pa
+    double const b0,                    // mol / m^2 / s
+    double const b1,                    // dimensionless
+    double const beta,                  // dimensionless
+    double const Catm,                  // micromol / mol
     double const gbw_canopy,            // m / s
     double const Gs_min,                // mol / m^2 / s
     double const incident_ppfd,         // micromol / m^2 / s

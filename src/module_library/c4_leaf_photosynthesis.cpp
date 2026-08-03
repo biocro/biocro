@@ -1,7 +1,7 @@
 #include "../math/roots/onedim/dekker.h"  // for dekker
+#include "c4photo.h"                      // for c4photoC, solve_c4_gs
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c4_leaf_photosynthesis.h"
-#include "c4photo.h"              // for c4photoC
-#include "leaf_energy_balance.h"  // for leaf_energy_balance
 
 using standardBML::c4_leaf_photosynthesis;
 
@@ -57,57 +57,30 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 
 void c4_leaf_photosynthesis::do_operation() const
 {
-    // Make an initial guess for boundary layer conductance
-    double const gbw_guess{1.2};  // mol / m^2 / s
-
-    // Get an initial estimate of stomatal conductance, assuming the leaf is at
-    // air temperature
-    const double initial_stomatal_conductance =
-        c4photoC(incident_ppfd, ambient_temperature, ambient_temperature, rh,
-                 Vcmax_at_25, alpha1, kparm, theta, beta, RL_at_25, b0, b1,
-                 Gs_min, StomataWS, Catm, atmospheric_pressure, upperT, lowerT,
-                 gbw_guess)
-            .Gs;  // mol / m^2 / s
-
-    // Use partial application to fix all inputs to `check_c3_gs` except
-    // current_gs. To solve the photosynthesis equations, a root of this
-    // function must be found.
-    auto check_c4_gs_partial = [=](double const current_gs) {
-        return check_c4_gs(
-            absorbed_longwave,     // J / (m^2 leaf) / s
-            absorbed_shortwave,    // J / (m^2 leaf) / s
-            alpha1,                // mol / mol
-            ambient_temperature,   // degrees C
-            atmospheric_pressure,  // Pa
-            b0,                    // mol / m^2 / s
-            b1,                    // dimensionless
-            beta,                  // dimensionless
-            Catm,                  // micromol / mol
-            current_gs,            // mol / m^2 / s
-            gbw_canopy,            // m / s
-            Gs_min,                // mol / m^2 / s
-            incident_ppfd,         // micromol / m^2 / s
-            kparm,                 // mol / m^2 / s
-            leafwidth,             // m
-            lowerT,                // degrees C
-            rh,                    // dimensionless
-            RL_at_25,              // micromol / m^2 / s
-            StomataWS,             // dimensionless
-            theta,                 // dimensionless
-            upperT,                // degrees C
-            Vcmax_at_25,           // micromol / m^2 / s
-            windspeed              // m / s
-        );
-    };
-
-    // Run the Dekker method
-    using namespace root_finding;
-    root_finding::dekker solver(50, 1e-3, 1e-3);
-    result_t result = solver.solve(
-        check_c4_gs_partial,
-        initial_stomatal_conductance,               // guess
-        Gs_min,                                     // lower
-        100.0 * initial_stomatal_conductance + 0.1  // upper
+    // Solve for gs
+    root_finding::result_t const result = solve_c4_gs(
+        absorbed_longwave,     // J / (m^2 leaf) / s
+        absorbed_shortwave,    // J / (m^2 leaf) / s
+        alpha1,                // mol / mol
+        ambient_temperature,   // degrees C
+        atmospheric_pressure,  // Pa
+        b0,                    // mol / m^2 / s
+        b1,                    // dimensionless
+        beta,                  // dimensionless
+        Catm,                  // micromol / mol
+        gbw_canopy,            // m / s
+        Gs_min,                // mol / m^2 / s
+        incident_ppfd,         // micromol / m^2 / s
+        kparm,                 // mol / m^2 / s
+        leafwidth,             // m
+        lowerT,                // degrees C
+        rh,                    // dimensionless
+        RL_at_25,              // micromol / m^2 / s
+        StomataWS,             // dimensionless
+        theta,                 // dimensionless
+        upperT,                // degrees C
+        Vcmax_at_25,           // micromol / m^2 / s
+        windspeed              // m / s
     );
 
     // Get final values
