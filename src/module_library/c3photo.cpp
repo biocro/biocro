@@ -13,6 +13,79 @@
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
 
+double const inf = std::numeric_limits<double>::infinity();
+
+/**
+ *  @brief Calculates a difference in net CO2 assimilation rate; this function
+ *  will return zero only if Cc satisfies the FvCB + Ball-Berry + 1D gas flow
+ *  equations.
+ */
+double check_c3_assim_rate(
+    double const alpha_TPU,                    // dimensionless
+    double const b0_adj,                       // mol / m^2 / s
+    double const b1_adj,                       // dimensionless
+    double const Ca,                           // micromol / mol
+    double const Cc,                           // micromol / mol
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw,                          // mol / m^2 / s
+    double const gm,                           // mol / m^2 / s
+    double const Gstar,                        // micromol / mol
+    double const J,                            // micromol / m^2 / s
+    double const Kc,                           // micromol / mol
+    double const Ko,                           // mmol / mol
+    double const Oi,                           // mmol / mol
+    double const RH,                           // dimensionless
+    double const RL,                           // micromol / m^2 / s
+    double const Tambient,                     // degrees C
+    double const Tleaf,                        // degrees C
+    double const TPU,                          // micromol / m^2 / s
+    double const Vcmax                         // micromol / m^2 / s
+)
+{
+    // Use Cc to compute the assimilation rate according to the FvCB model.
+    FvCB_outputs const FvCB_res = FvCB_assim(
+        Cc,
+        Gstar,
+        J,
+        Kc,
+        Ko,
+        Oi,
+        RL,
+        TPU,
+        Vcmax,
+        alpha_TPU,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation);
+
+    double const Assim = FvCB_res.An;  // micromol / m^2 / s
+
+    // Use Assim to compute the stomatal conductance according to the
+    // Ball-Berry model. If Assim is too high, Cs will take a negative
+    // value, which is not allowed by the Ball-Berry model. To avoid this,
+    // we clamp Assim to the value that produces Cc = 0, which will also
+    // ensure that Cs > 0.
+    stomata_outputs const BB_res = ball_berry_gs(
+        std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
+        Ca * 1e-6,
+        RH,
+        b0_adj,
+        b1_adj,
+        gbw,
+        Tleaf,
+        Tambient);
+
+    double const Gs = BB_res.gsw;  // mol / m^2 / s
+
+    // Using Cc, gm, Gbw, and Gs, make a new estimate of the assimilation
+    // rate. If the initial value of Cc was correct, this should be
+    // identical to Assim.
+    double const Gt =
+        sequential_conductance({gbw / dr_boundary, Gs / dr_stomata, gm});  // mol / m^2 / s
+
+    return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
+};
+
 /**
  *  @brief Solves for An, Cc, Ci, and gs
  *
@@ -49,9 +122,6 @@ photosynthesis_outputs c3photoC(
     double const gbw                           // mol / m^2 / s
 )
 {
-    // Define infinity
-    double const inf = std::numeric_limits<double>::infinity();
-
     // Check inputs
     if (absorbed_ppfd < 0) {
         throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
@@ -94,51 +164,35 @@ photosynthesis_outputs c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Adjust Ball-Berry parameters in response to water stress
-    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
-    double const b1_adj = StomWS * b1;
+    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);  // mol / m^2 / s
+    double const b1_adj = StomWS * b1;                            // dimensionless
 
-    // Initialize variables before running fixed point iteration in a loop
-    // these are updated as a side effect in the secant method iterations
-    FvCB_outputs FvCB_res;
-    stomata_outputs BB_res;
-    double Gs{1e3};     // mol / m^2 / s  (initial guess)
-    double Assim{0.0};  // micromol / mol (initial guess)
-
-    // This lambda function equals zero only if Cc satisfies both the FvCB and
-    // Ball-Berry models. Here, Cc should be expressed in micromol / mol.
-    auto check_assim_rate = [=, &FvCB_res, &BB_res, &Gs, &Assim](double Cc) {
-        // Use Cc to compute the assimilation rate according to the FvCB model.
-        FvCB_res = FvCB_assim(
-            Cc, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation);
-
-        Assim = FvCB_res.An;  // micromol / m^2 / s
-
-        // Use Assim to compute the stomatal conductance according to the
-        // Ball-Berry model. If Assim is too high, Cs will take a negative
-        // value, which is not allowed by the Ball-Berry model. To avoid this,
-        // we clamp Assim to the value that produces Cc = 0, which will also
-        // ensure that Cs > 0.
-        BB_res = ball_berry_gs(
-            std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
-            Ca * 1e-6,
-            RH,
-            b0_adj,
-            b1_adj,
-            gbw,
-            Tleaf,
-            Tambient);
-
-        Gs = BB_res.gsw;  // mol / m^2 / s
-
-        // Using Cc, gm, Gbw, and Gs, make a new estimate of the assimilation
-        // rate. If the initial value of Cc was correct, this should be
-        // identical to Assim.
-        double Gt =
-            sequential_conductance({gbw / dr_boundary, Gs / dr_stomata, gm});  // mol / m^2 / s
-
-        return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
+    // Use partial application to fix all inputs to `check_c3_assim_rate` except
+    // Cc. To solve the photosynthesis equations, a root of this function must
+    // be found.
+    auto check_c3_assim_rate_partial = [=](double const Cc) {
+        return check_c3_assim_rate(
+            alpha_TPU,                    // dimensionless
+            b0_adj,                       // mol / m^2 / s
+            b1_adj,                       // dimensionless
+            Ca,                           // micromol / mol
+            Cc,                           // micromol / mol
+            electrons_per_carboxylation,  // self-explanatory units
+            electrons_per_oxygenation,    // self-explanatory units
+            gbw,                          // mol / m^2 / s
+            gm,                           // mol / m^2 / s
+            Gstar,                        // micromol / mol
+            J,                            // micromol / m^2 / s
+            Kc,                           // micromol / mol
+            Ko,                           // mmol / mol
+            Oi,                           // mmol / mol
+            RH,                           // dimensionless
+            RL,                           // micromol / m^2 / s
+            Tambient,                     // degrees C
+            Tleaf,                        // degrees C
+            TPU,                          // micromol / m^2 / s
+            Vcmax                         // micromol / m^2 / s
+        );
     };
 
     // Get an upper bound for Cc by finding the most negative value of An (which
@@ -160,10 +214,11 @@ photosynthesis_outputs c3photoC(
     using namespace root_finding;
     dekker solve{500, 1e-12, 1e-12};
     result_t result = solve(
-        check_assim_rate,
-        0.718 * Ca,
-        0,
-        Cc_max * 1.01);
+        check_c3_assim_rate_partial,
+        0.718 * Ca,    // guess
+        0,             // lower
+        Cc_max * 1.01  // upper
+    );
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
@@ -173,7 +228,35 @@ photosynthesis_outputs c3photoC(
     }
 
     // Get final values
-    double const Cc = result.root;                                         // micromol / mol
+    double const Cc = result.root;  // micromol / mol
+
+    FvCB_outputs const FvCB_res = FvCB_assim(
+        Cc,
+        Gstar,
+        J,
+        Kc,
+        Ko,
+        Oi,
+        RL,
+        TPU,
+        Vcmax,
+        alpha_TPU,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation);
+
+    double const Assim = FvCB_res.An;  // micromol / m^2 / s
+
+    stomata_outputs const BB_res = ball_berry_gs(
+        std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
+        Ca * 1e-6,
+        RH,
+        b0_adj,
+        b1_adj,
+        gbw,
+        Tleaf,
+        Tambient);
+
+    double const Gs = BB_res.gsw;                                          // mol / m^2 / s
     double const Ci = Cc + Assim / gm;                                     // micromol / mol
     double const an_conductance = conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
