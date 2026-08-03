@@ -116,7 +116,7 @@ void c3_leaf_photosynthesis::do_operation() const
         Catm,                         // micromol / mol
         electrons_per_carboxylation,  // self-explanatory units
         electrons_per_oxygenation,    // self-explanatory units
-        gbw_canopy,                   // mol / m^2 / s
+        gbw_canopy,                   // m / s
         gm_at_25,                     // mol / m^2 / s / Pa
         Gs_min,                       // mol / m^2 / s
         Gstar_at_25,                  // micromol / mol

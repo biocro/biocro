@@ -68,7 +68,7 @@ double check_c3_gs(
     double const current_gs,                   // mol / m^2 / s
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
-    double const gbw_canopy,                   // mol / m^2 / s
+    double const gbw_canopy,                   // m / s
     double const gm_at_25,                     // mol / m^2 / s / Pa
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
@@ -98,7 +98,7 @@ root_finding::result_t solve_c3_gs(
     double const Catm,                         // micromol / mol
     double const electrons_per_carboxylation,  // self-explanatory units
     double const electrons_per_oxygenation,    // self-explanatory units
-    double const gbw_canopy,                   // mol / m^2 / s
+    double const gbw_canopy,                   // m / s
     double const gm_at_25,                     // mol / m^2 / s / Pa
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
