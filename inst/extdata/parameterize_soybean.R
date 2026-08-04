@@ -451,6 +451,13 @@ if (MAKE_NEW_CALCULATIONS_EVOLUTIONARY) {
         )
     )
 
+    # Stop the cluster; if the workers have already been terminated, this will
+    # cause an error, so we wrap it in tryCatch
+    tryCatch(
+        stopCluster(cl),
+        error = function(e) {}
+    )
+
     sink()
 
     # Save the results
