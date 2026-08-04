@@ -198,7 +198,7 @@ void solar_position_michalsky::do_operation() const
 
     // Unpack the doy and hour in UTC
     double const fractional_doy_utc = fractional_doy - time_zone_offset / hr_per_day;  // days
-    double const doy_utc = std::floor(fractional_doy_utc / hr_per_day);                // days
+    double const doy_utc = std::floor(fractional_doy_utc);                             // days
     double const hour_utc = hr_per_day * (fractional_doy_utc - doy_utc);               // hr
 
     // Calculate the Julian date
