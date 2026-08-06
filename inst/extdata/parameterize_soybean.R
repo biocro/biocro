@@ -53,7 +53,7 @@ library(parallel)
 library(PhotoGEA)
 
 # Check the BioCroValidation version
-expected_version  <- '0.3.0-1'
+expected_version  <- '0.3.0-2'
 installed_version <- as.character(packageVersion('BioCroValidation'))
 
 if (compareVersion(expected_version, installed_version) != 0) {
@@ -121,7 +121,9 @@ RDATA_FILE_NMKB <- file.path(OUTPUT_DIR, 'optim_res_nmkb.Rdata')
 
 # Get Catm values for 2002 and 2005
 Catm_2002 <- with(BioCro::catm_data, {Catm[year == '2002']})
+Catm_2004 <- with(BioCro::catm_data, {Catm[year == '2004']})
 Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
+Catm_2006 <- with(BioCro::catm_data, {Catm[year == '2005']})
 
 ###
 ### Prepare inputs for `objective_function`
@@ -207,9 +209,11 @@ replace_precip <- function(df_orig, df_new) {
 # For 2002, we can just use the default weather data
 drivers_2002 <- soybean_weather[['2002']]
 
-# For 2005, we overwrite the precipitation values with values from
+# For other years, we overwrite the precipitation values with values from
 # Grey et al. (2016)
+drivers_2004 <- replace_precip(soybean_weather[['2004']], soyface_precip[['2004']])
 drivers_2005 <- replace_precip(soybean_weather[['2005']], soyface_precip[['2005']])
+drivers_2006 <- replace_precip(soybean_weather[['2006']], soyface_precip[['2006']])
 
 # Define the data-driver pairs
 data_driver_pairs <- list(
@@ -534,9 +538,27 @@ soybean_reparam <- update_model(
   dependent_arg_function = dependent_arg_function
 )
 
-# Define a helper function that runs a single model for a single year
+# Convert the re-parameterized soybean2 model to an R command string
+r_cmd_string <- with(soybean_reparam, write_model(
+  'soybean2',
+  direct_modules,
+  differential_modules,
+  initial_values,
+  parameters,
+  ode_solver
+))
+
+# Save the model definition as an R file in the output directory
+writeLines(r_cmd_string, MODEL_FILE)
+
+###
+### Visualize results
+###
+
+# Define a helper function that runs a single model for a single year and adds
+# a total litter column
 run_soybean <- function(model_definition, drivers, Catm_year) {
-  with(model_definition, {run_biocro(
+  tmp_res <- with(model_definition, {run_biocro(
     initial_values,
     within(parameters, {Catm = Catm_year}),
     drivers,
@@ -544,6 +566,8 @@ run_soybean <- function(model_definition, drivers, Catm_year) {
     differential_modules,
     ode_solver
   )})
+
+  within(tmp_res, {TotalLitter = LeafLitter + StemLitter})
 }
 
 # Run each model for 2002 and 2005 and combine the results by year
@@ -556,10 +580,6 @@ full_res_2005 <- rbind(
   within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Default Soybean-BioCro'}),
   within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
 )
-
-# Add a total litter column
-full_res_2002$TotalLitter <- full_res_2002$LeafLitter + full_res_2002$StemLitter
-full_res_2005$TotalLitter <- full_res_2005$LeafLitter + full_res_2005$StemLitter
 
 # Helper function for adding biomass values to plot
 plot_biomass_points <- function(biomass, stdev, biocro_time, color) {
@@ -577,7 +597,8 @@ plot_biomass_points <- function(biomass, stdev, biocro_time, color) {
     )
 }
 
-# Plot the results
+# Plot a comparison of the original and re-optimized versions of the model for
+# the years used in the parameterization
 cols <- PhotoGEA::multi_curve_colors()
 
 PhotoGEA::pdf_print(
@@ -607,7 +628,7 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = paste0(OUTPUT_DIR,'/soybean_validation_2002.pdf')
+    file = file.path(OUTPUT_DIR, 'soybean_validation_2002.pdf')
 )
 
 PhotoGEA::pdf_print(
@@ -637,18 +658,67 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = paste0(OUTPUT_DIR,'/soybean_validation_2005.pdf')
+    file = file.path(OUTPUT_DIR, 'soybean_validation_2005.pdf')
 )
 
-# Convert the re-parameterized soybean2 model to an R command string
-r_cmd_string <- with(soybean_reparam, write_model(
-  'soybean2',
-  direct_modules,
-  differential_modules,
-  initial_values,
-  parameters,
-  ode_solver
-))
+# Helping function to run a model each year for ambient and elevated CO2
+# conditions and plot the results
+run_all_conditions <- function(model_def, model_name) {
+    delta_eCO2 <- 180
 
-# Save the model definition as an R file in the output directory
-writeLines(r_cmd_string, MODEL_FILE)
+    model_full_res <- rbind(
+      within(run_soybean(model_def, drivers_2002, Catm_2002 + delta_eCO2), {model = 'elevated_2002'}),
+      within(run_soybean(model_def, drivers_2002, Catm_2002),              {model = 'ambient_2002'}),
+      within(run_soybean(model_def, drivers_2004, Catm_2004 + delta_eCO2), {model = 'elevated_2004'}),
+      within(run_soybean(model_def, drivers_2004, Catm_2004),              {model = 'ambient_2004'}),
+      within(run_soybean(model_def, drivers_2005, Catm_2005 + delta_eCO2), {model = 'elevated_2005'}),
+      within(run_soybean(model_def, drivers_2005, Catm_2005),              {model = 'ambient_2005'}),
+      within(run_soybean(model_def, drivers_2006, Catm_2006 + delta_eCO2), {model = 'elevated_2006'}),
+      within(run_soybean(model_def, drivers_2006, Catm_2006),              {model = 'ambient_2006'})
+    )
+
+    PhotoGEA::pdf_print(
+        lattice::xyplot(
+            Leaf + Stem + Root + Grain + Shell + TotalLitter ~ fractional_doy | model,
+            data = model_full_res,
+            type = 'l',
+            auto.key = list(space = 'top'),
+            xlab = 'Day of year',
+            ylab = 'Biomass (Mg / ha)',
+            ylim = c(-0.5, 9.5),
+            main = model_name,
+            par.settings = list(
+                superpose.line = list(col = cols)
+            ),
+            models = model_full_res$model,
+            panel = function(...) {
+                # Get info about this model
+                args <- list(...)
+                model <- args$models[args$subscripts][1]
+
+                # Get the corresponding biomass data set
+                bmass       <- process_table(soyface_biomass[[model]],                 'biomass')
+                bmass_stdev <- process_table(soyface_biomass[[paste0(model, '_std')]], 'stdev')
+
+                # Plot the measured data points
+                plot_biomass_points(bmass$Leaf_Mg_per_ha,      bmass_stdev$Leaf_Mg_per_ha,      bmass$time, cols[1])
+                plot_biomass_points(bmass$Stem_Mg_per_ha,      bmass_stdev$Stem_Mg_per_ha,      bmass$time, cols[2])
+                plot_biomass_points(bmass$Root_Mg_per_ha,      bmass_stdev$Root_Mg_per_ha,      bmass$time, cols[3])
+                plot_biomass_points(bmass$Seed_Mg_per_ha,      bmass_stdev$Seed_Mg_per_ha,      bmass$time, cols[4])
+                plot_biomass_points(bmass$Shell_Mg_per_ha,     bmass_stdev$Shell_Mg_per_ha,     bmass$time, cols[5])
+                plot_biomass_points(bmass$CumLitter_Mg_per_ha, bmass_stdev$CumLitter_Mg_per_ha, bmass$time, cols[6])
+
+                # Plot the simulation results
+                lattice::panel.xyplot(...)
+            },
+            layout = c(4, 2)
+        ),
+        width = 12,
+        save_to_pdf = TRUE,
+        file = file.path(OUTPUT_DIR, paste0('soybean_validation_', model_name, '.pdf'))
+    )
+}
+
+# Run both models each year for ambient and elevated CO2 conditions
+run_all_conditions(base_model_definition, 'original')
+run_all_conditions(soybean_reparam,       'reparameterized')
