@@ -96,6 +96,10 @@ be directly added to this file to describe the related changes.
   they determine `Cc` along with `Ci`. Setting `gm_at_25` to infinity will
   ensure that `Cc = Ci`, reproducing the behavior of previous BioCro versions.
 
+- The `inst/extdata/parameterize_soybean.R` script has been updated to use a
+  better approach, where the evolutionary optimizer is followed by a Nelder-Mead
+  optimizer.
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from
