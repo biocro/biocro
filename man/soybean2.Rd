@@ -33,6 +33,11 @@
   this version of the soybean model was created:
 
   \itemize{
+    \item \emph{2026-08-07}: Changes were made to the leaf-level photosynthesis
+          calculations that reduce the frequency of convergence failures. The
+          model was re-parameterized since these changes make a larger region of
+          parameter space accessible to the optimizers.
+
     \item \emph{2026-06-22}: The model was changed to use the new
           \code{stomata_water_stress_bilinear} module instead of the
           \code{stomata_water_stress_linear}, and the behavior of the
