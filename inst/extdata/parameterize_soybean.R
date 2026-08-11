@@ -119,11 +119,14 @@ MODEL_FILE          <- file.path(OUTPUT_DIR, 'soybean2.R')              # a scri
 RDATA_FILE      <- file.path(OUTPUT_DIR, 'optim_res.Rdata')
 RDATA_FILE_NMKB <- file.path(OUTPUT_DIR, 'optim_res_nmkb.Rdata')
 
-# Get Catm values for 2002 and 2005
-Catm_2002 <- with(BioCro::catm_data, {Catm[year == '2002']})
-Catm_2004 <- with(BioCro::catm_data, {Catm[year == '2004']})
-Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
-Catm_2006 <- with(BioCro::catm_data, {Catm[year == '2005']})
+# Get Catm values
+years_to_use <- c('2002', '2004', '2005', '2006')
+
+soy_catm <- lapply(years_to_use, function(yr) {
+    BioCro::catm_data[BioCro::catm_data[['year']] == yr, 'Catm']
+})
+
+names(soy_catm) <- years_to_use
 
 ###
 ### Prepare inputs for `objective_function`
@@ -206,29 +209,33 @@ replace_precip <- function(df_orig, df_new) {
   df_orig
 }
 
-# For 2002, we can just use the default weather data
-drivers_2002 <- soybean_weather[['2002']]
-
-# For other years, we overwrite the precipitation values with values from
+# Get weather data. For 2002, we can just use the default weather data. For
+# other years, we overwrite the precipitation values with values from
 # Grey et al. (2016)
-drivers_2004 <- replace_precip(soybean_weather[['2004']], soyface_precip[['2004']])
-drivers_2005 <- replace_precip(soybean_weather[['2005']], soyface_precip[['2005']])
-drivers_2006 <- replace_precip(soybean_weather[['2006']], soyface_precip[['2006']])
+soy_drivers <- lapply(years_to_use, function(yr) {
+    if (yr == '2002') {
+        soybean_weather[[yr]]
+    } else {
+        replace_precip(soybean_weather[[yr]], soyface_precip[[yr]])
+    }
+})
+
+names(soy_drivers) <- years_to_use
 
 # Define the data-driver pairs
 data_driver_pairs <- list(
   ambient_2002 = list(
     data       = process_table(soyface_biomass[['ambient_2002']],     'biomass'),
     data_stdev = process_table(soyface_biomass[['ambient_2002_std']], 'stdev'),
-    drivers    = drivers_2002,
-    parameters = list(Catm = Catm_2002),
+    drivers    = soy_drivers[['2002']],
+    parameters = list(Catm = soy_catm[['2002']]),
     weight     = 1
   ),
   ambient_2005 = list(
     data       = process_table(soyface_biomass[['ambient_2005']],     'biomass'),
     data_stdev = process_table(soyface_biomass[['ambient_2005_std']], 'stdev'),
-    drivers    = drivers_2005,
-    parameters = list(Catm = Catm_2005),
+    drivers    = soy_drivers[['2005']],
+    parameters = list(Catm = soy_catm[['2005']]),
     weight     = 1
   )
 )
@@ -572,13 +579,13 @@ run_soybean <- function(model_definition, drivers, Catm_year) {
 
 # Run each model for 2002 and 2005 and combine the results by year
 full_res_2002 <- rbind(
-  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, soy_catm[['2002']]), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, soy_catm[['2002']]), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 full_res_2005 <- rbind(
-  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, soy_catm[['2005']]), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, soy_catm[['2005']]), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 # Helper function for adding biomass values to plot
@@ -599,7 +606,8 @@ plot_biomass_points <- function(biomass, stdev, biocro_time, color) {
 
 # Plot a comparison of the original and re-optimized versions of the model for
 # the years used in the parameterization
-cols <- PhotoGEA::multi_curve_colors()
+cols         <- PhotoGEA::multi_curve_colors()
+biomass_ylim <- c(-0.5, 9.5)
 
 PhotoGEA::pdf_print(
     lattice::xyplot(
@@ -609,6 +617,7 @@ PhotoGEA::pdf_print(
         auto.key = list(space = 'top'),
         xlab = 'Day of year (2002)',
         ylab = 'Biomass (Mg / ha)',
+        ylim = biomass_ylim,
         par.settings = list(
             superpose.line = list(col = cols)
         ),
@@ -639,6 +648,7 @@ PhotoGEA::pdf_print(
         auto.key = list(space = 'top'),
         xlab = 'Day of year (2005)',
         ylab = 'Biomass (Mg / ha)',
+        ylim = biomass_ylim,
         par.settings = list(
             superpose.line = list(col = cols)
         ),
@@ -666,16 +676,23 @@ PhotoGEA::pdf_print(
 run_all_conditions <- function(model_def, model_name) {
     delta_eCO2 <- 180
 
-    model_full_res <- rbind(
-      within(run_soybean(model_def, drivers_2002, Catm_2002 + delta_eCO2), {model = 'elevated_2002'}),
-      within(run_soybean(model_def, drivers_2002, Catm_2002),              {model = 'ambient_2002'}),
-      within(run_soybean(model_def, drivers_2004, Catm_2004 + delta_eCO2), {model = 'elevated_2004'}),
-      within(run_soybean(model_def, drivers_2004, Catm_2004),              {model = 'ambient_2004'}),
-      within(run_soybean(model_def, drivers_2005, Catm_2005 + delta_eCO2), {model = 'elevated_2005'}),
-      within(run_soybean(model_def, drivers_2005, Catm_2005),              {model = 'ambient_2005'}),
-      within(run_soybean(model_def, drivers_2006, Catm_2006 + delta_eCO2), {model = 'elevated_2006'}),
-      within(run_soybean(model_def, drivers_2006, Catm_2006),              {model = 'ambient_2006'})
-    )
+    model_full_res <- data.frame()
+
+    for (yr in years_to_use) {
+        for (type in c('elevated', 'ambient')) {
+            mname <- paste0(type, '_', yr)
+
+            catm <- soy_catm[[yr]]
+            if (type == 'elevated') {
+                catm <- catm + delta_eCO2
+            }
+
+            model_full_res <- rbind(
+                model_full_res,
+                within(run_soybean(model_def, soy_drivers[[yr]], catm), {model = mname})
+            )
+        }
+    }
 
     PhotoGEA::pdf_print(
         lattice::xyplot(
@@ -685,7 +702,7 @@ run_all_conditions <- function(model_def, model_name) {
             auto.key = list(space = 'top'),
             xlab = 'Day of year',
             ylab = 'Biomass (Mg / ha)',
-            ylim = c(-0.5, 9.5),
+            ylim = biomass_ylim,
             main = model_name,
             par.settings = list(
                 superpose.line = list(col = cols)
