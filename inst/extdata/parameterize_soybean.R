@@ -47,12 +47,13 @@
 library(BioCro)
 library(BioCroValidation)
 library(DEoptim)
+library(dfoptim)
 library(lattice)
 library(parallel)
 library(PhotoGEA)
 
 # Check the BioCroValidation version
-expected_version  <- '0.3.0-1'
+expected_version  <- '0.3.0-2'
 installed_version <- as.character(packageVersion('BioCroValidation'))
 
 if (compareVersion(expected_version, installed_version) != 0) {
@@ -83,8 +84,16 @@ rm(list = setdiff(ls(), required_var))
 # Option to use this on biocluster
 RUN_ON_BIOCLUSTER = FALSE
 
-# Choose the number of optimizer iterations
+# Choose the number of DEoptim optimizer iterations
 ITERMAX <- 2000
+
+# Choose the tolerance for the nmkb optimizer
+TOL <- 1e-7
+
+# Decide whether to run optimization stages; setting these to FALSE can be
+# useful if you just want to change some plotting parameters for the figures
+MAKE_NEW_CALCULATIONS_EVOLUTIONARY <- TRUE
+MAKE_NEW_CALCULATIONS_NELDER_MEAD  <- TRUE
 
 # Make sure the output directory exists
 BASE_OUTPUT_DIR <- 'outputs'
@@ -100,14 +109,24 @@ if (!dir.exists(OUTPUT_DIR)) {
 }
 
 # Specify log file names
-ERROR_LOG_FILE <- file.path(OUTPUT_DIR, 'error_log.md')            # a record of any BioCro errors
-TRACE_LOG_FILE <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the optimizer
-COMPARE_FILE   <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
-MODEL_FILE     <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
+ERROR_LOG_FILE      <- file.path(OUTPUT_DIR, 'error_log.md')            # a record of any BioCro errors
+TRACE_LOG_FILE      <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the DEoptim optimizer
+TRACE_LOG_FILE_NMKB <- file.path(OUTPUT_DIR, 'trace_log_nmkb.md')       # a trace of the nmkb optimizer
+COMPARE_FILE        <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
+MODEL_FILE          <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
 
-# Get Catm values for 2002 and 2005
-Catm_2002 <- with(BioCro::catm_data, {Catm[year == '2002']})
-Catm_2005 <- with(BioCro::catm_data, {Catm[year == '2005']})
+# Specify Rdata file names
+RDATA_FILE      <- file.path(OUTPUT_DIR, 'optim_res.Rdata')
+RDATA_FILE_NMKB <- file.path(OUTPUT_DIR, 'optim_res_nmkb.Rdata')
+
+# Get Catm values
+years_to_use <- c('2002', '2004', '2005', '2006')
+
+soy_catm <- lapply(years_to_use, function(yr) {
+    BioCro::catm_data[BioCro::catm_data[['year']] == yr, 'Catm']
+})
+
+names(soy_catm) <- years_to_use
 
 ###
 ### Prepare inputs for `objective_function`
@@ -190,27 +209,33 @@ replace_precip <- function(df_orig, df_new) {
   df_orig
 }
 
-# For 2002, we can just use the default weather data
-drivers_2002 <- soybean_weather[['2002']]
-
-# For 2005, we overwrite the precipitation values with values from
+# Get weather data. For 2002, we can just use the default weather data. For
+# other years, we overwrite the precipitation values with values from
 # Grey et al. (2016)
-drivers_2005 <- replace_precip(soybean_weather[['2005']], soyface_precip[['2005']])
+soy_drivers <- lapply(years_to_use, function(yr) {
+    if (yr == '2002') {
+        soybean_weather[[yr]]
+    } else {
+        replace_precip(soybean_weather[[yr]], soyface_precip[[yr]])
+    }
+})
+
+names(soy_drivers) <- years_to_use
 
 # Define the data-driver pairs
 data_driver_pairs <- list(
   ambient_2002 = list(
     data       = process_table(soyface_biomass[['ambient_2002']],     'biomass'),
     data_stdev = process_table(soyface_biomass[['ambient_2002_std']], 'stdev'),
-    drivers    = drivers_2002,
-    parameters = list(Catm = Catm_2002),
+    drivers    = soy_drivers[['2002']],
+    parameters = list(Catm = soy_catm[['2002']]),
     weight     = 1
   ),
   ambient_2005 = list(
     data       = process_table(soyface_biomass[['ambient_2005']],     'biomass'),
     data_stdev = process_table(soyface_biomass[['ambient_2005_std']], 'stdev'),
-    drivers    = drivers_2005,
-    parameters = list(Catm = Catm_2005),
+    drivers    = soy_drivers[['2005']],
+    parameters = list(Catm = soy_catm[['2005']]),
     weight     = 1
   )
 )
@@ -326,30 +351,6 @@ extra_penalty_function <- function(sim_res, long_form_data) {
 ###
 ### Create the objective function
 ###
-normalization_method <- 'mean_max'
-stdev_weight_method  <- 'logarithm'
-stdev_weight_param   <- 1e-5
-regularization_method <- 'none'
-
-# Create the objective function
-obj_fun <- objective_function(
-  base_model_definition,
-  data_driver_pairs,
-  independent_args,
-  quantity_weights,
-  data_definitions       = data_definitions,
-  normalization_method   = normalization_method,
-  stdev_weight_method    = stdev_weight_method,
-  stdev_weight_param     = stdev_weight_param,
-  regularization_method  = regularization_method,
-  dependent_arg_function = dependent_arg_function,
-  post_process_function  = post_process_function,
-  extra_penalty_function = extra_penalty_function
-)
-
-###
-### Use an optimizer to choose parameter values
-###
 
 # Specify some bounds
 aul <- 50   # Upper limit for alpha parameters
@@ -383,49 +384,138 @@ bounds <- bounds_table(
   )
 )
 
-# Specify cores for parallel operation, and store any messages in a dedicated
-# log file
-cl = makeCluster(NCORES, outfile = ERROR_LOG_FILE)
+# Specify objective function settings
+normalization_method <- 'mean_max'
+stdev_weight_method  <- 'logarithm'
+stdev_weight_param   <- 1e-5
+regularization_method <- 'none'
 
-# Set a seed
-set.seed(SEED)
-
-parVars <- c(
-    'base_model_definition',
-    'data_driver_pairs',
-    'independent_args',
-    'quantity_weights',
-    'data_definitions',
-    'normalization_method',
-    'stdev_weight_method',
-    'regularization_method',
-    'dependent_arg_function',
-    'post_process_function',
-    'extra_penalty_function'
+# Create the objective function
+obj_fun <- objective_function(
+  base_model_definition,
+  data_driver_pairs,
+  independent_args,
+  quantity_weights,
+  data_definitions       = data_definitions,
+  normalization_method   = normalization_method,
+  stdev_weight_method    = stdev_weight_method,
+  stdev_weight_param     = stdev_weight_param,
+  regularization_method  = regularization_method,
+  dependent_arg_function = dependent_arg_function,
+  post_process_function  = post_process_function,
+  extra_penalty_function = extra_penalty_function
 )
 
-if (RUN_ON_BIOCLUSTER) {
-  # Broadcast the vars to cluster
-  clusterExport(cl, parVars, envir = environment())
+###
+### Use an evolutionary optimizer to get a good guess
+###
+
+if (MAKE_NEW_CALCULATIONS_EVOLUTIONARY) {
+    # Remove any previous log files
+    if (file.exists(ERROR_LOG_FILE)) {
+        file.remove(ERROR_LOG_FILE)
+    }
+
+    if (file.exists(TRACE_LOG_FILE)) {
+        file.remove(TRACE_LOG_FILE)
+    }
+
+    # Specify cores for parallel operation, and store any messages in a dedicated
+    # log file
+    cl = makeCluster(NCORES, outfile = ERROR_LOG_FILE)
+
+    # Set a seed
+    set.seed(SEED)
+
+    parVars <- c(
+        'base_model_definition',
+        'data_driver_pairs',
+        'independent_args',
+        'quantity_weights',
+        'data_definitions',
+        'normalization_method',
+        'stdev_weight_method',
+        'regularization_method',
+        'dependent_arg_function',
+        'post_process_function',
+        'extra_penalty_function'
+    )
+
+    if (RUN_ON_BIOCLUSTER) {
+      # Broadcast the vars to cluster
+      clusterExport(cl, parVars, envir = environment())
+    }
+
+    # Run the optimizer, storing its "trace" outputs in a dedicated log file
+    sink(TRACE_LOG_FILE)
+
+    optim_result <- DEoptim(
+        fn = obj_fun,
+        lower = bounds$lower,
+        upper = bounds$upper,
+        control = list(
+            itermax = ITERMAX,
+            parallelType = 1,
+            parVar=parVars,
+            cluster = cl,
+            trace = 1
+        )
+    )
+
+    # Stop the cluster; if the workers have already been terminated, this will
+    # cause an error, so we wrap it in tryCatch
+    tryCatch(
+        stopCluster(cl),
+        error = function(e) {}
+    )
+
+    sink()
+
+    # Save the results
+    save(optim_result, file = RDATA_FILE)
+} else {
+    load(RDATA_FILE)
 }
 
-# Run the optimizer, storing its "trace" outputs in a dedicated log file
-sink(TRACE_LOG_FILE)
+optim_param <- optim_result$optim$bestmem
 
-optim_result <- DEoptim(
-    fn = obj_fun,
-    lower = bounds$lower,
-    upper = bounds$upper,
-    control = list(
-        itermax = ITERMAX,
-        parallelType = 1,
-        parVar=parVars,
-        cluster = cl,
-        trace = 1
+###
+### Use a Nelder-Mead optimizer to improve on the best guess from the
+### evolutionary optimizer
+###
+
+if (MAKE_NEW_CALCULATIONS_NELDER_MEAD) {
+    # Remove any previous log files
+    if (file.exists(TRACE_LOG_FILE_NMKB)) {
+        file.remove(TRACE_LOG_FILE_NMKB)
+    }
+
+    # Run the optimizer, storing its "trace" outputs in a dedicated log file
+    sink(TRACE_LOG_FILE_NMKB)
+
+    optim_result_nmkb <- nmkb(
+        as.numeric(optim_param),
+        obj_fun,
+        lower = bounds$lower,
+        upper = bounds$upper,
+        control = list(
+            tol = TOL,
+            maxfeval = 50000,
+            restarts.max = 10,
+            trace = TRUE
+        ),
+        debug_mode = FALSE # passed to obj_fun
     )
-)
 
-sink()
+    sink()
+
+    # Save the results
+    save(optim_result_nmkb, file = RDATA_FILE_NMKB)
+} else {
+    load(RDATA_FILE_NMKB)
+}
+
+optim_param_nmkb <- optim_result_nmkb$par
 
 ###
 ### Check and record the new values
@@ -435,7 +525,7 @@ sink()
 ind_arg_table <- data.frame(
   arg_name      = independent_arg_names,
   defaults      = as.numeric(independent_args),
-  optimized     = optim_result$optim$bestmem,
+  optimized     = optim_param_nmkb,
   stringsAsFactors = FALSE
 )
 
@@ -451,13 +541,31 @@ sink()
 soybean_reparam <- update_model(
   base_model_definition,
   independent_args,
-  optim_result$optim$bestmem,
+  optim_param_nmkb,
   dependent_arg_function = dependent_arg_function
 )
 
-# Define a helper function that runs a single model for a single year
+# Convert the re-parameterized soybean2 model to an R command string
+r_cmd_string <- with(soybean_reparam, write_model(
+  'soybean2',
+  direct_modules,
+  differential_modules,
+  initial_values,
+  parameters,
+  ode_solver
+))
+
+# Save the model definition as an R file in the output directory
+writeLines(r_cmd_string, MODEL_FILE)
+
+###
+### Visualize results
+###
+
+# Define a helper function that runs a single model for a single year and adds
+# a total litter column
 run_soybean <- function(model_definition, drivers, Catm_year) {
-  with(model_definition, {run_biocro(
+  tmp_res <- with(model_definition, {run_biocro(
     initial_values,
     within(parameters, {Catm = Catm_year}),
     drivers,
@@ -465,22 +573,20 @@ run_soybean <- function(model_definition, drivers, Catm_year) {
     differential_modules,
     ode_solver
   )})
+
+  within(tmp_res, {TotalLitter = LeafLitter + StemLitter})
 }
 
 # Run each model for 2002 and 2005 and combine the results by year
 full_res_2002 <- rbind(
-  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, Catm_2002), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2002$drivers, soy_catm[['2002']]), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2002$drivers, soy_catm[['2002']]), {model = 'Re-parameterized Soybean-BioCro'})
 )
 
 full_res_2005 <- rbind(
-  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Default Soybean-BioCro'}),
-  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, Catm_2005), {model = 'Re-parameterized Soybean-BioCro'})
+  within(run_soybean(base_model_definition, data_driver_pairs$ambient_2005$drivers, soy_catm[['2005']]), {model = 'Default Soybean-BioCro'}),
+  within(run_soybean(soybean_reparam,       data_driver_pairs$ambient_2005$drivers, soy_catm[['2005']]), {model = 'Re-parameterized Soybean-BioCro'})
 )
-
-# Add a total litter column
-full_res_2002$TotalLitter <- full_res_2002$LeafLitter + full_res_2002$StemLitter
-full_res_2005$TotalLitter <- full_res_2005$LeafLitter + full_res_2005$StemLitter
 
 # Helper function for adding biomass values to plot
 plot_biomass_points <- function(biomass, stdev, biocro_time, color) {
@@ -498,8 +604,10 @@ plot_biomass_points <- function(biomass, stdev, biocro_time, color) {
     )
 }
 
-# Plot the results
-cols <- PhotoGEA::multi_curve_colors()
+# Plot a comparison of the original and re-optimized versions of the model for
+# the years used in the parameterization
+cols         <- PhotoGEA::multi_curve_colors()
+biomass_ylim <- c(-0.5, 9.5)
 
 PhotoGEA::pdf_print(
     lattice::xyplot(
@@ -509,6 +617,7 @@ PhotoGEA::pdf_print(
         auto.key = list(space = 'top'),
         xlab = 'Day of year (2002)',
         ylab = 'Biomass (Mg / ha)',
+        ylim = biomass_ylim,
         par.settings = list(
             superpose.line = list(col = cols)
         ),
@@ -528,7 +637,7 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = paste0(OUTPUT_DIR,'/soybean_validation_2002.pdf')
+    file = file.path(OUTPUT_DIR, 'soybean_validation_2002.pdf')
 )
 
 PhotoGEA::pdf_print(
@@ -539,6 +648,7 @@ PhotoGEA::pdf_print(
         auto.key = list(space = 'top'),
         xlab = 'Day of year (2005)',
         ylab = 'Biomass (Mg / ha)',
+        ylim = biomass_ylim,
         par.settings = list(
             superpose.line = list(col = cols)
         ),
@@ -558,18 +668,74 @@ PhotoGEA::pdf_print(
     ),
     width = 10,
     save_to_pdf = TRUE,
-    file = paste0(OUTPUT_DIR,'/soybean_validation_2005.pdf')
+    file = file.path(OUTPUT_DIR, 'soybean_validation_2005.pdf')
 )
 
-# Convert the re-parameterized soybean2 model to an R command string
-r_cmd_string <- with(soybean_reparam, write_model(
-  'soybean2',
-  direct_modules,
-  differential_modules,
-  initial_values,
-  parameters,
-  ode_solver
-))
+# Helping function to run a model each year for ambient and elevated CO2
+# conditions and plot the results
+run_all_conditions <- function(model_def, model_name) {
+    delta_eCO2 <- 180
 
-# Save the model definition as an R file in the output directory
-writeLines(r_cmd_string, MODEL_FILE)
+    model_full_res <- data.frame()
+
+    for (yr in years_to_use) {
+        for (type in c('elevated', 'ambient')) {
+            mname <- paste0(type, '_', yr)
+
+            catm <- soy_catm[[yr]]
+            if (type == 'elevated') {
+                catm <- catm + delta_eCO2
+            }
+
+            model_full_res <- rbind(
+                model_full_res,
+                within(run_soybean(model_def, soy_drivers[[yr]], catm), {model = mname})
+            )
+        }
+    }
+
+    PhotoGEA::pdf_print(
+        lattice::xyplot(
+            Leaf + Stem + Root + Grain + Shell + TotalLitter ~ fractional_doy | model,
+            data = model_full_res,
+            type = 'l',
+            auto.key = list(space = 'top'),
+            xlab = 'Day of year',
+            ylab = 'Biomass (Mg / ha)',
+            ylim = biomass_ylim,
+            main = model_name,
+            par.settings = list(
+                superpose.line = list(col = cols)
+            ),
+            models = model_full_res$model,
+            panel = function(...) {
+                # Get info about this model
+                args <- list(...)
+                model <- args$models[args$subscripts][1]
+
+                # Get the corresponding biomass data set
+                bmass       <- process_table(soyface_biomass[[model]],                 'biomass')
+                bmass_stdev <- process_table(soyface_biomass[[paste0(model, '_std')]], 'stdev')
+
+                # Plot the measured data points
+                plot_biomass_points(bmass$Leaf_Mg_per_ha,      bmass_stdev$Leaf_Mg_per_ha,      bmass$time, cols[1])
+                plot_biomass_points(bmass$Stem_Mg_per_ha,      bmass_stdev$Stem_Mg_per_ha,      bmass$time, cols[2])
+                plot_biomass_points(bmass$Root_Mg_per_ha,      bmass_stdev$Root_Mg_per_ha,      bmass$time, cols[3])
+                plot_biomass_points(bmass$Seed_Mg_per_ha,      bmass_stdev$Seed_Mg_per_ha,      bmass$time, cols[4])
+                plot_biomass_points(bmass$Shell_Mg_per_ha,     bmass_stdev$Shell_Mg_per_ha,     bmass$time, cols[5])
+                plot_biomass_points(bmass$CumLitter_Mg_per_ha, bmass_stdev$CumLitter_Mg_per_ha, bmass$time, cols[6])
+
+                # Plot the simulation results
+                lattice::panel.xyplot(...)
+            },
+            layout = c(4, 2)
+        ),
+        width = 12,
+        save_to_pdf = TRUE,
+        file = file.path(OUTPUT_DIR, paste0('soybean_validation_', model_name, '.pdf'))
+    )
+}
+
+# Run both models each year for ambient and elevated CO2 conditions
+run_all_conditions(base_model_definition, 'original')
+run_all_conditions(soybean_reparam,       'reparameterized')

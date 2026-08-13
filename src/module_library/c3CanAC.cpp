@@ -1,7 +1,6 @@
 #include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
 #include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
-#include "c3photo.h"                           // for c3photoC
+#include "c3photo.h"                           // for c3photoC, solve_c3_gs
 #include "core/photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
 #include "leaf_energy_balance.h"               // for leaf_energy_balance
 #include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
@@ -77,63 +76,84 @@ canopy_photosynthesis_outputs c3CanAC(
                                              par_energy_fraction};
     core::canopy_light light_dist = core::canopy_light::from_solar(solarR, light_model, params);
 
-    using namespace root_finding;
-
-    // Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
-
     // Leaf-level photosynthesis function for use with core::canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a
     // single leaf class (sunlit or shaded) and returns a LeafAssim summary.
     auto leaf_photo = [&](double iabs, double j_shortwave, double layer_wind_speed, double layer_leafN) -> core::leaf_assim {
         double const effective_Vcmax = (lnfun != 0) ? layer_leafN * lnb1 + lnb0 : Vcmax_at_25;
-        double constexpr gbw_guess = 1.2;  // mol / m^2 / s
 
-        // Initial guess: evaluate photosynthesis at ambient leaf temperature
-        double gsw_estimate =
-            c3photoC(
-                tr_param, iabs, ambient_temperature, ambient_temperature,
-                RH, gm_at_25, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS, electrons_per_carboxylation,
-                electrons_per_oxygenation, beta_PSII, gbw_guess)
-                .Gs;  // mol / m^2 / s
+        // Solve for gs
+        root_finding::result_t const result = solve_c3_gs(
+            tr_param,
+            absorbed_longwave,            // J / (m^2 leaf) / s
+            iabs,                         // micromol / (m^2 leaf) / s
+            j_shortwave,                  // J / (m^2 leaf) / s
+            ambient_temperature,          // degrees C
+            atmospheric_pressure,         // Pa
+            b0,                           // mol / m^2 / s
+            b1,                           // dimensionless
+            beta_PSII,                    // dimensionless
+            Catm,                         // micromol / mol
+            electrons_per_carboxylation,  // self-explanatory units
+            electrons_per_oxygenation,    // self-explanatory units
+            gbw_canopy,                   // mol / m^2 / s
+            gm_at_25,                     // mol / m^2 / s / Pa
+            Gs_min,                       // mol / m^2 / s
+            Gstar_at_25,                  // micromol / mol
+            Jmax_at_25,                   // micromol / m^2 / s
+            Kc_at_25,                     // micromol / mol
+            Ko_at_25,                     // mmol / mol
+            leaf_width,                   // m
+            o2,                           // mmol / mol
+            RH,                           // dimensionless
+            RL_at_25,                     // micromol / m^2 / s
+            StomataWS,                    // dimensionless
+            Tp_at_25,                     // micromol / m^2 / s
+            effective_Vcmax,              // micromol / m^2 / s
+            layer_wind_speed              // m / s
+        );
 
-        energy_balance_outputs et;
-        photosynthesis_outputs photo;
+        // Get final values
+        double const Gs = result.root;  // mol / m^2 / s
 
-        auto gs_func = [&](double current_gs) {
-            et = leaf_energy_balance(
-                absorbed_longwave,
-                j_shortwave,
-                atmospheric_pressure,
-                ambient_temperature,
-                gbw_canopy,
-                leaf_width,
-                RH,
-                current_gs,
-                layer_wind_speed);
+        energy_balance_outputs const et = leaf_energy_balance(
+            absorbed_longwave,
+            j_shortwave,
+            atmospheric_pressure,
+            ambient_temperature,
+            gbw_canopy,
+            leaf_width,
+            RH,
+            Gs,
+            layer_wind_speed);
 
-            double leaf_temperature_dir =
-                ambient_temperature + et.Deltat;  // degrees C
+        double const Tleaf = ambient_temperature + et.Deltat;  // degrees C
 
-            photo = c3photoC(
-                tr_param, iabs, leaf_temperature_dir, ambient_temperature,
-                RH, gm_at_25, Gstar_at_25, Kc_at_25, Ko_at_25, effective_Vcmax, Jmax_at_25,
-                Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure,
-                o2, StomataWS, electrons_per_carboxylation, electrons_per_oxygenation,
-                beta_PSII, et.gbw_molar);
-
-            return photo.Gs;
-        };
-
-        result_t result = solver.solve(gs_func, gsw_estimate);
-
-        if (!is_successful(result.flag)) {
-            throw std::runtime_error(
-                "c3Canopy solver reports failed convergence. Termination flag:\n    " +
-                flag_message(result.flag));
-        }
+        photosynthesis_outputs const photo = c3photoC(
+            tr_param,
+            iabs,
+            Tleaf,
+            ambient_temperature,
+            RH,
+            gm_at_25,
+            Gstar_at_25,
+            Kc_at_25,
+            Ko_at_25,
+            effective_Vcmax,
+            Jmax_at_25,
+            Tp_at_25,
+            RL_at_25,
+            b0,
+            b1,
+            Gs_min,
+            Catm,
+            atmospheric_pressure,
+            o2,
+            StomataWS,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation,
+            beta_PSII,
+            et.gbw_molar);
 
         // mmol / m^2 / s -> Mg / ha / hr: (3600 s/hr)(1e-3 mol/mmol)(1e-3 Mg/kg)(1e4 m^2/ha)
         double constexpr cf2 = physical_constants::molar_mass_of_water * 36;

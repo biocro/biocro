@@ -69,9 +69,9 @@ be directly added to this file to describe the related changes.
   (25 degrees C). Because of this, several "scaling" parameters such as
   `Vcmax_c`, `Jmax_c`, `RL_c`, etc, are no longer required.
 
-- The fixed-point iteration method is now used to check for consistent values of
-  stomatal conductance when solving the combined assimilation + energy balance
-  models in the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
+- The Dekker method is now used to check for consistent values of stomatal
+  conductance when solving the combined assimilation + energy balance models in
+  the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
   `BioCro:c4_leaf_photosynthesis`, and `BioCro:c4_canopy` modules.
 
 - Added two new years of weather data (2023 and 2025) to the `weather` data set
@@ -95,6 +95,10 @@ be directly added to this file to describe the related changes.
 - The C3 photosynthesis calculations now include mesophyll conductance, and
   they determine `Cc` along with `Ci`. Setting `gm_at_25` to infinity will
   ensure that `Cc = Ci`, reproducing the behavior of previous BioCro versions.
+
+- The `inst/extdata/parameterize_soybean.R` script has been updated to use a
+  better approach, where the evolutionary optimizer is followed by a Nelder-Mead
+  optimizer.
 
 ## Bug Fixes
 
