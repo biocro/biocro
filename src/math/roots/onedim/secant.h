@@ -5,7 +5,6 @@
 
 namespace root_finding
 {
-
 /**
  * @brief Secant Method. Provide two initial guesses for root.
  *
@@ -35,15 +34,21 @@ struct secant : public root_finding_method<secant> {
     template <typename F>
     bool initialize(F&& fun, double x0, double x1)
     {
-        last = {x0, fun(x0)};
-        best = {x1, fun(x1)};
-        if (is_zero(best.y)) {
+        last.x = x0;
+        best.x = x1;
+
+        last.y = fun(x0);
+
+        if (is_zero(last.y)) {
+            best = last;
             flag = Flag::residual_zero;
             return false;
         }
-        if (is_zero(last.y)) {
+
+        best.y = fun(x1);
+
+        if (is_zero(best.y)) {
             flag = Flag::residual_zero;
-            std::swap(best, last);
             return false;
         }
 

@@ -6,7 +6,6 @@
 
 namespace root_finding
 {
-
 /**
  * @brief The "Dekker-Newton" method. A contrapoint bracketing method
  * using Newton's update. Provide a valid bracket and function object
@@ -53,18 +52,27 @@ struct dekker_newton : public root_finding_method<dekker_newton> {
     {
         contrapoint.x = a;
         best.x = b;
+
         contrapoint.y = fun(a);
-        best.y = fun(b);
-        if (smaller(contrapoint.y, best.y)) {
-            std::swap(best, contrapoint);
+
+        if (is_zero(contrapoint.y)) {
+            best = contrapoint;
+            flag = Flag::residual_zero;
+            return false;
         }
 
-        last = best;
+        best.y = fun(b);
 
         if (is_zero(best.y)) {
             flag = Flag::residual_zero;
             return false;
         }
+
+        if (smaller(contrapoint.y, best.y)) {
+            std::swap(best, contrapoint);
+        }
+
+        last = best;
 
         if (same_signs(best.y, contrapoint.y)) {
             flag = Flag::invalid_bracket;
@@ -78,13 +86,34 @@ struct dekker_newton : public root_finding_method<dekker_newton> {
     bool initialize(F&& fun, double a, double b, double c)
     {
         best.x = a;
+        last.x = b;
+        contrapoint.x = c;
+
         best.y = fun(a);
 
-        last.x = b;
+        if (is_zero(best.y)) {
+            last.y = std::numeric_limits<double>::quiet_NaN();
+            contrapoint.y = std::numeric_limits<double>::quiet_NaN();
+            flag = Flag::residual_zero;
+            return false;
+        }
+
         last.y = fun(b);
 
-        contrapoint.x = c;
+        if (is_zero(last.y)) {
+            best = last;
+            contrapoint.y = std::numeric_limits<double>::quiet_NaN();
+            flag = Flag::residual_zero;
+            return false;
+        }
+
         contrapoint.y = fun(c);
+
+        if (is_zero(contrapoint.y)) {
+            best = contrapoint;
+            flag = Flag::residual_zero;
+            return false;
+        }
 
         if (same_signs(best.y, contrapoint.y)) {
             if (same_signs(best.y, last.y)) {
@@ -97,11 +126,6 @@ struct dekker_newton : public root_finding_method<dekker_newton> {
 
         if (smaller(contrapoint.y, best.y)) {
             std::swap(best, contrapoint);
-        }
-
-        if (is_zero(best.y)) {
-            flag = Flag::residual_zero;
-            return false;
         }
 
         return true;
@@ -159,6 +183,11 @@ struct dekker_newton : public root_finding_method<dekker_newton> {
     {
         return best.y;
     };
+
+    std::optional<std::pair<graph_t, graph_t>> bracket() const
+    {
+        return std::make_pair(best, contrapoint);
+    }
 };
 
 }  // namespace root_finding

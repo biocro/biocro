@@ -1,7 +1,7 @@
-#include "../math/roots/onedim/fixed_point.h"  // for fixed_point
+#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "c4photo.h"                      // for c4photoC, solve_c4_gs
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c4_leaf_photosynthesis.h"
-#include "c4photo.h"              // for c4photoC
-#include "leaf_energy_balance.h"  // for leaf_energy_balance
 
 using standardBML::c4_leaf_photosynthesis;
 
@@ -57,51 +57,68 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 
 void c4_leaf_photosynthesis::do_operation() const
 {
-    // Make an initial guess for boundary layer conductance
-    double const gbw_guess{1.2};  // mol / m^2 / s
+    // Solve for gs
+    root_finding::result_t const result = solve_c4_gs(
+        absorbed_longwave,     // J / (m^2 leaf) / s
+        absorbed_shortwave,    // J / (m^2 leaf) / s
+        alpha1,                // mol / mol
+        ambient_temperature,   // degrees C
+        atmospheric_pressure,  // Pa
+        b0,                    // mol / m^2 / s
+        b1,                    // dimensionless
+        beta,                  // dimensionless
+        Catm,                  // micromol / mol
+        gbw_canopy,            // m / s
+        Gs_min,                // mol / m^2 / s
+        incident_ppfd,         // micromol / m^2 / s
+        kparm,                 // mol / m^2 / s
+        leafwidth,             // m
+        lowerT,                // degrees C
+        rh,                    // dimensionless
+        RL_at_25,              // micromol / m^2 / s
+        StomataWS,             // dimensionless
+        theta,                 // dimensionless
+        upperT,                // degrees C
+        Vcmax_at_25,           // micromol / m^2 / s
+        windspeed              // m / s
+    );
 
-    // Get an initial estimate of stomatal conductance, assuming the leaf is at
-    // air temperature
-    const double initial_stomatal_conductance =
-        c4photoC(incident_ppfd, ambient_temperature, ambient_temperature, rh,
-                 Vcmax_at_25, alpha1, kparm, theta, beta, RL_at_25, b0, b1,
-                 Gs_min, StomataWS, Catm, atmospheric_pressure, upperT, lowerT,
-                 gbw_guess)
-            .Gs;  // mol / m^2 / s
+    // Get final values
+    double const Gs = result.root;  // mol / m^2 / s
 
-    photosynthesis_outputs photo;
-    energy_balance_outputs et;
+    energy_balance_outputs const et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        Gs,
+        windspeed);
 
-    // 1. Set convergence criteria
-    root_finding::fixed_point solver(50, 1e-3, 1e-3);
+    double const Tleaf = ambient_temperature + et.Deltat;  // degrees C
 
-    auto func = [=, &photo, &et](double current_gs) {
-        // 2. Solve Energy Balance with current g_s
-        et = leaf_energy_balance(absorbed_longwave, absorbed_shortwave,
-                                 atmospheric_pressure, ambient_temperature,
-                                 gbw_canopy, leafwidth, rh, current_gs,
-                                 windspeed);
-
-        double leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
-
-        // 3. Recalculate g_s with current Tleaf
-        photo = c4photoC(incident_ppfd, leaf_temperature, ambient_temperature,
-                         rh, Vcmax_at_25, alpha1, kparm, theta, beta, RL_at_25,
-                         b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure,
-                         upperT, lowerT, et.gbw_molar);
-        return photo.Gs;
-    };
-
-    using namespace root_finding;
-    result_t result = solver.solve(func, initial_stomatal_conductance);
-
-    // Throw exception if not converged
-    if (!is_successful(result.flag)) {
-        throw std::runtime_error(
-            "c4_leaf_photosynthesis solver reports failed convergence with "
-            "termination flag:\n    " +
-            flag_message(result.flag));
-    }
+    photosynthesis_outputs const photo = c4photoC(
+        incident_ppfd,
+        Tleaf,
+        ambient_temperature,
+        rh,
+        Vcmax_at_25,
+        alpha1,
+        kparm,
+        theta,
+        beta,
+        RL_at_25,
+        b0,
+        b1,
+        Gs_min,
+        StomataWS,
+        Catm,
+        atmospheric_pressure,
+        upperT,
+        lowerT,
+        et.gbw_molar);
 
     // Update the outputs
     update(Assim_op, photo.Assim);
@@ -112,7 +129,7 @@ void c4_leaf_photosynthesis::do_operation() const
     update(gbw_op, et.gbw_molar);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, ambient_temperature + et.Deltat);
+    update(leaf_temperature_op, Tleaf);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);

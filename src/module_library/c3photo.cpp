@@ -2,16 +2,90 @@
 #include <cmath>                          // for pow, sqrt
 #include <limits>                         // for std::numeric_limits
 #include "../framework/constants.h"       // for dr_stomata, dr_boundary
+#include "../math/roots/onedim/dekker.h"  // for dekker
 #include "ball_berry_gs.h"                // for ball_berry_gs
 #include "c3_temperature_response.h"      // for c3_temperature_response
 #include "conductance_helpers.h"          // for sequential_conductance
 #include "conductance_limited_assim.h"    // for conductance_limited_assim
 #include "FvCB_assim.h"                   // for FvCB_assim
-#include "../math/roots/onedim/dekker.h"  // for dekker
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c3photo.h"
 
 using physical_constants::dr_boundary;
 using physical_constants::dr_stomata;
+
+double const inf = std::numeric_limits<double>::infinity();
+
+/**
+ *  @brief Calculates a difference in net CO2 assimilation rate; this function
+ *  will return zero only if Cc satisfies the FvCB + Ball-Berry + 1D gas flow
+ *  equations.
+ */
+double check_c3_assim_rate(
+    double const alpha_TPU,                    // dimensionless
+    double const b0_adj,                       // mol / m^2 / s
+    double const b1_adj,                       // dimensionless
+    double const Ca,                           // micromol / mol
+    double const Cc,                           // micromol / mol
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw,                          // mol / m^2 / s
+    double const gm,                           // mol / m^2 / s
+    double const Gstar,                        // micromol / mol
+    double const J,                            // micromol / m^2 / s
+    double const Kc,                           // micromol / mol
+    double const Ko,                           // mmol / mol
+    double const Oi,                           // mmol / mol
+    double const RH,                           // dimensionless
+    double const RL,                           // micromol / m^2 / s
+    double const Tambient,                     // degrees C
+    double const Tleaf,                        // degrees C
+    double const TPU,                          // micromol / m^2 / s
+    double const Vcmax                         // micromol / m^2 / s
+)
+{
+    // Use Cc to compute the assimilation rate according to the FvCB model.
+    FvCB_outputs const FvCB_res = FvCB_assim(
+        Cc,
+        Gstar,
+        J,
+        Kc,
+        Ko,
+        Oi,
+        RL,
+        TPU,
+        Vcmax,
+        alpha_TPU,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation);
+
+    double const Assim = FvCB_res.An;  // micromol / m^2 / s
+
+    // Use Assim to compute the stomatal conductance according to the
+    // Ball-Berry model. If Assim is too high, Cs will take a negative
+    // value, which is not allowed by the Ball-Berry model. To avoid this,
+    // we clamp Assim to the value that produces Cc = 0, which will also
+    // ensure that Cs > 0.
+    stomata_outputs const BB_res = ball_berry_gs(
+        std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
+        Ca * 1e-6,
+        RH,
+        b0_adj,
+        b1_adj,
+        gbw,
+        Tleaf,
+        Tambient);
+
+    double const Gs = BB_res.gsw;  // mol / m^2 / s
+
+    // Using Cc, gm, Gbw, and Gs, make a new estimate of the assimilation
+    // rate. If the initial value of Cc was correct, this should be
+    // identical to Assim.
+    double const Gt =
+        sequential_conductance({gbw / dr_boundary, Gs / dr_stomata, gm});  // mol / m^2 / s
+
+    return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
+};
 
 /**
  *  @brief Solves for An, Cc, Ci, and gs
@@ -49,9 +123,6 @@ photosynthesis_outputs c3photoC(
     double const gbw                           // mol / m^2 / s
 )
 {
-    // Define infinity
-    double const inf = std::numeric_limits<double>::infinity();
-
     // Check inputs
     if (absorbed_ppfd < 0) {
         throw std::out_of_range("Input `absorbed_ppfd` cannot be negative. Check `solar` is not negative.");
@@ -94,51 +165,35 @@ photosynthesis_outputs c3photoC(
     double const alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
 
     // Adjust Ball-Berry parameters in response to water stress
-    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);
-    double const b1_adj = StomWS * b1;
+    double const b0_adj = StomWS * b0 + Gs_min * (1.0 - StomWS);  // mol / m^2 / s
+    double const b1_adj = StomWS * b1;                            // dimensionless
 
-    // Initialize variables before running fixed point iteration in a loop
-    // these are updated as a side effect in the secant method iterations
-    FvCB_outputs FvCB_res;
-    stomata_outputs BB_res;
-    double Gs{1e3};     // mol / m^2 / s  (initial guess)
-    double Assim{0.0};  // micromol / mol (initial guess)
-
-    // This lambda function equals zero only if Cc satisfies both the FvCB and
-    // Ball-Berry models. Here, Cc should be expressed in micromol / mol.
-    auto check_assim_rate = [=, &FvCB_res, &BB_res, &Gs, &Assim](double Cc) {
-        // Use Cc to compute the assimilation rate according to the FvCB model.
-        FvCB_res = FvCB_assim(
-            Cc, Gstar, J, Kc, Ko, Oi, RL, TPU, Vcmax, alpha_TPU,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation);
-
-        Assim = FvCB_res.An;  // micromol / m^2 / s
-
-        // Use Assim to compute the stomatal conductance according to the
-        // Ball-Berry model. If Assim is too high, Cs will take a negative
-        // value, which is not allowed by the Ball-Berry model. To avoid this,
-        // we clamp Assim to the value that produces Cc = 0, which will also
-        // ensure that Cs > 0.
-        BB_res = ball_berry_gs(
-            std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
-            Ca * 1e-6,
-            RH,
-            b0_adj,
-            b1_adj,
-            gbw,
-            Tleaf,
-            Tambient);
-
-        Gs = BB_res.gsw;  // mol / m^2 / s
-
-        // Using Cc, gm, Gbw, and Gs, make a new estimate of the assimilation
-        // rate. If the initial value of Cc was correct, this should be
-        // identical to Assim.
-        double Gt =
-            sequential_conductance({gbw / dr_boundary, Gs / dr_stomata, gm});  // mol / m^2 / s
-
-        return Assim - Gt * (Ca - Cc);  // micromol / m^2 / s
+    // Use partial application to fix all inputs to `check_c3_assim_rate` except
+    // Cc. To solve the photosynthesis equations, a root of this function must
+    // be found.
+    auto check_c3_assim_rate_partial = [=](double const Cc) {
+        return check_c3_assim_rate(
+            alpha_TPU,                    // dimensionless
+            b0_adj,                       // mol / m^2 / s
+            b1_adj,                       // dimensionless
+            Ca,                           // micromol / mol
+            Cc,                           // micromol / mol
+            electrons_per_carboxylation,  // self-explanatory units
+            electrons_per_oxygenation,    // self-explanatory units
+            gbw,                          // mol / m^2 / s
+            gm,                           // mol / m^2 / s
+            Gstar,                        // micromol / mol
+            J,                            // micromol / m^2 / s
+            Kc,                           // micromol / mol
+            Ko,                           // mmol / mol
+            Oi,                           // mmol / mol
+            RH,                           // dimensionless
+            RL,                           // micromol / m^2 / s
+            Tambient,                     // degrees C
+            Tleaf,                        // degrees C
+            TPU,                          // micromol / m^2 / s
+            Vcmax                         // micromol / m^2 / s
+        );
     };
 
     // Get an upper bound for Cc by finding the most negative value of An (which
@@ -160,20 +215,49 @@ photosynthesis_outputs c3photoC(
     using namespace root_finding;
     dekker solve{500, 1e-12, 1e-12};
     result_t result = solve(
-        check_assim_rate,
-        0.718 * Ca,
-        0,
-        Cc_max * 1.01);
+        check_c3_assim_rate_partial,
+        0.718 * Ca,    // guess
+        0,             // lower
+        Cc_max * 1.01  // upper
+    );
 
     // Throw exception if not converged
     if (!is_successful(result.flag)) {
         throw std::runtime_error(
-            "Cc solver reports failed convergence with termination flag:\n    " +
-            flag_message(result.flag));
+            "Cc solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Get final values
-    double const Cc = result.root;                                         // micromol / mol
+    double const Cc = result.root;  // micromol / mol
+
+    FvCB_outputs const FvCB_res = FvCB_assim(
+        Cc,
+        Gstar,
+        J,
+        Kc,
+        Ko,
+        Oi,
+        RL,
+        TPU,
+        Vcmax,
+        alpha_TPU,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation);
+
+    double const Assim = FvCB_res.An;  // micromol / m^2 / s
+
+    stomata_outputs const BB_res = ball_berry_gs(
+        std::min(Assim, conductance_limited_assim(Ca, gbw, inf)) * 1e-6,
+        Ca * 1e-6,
+        RH,
+        b0_adj,
+        b1_adj,
+        gbw,
+        Tleaf,
+        Tambient);
+
+    double const Gs = BB_res.gsw;                                          // mol / m^2 / s
     double const Ci = Cc + Assim / gm;                                     // micromol / mol
     double const an_conductance = conductance_limited_assim(Ca, gbw, Gs);  // micromol / m^2 / s
 
@@ -191,6 +275,205 @@ photosynthesis_outputs c3photoC(
         /* .residual = */ result.residual,          // micromol / m^2 / s
         /* .iteration = */ result.iteration         // not a physical quantity
     };
+}
+
+/**
+ *  @brief Calculates a difference in stomatal conductance; this function will
+ *  return zero only if Gs satisfies the energy balance + FvCB + Ball-Berry + 1D
+ *  gas flow equations.
+ */
+double check_c3_gs(
+    c3_temperature_response_parameters const tr_param,
+    double const absorbed_longwave,            // J / (m^2 leaf) / s
+    double const absorbed_ppfd,                // micromol / (m^2 leaf) / s
+    double const absorbed_shortwave,           // J / (m^2 leaf) / s
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta_PSII,                    // dimensionless
+    double const Catm,                         // micromol / mol
+    double const current_gs,                   // mol / m^2 / s
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw_canopy,                   // mol / m^2 / s
+    double const gm_at_25,                     // mol / m^2 / s / Pa
+    double const Gs_min,                       // mol / m^2 / s
+    double const Gstar_at_25,                  // micromol / mol
+    double const Jmax_at_25,                   // micromol / m^2 / s
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
+    double const leafwidth,                    // m
+    double const O2,                           // mmol / mol
+    double const rh,                           // dimensionless
+    double const RL_at_25,                     // micromol / m^2 / s
+    double const StomataWS,                    // dimensionless
+    double const Tp_at_25,                     // micromol / m^2 / s
+    double const Vcmax_at_25,                  // micromol / m^2 / s
+    double const windspeed                     // m / s
+)
+{
+    // Solve energy balance with current gs
+    energy_balance_outputs const et = leaf_energy_balance(
+        absorbed_longwave,
+        absorbed_shortwave,
+        atmospheric_pressure,
+        ambient_temperature,
+        gbw_canopy,
+        leafwidth,
+        rh,
+        current_gs,
+        windspeed);
+
+    // Get new leaf temperature
+    double const current_Tleaf = ambient_temperature + et.Deltat;  // degrees C
+
+    // Recalculate gs with current Tleaf
+    photosynthesis_outputs const photo = c3photoC(
+        tr_param,
+        absorbed_ppfd,
+        current_Tleaf,
+        ambient_temperature,
+        rh,
+        gm_at_25,
+        Gstar_at_25,
+        Kc_at_25,
+        Ko_at_25,
+        Vcmax_at_25,
+        Jmax_at_25,
+        Tp_at_25,
+        RL_at_25,
+        b0,
+        b1,
+        Gs_min,
+        Catm,
+        atmospheric_pressure,
+        O2,
+        StomataWS,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        beta_PSII,
+        et.gbw_molar);
+
+    return photo.Gs - current_gs;  // mol / m^2 / s
+};
+
+root_finding::result_t solve_c3_gs(
+    c3_temperature_response_parameters const tr_param,
+    double const absorbed_longwave,            // J / (m^2 leaf) / s
+    double const absorbed_ppfd,                // micromol / (m^2 leaf) / s
+    double const absorbed_shortwave,           // J / (m^2 leaf) / s
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta_PSII,                    // dimensionless
+    double const Catm,                         // micromol / mol
+    double const electrons_per_carboxylation,  // self-explanatory units
+    double const electrons_per_oxygenation,    // self-explanatory units
+    double const gbw_canopy,                   // mol / m^2 / s
+    double const gm_at_25,                     // mol / m^2 / s / Pa
+    double const Gs_min,                       // mol / m^2 / s
+    double const Gstar_at_25,                  // micromol / mol
+    double const Jmax_at_25,                   // micromol / m^2 / s
+    double const Kc_at_25,                     // micromol / mol
+    double const Ko_at_25,                     // mmol / mol
+    double const leafwidth,                    // m
+    double const O2,                           // mmol / mol
+    double const rh,                           // dimensionless
+    double const RL_at_25,                     // micromol / m^2 / s
+    double const StomataWS,                    // dimensionless
+    double const Tp_at_25,                     // micromol / m^2 / s
+    double const Vcmax_at_25,                  // micromol / m^2 / s
+    double const windspeed                     // m / s
+)
+{
+    // Make an initial guess for boundary layer conductance
+    double const gbw_guess{1.2};  // mol / m^2 / s
+
+    // Get an initial estimate of stomatal conductance, assuming the leaf is at
+    // air temperature
+    double const initial_stomatal_conductance =
+        c3photoC(
+            tr_param,
+            absorbed_ppfd,
+            ambient_temperature,
+            ambient_temperature,
+            rh,
+            gm_at_25,
+            Gstar_at_25,
+            Kc_at_25,
+            Ko_at_25,
+            Vcmax_at_25,
+            Jmax_at_25,
+            Tp_at_25,
+            RL_at_25,
+            b0,
+            b1,
+            Gs_min,
+            Catm,
+            atmospheric_pressure,
+            O2,
+            StomataWS,
+            electrons_per_carboxylation,
+            electrons_per_oxygenation,
+            beta_PSII, gbw_guess)
+            .Gs;  // mol / m^2 / s
+
+    // Use partial application to fix all inputs to `check_c3_gs` except
+    // current_gs. To solve the photosynthesis equations, a root of this
+    // function must be found.
+    auto check_c3_gs_partial = [=](double const current_gs) {
+        return check_c3_gs(
+            tr_param,
+            absorbed_longwave,            // J / (m^2 leaf) / s
+            absorbed_ppfd,                // micromol / (m^2 leaf) / s
+            absorbed_shortwave,           // J / (m^2 leaf) / s
+            ambient_temperature,          // degrees C
+            atmospheric_pressure,         // Pa
+            b0,                           // mol / m^2 / s
+            b1,                           // dimensionless
+            beta_PSII,                    // dimensionless
+            Catm,                         // micromol / mol
+            current_gs,                   // mol / m^2 / s
+            electrons_per_carboxylation,  // self-explanatory units
+            electrons_per_oxygenation,    // self-explanatory units
+            gbw_canopy,                   // mol / m^2 / s
+            gm_at_25,                     // mol / m^2 / s / Pa
+            Gs_min,                       // mol / m^2 / s
+            Gstar_at_25,                  // micromol / mol
+            Jmax_at_25,                   // micromol / m^2 / s
+            Kc_at_25,                     // micromol / mol
+            Ko_at_25,                     // mmol / mol
+            leafwidth,                    // m
+            O2,                           // mmol / mol
+            rh,                           // dimensionless
+            RL_at_25,                     // micromol / m^2 / s
+            StomataWS,                    // dimensionless
+            Tp_at_25,                     // micromol / m^2 / s
+            Vcmax_at_25,                  // micromol / m^2 / s
+            windspeed                     // m / s
+        );
+    };
+
+    // Run the Dekker method
+    using namespace root_finding;
+    dekker solve(50, 1e-3, 1e-3);
+    result_t result = solve(
+        check_c3_gs_partial,
+        initial_stomatal_conductance,             // guess
+        Gs_min,                                   // lower
+        100 * initial_stomatal_conductance + 0.1  // upper
+    );
+
+    // Throw exception if not converged
+    if (!is_successful(result.flag)) {
+        throw std::runtime_error(
+            "c3_leaf_photosynthesis solver reports failed convergence:\n    " +
+            result.message());
+    }
+
+    return result;
 }
 
 // This function returns the solubility of O2 in H2O relative to its value at
