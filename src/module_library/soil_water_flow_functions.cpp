@@ -318,11 +318,10 @@ infilWater_str satflo(
     double constexpr mm_per_cm = 10.0;  // mm / cm
 
     // Initialize layer-dependent variables
-    double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
-    double swtemp[nlayers];         // m^3 / m^3 - Soil water content
+    double downward_flux[nlayers]{0.0};  // cm / hr   - Total downward water flux (drainage and infiltration)
+    double swtemp[nlayers];              // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
-        downward_flux[l] = 0.0;             // cm / hr
         swtemp[l] = soil_water_content[l];  // m^3 / m^3
     }
 
