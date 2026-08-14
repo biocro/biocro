@@ -204,12 +204,12 @@ string_vector multi_layer_soil_profile::get_inputs()
 string_vector multi_layer_soil_profile::get_outputs()
 {
     return {
-        "soil_water_content_1",  // m^3 / m^3
-        "soil_water_content_2",  // m^3 / m^3
-        "soil_water_content_3",  // m^3 / m^3
-        "soil_water_content_4",  // m^3 / m^3
-        "soil_water_content_5",  // m^3 / m^3
-        "soil_water_content_6"   // m^3 / m^3
+        "soil_water_content_1",  // m^3 / m^3 / hr
+        "soil_water_content_2",  // m^3 / m^3 / hr
+        "soil_water_content_3",  // m^3 / m^3 / hr
+        "soil_water_content_4",  // m^3 / m^3 / hr
+        "soil_water_content_5",  // m^3 / m^3 / hr
+        "soil_water_content_6"   // m^3 / m^3 / hr
     };
 }
 
@@ -288,12 +288,12 @@ void multi_layer_soil_profile::do_operation() const
     const double evaporated_water_cotent = (soil_evaporation_rate * timestep * MG_HA_to_mm) / (soil_depth[0] * cm_to_mm);  // m^3 / m^3
     delta_soil_water_content[0] = delta_soil_water_content[0] - evaporated_water_cotent;
 
-    update(soil_water_content_1_op, delta_soil_water_content[0]);  // m^3 / m^3
-    update(soil_water_content_2_op, delta_soil_water_content[1]);  // m^3 / m^3
-    update(soil_water_content_3_op, delta_soil_water_content[2]);  // m^3 / m^3
-    update(soil_water_content_4_op, delta_soil_water_content[3]);  // m^3 / m^3
-    update(soil_water_content_5_op, delta_soil_water_content[4]);  // m^3 / m^3
-    update(soil_water_content_6_op, delta_soil_water_content[5]);  // m^3 / m^3
+    update(soil_water_content_1_op, delta_soil_water_content[0] / timestep);  // m^3 / m^3 / hr
+    update(soil_water_content_2_op, delta_soil_water_content[1] / timestep);  // m^3 / m^3 / hr
+    update(soil_water_content_3_op, delta_soil_water_content[2] / timestep);  // m^3 / m^3 / hr
+    update(soil_water_content_4_op, delta_soil_water_content[3] / timestep);  // m^3 / m^3 / hr
+    update(soil_water_content_5_op, delta_soil_water_content[4] / timestep);  // m^3 / m^3 / hr
+    update(soil_water_content_6_op, delta_soil_water_content[5] / timestep);  // m^3 / m^3 / hr
 }
 }  // namespace standardBML
 #endif

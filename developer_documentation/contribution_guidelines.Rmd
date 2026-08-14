@@ -610,7 +610,25 @@ library.)
   be nice if you added them to the table as you work through the
   issue.
 
+#### Be aware of module types and restrictions
+
+* A differential module must return a time rate of change for each of its output
+  variables (`dy / dt`). It should not return the absolute change in a variable
+  over the next time step (`Delta y = y_next - y_current`) or the value of a
+  variable at the next time step (`y_next`).
+
+* Calculations within a module should be independent of the time step being used
+  to solve the set of ordinary differential equations.
+
+* If a module's code implementation is written in such a way that it will only
+  return meaningful results when used with an Euler solver, it can be flagged as
+  requiring an Euler solver. Most commonly, this occurs when a module stores an
+  ordered sequence of previous state values under the assumption that the module
+  is only evaluated once per time step. Such module implementations should be
+  avoided whenever possible.
+
 ### General coding considerations
+
 * Do not use C-style arrays. Use an appropriate data type from the standard
   library instead.
 

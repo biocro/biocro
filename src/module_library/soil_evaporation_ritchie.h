@@ -1,8 +1,10 @@
 #ifndef SOIL_EVAPORATION_RITCHIE_H
 #define SOIL_EVAPORATION_RITCHIE_H
 
-#include <algorithm>  // for std::min, std::max
-#include <stdexcept>  // for std::logic_error
+#include <algorithm>                 // for std::min, std::max
+#include <cmath>                     // for pow, std
+#include <stdexcept>                 // for std::logic_error, std::range_error
+#include "../framework/constants.h"  // for eps_zero
 #include "../framework/module.h"
 #include "../framework/state_map.h"
 #include "soil_evaporation_functions.h"
@@ -163,10 +165,10 @@ namespace standardBML
  *  ### Notes about solver
  *
  *  The original model (and its DSSAT implementation) is formulated using
- *  difference equations rather than differential equations. For this and
- *  several other reasons, this module is only compatible with an Euler solver
- *  using a time step of 1 hour. Here are several (but not all) reasons for why
- *  such a solver is required:
+ *  difference equations rather than differential equations. Effectively, this
+ *  can be viewed as assuming an Euler solver with a fixed step size of 1 is
+ *  being used to solve a set of corresponding differential equations. Here are
+ *  several examples of where this occurs:
  *
  *  1. For several quantities (`days_stage2`, `soil_evaporation_rate`, `sumes1`,
  *     and `sumes2`), this module returns the change relative to the value at
@@ -189,9 +191,11 @@ namespace standardBML
  *     (mm / day).
  *
  *  To clarify these points, we have defined a `timestep` variable in the code
- *  below. Note that this is highly unusual, and BioCro modules generally should
- *  not need to know the size of the time step being used to solve the set of
- *  coupled differential equations.
+ *  below.
+ *
+ *  Note that although some of the equations were developed by assuming an Euler
+ *  solver with a step size of 1, this does not prevent other solvers from being
+ *  used to solve the equations.
  *
  *  ### Definitions for some parameters
  *
@@ -221,7 +225,7 @@ class soil_evaporation_ritchie : public differential_module
     soil_evaporation_ritchie(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : differential_module(true),
+        : differential_module(),
 
           // Get references to input quantities
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
@@ -339,15 +343,16 @@ string_vector soil_evaporation_ritchie::get_inputs()
 string_vector soil_evaporation_ritchie::get_outputs()
 {
     return {
-        "days_stage2",            // day
-        "soil_evaporation_rate",  // Mg / ha / hr
-        "sumes1",                 // mm
-        "sumes2"                  // mm
+        "days_stage2",            // day / hr
+        "soil_evaporation_rate",  // Mg / ha / hr^2
+        "sumes1",                 // mm / hr
+        "sumes2"                  // mm / hr
     };
 }
 
 void soil_evaporation_ritchie::do_operation() const
 {
+    using calculation_constants::eps_zero;
     using std::max;
     using std::min;
 
@@ -456,9 +461,14 @@ void soil_evaporation_ritchie::do_operation() const
             // Increment the amount of time spent in Stage 2 evaporation
             days_stage2_next = days_stage2 + timestep / hours_per_day;  // day
 
+            // Check for error conditions
+            if (days_stage2_next < -eps_zero) {
+                throw std::range_error("Thrown in soil_evaporation_ritchie: days_stage2_next is negative.");
+            }
+
             // Use Equation (8) from Ritchie (1972) to calculate the soil
             // evaporation rate
-            ES = (soil_evaporation_alpha * pow(days_stage2_next, 0.5) - sumes2) / timestep;  // mm / hr
+            ES = (soil_evaporation_alpha * sqrt(days_stage2_next) - sumes2) / timestep;  // mm / hr
 
             // Handle the special sub-cases of Stage 2 evaporation
             if (infiltrated_water > 0.0) {
@@ -649,10 +659,10 @@ void soil_evaporation_ritchie::do_operation() const
     double const delta_ES = ES - old_ES;                              // mm / hr
 
     // Update the output quantity list
-    update(sumes1_op, delta_sumes1);                               // mm
-    update(sumes2_op, delta_sumes2);                               // mm
-    update(days_stage2_op, delta_days_stage2);                     // day
-    update(soil_evaporation_rate_op, delta_ES * mm_to_Mg_per_ha);  // Mg / ha / hr
+    update(sumes1_op, delta_sumes1 / timestep);                               // mm / hr
+    update(sumes2_op, delta_sumes2 / timestep);                               // mm / hr
+    update(days_stage2_op, delta_days_stage2 / timestep);                     // day / hr
+    update(soil_evaporation_rate_op, delta_ES * mm_to_Mg_per_ha / timestep);  // Mg / ha / hr^2
 }
 
 }  // namespace standardBML
