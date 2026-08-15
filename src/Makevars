@@ -1,4 +1,4 @@
-PKG_CPPFLAGS+=-I../src/inc -DR_NO_REMAP
+PKG_CPPFLAGS += -isystem ../src/inc -DR_NO_REMAP
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp  module_library/core/*.cpp framework/*.cpp framework/ode_solver_library/*.cpp framework/utils/*.cpp math/roots/onedim/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)

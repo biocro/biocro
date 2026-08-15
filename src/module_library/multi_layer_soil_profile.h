@@ -215,7 +215,7 @@ string_vector multi_layer_soil_profile::get_outputs()
 
 void multi_layer_soil_profile::do_operation() const
 {
-    int nlayers = 6;
+    int constexpr nlayers = 6;
 
     double soil_depth[] = {
         soil_depth_1,  // cm
