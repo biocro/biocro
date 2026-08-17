@@ -30,6 +30,11 @@ INPUT                  = ../src \
                          ../src/framework/ode_solver_library \
                          ../src/framework/utils \
                          ../src/math \
+                         ../src/math/linalg \
+                         ../src/math/quadrature \
+                         ../src/math/roots \
+                         ../src/math/roots/multidim \
+                         ../src/math/roots/onedim \
                          ../src/module_library \
                          ../src/module_library/core \
                          ../src/module_library/test_modules \

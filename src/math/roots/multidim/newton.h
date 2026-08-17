@@ -7,7 +7,6 @@
 
 namespace root_multidim
 {
-
 /**
  * @brief Newton's method for finding vector-valued zeros of nonlinear systems.
  *
@@ -44,7 +43,7 @@ template <size_t Dim>
 struct newton : public zero_finding_method<Dim, newton<Dim>> {
     using zero_finding_method<Dim, newton<Dim>>::zero_finding_method;
 
-    friend class zero_finding_method<Dim, newton<Dim>>::zero_finding_method;
+    friend struct zero_finding_method<Dim, newton<Dim>>;
 
    private:
     using vec_t = typename linalg::vector<double, Dim>;

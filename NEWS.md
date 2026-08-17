@@ -100,6 +100,9 @@ be directly added to this file to describe the related changes.
   better approach, where the evolutionary optimizer is followed by a Nelder-Mead
   optimizer.
 
+  - The upper bound for the `grc_` parameters in the parmaterization script was
+    changed to a safer value.
+
 ## Bug Fixes
 
 - Changed the minimum version of macOS checked by the R-CMD-check from

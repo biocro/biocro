@@ -353,34 +353,46 @@ extra_penalty_function <- function(sim_res, long_form_data) {
 ###
 
 # Specify some bounds
-aul <- 50   # Upper limit for alpha parameters
-bll <- -50  # Lower limit for beta parameters
-mll <- 1e-5 # Lower limit for mrc parameters
-mul <- 1e-2 # Upper limit for mrc parameters
+#
+# NOTE: In BioCro, the growth respiration coefficient (grc) for a tissue cannot
+# exceed a value of 1. The value of each grc is temperature-dependent, following
+# a Q10 response with a base temperature of 0 C: grc = grc_base * 2^(T / 10).
+# Thus, the value of grc_base determines a threshold temperature, above which
+# the value of grc exceeds its limit of 1: Tmax = -10 * log(grc_base) / log(2).
+# Based on this reasoning, grc_base should not exceed 0.045 for any tissue,
+# which sets an upper temperature threshold of 44.7 C. The parameters called
+# grc_grain, grc_leaf, etc, in the model refer to grc_base values, and should be
+# limited to values below this upper limit.
+
+aul <- 50    # Upper limit for alpha parameters
+bll <- -50   # Lower limit for beta parameters
+mll <- 1e-5  # Lower limit for mrc parameters
+mul <- 1e-2  # Upper limit for mrc parameters
+gul <- 0.045 # Upper limit for grc parameters
 
 # Define a table with the bounds in the same order as `independent_args`
 bounds <- bounds_table(
   independent_args,
   list(
-    alphaLeaf     = c(0,      aul),
-    alphaStem     = c(0,      aul),
-    alphaShell    = c(0,      aul),
-    alphaRoot     = c(0,      aul),
-    alphaSeneLeaf = c(0,      aul),
-    alphaSeneStem = c(0,      aul),
-    betaLeaf      = c(bll,    0),
-    betaStem      = c(bll,    0),
-    betaShell     = c(bll,    0),
-    betaRoot      = c(bll,    0),
-    betaSeneLeaf  = c(bll,    0),
-    betaSeneStem  = c(bll,    0),
-    rateSeneLeaf  = c(0,      0.0125),
-    rateSeneStem  = c(0,      0.005),
-    mrc_leaf      = c(mll,    mul),
-    mrc_root      = c(mll,    mul),
-    grc_stem      = c(8e-4,   0.08),
-    grc_root      = c(0.0025, 0.075),
-    iSp           = c(2.5,    3.5)
+    alphaLeaf     = c(0,   aul),
+    alphaStem     = c(0,   aul),
+    alphaShell    = c(0,   aul),
+    alphaRoot     = c(0,   aul),
+    alphaSeneLeaf = c(0,   aul),
+    alphaSeneStem = c(0,   aul),
+    betaLeaf      = c(bll, 0),
+    betaStem      = c(bll, 0),
+    betaShell     = c(bll, 0),
+    betaRoot      = c(bll, 0),
+    betaSeneLeaf  = c(bll, 0),
+    betaSeneStem  = c(bll, 0),
+    rateSeneLeaf  = c(0,   0.0125),
+    rateSeneStem  = c(0,   0.005),
+    mrc_leaf      = c(mll, mul),
+    mrc_root      = c(mll, mul),
+    grc_stem      = c(0,   gul),
+    grc_root      = c(0,   gul),
+    iSp           = c(1,   4)
   )
 )
 
