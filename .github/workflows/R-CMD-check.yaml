@@ -81,7 +81,7 @@ jobs:
 
       - id: set-matrix
         name: Construct the strategy matrix
-        uses: JoshuaTheMiller/conditional-build-matrix@ff97eced5d632a34eba8af4e201dddbbe2bd8fd3 # Pull request to upgrade Node.js version from 20 to 24 in release 2.0.1
+        uses: soumeh01/conditional-build-matrix@ff97eced5d632a34eba8af4e201dddbbe2bd8fd3 # Pull request to upgrade Node.js version from 20 to 24 in release 2.0.1 of JoshuaTheMiller/conditional-build-matrix
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
 
