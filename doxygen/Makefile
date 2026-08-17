@@ -111,7 +111,7 @@ output_directory = $(complete_docs_directory)
 
 #### Fixed variables used in computing target-specific variables:
 
-framework_source =  ../src ../src/framework ../src/framework/ode_solver_library ../src/framework/utils
+framework_source =  ../src ../src/framework ../src/framework/ode_solver_library ../src/framework/utils ../src/math ../src/math/linalg ../src/math/quadrature ../src/math/roots ../src/math/roots/multidim ../src/math/roots/onedim
 module_source = ../src/module_library ../src/module_library/core ../src/module_library/test_modules
 all_source = $(framework_source) $(module_source)
 source_file_extensions = h hpp cpp md markdown dox
