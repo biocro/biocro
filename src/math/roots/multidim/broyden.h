@@ -6,7 +6,6 @@
 
 namespace root_multidim
 {
-
 /**
  * @brief Broyden's method for finding vector-valued zeros of nonlinear systems.
  *

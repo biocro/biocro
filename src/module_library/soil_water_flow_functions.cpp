@@ -320,7 +320,7 @@ infilWater_str satflo(
 
     // Initialize layer-dependent variables
     std::vector<double> downward_flux(nlayers, 0.0);  // cm / hr   - Total downward water flux (drainage and infiltration)
-    std::vector<double> swtemp(nlayers);               // m^3 / m^3 - Soil water content
+    std::vector<double> swtemp(nlayers);              // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         swtemp[l] = soil_water_content[l];  // m^3 / m^3

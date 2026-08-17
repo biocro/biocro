@@ -7,7 +7,6 @@
 
 namespace root_multidim
 {
-
 /**
  * @brief Newton's method for finding vector-valued zeros of nonlinear systems.
  *
