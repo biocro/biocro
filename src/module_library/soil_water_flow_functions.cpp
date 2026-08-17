@@ -1,5 +1,6 @@
 #include <algorithm>  // for std::min, std::max
 #include <cmath>      // for exp, fabs
+#include <vector>
 #include "soil_water_flow_functions.h"
 
 /**
@@ -86,8 +87,8 @@ infilWater_str infil(
     double constexpr swconrf = 0.9;     // dimensionless - swcon reduction factor
 
     // Initialize layer-dependent variables
-    double downward_flux[nlayers];  // cm / hr   - Total downward water flux (drainage and infiltration)
-    double swtemp[nlayers];         // m^3 / m^3 - Soil water content
+    std::vector<double> downward_flux(nlayers);  // cm / hr   - Total downward water flux (drainage and infiltration)
+    std::vector<double> swtemp(nlayers);         // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         downward_flux[l] = 0.0;             // cm / hr
@@ -318,8 +319,8 @@ infilWater_str satflo(
     double constexpr mm_per_cm = 10.0;  // mm / cm
 
     // Initialize layer-dependent variables
-    double downward_flux[nlayers]{0.0};  // cm / hr   - Total downward water flux (drainage and infiltration)
-    double swtemp[nlayers];              // m^3 / m^3 - Soil water content
+    std::vector<double> downward_flux(nlayers, 0.0);  // cm / hr   - Total downward water flux (drainage and infiltration)
+    std::vector<double> swtemp(nlayers);               // m^3 / m^3 - Soil water content
 
     for (int l = 0; l < nlayers; l++) {
         swtemp[l] = soil_water_content[l];  // m^3 / m^3
@@ -486,11 +487,11 @@ upwardFlo_str up_flow(
     double const soil_diffusivity_hr = soil_diffusivity / hours_per_day;  // cm / hr
 
     // Initialize layer-dependent values
-    double upward_flux[nlayers];  // cm / hr
-    double swtemp[nlayers];       // m^3 / m^3 - soil water content (temporary value)
-    double sw_inf[nlayers];       // m^3 / m^3 - soil water content including computed upward flow
-    double sw_avail[nlayers];     // m^3 / m^3 - soil water content available for evaporation, plant extraction, or movement through soil
-    double esw[nlayers];          // m^3 / m^3 - plant extractable soil water
+    std::vector<double> upward_flux(nlayers);  // cm / hr
+    std::vector<double> swtemp(nlayers);       // m^3 / m^3 - soil water content (temporary value)
+    std::vector<double> sw_inf(nlayers);       // m^3 / m^3 - soil water content including computed upward flow
+    std::vector<double> sw_avail(nlayers);     // m^3 / m^3 - soil water content available for evaporation, plant extraction, or movement through soil
+    std::vector<double> esw(nlayers);          // m^3 / m^3 - plant extractable soil water
 
     // Calculated flow will be limited by SW_INF and SW_AVAIL
 
@@ -633,8 +634,8 @@ tileDrain_str tile_flow(
     double constexpr sat_thresh = 0.98;  // dimensionless
 
     // Initialize layer-dependent values
-    double drn[nlayers];      // cm
-    double swdeltT[nlayers];  // m^3 / m^3
+    std::vector<double> drn(nlayers);      // cm
+    std::vector<double> swdeltT(nlayers);  // m^3 / m^3
 
     for (int l = 0; l < nlayers; l++) {
         drn[l] = 0.0;      // cm

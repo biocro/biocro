@@ -40,7 +40,7 @@ namespace root_multidim
 template <size_t Dim>
 struct broyden : public zero_finding_method<Dim, broyden<Dim>> {
     // zero_finding_method methods can call private methods defined here
-    friend class zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
+    friend struct zero_finding_method<Dim, broyden<Dim>>;
 
     // "import" parent class methods
     using zero_finding_method<Dim, broyden<Dim>>::zero_finding_method;
