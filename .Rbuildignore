@@ -40,7 +40,7 @@
 ^\.github$
 # GitHub actions and workflows.
 
-^src/.*\.o$
+^src/.*\\.o$
 ^src/\\.deps$
 ^src/BioCro.so$
 # C++ build by-products.
