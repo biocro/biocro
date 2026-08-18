@@ -31,7 +31,7 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
-# UNRELEASED
+# Changes in BioCro version 3.4.0
 
 ## Minor User-Facing Changes
 
@@ -48,26 +48,14 @@ be directly added to this file to describe the related changes.
     light distribution through the canopy at any given cumulative LAI depth,
     allowing users to examine canopy light profiles by layer.
 
-  - Refactored code organization:
-    - Renamed `sunML` struct/function to `canopy_light` and `Light_model` to
-      `atmosphere_light_scattering` for improved clarity.
-
-    - Created new `src/module_library/core/` directory for C++ utilities that
-      support modules but are not themselves modules.
-
-    - Moved canopy light distribution functions to
-      `core/canopy_light_distribution.h`.
-
-    - Moved atmospheric light scattering calculations to
-      `core/atmosphere_light_scattering.h`.
-
-    - Added photosynthesis utilities including the new `leaf_assim` vector-space
-      type and `canopy_integrand` functor to `core/photosynthesis.h`.
-
 - The internal temperature response functions, such as `arrhenius_exponential`,
   now return values normalized to the parameter value at a reference temperature
   (25 degrees C). Because of this, several "scaling" parameters such as
   `Vcmax_c`, `Jmax_c`, `RL_c`, etc, are no longer required.
+
+  - Several new temperature response functions, including
+    `peaked_arrhenius_response`, were also added to
+    `temperature_response_functions.h`
 
 - The Dekker method is now used to check for consistent values of stomatal
   conductance when solving the combined assimilation + energy balance models in
@@ -92,6 +80,17 @@ be directly added to this file to describe the related changes.
   - `BioCro:soil_water_upflow`
   - `BioCro:soil_water_uptake`
 
+- The `BioCro:stomata_water_stress_linear` module was updated to be more
+  flexible, and a related module was added
+  (`BioCro:stomata_water_stress_bilinear`). The soybean model now uses the
+  bilinear version since it produces more realistic results when the soil is
+  dry.
+
+  - The new stomata water stress modules use input parameters called
+    `StomataWS_gradient` and `StomataWS_intercept`. A script for calibrating the
+    values of these parameters for soybean has been added to the package:
+    `inst/extdata/optimize_StomataWS_linear.R`.
+
 - The C3 photosynthesis calculations now include mesophyll conductance, and
   they determine `Cc` along with `Ci`. Setting `gm_at_25` to infinity will
   ensure that `Cc = Ci`, reproducing the behavior of previous BioCro versions.
@@ -102,6 +101,25 @@ be directly added to this file to describe the related changes.
 
   - The upper bound for the `grc_` parameters in the parmaterization script was
     changed to a safer value.
+
+## Internal changes
+
+- Refactored code organization:
+
+  - Renamed `sunML` struct/function to `canopy_light` and `Light_model` to
+    `atmosphere_light_scattering` for improved clarity.
+
+  - Created new `src/module_library/core/` directory for C++ utilities that
+    support modules but are not themselves modules.
+
+  - Moved canopy light distribution functions to
+    `core/canopy_light_distribution.h`.
+
+  - Moved atmospheric light scattering calculations to
+    `core/atmosphere_light_scattering.h`.
+
+  - Added photosynthesis utilities including the new `leaf_assim` vector-space
+    type and `canopy_integrand` functor to `core/photosynthesis.h`.
 
 ## Bug Fixes
 
@@ -114,6 +132,9 @@ be directly added to this file to describe the related changes.
     the online testing setup for R version 4.2.0 or 4.2.3 even when `knitr` is
     installed, causing a spurious test failure. This problem does not occur for
     R version 4.3.0.
+
+- A small typo was fixed in the `BioCro:solar_position_michalsky` module; this
+  typo had no influence on the model outputs.
 
 # Changes in BioCro version 3.3.1
 
