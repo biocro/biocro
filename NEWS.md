@@ -80,6 +80,11 @@ be directly added to this file to describe the related changes.
   - `BioCro:soil_water_upflow`
   - `BioCro:soil_water_uptake`
 
+  These modules are now used in the `soybean2` model. Eventually, `soybean2`
+  will replace the original `soybean` model, but it will take some time to
+  ensure that all examples that currently use `soybean` will be able to to work
+  with `soybean2`.
+
 - The `BioCro:stomata_water_stress_linear` module was updated to be more
   flexible, and a related module was added
   (`BioCro:stomata_water_stress_bilinear`). The soybean model now uses the
@@ -102,6 +107,10 @@ be directly added to this file to describe the related changes.
   - The upper bound for the `grc_` parameters in the parmaterization script was
     changed to a safer value.
 
+- The behavior of the `BioCro:partitioning_growth_calculator` module was changed
+  so that respiratory losses are subtracted from each tissue proportional to its
+  biomass, rather than proportional to its partitioning factor.
+
 ## Internal changes
 
 - Refactored code organization:
@@ -120,6 +129,9 @@ be directly added to this file to describe the related changes.
 
   - Added photosynthesis utilities including the new `leaf_assim` vector-space
     type and `canopy_integrand` functor to `core/photosynthesis.h`.
+
+- New tests were added to `test.cumulative_modules.R` to ensure that all carbon
+  and water mass is conserved.
 
 ## Bug Fixes
 
