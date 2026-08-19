@@ -3,7 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "core/canopy_light_helpers.h"
+#include "canopy_light_helpers.h"
 
 namespace standardBML
 {

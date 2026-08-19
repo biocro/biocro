@@ -1,7 +1,7 @@
 #ifndef CANOPY_PHOTO_CORE_H
 #define CANOPY_PHOTO_CORE_H
 #include <cmath>
-#include "canopy_light_helpers.h"         // canopy_light, light_profile
+#include "../canopy_light_helpers.h"      // canopy_light, light_profile
 #include "atmosphere_light_scattering.h"  // atmosphere_light_scattering
 #include "../../framework/constants.h"
 
