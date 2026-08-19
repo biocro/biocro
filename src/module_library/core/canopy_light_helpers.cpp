@@ -2,7 +2,7 @@
 #include <stdexcept>  // std::out_of_range
 #include <utility>    // std::move
 #include <string>
-#include "canopy_light_distribution.h"
+#include "canopy_light_helpers.h"
 namespace core
 {
 light_profile canopy_light::get_light_profile(double cumulative_lai) const

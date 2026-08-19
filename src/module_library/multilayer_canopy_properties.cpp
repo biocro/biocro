@@ -1,7 +1,7 @@
 #include <vector>
 #include "multilayer_canopy_properties.h"
-#include "core/photosynthesis.h"             // for leaf_nitrogen_profile, wind_speed_profile
-#include "core/canopy_light_distribution.h"  // CanopyLight
+#include "core/photosynthesis.h"        // for leaf_nitrogen_profile, wind_speed_profile
+#include "core/canopy_light_helpers.h"  // CanopyLight
 
 using standardBML::multilayer_canopy_properties;
 using standardBML::ten_layer_canopy_properties;

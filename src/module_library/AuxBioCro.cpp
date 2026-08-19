@@ -9,12 +9,12 @@
 #include <vector>
 #include "c4photo.h"
 #include "BioCro.h"
-#include "boundary_layer_conductance.h"      // for leaf_boundary_layer_conductance_nikolov
-#include "core/canopy_light_distribution.h"  // for core::thick_layer_absorption
-#include "water_and_air_properties.h"        // for saturation_vapor_pressure,
-                                             // TempToDdryA, TempToLHV, TempToSFS
-#include "../framework/constants.h"          // for pi, e, molar_mass_of_water,
-                                             // celsius_to_kelvin, stefan_boltzmann
+#include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
+#include "core/canopy_light_helpers.h"   // for core::thick_layer_absorption
+#include "water_and_air_properties.h"    // for saturation_vapor_pressure,
+                                         // TempToDdryA, TempToLHV, TempToSFS
+#include "../framework/constants.h"      // for pi, e, molar_mass_of_water,
+                                         // celsius_to_kelvin, stefan_boltzmann
 
 using std::vector;
 
