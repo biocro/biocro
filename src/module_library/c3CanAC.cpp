@@ -1,7 +1,7 @@
 #include "../framework/constants.h"            // for molar_mass_of_water, molar_mass_of_glucose
 #include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
 #include "c3photo.h"                           // for c3photoC, solve_c3_gs
-#include "core/photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
+#include "photosynthesis.h"                    // for core::leaf_assim, CanopyIntegrand
 #include "leaf_energy_balance.h"               // for leaf_energy_balance
 #include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
 #include "respiration.h"                       // for growth_resp
