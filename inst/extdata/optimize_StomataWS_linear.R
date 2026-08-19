@@ -11,8 +11,6 @@
 # StomataWS_intercept will be printed to the R terminal. If necessary, the
 # stored values in data/soybean2.R should be updated to the new ones, and a note
 # about the reparameterization should be included in man/soybean2.R
-#
-# Last used with BioCro version with commit: db12f4a0
 
 library(BioCro)
 library(BioCroValidation)
