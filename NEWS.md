@@ -118,17 +118,14 @@ be directly added to this file to describe the related changes.
   - Renamed `sunML` struct/function to `canopy_light` and `Light_model` to
     `atmosphere_light_scattering` for improved clarity.
 
-  - Created new `src/module_library/core/` directory for C++ utilities that
-    support modules but are not themselves modules.
-
   - Moved canopy light distribution functions to
-    `core/canopy_light_distribution.h`.
+    `canopy_light_helpers.h`.
 
   - Moved atmospheric light scattering calculations to
-    `core/atmosphere_light_scattering.h`.
+    `atmosphere_light_scattering.h`.
 
   - Added photosynthesis utilities including the new `leaf_assim` vector-space
-    type and `canopy_integrand` functor to `core/photosynthesis.h`.
+    type and `canopy_integrand` functor to `photosynthesis.h`.
 
 - New tests were added to `test.cumulative_modules.R` to ensure that all carbon
   and water mass is conserved.
