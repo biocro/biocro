@@ -96,17 +96,17 @@ result2 <- with(miscanthus_x_giganteus, {run_biocro(
   ode_solver
 )})
 
-# Example 3: Simulating willow growth using the same weather data as Examples 1
-# and 2, which just requires one change relative to Example 2
-result3 <- with(willow, {run_biocro(
-  initial_values,
-  parameters,
-  get_growing_season_climate(weather$'2002'),
-  direct_modules,
-  differential_modules,
-  ode_solver
-)})
-}
+# Note: The willow model can be run using the same command above by simply
+# replacing `miscanthus_x_giganteus` with `willow`:
+# result3 <- with(willow, {run_biocro(
+#   initial_values,
+#   parameters,
+#   get_growing_season_climate(weather$'2002'),
+#   direct_modules,
+#   differential_modules,
+#   ode_solver
+# )})
+# }
 
 \seealso{
   \itemize{
