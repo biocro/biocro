@@ -80,10 +80,10 @@ be directly added to this file to describe the related changes.
   - `BioCro:soil_water_upflow`
   - `BioCro:soil_water_uptake`
 
-  These modules are now used in the `soybean2` model. Eventually, `soybean2`
+  These modules are now used in the `soybean_sw` model. Eventually, `soybean_sw`
   will replace the original `soybean` model, but it will take some time to
   ensure that all examples that currently use `soybean` will be able to to work
-  with `soybean2`.
+  with `soybean_sw`.
 
 - The `BioCro:stomata_water_stress_linear` module was updated to be more
   flexible, and a related module was added

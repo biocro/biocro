@@ -1,17 +1,17 @@
-\name{soybean2}
+\name{soybean_sw}
 
 \docType{data}
 
-\alias{soybean2}
+\alias{soybean_sw}
 
 \title{Soybean-BioCro model definition}
 
 \description{
   Alternate version of the \code{\link{soybean}} model, where the main
-  difference is that \code{soybean2} uses a new set of soil water modules.
+  difference is that \code{soybean_sw} uses a new set of soil water modules.
 }
 
-\usage{soybean2}
+\usage{soybean_sw}
 
 \format{
   A list of 5 named elements that are suitable for passing to

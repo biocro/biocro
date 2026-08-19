@@ -1,7 +1,7 @@
 # This script is used to parameterize a particular BioCro model called
 # "Soybean-BioCro," which was originally published in Matthews et al. (2022)
 # (https://doi.org/10.1093/insilicoplants/diab032). The model is included with
-# the main BioCro R package and can be found in `data/soybean2.R`.
+# the main BioCro R package and can be found in `data/soybean_sw.R`.
 #
 # In the original paper, the model was parameterized and tested using biomass
 # data collected at the SoyFACE facility during the years 2002 - 2006. The
@@ -36,7 +36,7 @@
 # be created in the current working directory. Subdirectories corresponding to
 # the value of SEED will also be created to avoid overwriting the outputs.
 #
-# If the results are satisfactory, copy the resulting `soybean2.R` file to the
+# If the results are satisfactory, copy the resulting `soybean_sw.R` file to the
 # `data` directory of the BioCro repository.
 
 ###
@@ -113,7 +113,7 @@ ERROR_LOG_FILE      <- file.path(OUTPUT_DIR, 'error_log.md')            # a reco
 TRACE_LOG_FILE      <- file.path(OUTPUT_DIR, 'trace_log.md')            # a trace of the DEoptim optimizer
 TRACE_LOG_FILE_NMKB <- file.path(OUTPUT_DIR, 'trace_log_nmkb.md')       # a trace of the nmkb optimizer
 COMPARE_FILE        <- file.path(OUTPUT_DIR, 'parameter_comparison.md') # a comparison of parameter values
-MODEL_FILE          <- file.path(OUTPUT_DIR, 'soybean2.R')              # a script defining the optimized model
+MODEL_FILE          <- file.path(OUTPUT_DIR, 'soybean_sw.R')            # a script defining the optimized model
 
 # Specify Rdata file names
 RDATA_FILE      <- file.path(OUTPUT_DIR, 'optim_res.Rdata')
@@ -133,7 +133,7 @@ names(soy_catm) <- years_to_use
 ###
 
 # Specify the base model definition
-base_model_definition <- BioCro::soybean2
+base_model_definition <- BioCro::soybean_sw
 
 # Make sure the Euler solver is used
 base_model_definition$ode_solver <- default_ode_solvers[['homemade_euler']]
@@ -557,9 +557,9 @@ soybean_reparam <- update_model(
   dependent_arg_function = dependent_arg_function
 )
 
-# Convert the re-parameterized soybean2 model to an R command string
+# Convert the re-parameterized soybean_sw model to an R command string
 r_cmd_string <- with(soybean_reparam, write_model(
-  'soybean2',
+  'soybean_sw',
   direct_modules,
   differential_modules,
   initial_values,
