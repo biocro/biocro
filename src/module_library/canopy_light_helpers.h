@@ -1,6 +1,6 @@
 #ifndef CANOPY_LIGHT_HELPERS_H
 #define CANOPY_LIGHT_HELPERS_H
-#include "core/atmosphere_light_scattering.h"
+#include "atmosphere_light_scattering.h"
 
 /**
  * @file

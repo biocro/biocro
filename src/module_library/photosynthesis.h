@@ -1,8 +1,9 @@
 #ifndef PHOTOSYNTHESIS_H
 #define PHOTOSYNTHESIS_H
+
 #include <cmath>
-#include "canopy_light_helpers.h"              // canopy_light, light_profile
-#include "core/atmosphere_light_scattering.h"  // atmosphere_light_scattering
+#include "atmosphere_light_scattering.h"  // atmosphere_light_scattering
+#include "canopy_light_helpers.h"         // canopy_light, light_profile
 #include "../framework/constants.h"
 
 /**

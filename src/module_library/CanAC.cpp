@@ -1,11 +1,11 @@
-#include <algorithm>                           // for std::min, std::max
-#include "../framework/constants.h"            // for molar_mass_of_water
-#include "../math/quadrature/quad.h"           // for quadrature::gauss_legendre_2
-#include "c4photo.h"                           // for c4photoC, solve_c4_gs
-#include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
-#include "photosynthesis.h"                    // for core::leaf_assim, CanopyIntegrand
-#include "leaf_energy_balance.h"               // for leaf_energy_balance
-#include "respiration.h"                       // for growth_resp
+#include <algorithm>                      // for std::min, std::max
+#include "../framework/constants.h"       // for molar_mass_of_water
+#include "../math/quadrature/quad.h"      // for quadrature::gauss_legendre_2
+#include "atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
+#include "c4photo.h"                      // for c4photoC, solve_c4_gs
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
+#include "photosynthesis.h"               // for core::leaf_assim, CanopyIntegrand
+#include "respiration.h"                  // for growth_resp
 #include "CanAC.h"
 
 canopy_photosynthesis_outputs CanAC(

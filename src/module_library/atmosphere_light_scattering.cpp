@@ -1,7 +1,9 @@
-#include "atmosphere_light_scattering.h"
 #include "../framework/constants.h"  // for atmospheric_pressure_at_sea_level
+#include "atmosphere_light_scattering.h"
 #include <cmath>
+
 using physical_constants::atmospheric_pressure_at_sea_level;
+
 namespace core {
 /**
  * @brief Calculates the "light macro environment"; in other words, the amount

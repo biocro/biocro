@@ -4,7 +4,7 @@
 #include "../framework/module.h"
 #include "../framework/constants.h"
 #include "../framework/state_map.h"
-#include "core/atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
+#include "atmosphere_light_scattering.h"  // for core::atmosphere_light_scattering
 
 namespace standardBML
 {
