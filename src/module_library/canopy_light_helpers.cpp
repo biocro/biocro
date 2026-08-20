@@ -3,8 +3,7 @@
 #include <utility>    // std::move
 #include <string>
 #include "canopy_light_helpers.h"
-namespace core
-{
+
 light_profile canopy_light::get_light_profile(double cumulative_lai) const
 {
     light_profile profile;
@@ -568,5 +567,3 @@ double shaded_radiation(
     return total_radiation(Q_od, k_diffuse, alpha, ell) +
            downscattered_radiation(Q_ob, k_direct, alpha, ell);  // same units as `Q_ob`
 }
-
-}  // namespace core

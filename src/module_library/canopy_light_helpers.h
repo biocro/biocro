@@ -31,8 +31,7 @@
  * - `multilayer_canopy_properties` — samples `get_light_profile` at `nlayers`
  *   discrete midpoints and writes per-layer values as BioCro module outputs.
  */
-namespace core
-{
+
 /**
  * @brief Radiation quantities for sunlit and shaded leaves at a single canopy depth.
  *
@@ -219,5 +218,4 @@ struct canopy_light {
     canopy_light(double ppfd_beam, double ppfd_diffuse, parameters par, derived_t der);
 };
 
-}  // namespace core
 #endif

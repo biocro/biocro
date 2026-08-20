@@ -32,19 +32,17 @@
  *   integrand passed to `quadrature::gauss_legendre<2>`.
  *
  * **Typical call chain** in a canopy photosynthesis function:
- * 1. Construct `core::atmosphere_light_scattering` to split total solar
+ * 1. Construct `atmosphere_light_scattering` to split total solar
  *    radiation into direct and diffuse components.
- * 2. Construct `core::canopy_light` from those components plus canopy
+ * 2. Construct `canopy_light` from those components plus canopy
  *    structural parameters (LAI, leaf angle, optical properties, etc.).
  * 3. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
  *    model (e.g. `c3photoC`) with its energy balance convergence loop.
- * 4. Construct `core::canopy_integrand(leaf_photo, canopy_light, ...)`.
+ * 4. Construct `canopy_integrand(leaf_photo, canopy_light, ...)`.
  * 5. Call `quadrature::gauss_legendre<2, leaf_assim>(integrand, 0, LAI, n)`
  *    to obtain the canopy-integrated `leaf_assim`.
  */
 
-namespace core
-{
 // forward declarations
 double leaf_nitrogen_profile(double cumulative_lai, double LeafN, double kpLN);
 double wind_speed_profile(double cumulative_lai, double wind_speed);
@@ -177,5 +175,4 @@ inline double wind_speed_profile(double cumulative_lai, double wind_speed)
     return wind_speed * std::exp(-k * cumulative_lai);
 }
 
-}  // namespace core
 #endif

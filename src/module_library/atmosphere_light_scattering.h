@@ -15,9 +15,8 @@
  * In the canopy photosynthesis pipeline this is typically the first step:
  * `direct_fraction` and `diffuse_fraction` are multiplied by a measured
  * total solar flux (`solarR`) to obtain the beam and diffuse PPFD values
- * used to construct a `core::canopy_light` object.
+ * used to construct a `canopy_light` object.
  */
-namespace core {
 struct atmosphere_light_scattering {
     double direct_transmittance;   //!< Atmospheric transmittance to direct radiation (dimensionless)
     double diffuse_transmittance;  //!< Atmospheric transmittance to diffuse radiation (dimensionless)
@@ -31,5 +30,4 @@ struct atmosphere_light_scattering {
         double atmospheric_scattering);
 };
 
-}  // namespace core
 #endif

@@ -10,7 +10,7 @@
 #include "c4photo.h"
 #include "BioCro.h"
 #include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "canopy_light_helpers.h"        // for core::thick_layer_absorption
+#include "canopy_light_helpers.h"        // for thick_layer_absorption
 #include "water_and_air_properties.h"    // for saturation_vapor_pressure,
                                          // TempToDdryA, TempToLHV, TempToSFS
 #include "../framework/constants.h"      // for pi, e, molar_mass_of_water,
@@ -124,11 +124,11 @@ double SoilEvapo(
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
     // Here we calculate the total amount of PAR energy absorbed by the soil
-    // using `core::thick_layer_absorption`. We assume half of the solar energy
+    // using `thick_layer_absorption`. We assume half of the solar energy
     // lies in the PAR band, so we multiply by 2 to get the total absorbed solar
     // energy. This is almost certainly untrue for light that has passed through
     // a plant canopy.
-    double Ja = 2 * core::thick_layer_absorption(
+    double Ja = 2 * thick_layer_absorption(
                         soil_reflectance,
                         soil_transmission,
                         TotalRadiation);
