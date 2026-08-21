@@ -10,7 +10,7 @@
  *
  * All algorithms are templated on the return type `T` of the integrand, so
  * they work with `double` as well as any vector-space type that supports
- * `operator+=` and scalar `operator*` — in particular `core::leaf_assim`,
+ * `operator+=` and scalar `operator*` — in particular `leaf_assim`,
  * which is used to compute canopy-integrated photosynthesis in `c3CanAC` and
  * `CanAC`.
  *
@@ -30,10 +30,10 @@
  * provided).  The 2-point rule is the primary quadrature method used for the
  * canopy photosynthesis integral.
  *
- * **Usage** (canopy integral returning `core::leaf_assim`):
+ * **Usage** (canopy integral returning `leaf_assim`):
  * @code{.cpp}
- * core::leaf_assim canopy =
- *     quadrature::gauss_legendre<2, core::leaf_assim>(integrand, 0.0, LAI, nlayers);
+ * leaf_assim canopy =
+ *     quadrature::gauss_legendre<2, leaf_assim>(integrand, 0.0, LAI, nlayers);
  * @endcode
  *
  * Zwillinger, Daniel (Ed.) CRC standard mathematical tables and formulae,

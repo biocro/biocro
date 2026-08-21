@@ -1,5 +1,5 @@
-#ifndef CANOPY_LIGHT_DISTRIBUTION_H
-#define CANOPY_LIGHT_DISTRIBUTION_H
+#ifndef CANOPY_LIGHT_HELPERS_H
+#define CANOPY_LIGHT_HELPERS_H
 #include "atmosphere_light_scattering.h"
 
 /**
@@ -31,8 +31,6 @@
  * - `multilayer_canopy_properties` — samples `get_light_profile` at `nlayers`
  *   discrete midpoints and writes per-layer values as BioCro module outputs.
  */
-namespace core
-{
 
 /**
  * @brief Radiation quantities for sunlit and shaded leaves at a single canopy depth.
@@ -44,11 +42,11 @@ struct light_profile {
      * @brief Radiation fluxes and leaf-area fraction for one leaf class.
      */
     struct light_type {
-        double fraction;           //!< Fraction of total leaf area in this class (dimensionless)
-        double absorbed_ppfd;      //!< Absorbed photon flux density (micromol / (m^2 leaf) / s)
-        double absorbed_shortwave; //!< Absorbed shortwave energy flux (J / (m^2 leaf) / s)
-        double incident_nir;       //!< Incident near-infrared energy flux (J / (m^2 leaf) / s)
-        double incident_ppfd;      //!< Incident photon flux density (micromol / (m^2 leaf) / s)
+        double fraction;            //!< Fraction of total leaf area in this class (dimensionless)
+        double absorbed_ppfd;       //!< Absorbed photon flux density (micromol / (m^2 leaf) / s)
+        double absorbed_shortwave;  //!< Absorbed shortwave energy flux (J / (m^2 leaf) / s)
+        double incident_nir;        //!< Incident near-infrared energy flux (J / (m^2 leaf) / s)
+        double incident_ppfd;       //!< Incident photon flux density (micromol / (m^2 leaf) / s)
     };
 
     double height;      //!< Height above the ground of this canopy layer (m)
@@ -201,8 +199,8 @@ struct canopy_light {
         double nir_beam_leaf;                        // J / (m^2 leaf) / s
     };
 
-    double ppfd_beam;    // micromol / (m^2 beam) / s — beam PPFD perpendicular to sun
-    double ppfd_diffuse; // micromol / m^2 / s        — diffuse PPFD through any plane
+    double ppfd_beam;     // micromol / (m^2 beam) / s — beam PPFD perpendicular to sun
+    double ppfd_diffuse;  // micromol / m^2 / s        — diffuse PPFD through any plane
     parameters p;
     derived_t d;
 
@@ -220,5 +218,4 @@ struct canopy_light {
     canopy_light(double ppfd_beam, double ppfd_diffuse, parameters par, derived_t der);
 };
 
-}  // namespace core
 #endif

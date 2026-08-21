@@ -3,16 +3,17 @@
 # Intensifying drought eliminates the expected benefits of elevated carbon dioxide for soybean.
 # Nature Plants 2, 16132 (2016). https://doi.org/10.1038/nplants.2016.132
 #
-# this has two steps: 1. we fit to each Gs point by adjusting the StomataWS value
-# to achieve a "perfect" fit with module c3_leaf_photosynthesis;
+# this has two steps:
+#
+# 1. we fit to each Gs point by adjusting the StomataWS value to achieve a
+#    "perfect" fit with module c3_leaf_photosynthesis;
+#
 # 2. we create a linear function between the optimized StomataWS and REW.
 #
 # When the script is done running, the new values of StomataWS_gradient and
 # StomataWS_intercept will be printed to the R terminal. If necessary, the
-# stored values in data/soybean2.R should be updated to the new ones, and a note
-# about the reparameterization should be included in man/soybean2.R
-#
-# Last used with BioCro version with commit: db12f4a0
+# stored values in data/soybean_sw.R should be updated to the new ones, and a
+# note about the reparameterization should be included in man/soybean_sw.R
 
 library(BioCro)
 library(BioCroValidation)
@@ -110,7 +111,7 @@ for (i in 1:length(years)){
     #Use Gray's rainfall data for this calibration
     weather_growing_season$precip = obs_weather_Gray_yeari_hourly$precip
 
-    parameters = soybean2$parameters
+    parameters = soybean_sw$parameters
     parameters$Catm = catm_data$Catm[catm_data$year==year]
     parameters$chil = 1e8  #infinite chil means flat leaf
 
@@ -119,11 +120,11 @@ for (i in 1:length(years)){
     parameters$StomataWS_intercept = 0
 
     results[[i]] <- run_biocro(
-      soybean2$initial_values,
+      soybean_sw$initial_values,
       parameters,
       weather_growing_season,
-      soybean2$direct_modules,
-      soybean2$differential_modules
+      soybean_sw$direct_modules,
+      soybean_sw$differential_modules
     )
 }
 
@@ -157,7 +158,7 @@ obj_func<-function(x,return_df = FALSE){
 
   obs_and_model$ID = 1:nrow(obs_and_model)
 
-  my_para = soybean2$parameters
+  my_para = soybean_sw$parameters
   my_para$atmospheric_pressure = soybean$parameters$atmospheric_pressure
   my_para$gbw_canopy = gbw_canopy
   #for simplicity for c3_leaf_photosynthesis, just use average Catm from 2009-2011

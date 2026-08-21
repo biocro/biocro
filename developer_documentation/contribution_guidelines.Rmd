@@ -503,6 +503,11 @@ submission:
 (Most of what is discussed here pertains specifically to code for the BioCro C++
 library.)
 
+### Code organization
+
+* The `src/module_library` directory is meant to be flat. Do not introduce new
+  sub-directories without prior discussion and approval.
+
 ### Scientific considerations
 
 #### Document sources and justifications in the code

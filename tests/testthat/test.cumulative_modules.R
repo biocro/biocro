@@ -1,16 +1,16 @@
 # Helping function for checking carbon and water accounting for a particular
-# growth calculator module using the soybean2 model as a base. Here we use a
+# growth calculator module using the soybean_sw model as a base. Here we use a
 # nonzero `growth_respiration_fraction` to test that it is properly accounted
 # for, and we include a non-zero irrigation_rate in the drivers.
 test_soybean_carbon_accounting <- function(partitioning_calculator) {
     description <- paste0(
-        'the soybean2 model accounts for all carbon when using `',
+        'the soybean_sw model accounts for all carbon when using `',
         partitioning_calculator,
         '` as its partitioning growth calculator module'
     )
 
     # Build the model
-    model <- soybean2
+    model <- soybean_sw
 
     model$initial_values <- c(
         model$initial_values,

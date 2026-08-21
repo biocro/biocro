@@ -36,7 +36,6 @@ INPUT                  = ../src \
                          ../src/math/roots/multidim \
                          ../src/math/roots/onedim \
                          ../src/module_library \
-                         ../src/module_library/core \
                          ../src/module_library/test_modules \
                          markdown
 FILE_PATTERNS          = *.cpp \
