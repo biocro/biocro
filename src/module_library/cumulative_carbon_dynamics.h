@@ -21,11 +21,11 @@ namespace standardBML
  *
  * Cumulative maintenance respiration will be included in the simulation output
  * as differential quantities called ``'Leaf_mr'``, ``'Stem_mr'``, etc, where
- * "mr" standard for "maintenance respiration."
+ * "mr" stands for "maintenance respiration."
  *
  * Cumulative growth respiration will be included in the simulation output
  * as differential quantities called ``'Stem_gr'``, ``'Root_gr'``, etc, where
- * "gr" standard for "growth respiration." There is also a cumulative
+ * "gr" stands for "growth respiration." There is also a cumulative
  * whole-plant growth respiration called ``'whole_plant_growth_respiration'``.
  * This is not the sum of the individual tissue rates, but rather a separate
  * carbon sink that is applied before calculating growth respiration losses from

@@ -63,6 +63,10 @@ willow <- list(
         electrons_per_carboxylation  = 4.5,
         electrons_per_oxygenation    = 5.25,
         emissivity_sky               = 1,
+        gm_at_25                     = Inf,
+        gm_Ha                        = 49600,
+        gm_Hd                        = 437400,
+        gm_S                         = 1400,
         grc_grain                    = 0.0,
         grc_leaf                     = 0.02,
         grc_rhizome                  = 0.03,
@@ -71,16 +75,15 @@ willow <- list(
         grc_stem                     = 0.02,
         growth_respiration_fraction  = 0.3,
         Gs_min                       = 1e-3,
-        Gstar_c                      = 19.02,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Gstar_at_25                  = 42.9291,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         Gstar_Ea                     = 37.83e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         heightf                      = 3,        # LAI of 6 when canopy is 2 m tall
         hydrDist                     = 0,
         iSp                          = 1.1,
         Jmax_at_25                   = 180,
-        Jmax_c                       = 17.57,    # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         Jmax_Ea                      = 43.54e3,  # Table 1 of Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
         k_diffuse                    = 0.37,
-        Kc_c                         = 38.05,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Kc_at_25                     = 406.7908, # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         Kc_Ea                        = 79.43e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         kGrain1                      = 0,
         kGrain2                      = 0,
@@ -94,7 +97,7 @@ willow <- list(
         kLeaf4                       = 0.15,
         kLeaf5                       = 1e-05,
         kLeaf6                       = 1e-06,
-        Ko_c                         = 20.30,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
+        Ko_at_25                     = 277.1263, # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         Ko_Ea                        = 36.38e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         kpLN                         = 0.2,
         kRhizome1                    = -8e-04,
@@ -129,7 +132,7 @@ willow <- list(
         lnfun                        = 0,
         longitude                    = -88,
         min_gbw_canopy               = 0.005,
-        nlayers                      = 10,
+        nlayers                      = 2,
         O2                           = 210,
         par_energy_content           = 0.219,
         par_energy_fraction          = 0.5,
@@ -143,7 +146,6 @@ willow <- list(
         retrans_rhizome              = 1.0,
         rfl                          = 0.2,
         RL_at_25                     = 1.1,
-        RL_c                         = 18.72,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         RL_Ea                        = 46.39e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         rsdf                         = 0.44,
         rsec                         = 0.2,
@@ -170,6 +172,8 @@ willow <- list(
         sowing_fractional_doy        = 0,
         Sp_thermal_time_decay        = 0,
         specific_heat_of_air         = 1010,
+        StomataWS_gradient           = 1,
+        StomataWS_intercept          = 0,
         tbase                        = 0,
         Tfrosthigh                   = 5,
         Tfrostlow                    = 0,
@@ -183,12 +187,10 @@ willow <- list(
         tp4                          = 1200,
         tp5                          = 3939,
         Tp_at_25                     = 23,
-        Tp_c                         = 19.77399, # Chosen so that Tp_norm = 1 at 25 degrees C
         Tp_Ha                        = 62.99e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_Hd                        = 182.14e3, # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Tp_S                         = 0.588e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Vcmax_at_25                  = 100,
-        Vcmax_c                      = 26.35,    # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         Vcmax_Ea                     = 65.33e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
         windspeed_height             = 5,
         wsFun                        = 2

@@ -31,6 +31,120 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# Changes in BioCro version 3.4.0
+
+## Minor User-Facing Changes
+
+- Made canopy photosynthesis integral explicit for `c3_canopy` and `c4_canopy`
+  modules: canopy photosynthesis is now computed using numerical quadrature,
+  making the integration over canopy depth explicit. This change addresses a
+  long-standing design goal and results in a significant performance
+  improvement. Several other changes are related to this change:
+
+  - Added numerical quadrature library: A new C++ header file `quad.h` in
+    `src/math/quadrature/`
+
+  - New `canopy_light_distribution` module: Added a new module that computes
+    light distribution through the canopy at any given cumulative LAI depth,
+    allowing users to examine canopy light profiles by layer.
+
+- The internal temperature response functions, such as `arrhenius_exponential`,
+  now return values normalized to the parameter value at a reference temperature
+  (25 degrees C). Because of this, several "scaling" parameters such as
+  `Vcmax_c`, `Jmax_c`, `RL_c`, etc, are no longer required.
+
+  - Several new temperature response functions, including
+    `peaked_arrhenius_response`, were also added to
+    `temperature_response_functions.h`
+
+- The Dekker method is now used to check for consistent values of stomatal
+  conductance when solving the combined assimilation + energy balance models in
+  the `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`,
+  `BioCro:c4_leaf_photosynthesis`, and `BioCro:c4_canopy` modules.
+
+- Added two new years of weather data (2023 and 2025) to the `weather` data set
+  and one year of globally-averaged atmospheric CO2 concentration (2025) to the
+  `catm_data` data set.
+
+- Added several new modules for simulating soil water dynamics, which are
+  generally based on DSSAT and its original sources:
+  - `BioCro:atmospheric_pressure_from_elevation`
+  - `BioCro:multi_layer_soil_profile`
+  - `BioCro:multilayer_soil_profile_avg`
+  - `BioCro:soil_evaporation_ritchie`
+  - `BioCro:soil_surface_runoff`
+  - `BioCro:soil_type_selector`
+  - `BioCro:soil_water_downflow`
+  - `BioCro:soil_water_dynamic_rooting`
+  - `BioCro:soil_water_tiledrain`
+  - `BioCro:soil_water_upflow`
+  - `BioCro:soil_water_uptake`
+
+  These modules are now used in the `soybean_sw` model. Eventually, `soybean_sw`
+  will replace the original `soybean` model, but it will take some time to
+  ensure that all examples that currently use `soybean` will be able to to work
+  with `soybean_sw`.
+
+- The `BioCro:stomata_water_stress_linear` module was updated to be more
+  flexible, and a related module was added
+  (`BioCro:stomata_water_stress_bilinear`). The soybean model now uses the
+  bilinear version since it produces more realistic results when the soil is
+  dry.
+
+  - The new stomata water stress modules use input parameters called
+    `StomataWS_gradient` and `StomataWS_intercept`. A script for calibrating the
+    values of these parameters for soybean has been added to the package:
+    `inst/extdata/optimize_StomataWS_linear.R`.
+
+- The C3 photosynthesis calculations now include mesophyll conductance, and
+  they determine `Cc` along with `Ci`. Setting `gm_at_25` to infinity will
+  ensure that `Cc = Ci`, reproducing the behavior of previous BioCro versions.
+
+- The `inst/extdata/parameterize_soybean.R` script has been updated to use a
+  better approach, where the evolutionary optimizer is followed by a Nelder-Mead
+  optimizer.
+
+  - The upper bound for the `grc_` parameters in the parmaterization script was
+    changed to a safer value.
+
+- The behavior of the `BioCro:partitioning_growth_calculator` module was changed
+  so that respiratory losses are subtracted from each tissue proportional to its
+  biomass, rather than proportional to its partitioning factor.
+
+## Internal changes
+
+- Refactored code organization:
+
+  - Renamed `sunML` struct/function to `canopy_light` and `Light_model` to
+    `atmosphere_light_scattering` for improved clarity.
+
+  - Moved canopy light distribution functions to
+    `canopy_light_helpers.h`.
+
+  - Moved atmospheric light scattering calculations to
+    `atmosphere_light_scattering.h`.
+
+  - Added photosynthesis utilities including the new `leaf_assim` vector-space
+    type and `canopy_integrand` functor to `photosynthesis.h`.
+
+- New tests were added to `test.cumulative_modules.R` to ensure that all carbon
+  and water mass is conserved.
+
+## Bug Fixes
+
+- Changed the minimum version of macOS checked by the R-CMD-check from
+  4.2.0 to 4.3.0.
+
+  - CRAN now only provides R versions 4.2.3 and above for Mac.
+
+  - Somehow the vignette builder cannot find the `knitr` package when using the
+    the online testing setup for R version 4.2.0 or 4.2.3 even when `knitr` is
+    installed, causing a spurious test failure. This problem does not occur for
+    R version 4.3.0.
+
+- A small typo was fixed in the `BioCro:solar_position_michalsky` module; this
+  typo had no influence on the model outputs.
+
 # Changes in BioCro version 3.3.1
 
 ## Bug fixes

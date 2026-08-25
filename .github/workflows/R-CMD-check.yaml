@@ -59,7 +59,7 @@ on:
           - R 4.1.0 on Ubuntu
           - R release version on Ubuntu
           - R devel version on Ubuntu
-          - R 4.2.0 on macOS
+          - R 4.3.0 on macOS
           - R release version on macOS
           - R 4.1.0 on Windows
           - R release version on Windows
@@ -75,13 +75,13 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v6.0.2
         with:
           submodules: true
 
       - id: set-matrix
         name: Construct the strategy matrix
-        uses: JoshuaTheMiller/conditional-build-matrix@81b51eb8d89e07b86404934b5fecde1cea1163a5 # release 2.0.1
+        uses: soumeh01/conditional-build-matrix@ff97eced5d632a34eba8af4e201dddbbe2bd8fd3 # Pull request to upgrade Node.js version from 20 to 24 in release 2.0.1 of JoshuaTheMiller/conditional-build-matrix
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
 

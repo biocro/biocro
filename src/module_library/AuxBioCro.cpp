@@ -10,7 +10,7 @@
 #include "c4photo.h"
 #include "BioCro.h"
 #include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
-#include "sunML.h"                       // for thick_layer_absorption
+#include "canopy_light_helpers.h"        // for thick_layer_absorption
 #include "water_and_air_properties.h"    // for saturation_vapor_pressure,
                                          // TempToDdryA, TempToLHV, TempToSFS
 #include "../framework/constants.h"      // for pi, e, molar_mass_of_water,
@@ -51,144 +51,6 @@ double poisson_density(int x, double lambda)
     }
 
     return exp(-lambda) * pow(lambda, x) / factorial_x;
-}
-
-/* Additional Functions needed for EvapoTrans */
-
-/**
- * @brief Wind profile function
- *
- * Preconditions:
- *     `WindSpeed` is non-negative.
- *     `LAI` is non-negative
- *     `wind_speed_profile` is a vector of size at most MAXLAY.
- */
-void WINDprof(double WindSpeed, double LAI, vector<double>& wind_speed_profile)
-{
-    auto nlayers = wind_speed_profile.size();
-    constexpr double k = 0.7;
-    double LI = LAI / nlayers;
-
-    for (vector<double>::size_type i = 0; i < nlayers; ++i) {
-        double CumLAI = LI * (i + 1);
-        wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
-    }
-}
-
-/**
- * @brief Calculates a relative humidity profile throughout a multilayer
- * canopy.
- *
- * @param[in] RH relative humidity just above the canopy `(0 <= RH <= 1)`
- *
- * @param[in] nlayers number of layers in the canopy `(1 <= nlayers <= MAXLAY)`
- *
- * @param[out] relative_humidity_profile array of relative humidity values
- * expressed as fractions between 0 and 1, where the value at index `i`
- * represents relative humidity at the bottom of canopy layer `i` and `i = 0`
- * corresponds to the top canopy layer.
- *
- * One can derive an expression for the relative humidity (`h`) throughout a
- * plant canopy by making the following assumptions:
- * - `h` at the top of the canopy is the same as the ambient value (`h = h0`)
- * - `h` at the bottom of the canopy is one hundred percent (`h = 1`)
- * - `h` follows an exponential profile throughout the canopy
- *
- * To enforce the exponential profile, we can write
- *
- * `h(x) = A * exp(B * x)`              [Equation (1)]
- *
- * where `x` is a normalized expression of depth within the canopy (`x = 0` at
- * the canopy top and `x = 1` at the bottom) and the values of `A` and `B` are
- * yet to be determined.
- *
- * To enforce the `h` value at the canopy top, we require `h0 = h(0) = A`; in
- * other words, `A = h0`. To enforce the `h` value at the canopy bottom, we
- * require `1 = h(1) = h0 * exp(B)`; in other words, `B = -ln(h0)`. Putting it
- * all together, we see that under these assumptions, `h` throughout the canopy
- * is given by
- *
- * `h(x) = h0 * exp(-ln(h0) * x)`       [Equation (2)]
- *
- * If we additionally assume that `h0` is close to 1, we can simplify
- * `B = -ln(h0)` by taking just the linear part of the Taylor series for
- * `-ln(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
- * modification, we have
- *
- * `h(x) = h0 * exp((1 - h0) * x)`      [Equation (3)]
- *
- * When `h0 = 1`, Equations (2) and (3) are in perfect agreement, reducing to
- * `h(x) = 1`. However, as `h0` deviates further from `h0 = 1`, the
- * linearization for `B` becomes less accurate and the two versions diverge,
- * especially deeper in the canopy. For example, when `h0 = 0.7`, Equation (2)
- * becomes `h(x) = 0.7 * exp(0.357 * x)` while Equation (3) becomes
- * `h(x) = 0.7 * exp(0.300 * x)`. Both versions agree at the top of the canopy
- * where `x = 0` and `h(x) = 1`, but are different at the bottom: 1.00 vs. 0.94.
- * For lower `h0` values, the difference at the canopy bottom becomes even more
- * pronounced, significantly violating one of the original assumptions. However,
- * there isn't a strong scientific justification for assuming humidity is 1 at
- * the bottom of *every* canopy, so the error due to the approximation for `B`
- * is deemed to be acceptable.
- *
- * ---
- *
- * In BioCro, we divide the canopy into equally sized layers; i.e., the interval
- * `0 <= x <= 1` is divided into `n` segments of length `1 / n` by `n + 1`
- * boundaries occurring at `x = 0`, `x = 1 / n`, `x = 2 / n`, ..., `x = 1`. Here
- * we wish to find the `h` value at the bottom of each layer, so we use Equation
- * (3) with `x = 1 / n`, `x = 2 / n`, ..., `x = 1`.
- *
- * In the code below, the `RH` input argument corresponds to `h0`, the
- * exponential growth constant `kh` corresponds to `B`, and `nlayers`
- * corresponds to `n`.
- *
- * ---
- *
- * Note 1: the explanation for this code was "reverse engineered" by EBL from
- * some crytpic documentation found in earlier versions of this function and
- * from Stephen Humphries's thesis, which is not available online:
- *
- * Humphries, S. "Will mechanistically rich models provide us with new insights
- * into the response of plant production to climate change?: development and
- * experiments with WIMOVAC: (Windows Intuitive Model of Vegetation response
- * to Atmosphere & Climate Change)" (University of Essex, 2002).
- *
- * ---
- *
- * Note 2: Equation (2) can be rewritten by noting that `h0 = exp(ln(h0))`. With
- * this replacement, the equation becomes
- *
- * `h(x) = exp(ln(h0) - ln(h0) * x) = exp(-B * (1 - x))`
- *
- * The equation takes this form in Humphries's thesis.
- *
- */
-void RHprof(double RH, int nlayers, double* relative_humidity_profile)
-{
-    if (RH > 1 || RH < 0) {
-        throw std::out_of_range("RH must be between 0 and 1.");
-    }
-    if (nlayers < 1 || nlayers > MAXLAY) {
-        throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
-    }
-
-    const double kh = 1 - RH;
-
-    for (int i = 0; i < nlayers; ++i) {
-        double j = i + 1;  // Explicitly make j a double so that j / nlayers isn't truncated.
-        double temp_rh = RH * exp(kh * (j / nlayers));
-        relative_humidity_profile[i] = temp_rh;
-    }
-}
-
-void LNprof(double LeafN, double LAI, double kpLN, vector<double>& leafN_profile)
-{
-    auto nlayers = leafN_profile.size();
-    double LI = LAI / nlayers;
-    for (vector<double>::size_type i = 0; i < nlayers; ++i) {
-        double CumLAI = LI * (i + 1);
-        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI - LI));
-    }
 }
 
 /* Soil Evaporation Function */
@@ -262,8 +124,8 @@ double SoilEvapo(
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
     // Here we calculate the total amount of PAR energy absorbed by the soil
-    // using `thick_layer_absorption`. We assume half of the solar energy lies
-    // in the PAR band, so we multiply by 2 to get the total absorbed solar
+    // using `thick_layer_absorption`. We assume half of the solar energy
+    // lies in the PAR band, so we multiply by 2 to get the total absorbed solar
     // energy. This is almost certainly untrue for light that has passed through
     // a plant canopy.
     double Ja = 2 * thick_layer_absorption(

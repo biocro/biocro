@@ -1,7 +1,7 @@
+#include "c3_temperature_response.h"      // for c3_temperature_response_parameters
+#include "c3photo.h"                      // for c3photoC, solve_c3_gs
+#include "leaf_energy_balance.h"          // for leaf_energy_balance
 #include "c3_leaf_photosynthesis.h"
-#include "c3photo.h"                  // for c3photoC
-#include "leaf_energy_balance.h"      // for leaf_energy_balance
-#include "c3_temperature_response.h"  // for c3_temperature_response_parameters
 
 using standardBML::c3_leaf_photosynthesis;
 
@@ -19,16 +19,19 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
         "gbw_canopy",                   // m / s
+        "gm_at_25",                     // mol / m^2 / s / Pa
+        "gm_Ha",                        // J / mol
+        "gm_Hd",                        // J / mol
+        "gm_S",                         // J / K / mol
         "Gs_min",                       // mol / m^2 / s
-        "Gstar_c",                      // dimensionless
+        "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
         "height",                       // m
         "Jmax_at_25",                   // micromol / m^2 / s
-        "Jmax_c",                       // dimensionless
         "Jmax_Ea",                      // J / mol
-        "Kc_c",                         // dimensionless
+        "Kc_at_25",                     // micromol / mol
         "Kc_Ea",                        // J / mol
-        "Ko_c",                         // dimensionless
+        "Ko_at_25",                     // mmol / mol
         "Ko_Ea",                        // J / mol
         "leafwidth",                    // m
         "O2",                           // mmol / mol
@@ -37,7 +40,6 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "phi_PSII_2",                   // (degrees C)^(-2)
         "rh",                           // dimensionless
         "RL_at_25",                     // micromol / m^2 / s
-        "RL_c",                         // dimensionless
         "RL_Ea",                        // J / mol
         "StomataWS",                    // dimensionless
         "temp",                         // degrees C
@@ -45,12 +47,10 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "theta_1",                      // (degrees C)^(-1)
         "theta_2",                      // (degrees C)^(-2)
         "Tp_at_25",                     // micromol / m^2 / s
-        "Tp_c",                         // dimensionless
         "Tp_Ha",                        // J / mol
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
-        "Vcmax_c",                      // dimensionless
         "Vcmax_Ea",                     // J / mol
         "windspeed"                     // m / s
     };
@@ -60,6 +60,7 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",             // micromol / m^2 /s
+        "Cc",                // micromol / mol
         "Ci",                // micromol / mol
         "Cs",                // micromol / m^2 / s
         "EPenman",           // mmol / m^2 / s
@@ -72,7 +73,9 @@ string_vector c3_leaf_photosynthesis::get_outputs()
         "RH_canopy",         // dimensionless
         "RL",                // micromol / m^2 / s
         "Rp",                // micromol / m^2 / s
-        "TransR"             // mmol / m^2 / s
+        "TransR",            // mmol / m^2 / s
+        "iteration_C3_Gs",   // not a physical quantity
+        "residual_C3_Gs"     // mol / m^2 / s
     };
 }
 
@@ -80,46 +83,60 @@ void c3_leaf_photosynthesis::do_operation() const
 {
     // Combine temperature response parameters
     c3_temperature_response_parameters const tr_param{
-        Gstar_c,
+        gm_Ha,
+        gm_Hd,
+        gm_S,
         Gstar_Ea,
-        Jmax_c,
         Jmax_Ea,
-        Kc_c,
         Kc_Ea,
-        Ko_c,
         Ko_Ea,
         phi_PSII_0,
         phi_PSII_1,
         phi_PSII_2,
-        RL_c,
         RL_Ea,
         theta_0,
         theta_1,
         theta_2,
-        Tp_c,
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_c,
         Vcmax_Ea};
 
-    // Make an initial guess for boundary layer conductance
-    double const gbw_guess{1.2};  // mol / m^2 / s
+    // Solve for gs
+    root_finding::result_t const result = solve_c3_gs(
+        tr_param,
+        absorbed_longwave,            // J / (m^2 leaf) / s
+        absorbed_ppfd,                // micromol / (m^2 leaf) / s
+        absorbed_shortwave,           // J / (m^2 leaf) / s
+        ambient_temperature,          // degrees C
+        atmospheric_pressure,         // Pa
+        b0,                           // mol / m^2 / s
+        b1,                           // dimensionless
+        beta_PSII,                    // dimensionless
+        Catm,                         // micromol / mol
+        electrons_per_carboxylation,  // self-explanatory units
+        electrons_per_oxygenation,    // self-explanatory units
+        gbw_canopy,                   // m / s
+        gm_at_25,                     // mol / m^2 / s / Pa
+        Gs_min,                       // mol / m^2 / s
+        Gstar_at_25,                  // micromol / mol
+        Jmax_at_25,                   // micromol / m^2 / s
+        Kc_at_25,                     // micromol / mol
+        Ko_at_25,                     // mmol / mol
+        leafwidth,                    // m
+        O2,                           // mmol / mol
+        rh,                           // dimensionless
+        RL_at_25,                     // micromol / m^2 / s
+        StomataWS,                    // dimensionless
+        Tp_at_25,                     // micromol / m^2 / s
+        Vcmax_at_25,                  // micromol / m^2 / s
+        windspeed                     // m / s
+    );
 
-    // Get an initial estimate of stomatal conductance, assuming the leaf is at
-    // air temperature
-    double const initial_stomatal_conductance =
-        c3photoC(
-            tr_param, absorbed_ppfd, ambient_temperature, ambient_temperature,
-            rh, Vcmax_at_25, Jmax_at_25, Tp_at_25, RL_at_25, b0,
-            b1, Gs_min, Catm, atmospheric_pressure, O2, StomataWS,
-            electrons_per_carboxylation,
-            electrons_per_oxygenation, beta_PSII, gbw_guess)
-            .Gs;  // mol / m^2 / s
+    // Get final values
+    double const Gs = result.root;  // mol / m^2 / s
 
-    // Calculate a new value for leaf temperature using the estimate for
-    // stomatal conductance
-    const energy_balance_outputs et = leaf_energy_balance(
+    energy_balance_outputs const et = leaf_energy_balance(
         absorbed_longwave,
         absorbed_shortwave,
         atmospheric_pressure,
@@ -127,35 +144,53 @@ void c3_leaf_photosynthesis::do_operation() const
         gbw_canopy,
         leafwidth,
         rh,
-        initial_stomatal_conductance,
+        Gs,
         windspeed);
 
-    double const leaf_temperature = ambient_temperature + et.Deltat;  // degrees C
+    double const Tleaf = ambient_temperature + et.Deltat;  // degrees C
 
-    // Calculate final values for assimilation, stomatal conductance, and Ci
-    // using the new leaf temperature
-    const photosynthesis_outputs photo =
-        c3photoC(
-            tr_param, absorbed_ppfd, leaf_temperature, ambient_temperature,
-            rh, Vcmax_at_25, Jmax_at_25,
-            Tp_at_25, RL_at_25, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
-            StomataWS,
-            electrons_per_carboxylation, electrons_per_oxygenation, beta_PSII,
-            et.gbw_molecular);
+    photosynthesis_outputs const photo = c3photoC(
+        tr_param,
+        absorbed_ppfd,
+        Tleaf,
+        ambient_temperature,
+        rh,
+        gm_at_25,
+        Gstar_at_25,
+        Kc_at_25,
+        Ko_at_25,
+        Vcmax_at_25,
+        Jmax_at_25,
+        Tp_at_25,
+        RL_at_25,
+        b0,
+        b1,
+        Gs_min,
+        Catm,
+        atmospheric_pressure,
+        O2,
+        StomataWS,
+        electrons_per_carboxylation,
+        electrons_per_oxygenation,
+        beta_PSII,
+        et.gbw_molar);
 
     // Update the outputs
     update(Assim_op, photo.Assim);
+    update(Cc_op, photo.Cc);
     update(Ci_op, photo.Ci);
     update(Cs_op, photo.Cs);
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
-    update(gbw_op, et.gbw_molecular);
+    update(gbw_op, et.gbw_molar);
     update(GrossAssim_op, photo.GrossAssim);
     update(Gs_op, photo.Gs);
-    update(leaf_temperature_op, leaf_temperature);
+    update(leaf_temperature_op, Tleaf);
     update(RHs_op, photo.RHs);
     update(RH_canopy_op, et.RH_canopy);
     update(RL_op, photo.RL);
     update(Rp_op, photo.Rp);
     update(TransR_op, et.TransR);
+    update(iteration_C3_Gs_op, result.iteration);
+    update(residual_C3_Gs_op, result.residual);
 }

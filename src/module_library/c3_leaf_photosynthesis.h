@@ -33,16 +33,19 @@ class c3_leaf_photosynthesis : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
+          gm_at_25{get_input(input_quantities, "gm_at_25")},
+          gm_Ha{get_input(input_quantities, "gm_Ha")},
+          gm_Hd{get_input(input_quantities, "gm_Hd")},
+          gm_S{get_input(input_quantities, "gm_S")},
           Gs_min{get_input(input_quantities, "Gs_min")},
-          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           height{get_input(input_quantities, "height")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
-          Jmax_c{get_input(input_quantities, "Jmax_c")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
-          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_at_25{get_input(input_quantities, "Kc_at_25")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
-          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_at_25{get_input(input_quantities, "Ko_at_25")},
           Ko_Ea{get_input(input_quantities, "Ko_Ea")},
           leafwidth{get_input(input_quantities, "leafwidth")},
           O2{get_input(input_quantities, "O2")},
@@ -51,24 +54,22 @@ class c3_leaf_photosynthesis : public direct_module
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
-          RL_c{get_input(input_quantities, "RL_c")},
           RL_Ea{get_input(input_quantities, "RL_Ea")},
           StomataWS{get_input(input_quantities, "StomataWS")},
           theta_0{get_input(input_quantities, "theta_0")},
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
-          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
           windspeed{get_input(input_quantities, "windspeed")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
+          Cc_op{get_op(output_quantities, "Cc")},
           Ci_op{get_op(output_quantities, "Ci")},
           Cs_op{get_op(output_quantities, "Cs")},
           EPenman_op{get_op(output_quantities, "EPenman")},
@@ -81,7 +82,9 @@ class c3_leaf_photosynthesis : public direct_module
           RH_canopy_op{get_op(output_quantities, "RH_canopy")},
           RL_op{get_op(output_quantities, "RL")},
           Rp_op{get_op(output_quantities, "Rp")},
-          TransR_op{get_op(output_quantities, "TransR")}
+          TransR_op{get_op(output_quantities, "TransR")},
+          iteration_C3_Gs_op{get_op(output_quantities, "iteration_C3_Gs")},
+          residual_C3_Gs_op{get_op(output_quantities, "residual_C3_Gs")}
     {
     }
     static string_vector get_inputs();
@@ -102,16 +105,19 @@ class c3_leaf_photosynthesis : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw_canopy;
+    double const& gm_at_25;
+    double const& gm_Ha;
+    double const& gm_Hd;
+    double const& gm_S;
     double const& Gs_min;
-    double const& Gstar_c;
+    double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& height;
     double const& Jmax_at_25;
-    double const& Jmax_c;
     double const& Jmax_Ea;
-    double const& Kc_c;
+    double const& Kc_at_25;
     double const& Kc_Ea;
-    double const& Ko_c;
+    double const& Ko_at_25;
     double const& Ko_Ea;
     double const& leafwidth;
     double const& O2;
@@ -120,24 +126,22 @@ class c3_leaf_photosynthesis : public direct_module
     double const& phi_PSII_2;
     double const& rh;
     double const& RL_at_25;
-    double const& RL_c;
     double const& RL_Ea;
     double const& StomataWS;
     double const& theta_0;
     double const& theta_1;
     double const& theta_2;
     double const& Tp_at_25;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
-    double const& Vcmax_c;
     double const& Vcmax_Ea;
     double const& windspeed;
 
     // Pointers to output quantities
     double* Assim_op;
+    double* Cc_op;
     double* Ci_op;
     double* Cs_op;
     double* EPenman_op;
@@ -151,6 +155,8 @@ class c3_leaf_photosynthesis : public direct_module
     double* RL_op;
     double* Rp_op;
     double* TransR_op;
+    double* iteration_C3_Gs_op;
+    double* residual_C3_Gs_op;
 
     // Main operation
     void do_operation() const;

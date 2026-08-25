@@ -19,6 +19,7 @@ weather <- lapply(raw_weather, function(wd) {
 # Clamp to positive values
 weather <- lapply(weather, function(wd) {
     wd$solar <- pmax(0, round(wd$solar))
+    wd
 })
 
 # Round `rh` to 2 significant figures

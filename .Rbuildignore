@@ -41,6 +41,9 @@
 # GitHub actions and workflows.
 
 ^src/.*\.o$
+^src/.*\\.o$
+^src/\.deps$
+^src/\\.deps$
 ^src/BioCro.so$
 # C++ build by-products.
 
@@ -67,6 +70,9 @@
 
 ^docs$
 # Files created by pkgdown::build_site()
+
+^inst/extdata/outputs$
+# Files created by parameterization scripts
 
 ^LICENSE\.md$
 # Required by the license but not allowed on CRAN

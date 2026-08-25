@@ -1,0 +1,3 @@
+input,input,input,input,input,input,input,input,input,output,"description"
+Root,min_root_depth,rsdf,soil_depth_1,soil_depth_2,soil_depth_3,soil_depth_4,soil_depth_5,soil_depth_6,max_rooting_layer,NA
+1,1,1,1,1,1,1,1,1,6,"automatically-generated test case"

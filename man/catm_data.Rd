@@ -20,7 +20,7 @@
 \usage{catm_data}
 
 \format{
-  Data frame with 3 columns and 45 rows:
+  Data frame with 3 columns and 47 rows:
   \itemize{
     \item \code{year}: the year
     \item \code{Catm}: CO2 concentration (micromol / mol)
@@ -32,7 +32,7 @@
 \source{
   Data were obtained from the National Oceanic and Atmospheric Administration's
   Global Monitoring Laboratory (https://gml.noaa.gov/ccgg/trends/data.html) on
-  2025-10-21.
+  2026-03-16.
 
   The exact link used was
   https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_gl.txt.

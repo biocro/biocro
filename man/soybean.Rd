@@ -7,6 +7,10 @@
 \title{Soybean-BioCro model definition}
 
 \description{
+  \strong{IMPORTANT NOTE:} This model has generally been superseded by the newer
+  \code{\link{soybean_sw}} model, and is no longer being re-parameterized.
+  Please use that model instead.
+
   Initial values, parameters, direct modules, differential modules, and
   a differential equation solver that can be used to run soybean growth
   simulations in Champaign, Illinois and other locations. Along with the soybean
@@ -284,26 +288,23 @@
 
     \item FvCB model (temperature response of Rubisco kinetic properties): The
           following values are from Table 1 of Bernacchi et al. 2001
-          [\doi{10.1111/j.1365-3040.2001.00668.x}]: \code{Gstar_c},
-          \code{Gstar_Ea}, \code{Kc_c}, \code{Kc_Ea}, \code{Ko_c}, \code{Ko_Ea},
-          \code{Vcmax_c}, \code{Vcmax_Ea}.
+          [\doi{10.1111/j.1365-3040.2001.00668.x}]: \code{Gstar_Ea},
+          \code{Kc_Ea}, \code{Ko_Ea}, and \code{Vcmax_Ea}.
 
     \item FvCB model (temperature response of non-photorespiratory CO2 release):
-          \code{RL_c} and \code{RL_Ea} are from Table 1 of Bernacchi et al. 2001
+          \code{RL_Ea} is from Table 1 of Bernacchi et al. 2001
           [\doi{10.1111/j.1365-3040.2001.00668.x}].
 
     \item FvCB model (temperature response of electron transport): The following
           values are from Table 1 of Bernacchi et al. 2003
-          [\doi{10.1046/j.0016-8025.2003.01050.x}]: \code{Jmax_c} and
-          \code{Jmax_Ea}. The following are from Table 2: \code{phi_PSII_0},
-          \code{phi_PSII_1}, \code{phi_PSII_2}, \code{theta_0}, \code{theta_1},
-          \code{theta_2}.
+          [\doi{10.1046/j.0016-8025.2003.01050.x}]: \code{Jmax_Ea}. The
+          following are from Table 2: \code{phi_PSII_0}, \code{phi_PSII_1},
+          \code{phi_PSII_2}, \code{theta_0}, \code{theta_1}, \code{theta_2}.
 
     \item FvCB model (temperature response of triose phosphate utilization):
           The following values are from the caption of Figure 7 of Yang et al.
           2016 [\doi{10.1007/s00425-015-2436-8}]: \code{Tp_Ha}, \code{Tp_Hd},
-          and \code{Tp_S}. The value of \code{Tp_c} was chosen to ensure that
-          Tp_norm = 1 at 25 degrees C.
+          and \code{Tp_S}.
 
     \item FvCB model (light response): \code{beta_PSII},
           \code{electrons_per_carboxylation}, and
@@ -316,10 +317,17 @@
           \code{RL_at_25} is from Davey et al. 2004
           [\doi{10.1104/pp.103.030569}] (Table 3, cv Pana, co2 368 ppm).
           \code{Tp_at_25} was estimated from unpublished data provided by
-          A. Digrado (UIUC, August 2019).
+          A. Digrado (UIUC, August 2019). These are all "apparent" values that
+          were estimated assuming \code{Cc = Ci}, so they should only be used
+          with infinite mesophyll conductance (see below).
 
     \item Ball-Berry model: \code{b0} and \code{b1} are from Leakey et al. 2006
           [\doi{10.1111/j.1365-3040.2006.01556.x}].
+
+    \item Mesophyll conductance: The following temperature response values
+          are from Table 1 of Bernacchi et al. 2002 [\doi{10.1104/pp.008250}]:
+          \code{gm_Ha}, \code{gm_Hd}, and \code{gm_S}. The value of
+          \code{gm_at_25} is set to \code{Inf} to enforce \code{Cc = Ci}.
 
     \item \code{Catm}: Global average value for 2002.
 

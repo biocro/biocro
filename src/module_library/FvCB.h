@@ -20,7 +20,7 @@ class FvCB : public direct_module
         : direct_module{},
 
           // Get pointers to input quantities
-          Ci{get_input(input_quantities, "Ci")},
+          Cc{get_input(input_quantities, "Cc")},
           Gstar{get_input(input_quantities, "Gstar")},
           J{get_input(input_quantities, "J")},
           Kc{get_input(input_quantities, "Kc")},
@@ -50,7 +50,7 @@ class FvCB : public direct_module
 
    private:
     // References to input quantities
-    double const& Ci;
+    double const& Cc;
     double const& Gstar;
     double const& J;
     double const& Kc;
@@ -80,10 +80,10 @@ class FvCB : public direct_module
 string_vector FvCB::get_inputs()
 {
     return {
-        "Ci",                           // micromol / mol
+        "Cc",                           // micromol / mol
         "Gstar",                        // micromol / mol
         "J",                            // micromol / mol
-        "Kc",                           // mmol / mol
+        "Kc",                           // micromol / mol
         "Ko",                           // mmol / mol
         "Oi",                           // micromol / m^2 / s
         "RL",                           // micromol / m^2 / s
@@ -112,7 +112,7 @@ string_vector FvCB::get_outputs()
 void FvCB::do_operation() const
 {
     FvCB_outputs result = FvCB_assim(
-        Ci,
+        Cc,
         Gstar,
         J,
         Kc,

@@ -28,18 +28,21 @@ class c3_canopy : public direct_module
           electrons_per_carboxylation{get_input(input_quantities, "electrons_per_carboxylation")},
           electrons_per_oxygenation{get_input(input_quantities, "electrons_per_oxygenation")},
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
+          gm_at_25{get_input(input_quantities, "gm_at_25")},
+          gm_Ha{get_input(input_quantities, "gm_Ha")},
+          gm_Hd{get_input(input_quantities, "gm_Hd")},
+          gm_S{get_input(input_quantities, "gm_S")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           Gs_min{get_input(input_quantities, "Gs_min")},
-          Gstar_c{get_input(input_quantities, "Gstar_c")},
+          Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           heightf{get_input(input_quantities, "heightf")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
-          Jmax_c{get_input(input_quantities, "Jmax_c")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
-          Kc_c{get_input(input_quantities, "Kc_c")},
+          Kc_at_25{get_input(input_quantities, "Kc_at_25")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
-          Ko_c{get_input(input_quantities, "Ko_c")},
+          Ko_at_25{get_input(input_quantities, "Ko_at_25")},
           Ko_Ea{get_input(input_quantities, "Ko_Ea")},
           kpLN{get_input(input_quantities, "kpLN")},
           lai{get_input(input_quantities, "lai")},
@@ -61,7 +64,6 @@ class c3_canopy : public direct_module
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
-          RL_c{get_input(input_quantities, "RL_c")},
           RL_Ea{get_input(input_quantities, "RL_Ea")},
           solar{get_input(input_quantities, "solar")},
           StomataWS{get_input(input_quantities, "StomataWS")},
@@ -70,12 +72,10 @@ class c3_canopy : public direct_module
           theta_1{get_input(input_quantities, "theta_1")},
           theta_2{get_input(input_quantities, "theta_2")},
           Tp_at_25{get_input(input_quantities, "Tp_at_25")},
-          Tp_c{get_input(input_quantities, "Tp_c")},
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
-          Vcmax_c{get_input(input_quantities, "Vcmax_c")},
           Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
           windspeed{get_input(input_quantities, "windspeed")},
           windspeed_height{get_input(input_quantities, "windspeed_height")},
@@ -109,18 +109,21 @@ class c3_canopy : public direct_module
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
     double const& gbw_canopy;
+    double const& gm_at_25;
+    double const& gm_Ha;
+    double const& gm_Hd;
+    double const& gm_S;
     double const& growth_respiration_fraction;
     double const& Gs_min;
-    double const& Gstar_c;
+    double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& heightf;
     double const& Jmax_at_25;
-    double const& Jmax_c;
     double const& Jmax_Ea;
     double const& k_diffuse;
-    double const& Kc_c;
+    double const& Kc_at_25;
     double const& Kc_Ea;
-    double const& Ko_c;
+    double const& Ko_at_25;
     double const& Ko_Ea;
     double const& kpLN;
     double const& lai;
@@ -142,7 +145,6 @@ class c3_canopy : public direct_module
     double const& phi_PSII_2;
     double const& rh;
     double const& RL_at_25;
-    double const& RL_c;
     double const& RL_Ea;
     double const& solar;
     double const& StomataWS;
@@ -151,12 +153,10 @@ class c3_canopy : public direct_module
     double const& theta_1;
     double const& theta_2;
     double const& Tp_at_25;
-    double const& Tp_c;
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
-    double const& Vcmax_c;
     double const& Vcmax_Ea;
     double const& windspeed;
     double const& windspeed_height;

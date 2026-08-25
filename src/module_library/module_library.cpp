@@ -9,9 +9,9 @@
 
 // Include all the header files that define the modules.
 #include "aba_decay.h"
+#include "atmospheric_pressure_from_elevation.h"
 #include "ball_berry.h"
 #include "biomass_leaf_n_limitation.h"
-#include "broyden_test.h"
 #include "buck_swvp.h"
 #include "bucket_soil_drainage.h"
 #include "c3_assimilation.h"
@@ -22,6 +22,7 @@
 #include "c4_canopy.h"
 #include "c4_leaf_photosynthesis.h"
 #include "canopy_gbw_thornley.h"
+#include "canopy_light_distribution.h"
 #include "carbon_assimilation_to_biomass.h"
 #include "cumulative_carbon_dynamics.h"
 #include "cumulative_water_dynamics.h"
@@ -51,11 +52,13 @@
 #include "maintenance_respiration.h"
 #include "maintenance_respiration_calculator.h"
 #include "module_graph_test.h"  // Includes Module_1, Module_2, and Module_3
+#include "multi_layer_soil_profile.h"
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
 #include "multilayer_canopy_integrator.h"
 #include "multilayer_canopy_properties.h"
 #include "multilayer_rue_canopy.h"
+#include "multilayer_soil_profile_avg.h"
 #include "night_and_day_trackers.h"
 #include "nr_ex.h"
 #include "one_layer_soil_profile.h"
@@ -74,7 +77,6 @@
 #include "priestley_transpiration.h"
 #include "rasmussen_specific_heat.h"
 #include "rh_to_mole_fraction.h"
-#include "root_onedim_test.h"
 #include "rue_leaf_photosynthesis.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
@@ -82,11 +84,20 @@
 #include "sla_linear.h"
 #include "sla_logistic.h"
 #include "soil_evaporation.h"
+#include "soil_evaporation_ritchie.h"
 #include "soil_sunlight.h"
+#include "soil_surface_runoff.h"
+#include "soil_type_selector.h"
+#include "soil_water_downflow.h"
+#include "soil_water_dynamic_rooting.h"
+#include "soil_water_tiledrain.h"
+#include "soil_water_upflow.h"
+#include "soil_water_uptake.h"
 #include "solar_position_michalsky.h"
 #include "song_flowering.h"
 #include "soybean_development_rate_calculator.h"
 #include "stefan_boltzmann_longwave.h"
+#include "stomata_water_stress_bilinear.h"
 #include "stomata_water_stress_exponential.h"
 #include "stomata_water_stress_linear.h"
 #include "stomata_water_stress_linear_aba_response.h"
@@ -101,16 +112,21 @@
 #include "thermal_time_trilinear.h"
 #include "total_biomass.h"
 #include "total_growth_and_maintenance_respiration.h"
+#include "total_soil_water.h"
 #include "two_layer_soil_profile.h"
 #include "varying_Jmax25.h"
 #include "water_vapor_properties_from_air_temperature.h"
 
+// modules for test
+#include "test_modules/root_multidim_test.h"
+#include "test_modules/root_onedim_test.h"
+
 creator_map standardBML::module_library::library_entries =
 {
      {"aba_decay",                                             &create_mc<aba_decay>},
+     {"atmospheric_pressure_from_elevation",                   &create_mc<atmospheric_pressure_from_elevation>},
      {"ball_berry",                                            &create_mc<ball_berry>},
      {"biomass_leaf_n_limitation",                             &create_mc<biomass_leaf_n_limitation>},
-     {"broyden_test",                                          &create_mc<broyden_test>},
      {"buck_swvp",                                             &create_mc<buck_swvp>},
      {"bucket_soil_drainage",                                  &create_mc<bucket_soil_drainage>},
      {"c3_assimilation",                                       &create_mc<c3_assimilation>},
@@ -121,6 +137,7 @@ creator_map standardBML::module_library::library_entries =
      {"c4_canopy",                                             &create_mc<c4_canopy>},
      {"c4_leaf_photosynthesis",                                &create_mc<c4_leaf_photosynthesis>},
      {"canopy_gbw_thornley",                                   &create_mc<canopy_gbw_thornley>},
+     {"canopy_light_distribution",                             &create_mc<canopy_light_distribution>},
      {"carbon_assimilation_to_biomass",                        &create_mc<carbon_assimilation_to_biomass>},
      {"cumulative_carbon_dynamics",                            &create_mc<cumulative_carbon_dynamics>},
      {"cumulative_water_dynamics",                             &create_mc<cumulative_water_dynamics>},
@@ -154,6 +171,8 @@ creator_map standardBML::module_library::library_entries =
      {"Module_1",                                              &create_mc<Module_1>},
      {"Module_2",                                              &create_mc<Module_2>},
      {"Module_3",                                              &create_mc<Module_3>},
+     {"multi_layer_soil_profile",                              &create_mc<multi_layer_soil_profile>},
+     {"multilayer_soil_profile_avg",                           &create_mc<multilayer_soil_profile_avg>},
      {"night_and_day_trackers",                                &create_mc<night_and_day_trackers>},
      {"nr_ex",                                                 &create_mc<nr_ex>},
      {"one_layer_soil_profile",                                &create_mc<one_layer_soil_profile>},
@@ -173,6 +192,7 @@ creator_map standardBML::module_library::library_entries =
      {"rasmussen_specific_heat",                               &create_mc<rasmussen_specific_heat>},
      {"rh_to_mole_fraction",                                   &create_mc<rh_to_mole_fraction>},
      {"root_onedim_test",                                      &create_mc<root_onedim_test>},
+     {"root_multidim_test",                                    &create_mc<root_multidim_test>},
      {"rue_leaf_photosynthesis",                               &create_mc<rue_leaf_photosynthesis>},
      {"senescence_coefficient_logistic",                       &create_mc<senescence_coefficient_logistic>},
      {"senescence_logistic",                                   &create_mc<senescence_logistic>},
@@ -180,11 +200,20 @@ creator_map standardBML::module_library::library_entries =
      {"sla_linear",                                            &create_mc<sla_linear>},
      {"sla_logistic",                                          &create_mc<sla_logistic>},
      {"soil_evaporation",                                      &create_mc<soil_evaporation>},
+     {"soil_evaporation_ritchie",                              &create_mc<soil_evaporation_ritchie>},
      {"soil_sunlight",                                         &create_mc<soil_sunlight>},
+     {"soil_surface_runoff",                                   &create_mc<soil_surface_runoff>},
+     {"soil_type_selector",                                    &create_mc<soil_type_selector>},
+     {"soil_water_downflow",                                   &create_mc<soil_water_downflow>},
+     {"soil_water_dynamic_rooting",                            &create_mc<soil_water_dynamic_rooting>},
+     {"soil_water_tiledrain",                                  &create_mc<soil_water_tiledrain>},
+     {"soil_water_upflow",                                     &create_mc<soil_water_upflow>},
+     {"soil_water_uptake",                                     &create_mc<soil_water_uptake>},
      {"solar_position_michalsky",                              &create_mc<solar_position_michalsky>},
      {"song_flowering",                                        &create_mc<song_flowering>},
      {"soybean_development_rate_calculator",                   &create_mc<soybean_development_rate_calculator>},
      {"stefan_boltzmann_longwave",                             &create_mc<stefan_boltzmann_longwave>},
+     {"stomata_water_stress_bilinear",                         &create_mc<stomata_water_stress_bilinear>},
      {"stomata_water_stress_exponential",                      &create_mc<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear",                           &create_mc<stomata_water_stress_linear>},
      {"stomata_water_stress_linear_and_aba_response",          &create_mc<stomata_water_stress_linear_and_aba_response>},
@@ -204,6 +233,7 @@ creator_map standardBML::module_library::library_entries =
      {"thermal_time_trilinear",                                &create_mc<thermal_time_trilinear>},
      {"total_biomass",                                         &create_mc<total_biomass>},
      {"total_growth_and_maintenance_respiration",              &create_mc<total_growth_and_maintenance_respiration>},
+     {"total_soil_water",                                      &create_mc<total_soil_water>},
      {"two_layer_soil_profile",                                &create_mc<two_layer_soil_profile>},
      {"varying_Jmax25",                                        &create_mc<varying_Jmax25>},
      {"water_vapor_properties_from_air_temperature",           &create_mc<water_vapor_properties_from_air_temperature>}

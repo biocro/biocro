@@ -1,3 +1,4 @@
-input,input,input,output,"description"
-soil_field_capacity,soil_water_content,soil_wilting_point,StomataWS,NA
-1,1,1,NaN,"automatically-generated test case"
+input,input,input,input,input,output,"description"
+StomataWS_gradient,StomataWS_intercept,soil_field_capacity,soil_water_content,soil_wilting_point,StomataWS,NA
+1,0,0.37,0.3,0.21,0.5625,"StomataWS is REW"
+0.14,0.64,0.37,0.3,0.21,0.71875,"StomataWS with optimized soybean parameters"

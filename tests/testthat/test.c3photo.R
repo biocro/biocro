@@ -12,15 +12,18 @@ test_that("c3photoC is sensitive to changes in vcmax", {
         electrons_per_carboxylation = 4.5,
         electrons_per_oxygenation = 5.25,
         gbw = 1.2,
+        gm_at_25 = Inf,
+        gm_Ha = 49600,
+        gm_Hd = 437400,
+        gm_S = 1400,
         Gs_min = 1e-3,
-        Gstar_c = 19.02,
+        Gstar_at_25 = 42.9291,
         Gstar_Ea = 37.83e3,
         Jmax_at_25 = 180,
-        Jmax_c = 17.57,
         Jmax_Ea = 43.54e3,
-        Kc_c = 38.05,
+        Kc_at_25 = 406.7908,
         Kc_Ea = 79.43e3,
-        Ko_c = 20.30,
+        Ko_at_25 = 277.1263,
         Ko_Ea = 36.38e3,
         O2 = 210,
         phi_PSII_0 = 0.352,
@@ -28,7 +31,6 @@ test_that("c3photoC is sensitive to changes in vcmax", {
         phi_PSII_2 = -3.4e-4,
         Qabs = 1500,
         RL_at_25 = 1.1,
-        RL_c = 18.72,
         RL_Ea = 46.39e3,
         rh = 0.7,
         StomataWS = 1,
@@ -43,7 +45,6 @@ test_that("c3photoC is sensitive to changes in vcmax", {
         Tp_Hd = 182.14e3,
         Tp_S = 0.588e3,
         Tp_at_25 = 23,
-        Vcmax_c = 26.35,
         Vcmax_Ea = 65.33e3
     )
 
@@ -76,7 +77,7 @@ test_that('c3photoC produces self-consistent outputs', {
         )
     )
 
-    # Now we have values of Ci; check to see if the FvCB module reproduces the
+    # Now we have values of Cc; check to see if the FvCB module reproduces the
     # same assimilation rates. First, we will need to calculate values of key
     # parameters at leaf temperature.
     c3_parameters_inputs <-
@@ -120,11 +121,11 @@ test_that('c3photoC produces self-consistent outputs', {
             alpha_TPU = 0 # hard-coded to 0 in c3photoC
         ),
         data.frame(
-            Ci = c3photo_res$Ci,
-            Gstar = c3_parameters_res$Gstar,
+            Cc = c3photo_res$Cc,
+            Gstar = c3_parameters_res$Gstar_norm * soybean$parameters$Gstar_at_25,
             J = J,
-            Kc = c3_parameters_res$Kc,
-            Ko = c3_parameters_res$Ko,
+            Kc = c3_parameters_res$Kc_norm * soybean$parameters$Kc_at_25,
+            Ko = c3_parameters_res$Ko_norm * soybean$parameters$Ko_at_25,
             Oi = Oi,
             RL = c3_parameters_res$RL_norm * soybean$parameters$RL_at_25,
             TPU = c3_parameters_res$Tp_norm * soybean$parameters$Tp_at_25,

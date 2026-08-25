@@ -54,51 +54,51 @@ test_that('Errors can be ignored when evaluating modules', {
         electrons_per_oxygenation = 4
     )
 
-    neg_ci_error_msg <- 'Caught exception in R_evaluate_module: Thrown in FvCB_assim: Ci is negative.'
+    neg_cc_error_msg <- 'Caught exception in R_evaluate_module: Thrown in FvCB_assim: Cc is negative.'
 
     expect_error(
         evaluate_module(
             fvcb_module,
-            within(basic_fvcb_inputs, {Ci = -1}),
+            within(basic_fvcb_inputs, {Cc = -1}),
             stop_on_exception = TRUE
         ),
-        neg_ci_error_msg
+        neg_cc_error_msg
     )
 
     error_msg <- expect_silent(
         evaluate_module(
             fvcb_module,
-            within(basic_fvcb_inputs, {Ci = -1}),
+            within(basic_fvcb_inputs, {Cc = -1}),
             stop_on_exception = FALSE
         )
     )
 
     expect_equal(
         error_msg$error_msg,
-        neg_ci_error_msg
+        neg_cc_error_msg
     )
 
     expect_error(
         module_response_curve(
             fvcb_module,
             basic_fvcb_inputs,
-            data.frame(Ci = c(380, -1)),
+            data.frame(Cc = c(380, -1)),
             stop_on_exception = TRUE
         ),
-        neg_ci_error_msg
+        neg_cc_error_msg
     )
 
     rc <- expect_silent(
         module_response_curve(
             fvcb_module,
             basic_fvcb_inputs,
-            data.frame(Ci = c(380, -1)),
+            data.frame(Cc = c(380, -1)),
             stop_on_exception = FALSE
         )
     )
 
     expect_equal(
         rc$error_msg,
-        c(NA, neg_ci_error_msg)
+        c(NA, neg_cc_error_msg)
     )
 })

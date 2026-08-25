@@ -2,7 +2,7 @@
 #include "../framework/constants.h"       // for stefan_boltzmann,
                                           // celsius_to_kelvin, molar_mass_of_water
 #include "boundary_layer_conductance.h"   // for leaf_boundary_layer_conductance_nikolov
-#include "conductance_helpers.h"          // for g_to_mass, g_to_molecular, sequential_conductance
+#include "conductance_helpers.h"          // for g_to_mass, g_to_molar, sequential_conductance
 #include "../math/roots/onedim/dekker.h"  // for dekker
 #include "water_and_air_properties.h"     // for TempToCp, dry_air_density, etc
 #include "leaf_energy_balance.h"
@@ -94,8 +94,8 @@ double check_leaf_temp(
 
     // Get the boundary layer conductance and total conductance to water
     // vapor
-    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);  // m / s
-    double const gw = sequential_conductance(gsw, gbw);               // m / s
+    double const gbw = sequential_conductance({gbw_leaf, gbw_canopy});  // m / s
+    double const gw = sequential_conductance({gsw, gbw});               // m / s
 
     // Get the new leaf temperature using the Penman-Monteith equation
     double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);
@@ -220,8 +220,8 @@ energy_balance_outputs leaf_energy_balance(
     // Throw exception if not converged
     if (!root_finding::is_successful(result.flag)) {
         throw std::runtime_error(
-            "leaf_temperature solver reports failed convergence with termination flag:\n    " +
-            root_finding::flag_message(result.flag));
+            "leaf_temperature solver reports failed convergence:\n    " +
+            result.message());
     }
 
     // Get final value
@@ -237,14 +237,14 @@ energy_balance_outputs leaf_energy_balance(
         leaf_width,
         wind_speed);  // m / s
 
-    double const gbw = sequential_conductance(gbw_leaf, gbw_canopy);                   // m / s
-    double const gbw_molecular = g_to_molecular(air_pressure, gbw, leaf_temperature);  // mol / m^2 / s
-    double const gw = sequential_conductance(gsw, gbw);                                // m / s
-    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);            // degrees C
-    double const Delta_T = leaf_temperature - air_temperature;                         // degrees C
-    double const E = (Delta_rho + s * Delta_T) * gw;                                   // kg / m^2 / s
-    double const H = rho_ta * c_p * Delta_T * gbw;                                     // J / m^2 / s
-    double const storage = Phi_N - H - lambda * E;                                     // J / m^2 / s
+    double const gbw = sequential_conductance({gbw_leaf, gbw_canopy});         // m / s
+    double const gbw_molar = g_to_molar(air_pressure, gbw, leaf_temperature);  // mol / m^2 / s
+    double const gw = sequential_conductance({gsw, gbw});                      // m / s
+    double const Phi_N = calculate_Phi_N(epsilon_s, J_a, leaf_temperature);    // degrees C
+    double const Delta_T = leaf_temperature - air_temperature;                 // degrees C
+    double const E = (Delta_rho + s * Delta_T) * gw;                           // kg / m^2 / s
+    double const H = rho_ta * c_p * Delta_T * gbw;                             // J / m^2 / s
+    double const storage = Phi_N - H - lambda * E;                             // J / m^2 / s
 
     // Relative humidity just outside the leaf boundary layer
     double const RH_canopy = (rho_w_air + E / gbw_canopy) / rho_w_sat;  // dimensionless
@@ -272,7 +272,7 @@ energy_balance_outputs leaf_energy_balance(
         /* gbw = */ gbw,                          // m / s
         /* gbw_canopy = */ gbw_canopy,            // m / s
         /* gbw_leaf = */ gbw_leaf,                // m / s
-        /* gbw_molecular = */ gbw_molecular,      // mol / m^2 / s
+        /* gbw_molar = */ gbw_molar,              // mol / m^2 / s
         /* gsw = */ gsw,                          // m / s
         /* H = */ H,                              // J / m^2 / s
         /* leaf_temp_check = */ result.residual,  // degrees C
