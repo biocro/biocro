@@ -1,13 +1,12 @@
-#ifndef CANOPY_LIGHT_DISTRIBUTION_MODULE_H
-#define CANOPY_LIGHT_DISTRIBUTION_MODULE_H
+#ifndef CANOPY_LIGHT_DISTRIBUTION_H
+#define CANOPY_LIGHT_DISTRIBUTION_H
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "core/canopy_light_distribution.h"
+#include "canopy_light_helpers.h"
 
 namespace standardBML
 {
-
 class canopy_light_distribution : public direct_module
 {
    public:
@@ -123,28 +122,31 @@ class canopy_light_distribution : public direct_module
 
     void do_operation() const
     {
-        core::atmosphere_light_scattering light_scattering = {
+        atmosphere_light_scattering light_scattering = {
             cosine_zenith_angle,
             atmospheric_pressure,
             atmospheric_transmittance,
             atmospheric_scattering};
-        core::canopy_light::parameters params = {chil,
-                                                 cosine_zenith_angle,
-                                                 heightf,
-                                                 k_diffuse,
-                                                 lai,
-                                                 leaf_reflectance_nir,
-                                                 leaf_reflectance_par,
-                                                 leaf_transmittance_nir,
-                                                 leaf_transmittance_par,
-                                                 par_energy_content,
-                                                 par_energy_fraction};
-        core::canopy_light light_model = core::canopy_light::from_solar(
+
+        canopy_light::parameters params =
+            {chil,
+             cosine_zenith_angle,
+             heightf,
+             k_diffuse,
+             lai,
+             leaf_reflectance_nir,
+             leaf_reflectance_par,
+             leaf_transmittance_nir,
+             leaf_transmittance_par,
+             par_energy_content,
+             par_energy_fraction};
+
+        canopy_light light_model = canopy_light::from_solar(
             solar,
             light_scattering,
             params);
 
-        core::light_profile profile = light_model.get_light_profile(cumulative_lai);
+        light_profile profile = light_model.get_light_profile(cumulative_lai);
 
         update(height_op, profile.height);
         update(sunlit_fraction_op, profile.sunlit.fraction);

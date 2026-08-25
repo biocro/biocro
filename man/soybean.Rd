@@ -7,6 +7,10 @@
 \title{Soybean-BioCro model definition}
 
 \description{
+  \strong{IMPORTANT NOTE:} This model has generally been superseded by the newer
+  \code{\link{soybean_sw}} model, and is no longer being re-parameterized.
+  Please use that model instead.
+
   Initial values, parameters, direct modules, differential modules, and
   a differential equation solver that can be used to run soybean growth
   simulations in Champaign, Illinois and other locations. Along with the soybean

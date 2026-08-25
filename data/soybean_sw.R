@@ -1,4 +1,4 @@
-soybean2 <- list(
+soybean_sw <- list(
     direct_modules = list(
         "BioCro:format_time",
         "BioCro:atmospheric_pressure_from_elevation",

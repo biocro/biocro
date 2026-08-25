@@ -166,8 +166,7 @@ senescence_result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example 2: a crude method for simulating the effects of climate change; here
 # we increase the atmospheric CO2 concentration to 500 ppm and the temperature
-# by 2 degrees C relative to 2005 temperatures. The commands below that call
-# `temperature_simulation` all produce the same result.
+# by 2 degrees C relative to 2005 temperatures.
 temperature_simulation <- partial_run_biocro(
   miscanthus_x_giganteus$initial_values,
   miscanthus_x_giganteus$parameters,
@@ -177,9 +176,13 @@ temperature_simulation <- partial_run_biocro(
   miscanthus_x_giganteus$ode_solver,
   c("Catm", "temp")
 )
-hot_result_1 <- temperature_simulation(c(500, ex_weather$temp + 2.0))
-hot_result_2 <- temperature_simulation(list(Catm = 500, temp = ex_weather$temp + 2.0))
+hot_result_1 <- temperature_simulation(list(Catm = 500, temp = ex_weather$temp + 2.0))
+
+# Note that these commands will both produce the same result:
+\donttest{
+hot_result_2 <- temperature_simulation(c(500, ex_weather$temp + 2.0))
 hot_result_3 <- temperature_simulation(list(temp = ex_weather$temp + 2.0, Catm = 500))
+}
 
 # Note that these commands will both produce errors:
 # hot_result_4 <- temperature_simulation(c(Catm = 500, temp = ex_weather$temp + 2.0))

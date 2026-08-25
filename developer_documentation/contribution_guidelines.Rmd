@@ -414,17 +414,19 @@ be achieved through the following steps:
 3. Update the `DESCRIPTION` file with the new release date (set to today's
    date), the new version number, and any necessary changes to the author list.
 
-4. Change the `UNRELEASED` header in `NEWS.md` to the new version number, and
+4. If necessary, update the year in `LICENSE` and `LICENSE.md`
+
+5. Change the `UNRELEASED` header in `NEWS.md` to the new version number, and
    check the contents of this section to ensure it is clear and complete. It may
    be helpful to look through the list of completed pull requests on GitHub to
    check for any important changes that may have been missed.
 
-5. Run `R CMD check` to see any NOTEs that are reported; see the
+6. Run `R CMD check` to see any NOTEs that are reported; see the
    ["Running R CMD check chapter"](#r-cmd-check) for instructions. Check the
    contents of `cran-comments.md` to make sure it accurately reflects the
    `R CMD check` notes.
 
-6. Make two pull requests, requesting to merge the new branch into `develop` and
+7. Make two pull requests, requesting to merge the new branch into `develop` and
    `main`. In general, follow the guidelines in the
    ["Pull Request Etiquette" chapter](#pr-etiquette). However, there is one
    extra requirement for a release branch: the branch should not be merged until
@@ -435,7 +437,7 @@ be achieved through the following steps:
    3.1.1 and 3.1.2.) See the ["Submitting to CRAN" chapter](#cran-submission)
    for instructions.
 
-7. When the new version is on CRAN, merge the release branch into `develop` and
+8. When the new version is on CRAN, merge the release branch into `develop` and
    `main`.
 
 ### Submitting a new version of BioCro to CRAN {#cran-submission}
@@ -500,6 +502,11 @@ submission:
 
 (Most of what is discussed here pertains specifically to code for the BioCro C++
 library.)
+
+### Code organization
+
+* The `src/module_library` directory is meant to be flat. Do not introduce new
+  sub-directories without prior discussion and approval.
 
 ### Scientific considerations
 

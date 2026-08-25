@@ -1,8 +1,9 @@
-#include "atmosphere_light_scattering.h"
 #include "../framework/constants.h"  // for atmospheric_pressure_at_sea_level
+#include "atmosphere_light_scattering.h"
 #include <cmath>
+
 using physical_constants::atmospheric_pressure_at_sea_level;
-namespace core {
+
 /**
  * @brief Calculates the "light macro environment"; in other words, the amount
  * of sunlight scattered out of the direct beam by the atmosphere.
@@ -95,5 +96,3 @@ atmosphere_light_scattering::atmosphere_light_scattering(
     // The remaining irradiance is diffuse (dimensionless).
     diffuse_fraction = 1.0 - direct_fraction;
 }
-
-}  // namespace core
