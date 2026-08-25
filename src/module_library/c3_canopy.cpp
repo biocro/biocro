@@ -10,8 +10,6 @@ string_vector c3_canopy::get_inputs()
     return {
         "absorbed_longwave",            // J / m^2 / s
         "atmospheric_pressure",         // Pa
-        "atmospheric_scattering",       // dimensionless
-        "atmospheric_transmittance",    // dimensionless
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
         "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -30,6 +28,8 @@ string_vector c3_canopy::get_inputs()
         "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
         "heightf",                      // m^(-1)
+        "irradiance_diffuse_fraction",  // dimensionless
+        "irradiance_direct_fraction",   // dimensionless
         "Jmax_at_25",                   // micromol / m^2 / s
         "Jmax_Ea",                      // J / mol
         "k_diffuse",                    // dimensionless
@@ -116,8 +116,6 @@ void c3_canopy::do_operation() const
         absorbed_longwave,
         temp,
         atmospheric_pressure,
-        atmospheric_scattering,
-        atmospheric_transmittance,
         b0,
         b1,
         beta_PSII,
@@ -132,6 +130,8 @@ void c3_canopy::do_operation() const
         Gs_min,
         Gstar_at_25,
         heightf,
+        irradiance_diffuse_fraction,
+        irradiance_direct_fraction,
         Jmax_at_25,
         k_diffuse,
         Kc_at_25,

@@ -93,10 +93,14 @@ canopy_light::canopy_light(
 {
 }
 
-canopy_light canopy_light::from_solar(double solar, atmosphere_light_scattering const& a, canopy_light::parameters const& p)
+canopy_light canopy_light::from_solar(
+    double const irradiance_diffuse_fraction,  // dimensionless
+    double const irradiance_direct_fraction,   // dimensionless
+    double const solar,                        // micromol / m^2 / s
+    canopy_light::parameters const& p)
 {
-    double beam = a.direct_fraction * solar;      // micromol / m^2 / s
-    double diffuse = a.diffuse_fraction * solar;  // micromol / m^2 / s
+    double const beam = irradiance_direct_fraction * solar;      // micromol / m^2 / s
+    double const diffuse = irradiance_diffuse_fraction * solar;  // micromol / m^2 / s
     return canopy_light{beam, diffuse, p, canopy_light::compute(beam, diffuse, p)};
 }
 

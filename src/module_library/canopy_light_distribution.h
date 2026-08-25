@@ -17,12 +17,12 @@ class canopy_light_distribution : public direct_module
 
           // Get references to input quantities
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
           chil{get_input(input_quantities, "chil")},
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           cumulative_lai{get_input(input_quantities, "cumulative_lai")},
           heightf{get_input(input_quantities, "heightf")},
+          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
+          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
           lai{get_input(input_quantities, "lai")},
           leaf_reflectance_nir{get_input(input_quantities, "leaf_reflectance_nir")},
@@ -51,22 +51,22 @@ class canopy_light_distribution : public direct_module
     static string_vector get_inputs()
     {
         return {
-            "atmospheric_pressure",       // Pa
-            "atmospheric_scattering",     // dimensionless
-            "atmospheric_transmittance",  // dimensionless
-            "chil",                       // dimensionless from m^2 / m^2
-            "cosine_zenith_angle",        // dimensionless
-            "cumulative_lai",             // dimensionless from m^2 leaf / m^2 ground
-            "heightf",                    // m^-1
-            "k_diffuse",                  // dimensionless
-            "lai",                        // dimensionless from m^2 / m^2
-            "leaf_reflectance_nir",       // dimensionless
-            "leaf_reflectance_par",       // dimensionless
-            "leaf_transmittance_nir",     // dimensionless
-            "leaf_transmittance_par",     // dimensionless
-            "par_energy_content",         // J / micromol
-            "par_energy_fraction",        // dimensionless
-            "solar"                       // micromol / m^2 / s
+            "atmospheric_pressure",         // Pa
+            "chil",                         // dimensionless from m^2 / m^2
+            "cosine_zenith_angle",          // dimensionless
+            "cumulative_lai",               // dimensionless from m^2 leaf / m^2 ground
+            "heightf",                      // m^-1
+            "irradiance_diffuse_fraction",  // dimensionless
+            "irradiance_direct_fraction",   // dimensionless
+            "k_diffuse",                    // dimensionless
+            "lai",                          // dimensionless from m^2 / m^2
+            "leaf_reflectance_nir",         // dimensionless
+            "leaf_reflectance_par",         // dimensionless
+            "leaf_transmittance_nir",       // dimensionless
+            "leaf_transmittance_par",       // dimensionless
+            "par_energy_content",           // J / micromol
+            "par_energy_fraction",          // dimensionless
+            "solar"                         // micromol / m^2 / s
         };
     }
 
@@ -90,22 +90,22 @@ class canopy_light_distribution : public direct_module
 
    private:
     // References to input quantities
-    double const& atmospheric_pressure;       // Pa
-    double const& atmospheric_transmittance;  // dimensionless
-    double const& atmospheric_scattering;     // dimensionless
-    double const& chil;                       // dimensionless from m^2 / m^2
-    double const& cosine_zenith_angle;        // dimensionless
-    double const& cumulative_lai;             // dimensionless from m^2 leaf / m^2 ground
-    double const& heightf;                    // m^-1 from m^2 leaf / m^2 ground / m height
-    double const& k_diffuse;                  // dimensionless
-    double const& lai;                        // dimensionless from m^2 / m^2
-    double const& leaf_reflectance_nir;       // dimensionless
-    double const& leaf_reflectance_par;       // dimensionless
-    double const& leaf_transmittance_nir;     // dimensionless
-    double const& leaf_transmittance_par;     // dimensionless
-    double const& par_energy_content;         // J / micromol
-    double const& par_energy_fraction;        // dimensionless
-    double const& solar;                      // micromol / m^2 / s
+    double const& atmospheric_pressure;         // Pa
+    double const& chil;                         // dimensionless from m^2 / m^2
+    double const& cosine_zenith_angle;          // dimensionless
+    double const& cumulative_lai;               // dimensionless from m^2 leaf / m^2 ground
+    double const& heightf;                      // m^-1 from m^2 leaf / m^2 ground / m height
+    double const& irradiance_diffuse_fraction;  // dimensionless
+    double const& irradiance_direct_fraction;   // dimensionless
+    double const& k_diffuse;                    // dimensionless
+    double const& lai;                          // dimensionless from m^2 / m^2
+    double const& leaf_reflectance_nir;         // dimensionless
+    double const& leaf_reflectance_par;         // dimensionless
+    double const& leaf_transmittance_nir;       // dimensionless
+    double const& leaf_transmittance_par;       // dimensionless
+    double const& par_energy_content;           // J / micromol
+    double const& par_energy_fraction;          // dimensionless
+    double const& solar;                        // micromol / m^2 / s
 
     // Pointers to output quantities
     double* height_op;
@@ -122,12 +122,6 @@ class canopy_light_distribution : public direct_module
 
     void do_operation() const
     {
-        atmosphere_light_scattering light_scattering = {
-            cosine_zenith_angle,
-            atmospheric_pressure,
-            atmospheric_transmittance,
-            atmospheric_scattering};
-
         canopy_light::parameters params =
             {chil,
              cosine_zenith_angle,
@@ -142,8 +136,9 @@ class canopy_light_distribution : public direct_module
              par_energy_fraction};
 
         canopy_light light_model = canopy_light::from_solar(
+            irradiance_diffuse_fraction,
+            irradiance_direct_fraction,
             solar,
-            light_scattering,
             params);
 
         light_profile profile = light_model.get_light_profile(cumulative_lai);

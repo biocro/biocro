@@ -19,8 +19,6 @@ class c4_canopy : public direct_module
           absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
           alpha1{get_input(input_quantities, "alpha1")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
-          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           beta{get_input(input_quantities, "beta")},
@@ -30,6 +28,8 @@ class c4_canopy : public direct_module
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           Gs_min{get_input(input_quantities, "Gs_min")},
+          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
+          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
           kparm{get_input(input_quantities, "kparm")},
           kpLN{get_input(input_quantities, "kpLN")},
@@ -85,8 +85,6 @@ class c4_canopy : public direct_module
     double const& absorbed_longwave;
     double const& alpha1;
     double const& atmospheric_pressure;
-    double const& atmospheric_scattering;
-    double const& atmospheric_transmittance;
     double const& b0;
     double const& b1;
     double const& beta;
@@ -96,6 +94,8 @@ class c4_canopy : public direct_module
     double const& gbw_canopy;
     double const& growth_respiration_fraction;
     double const& Gs_min;
+    double const& irradiance_diffuse_fraction;
+    double const& irradiance_direct_fraction;
     double const& k_diffuse;
     double const& kparm;
     double const& kpLN;
@@ -151,8 +151,6 @@ string_vector c4_canopy::get_inputs()
         "absorbed_longwave",  // J / m^2 / s
         "alpha1",
         "atmospheric_pressure",         // Pa
-        "atmospheric_scattering",       // dimensionless
-        "atmospheric_transmittance",    // dimensionless
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
         "beta",                         // dimensionless
@@ -162,6 +160,8 @@ string_vector c4_canopy::get_inputs()
         "gbw_canopy",                   // m / s
         "growth_respiration_fraction",  // dimensionless
         "Gs_min",                       // mol / m^2 / s
+        "irradiance_diffuse_fraction",  // dimensionless
+        "irradiance_direct_fraction",   // dimensionless
         "k_diffuse",                    // dimensionless
         "kparm",
         "kpLN",
@@ -235,8 +235,6 @@ void c4_canopy::do_operation() const
         alpha1,
         temp,
         atmospheric_pressure,
-        atmospheric_scattering,
-        atmospheric_transmittance,
         b0,
         b1,
         beta,
@@ -246,6 +244,8 @@ void c4_canopy::do_operation() const
         gbw_canopy,
         growth_respiration_fraction,
         Gs_min,
+        irradiance_diffuse_fraction,
+        irradiance_direct_fraction,
         k_diffuse,
         kparm,
         kpLN,

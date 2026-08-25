@@ -1,8 +1,8 @@
 #ifndef C4CANAC_H
 #define C4CANAC_H
 
-#include "AuxBioCro.h"                      // for nitroParms
-#include "canopy_photosynthesis_outputs.h" 
+#include "AuxBioCro.h"  // for nitroParms
+#include "canopy_photosynthesis_outputs.h"
 
 canopy_photosynthesis_outputs CanAC(
     const nitroParms& nitroP,
@@ -10,8 +10,6 @@ canopy_photosynthesis_outputs CanAC(
     double Alpha,
     double ambient_temperature,          // degrees C
     double atmospheric_pressure,         // Pa
-    double atmospheric_scattering,       // dimensionless
-    double atmospheric_transmittance,    // dimensionless
     double b0,                           // mol / m^2 / s
     double b1,                           // dimensionless
     double beta,                         // dimensionless
@@ -21,6 +19,8 @@ canopy_photosynthesis_outputs CanAC(
     double gbw_canopy,                   // m / s
     double growth_respiration_fraction,  // dimensionless
     double Gs_min,                       // mol / m^2 / s
+    double irradiance_diffuse_fraction,  // dimensionless
+    double irradiance_direct_fraction,   // dimensionless
     double k_diffuse,                    // dimensionless
     double Kparm,
     double kpLN,

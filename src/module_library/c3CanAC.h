@@ -9,8 +9,6 @@ canopy_photosynthesis_outputs c3CanAC(
     double const absorbed_longwave,            // J / m^2 / s
     double const ambient_temperature,          // degrees C
     double const atmospheric_pressure,         // Pa
-    double const atmospheric_scattering,       // dimensionless
-    double const atmospheric_transmittance,    // dimensionless
     double const b0,                           // mol / m^2 / s
     double const b1,                           // dimensionless
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -25,6 +23,8 @@ canopy_photosynthesis_outputs c3CanAC(
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
     double const heightf,                      // m^(-1)
+    double const irradiance_diffuse_fraction,  // dimensionless
+    double const irradiance_direct_fraction,   // dimensionless
     double const Jmax_at_25,                   // micromol / m^2 / s
     double const k_diffuse,                    // dimensionless
     double const Kc_at_25,                     // micromol / mol

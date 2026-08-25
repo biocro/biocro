@@ -1,6 +1,5 @@
 #ifndef CANOPY_LIGHT_HELPERS_H
 #define CANOPY_LIGHT_HELPERS_H
-#include "atmosphere_light_scattering.h"
 
 /**
  * @file
@@ -114,8 +113,8 @@ double shaded_radiation(
  *
  * @par Construction
  * Supply beam and diffuse PPFD directly via the primary constructor, or use
- * `from_solar` to derive them from a total solar flux and an
- * `atmosphere_light_scattering` result.
+ * `from_solar` to derive them from a total solar flux and fractions of direct
+ * and diffuse radiation.
  *
  * @par Invariants
  * All input parameters and derived absorptances are validated on construction;
@@ -169,15 +168,26 @@ struct canopy_light {
     /**
      * @brief Constructs from total solar flux and atmospheric scattering.
      *
-     * Derives beam PPFD as `solar * a.direct_fraction` and diffuse PPFD as
-     * `solar * a.diffuse_fraction`, then delegates to the primary constructor.
+     * Derives beam PPFD as `solar * irradiance_direct_fraction` and diffuse PPFD as
+     * `solar * irradiance_diffuse_fraction`, then delegates to the primary constructor.
+     *
+     * @param irradiance_diffuse_fraction Fraction of solar radiation scattered
+     *        into diffuse light (dimensionless).
+     *
+     * @param irradiance_direct_fraction Fraction of solar radiation remaining
+     *        in the direct beam (dimensionless).
      *
      * @param solar Total solar photon flux density (micromol / m^2 / s).
-     * @param a     Pre-computed atmospheric scattering result.
-     * @param p     Canopy structural and optical parameters.
+     *
+     * @param p Canopy structural and optical parameters.
+     *
      * @throws std::out_of_range if any parameter or derived absorptance is invalid.
      */
-    static canopy_light from_solar(double solar, atmosphere_light_scattering const& a, parameters const& p);
+    static canopy_light from_solar(
+        double const irradiance_diffuse_fraction,
+        double const irradiance_direct_fraction,
+        double const solar,
+        parameters const& p);
 
     /// Returns the fraction of ground area exposed to direct sunlight (dimensionless).
     double direct_transmission_fraction() const;

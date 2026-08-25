@@ -1,11 +1,10 @@
-#include <algorithm>                      // for std::min, std::max
-#include "../framework/constants.h"       // for molar_mass_of_water
-#include "../math/quadrature/quad.h"      // for quadrature::gauss_legendre_2
-#include "atmosphere_light_scattering.h"  // for atmosphere_light_scattering
-#include "c4photo.h"                      // for c4photoC, solve_c4_gs
-#include "leaf_energy_balance.h"          // for leaf_energy_balance
-#include "photosynthesis.h"               // for leaf_assim, CanopyIntegrand
-#include "respiration.h"                  // for growth_resp
+#include <algorithm>                  // for std::min, std::max
+#include "../framework/constants.h"   // for molar_mass_of_water
+#include "../math/quadrature/quad.h"  // for quadrature::gauss_legendre_2
+#include "c4photo.h"                  // for c4photoC, solve_c4_gs
+#include "leaf_energy_balance.h"      // for leaf_energy_balance
+#include "photosynthesis.h"           // for leaf_assim, CanopyIntegrand
+#include "respiration.h"              // for growth_resp
 #include "CanAC.h"
 
 canopy_photosynthesis_outputs CanAC(
@@ -14,8 +13,6 @@ canopy_photosynthesis_outputs CanAC(
     double Alpha,
     double ambient_temperature,          // degrees C
     double atmospheric_pressure,         // Pa
-    double atmospheric_scattering,       // dimensionless
-    double atmospheric_transmittance,    // dimensionless
     double b0,                           // mol / m^2 / s
     double b1,                           // dimensionless
     double beta,                         // dimensionless
@@ -25,6 +22,8 @@ canopy_photosynthesis_outputs CanAC(
     double gbw_canopy,                   // m / s
     double growth_respiration_fraction,  // dimensionless
     double Gs_min,                       // mol / m^2 / s
+    double irradiance_diffuse_fraction,  // dimensionless
+    double irradiance_direct_fraction,   // dimensionless
     double k_diffuse,                    // dimensionless
     double Kparm,
     double kpLN,
@@ -50,13 +49,8 @@ canopy_photosynthesis_outputs CanAC(
     int nlayers                  // dimensionless
 )
 {
-    atmosphere_light_scattering const light_model(
-        cosine_zenith_angle,
-        atmospheric_pressure,
-        atmospheric_transmittance,
-        atmospheric_scattering);
-
     double heightf = 1.0;
+
     canopy_light::parameters params =
         {chil,
          cosine_zenith_angle,
@@ -70,7 +64,11 @@ canopy_photosynthesis_outputs CanAC(
          par_energy_content,
          par_energy_fraction};
 
-    canopy_light light_dist = canopy_light::from_solar(solarR, light_model, params);
+    canopy_light light_dist = canopy_light::from_solar(
+        irradiance_diffuse_fraction,
+        irradiance_direct_fraction,
+        solarR,
+        params);
 
     // Leaf-level photosynthesis function for use with canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a

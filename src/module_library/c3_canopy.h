@@ -17,8 +17,6 @@ class c3_canopy : public direct_module
           // Get references to input quantities
           absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
-          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
@@ -37,6 +35,8 @@ class c3_canopy : public direct_module
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           heightf{get_input(input_quantities, "heightf")},
+          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
+          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
@@ -98,8 +98,6 @@ class c3_canopy : public direct_module
     // References to input quantities
     double const& absorbed_longwave;
     double const& atmospheric_pressure;
-    double const& atmospheric_scattering;
-    double const& atmospheric_transmittance;
     double const& b0;
     double const& b1;
     double const& beta_PSII;
@@ -118,6 +116,8 @@ class c3_canopy : public direct_module
     double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& heightf;
+    double const& irradiance_diffuse_fraction;
+    double const& irradiance_direct_fraction;
     double const& Jmax_at_25;
     double const& Jmax_Ea;
     double const& k_diffuse;
