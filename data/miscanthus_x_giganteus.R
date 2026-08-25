@@ -7,6 +7,7 @@ miscanthus_x_giganteus <- list(
         "BioCro:parameter_calculator",
         "BioCro:soil_evaporation",
         solar_coordinates = "BioCro:solar_position_michalsky",
+        "BioCro:shortwave_atmospheric_scattering",
         "BioCro:height_from_lai",
         "BioCro:canopy_gbw_thornley",
         "BioCro:stefan_boltzmann_longwave",
