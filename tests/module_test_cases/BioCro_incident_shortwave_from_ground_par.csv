@@ -1,3 +1,7 @@
 input,input,input,input,input,output,output,output,output,"description"
 irradiance_diffuse_fraction,irradiance_direct_fraction,par_energy_content,par_energy_fraction,solar,nir_incident_diffuse,nir_incident_direct,par_incident_diffuse,par_incident_direct,NA
-1,1,1,1,1,0,0,1,1,"automatically-generated test case"
+0,1,0.219,0.45,1500,0,401.5,0,328.5,"simple case with 0.00 diffuse"
+0.25,0.75,0.219,0.45,1500,100.375,301.125,82.125,246.375,"simple case with 0.25 diffuse"
+0.5,0.5,0.219,0.45,1500,200.75,200.75,164.25,164.25,"simple case with 0.5 diffuse"
+0.75,0.25,0.219,0.45,1500,301.125,100.375,246.375,82.125,"simple case with 0.75 diffuse"
+1,0,0.219,0.45,1500,401.5,0,328.5,0,"simple case with 1.00 diffuse"
