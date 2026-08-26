@@ -13,23 +13,25 @@ using std::vector;
 string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
-        "par_incident_direct",     // J / (m^2 beam) / s [area perpendicular to beam]
-        "par_incident_diffuse",    // J / m^2 / s        [through any plane]
-        "lai",                     // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
-        "cosine_zenith_angle",     // dimensionless
-        "k_diffuse",               // (m^2 ground) / (m^2 leaf)
         "chil",                    // dimensionless from m^2 / m^2
+        "cosine_zenith_angle",     // dimensionless
         "heightf",                 // m^-1 from (m^2 / m^2) / m.  Leaf area density; LAI per height of canopy.
-        "windspeed",               // m / s
-        "LeafN",                   // mmol / m^2 (?)
+        "k_diffuse",               // (m^2 ground) / (m^2 leaf)
         "kpLN",                    // dimensionless
-        "lnfun",                   // a dimensionless switch
-        "par_energy_content",      // J / micromol
-        "par_energy_fraction",     // dimensionless
+        "lai",                     // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
+        "leaf_reflectance_nir",    // dimensionless
+        "leaf_reflectance_par",    // dimensionless
         "leaf_transmittance_nir",  // dimensionless
         "leaf_transmittance_par",  // dimensionless
-        "leaf_reflectance_nir",    // dimensionless
-        "leaf_reflectance_par"     // dimensionless
+        "LeafN",                   // mmol / m^2 (?)
+        "lnfun",                   // a dimensionless switch
+        "nir_incident_diffuse",    // J / m^2 / s        [through any plane]
+        "nir_incident_direct",     // J / (m^2 beam) / s [area perpendicular to beam]
+        "par_energy_content",      // J / micromol
+        "par_energy_fraction",     // dimensionless
+        "ppfd_incident_diffuse",   // micromol / m^2 / s        [through any plane]
+        "ppfd_incident_direct",    // micromol / (m^2 beam) / s [area perpendicular to beam]
+        "windspeed"                // m / s
     };
 }
 
@@ -120,9 +122,12 @@ void multilayer_canopy_properties::run() const
          par_energy_fraction};
 
     canopy_light canopy_light_model = {
-        par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
-        par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
+        nir_incident_direct,
+        nir_incident_diffuse,
+        ppfd_incident_direct,
+        ppfd_incident_diffuse,
         params};
+
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {
         throw std::logic_error("Thrown by the multilayer_canopy_properties module: lnfun != 0 is not yet supported.");
