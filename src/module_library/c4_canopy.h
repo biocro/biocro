@@ -28,8 +28,6 @@ class c4_canopy : public direct_module
           gbw_canopy{get_input(input_quantities, "gbw_canopy")},
           growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
           Gs_min{get_input(input_quantities, "Gs_min")},
-          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
-          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
           kparm{get_input(input_quantities, "kparm")},
           kpLN{get_input(input_quantities, "kpLN")},
@@ -45,6 +43,8 @@ class c4_canopy : public direct_module
           nalphab0{get_input(input_quantities, "nalphab0")},
           nalphab1{get_input(input_quantities, "nalphab1")},
           nileafn{get_input(input_quantities, "nileafn")},
+          nir_incident_diffuse{get_input(input_quantities, "nir_incident_diffuse")},
+          nir_incident_direct{get_input(input_quantities, "nir_incident_direct")},
           nkln{get_input(input_quantities, "nkln")},
           nkpLN{get_input(input_quantities, "nkpLN")},
           nlayers{get_input(input_quantities, "nlayers")},
@@ -56,6 +56,8 @@ class c4_canopy : public direct_module
           nvmaxb1{get_input(input_quantities, "nvmaxb1")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
+          ppfd_incident_diffuse{get_input(input_quantities, "ppfd_incident_diffuse")},
+          ppfd_incident_direct{get_input(input_quantities, "ppfd_incident_direct")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
           solar{get_input(input_quantities, "solar")},
@@ -94,8 +96,6 @@ class c4_canopy : public direct_module
     double const& gbw_canopy;
     double const& growth_respiration_fraction;
     double const& Gs_min;
-    double const& irradiance_diffuse_fraction;
-    double const& irradiance_direct_fraction;
     double const& k_diffuse;
     double const& kparm;
     double const& kpLN;
@@ -111,6 +111,8 @@ class c4_canopy : public direct_module
     double const& nalphab0;
     double const& nalphab1;
     double const& nileafn;
+    double const& nir_incident_diffuse;
+    double const& nir_incident_direct;
     double const& nkln;
     double const& nkpLN;
     double const& nlayers;
@@ -122,6 +124,8 @@ class c4_canopy : public direct_module
     double const& nvmaxb1;
     double const& par_energy_content;
     double const& par_energy_fraction;
+    double const& ppfd_incident_diffuse;
+    double const& ppfd_incident_direct;
     double const& rh;
     double const& RL_at_25;
     double const& solar;
@@ -160,8 +164,6 @@ string_vector c4_canopy::get_inputs()
         "gbw_canopy",                   // m / s
         "growth_respiration_fraction",  // dimensionless
         "Gs_min",                       // mol / m^2 / s
-        "irradiance_diffuse_fraction",  // dimensionless
-        "irradiance_direct_fraction",   // dimensionless
         "k_diffuse",                    // dimensionless
         "kparm",
         "kpLN",
@@ -177,6 +179,8 @@ string_vector c4_canopy::get_inputs()
         "nalphab0",
         "nalphab1",
         "nileafn",
+        "nir_incident_diffuse",  // J / m^2 / s
+        "nir_incident_direct",   // J / m^2 / s
         "nkln",
         "nkpLN",
         "nlayers",  // not a physical quantity
@@ -186,17 +190,19 @@ string_vector c4_canopy::get_inputs()
         "nRdb1",
         "nvmaxb0",
         "nvmaxb1",
-        "par_energy_content",   // J / micromol
-        "par_energy_fraction",  // dimensionless
-        "rh",                   // dimensionless from Pa / Pa
-        "RL_at_25",             // micromol / m^2 / s
-        "solar",                // micromol / m^2 / s
-        "StomataWS",            // dimensionless
-        "temp",                 // degrees C
-        "theta",                // dimensionless
-        "upperT",               // degrees C
-        "Vcmax_at_25",          // micromol / m^2 / s
-        "windspeed"             // m / s
+        "par_energy_content",     // J / micromol
+        "par_energy_fraction",    // dimensionless
+        "ppfd_incident_diffuse",  // micromol / m^2 / s
+        "ppfd_incident_direct",   // micromol / m^2 / s
+        "rh",                     // dimensionless from Pa / Pa
+        "RL_at_25",               // micromol / m^2 / s
+        "solar",                  // micromol / m^2 / s
+        "StomataWS",              // dimensionless
+        "temp",                   // degrees C
+        "theta",                  // dimensionless
+        "upperT",                 // degrees C
+        "Vcmax_at_25",            // micromol / m^2 / s
+        "windspeed"               // m / s
     };
 }
 
@@ -244,8 +250,6 @@ void c4_canopy::do_operation() const
         gbw_canopy,
         growth_respiration_fraction,
         Gs_min,
-        irradiance_diffuse_fraction,
-        irradiance_direct_fraction,
         k_diffuse,
         kparm,
         kpLN,
@@ -257,8 +261,12 @@ void c4_canopy::do_operation() const
         LeafN,
         leafwidth,
         lowerT,
+        nir_incident_diffuse,
+        nir_incident_direct,
         par_energy_content,
         par_energy_fraction,
+        ppfd_incident_diffuse,
+        ppfd_incident_direct,
         rh,
         RL_at_25,
         solar,

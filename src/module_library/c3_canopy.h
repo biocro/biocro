@@ -35,8 +35,6 @@ class c3_canopy : public direct_module
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           heightf{get_input(input_quantities, "heightf")},
-          irradiance_diffuse_fraction{get_input(input_quantities, "irradiance_diffuse_fraction")},
-          irradiance_direct_fraction{get_input(input_quantities, "irradiance_direct_fraction")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
           Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
           k_diffuse{get_input(input_quantities, "k_diffuse")},
@@ -55,6 +53,8 @@ class c3_canopy : public direct_module
           lnb0{get_input(input_quantities, "lnb0")},
           lnb1{get_input(input_quantities, "lnb1")},
           lnfun{get_input(input_quantities, "lnfun")},
+          nir_incident_diffuse{get_input(input_quantities, "nir_incident_diffuse")},
+          nir_incident_direct{get_input(input_quantities, "nir_incident_direct")},
           nlayers{get_input(input_quantities, "nlayers")},
           O2{get_input(input_quantities, "O2")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
@@ -62,6 +62,8 @@ class c3_canopy : public direct_module
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
           phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
+          ppfd_incident_diffuse{get_input(input_quantities, "ppfd_incident_diffuse")},
+          ppfd_incident_direct{get_input(input_quantities, "ppfd_incident_direct")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
           RL_Ea{get_input(input_quantities, "RL_Ea")},
@@ -116,8 +118,6 @@ class c3_canopy : public direct_module
     double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& heightf;
-    double const& irradiance_diffuse_fraction;
-    double const& irradiance_direct_fraction;
     double const& Jmax_at_25;
     double const& Jmax_Ea;
     double const& k_diffuse;
@@ -136,6 +136,8 @@ class c3_canopy : public direct_module
     double const& lnb0;
     double const& lnb1;
     double const& lnfun;
+    double const& nir_incident_diffuse;
+    double const& nir_incident_direct;
     double const& nlayers;
     double const& O2;
     double const& par_energy_content;
@@ -143,6 +145,8 @@ class c3_canopy : public direct_module
     double const& phi_PSII_0;
     double const& phi_PSII_1;
     double const& phi_PSII_2;
+    double const& ppfd_incident_diffuse;
+    double const& ppfd_incident_direct;
     double const& rh;
     double const& RL_at_25;
     double const& RL_Ea;

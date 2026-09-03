@@ -23,8 +23,6 @@ canopy_photosynthesis_outputs c3CanAC(
     double const Gs_min,                       // mol / m^2 / s
     double const Gstar_at_25,                  // micromol / mol
     double const heightf,                      // m^(-1)
-    double const irradiance_diffuse_fraction,  // dimensionless
-    double const irradiance_direct_fraction,   // dimensionless
     double const Jmax_at_25,                   // micromol / m^2 / s
     double const k_diffuse,                    // dimensionless
     double const Kc_at_25,                     // micromol / mol
@@ -39,19 +37,23 @@ canopy_photosynthesis_outputs c3CanAC(
     double const leafN,
     double const lnb0,  // micromol / m^2 / s
     double const lnb1,
-    double const o2,                   // mmol / mol
-    double const par_energy_content,   // J / micromol
-    double const par_energy_fraction,  // dimensionless
-    double const RH,                   // Pa / Pa
-    double const RL_at_25,             // micromol / m^2 / s
-    double const solarR,               // micromol / m^2 / s
-    double const StomataWS,            // dimensionless
-    double const Tp_at_25,             // micromol / m^2 / s
-    double Vcmax_at_25,                // micromol / m^2 / s
-    double const WindSpeed,            // m / s
-    double const WindSpeedHeight,      // m
-    int const lnfun,                   // dimensionless switch
-    int const nlayers                  // dimensionless
+    double const nir_incident_diffuse,   // J / m^2 / s
+    double const nir_incident_direct,    // J / m^2 / s
+    double const o2,                     // mmol / mol
+    double const par_energy_content,     // J / micromol
+    double const par_energy_fraction,    // dimensionless
+    double const ppfd_incident_diffuse,  // micromol / m^2 / s
+    double const ppfd_incident_direct,   // micromol / m^2 / s
+    double const RH,                     // Pa / Pa
+    double const RL_at_25,               // micromol / m^2 / s
+    double const solarR,                 // micromol / m^2 / s
+    double const StomataWS,              // dimensionless
+    double const Tp_at_25,               // micromol / m^2 / s
+    double Vcmax_at_25,                  // micromol / m^2 / s
+    double const WindSpeed,              // m / s
+    double const WindSpeedHeight,        // m
+    int const lnfun,                     // dimensionless switch
+    int const nlayers                    // dimensionless
 );
 
 #endif
