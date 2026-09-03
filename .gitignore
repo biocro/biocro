@@ -87,3 +87,7 @@ about_pkgdown_documentation.md
 
 # Files potentially generated when parameterizing soybean
 /inst/extdata/outputs/
+
+# Files generated when documenting quantities
+/script/quantities.html
+/script/quantities.xml
