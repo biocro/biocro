@@ -1,62 +1,58 @@
-#include <algorithm>                      // for std::min, std::max
-#include "../framework/constants.h"       // for molar_mass_of_water
-#include "../math/quadrature/quad.h"      // for quadrature::gauss_legendre_2
-#include "atmosphere_light_scattering.h"  // for atmosphere_light_scattering
-#include "c4photo.h"                      // for c4photoC, solve_c4_gs
-#include "leaf_energy_balance.h"          // for leaf_energy_balance
-#include "photosynthesis.h"               // for leaf_assim, CanopyIntegrand
-#include "respiration.h"                  // for growth_resp
+#include <algorithm>                  // for std::min, std::max
+#include "../framework/constants.h"   // for molar_mass_of_water
+#include "../math/quadrature/quad.h"  // for quadrature::gauss_legendre_2
+#include "c4photo.h"                  // for c4photoC, solve_c4_gs
+#include "leaf_energy_balance.h"      // for leaf_energy_balance
+#include "photosynthesis.h"           // for leaf_assim, CanopyIntegrand
+#include "respiration.h"              // for growth_resp
 #include "CanAC.h"
 
 canopy_photosynthesis_outputs CanAC(
-    const nitroParms& nitroP,
-    double absorbed_longwave,  // J / m^2 / s
-    double Alpha,
-    double ambient_temperature,          // degrees C
-    double atmospheric_pressure,         // Pa
-    double atmospheric_scattering,       // dimensionless
-    double atmospheric_transmittance,    // dimensionless
-    double b0,                           // mol / m^2 / s
-    double b1,                           // dimensionless
-    double beta,                         // dimensionless
-    double Catm,                         // ppm
-    double chil,                         // dimensionless
-    double cosine_zenith_angle,          // dimensionless
-    double gbw_canopy,                   // m / s
-    double growth_respiration_fraction,  // dimensionless
-    double Gs_min,                       // mol / m^2 / s
-    double k_diffuse,                    // dimensionless
-    double Kparm,
-    double kpLN,
-    double LAI,                     // dimensionless from m^2 / m^2
-    double leaf_reflectance_nir,    // dimensionless
-    double leaf_reflectance_par,    // dimensionless
-    double leaf_transmittance_nir,  // dimensionless
-    double leaf_transmittance_par,  // dimensionless
-    double leafN,
-    double leafwidth,            // m
-    double lowerT,               // degrees C
-    double par_energy_content,   // J / micromol
-    double par_energy_fraction,  // dimensionless
-    double RH,                   // dimensionless from Pa / Pa
-    double RL_at_25,             // micromol / m^2 / s
-    double solarR,               // micromol / m^2 / s
-    double StomataWS,            // dimensionless
-    double theta,                // dimensionless
-    double upperT,               // degrees C
-    double Vcmax_at_25,          // micromol / m^2 / s
-    double WindSpeed,            // m / s
-    int lnfun,                   // dimensionless switch
-    int nlayers                  // dimensionless
+    nitroParms const& nitroP,
+    double const absorbed_longwave,  // J / m^2 / s
+    double const Alpha,
+    double const ambient_temperature,          // degrees C
+    double const atmospheric_pressure,         // Pa
+    double const b0,                           // mol / m^2 / s
+    double const b1,                           // dimensionless
+    double const beta,                         // dimensionless
+    double const Catm,                         // ppm
+    double const chil,                         // dimensionless
+    double const cosine_zenith_angle,          // dimensionless
+    double const gbw_canopy,                   // m / s
+    double const growth_respiration_fraction,  // dimensionless
+    double const Gs_min,                       // mol / m^2 / s
+    double const k_diffuse,                    // dimensionless
+    double const Kparm,
+    double const kpLN,
+    double const LAI,                     // dimensionless from m^2 / m^2
+    double const leaf_reflectance_nir,    // dimensionless
+    double const leaf_reflectance_par,    // dimensionless
+    double const leaf_transmittance_nir,  // dimensionless
+    double const leaf_transmittance_par,  // dimensionless
+    double const leafN,
+    double const leafwidth,              // m
+    double const lowerT,                 // degrees C
+    double const nir_incident_diffuse,   // J / m^2 / s
+    double const nir_incident_direct,    // J / m^2 / s
+    double const par_energy_content,     // J / micromol
+    double const par_energy_fraction,    // dimensionless
+    double const ppfd_incident_diffuse,  // micromol / m^2 / s
+    double const ppfd_incident_direct,   // micromol / m^2 / s
+    double const RH,                     // dimensionless from Pa / Pa
+    double const RL_at_25,               // micromol / m^2 / s
+    double const solarR,                 // micromol / m^2 / s
+    double const StomataWS,              // dimensionless
+    double const theta,                  // dimensionless
+    double const upperT,                 // degrees C
+    double const Vcmax_at_25,            // micromol / m^2 / s
+    double const WindSpeed,              // m / s
+    int const lnfun,                     // dimensionless switch
+    int const nlayers                    // dimensionless
 )
 {
-    atmosphere_light_scattering const light_model(
-        cosine_zenith_angle,
-        atmospheric_pressure,
-        atmospheric_transmittance,
-        atmospheric_scattering);
-
     double heightf = 1.0;
+
     canopy_light::parameters params =
         {chil,
          cosine_zenith_angle,
@@ -70,7 +66,12 @@ canopy_photosynthesis_outputs CanAC(
          par_energy_content,
          par_energy_fraction};
 
-    canopy_light light_dist = canopy_light::from_solar(solarR, light_model, params);
+    canopy_light light_dist = {
+        nir_incident_direct,
+        nir_incident_diffuse,
+        ppfd_incident_direct,
+        ppfd_incident_diffuse,
+        params};
 
     // Leaf-level photosynthesis function for use with canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a

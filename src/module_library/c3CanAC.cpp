@@ -1,10 +1,9 @@
-#include "../framework/constants.h"       // for molar_mass_of_water, molar_mass_of_glucose
-#include "../math/quadrature/quad.h"      // for quadrature::gauss_legendre_2
-#include "atmosphere_light_scattering.h"  // for atmosphere_light_scattering
-#include "c3photo.h"                      // for c3photoC, solve_c3_gs
-#include "leaf_energy_balance.h"          // for leaf_energy_balance
-#include "photosynthesis.h"               // for leaf_assim, CanopyIntegrand
-#include "respiration.h"                  // for growth_resp
+#include "../framework/constants.h"   // for molar_mass_of_water, molar_mass_of_glucose
+#include "../math/quadrature/quad.h"  // for quadrature::gauss_legendre_2
+#include "c3photo.h"                  // for c3photoC, solve_c3_gs
+#include "leaf_energy_balance.h"      // for leaf_energy_balance
+#include "photosynthesis.h"           // for leaf_assim, CanopyIntegrand
+#include "respiration.h"              // for growth_resp
 #include "c3CanAC.h"
 
 canopy_photosynthesis_outputs c3CanAC(
@@ -12,8 +11,6 @@ canopy_photosynthesis_outputs c3CanAC(
     double const absorbed_longwave,            // J / m^2 / s
     double const ambient_temperature,          // degrees C
     double const atmospheric_pressure,         // Pa
-    double const atmospheric_scattering,       // dimensionless
-    double const atmospheric_transmittance,    // dimensionless
     double const b0,                           // mol / m^2 / s
     double const b1,                           // dimensionless
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -42,27 +39,25 @@ canopy_photosynthesis_outputs c3CanAC(
     double const leafN,
     double const lnb0,  // micromol / m^2 / s
     double const lnb1,
-    double const o2,                   // mmol / mol
-    double const par_energy_content,   // J / micromol
-    double const par_energy_fraction,  // dimensionless
-    double const RH,                   // Pa / Pa
-    double const RL_at_25,             // micromol / m^2 / s
-    double const solarR,               // micromol / m^2 / s
-    double const StomataWS,            // dimensionless
-    double const Tp_at_25,             // micromol / m^2 / s
-    double Vcmax_at_25,                // micromol / m^2 / s
-    double const WindSpeed,            // m / s
-    double const WindSpeedHeight,      // m
-    int const lnfun,                   // dimensionless switch
-    int const nlayers                  // dimensionless
+    double const nir_incident_diffuse,   // J / m^2 / s
+    double const nir_incident_direct,    // J / m^2 / s
+    double const o2,                     // mmol / mol
+    double const par_energy_content,     // J / micromol
+    double const par_energy_fraction,    // dimensionless
+    double const ppfd_incident_diffuse,  // micromol / m^2 / s
+    double const ppfd_incident_direct,   // micromol / m^2 / s
+    double const RH,                     // Pa / Pa
+    double const RL_at_25,               // micromol / m^2 / s
+    double const solarR,                 // micromol / m^2 / s
+    double const StomataWS,              // dimensionless
+    double const Tp_at_25,               // micromol / m^2 / s
+    double Vcmax_at_25,                  // micromol / m^2 / s
+    double const WindSpeed,              // m / s
+    double const WindSpeedHeight,        // m
+    int const lnfun,                     // dimensionless switch
+    int const nlayers                    // dimensionless
 )
 {
-    atmosphere_light_scattering const light_model(
-        cosine_zenith_angle,
-        atmospheric_pressure,
-        atmospheric_transmittance,
-        atmospheric_scattering);
-
     canopy_light::parameters params =
         {chil,
          cosine_zenith_angle,
@@ -76,7 +71,12 @@ canopy_photosynthesis_outputs c3CanAC(
          par_energy_content,
          par_energy_fraction};
 
-    canopy_light light_dist = canopy_light::from_solar(solarR, light_model, params);
+    canopy_light light_dist = {
+        nir_incident_direct,
+        nir_incident_diffuse,
+        ppfd_incident_direct,
+        ppfd_incident_diffuse,
+        params};
 
     // Leaf-level photosynthesis function for use with canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a

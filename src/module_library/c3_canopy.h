@@ -17,8 +17,6 @@ class c3_canopy : public direct_module
           // Get references to input quantities
           absorbed_longwave{get_input(input_quantities, "absorbed_longwave")},
           atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
-          atmospheric_scattering{get_input(input_quantities, "atmospheric_scattering")},
-          atmospheric_transmittance{get_input(input_quantities, "atmospheric_transmittance")},
           b0{get_input(input_quantities, "b0")},
           b1{get_input(input_quantities, "b1")},
           beta_PSII{get_input(input_quantities, "beta_PSII")},
@@ -55,6 +53,8 @@ class c3_canopy : public direct_module
           lnb0{get_input(input_quantities, "lnb0")},
           lnb1{get_input(input_quantities, "lnb1")},
           lnfun{get_input(input_quantities, "lnfun")},
+          nir_incident_diffuse{get_input(input_quantities, "nir_incident_diffuse")},
+          nir_incident_direct{get_input(input_quantities, "nir_incident_direct")},
           nlayers{get_input(input_quantities, "nlayers")},
           O2{get_input(input_quantities, "O2")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
@@ -62,6 +62,8 @@ class c3_canopy : public direct_module
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
           phi_PSII_1{get_input(input_quantities, "phi_PSII_1")},
           phi_PSII_2{get_input(input_quantities, "phi_PSII_2")},
+          ppfd_incident_diffuse{get_input(input_quantities, "ppfd_incident_diffuse")},
+          ppfd_incident_direct{get_input(input_quantities, "ppfd_incident_direct")},
           rh{get_input(input_quantities, "rh")},
           RL_at_25{get_input(input_quantities, "RL_at_25")},
           RL_Ea{get_input(input_quantities, "RL_Ea")},
@@ -98,8 +100,6 @@ class c3_canopy : public direct_module
     // References to input quantities
     double const& absorbed_longwave;
     double const& atmospheric_pressure;
-    double const& atmospheric_scattering;
-    double const& atmospheric_transmittance;
     double const& b0;
     double const& b1;
     double const& beta_PSII;
@@ -136,6 +136,8 @@ class c3_canopy : public direct_module
     double const& lnb0;
     double const& lnb1;
     double const& lnfun;
+    double const& nir_incident_diffuse;
+    double const& nir_incident_direct;
     double const& nlayers;
     double const& O2;
     double const& par_energy_content;
@@ -143,6 +145,8 @@ class c3_canopy : public direct_module
     double const& phi_PSII_0;
     double const& phi_PSII_1;
     double const& phi_PSII_2;
+    double const& ppfd_incident_diffuse;
+    double const& ppfd_incident_direct;
     double const& rh;
     double const& RL_at_25;
     double const& RL_Ea;
