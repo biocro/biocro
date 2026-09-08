@@ -176,7 +176,6 @@ miscanthus_x_giganteus <- list(
         tp5                         = 3211,
         upperT                      = 37.5,
         Vcmax_at_25                 = 39,
-        windspeed_height            = 10, # for SURFRAD
-        wsFun                       = 2
+        windspeed_height            = 10 # for SURFRAD
     )
 )

@@ -31,6 +31,15 @@ In the case of a hotfix, a short section headed by the new release number should
 be directly added to this file to describe the related changes.
 -->
 
+# UNRELEASED
+
+## Bug Fixes
+
+- Removed an unused input parameter (`wsFun`) from the `soilML` function and the
+  `BioCro:two_layer_soil_profile` module.
+
+- Removed an unused function (`compute_wsPhoto`) from `AuxBioCro.cpp`.
+
 # Changes in BioCro version 3.4.0
 
 ## Minor User-Facing Changes

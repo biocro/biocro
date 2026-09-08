@@ -27,8 +27,6 @@ struct ws_str {
 };
 
 struct soilML_str {
-    double rcoefPhoto;
-    double rcoefSpleaf;
     double cws[MAXLAY];
     double drainage;
     double Nleach;

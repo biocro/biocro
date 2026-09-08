@@ -199,7 +199,6 @@ soybean <- list(
         TTemr_threshold             = 60,
         Vcmax_at_25                 = 110,
         Vcmax_Ea                    = 65330,
-        windspeed_height            = 5,
-        wsFun                       = 2
+        windspeed_height            = 5
     )
 )

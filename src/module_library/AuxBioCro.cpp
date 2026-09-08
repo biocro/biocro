@@ -157,59 +157,7 @@ double SoilEvapo(
     return Evaporation;  // kg / m^2 / s.
 }
 
-double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, double awc)
-{
-    // Three different type of equations for modeling the effect of
-    // water stress on vmax and leaf area expansion.  The equation for
-    // leaf area expansion is more severe than the one for vmax. */
-    double wsPhoto;
-    switch (wsFun) {
-        case 0: { /* linear */
-            double slp = 1 / (fieldc - wiltp);
-            double intcpt = 1 - fieldc * slp;
-            wsPhoto = slp * awc + intcpt;
-            break;
-        }
-        case 1: {
-            double phi10 = (fieldc + wiltp) / 2;
-            wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
-            break;
-        }
-        case 2: {
-            double slp = (1 - wiltp) / (fieldc - wiltp);
-            double intcpt = 1 - fieldc * slp;
-            double theta = slp * awc + intcpt;
-            wsPhoto = (1 - exp(-2.5 * (theta - wiltp) / (1 - wiltp))) / (1 - exp(-2.5));
-            break;
-        }
-        case 3:
-            wsPhoto = 1;
-            break;
-        default:
-            wsPhoto = 0;
-    }
-
-    // wsPhoto can be mathematically lower than zero in some cases but
-    // I should prevent that:
-    if (wsPhoto <= 0) {
-        wsPhoto = 1e-10;
-    }
-
-    // Apparently wsPhoto can be greater than 1.
-    if (wsPhoto > 1) wsPhoto = 1;
-
-    return wsPhoto;
-}
-
-/* This is a new function that attempts to keep a water budget and then
-   calcualte an empirical coefficient that reduces the specific leaf area.
-   This results from the general idea that water stress reduces first the
-   rate of leaf expansion. */
-
-/* This is meant to be a simple function that calculates a
-   simple empirical coefficient that reduces specifi leaf area
-   according to the water stress of the plant. This is done
-   for now, with a very simple empirical approach. */
+/* This is a function that attempts to keep a water budget */
 
 ws_str watstr(
     double precipit,
@@ -293,7 +241,6 @@ soilML_str soilML(
     double soil_sand_content,
     double phi1,
     double phi2,
-    int wsFun,
     int layers,
     double rootDB,
     double LAI,
@@ -326,8 +273,6 @@ soilML_str soilML(
     double waterIn = precipit * 1e-3; /* convert precip in mm to m */
 
     double drainage = 0.0;
-    double wsPhotoCol = 0.0;
-    double LeafWSCol = 0.0;
     double Sevap = 0.0;
     double oldEvapoTra = 0.0;
 
@@ -441,41 +386,6 @@ soilML_str soilML(
 
         /* This might look like a weird place to populate the structure, but is more convenient*/
         return_value.cws[i] = awc;
-
-        // To-do: Replace this block with a call to compute_wsPhoto.
-        /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
-       The equation for leaf area expansion is more severe than the one for vmax. */
-        double wsPhoto = 0.0;
-        double slp = 0.0;
-        double intcpt = 0.0;
-        double theta = 0.0;
-
-        if (wsFun == 0) { /* linear */
-            slp = 1 / (soil_field_capacity - soil_wilting_point);
-            intcpt = 1 - soil_field_capacity * slp;
-            wsPhoto = slp * awc + intcpt;
-        } else if (wsFun == 1) {
-            double phi10 = (soil_field_capacity + soil_wilting_point) / 2;
-            wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
-        } else if (wsFun == 2) {
-            slp = (1 - soil_wilting_point) / (soil_field_capacity - soil_wilting_point);
-            intcpt = 1 - soil_field_capacity * slp;
-            theta = slp * awc + intcpt;
-            wsPhoto = (1 - exp(-2.5 * (theta - soil_wilting_point) / (1 - soil_wilting_point))) / (1 - exp(-2.5));
-        } else if (wsFun == 3) {
-            wsPhoto = 1;
-        }
-
-        if (wsPhoto <= 0)
-            wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
-
-        wsPhotoCol += wsPhoto;
-
-        double LeafWS = pow(awc, phi2) * 1 / pow(soil_field_capacity, phi2);
-        if (wsFun == 3) {
-            LeafWS = 1;
-        }
-        LeafWSCol += LeafWS;
     }
 
     if (waterIn > 0) {
@@ -487,9 +397,7 @@ soilML_str soilML(
         return_value.Nleach = 0.0;
     }
 
-    return_value.rcoefPhoto = (wsPhotoCol / layers);
     return_value.drainage = drainage;
-    return_value.rcoefSpleaf = (LeafWSCol / layers);
     return_value.SoilEvapo = Sevap;
 
     return return_value;

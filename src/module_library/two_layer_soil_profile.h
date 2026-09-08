@@ -33,7 +33,6 @@ class two_layer_soil_profile : public differential_module
           soil_sand_content{get_input(input_quantities, "soil_sand_content")},
           phi1{get_input(input_quantities, "phi1")},
           phi2{get_input(input_quantities, "phi2")},
-          wsFun{get_input(input_quantities, "wsFun")},
           Root{get_input(input_quantities, "Root")},
           lai{get_input(input_quantities, "lai")},
           temp{get_input(input_quantities, "temp")},
@@ -79,7 +78,6 @@ class two_layer_soil_profile : public differential_module
     double const& soil_sand_content;
     double const& phi1;
     double const& phi2;
-    double const& wsFun;
     double const& Root;
     double const& lai;
     double const& temp;
@@ -125,7 +123,6 @@ string_vector two_layer_soil_profile::get_inputs()
         "soil_sand_content",
         "phi1",
         "phi2",
-        "wsFun",
         "Root",
         "lai",        // dimensionless
         "temp",       // degrees C
@@ -164,7 +161,7 @@ void two_layer_soil_profile::do_operation() const
         precip, canopy_transpiration_rate, cws, soil_depth3, soil_depths,
         soil_field_capacity, soil_wilting_point, soil_saturation_capacity,
         soil_air_entry, soil_saturated_conductivity, soil_b_coefficient,
-        soil_sand_content, phi1, phi2, wsFun, 2 /* Always uses 2 layers */,
+        soil_sand_content, phi1, phi2, 2 /* Always uses 2 layers */,
         Root, lai, 0.68, temp, solar, windspeed, rh, hydrDist, rfl, rsec, rsdf,
         soil_clod_size, soil_reflectance, soil_transmission,
         specific_heat_of_air, par_energy_content);

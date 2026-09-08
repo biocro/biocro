@@ -192,7 +192,6 @@ willow <- list(
         Tp_S                         = 0.588e3,  # Figure 7 of Yang et al. 2016 (https://doi.org/10.1007/s00425-015-2436-8)
         Vcmax_at_25                  = 100,
         Vcmax_Ea                     = 65.33e3,  # Table 1 of Bernacchi et al. 2001 (https://doi.org/10.1111/j.1365-3040.2001.00668.x)
-        windspeed_height             = 5,
-        wsFun                        = 2
+        windspeed_height             = 5
     )
 )
