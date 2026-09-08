@@ -3,7 +3,8 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "BioCro.h"  // For SoilEvapo
+#include "../framework/constants.h"  // for eps_zero
+#include "BioCro.h"                  // For SoilEvapo
 
 namespace standardBML
 {
@@ -92,7 +93,13 @@ string_vector soil_evaporation::get_outputs()
 
 void soil_evaporation::do_operation() const
 {
-    // Collect inputs and make calculations
+    using calculation_constants::eps_zero;
+
+    // Check for error conditions (rh not in [0,1])
+    if (rh < -eps_zero || rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in soil_evaporation: rh does not lie in the interval [0, 1].");
+    }
+
     // SoilEvapo(...) is located in AuxBioCro.cpp
     double soilEvap = SoilEvapo(
         lai, 0.68, temp, solar, soil_water_content, soil_field_capacity,

@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "../framework/constants.h"      // for eps_zero
 #include "conductance_helpers.h"         // for g_to_mass
 #include "water_and_air_properties.h"    // for saturation_vapor_pressure, molar_volume
 #include "boundary_layer_conductance.h"  // for leaf_boundary_layer_conductance_nikolov
@@ -79,6 +80,13 @@ string_vector leaf_gbw_nikolov::get_outputs()
 
 void leaf_gbw_nikolov::do_operation() const
 {
+    using calculation_constants::eps_zero;
+
+    // Check for error conditions (rh not in [0,1])
+    if (rh < -eps_zero || rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in leaf_gbw_nikolov: rh does not lie in the interval [0, 1].");
+    }
+
     // Determine the partial pressure of water vapor from the air temperature
     // and relative humidity
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
