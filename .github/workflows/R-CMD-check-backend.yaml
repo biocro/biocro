@@ -239,6 +239,8 @@ jobs:
       - name: Check package
         if: ${{ !inputs.dry-run }}
         uses: r-lib/actions/check-r-package@v2
+        env:
+          R_LIBS_USER: ${{ env.R_LIBS_USER }}
         with:
           upload-snapshots: true
           args: ${{ needs.compute-check-args.outputs.args }}
