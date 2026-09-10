@@ -1,5 +1,5 @@
 Package: BioCro
-Version: 3.4.0
+Version: 3.4.0-1
 Date: 2026-08-20
 Title: Modular Crop Growth Simulations
 Description: A cross-platform representation of models as sets of equations
@@ -34,7 +34,7 @@ Authors@R: c(
     person("Boost Organization", role = "cph",
            comment = "Copyright holder of included Boost library")
     )
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.2.0)
 Imports:
     stats
 Suggests:
