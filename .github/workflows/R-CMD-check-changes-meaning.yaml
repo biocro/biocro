@@ -41,7 +41,7 @@ jobs:
         with:
           inputFile: '.github/workflows/strategy_matrix.json'
           filter:
-            '[?configName == ''R 4.1.0 on Ubuntu''
+            '[?configName == ''R 4.2.0 on Ubuntu''
                 || configName == ''R release version on Ubuntu''
                 || configName == ''R devel version on Ubuntu'']'
 
