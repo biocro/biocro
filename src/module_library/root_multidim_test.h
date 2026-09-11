@@ -1,5 +1,5 @@
-#ifndef MULTIDIM_TEST_H
-#define MULTIDIM_TEST_H
+#ifndef ROOT_MULTIDIM_TEST_H
+#define ROOT_MULTIDIM_TEST_H
 
 // std lib
 #include <array>
@@ -15,7 +15,6 @@
 
 namespace standardBML
 {
-
 struct test_function {
     // solution is x1 = x2 = 1
     std::array<double, 2> operator()(const std::array<double, 2>& x)
@@ -43,31 +42,31 @@ struct test_function {
 
 class root_multidim_test : public direct_module
 {
-   struct test_result {
-       double* x1;
-       double* x2;
-       double* y1;
-       double* y2;
-       double* iteration;
-       double* flag; 
+    struct test_result {
+        double* x1;
+        double* x2;
+        double* y1;
+        double* y2;
+        double* iteration;
+        double* flag;
 
-        test_result(state_map* output_quantities, std::string method_name) :
-        x1{get_op(output_quantities, method_name + "_x1" )},
-        x2{get_op(output_quantities, method_name + "_x2" )},
-        y1{get_op(output_quantities, method_name + "_y1" )},
-        y2{get_op(output_quantities, method_name + "_y2" )},
-        iteration{get_op(output_quantities, method_name + "_iteration" )},
-        flag {get_op(output_quantities, method_name + "_flag" )}{}
+        test_result(state_map* output_quantities, std::string method_name) : x1{get_op(output_quantities, method_name + "_x1")},
+                                                                             x2{get_op(output_quantities, method_name + "_x2")},
+                                                                             y1{get_op(output_quantities, method_name + "_y1")},
+                                                                             y2{get_op(output_quantities, method_name + "_y2")},
+                                                                             iteration{get_op(output_quantities, method_name + "_iteration")},
+                                                                             flag{get_op(output_quantities, method_name + "_flag")} {}
 
-        void set(root_multidim::result_t<2> result) const {
+        void set(root_multidim::result_t<2> result) const
+        {
             *x1 = result.zero[0];
             *x2 = result.zero[1];
             *y1 = result.residual[0];
             *y2 = result.residual[1];
             *iteration = static_cast<double>(result.iteration);
-            *flag =static_cast<double>(result.flag);
-        }        
-   };
+            *flag = static_cast<double>(result.flag);
+        }
+    };
 
    public:
     root_multidim_test(
@@ -122,8 +121,7 @@ string_vector root_multidim_test::get_outputs()
         "broyden",
         "newton"};
     string_vector test_outputs = {
-        "_x1", "_x2", "_y1", "_y2", "_iteration", "_flag" 
-    };
+        "_x1", "_x2", "_y1", "_y2", "_iteration", "_flag"};
     string_vector outputs;
     outputs.reserve(methods.size() * test_outputs.size());
     for (auto method : methods) {
@@ -132,7 +130,6 @@ string_vector root_multidim_test::get_outputs()
         }
     }
     return outputs;
-    
 }
 
 void root_multidim_test::do_operation() const
@@ -141,16 +138,15 @@ void root_multidim_test::do_operation() const
     std::array<double, 2> guess = {guess_1, guess_2};
     test_function func;
 
-    
     size_t max_iter = static_cast<size_t>(max_iterations);
 
     broyden<2> bs(max_iter, abs_tol, rel_tol);
-    auto result = bs(func, guess);    
+    auto result = bs(func, guess);
     broyden_result.set(result);
 
     newton<2> ns(max_iter, abs_tol, rel_tol);
     result = ns(func, guess);
-    newton_result.set(result);    
+    newton_result.set(result);
 }
 
 }  // namespace standardBML

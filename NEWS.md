@@ -40,6 +40,13 @@ be directly added to this file to describe the related changes.
 
 - Removed an unused function (`compute_wsPhoto`) from `AuxBioCro.cpp`.
 
+- Changed the minimum required version of R from 4.1.0 to 4.2.0.
+
+  - Somehow the vignette builder cannot find the `knitr` package when using the
+    the online testing setup for R version 4.1.0 on Windows, even when `knitr`
+    is installed, causing a spurious test failure. This problem does not occur
+    for R version 4.2.0.
+
 # Changes in BioCro version 3.4.0
 
 ## Minor User-Facing Changes
@@ -141,8 +148,8 @@ be directly added to this file to describe the related changes.
 
 ## Bug Fixes
 
-- Changed the minimum version of macOS checked by the R-CMD-check from
-  4.2.0 to 4.3.0.
+- Changed the minimum version of R checked by the R-CMD-check workflow for MacOS
+  from 4.2.0 to 4.3.0.
 
   - CRAN now only provides R versions 4.2.3 and above for Mac.
 

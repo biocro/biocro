@@ -1,6 +1,5 @@
 #ifndef CANOPY_LIGHT_HELPERS_H
 #define CANOPY_LIGHT_HELPERS_H
-#include "atmosphere_light_scattering.h"
 
 /**
  * @file
@@ -114,8 +113,8 @@ double shaded_radiation(
  *
  * @par Construction
  * Supply beam and diffuse PPFD directly via the primary constructor, or use
- * `from_solar` to derive them from a total solar flux and an
- * `atmosphere_light_scattering` result.
+ * `from_solar` to derive them from a total solar flux and fractions of direct
+ * and diffuse radiation.
  *
  * @par Invariants
  * All input parameters and derived absorptances are validated on construction;
@@ -157,27 +156,29 @@ struct canopy_light {
     /**
      * @brief Constructs from beam and diffuse PPFD at the top of the canopy.
      *
-     * @param ppfd_beam   Beam photon flux density perpendicular to the sun's rays
-     *                    (micromol / (m^2 beam) / s).
-     * @param ppfd_diffuse Diffuse photon flux density through any horizontal plane
-     *                    (micromol / m^2 / s).
-     * @param p           Canopy structural and optical parameters.
-     * @throws std::out_of_range if any parameter or derived absorptance is invalid.
-     */
-    canopy_light(double ppfd_beam, double ppfd_diffuse, parameters p);
-
-    /**
-     * @brief Constructs from total solar flux and atmospheric scattering.
+     * @param nir_beam Beam NIR energy density perpendicular to the sun's rays
+     *        (micromol / (m^2 beam) / s).
      *
-     * Derives beam PPFD as `solar * a.direct_fraction` and diffuse PPFD as
-     * `solar * a.diffuse_fraction`, then delegates to the primary constructor.
+     * @param nir_diffuse Diffuse NIR energy density through any horizontal
+     *        plane (micromol / m^2 / s).
      *
-     * @param solar Total solar photon flux density (micromol / m^2 / s).
-     * @param a     Pre-computed atmospheric scattering result.
-     * @param p     Canopy structural and optical parameters.
-     * @throws std::out_of_range if any parameter or derived absorptance is invalid.
+     * @param ppfd_beam Beam photon flux density perpendicular to the sun's rays
+     *        (micromol / (m^2 beam) / s).
+     *
+     * @param ppfd_diffuse Diffuse photon flux density through any horizontal
+     *        plane (micromol / m^2 / s).
+     *
+     * @param p Canopy structural and optical parameters.
+     *
+     * @throws std::out_of_range if any parameter or derived absorptance is
+     *         invalid.
      */
-    static canopy_light from_solar(double solar, atmosphere_light_scattering const& a, parameters const& p);
+    canopy_light(
+        double const nir_beam,
+        double const nir_diffuse,
+        double const ppfd_beam,
+        double const ppfd_diffuse,
+        parameters p);
 
     /// Returns the fraction of ground area exposed to direct sunlight (dimensionless).
     double direct_transmission_fraction() const;
@@ -193,12 +194,12 @@ struct canopy_light {
         double canopy_direct_transmission_fraction;  // dimensionless
         double ppfd_beam_ground;                     // micromol / (m^2 ground) / s
         double ppfd_beam_leaf;                       // micromol / (m^2 leaf) / s
-        double nir_beam;                             // J / (m^2 beam) / s
         double nir_beam_ground;                      // J / (m^2 ground) / s
-        double nir_diffuse;                          // J / (m^2 ground) / s
         double nir_beam_leaf;                        // J / (m^2 leaf) / s
     };
 
+    double nir_beam;      // J / (m^2 beam) / s        — beam NIR perpendicular to sun
+    double nir_diffuse;   // J / m^2 / s               — diffuse NIR through any plane
     double ppfd_beam;     // micromol / (m^2 beam) / s — beam PPFD perpendicular to sun
     double ppfd_diffuse;  // micromol / m^2 / s        — diffuse PPFD through any plane
     parameters p;
@@ -206,7 +207,12 @@ struct canopy_light {
 
     /// Validates input parameters and computes all derived quantities.
     /// @throws std::out_of_range on invalid inputs or derived absorptances.
-    static derived_t compute(double ppfd_beam, double ppfd_diffuse, parameters const& p);
+    static derived_t compute(
+        double const nir_beam,
+        double const nir_diffuse,
+        double const ppfd_beam,
+        double const ppfd_diffuse,
+        parameters const& p);
 
     /// Throws std::out_of_range if any input parameter is outside its valid range.
     static void validate_params(parameters const& p);
@@ -215,7 +221,13 @@ struct canopy_light {
     static void validate_derived(derived_t const& der);
 
     /// Private constructor — stores pre-validated inputs and pre-computed derived values.
-    canopy_light(double ppfd_beam, double ppfd_diffuse, parameters par, derived_t der);
+    canopy_light(
+        double const nir_beam,
+        double const nir_diffuse,
+        double const ppfd_beam,
+        double const ppfd_diffuse,
+        parameters par,
+        derived_t der);
 };
 
 #endif

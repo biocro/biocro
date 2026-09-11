@@ -2,7 +2,6 @@
 #define PHOTOSYNTHESIS_H
 
 #include <cmath>
-#include "atmosphere_light_scattering.h"  // atmosphere_light_scattering
 #include "canopy_light_helpers.h"         // canopy_light, light_profile
 #include "../framework/constants.h"
 
@@ -32,14 +31,13 @@
  *   integrand passed to `quadrature::gauss_legendre<2>`.
  *
  * **Typical call chain** in a canopy photosynthesis function:
- * 1. Construct `atmosphere_light_scattering` to split total solar
- *    radiation into direct and diffuse components.
- * 2. Construct `canopy_light` from those components plus canopy
- *    structural parameters (LAI, leaf angle, optical properties, etc.).
- * 3. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
+ * 1. Construct `canopy_light` from the fractions of direct and diffuse light,
+ *    along with canopy structural parameters (LAI, leaf angle, optical
+ *    properties, etc.).
+ * 2. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
  *    model (e.g. `c3photoC`) with its energy balance convergence loop.
- * 4. Construct `canopy_integrand(leaf_photo, canopy_light, ...)`.
- * 5. Call `quadrature::gauss_legendre<2, leaf_assim>(integrand, 0, LAI, n)`
+ * 3. Construct `canopy_integrand(leaf_photo, canopy_light, ...)`.
+ * 4. Call `quadrature::gauss_legendre<2, leaf_assim>(integrand, 0, LAI, n)`
  *    to obtain the canopy-integrated `leaf_assim`.
  */
 

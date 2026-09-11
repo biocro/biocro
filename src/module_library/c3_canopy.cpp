@@ -10,8 +10,6 @@ string_vector c3_canopy::get_inputs()
     return {
         "absorbed_longwave",            // J / m^2 / s
         "atmospheric_pressure",         // Pa
-        "atmospheric_scattering",       // dimensionless
-        "atmospheric_transmittance",    // dimensionless
         "b0",                           // mol / m^2 / s
         "b1",                           // dimensionless
         "beta_PSII",                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -48,30 +46,34 @@ string_vector c3_canopy::get_inputs()
         "lnb0",
         "lnb1",
         "lnfun",
-        "nlayers",              // dimensionless
-        "O2",                   // mmol / mol
-        "par_energy_content",   // J / micromol
-        "par_energy_fraction",  // dimensionless
-        "phi_PSII_0",           // dimensionless
-        "phi_PSII_1",           // (degrees C)^(-1)
-        "phi_PSII_2",           // (degrees C)^(-2)
-        "rh",                   // dimensionless
-        "RL_at_25",             // micromol / m^2 / s
-        "RL_Ea",                // J / mol
-        "solar",                // micromol / m^2 / s
-        "StomataWS",            // dimensionless
-        "temp",                 // degrees C
-        "theta_0",              // dimensionless
-        "theta_1",              // (degrees C)^(-1)
-        "theta_2",              // (degrees C)^(-2)
-        "Tp_at_25",             // micromol / m^2 / s
-        "Tp_Ha",                // J / mol
-        "Tp_Hd",                // J / mol
-        "Tp_S",                 // J / K / mol
-        "Vcmax_at_25",          // micromol / m^2 / s
-        "Vcmax_Ea",             // J / mol
-        "windspeed",            // m / s
-        "windspeed_height"      // m
+        "nir_incident_diffuse",   // J / m^2 / s
+        "nir_incident_direct",    // J / m^2 / s
+        "nlayers",                // dimensionless
+        "O2",                     // mmol / mol
+        "par_energy_content",     // J / micromol
+        "par_energy_fraction",    // dimensionless
+        "phi_PSII_0",             // dimensionless
+        "phi_PSII_1",             // (degrees C)^(-1)
+        "phi_PSII_2",             // (degrees C)^(-2)
+        "ppfd_incident_diffuse",  // micromol / m^2 / s
+        "ppfd_incident_direct",   // micromol / m^2 / s
+        "rh",                     // dimensionless
+        "RL_at_25",               // micromol / m^2 / s
+        "RL_Ea",                  // J / mol
+        "solar",                  // micromol / m^2 / s
+        "StomataWS",              // dimensionless
+        "temp",                   // degrees C
+        "theta_0",                // dimensionless
+        "theta_1",                // (degrees C)^(-1)
+        "theta_2",                // (degrees C)^(-2)
+        "Tp_at_25",               // micromol / m^2 / s
+        "Tp_Ha",                  // J / mol
+        "Tp_Hd",                  // J / mol
+        "Tp_S",                   // J / K / mol
+        "Vcmax_at_25",            // micromol / m^2 / s
+        "Vcmax_Ea",               // J / mol
+        "windspeed",              // m / s
+        "windspeed_height"        // m
     };
 }
 
@@ -116,8 +118,6 @@ void c3_canopy::do_operation() const
         absorbed_longwave,
         temp,
         atmospheric_pressure,
-        atmospheric_scattering,
-        atmospheric_transmittance,
         b0,
         b1,
         beta_PSII,
@@ -146,9 +146,13 @@ void c3_canopy::do_operation() const
         LeafN,
         lnb0,
         lnb1,
+        nir_incident_diffuse,
+        nir_incident_direct,
         O2,
         par_energy_content,
         par_energy_fraction,
+        ppfd_incident_diffuse,
+        ppfd_incident_direct,
         rh,
         RL_at_25,
         solar,

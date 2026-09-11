@@ -1,3 +1,6 @@
 input,input,input,input,output,output,output,output,"description"
 atmospheric_pressure,atmospheric_scattering,atmospheric_transmittance,cosine_zenith_angle,irradiance_diffuse_fraction,irradiance_diffuse_transmittance,irradiance_direct_fraction,irradiance_direct_transmittance,NA
-1,1,1,1,0,0,1,1,"automatically-generated test case"
+101325,0.3,0.6,0.8,0.176607583888567,0.113263909901751,0.823392416111433,0.528067042076036,"high sun"
+101325,0.3,0.6,0.1,0.831407202954447,0.029818601472,0.168592797045553,0.0060466176,"low sun"
+101325,0.3,0.6,0,1,0,0,0,"sunrise or sunset"
+101325,0.3,0.6,-0.1,1,0,0,0,"nighttime"

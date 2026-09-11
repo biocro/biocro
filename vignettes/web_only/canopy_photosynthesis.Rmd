@@ -379,8 +379,15 @@ total_ppfd    <- 2000 # micromol / m^2 / s
 beam_fraction <- 0.8  # dimensionless
 windspeed     <- 2.0  # m / s
 
-# Calculate total PAR energy just above the canopy
-total_par <- total_ppfd * soybean$parameters$par_energy_content
+# Calculate PPFD and NIR just above the canopy
+shortwave_res <- evaluate_module(
+    'BioCro:incident_shortwave_from_ground_par',
+    within(soybean$parameters, {
+        irradiance_diffuse_fraction = 1 - beam_fraction
+        irradiance_direct_fraction = beam_fraction
+        solar = total_ppfd
+    })
+)
 
 # Run the ten-layer canopy properties module
 canopy_properties <- evaluate_module(
@@ -388,8 +395,10 @@ canopy_properties <- evaluate_module(
     within(soybean$parameters, {
         cosine_zenith_angle = cos(zenith_angle * pi / 180)
         lai = LAI
-        par_incident_diffuse = total_par * (1 - beam_fraction)
-        par_incident_direct = total_par * beam_fraction
+        nir_incident_diffuse = shortwave_res$nir_incident_diffuse
+        nir_incident_direct = shortwave_res$nir_incident_direct
+        ppfd_incident_diffuse = shortwave_res$ppfd_incident_diffuse
+        ppfd_incident_direct = shortwave_res$ppfd_incident_direct
         windspeed = windspeed
     })
 )

@@ -12,7 +12,7 @@ light_profile canopy_light::get_light_profile(double cumulative_lai) const
     // expressions as cosine_zenith_angle approaches 0 from the right:
     if (p.cosine_zenith_angle <= 1e-10) {
         profile.shaded.incident_ppfd = ppfd_diffuse * std::exp(-p.k_diffuse * cumulative_lai);
-        profile.shaded.incident_nir = d.nir_diffuse * std::exp(-p.k_diffuse * cumulative_lai);
+        profile.shaded.incident_nir = nir_diffuse * std::exp(-p.k_diffuse * cumulative_lai);
         // Calculate the fraction of sunlit and shaded leaves in this canopy
         // layer using Equation 15.22.
         profile.sunlit.fraction = 0;
@@ -23,7 +23,7 @@ light_profile canopy_light::get_light_profile(double cumulative_lai) const
             d.k_direct, p.k_diffuse,
             d.absorptance_par, cumulative_lai);
         profile.shaded.incident_nir = shaded_radiation(
-            d.nir_beam_ground, d.nir_diffuse,
+            d.nir_beam_ground, nir_diffuse,
             d.k_direct, p.k_diffuse,
             d.absorptance_nir, cumulative_lai);
         // Calculate the fraction of sunlit and shaded leaves in this canopy
@@ -75,29 +75,35 @@ light_profile canopy_light::get_light_profile(double cumulative_lai) const
 }
 
 canopy_light::canopy_light(
-    double ppfd_beam,
-    double ppfd_diffuse,
+    double const nir_beam,
+    double const nir_diffuse,
+    double const ppfd_beam,
+    double const ppfd_diffuse,
     parameters par,
-    derived_t der) : ppfd_beam{ppfd_beam},
-                     ppfd_diffuse{ppfd_diffuse},
-                     p{std::move(par)},
-                     d{std::move(der)}
+    derived_t der)
+    : nir_beam{nir_beam},
+      nir_diffuse{nir_diffuse},
+      ppfd_beam{ppfd_beam},
+      ppfd_diffuse{ppfd_diffuse},
+      p{std::move(par)},
+      d{std::move(der)}
 {
 }
 
 canopy_light::canopy_light(
-    double ppfd_beam,
-    double ppfd_diffuse,
-    parameters p) : canopy_light{ppfd_beam, ppfd_diffuse, p,
-                                 canopy_light::compute(ppfd_beam, ppfd_diffuse, p)}
+    double const nir_beam,
+    double const nir_diffuse,
+    double const ppfd_beam,
+    double const ppfd_diffuse,
+    parameters p)
+    : canopy_light{
+          nir_beam,
+          nir_diffuse,
+          ppfd_beam,
+          ppfd_diffuse,
+          p,
+          canopy_light::compute(nir_beam, nir_diffuse, ppfd_beam, ppfd_diffuse, p)}
 {
-}
-
-canopy_light canopy_light::from_solar(double solar, atmosphere_light_scattering const& a, canopy_light::parameters const& p)
-{
-    double beam = a.direct_fraction * solar;      // micromol / m^2 / s
-    double diffuse = a.diffuse_fraction * solar;  // micromol / m^2 / s
-    return canopy_light{beam, diffuse, p, canopy_light::compute(beam, diffuse, p)};
 }
 
 /**
@@ -107,7 +113,12 @@ canopy_light canopy_light::from_solar(double solar, atmosphere_light_scattering 
  * `std::acos` and `std::tan` receive valid arguments.  Calls `validate_derived`
  * after computing absorptances to check the leaf optical property constraints.
  */
-canopy_light::derived_t canopy_light::compute(double ppfd_beam, double ppfd_diffuse, parameters const& p)
+canopy_light::derived_t canopy_light::compute(
+    double const nir_beam,
+    double const nir_diffuse,
+    double const ppfd_beam,
+    double const ppfd_diffuse,
+    parameters const& p)
 {
     validate_params(p);
     derived_t result;
@@ -138,26 +149,18 @@ canopy_light::derived_t canopy_light::compute(double ppfd_beam, double ppfd_diff
     result.ppfd_beam_ground = ppfd_beam * p.cosine_zenith_angle;  // micromol / (m^2 ground) / s
 
     // Calculate related NIR energy fluxes
-    result.nir_beam = nir_from_ppfd(
-        ppfd_beam, p.par_energy_content, p.par_energy_fraction);  // J / (m^2 beam) / s
+    result.nir_beam_ground = nir_beam * p.cosine_zenith_angle;  // J / (m^2 ground) / s
 
-    result.nir_beam_ground = nir_from_ppfd(
-        result.ppfd_beam_ground, p.par_energy_content, p.par_energy_fraction);  // J / (m^2 ground) / s
-
-    result.nir_diffuse = nir_from_ppfd(
-        ppfd_diffuse, p.par_energy_content, p.par_energy_fraction);  // J / (m^2 ground) / s
     // For values of cosine_zenith_angle close to or less than 0, in place
     // of the calculations above, we want to use the limits of the above
-
     // expressions as cosine_zenith_angle approaches 0 from the right:
     if (p.cosine_zenith_angle <= 1e-10) {
         result.ppfd_beam_leaf = ppfd_beam / result.k1;
-        result.nir_beam_leaf = result.nir_beam / result.k1;
+        result.nir_beam_leaf = nir_beam / result.k1;
     } else {
         // Calculate the ambient direct PPFD through a unit area of leaf surface
         result.ppfd_beam_leaf = result.ppfd_beam_ground * result.k_direct;  // micromol / (m^2 leaf) / s
-        result.nir_beam_leaf = nir_from_ppfd(
-            result.ppfd_beam_leaf, p.par_energy_content, p.par_energy_fraction);  // J / (m^2 leaf) / s
+        result.nir_beam_leaf = result.nir_beam_ground * result.k_direct;    // J / (m^2 leaf) / s
     }
 
     validate_derived(result);

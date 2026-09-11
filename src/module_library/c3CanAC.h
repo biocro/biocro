@@ -9,8 +9,6 @@ canopy_photosynthesis_outputs c3CanAC(
     double const absorbed_longwave,            // J / m^2 / s
     double const ambient_temperature,          // degrees C
     double const atmospheric_pressure,         // Pa
-    double const atmospheric_scattering,       // dimensionless
-    double const atmospheric_transmittance,    // dimensionless
     double const b0,                           // mol / m^2 / s
     double const b1,                           // dimensionless
     double const beta_PSII,                    // dimensionless (fraction of absorbed light that reaches photosystem II)
@@ -39,19 +37,23 @@ canopy_photosynthesis_outputs c3CanAC(
     double const leafN,
     double const lnb0,  // micromol / m^2 / s
     double const lnb1,
-    double const o2,                   // mmol / mol
-    double const par_energy_content,   // J / micromol
-    double const par_energy_fraction,  // dimensionless
-    double const RH,                   // Pa / Pa
-    double const RL_at_25,             // micromol / m^2 / s
-    double const solarR,               // micromol / m^2 / s
-    double const StomataWS,            // dimensionless
-    double const Tp_at_25,             // micromol / m^2 / s
-    double Vcmax_at_25,                // micromol / m^2 / s
-    double const WindSpeed,            // m / s
-    double const WindSpeedHeight,      // m
-    int const lnfun,                   // dimensionless switch
-    int const nlayers                  // dimensionless
+    double const nir_incident_diffuse,   // J / m^2 / s
+    double const nir_incident_direct,    // J / m^2 / s
+    double const o2,                     // mmol / mol
+    double const par_energy_content,     // J / micromol
+    double const par_energy_fraction,    // dimensionless
+    double const ppfd_incident_diffuse,  // micromol / m^2 / s
+    double const ppfd_incident_direct,   // micromol / m^2 / s
+    double const RH,                     // Pa / Pa
+    double const RL_at_25,               // micromol / m^2 / s
+    double const solarR,                 // micromol / m^2 / s
+    double const StomataWS,              // dimensionless
+    double const Tp_at_25,               // micromol / m^2 / s
+    double Vcmax_at_25,                  // micromol / m^2 / s
+    double const WindSpeed,              // m / s
+    double const WindSpeedHeight,        // m
+    int const lnfun,                     // dimensionless switch
+    int const nlayers                    // dimensionless
 );
 
 #endif

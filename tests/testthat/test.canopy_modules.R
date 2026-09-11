@@ -29,8 +29,6 @@ default_soybean_result <- df_subset(
 
 # The BioCro:c3_canopy module replaces several other modules
 direct_modules_to_remove <- c(
-    'BioCro:shortwave_atmospheric_scattering',
-    'BioCro:incident_shortwave_from_ground_par',
     'BioCro:ten_layer_canopy_properties',
     'BioCro:ten_layer_c3_canopy',
     'BioCro:ten_layer_canopy_integrator'
