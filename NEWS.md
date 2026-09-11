@@ -35,6 +35,11 @@ be directly added to this file to describe the related changes.
 
 ## Bug Fixes
 
+- Removed an unused input parameter (`wsFun`) from the `soilML` function and the
+  `BioCro:two_layer_soil_profile` module.
+
+- Removed an unused function (`compute_wsPhoto`) from `AuxBioCro.cpp`.
+
 - Changed the minimum required version of R from 4.1.0 to 4.2.0.
 
   - Somehow the vignette builder cannot find the `knitr` package when using the

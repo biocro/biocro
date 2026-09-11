@@ -49,7 +49,6 @@ soilML_str soilML(
     double soil_sand_content,
     double phi1,
     double phi2,
-    int wsFun,
     int layers,
     double rootDB,
     double LAI,
