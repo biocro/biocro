@@ -53,25 +53,16 @@ canopy_photosynthesis_outputs CanAC(
 {
     double heightf = 1.0;
 
-    canopy_light::parameters params =
-        {chil,
-         cosine_zenith_angle,
-         heightf,
-         k_diffuse,
-         LAI,
-         leaf_reflectance_nir,
-         leaf_reflectance_par,
-         leaf_transmittance_nir,
-         leaf_transmittance_par,
-         par_energy_content,
-         par_energy_fraction};
-
-    canopy_light light_dist = {
+    canopy_light_outputs canopy_info = canopy_light(
+        chil,
+        cosine_zenith_angle,
+        LAI,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
         nir_incident_direct,
-        nir_incident_diffuse,
-        ppfd_incident_direct,
-        ppfd_incident_diffuse,
-        params};
+        ppfd_incident_direct);
 
     // Leaf-level photosynthesis function for use with canopy_integrand.
     // Solves the coupled stomatal conductance / energy balance system for a
@@ -163,10 +154,27 @@ canopy_photosynthesis_outputs CanAC(
             /* .transpiration = */ et.TransR * cf2};
     };
 
-    canopy_integrand<decltype(leaf_photo), false> canopy_integrand(leaf_photo, light_dist, kpLN, leafN, WindSpeed);
+    canopy_integrand<decltype(leaf_photo), false> integrand(
+        leaf_photo,
+        canopy_info,
+        cosine_zenith_angle,
+        heightf,
+        k_diffuse,
+        kpLN,
+        LAI,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
+        leafN,
+        nir_incident_diffuse,
+        par_energy_content,
+        ppfd_incident_diffuse,
+        WindSpeed);
+
     // use `quadrature::midpoint_rule` for previous behavior
     leaf_assim const canopy =
-        quadrature::gauss_legendre<2, leaf_assim>(canopy_integrand, 0.0, LAI, nlayers);
+        quadrature::gauss_legendre<2, leaf_assim>(integrand, 0.0, LAI, nlayers);
 
     double const whole_plant_gr =
         growth_resp(canopy.assim, growth_respiration_fraction);  // micromol / m^2 / s

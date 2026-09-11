@@ -4,228 +4,6 @@
 #include <string>
 #include "canopy_light_helpers.h"
 
-light_profile canopy_light::get_light_profile(double cumulative_lai) const
-{
-    light_profile profile;
-    // For values of cosine_zenith_angle close to or less than 0, in place
-    // of the calculations above, we want to use the limits of the above
-    // expressions as cosine_zenith_angle approaches 0 from the right:
-    if (p.cosine_zenith_angle <= 1e-10) {
-        profile.shaded.incident_ppfd = ppfd_diffuse * std::exp(-p.k_diffuse * cumulative_lai);
-        profile.shaded.incident_nir = nir_diffuse * std::exp(-p.k_diffuse * cumulative_lai);
-        // Calculate the fraction of sunlit and shaded leaves in this canopy
-        // layer using Equation 15.22.
-        profile.sunlit.fraction = 0;
-        profile.shaded.fraction = 1;
-    } else {
-        profile.shaded.incident_ppfd = shaded_radiation(
-            d.ppfd_beam_ground, ppfd_diffuse,
-            d.k_direct, p.k_diffuse,
-            d.absorptance_par, cumulative_lai);
-        profile.shaded.incident_nir = shaded_radiation(
-            d.nir_beam_ground, nir_diffuse,
-            d.k_direct, p.k_diffuse,
-            d.absorptance_nir, cumulative_lai);
-        // Calculate the fraction of sunlit and shaded leaves in this canopy
-        // layer using Equation 15.22.
-        profile.sunlit.fraction = std::exp(-d.k_direct * cumulative_lai);
-        profile.shaded.fraction = 1 - profile.sunlit.fraction;
-    }
-
-    // Store values of incident PPFD
-    profile.height = (p.lai - cumulative_lai) / p.heightf;                           // m
-    profile.sunlit.incident_ppfd = d.ppfd_beam_leaf + profile.shaded.incident_ppfd;  // micromol / (m^2 leaf) / s
-    profile.sunlit.incident_nir = d.nir_beam_leaf + profile.shaded.incident_nir;     // J / (m^2 leaf) / s
-
-    // Store values of absorbed PPFD
-    profile.sunlit.absorbed_ppfd =
-        thin_layer_absorption(
-            p.leaf_reflectance_par,
-            p.leaf_transmittance_par,
-            profile.sunlit.incident_ppfd);  // micromol / m^2 / s
-
-    profile.shaded.absorbed_ppfd =
-        thin_layer_absorption(
-            p.leaf_reflectance_par,
-            p.leaf_transmittance_par,
-            profile.shaded.incident_ppfd);  // micromol / m^2 / s
-
-    // Store values of absorbed solar energy (including PAR and NIR)
-    profile.sunlit.absorbed_shortwave =
-        absorbed_shortwave(
-            profile.sunlit.incident_nir,
-            profile.sunlit.incident_ppfd,
-            p.par_energy_content,
-            p.leaf_reflectance_par,
-            p.leaf_transmittance_par,
-            p.leaf_reflectance_nir,
-            p.leaf_transmittance_nir);  // J / (m^2 leaf) / s
-
-    profile.shaded.absorbed_shortwave =
-        absorbed_shortwave(
-            profile.shaded.incident_nir,
-            profile.shaded.incident_ppfd,
-            p.par_energy_content,
-            p.leaf_reflectance_par,
-            p.leaf_transmittance_par,
-            p.leaf_reflectance_nir,
-            p.leaf_transmittance_nir);  // J / (m^2 leaf) / s
-
-    return profile;
-}
-
-canopy_light::canopy_light(
-    double const nir_beam,
-    double const nir_diffuse,
-    double const ppfd_beam,
-    double const ppfd_diffuse,
-    parameters par,
-    derived_t der)
-    : nir_beam{nir_beam},
-      nir_diffuse{nir_diffuse},
-      ppfd_beam{ppfd_beam},
-      ppfd_diffuse{ppfd_diffuse},
-      p{std::move(par)},
-      d{std::move(der)}
-{
-}
-
-canopy_light::canopy_light(
-    double const nir_beam,
-    double const nir_diffuse,
-    double const ppfd_beam,
-    double const ppfd_diffuse,
-    parameters p)
-    : canopy_light{
-          nir_beam,
-          nir_diffuse,
-          ppfd_beam,
-          ppfd_diffuse,
-          p,
-          canopy_light::compute(nir_beam, nir_diffuse, ppfd_beam, ppfd_diffuse, p)}
-{
-}
-
-/**
- * @brief Validates inputs, then computes all derived canopy radiation quantities.
- *
- * Calls `validate_params` before any floating-point computation to ensure that
- * `std::acos` and `std::tan` receive valid arguments.  Calls `validate_derived`
- * after computing absorptances to check the leaf optical property constraints.
- */
-canopy_light::derived_t canopy_light::compute(
-    double const nir_beam,
-    double const nir_diffuse,
-    double const ppfd_beam,
-    double const ppfd_diffuse,
-    parameters const& p)
-{
-    validate_params(p);
-    derived_t result;
-    result.absorptance_nir = 1.0 - p.leaf_reflectance_nir - p.leaf_transmittance_nir;  // dimensionless
-    result.absorptance_par = 1.0 - p.leaf_reflectance_par - p.leaf_transmittance_par;
-    // Calculate the leaf shape factor for an ellipsoidal leaf angle
-    // distribution using the equation from page 251 of Campbell & Norman
-    // (1998). We will use this value as `k_direct`, the canopy extinction
-    // coefficient for direct photosynthetically active radiation throughout the
-    // canopy. This quantity represents the ratio of horizontal area to total
-    // area for leaves in the canopy and is therefore dimensionless from
-    // (m^2 ground) / (m^2 leaf).
-    double zenith_angle = std::acos(p.cosine_zenith_angle);  // radians
-    double k0 = std::sqrt(std::pow(p.chil, 2) + std::pow(std::tan(zenith_angle), 2));
-    result.k1 = p.chil + 1.744 * std::pow((p.chil + 1.182), -0.733);
-    result.k_direct = k0 / result.k1;  // dimensionless
-
-    // Calculate the fraction of direct radiation that passes through the canopy
-    // using Equation 15.1. Note that this is equivalent to the fraction of
-    // ground area below the canopy that is exposed to direct sunlight. Note
-    // that if the sun is at or below the horizon, no part of the soil is
-    // sunlit; this corresponds to the case where cosine_zenith_angle is close
-    // to or below zero.
-    result.canopy_direct_transmission_fraction =
-        p.cosine_zenith_angle <= 1e-10 ? 0.0 : exp(-result.k_direct * p.lai);  // dimensionless
-
-    // Calculate the ambient direct PPFD through a surface parallel to the ground
-    result.ppfd_beam_ground = ppfd_beam * p.cosine_zenith_angle;  // micromol / (m^2 ground) / s
-
-    // Calculate related NIR energy fluxes
-    result.nir_beam_ground = nir_beam * p.cosine_zenith_angle;  // J / (m^2 ground) / s
-
-    // For values of cosine_zenith_angle close to or less than 0, in place
-    // of the calculations above, we want to use the limits of the above
-    // expressions as cosine_zenith_angle approaches 0 from the right:
-    if (p.cosine_zenith_angle <= 1e-10) {
-        result.ppfd_beam_leaf = ppfd_beam / result.k1;
-        result.nir_beam_leaf = nir_beam / result.k1;
-    } else {
-        // Calculate the ambient direct PPFD through a unit area of leaf surface
-        result.ppfd_beam_leaf = result.ppfd_beam_ground * result.k_direct;  // micromol / (m^2 leaf) / s
-        result.nir_beam_leaf = result.nir_beam_ground * result.k_direct;    // J / (m^2 leaf) / s
-    }
-
-    validate_derived(result);
-    return result;
-}
-
-double canopy_light::direct_transmission_fraction() const
-{
-    return d.canopy_direct_transmission_fraction;
-}
-
-/**
- * @brief Validates canopy input parameters.
- *
- * @throws std::out_of_range if `cosine_zenith_angle` is outside `[-1, 1]`,
- *         `k_diffuse` is outside `[0, 1]`, `chil` is negative, or `heightf`
- *         is not strictly positive.
- */
-void canopy_light::validate_params(canopy_light::parameters const& p)
-{
-    std::string errors;
-    if (p.cosine_zenith_angle > 1 || p.cosine_zenith_angle < -1)
-        errors += "      cosine_zenith_angle = " + std::to_string(p.cosine_zenith_angle) + " is outside [-1, 1]\n";
-    if (p.k_diffuse > 1 || p.k_diffuse < 0)
-        errors += "      k_diffuse = " + std::to_string(p.k_diffuse) + " is outside [0, 1]\n";
-    if (p.chil < 0)
-        errors += "      chil = " + std::to_string(p.chil) + " must be non-negative\n";
-    if (p.heightf <= 0)
-        errors += "      heightf = " + std::to_string(p.heightf) + " must be greater than zero\n";
-
-    if (!errors.empty()) {
-        throw std::out_of_range("\n    canopy_light::parameters are invalid:\n" + errors);
-    }
-}
-
-/**
- * @brief Validates derived leaf absorptances.
- *
- * @throws std::out_of_range if `absorptance_par` or `absorptance_nir` is
- *         outside `[0, 1]`, indicating that the leaf reflectance and
- *         transmittance parameters sum to more than 1 in either band.
- */
-void canopy_light::validate_derived(canopy_light::derived_t const& d)
-{
-    std::string errors;
-    if (d.absorptance_par > 1 || d.absorptance_par < 0) {
-        errors +=
-            "      absorptance_par = 1 - leaf_reflectance_par - leaf_transmittance_par = " +
-            std::to_string(d.absorptance_par) +
-            " is outside [0, 1]\n"
-            "        (leaf_reflectance_par + leaf_transmittance_par must not exceed 1)\n";
-    }
-
-    if (d.absorptance_nir > 1 || d.absorptance_nir < 0) {
-        errors +=
-            "      absorptance_nir = 1 - leaf_reflectance_nir - leaf_transmittance_nir = " +
-            std::to_string(d.absorptance_nir) +
-            " is outside [0, 1]\n"
-            "        (leaf_reflectance_nir + leaf_transmittance_nir must not exceed 1)\n";
-    }
-
-    if (!errors.empty()) {
-        throw std::out_of_range("\n    canopy_light: derived leaf absorptance is invalid:\n" + errors);
-    }
-}
 /**
  *  @brief Computes absorbed light from incident light for a thin layer of
  *  material.
@@ -569,4 +347,303 @@ double shaded_radiation(
 {
     return total_radiation(Q_od, k_diffuse, alpha, ell) +
            downscattered_radiation(Q_ob, k_direct, alpha, ell);  // same units as `Q_ob`
+}
+
+/**
+ *  @brief Computes the radiation environment for a plant canopy from canopy
+ *  structural and optical parameters.
+ *
+ *  This includes:
+ *
+ *  - The leaf absorptances in the PAR and NIR bands.
+ *
+ *  - The leaf shape factor, which is equivalent to the canopy light extinction
+ *    coefficient.
+ *
+ *  - The direct beam irradiance (in the PAR and NIR bands) on a ground area
+ *    and leaf area basis.
+ *
+ *  - The fraction of direct light transmitted through the canopy.
+ *
+ *  All input parameters and derived absorptances are validated. This ensures
+ *  that std::acos` and `std::tan` receive valid arguments. `std::out_of_range`
+ *  is thrown if any value is outside its physically meaningful range.
+ *
+ *  @param [in] chil Leaf angle distribution parameter (dimensionless from
+ *              m^2 / m^2)
+ *
+ *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
+ *              (dimensionless, [-1, 1])
+ *
+ *  @param [in] lai Leaf area index of the whole canopy (dimensionless from
+ *              m^2 / m^2)
+ *
+ *  @param [in] leaf_reflectance_nir Leaf NIR reflectance (dimensionless)
+ *
+ *  @param [in] leaf_reflectance_par Leaf PAR reflectance (dimensionless)
+ *
+ *  @param [in] leaf_transmittance_nir Leaf NIR transmittance (dimensionless)
+ *
+ *  @param [in] leaf_transmittance_par Leaf PAR transmittance (dimensionless)
+ *
+ *  @param [in] nir_beam Direct light energy flux density in the NIR range
+ *              through a surface perpendicular to the beam direction
+ *              (J / m^2 / s)
+ *
+ *  @param [in] ppfd_beam Direct photosynthetically active photon flux density
+ *              through a surface perpendicular to the beam direction
+ *              (micromol / m^2 / s)
+ *
+ *  @return A `canopy_light_outputs` object summarizing key optical properties
+ *          of the canopy, and the light incident on the canopy
+ */
+canopy_light_outputs canopy_light(
+    double const chil,                    // dimensionless from m^2 / m^2
+    double const cosine_zenith_angle,     // dimensionless
+    double const lai,                     // dimensionless from m^2 / m^2
+    double const leaf_reflectance_nir,    // dimensionless
+    double const leaf_reflectance_par,    // dimensionless
+    double const leaf_transmittance_nir,  // dimensionless
+    double const leaf_transmittance_par,  // dimensionless
+    double const nir_beam,                // J / m^2 / s
+    double const ppfd_beam                // micromol / m^2 / s
+)
+{
+    // Validate inputs
+    std::string errors;
+
+    if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {
+        errors += "      cosine_zenith_angle = " + std::to_string(cosine_zenith_angle) + " is outside [-1, 1]\n";
+    }
+
+    if (chil < 0) {
+        errors += "      chil = " + std::to_string(chil) + " must be non-negative\n";
+    }
+
+    if (!errors.empty()) {
+        throw std::out_of_range("\n    canopy_light: input arguments are invalid:\n" + errors);
+    }
+
+    // Calculate absorptances
+    double const absorptance_nir = 1.0 - leaf_reflectance_nir - leaf_transmittance_nir;  // dimensionless
+    double const absorptance_par = 1.0 - leaf_reflectance_par - leaf_transmittance_par;  // dimensionless
+
+    // Calculate the leaf shape factor for an ellipsoidal leaf angle
+    // distribution using the equation from page 251 of Campbell & Norman
+    // (1998). We will use this value as `k_direct`, the canopy extinction
+    // coefficient for direct photosynthetically active radiation throughout the
+    // canopy. This quantity represents the ratio of horizontal area to total
+    // area for leaves in the canopy and is therefore dimensionless from
+    // (m^2 ground) / (m^2 leaf).
+    double const zenith_angle = std::acos(cosine_zenith_angle);  // radians
+    double const k0 = std::sqrt(std::pow(chil, 2) + std::pow(std::tan(zenith_angle), 2));
+    double const k1 = chil + 1.744 * std::pow((chil + 1.182), -0.733);
+    double const k_direct = k0 / k1;  // dimensionless
+
+    // Calculate the fraction of direct radiation that passes through the canopy
+    // using Equation 15.1. Note that this is equivalent to the fraction of
+    // ground area below the canopy that is exposed to direct sunlight. Note
+    // that if the sun is at or below the horizon, no part of the soil is
+    // sunlit; this corresponds to the case where cosine_zenith_angle is close
+    // to or below zero.
+    double const canopy_direct_transmission_fraction =
+        cosine_zenith_angle <= 1e-10 ? 0.0 : exp(-k_direct * lai);  // dimensionless
+
+    // Calculate the ambient direct PPFD through a surface parallel to the ground
+    double const ppfd_beam_ground = ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
+
+    // Calculate related NIR energy fluxes
+    double const nir_beam_ground = nir_beam * cosine_zenith_angle;  // J / (m^2 ground) / s
+
+    // Calculate the ambient direct PPFD through a unit area of leaf surface
+    double ppfd_beam_leaf = ppfd_beam_ground * k_direct;  // micromol / (m^2 leaf) / s
+    double nir_beam_leaf = nir_beam_ground * k_direct;    // J / (m^2 leaf) / s
+
+    // For values of cosine_zenith_angle close to or less than 0, in place
+    // of the calculations above, we want to use the limits of the above
+    // expressions as cosine_zenith_angle approaches 0 from the right:
+    if (cosine_zenith_angle <= 1e-10) {
+        ppfd_beam_leaf = ppfd_beam / k1;
+        nir_beam_leaf = nir_beam / k1;
+    }
+
+    // Validate calculated values
+    if (absorptance_par > 1 || absorptance_par < 0) {
+        errors +=
+            "      absorptance_par = 1 - leaf_reflectance_par - leaf_transmittance_par = " +
+            std::to_string(absorptance_par) +
+            " is outside [0, 1]\n"
+            "        (leaf_reflectance_par + leaf_transmittance_par must not exceed 1)\n";
+    }
+
+    if (absorptance_nir > 1 || absorptance_nir < 0) {
+        errors +=
+            "      absorptance_nir = 1 - leaf_reflectance_nir - leaf_transmittance_nir = " +
+            std::to_string(absorptance_nir) +
+            " is outside [0, 1]\n"
+            "        (leaf_reflectance_nir + leaf_transmittance_nir must not exceed 1)\n";
+    }
+
+    if (!errors.empty()) {
+        throw std::out_of_range("\n    canopy_light: derived leaf absorptance is invalid:\n" + errors);
+    }
+
+    return canopy_light_outputs{
+        /* .absorptance_nir = */ absorptance_nir,
+        /* .absorptance_par = */ absorptance_par,
+        /* .k1 = */ k1,
+        /* .k_direct = */ k_direct,
+        /* .canopy_direct_transmission_fraction = */ canopy_direct_transmission_fraction,
+        /* .ppfd_beam_ground = */ ppfd_beam_ground,
+        /* .ppfd_beam_leaf = */ ppfd_beam_leaf,
+        /* .nir_beam_ground = */ nir_beam_ground,
+        /* .nir_beam_leaf = */ nir_beam_leaf};
+}
+
+/**
+ *  @brief Evaluates the canopy radiation model at a given cumulative LAI depth.
+ *
+ *  This includes:
+ *
+ *  - The fractions of shaded and sunlit leaves.
+ *
+ *  - The incident PPFD, incident NIR, absorbed PPFD, and absorbed shortwave
+ *    energy for each leaf class (sunlit or shaded).
+ *
+ *  All input parameters are validated; `std::out_of_range` is thrown if any
+ *  value is outside its physically meaningful range.
+ *
+ *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
+ *              (dimensionless, [-1, 1])
+ *
+ *  @param [in] cumulative_lai Cumulative leaf area index from the top of the
+ *              canopy (dimensionless from m^2 leaf / m^2 ground). Typically in
+ *              `[0, lai]`.
+ *
+ *  @param [in] heightf Leaf area density, LAI per canopy height (m^-1, > 0)
+ *
+ *  @param [in] k_diffuse Extinction coefficient for diffuse radiation
+ *              (dimensionless, [0, 1])
+ *
+ *  @param [in] lai Leaf area index of the whole canopy (dimensionless from
+ *              m^2 / m^2)
+ *
+ *  @param [in] leaf_reflectance_nir Leaf NIR reflectance (dimensionless)
+ *
+ *  @param [in] leaf_reflectance_par Leaf PAR reflectance (dimensionless)
+ *
+ *  @param [in] leaf_transmittance_nir Leaf NIR transmittance (dimensionless)
+ *
+ *  @param [in] leaf_transmittance_par Leaf PAR transmittance (dimensionless)
+ *
+ *  @param [in] nir_diffuse Diffuse NIR energy density through any horizontal
+ *              plane (J / m^2 / s).
+ *
+ *  @param [in] par_energy_content Average energy per PAR photon (J / micromol)
+ *
+ *  @param [in] ppfd_diffuse Diffuse photon flux density through any horizontal
+ *              plane (micromol / m^2 / s).
+ *
+ *  @return A `light_profile` object summarizing the light environment at a
+ *          particular depth within the canopy.
+ */
+light_profile get_light_profile(
+    canopy_light_outputs const canopy_info,
+    double const cosine_zenith_angle,     // dimensionless
+    double const cumulative_lai,          // dimensionless from m^2 / m^2
+    double const heightf,                 // m^(-1)
+    double const k_diffuse,               // dimensionless
+    double const lai,                     // dimensionless from m^2 / m^2
+    double const leaf_reflectance_nir,    // dimensionless
+    double const leaf_reflectance_par,    // dimensionless
+    double const leaf_transmittance_nir,  // dimensionless
+    double const leaf_transmittance_par,  // dimensionless
+    double const nir_diffuse,             // J / m^2 / s
+    double const par_energy_content,      // J / micromol
+    double const ppfd_diffuse             // micromol / m^2 / s
+)
+{
+    // Validate inputs
+    std::string errors;
+
+    if (k_diffuse > 1 || k_diffuse < 0) {
+        errors += "      k_diffuse = " + std::to_string(k_diffuse) + " is outside [0, 1]\n";
+    }
+
+    if (heightf <= 0) {
+        errors += "      heightf = " + std::to_string(heightf) + " must be greater than zero\n";
+    }
+
+    if (!errors.empty()) {
+        throw std::out_of_range("\n    get_light_profile: input arguments are invalid:\n" + errors);
+    }
+
+    // Initialize the return value
+    light_profile profile;
+
+    // For values of cosine_zenith_angle close to or less than 0, in place
+    // of the calculations above, we want to use the limits of the above
+    // expressions as cosine_zenith_angle approaches 0 from the right:
+    if (cosine_zenith_angle <= 1e-10) {
+        profile.shaded.incident_ppfd = ppfd_diffuse * std::exp(-k_diffuse * cumulative_lai);
+        profile.shaded.incident_nir = nir_diffuse * std::exp(-k_diffuse * cumulative_lai);
+        // Calculate the fraction of sunlit and shaded leaves in this canopy
+        // layer using Equation 15.22.
+        profile.sunlit.fraction = 0;
+        profile.shaded.fraction = 1;
+    } else {
+        profile.shaded.incident_ppfd = shaded_radiation(
+            canopy_info.ppfd_beam_ground, ppfd_diffuse,
+            canopy_info.k_direct, k_diffuse,
+            canopy_info.absorptance_par, cumulative_lai);
+        profile.shaded.incident_nir = shaded_radiation(
+            canopy_info.nir_beam_ground, nir_diffuse,
+            canopy_info.k_direct, k_diffuse,
+            canopy_info.absorptance_nir, cumulative_lai);
+        // Calculate the fraction of sunlit and shaded leaves in this canopy
+        // layer using Equation 15.22.
+        profile.sunlit.fraction = std::exp(-canopy_info.k_direct * cumulative_lai);
+        profile.shaded.fraction = 1 - profile.sunlit.fraction;
+    }
+
+    // Store values of incident PPFD
+    profile.height = (lai - cumulative_lai) / heightf;                                         // m
+    profile.sunlit.incident_ppfd = canopy_info.ppfd_beam_leaf + profile.shaded.incident_ppfd;  // micromol / (m^2 leaf) / s
+    profile.sunlit.incident_nir = canopy_info.nir_beam_leaf + profile.shaded.incident_nir;     // J / (m^2 leaf) / s
+
+    // Store values of absorbed PPFD
+    profile.sunlit.absorbed_ppfd =
+        thin_layer_absorption(
+            leaf_reflectance_par,
+            leaf_transmittance_par,
+            profile.sunlit.incident_ppfd);  // micromol / m^2 / s
+
+    profile.shaded.absorbed_ppfd =
+        thin_layer_absorption(
+            leaf_reflectance_par,
+            leaf_transmittance_par,
+            profile.shaded.incident_ppfd);  // micromol / m^2 / s
+
+    // Store values of absorbed solar energy (including PAR and NIR)
+    profile.sunlit.absorbed_shortwave =
+        absorbed_shortwave(
+            profile.sunlit.incident_nir,
+            profile.sunlit.incident_ppfd,
+            par_energy_content,
+            leaf_reflectance_par,
+            leaf_transmittance_par,
+            leaf_reflectance_nir,
+            leaf_transmittance_nir);  // J / (m^2 leaf) / s
+
+    profile.shaded.absorbed_shortwave =
+        absorbed_shortwave(
+            profile.shaded.incident_nir,
+            profile.shaded.incident_ppfd,
+            par_energy_content,
+            leaf_reflectance_par,
+            leaf_transmittance_par,
+            leaf_reflectance_nir,
+            leaf_transmittance_nir);  // J / (m^2 leaf) / s
+
+    return profile;
 }
