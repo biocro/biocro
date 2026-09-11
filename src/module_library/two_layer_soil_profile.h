@@ -3,8 +3,9 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
-#include "AuxBioCro.h"  // For soilML_str
-#include "BioCro.h"     // For soilML
+#include "../framework/constants.h"  // for eps_zero
+#include "AuxBioCro.h"               // For soilML_str
+#include "BioCro.h"                  // For soilML
 
 namespace standardBML
 {
@@ -153,6 +154,13 @@ string_vector two_layer_soil_profile::get_outputs()
 
 void two_layer_soil_profile::do_operation() const
 {
+    using calculation_constants::eps_zero;
+
+    // Check for error conditions (rh not in [0,1])
+    if (rh < -eps_zero || rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in two_layer_soil_profile: rh does not lie in the interval [0, 1].");
+    }
+
     // Collect inputs and make calculations
     double cws[] = {cws1, cws2};
     double soil_depths[] = {soil_depth1, soil_depth2, soil_depth3};

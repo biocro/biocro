@@ -90,11 +90,13 @@ string_vector rh_to_mole_fraction::get_outputs()
 
 void rh_to_mole_fraction::do_operation() const
 {
+    using calculation_constants::eps_zero;
+
     // Check for possible error conditions:
     // atmospheric_pressure == 0 causes a division by zero
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",
-         std::abs(atmospheric_pressure) < calculation_constants::eps_zero}};
+        {"atmospheric_pressure cannot be zero", std::abs(atmospheric_pressure) < eps_zero},
+        {"rh must lie in the interval [0, 1]", rh < -eps_zero || rh > 1.0 + eps_zero}};
 
     check_error_conditions(errors_to_check, get_name());
 

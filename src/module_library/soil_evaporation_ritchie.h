@@ -356,6 +356,11 @@ void soil_evaporation_ritchie::do_operation() const
     using std::max;
     using std::min;
 
+    // Check for error conditions (rh not in [0,1])
+    if (rh < -eps_zero || rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in soil_evaporation_ritchie: rh does not lie in the interval [0, 1].");
+    }
+
     // Define conversion constants to avoid magic numbers
     double constexpr cm_to_mm = 10.0;       // mm / cm
     double constexpr hours_per_day = 24.0;  // hr / day

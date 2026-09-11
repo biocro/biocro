@@ -31,3 +31,22 @@ for (cn in all_rh_column_names) {
         )
     })
 }
+
+# Make sure bad RH values are caught
+test_that('Bad RH values are caught', {
+    bad_weather <- soybean_weather[['2004']]
+    bad_weather$rh <- bad_weather$rh * 100
+
+    expect_error(
+        with(soybean, {run_biocro(
+            initial_values,
+            parameters,
+            bad_weather,
+            direct_modules,
+            differential_modules,
+            ode_solver
+        )}),
+        'rh does not lie in the interval [0, 1]',
+        fixed = TRUE
+    )
+})

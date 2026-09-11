@@ -106,6 +106,11 @@ stomata_outputs ball_berry_gs(
     double ambient_air_temperature  // degrees C
 )
 {
+    // Check for error conditions (ambient_rh not in [0,1])
+    if (ambient_rh < -eps_zero || ambient_rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in ball_berry_gs: ambient_rh does not lie in the interval [0, 1].");
+    }
+
     // If An < 0, set b1 = 0 to ensure that gsw = b0 in Equation (1) as defined
     // above
     if (assimilation < 0) {

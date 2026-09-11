@@ -5,7 +5,7 @@
 #include "../framework/state_map.h"
 #include "water_and_air_properties.h"  // for saturation_vapor_pressure,
                                        // TempToSFS, TempToLHV, TempToDdryA
-#include "../framework/constants.h"    // for ideal_gas_constant,
+#include "../framework/constants.h"    // for ideal_gas_constant, eps_zero,
                                        // molar_mass_of_water, celsius_to_kelvin
 
 namespace standardBML
@@ -77,8 +77,14 @@ string_vector water_vapor_properties_from_air_temperature::get_outputs()
 
 void water_vapor_properties_from_air_temperature::do_operation() const
 {
-    // Collect input quantities and make calculations
+    using calculation_constants::eps_zero;
 
+    // Check for error conditions (rh not in [0,1])
+    if (rh < -eps_zero || rh > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in water_vapor_properties_from_air_temperature: rh does not lie in the interval [0, 1].");
+    }
+
+    // Collect input quantities and make calculations
     double density_of_dry_air = TempToDdryA(temp);                             // kg / m^3
     double latent_heat_vaporization_of_water = TempToLHV(temp);                // J / kg
     double saturation_water_vapor_pressure = saturation_vapor_pressure(temp);  // Pa

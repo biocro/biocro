@@ -7,6 +7,8 @@
 #include "water_and_air_properties.h"     // for TempToCp, dry_air_density, etc
 #include "leaf_energy_balance.h"
 
+using calculation_constants::eps_zero;
+
 /**
  *  @brief Calculates the total energy available to the leaf for transpiration
  *  and sensible heat loss, often denoted as \f$ \Phi_N \f$.
@@ -156,6 +158,11 @@ energy_balance_outputs leaf_energy_balance(
     double wind_speed                  // m / s
 )
 {
+    // Check for error conditions (relative_humidity not in [0,1])
+    if (relative_humidity < -eps_zero || relative_humidity > 1.0 + eps_zero) {
+        throw std::range_error("Thrown in leaf_energy_balance: relative_humidity does not lie in the interval [0, 1].");
+    }
+
     // Set some constants
     double constexpr epsilon_s = 1.0;  // dimensionless
 
