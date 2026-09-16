@@ -3,6 +3,7 @@
 
 #include "../framework/module.h"
 #include "../framework/state_map.h"
+#include "../module_macros.h"
 
 namespace standardBML
 {
@@ -77,66 +78,28 @@ namespace standardBML
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
-class thermal_time_bilinear : public differential_module
-{
-   public:
-    thermal_time_bilinear(
-        state_map const& input_quantities,
-        state_map* output_quantities)
-        : differential_module{},
+#define THERMAL_TIME_BILINEAR_INPUTS(X)                                                \
+    X(fractional_doy, "fractional_doy")                /* days */                      \
+    X(sowing_fractional_doy, "sowing_fractional_doy")  /* days */                      \
+    X(temp, "temp")                                    /* degrees C */                 \
+    X(tbase, "tbase")                                  /* degrees C */                 \
+    X(topt, "topt")                                    /* degrees C */                 \
+    X(tmax, "tmax")                                    /* degrees C */
 
-          // Get references to input quantities
-          fractional_doy{get_input(input_quantities, "fractional_doy")},
-          sowing_fractional_doy{get_input(input_quantities, "sowing_fractional_doy")},
-          temp{get_input(input_quantities, "temp")},
-          tbase{get_input(input_quantities, "tbase")},
-          topt{get_input(input_quantities, "topt")},
-          tmax{get_input(input_quantities, "tmax")},
+#define THERMAL_TIME_BILINEAR_OUTPUTS(X)                                               \
+    X(TTc_op, "TTc")                                   /* degrees C * day / hr */
 
-          // Get pointers to output quantities
-          TTc_op{get_op(output_quantities, "TTc")}
-    {
-    }
-    static string_vector get_inputs();
-    static string_vector get_outputs();
-    static std::string get_name() { return "thermal_time_bilinear"; }
+DEFINE_MODULE_CLASS(
+    thermal_time_bilinear,
+    differential_module,
+    THERMAL_TIME_BILINEAR_INPUTS,
+    THERMAL_TIME_BILINEAR_OUTPUTS
+)
 
-   private:
-    // References to input quantities
-    double const& fractional_doy;
-    double const& sowing_fractional_doy;
-    double const& temp;
-    double const& tbase;
-    double const& topt;
-    double const& tmax;
+#undef THERMAL_TIME_BILINEAR_INPUTS
+#undef THERMAL_TIME_BILINEAR_OUTPUTS
 
-    // Pointers to output quantities
-    double* TTc_op;
-
-    // Main operation
-    void do_operation() const;
-};
-
-string_vector thermal_time_bilinear::get_inputs()
-{
-    return {
-        "fractional_doy",         // days
-        "sowing_fractional_doy",  // days
-        "temp",                   // degrees C
-        "tbase",                  // degrees C
-        "topt",                   // degrees C
-        "tmax"                    // degrees C
-    };
-}
-
-string_vector thermal_time_bilinear::get_outputs()
-{
-    return {
-        "TTc"  // degrees C * day / hr
-    };
-}
-
-void thermal_time_bilinear::do_operation() const
+inline void thermal_time_bilinear::do_operation() const
 {
     // Find the rate of change on a daily basis
     double const rate_per_day =
@@ -154,4 +117,5 @@ void thermal_time_bilinear::do_operation() const
 }
 
 }  // namespace standardBML
+   //
 #endif
