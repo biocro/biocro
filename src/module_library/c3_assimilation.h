@@ -90,7 +90,9 @@ class c3_assimilation : public direct_module
           Gstar_at_25{get_input(input_quantities, "Gstar_at_25")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
-          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
+          Jmax_Ha{get_input(input_quantities, "Jmax_Ha")},
+          Jmax_Hd{get_input(input_quantities, "Jmax_Hd")},
+          Jmax_S{get_input(input_quantities, "Jmax_S")},
           Kc_at_25{get_input(input_quantities, "Kc_at_25")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
           Ko_at_25{get_input(input_quantities, "Ko_at_25")},
@@ -114,7 +116,9 @@ class c3_assimilation : public direct_module
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
-          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
+          Vcmax_Ha{get_input(input_quantities, "Vcmax_Ha")},
+          Vcmax_Hd{get_input(input_quantities, "Vcmax_Hd")},
+          Vcmax_S{get_input(input_quantities, "Vcmax_S")},
 
           // Get pointers to output quantities
           Assim_op{get_op(output_quantities, "Assim")},
@@ -153,7 +157,9 @@ class c3_assimilation : public direct_module
     double const& Gstar_at_25;
     double const& Gstar_Ea;
     double const& Jmax_at_25;
-    double const& Jmax_Ea;
+    double const& Jmax_Ha;
+    double const& Jmax_Hd;
+    double const& Jmax_S;
     double const& Kc_at_25;
     double const& Kc_Ea;
     double const& Ko_at_25;
@@ -177,7 +183,9 @@ class c3_assimilation : public direct_module
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
-    double const& Vcmax_Ea;
+    double const& Vcmax_Ha;
+    double const& Vcmax_Hd;
+    double const& Vcmax_S;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -216,7 +224,9 @@ string_vector c3_assimilation::get_inputs()
         "Gstar_at_25",                  // micromol / mol
         "Gstar_Ea",                     // J / mol
         "Jmax_at_25",                   // micromol / m^2 / s
-        "Jmax_Ea",                      // J / mol
+        "Jmax_Ha",                      // J / mol
+        "Jmax_Hd",                      // J / mol
+        "Jmax_S",                       // J / K / mol
         "Kc_at_25",                     // micromol / mol
         "Kc_Ea",                        // J / mol
         "Ko_at_25",                     // mmol / mol
@@ -240,7 +250,9 @@ string_vector c3_assimilation::get_inputs()
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
-        "Vcmax_Ea",                     // J / mol
+        "Vcmax_Ha",                     // J / mol
+        "Vcmax_Hd",                     // J / mol
+        "Vcmax_S",                      // J / K / mol
     };
 }
 
@@ -270,7 +282,9 @@ void c3_assimilation::do_operation() const
         gm_Hd,
         gm_S,
         Gstar_Ea,
-        Jmax_Ea,
+        Jmax_Ha,
+        Jmax_Hd,
+        Jmax_S,
         Kc_Ea,
         Ko_Ea,
         phi_PSII_0,
@@ -283,7 +297,9 @@ void c3_assimilation::do_operation() const
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_Ea};
+        Vcmax_Ha,
+        Vcmax_Hd,
+        Vcmax_S};
 
     photosynthesis_outputs c3_results = c3photoC(
         tr_param,
