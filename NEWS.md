@@ -47,12 +47,18 @@ be directly added to this file to describe the related changes.
     `Vcmax_Ha`, `Vcmax_Hd`, and `Vcmax_S`, and `Jmax_Ha`, `Jmax_Hd`, and
     `Jmax_S`, where `Ha` is the enthalpy of activation (J / mol), `Hd` is the
     enthalpy of deactivation (J / mol), and `S` is the entropy (J / K / mol).
-    Existing parameter lists will need to be updated. The previous behavior can
-    be reproduced exactly by setting `Ha` to the previous value of `Ea`, `Hd` to
-    `Inf`, and `S` to `-Inf`.
+    Setting `Hd` to `Inf` and `S` to `-Inf` disables the deactivation term, so
+    the previous behavior can be reproduced exactly by setting `Ha` to the
+    previous value of `Ea`, `Hd` to `Inf`, and `S` to `-Inf`.
 
-  - The `soybean`, `soybean_sw`, and `willow` model definitions have been
-    updated in this way, so their outputs have not changed.
+  - All parameter lists in the package have been updated in this way: every
+    `Vcmax_Ea` and `Jmax_Ea` was renamed to `Vcmax_Ha` and `Jmax_Ha` with the
+    same value, and `Vcmax_Hd = Inf`, `Vcmax_S = -Inf`, `Jmax_Hd = Inf`, and
+    `Jmax_S = -Inf` were added. This includes the `soybean`, `soybean_sw`, and
+    `willow` model definitions, so their outputs have not changed.
+
+  - Parameter lists defined outside the package that supply `Vcmax_Ea` or
+    `Jmax_Ea` to any of these modules will need to be updated in the same way.
 
 ## Bug Fixes
 
