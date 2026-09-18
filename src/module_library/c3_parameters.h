@@ -24,7 +24,9 @@ class c3_parameters : public direct_module
           gm_Hd{get_input(input_quantities, "gm_Hd")},
           gm_S{get_input(input_quantities, "gm_S")},
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
-          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
+          Jmax_Ha{get_input(input_quantities, "Jmax_Ha")},
+          Jmax_Hd{get_input(input_quantities, "Jmax_Hd")},
+          Jmax_S{get_input(input_quantities, "Jmax_S")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
           Ko_Ea{get_input(input_quantities, "Ko_Ea")},
           phi_PSII_0{get_input(input_quantities, "phi_PSII_0")},
@@ -38,7 +40,9 @@ class c3_parameters : public direct_module
           Tp_Ha{get_input(input_quantities, "Tp_Ha")},
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
-          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
+          Vcmax_Ha{get_input(input_quantities, "Vcmax_Ha")},
+          Vcmax_Hd{get_input(input_quantities, "Vcmax_Hd")},
+          Vcmax_S{get_input(input_quantities, "Vcmax_S")},
 
           // Get pointers to output quantities
           gm_norm_op{get_op(output_quantities, "gm_norm")},
@@ -63,7 +67,9 @@ class c3_parameters : public direct_module
     double const& gm_Hd;
     double const& gm_S;
     double const& Gstar_Ea;
-    double const& Jmax_Ea;
+    double const& Jmax_Ha;
+    double const& Jmax_Hd;
+    double const& Jmax_S;
     double const& Kc_Ea;
     double const& Ko_Ea;
     double const& phi_PSII_0;
@@ -77,7 +83,9 @@ class c3_parameters : public direct_module
     double const& Tp_Ha;
     double const& Tp_Hd;
     double const& Tp_S;
-    double const& Vcmax_Ea;
+    double const& Vcmax_Ha;
+    double const& Vcmax_Hd;
+    double const& Vcmax_S;
 
     // Pointers to output quantities
     double* gm_norm_op;
@@ -102,7 +110,9 @@ string_vector c3_parameters::get_inputs()
         "gm_Hd",       // J / mol
         "gm_S",        // J / K / mol
         "Gstar_Ea",    // J / mol
-        "Jmax_Ea",     // J / mol
+        "Jmax_Ha",     // J / mol
+        "Jmax_Hd",     // J / mol
+        "Jmax_S",      // J / K / mol
         "Kc_Ea",       // J / mol
         "Ko_Ea",       // J / mol
         "phi_PSII_0",  // dimensionless
@@ -116,7 +126,9 @@ string_vector c3_parameters::get_inputs()
         "Tp_Ha",       // J / mol
         "Tp_Hd",       // J / mol
         "Tp_S",        // J / K / mol
-        "Vcmax_Ea"     // J / mol
+        "Vcmax_Ha",    // J / mol
+        "Vcmax_Hd",    // J / mol
+        "Vcmax_S"      // J / K / mol
     };
 }
 
@@ -144,7 +156,9 @@ void c3_parameters::do_operation() const
         gm_Hd,
         gm_S,
         Gstar_Ea,
-        Jmax_Ea,
+        Jmax_Ha,
+        Jmax_Hd,
+        Jmax_S,
         Kc_Ea,
         Ko_Ea,
         phi_PSII_0,
@@ -157,7 +171,9 @@ void c3_parameters::do_operation() const
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_Ea};
+        Vcmax_Ha,
+        Vcmax_Hd,
+        Vcmax_S};
 
     // Calculate values of key parameters at leaf temperature
     c3_param_at_tleaf c3_param = c3_temperature_response(tr_param, Tleaf);

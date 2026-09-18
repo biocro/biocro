@@ -33,6 +33,33 @@ be directly added to this file to describe the related changes.
 
 # UNRELEASED
 
+## Minor User-Facing Changes
+
+- The temperature responses of `Vcmax` and `Jmax` in the C3 photosynthesis
+  modules (`BioCro:c3_parameters`, `BioCro:c3_assimilation`,
+  `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`, and
+  `BioCro:ten_layer_c3_canopy`) are now calculated using a peaked Arrhenius
+  equation (as in Medlyn et al. 2002) instead of an Arrhenius equation. This
+  makes it possible to represent the decline of these rates above an optimum
+  temperature.
+
+  - The input quantities `Vcmax_Ea` and `Jmax_Ea` have been replaced by
+    `Vcmax_Ha`, `Vcmax_Hd`, and `Vcmax_S`, and `Jmax_Ha`, `Jmax_Hd`, and
+    `Jmax_S`, where `Ha` is the enthalpy of activation (J / mol), `Hd` is the
+    enthalpy of deactivation (J / mol), and `S` is the entropy (J / K / mol).
+    Setting `Hd` to `Inf` and `S` to `-Inf` disables the deactivation term, so
+    the previous behavior can be reproduced exactly by setting `Ha` to the
+    previous value of `Ea`, `Hd` to `Inf`, and `S` to `-Inf`.
+
+  - All parameter lists in the package have been updated in this way: every
+    `Vcmax_Ea` and `Jmax_Ea` was renamed to `Vcmax_Ha` and `Jmax_Ha` with the
+    same value, and `Vcmax_Hd = Inf`, `Vcmax_S = -Inf`, `Jmax_Hd = Inf`, and
+    `Jmax_S = -Inf` were added. This includes the `soybean`, `soybean_sw`, and
+    `willow` model definitions, so their outputs have not changed.
+
+  - Parameter lists defined outside the package that supply `Vcmax_Ea` or
+    `Jmax_Ea` to any of these modules will need to be updated in the same way.
+
 ## Bug Fixes
 
 - Removed an unused input parameter (`wsFun`) from the `soilML` function and the
