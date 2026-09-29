@@ -105,129 +105,48 @@ double shaded_radiation(
 );
 
 /**
- * @brief Pre-computes the radiation environment for a plant canopy.
+ *  @brief A "data transfer object" for holding the return values of the
+ *  `canopy_light()` function.
  *
- * Constructed once from canopy structural and optical parameters; extinction
- * coefficients and ambient flux conversions are computed in the constructor.
- * Call `get_light_profile(cumulative_lai)` to evaluate the model at any depth.
- *
- * @par Construction
- * Supply beam and diffuse PPFD directly via the primary constructor, or use
- * `from_solar` to derive them from a total solar flux and fractions of direct
- * and diffuse radiation.
- *
- * @par Invariants
- * All input parameters and derived absorptances are validated on construction;
- * invalid values throw `std::out_of_range`.  Once constructed, no member can
- * be modified — all data is stored in private `const`-logically-protected
- * fields.
  */
-struct canopy_light {
-    /**
-     * @brief Structural and optical canopy parameters required for construction.
-     *
-     * Validated by `canopy_light` on construction; `std::out_of_range` is
-     * thrown if any value is outside its physically meaningful range.
-     */
-    struct parameters {
-        double chil;                    //!< Leaf angle distribution parameter (dimensionless from m^2 / m^2)
-        double cosine_zenith_angle;     //!< Cosine of the solar zenith angle (dimensionless, [-1, 1])
-        double heightf;                 //!< Leaf area density, LAI per canopy height (m^-1, > 0)
-        double k_diffuse;               //!< Extinction coefficient for diffuse radiation (dimensionless, [0, 1])
-        double lai;                     //!< Leaf area index of the whole canopy (dimensionless from m^2 / m^2)
-        double leaf_reflectance_nir;    //!< Leaf NIR reflectance (dimensionless)
-        double leaf_reflectance_par;    //!< Leaf PAR reflectance (dimensionless)
-        double leaf_transmittance_nir;  //!< Leaf NIR transmittance (dimensionless)
-        double leaf_transmittance_par;  //!< Leaf PAR transmittance (dimensionless)
-        double par_energy_content;      //!< Average energy per PAR photon (J / micromol)
-        double par_energy_fraction;     //!< Fraction of total shortwave energy in the PAR band (dimensionless)
-    };
-
-    /**
-     * @brief Evaluates the canopy radiation model at a given cumulative LAI depth.
-     *
-     * @param cumulative_lai Cumulative leaf area index from the top of the canopy
-     *        (dimensionless, m^2 leaf / m^2 ground).  Typically in `[0, lai]`.
-     * @return A `light_profile` with incident and absorbed fluxes for sunlit and
-     *         shaded leaves, their area fractions, and the layer height.
-     */
-    light_profile get_light_profile(double cumulative_lai) const;
-
-    /**
-     * @brief Constructs from beam and diffuse PPFD at the top of the canopy.
-     *
-     * @param nir_beam Beam NIR energy density perpendicular to the sun's rays
-     *        (micromol / (m^2 beam) / s).
-     *
-     * @param nir_diffuse Diffuse NIR energy density through any horizontal
-     *        plane (micromol / m^2 / s).
-     *
-     * @param ppfd_beam Beam photon flux density perpendicular to the sun's rays
-     *        (micromol / (m^2 beam) / s).
-     *
-     * @param ppfd_diffuse Diffuse photon flux density through any horizontal
-     *        plane (micromol / m^2 / s).
-     *
-     * @param p Canopy structural and optical parameters.
-     *
-     * @throws std::out_of_range if any parameter or derived absorptance is
-     *         invalid.
-     */
-    canopy_light(
-        double const nir_beam,
-        double const nir_diffuse,
-        double const ppfd_beam,
-        double const ppfd_diffuse,
-        parameters p);
-
-    /// Returns the fraction of ground area exposed to direct sunlight (dimensionless).
-    double direct_transmission_fraction() const;
-
-   private:
-    /// Derived quantities pre-computed from inputs during construction.
-    /// Stored privately to prevent modification after invariants are checked.
-    struct derived_t {
-        double absorptance_nir;                      // dimensionless
-        double absorptance_par;                      // dimensionless
-        double k1;                                   // dimensionless — leaf angle shape factor denominator
-        double k_direct;                             // dimensionless — extinction coefficient for direct radiation
-        double canopy_direct_transmission_fraction;  // dimensionless
-        double ppfd_beam_ground;                     // micromol / (m^2 ground) / s
-        double ppfd_beam_leaf;                       // micromol / (m^2 leaf) / s
-        double nir_beam_ground;                      // J / (m^2 ground) / s
-        double nir_beam_leaf;                        // J / (m^2 leaf) / s
-    };
-
-    double nir_beam;      // J / (m^2 beam) / s        — beam NIR perpendicular to sun
-    double nir_diffuse;   // J / m^2 / s               — diffuse NIR through any plane
-    double ppfd_beam;     // micromol / (m^2 beam) / s — beam PPFD perpendicular to sun
-    double ppfd_diffuse;  // micromol / m^2 / s        — diffuse PPFD through any plane
-    parameters p;
-    derived_t d;
-
-    /// Validates input parameters and computes all derived quantities.
-    /// @throws std::out_of_range on invalid inputs or derived absorptances.
-    static derived_t compute(
-        double const nir_beam,
-        double const nir_diffuse,
-        double const ppfd_beam,
-        double const ppfd_diffuse,
-        parameters const& p);
-
-    /// Throws std::out_of_range if any input parameter is outside its valid range.
-    static void validate_params(parameters const& p);
-
-    /// Throws std::out_of_range if any derived absorptance is outside [0, 1].
-    static void validate_derived(derived_t const& der);
-
-    /// Private constructor — stores pre-validated inputs and pre-computed derived values.
-    canopy_light(
-        double const nir_beam,
-        double const nir_diffuse,
-        double const ppfd_beam,
-        double const ppfd_diffuse,
-        parameters par,
-        derived_t der);
+struct canopy_light_outputs {
+    double absorptance_nir;                      //!< Leaf absorptance for NIR wavelengths (dimensionless)
+    double absorptance_par;                      //!< Leaf absorptance for PAR wavelengths (dimensionless)
+    double k1;                                   //!< Leaf angle shape factor denominator (dimensionless)
+    double k_direct;                             //!< Extinction coefficient for direct radiation in the canopy (dimensionless)
+    double canopy_direct_transmission_fraction;  //!< Fraction of direct light transmitted through the canopy (dimensionless)
+    double ppfd_beam_ground;                     //!< PPFD in the direct beam on a ground area basis (micromol / (m^2 ground) / s)
+    double ppfd_beam_leaf;                       //!< PPFD in the direct beam on a leaf area basis (micromol / (m^2 leaf) / s)
+    double nir_beam_ground;                      //!< NIR energy flux density on a ground area basis (J / (m^2 ground) / s)
+    double nir_beam_leaf;                        //!< NIR energy flux density on a leaf area basis (J / (m^2 leaf) / s)
 };
+
+canopy_light_outputs canopy_light(
+    double const chil,                    // Leaf angle distribution parameter (dimensionless from m^2 / m^2)
+    double const cosine_zenith_angle,     // Cosine of the solar zenith angle (dimensionless, [-1, 1])
+    double const lai,                     // Leaf area index of the whole canopy (dimensionless from m^2 / m^2)
+    double const leaf_reflectance_nir,    // Leaf NIR reflectance (dimensionless)
+    double const leaf_reflectance_par,    // Leaf PAR reflectance (dimensionless)
+    double const leaf_transmittance_nir,  // Leaf NIR transmittance (dimensionless)
+    double const leaf_transmittance_par,  // Leaf PAR transmittance (dimensionless)
+    double const nir_beam,                // Direct light energy flux density in the NIR range (J / m^2 / s)
+    double const ppfd_beam                // Direct photosynthetically active photon flux density (micromol / m^2 / s)
+);
+
+light_profile get_light_profile(
+    canopy_light_outputs const canopy_info,
+    double const cosine_zenith_angle,     //
+    double const cumulative_lai,          //
+    double const heightf,                 //
+    double const k_diffuse,               //
+    double const lai,                     //
+    double const leaf_reflectance_nir,    //
+    double const leaf_reflectance_par,    //
+    double const leaf_transmittance_nir,  //
+    double const leaf_transmittance_par,  //
+    double const nir_diffuse,             //
+    double const par_energy_content,      //
+    double const ppfd_diffuse             //
+);
 
 #endif
