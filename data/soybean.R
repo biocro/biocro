@@ -106,7 +106,9 @@ soybean <- list(
         iSp                         = 3.5,
         Jmax_at_25                  = 195,
         Jmax_at_25_mature           = 195,
-        Jmax_Ea                     = 43540,
+        Jmax_Ha                     = 43540,
+        Jmax_Hd                     = Inf,
+        Jmax_S                      = -Inf,
         k_diffuse                   = 0.7,
         Kc_at_25                    = 406.7908,
         Kc_Ea                       = 79430,
@@ -198,7 +200,9 @@ soybean <- list(
         Tp_S                        = 588,
         TTemr_threshold             = 60,
         Vcmax_at_25                 = 110,
-        Vcmax_Ea                    = 65330,
+        Vcmax_Ha                    = 65330,
+        Vcmax_Hd                    = Inf,
+        Vcmax_S                     = -Inf,
         windspeed_height            = 5
     )
 )

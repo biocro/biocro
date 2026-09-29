@@ -42,7 +42,9 @@ class c3_leaf_photosynthesis : public direct_module
           Gstar_Ea{get_input(input_quantities, "Gstar_Ea")},
           height{get_input(input_quantities, "height")},
           Jmax_at_25{get_input(input_quantities, "Jmax_at_25")},
-          Jmax_Ea{get_input(input_quantities, "Jmax_Ea")},
+          Jmax_Ha{get_input(input_quantities, "Jmax_Ha")},
+          Jmax_Hd{get_input(input_quantities, "Jmax_Hd")},
+          Jmax_S{get_input(input_quantities, "Jmax_S")},
           Kc_at_25{get_input(input_quantities, "Kc_at_25")},
           Kc_Ea{get_input(input_quantities, "Kc_Ea")},
           Ko_at_25{get_input(input_quantities, "Ko_at_25")},
@@ -64,7 +66,9 @@ class c3_leaf_photosynthesis : public direct_module
           Tp_Hd{get_input(input_quantities, "Tp_Hd")},
           Tp_S{get_input(input_quantities, "Tp_S")},
           Vcmax_at_25{get_input(input_quantities, "Vcmax_at_25")},
-          Vcmax_Ea{get_input(input_quantities, "Vcmax_Ea")},
+          Vcmax_Ha{get_input(input_quantities, "Vcmax_Ha")},
+          Vcmax_Hd{get_input(input_quantities, "Vcmax_Hd")},
+          Vcmax_S{get_input(input_quantities, "Vcmax_S")},
           windspeed{get_input(input_quantities, "windspeed")},
 
           // Get pointers to output quantities
@@ -114,7 +118,9 @@ class c3_leaf_photosynthesis : public direct_module
     double const& Gstar_Ea;
     double const& height;
     double const& Jmax_at_25;
-    double const& Jmax_Ea;
+    double const& Jmax_Ha;
+    double const& Jmax_Hd;
+    double const& Jmax_S;
     double const& Kc_at_25;
     double const& Kc_Ea;
     double const& Ko_at_25;
@@ -136,7 +142,9 @@ class c3_leaf_photosynthesis : public direct_module
     double const& Tp_Hd;
     double const& Tp_S;
     double const& Vcmax_at_25;
-    double const& Vcmax_Ea;
+    double const& Vcmax_Ha;
+    double const& Vcmax_Hd;
+    double const& Vcmax_S;
     double const& windspeed;
 
     // Pointers to output quantities

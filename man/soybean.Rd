@@ -289,7 +289,14 @@
     \item FvCB model (temperature response of Rubisco kinetic properties): The
           following values are from Table 1 of Bernacchi et al. 2001
           [\doi{10.1111/j.1365-3040.2001.00668.x}]: \code{Gstar_Ea},
-          \code{Kc_Ea}, \code{Ko_Ea}, and \code{Vcmax_Ea}.
+          \code{Kc_Ea}, \code{Ko_Ea}, and \code{Vcmax_Ha} (reported there as
+          the activation energy of an Arrhenius equation). The temperature
+          response of \code{Vcmax} is calculated using a peaked Arrhenius
+          equation, but \code{Vcmax_Hd} is set to \code{Inf} and
+          \code{Vcmax_S} is set to \code{-Inf} so there is no deactivation
+          at high temperature; with these values, the peaked Arrhenius
+          equation is identical to the Arrhenius equation used by Bernacchi et
+          al.
 
     \item FvCB model (temperature response of non-photorespiratory CO2 release):
           \code{RL_Ea} is from Table 1 of Bernacchi et al. 2001
@@ -297,7 +304,11 @@
 
     \item FvCB model (temperature response of electron transport): The following
           values are from Table 1 of Bernacchi et al. 2003
-          [\doi{10.1046/j.0016-8025.2003.01050.x}]: \code{Jmax_Ea}. The
+          [\doi{10.1046/j.0016-8025.2003.01050.x}]: \code{Jmax_Ha} (reported
+          there as the activation energy of an Arrhenius equation). As with
+          \code{Vcmax}, \code{Jmax_Hd} is set to \code{Inf} and \code{Jmax_S}
+          is set to \code{-Inf} so the peaked Arrhenius equation used for
+          \code{Jmax} is identical to the Arrhenius equation. The
           following are from Table 2: \code{phi_PSII_0}, \code{phi_PSII_1},
           \code{phi_PSII_2}, \code{theta_0}, \code{theta_1}, \code{theta_2}.
 

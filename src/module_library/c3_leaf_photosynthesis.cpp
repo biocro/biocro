@@ -28,7 +28,9 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "Gstar_Ea",                     // J / mol
         "height",                       // m
         "Jmax_at_25",                   // micromol / m^2 / s
-        "Jmax_Ea",                      // J / mol
+        "Jmax_Ha",                      // J / mol
+        "Jmax_Hd",                      // J / mol
+        "Jmax_S",                       // J / K / mol
         "Kc_at_25",                     // micromol / mol
         "Kc_Ea",                        // J / mol
         "Ko_at_25",                     // mmol / mol
@@ -51,7 +53,9 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "Tp_Hd",                        // J / mol
         "Tp_S",                         // J / K / mol
         "Vcmax_at_25",                  // micromol / m^2 / s
-        "Vcmax_Ea",                     // J / mol
+        "Vcmax_Ha",                     // J / mol
+        "Vcmax_Hd",                     // J / mol
+        "Vcmax_S",                      // J / K / mol
         "windspeed"                     // m / s
     };
 }
@@ -87,7 +91,9 @@ void c3_leaf_photosynthesis::do_operation() const
         gm_Hd,
         gm_S,
         Gstar_Ea,
-        Jmax_Ea,
+        Jmax_Ha,
+        Jmax_Hd,
+        Jmax_S,
         Kc_Ea,
         Ko_Ea,
         phi_PSII_0,
@@ -100,7 +106,9 @@ void c3_leaf_photosynthesis::do_operation() const
         Tp_Ha,
         Tp_Hd,
         Tp_S,
-        Vcmax_Ea};
+        Vcmax_Ha,
+        Vcmax_Hd,
+        Vcmax_S};
 
     // Solve for gs
     root_finding::result_t const result = solve_c3_gs(
