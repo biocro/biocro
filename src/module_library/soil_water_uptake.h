@@ -25,6 +25,7 @@ class soil_water_uptake : public direct_module
         : direct_module(),
 
           // get references to input quantities
+          root_distribution_decay_rate{get_input(input_quantities, "root_distribution_decay_rate")},
           soil_depth_1{get_input(input_quantities, "soil_depth_1")},
           soil_water_content_1{get_input(input_quantities, "soil_water_content_1")},
           soil_wilting_point_1{get_input(input_quantities, "soil_wilting_point_1")},
@@ -68,7 +69,7 @@ class soil_water_uptake : public direct_module
 
    private:
     // references to input quantities
-
+    double const& root_distribution_decay_rate;
     double const& soil_depth_1;
     double const& soil_water_content_1;
     double const& soil_wilting_point_1;
@@ -112,6 +113,7 @@ class soil_water_uptake : public direct_module
 string_vector soil_water_uptake::get_inputs()
 {
     return {
+        "root_distribution_decay_rate", // 1 / cm
         "soil_depth_1",              // cm
         "soil_water_content_1",      // m^3 / m^3. Volumetric water content
         "soil_wilting_point_1",      // m^3 / m^3
@@ -131,7 +133,7 @@ string_vector soil_water_uptake::get_inputs()
         "soil_water_content_6",      // m^3 / m^3
         "soil_wilting_point_6",      // m^3 / m^3
         "max_rooting_layer",         // dimensionless
-        "canopy_transpiration_rate"  // Mg / ha / hr
+        "canopy_transpiration_rate" // Mg / ha / hr
     };
 }
 
@@ -203,7 +205,7 @@ void soil_water_uptake::do_operation() const
         // Jackson, R.B., Canadell, J., Ehleringer, J.R. et al.
         // A global analysis of root distributions for terrestrial biomes.
         // Oecologia 108, 389–411 (1996). https://doi.org/10.1007/BF00333714
-        double base_weight = exp(-0.1 * mid_depth) * soil_depth[i];  // dimensionless
+        double base_weight = exp(-root_distribution_decay_rate * mid_depth) * soil_depth[i];  // dimensionless
         root_weight[i] = base_weight;                                // dimensionless
 
         total_weight = total_weight + root_weight[i];

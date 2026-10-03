@@ -174,6 +174,7 @@ soybean_sw <- list(
         Rmax_emrV0                  = 0.199,
         rsdf                        = 0.44,
         skc                         = 0.55,
+        root_distribution_decay_rate= 0.1,
         soil_depth_1                = 5,
         soil_depth_2                = 10,
         soil_depth_3                = 20,
