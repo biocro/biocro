@@ -60,6 +60,20 @@ be directly added to this file to describe the related changes.
   - Parameter lists defined outside the package that supply `Vcmax_Ea` or
     `Jmax_Ea` to any of these modules will need to be updated in the same way.
 
+- The rate at which the root distribution decreases with depth in
+  `BioCro:soil_water_uptake` is now an input quantity,
+  `root_distribution_decay_rate` (1 / cm), instead of the fixed value of 0.1.
+  The root weight of each soil layer is
+  `exp(-root_distribution_decay_rate * mid_depth) * soil_depth`, so smaller
+  values give the deeper layers a larger share of the root water uptake.
+
+  - The `soybean_sw` model definition sets `root_distribution_decay_rate` to
+    0.1, so its outputs have not changed.
+
+  - Parameter lists defined outside the package that use
+    `BioCro:soil_water_uptake` will need to supply
+    `root_distribution_decay_rate`; use 0.1 to reproduce the previous behavior.
+
 ## Bug Fixes
 
 - Removed an unused input parameter (`wsFun`) from the `soilML` function and the
