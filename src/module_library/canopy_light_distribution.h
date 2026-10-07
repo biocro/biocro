@@ -128,27 +128,31 @@ class canopy_light_distribution : public direct_module
 
     void do_operation() const
     {
-        canopy_light::parameters params =
-            {chil,
-             cosine_zenith_angle,
-             heightf,
-             k_diffuse,
-             lai,
-             leaf_reflectance_nir,
-             leaf_reflectance_par,
-             leaf_transmittance_nir,
-             leaf_transmittance_par,
-             par_energy_content,
-             par_energy_fraction};
-
-        canopy_light light_model = {
+        canopy_light_outputs canopy_info = canopy_light(
+            chil,
+            cosine_zenith_angle,
+            lai,
+            leaf_reflectance_nir,
+            leaf_reflectance_par,
+            leaf_transmittance_nir,
+            leaf_transmittance_par,
             nir_incident_direct,
-            nir_incident_diffuse,
-            ppfd_incident_direct,
-            ppfd_incident_diffuse,
-            params};
+            ppfd_incident_direct);
 
-        light_profile profile = light_model.get_light_profile(cumulative_lai);
+        light_profile profile = get_light_profile(
+            canopy_info,
+            cosine_zenith_angle,
+            cumulative_lai,
+            heightf,
+            k_diffuse,
+            lai,
+            leaf_reflectance_nir,
+            leaf_reflectance_par,
+            leaf_transmittance_nir,
+            leaf_transmittance_par,
+            nir_incident_diffuse,
+            par_energy_content,
+            ppfd_incident_diffuse);
 
         update(height_op, profile.height);
         update(sunlit_fraction_op, profile.sunlit.fraction);

@@ -2,7 +2,7 @@
 #define PHOTOSYNTHESIS_H
 
 #include <cmath>
-#include "canopy_light_helpers.h"         // canopy_light, light_profile
+#include "canopy_light_helpers.h"  // canopy_light, light_profile
 #include "../framework/constants.h"
 
 /**
@@ -31,12 +31,11 @@
  *   integrand passed to `quadrature::gauss_legendre<2>`.
  *
  * **Typical call chain** in a canopy photosynthesis function:
- * 1. Construct `canopy_light` from the fractions of direct and diffuse light,
- *    along with canopy structural parameters (LAI, leaf angle, optical
- *    properties, etc.).
+ * 1. Call `canopy_light` to calculate `canopy_info`, a struct containing key
+      values needed to construct a canopy integrand.
  * 2. Define a `leaf_photo` lambda wrapping a single-leaf photosynthesis
  *    model (e.g. `c3photoC`) with its energy balance convergence loop.
- * 3. Construct `canopy_integrand(leaf_photo, canopy_light, ...)`.
+ * 3. Construct `canopy_integrand(leaf_photo, canopy_info, ...)`.
  * 4. Call `quadrature::gauss_legendre<2, leaf_assim>(integrand, 0, LAI, n)`
  *    to obtain the canopy-integrated `leaf_assim`.
  */
@@ -116,14 +115,36 @@ template <typename leaf_photo, bool use_absorbed = true>
 struct canopy_integrand {
     canopy_integrand(
         leaf_photo photo_func,
-        canopy_light light_model,
+        canopy_light_outputs canopy_info,
+        double cosine_zenith_angle,
+        double heightf,
+        double k_diffuse,
         double kpLN,
-        double leafN,      // micromol / m^2 / s
-        double wind_speed  // m / s
+        double lai,
+        double leaf_reflectance_nir,
+        double leaf_reflectance_par,
+        double leaf_transmittance_nir,
+        double leaf_transmittance_par,
+        double leafN,
+        double nir_diffuse,
+        double par_energy_content,
+        double ppfd_diffuse,
+        double wind_speed
         ) : leaf_photosynthesis{photo_func},
-            canopy_light_model{light_model},
+            canopy_info{canopy_info},
+            cosine_zenith_angle{cosine_zenith_angle},
+            heightf{heightf},
+            k_diffuse{k_diffuse},
             kpLN{kpLN},
+            lai{lai},
+            leaf_reflectance_nir{leaf_reflectance_nir},
+            leaf_reflectance_par{leaf_reflectance_par},
+            leaf_transmittance_nir{leaf_transmittance_nir},
+            leaf_transmittance_par{leaf_transmittance_par},
             leafN{leafN},
+            nir_diffuse{nir_diffuse},
+            par_energy_content{par_energy_content},
+            ppfd_diffuse{ppfd_diffuse},
             wind_speed{wind_speed}
     {
     }
@@ -132,7 +153,21 @@ struct canopy_integrand {
     {
         double layer_leafN = leaf_nitrogen_profile(cumulative_lai, leafN, kpLN);
         double layer_wind_speed = wind_speed_profile(cumulative_lai, wind_speed);
-        light_profile lp = canopy_light_model.get_light_profile(cumulative_lai);
+
+        light_profile lp = get_light_profile(
+            canopy_info,
+            cosine_zenith_angle,
+            cumulative_lai,
+            heightf,
+            k_diffuse,
+            lai,
+            leaf_reflectance_nir,
+            leaf_reflectance_par,
+            leaf_transmittance_nir,
+            leaf_transmittance_par,
+            nir_diffuse,
+            par_energy_content,
+            ppfd_diffuse);
 
         // c4 model uses incident ppfd; c3 model uses absorbed ppfd
         auto select_ppfd = [](light_profile::light_type const& lt) -> double {
@@ -156,9 +191,20 @@ struct canopy_integrand {
 
    private:
     leaf_photo leaf_photosynthesis;
-    canopy_light canopy_light_model;
+    canopy_light_outputs canopy_info;
+    double cosine_zenith_angle;
+    double heightf;
+    double k_diffuse;
     double kpLN;
+    double lai;
+    double leaf_reflectance_nir;
+    double leaf_reflectance_par;
+    double leaf_transmittance_nir;
+    double leaf_transmittance_par;
     double leafN;
+    double nir_diffuse;
+    double par_energy_content;
+    double ppfd_diffuse;
     double wind_speed;
 };
 

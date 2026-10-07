@@ -103,30 +103,36 @@ string_vector multilayer_canopy_properties::get_outputs(int nlayers)
 
 void multilayer_canopy_properties::run() const
 {
-    // Calculate values of incident photosynthetically active photon flux
-    // density (PPFD) and absorbed shortwave energy throughout the canopy. Note
-    // that the `canopy_light` constructor expects input expects PPFD
-    // values, so we must convert photosynthetically active radiation (PAR)
-    // to PPFD using the energy content of light in the PAR band
-    canopy_light::parameters params =
-        {chil,
-         cosine_zenith_angle,
-         heightf,
-         k_diffuse,
-         lai,
-         leaf_reflectance_nir,
-         leaf_reflectance_par,
-         leaf_transmittance_nir,
-         leaf_transmittance_par,
-         par_energy_content,
-         par_energy_fraction};
-
-    canopy_light canopy_light_model = {
+    // Get key canopy light properties
+    canopy_light_outputs canopy_info = canopy_light(
+        chil,
+        cosine_zenith_angle,
+        lai,
+        leaf_reflectance_nir,
+        leaf_reflectance_par,
+        leaf_transmittance_nir,
+        leaf_transmittance_par,
         nir_incident_direct,
-        nir_incident_diffuse,
-        ppfd_incident_direct,
-        ppfd_incident_diffuse,
-        params};
+        ppfd_incident_direct);
+
+    // Use partial application to create a function that gets a light_profile
+    // for a given cumulative LAI
+    auto light_profile_from_clai = [&](double clai) -> light_profile {
+        return get_light_profile(
+            canopy_info,
+            cosine_zenith_angle,
+            clai,
+            heightf,
+            k_diffuse,
+            lai,
+            leaf_reflectance_nir,
+            leaf_reflectance_par,
+            leaf_transmittance_nir,
+            leaf_transmittance_par,
+            nir_incident_diffuse,
+            par_energy_content,
+            ppfd_incident_diffuse);
+    };
 
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {
@@ -135,25 +141,26 @@ void multilayer_canopy_properties::run() const
 
     // Update layer-dependent outputs
     double lai_per_layer = lai / nlayers;
-    light_profile light_profile;
+    light_profile profile;
 
     for (int i = 0; i < nlayers; ++i) {
         double cumulative_lai = (0.5 + i) * lai_per_layer;  // midpoint rule
 
-        light_profile = canopy_light_model.get_light_profile(cumulative_lai);
-        update(sunlit_fraction_ops[i], light_profile.sunlit.fraction);
-        update(sunlit_incident_nir_ops[i], light_profile.sunlit.incident_nir);
-        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit.incident_ppfd);
-        update(sunlit_absorbed_ppfd_ops[i], light_profile.sunlit.absorbed_ppfd);
-        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit.absorbed_shortwave);
+        profile = light_profile_from_clai(cumulative_lai);
 
-        update(shaded_fraction_ops[i], light_profile.shaded.fraction);
-        update(shaded_incident_nir_ops[i], light_profile.shaded.incident_nir);
-        update(shaded_incident_ppfd_ops[i], light_profile.shaded.incident_ppfd);
-        update(shaded_absorbed_ppfd_ops[i], light_profile.shaded.absorbed_ppfd);
-        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded.absorbed_shortwave);
+        update(sunlit_fraction_ops[i], profile.sunlit.fraction);
+        update(sunlit_incident_nir_ops[i], profile.sunlit.incident_nir);
+        update(sunlit_incident_ppfd_ops[i], profile.sunlit.incident_ppfd);
+        update(sunlit_absorbed_ppfd_ops[i], profile.sunlit.absorbed_ppfd);
+        update(sunlit_absorbed_shortwave_ops[i], profile.sunlit.absorbed_shortwave);
 
-        update(height_ops[i], light_profile.height);
+        update(shaded_fraction_ops[i], profile.shaded.fraction);
+        update(shaded_incident_nir_ops[i], profile.shaded.incident_nir);
+        update(shaded_incident_ppfd_ops[i], profile.shaded.incident_ppfd);
+        update(shaded_absorbed_ppfd_ops[i], profile.shaded.absorbed_ppfd);
+        update(shaded_absorbed_shortwave_ops[i], profile.shaded.absorbed_shortwave);
+
+        update(height_ops[i], profile.height);
 
         // windspeed is evaluated at top of layer, not midpoint
         double cumulative_lai_at_top = i * lai_per_layer;
@@ -162,7 +169,7 @@ void multilayer_canopy_properties::run() const
     }
 
     // Update other outputs
-    update(canopy_direct_transmission_fraction_op, canopy_light_model.direct_transmission_fraction());
+    update(canopy_direct_transmission_fraction_op, canopy_info.canopy_direct_transmission_fraction);
 }
 
 ////////////////////////////////////////
