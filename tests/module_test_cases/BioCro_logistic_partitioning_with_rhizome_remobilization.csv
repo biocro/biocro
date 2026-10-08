@@ -1,0 +1,5 @@
+input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,"description"
+DVI,alphaLeaf,alphaRoot,alphaStem,betaLeaf,betaRoot,betaStem,kLeaf_emr,kRhizome_emr,kStem_emr,kGrain,kLeaf,kRhizome,kRoot,kShell,kStem,NA
+1,1,1,1,1,1,1,0.33,-0.0008,0.37,0,0.318945155673335,0.0431645329799963,0.318945155673335,0,0.318945155673335,"All alphas, betas, and DVI are 1; the rhizome has a sink strength of 1"
+0,1,2,3,-1,-2,-3,0.33,-0.0008,0.37,0,0.0871443187420326,0.032058603280085,0.23688281808991,0,0.643914259887972,"DVI is 0, so the logistic functions are used"
+-0.5,1,2,3,-1,-2,-3,0.33,-0.0008,0.37,0,0.33,-0.0008,0.3,0,0.37,"DVI is negative, so the emergence coefficients are used and the root receives the remaining carbon"

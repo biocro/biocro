@@ -48,6 +48,7 @@
 #include "light_from_solar.h"
 #include "linear_vmax_from_leaf_n.h"
 #include "litter_cover.h"
+#include "logistic_partitioning_with_rhizome_remobilization.h"
 #include "magic_clock.h"
 #include "maintenance_respiration.h"
 #include "maintenance_respiration_calculator.h"
@@ -163,6 +164,7 @@ creator_map standardBML::module_library::library_entries =
      {"light_from_solar",                                      &create_mc<light_from_solar>},
      {"linear_vmax_from_leaf_n",                               &create_mc<linear_vmax_from_leaf_n>},
      {"litter_cover",                                          &create_mc<litter_cover>},
+     {"logistic_partitioning_with_rhizome_remobilization",     &create_mc<logistic_partitioning_with_rhizome_remobilization>},
      {"magic_clock",                                           &create_mc<magic_clock>},
      {"maintenance_respiration",                               &create_mc<maintenance_respiration>},
      {"maintenance_respiration_calculator",                    &create_mc<maintenance_respiration_calculator>},
