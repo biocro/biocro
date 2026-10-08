@@ -35,6 +35,15 @@ be directly added to this file to describe the related changes.
 
 ## Minor User-Facing Changes
 
+- Added a new module for calculating the carbon partitioning coefficients of
+  plants with rhizomes such as Miscanthus:
+  `BioCro:logistic_partitioning_with_rhizome_remobilization`. Before emergence
+  (`DVI < 0`), the rhizome is remobilized (`kRhizome = kRhizome_emr`), the leaf
+  and stem coefficients are constants (`kLeaf_emr` and `kStem_emr`), and the
+  root receives the remaining carbon. Afterwards, the leaf, root, and stem
+  coefficients follow the logistic functions from Osborne et al. (2015), with
+  the rhizome as the reference organ. `kGrain` and `kShell` are always zero.
+
 - The temperature responses of `Vcmax` and `Jmax` in the C3 photosynthesis
   modules (`BioCro:c3_parameters`, `BioCro:c3_assimilation`,
   `BioCro:c3_leaf_photosynthesis`, `BioCro:c3_canopy`, and
